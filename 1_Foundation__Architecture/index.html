@@ -466,36 +466,32 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis">
+      <ul class="md-nav__list">
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#171-overview-your-code-never-leaves-your-computer" class="md-nav__link">
+          <li class="md-nav__item">
+  <a href="#161-overview-your-code-never-leaves-your-computer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.7.1 Overview: \"Your Code Never Leaves Your Computer\"
+        1.6.1 Overview: "Your Code Never Leaves Your Computer"
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#162-the-privacy-engine-ziploaderjs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.6.2 The \"Privacy Engine\": ZipLoader.js
+        1.6.2 The "Privacy Engine": ZipLoader.js
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#163-implementation-detail-security-safeguards" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -503,6 +499,16 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2098,36 +2104,32 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis">
+      <ul class="md-nav__list">
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#171-overview-your-code-never-leaves-your-computer" class="md-nav__link">
+          <li class="md-nav__item">
+  <a href="#161-overview-your-code-never-leaves-your-computer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.7.1 Overview: \"Your Code Never Leaves Your Computer\"
+        1.6.1 Overview: "Your Code Never Leaves Your Computer"
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#162-the-privacy-engine-ziploaderjs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.6.2 The \"Privacy Engine\": ZipLoader.js
+        1.6.2 The "Privacy Engine": ZipLoader.js
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#163-implementation-detail-security-safeguards" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2135,6 +2137,16 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2158,337 +2170,159 @@
   
 
 
+  <h1>Project Overview</h1>
+
 <h2 id="1-foundation-architecture">1. Foundation &amp; Architecture</h2>
 <h3 id="11-project-overview">1.1 Project Overview</h3>
-<p>1. Code can be art. Logic can be art. Systems engineering can be art.
-GitGalaxy reveals the <strong>complexity of codebases</strong> <strong>as explorable 3D
-galaxies </strong>by using source code as a seed for procedural generative art.
-The human brain is not optimized for processing rows of digits; it is
-optimized for detecting patterns in nature or physics. By procedurally
-mapping complexity to things like spatial position, movement, pulses and
-colors, <strong>GitGalaxy taps into our evolutionary strengths to help us
-understand</strong> <strong>complex systems intuitively</strong>.</p>
-<p>2. While there are many ways to write code, organizations rely on
-agreed-upon standards for coding practices. <strong>GitGalaxy assesses
-deviations from organizational standards and displays that info as color
-overlays onto the 3D generated world. </strong>GitGalaxy does not measure
-\"Code Quality\", which feels like a judgment, but instead measures
-<strong>Risk</strong> Exposure. Our measurements do not judge; they
-highlight. They function as sensors, not critics.</p>
-<ul>
-<li>We do not assess \"Bad Code\"; we measure
-Cognitive Load Exposure, how hard it is for a human
-to work through the logic, because teams should be aware which files
-are the hardest to work on.</li>
-<li>We do not assess \"Missing Docs\"; we assess
-<strong>Documentation</strong> Exposure, the risk to the team if a key person
-leaves.</li>
-<li>We do not assess \"Missing Testing\"; we
-assess <strong>Testing</strong> Exposure, the risk of unshielded logic
-causing a meltdown in production.</li>
-<li>We do not measure \"System Security\"; we measure
-Safety Exposure, the structural brittleness caused by a lack
-of <em>try/except</em> blocks and robust error handling.</li>
-</ul>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   We do not measure <strong>API Exposure</strong> because its always bad,
-we just want teams to understand <strong>how sensitive a file
-might be to changes</strong>.
--   We do not measure <strong>Concurrency Exposure</strong> because it's
-always bad but because teams should be able to easily assess
-the <strong>risk of race conditions and deadlocks</strong> in multi-threaded
-logic.
--   We do not measure State Flux Exposure because it's
-always bad but we because teams can easily assess
-the <strong>risk of state conflicts</strong>.
--   We do not measure<strong> Specification </strong>Exposure to catch \"Cowboy
-Code that's out of spec,\" but to act as an organizational
-compass; it ensures that as a feature settles into the codebase,
-the documentation follows, fostering a culture where every line of
-logic has a traceable and understood home.</p>
-<p>By visualizing these exposures as toggle-able color overlays onto the
-generated galaxy, GitGalaxy provides an intuitive <strong>non-numeric
-dashboard</strong>. It allows a team to agree on standards and instantly
-see---without reading a single line of text---where their architecture
-might be drifting into dangerous territory.</p>
-<p>3. Many projects are multi-lingual. Traditional code analysis tools
-(ASTs) act like strict linguists---they understand the grammar of one
-language perfectly but not of any others. GitGalaxy acts as <strong>a Rosetta
-Stone for code complexity, project scale and risk exposure</strong>. By
-prioritizing consistent regex-based approximation over rigid syntax
-parsing, we can meaningfully compare different code bases of different
-languages. This consistent standard allows us to visually compare the
-scale and complexity of different coding projects, from Apollo 11
-(Assembly) to the Linux Kernel (C) to TensorFlow (Python) under the same
-set of rules.</p>
-<p><strong>Why This Matters:</strong></p>
-<ul>
-<li><strong>Identify Hotspots: </strong>Instantly spot files with high exposure, as
-they are literally glowing planets in space.</li>
-<li><strong>See Risk:</strong> See exactly where \"dangerous\" patterns cluster
-before they become issues.</li>
-<li><strong>Audit Legacy Systems: </strong>Map the topology of ancient codebases
-(like COBOL) to plan modernization strategies without reading a
-million lines of code.</li>
-<li>Analysis happens on your machine, takes seconds and makes a file
-smaller than a photo and with a data presentation so easy kids could
-get it.</li>
-</ul>
-<p>To accomplish this, GitGalaxy uses general Regex-based semantic
-signatures that have been adapted to each language, as either 1. the
-input to various Risk Exposure Equations or 2. as seeds for a
-procedurally generated algorithm to create a novel visual representation
-of codebase complexity. This project prioritizes ease of use, zero-setup
-scanning, comparative analyses and visual impact over the academic rigor
-of a single language Abstract Syntax Tree. <strong>This project does not
-visualize syntax or if it will compile</strong>; it visualizes aspects of
-functional intent.</p>
-<p>GitGalaxy comes pre-loaded with functional Risk Exposure Equations but
-customization may be needed to adapt for your team's standards. These
-equations define the intensity of the color overlay effect. All
-equations attempt to target a 0-100 scale. Although the developer has
-worked hard to make the equations as nuanced as they can be, the
-equations should be viewed as rough approximations only. They should be
-used to identify general trends (<strong>Good - this file has high API
-exposure</strong>) versus absolute ranking over tiny differences (<strong>Bad - this
-file is better than that one because it scored 1% higher in the tech
-debt equation</strong>). We took pains to hide the specific numbers, and
-instead only report out general tiers (very high, high, medium, low,
-very low).</p>
-<p>GitGalaxy calculates exposure metrics in a non-linear fashion with
-equations and sub-equations. This is because there are multiple ways to
-achieve the same goal, like how to adhere to safety standards, and this
-allows for the evaluation of different practices and to weigh them
-differently. Sometimes our sub-equations pop up in multiple equations;
-for example both the safety equation and the tech debt equation use the
-sub-equation of SafetyHits, which is a measure of counts of \'try\',
-\'catch\', \'finally\', \'assert\', \'sanitize\', etc.</p>
+<ol>
+<li>
+<p><strong>Code can be art. Logic can be art. Systems engineering can be art.</strong>
+GitGalaxy reveals the <strong>complexity of codebases as explorable 3D galaxies</strong> by using source code as a seed for procedural generative art. The human brain is not optimized for processing rows of digits; it is optimized for detecting patterns in nature or physics. By procedurally mapping complexity to things like spatial position, movement, pulses, and colors, <strong>GitGalaxy taps into our evolutionary strengths to help us understand complex systems intuitively</strong>.</p>
+</li>
+<li>
+<p><strong>From Grammar to Risk Exposure.</strong>
+While there are many ways to write code, organizations rely on agreed-upon standards for coding practices. <strong>GitGalaxy assesses deviations from organizational standards and displays that info as color overlays onto the 3D generated world.</strong> GitGalaxy does not measure "Code Quality", which feels like a judgment, but instead measures <strong>Risk Exposure</strong>. Our measurements do not judge; they highlight. They function as sensors, not critics.</p>
+</li>
+<li>
+<p>We do not assess "Bad Code"; we measure <strong>Cognitive Load Exposure</strong>—how hard it is for a human to work through the logic—because teams should be aware which files are the hardest to work on.</p>
+</li>
+<li>We do not assess "Missing Docs"; we assess <strong>Documentation Exposure</strong>, the risk to the team if a key person leaves.</li>
+<li>We do not assess "Missing Testing"; we assess <strong>Testing Exposure</strong>, the risk of unshielded logic causing a meltdown in production.</li>
+<li>We do not measure "System Security"; we measure <strong>Safety Exposure</strong>, the structural brittleness caused by a lack of <code>try/except</code> blocks and robust error handling.</li>
+<li>We do not measure <strong>API Exposure</strong> because it's always bad, we just want teams to understand <strong>how sensitive a file might be to changes</strong>.</li>
+<li>We do not measure <strong>Concurrency Exposure</strong> because it's always bad, but because teams should be able to easily assess the <strong>risk of race conditions and deadlocks</strong> in multi-threaded logic.</li>
+<li>We do not measure <strong>State Flux Exposure</strong> because it's always bad, but because teams can easily assess the <strong>risk of state conflicts</strong>.</li>
+<li>We do not measure <strong>Specification Exposure</strong> to catch "Cowboy Code that's out of spec," but to act as an organizational compass; it ensures that as a feature settles into the codebase, the documentation follows, fostering a culture where every line of logic has a traceable and understood home.</li>
+</ol>
+<p>By visualizing these exposures as toggle-able color overlays onto the generated galaxy, GitGalaxy provides an intuitive <strong>non-numeric dashboard</strong>. It allows a team to agree on standards and instantly see—without reading a single line of text—where their architecture might be drifting into dangerous territory.</p>
+<ol>
+<li><strong>The Rosetta Stone of Code.</strong>
+Many projects are multi-lingual. Traditional code analysis tools (ASTs) act like strict linguists—they understand the grammar of one language perfectly but not of any others. GitGalaxy acts as <strong>a Rosetta Stone for code complexity, project scale, and risk exposure</strong>. By prioritizing consistent regex-based approximation over rigid syntax parsing, we can meaningfully compare different code bases of different languages. This consistent standard allows us to visually compare the scale and complexity of different coding projects, from Apollo 11 (Assembly) to the Linux Kernel (C) to TensorFlow (Python) under the same set of rules.</li>
+</ol>
+<p><strong>Why This Matters:</strong>
+* <strong>Identify Hotspots:</strong> Instantly spot files with high exposure, as they are literally glowing planets in space.
+* <strong>See Risk:</strong> See exactly where "dangerous" patterns cluster before they become issues.
+* <strong>Audit Legacy Systems:</strong> Map the topology of ancient codebases (like COBOL) to plan modernization strategies without reading a million lines of code.
+* <strong>Frictionless Analysis:</strong> Analysis happens on your machine, takes seconds, and makes a file smaller than a photo with a data presentation so easy kids could get it.</p>
+<p>To accomplish this, GitGalaxy uses general Regex-based semantic signatures that have been adapted to each language, as either: 
+1.  The input to various Risk Exposure Equations, or 
+2.  As seeds for a procedurally generated algorithm to create a novel visual representation of codebase complexity. </p>
+<p>This project prioritizes ease of use, zero-setup scanning, comparative analyses, and visual impact over the academic rigor of a single language Abstract Syntax Tree. <strong>This project does not visualize syntax or if it will compile</strong>; it visualizes aspects of functional intent.</p>
+<p>GitGalaxy comes pre-loaded with functional Risk Exposure Equations but customization may be needed to adapt for your team's standards. These equations define the intensity of the color overlay effect. All equations attempt to target a 0-100 scale. Although the developer has worked hard to make the equations as nuanced as they can be, the equations should be viewed as rough approximations only. They should be used to identify general trends (<strong>"Good - this file has high API exposure"</strong>) versus absolute ranking over tiny differences (<strong>"Bad - this file is better than that one because it scored 1% higher in the tech debt equation"</strong>). We took pains to hide the specific numbers, and instead only report out general tiers (very high, high, medium, low, very low).</p>
+<p>GitGalaxy calculates exposure metrics in a non-linear fashion with equations and sub-equations. This is because there are multiple ways to achieve the same goal, like how to adhere to safety standards, and this allows for the evaluation of different practices and to weigh them differently. Sometimes our sub-equations pop up in multiple equations; for example, both the safety equation and the tech debt equation use the sub-equation of SafetyHits, which is a measure of counts of <code>try</code>, <code>catch</code>, <code>finally</code>, <code>assert</code>, <code>sanitize</code>, etc.</p>
+<hr />
 <h3 id="12-the-blast-paradigm-sequencing-software-as-dna">1.2 The blAST Paradigm: Sequencing Software as DNA</h3>
-<p>Standard static analysis tools rely on language-specific Abstract Syntax
-Trees (ASTs). These are computationally expensive, fragile, and
-bottlenecked by compiler constraints. GitGalaxy abandons the AST
-entirely in favor of a novel <strong>blAST (Broad Lexical Abstract Syntax
-Tracker)</strong> algorithm.</p>
-<p>By applying the principles of biological sequence alignment and
-bioinformatics to software (namely the BLAST algorithm), blAST hunts for
-the universal structural markers of logic across over 40 languages and
-250 file extensions. It translates this genetic code into
-\"phenotypes\"---measurable risk exposures and architectural traits.</p>
-<p>** Hyper-Scale Velocity** By bypassing the compiler bottleneck, blAST
-achieves processing velocities that traditional scanners cannot match,
-allowing it to map planetary-scale repositories in seconds rather than
-hours:</p>
-<ul>
-<li><strong>Peak Velocity:</strong> Sequenced the 141,445 lines of the original
-Apollo-11 Guidance Computer assembly code in <strong>0.28 seconds</strong> (an
-alignment rate of 513,298 LOC/s).</li>
-<li><strong>Massive Monoliths:</strong> Processed the 3.2 million lines of OpenCV in
-just <strong>11.11 seconds</strong>.</li>
-<li><strong>Planetary Scale:</strong> Effortlessly maps the architectural DNA of
-hyper-scale repositories like TensorFlow (7.8M LOC), Kubernetes
-(5.5M LOC), and FreeBSD (24.4M LOC).</li>
-</ul>
-<p><strong>The Viral Security Lens (Behavioral Threat Hunting)</strong> Traditional
-security scanners rely on rigid, outdated virus signatures. The blAST
-algorithm acts as an architectural immune system, hunting for the
-<em>behavioral genetic markers</em> of a threat rather than specific strings of
-text.</p>
-<p>By analyzing the structural density of I/O hits, execution triggers, and
-security bypasses, blAST proactively flags novel attack vectors:</p>
-<ul>
-<li><strong>Supply-Chain Poisoning:</strong> Instantly flags setup scripts possessing
-an anomalous density of network I/O and dynamic execution.</li>
-<li><strong>Logic Bombs &amp; Sabotage:</strong> Identifies code designed to destroy
-infrastructure by catching dense concentrations of catastrophic OS
-commands and hardware aborts.</li>
-<li><strong>Steganography &amp; Obfuscated Malware:</strong> Mathematically exposes
-evasion techniques, flagging Unicode Smuggling (homoglyphs) and
-sub-atomic custom XOR decryption loops.</li>
-<li><strong>Credential Hemorrhaging:</strong> Acts as a ruthless data vault scanner,
-isolating hardcoded cryptographic assets buried deep within massive
-repositories.</li>
-</ul>
+<p>Standard static analysis tools rely on language-specific Abstract Syntax Trees (ASTs). These are computationally expensive, fragile, and bottlenecked by compiler constraints. GitGalaxy abandons the AST entirely in favor of a novel <strong>blAST (Broad Lexical Abstract Syntax Tracker)</strong> algorithm.</p>
+<p>By applying the principles of biological sequence alignment and bioinformatics to software (namely the BLAST algorithm), blAST hunts for the universal structural markers of logic across over 40 languages and 250 file extensions. It translates this genetic code into "phenotypes"—measurable risk exposures and architectural traits.</p>
+<p><strong>Hyper-Scale Velocity</strong>
+By bypassing the compiler bottleneck, blAST achieves processing velocities that traditional scanners cannot match, allowing it to map planetary-scale repositories in seconds rather than hours:
+* <strong>Peak Velocity:</strong> Sequenced the 141,445 lines of the original Apollo-11 Guidance Computer assembly code in <strong>0.28 seconds</strong> (an alignment rate of 513,298 LOC/s).
+* <strong>Massive Monoliths:</strong> Processed the 3.2 million lines of OpenCV in just <strong>11.11 seconds</strong>.
+* <strong>Planetary Scale:</strong> Effortlessly maps the architectural DNA of hyper-scale repositories like TensorFlow (7.8M LOC), Kubernetes (5.5M LOC), and FreeBSD (24.4M LOC).</p>
+<p><strong>The Viral Security Lens (Behavioral Threat Hunting)</strong>
+Traditional security scanners rely on rigid, outdated virus signatures. The blAST algorithm acts as an architectural immune system, hunting for the <em>behavioral genetic markers</em> of a threat rather than specific strings of text.</p>
+<p>By analyzing the structural density of I/O hits, execution triggers, and security bypasses, blAST proactively flags novel attack vectors:
+* <strong>Supply-Chain Poisoning:</strong> Instantly flags setup scripts possessing an anomalous density of network I/O and dynamic execution.
+* <strong>Logic Bombs &amp; Sabotage:</strong> Identifies code designed to destroy infrastructure by catching dense concentrations of catastrophic OS commands and hardware aborts.
+* <strong>Steganography &amp; Obfuscated Malware:</strong> Mathematically exposes evasion techniques, flagging Unicode Smuggling (homoglyphs) and sub-atomic custom XOR decryption loops.
+* <strong>Credential Hemorrhaging:</strong> Acts as a ruthless data vault scanner, isolating hardcoded cryptographic assets buried deep within massive repositories.</p>
+<hr />
 <h3 id="13-visualizing-complexity">1.3 Visualizing Complexity</h3>
-<p>GitGalaxy operates on the principle that source code can be used as a
-procedural generation seed. Just as a random string of text in Minecraft
-dictates the rise of mountains or the depth of oceans, your codebase\'s
-logic dictates the topology of the galaxy that emerges. We treat code
-not as a set of instructions to be compiled, but as a seed for a
-generative galaxy.</p>
-<p>GitGalaxy renders code bases with the following visual metaphors:</p>
-<ul>
-<li>
-<ul>
-<li><strong>Files</strong> = Stars orbiting around an unseen black hole</li>
-</ul>
-</li>
-<li><strong>External libraries = </strong>Rings around planets</li>
-<li><strong>File Relationships = </strong>Relative locations of stars in
-the galaxy</li>
-<li><strong>Inbound imports = </strong>A star's pulse rate</li>
-<li>Functions = Satellites orbit
-stars</li>
-<li><strong>Function complexity </strong>=<strong> </strong>Arrangement, number and size of
-satellites in a unit</li>
-<li><strong>Function length = </strong>Satellite orbital distance</li>
-<li><strong>Function Arguments</strong> = satellite size</li>
-<li>File Complexity = Star shape</li>
-<li><strong>Tech debt</strong> <strong>exposure </strong>= color overlay</li>
-<li><strong>Documentation exposure</strong> = color overlay</li>
-<li><strong>Cognitive Load exposure</strong>= color overlay</li>
-<li><strong>Safety exposure</strong> = color overlay</li>
-<li><strong>Testing exposure</strong> = color overlay</li>
-<li><strong>API exposure</strong> = color overlay</li>
-<li><strong>Concurrency exposure</strong> = color overlay</li>
-<li><strong>State Flux exposure </strong>= color overlay</li>
-<li><strong>Private Info exposure</strong> = color overlay</li>
-<li><strong>Churn</strong> = color overlay</li>
-<li><strong>Commit Heat</strong> = color overlay</li>
-<li>Languages used = color overlay</li>
-<li>Authorship = color overlay</li>
-<li><strong>Audit exposure </strong>= color overlay</li>
-</ul>
+<p>GitGalaxy operates on the principle that source code can be used as a procedural generation seed. Just as a random string of text in Minecraft dictates the rise of mountains or the depth of oceans, your codebase's logic dictates the topology of the galaxy that emerges. We treat code not as a set of instructions to be compiled, but as a seed for a generative galaxy.</p>
+<p>GitGalaxy renders code bases with the following visual metaphors:
+* <strong>Files</strong> = Stars orbiting around an unseen black hole
+* <strong>External libraries</strong> = Rings around planets
+* <strong>File Relationships</strong> = Relative locations of stars in the galaxy
+* <strong>Inbound imports</strong> = A star's pulse rate
+* <strong>Functions</strong> = Satellites orbiting stars
+* <strong>Function complexity</strong> = Arrangement, number, and size of satellites in a unit
+* <strong>Function length</strong> = Satellite orbital distance
+* <strong>Function Arguments</strong> = Satellite size
+* <strong>File Complexity</strong> = Star shape
+* <strong>Languages used</strong> = Color overlay
+* <strong>Authorship</strong> = Color overlay
+* <strong>Risk Exposures (Tech debt, Cognitive Load, Safety, etc.)</strong> = Color overlays</p>
+<hr />
 <h3 id="14-system-architecture-high-level-stack">1.4 System Architecture: High-Level Stack</h3>
-<p>The application utilizes a concern-separated architecture designed to
-bridge raw forensic data with cinematic visualization. The primary
-deployment model is a Client-Side \"Zero-Trust\" Application
-(Open Source), with an optional Enterprise Backend.</p>
-<p>The Open-Source Core (Browser-Based Engine):</p>
-<ul>
-<li><strong>scanner.worker.js</strong> (The Primary Engine): The heart of the
-free version. It runs in a background Web Worker to perform 100%
-local analysis. It digests regex hits and calculates risk exposures
-without transmitting code to a server.</li>
-<li><strong>scanner_config.js</strong> (The Rulebook): A ported,
-JavaScript-native registry of heuristic patterns. It includes the
-standard Regex library for 18+ languages.</li>
-<li><strong>zip_loader.js</strong> (The Ingestion Layer): Handles the
-\"Zero-Trust\" unpacking of repositories directly in browser memory.</li>
-</ul>
-<p>The Bridge (Data Schema):</p>
-<ul>
-<li>
-<p><strong>result.json</strong> (The Interface Contract): While the user
-never sees this file in the web version, it acts as the strict data
-schema that decouples the logic from the rendering.</p>
-</li>
-<li>
-<p>In Web Mode: It exists as an ephemeral in-memory object
-passed from the Worker to the Main Thread via <strong>postMessage</strong>.</p>
-</li>
-<li>In Enterprise Mode: It is serialized to disk for CI/CD
-reporting or trends over time analyses.</li>
-<li>Role: It carries the unified payload for physics
-coordinates and risk exposure, ensuring the 3D Viewer
-behaves identically regardless of the source.</li>
-</ul>
-<p>The Viewer (Frontend):</p>
-<ul>
-<li><strong>engine-3d.js</strong> (The Visualizer): A Three.js WebGL engine
-that displays the spatial and color information of a codebase into
-an interactive non-numeric dashboard.</li>
-</ul>
+<p>The application utilizes a concern-separated architecture designed to bridge raw forensic data with cinematic visualization. The primary deployment model is a Client-Side "Zero-Trust" Application (Open Source), with an optional Enterprise Backend.</p>
+<p><strong>The Open-Source Core (Browser-Based Engine):</strong>
+* <strong>scanner.worker.js (The Primary Engine):</strong> The heart of the free version. It runs in a background Web Worker to perform 100% local analysis. It digests regex hits and calculates risk exposures without transmitting code to a server.
+* <strong>scanner_config.js (The Rulebook):</strong> A ported, JavaScript-native registry of heuristic patterns. It includes the standard Regex library for 18+ languages.
+* <strong>zip_loader.js (The Ingestion Layer):</strong> Handles the "Zero-Trust" unpacking of repositories directly in browser memory.</p>
+<p><strong>The Bridge (Data Schema):</strong>
+* <strong>result.json (The Interface Contract):</strong> While the user never sees this file in the web version, it acts as the strict data schema that decouples the logic from the rendering.
+    * <strong>In Web Mode:</strong> It exists as an ephemeral in-memory object passed from the Worker to the Main Thread via <code>postMessage</code>.
+    * <strong>In Enterprise Mode:</strong> It is serialized to disk for CI/CD reporting or trends over time analyses.
+    * <strong>Role:</strong> It carries the unified payload for physics coordinates and risk exposure, ensuring the 3D Viewer behaves identically regardless of the source.</p>
+<p><strong>The Viewer (Frontend):</strong>
+* <strong>engine-3d.js (The Visualizer):</strong> A Three.js WebGL engine that displays the spatial and color information of a codebase into an interactive non-numeric dashboard.</p>
+<hr />
 <h3 id="15-system-file-map-backend-scanner-vs-frontend-viewer">1.5 System File Map: Backend (Scanner) vs. Frontend (Viewer)</h3>
-<p><strong>ROOT/</strong></p>
-<p><strong>├── pyproject.toml # Package manifest for the GitGalaxy CLI</strong></p>
-<p><strong>├── README.md # Documentation &amp; Quickstart</strong></p>
-<p><strong>├── data/ # Output directory for generated artifacts</strong></p>
-<p><strong>├── gitgalaxy/ # [THE BACKEND] The blAST Analysis Engine</strong></p>
-<p><strong>│ ├── gitgalaxy_standards_v1.py # The Universal Laws: Taxonomy,
-Threat Policies, &amp; Config</strong></p>
-<p><strong>│ ├── language_lens.py # Entity Census &amp; Identity Locks</strong></p>
-<p><strong>│ ├── prism.py # The Optical Splitter (Logic vs. Literature)</strong></p>
-<p><strong>│ ├── detector.py # Logic Splicer &amp; 3D Cartographer</strong></p>
-<p><strong>│ ├── security_lens.py # Threat Detection &amp; Vulnerability Scanning</strong></p>
-<p><strong>│ ├── signal_processor.py # The Physics Engine &amp; Exposure Math</strong></p>
-<p><strong>│ ├── spectral_auditor.py # Statistical Outlier Detection (Quality
-Control)</strong></p>
-<p><strong>│ ├── audit_recorder.py # Human-Readable Forensic Manifest
-Generator</strong></p>
-<p><strong>│ ├── llm_recorder.py #: </strong>AI-agent &amp; <strong>RAG SQLite &amp; Markdown Brief
-Generator</strong></p>
-<p><strong>│ └─── gpu_recorder.py # Hypercompressed Columnar JSON Generator</strong></p>
-<p><strong>│</strong></p>
-<p><strong>├── airgap_observatory/ # [THE FRONTEND] Zero-Telemetry Local
-Visualizer (Static)</strong></p>
-<p><strong>│ ├── index.html # Main Entry Point (UI Shell &amp; Canvas Container)</strong></p>
-<p><strong>│ ├── main.js # Main Controller (UI \&lt;-&gt; Engine Pipeline)</strong></p>
-<p><strong>│ ├── config/</strong></p>
-<p><strong>│ │ └── colors.js # Palette Registry (Exposure, Texture, and Language
-colors)</strong></p>
-<p><strong>│ ├── css/</strong></p>
-<p><strong>│ │ └── styles.css # Post-processed Tailwind UI styling</strong></p>
-<p><strong>│ ├── core/ # The \"Brain &amp; Eyes\" (Data Processing &amp; Rendering)</strong></p>
-<p><strong>│ │ ├── data-parser.js # Decodes the hypercompressed
-galaxy_gpu.json</strong></p>
-<p><strong>│ │ ├── galaxy-engine.js # The Physics Core (Three.js WebGL scene
-orchestrator)</strong></p>
-<p><strong>│ │ ├── phase-6-shaders.js # Custom WebGPU/WebGL Shader logic for
-particles</strong></p>
-<p><strong>│ │ └── materials.js # The Visual Cortex (Data Focus Protocol &amp; Node
-Textures)</strong></p>
-<p><strong>│ ├── tools/ # The \"Hands\" (Interaction &amp; Utilities)</strong></p>
-<p><strong>│ │ ├── search.js # Neural Nav - Fuzzy Indexing &amp; Hacker HUD UI</strong></p>
-<p><strong>│ │ ├── perf_monitor.js # The GalaxyScope (Tilde `\~` Telemetry
-HUD)</strong></p>
-<p><strong>│ │ ├── ally.js # The Parallel DOM (Accessibility Engine)</strong></p>
-<p><strong>│ │ └── poster.js # The Gift Shop (High-Res Artifact Generator)</strong></p>
-<p><strong>│ └── lib/ # Third-Party Dependencies (Three.js, Tween - Collapsed)</strong></p>
-<p><strong>│</strong></p>
-<p><strong>└── site/ # [THE FRONTEND] Live Web Application (GitGalaxy.io)</strong></p>
-<p>** ├── app.py # Server routing for the live web application**</p>
-<p>** ├── index.html # Web Entry Point**</p>
-<p>** ├── js/**</p>
-<p>** │ ├── main.js # Web App Controller**</p>
-<p>** │ └── core/ # Web App Rendering Engine (Mirrors
-airgap_observatory/core)**</p>
-<p>** ├── css/ # Web App Styling**</p>
-<p>** ├── config/ # Web App Palette Registry**</p>
-<p>** ├── tools/ # Web App Interaction Utilities**</p>
-<p>** └── museum/ # Pre-baked JSON galaxies (Apollo-11, Linux, etc.)**</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ROOT/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── pyproject.toml              # Package manifest for the GitGalaxy CLI
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── README.md                   # Documentation &amp; Quickstart
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── data/                       # Output directory for generated artifacts
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── gitgalaxy/                  # [THE BACKEND] The blAST Analysis Engine
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── gitgalaxy_standards_v1.py # The Universal Laws: Taxonomy, Threat Policies, &amp; Config
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── language_lens.py        # Entity Census &amp; Identity Locks
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── prism.py                # The Optical Splitter (Logic vs. Literature)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── detector.py             # Logic Splicer &amp; 3D Cartographer
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── security_lens.py        # Threat Detection &amp; Vulnerability Scanning
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── signal_processor.py     # The Physics Engine &amp; Exposure Math
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── spectral_auditor.py     # Statistical Outlier Detection (Quality Control)
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── audit_recorder.py       # Human-Readable Forensic Manifest Generator
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── llm_recorder.py         # AI-agent &amp; RAG SQLite &amp; Markdown Brief Generator
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   └── gpu_recorder.py         # Hypercompressed Columnar JSON Generator
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── airgap_observatory/         # [THE FRONTEND] Zero-Telemetry Local Visualizer (Static)
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── index.html              # Main Entry Point (UI Shell &amp; Canvas Container)
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   ├── main.js                 # Main Controller (UI &lt;-&gt; Engine Pipeline)
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   ├── config/
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   │   └── colors.js           # Palette Registry (Exposure, Texture, and Language colors)
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│   ├── css/
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│   │   └── styles.css          # Post-processed Tailwind UI styling
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   ├── core/                   # The &quot;Brain &amp; Eyes&quot; (Data Processing &amp; Rendering)
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│   │   ├── data-parser.js      # Decodes the hypercompressed galaxy_gpu.json
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│   │   ├── galaxy-engine.js    # The Physics Core (Three.js WebGL scene orchestrator)
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│   │   ├── phase-6-shaders.js  # Custom WebGPU/WebGL Shader logic for particles
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│   │   └── materials.js        # The Visual Cortex (Data Focus Protocol &amp; Node Textures)
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│   ├── tools/                  # The &quot;Hands&quot; (Interaction &amp; Utilities)
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│   │   ├── search.js           # Neural Nav - Fuzzy Indexing &amp; Hacker HUD UI
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│   │   ├── perf_monitor.js     # The GalaxyScope (Tilde `~` Telemetry HUD)
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│   │   ├── ally.js             # The Parallel DOM (Accessibility Engine)
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│   │   └── poster.js           # The Gift Shop (High-Res Artifact Generator)
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│   └── lib/                    # Third-Party Dependencies (Three.js, Tween - Collapsed)
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>└── site/                       # [THE FRONTEND] Live Web Application (GitGalaxy.io)
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    ├── app.py                  # Server routing for the live web application
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    ├── index.html              # Web Entry Point
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>    ├── js/
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    │   ├── main.js             # Web App Controller
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    │   └── core/               # Web App Rendering Engine (Mirrors airgap_observatory/core)
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>    ├── css/                    # Web App Styling
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>    ├── config/                 # Web App Palette Registry
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>    ├── tools/                  # Web App Interaction Utilities
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>    └── museum/                 # Pre-baked JSON galaxies (Apollo-11, Linux, etc.)
+</code></pre></div>
 <h3 id="16-the-security-privacy-protocol-zero-trust-local-analysis">1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis</h3>
-<h1 id="171-overview-your-code-never-leaves-your-computer">1.7.1 Overview: \"Your Code Never Leaves Your Computer\"</h1>
-<p>GitGalaxy is built on a Zero-Trust Privacy Model. GitGalaxy
-performs 100% of its scanning, vectorization, and rendering within the
-local browser environment.</p>
+<h4 id="161-overview-your-code-never-leaves-your-computer">1.6.1 Overview: "Your Code Never Leaves Your Computer"</h4>
+<p>GitGalaxy is built on a Zero-Trust Privacy Model. GitGalaxy performs 100% of its scanning, vectorization, and rendering within the local browser environment.</p>
 <ul>
-<li>No Data Transmission: Source code is never transmitted to
-any API, cloud database, or third-party service.</li>
-<li>Ephemeral Memory Processing: Repositories are unpacked into
-a volatile memory buffer (RAM) and are automatically purged when the
-browser tab is closed.</li>
-<li>Privacy-by-Design: Even when \"uploading\" a repository, the
-browser merely reads the local file into a Web Worker; the data
-remains behind the user\'s firewall at all times.</li>
+<li><strong>No Data Transmission:</strong> Source code is never transmitted to any API, cloud database, or third-party service.</li>
+<li><strong>Ephemeral Memory Processing:</strong> Repositories are unpacked into a volatile memory buffer (RAM) and are automatically purged when the browser tab is closed.</li>
+<li><strong>Privacy-by-Design:</strong> Even when "uploading" a repository, the browser merely reads the local file into a Web Worker; the data remains behind the user's firewall at all times.</li>
 </ul>
-<h1 id="162-the-privacy-engine-ziploaderjs">1.6.2 The \"Privacy Engine\": ZipLoader.js</h1>
-<p>The technical cornerstone of this protocol is the client-side
-ZipLoader, which utilizes the JSZip library to handle repository
-ingestion safely:</p>
+<h4 id="162-the-privacy-engine-ziploaderjs">1.6.2 The "Privacy Engine": ZipLoader.js</h4>
+<p>The technical cornerstone of this protocol is the client-side ZipLoader, which utilizes the JSZip library to handle repository ingestion safely:</p>
 <ul>
-<li>Heuristic Unpacking: The loader identifies source files
-while strictly excluding binary blobs, junk folders
-(<strong>node_modules</strong>, <strong>__pycache__</strong>, <strong>.git</strong>), and build
-artifacts (<strong>dist</strong>, <strong>vendor</strong>).</li>
-<li>Binary Shield: The loader implements a mandatory null-byte
-detection check (<strong>indexOf(\'\0\')</strong>). If a file contains
-non-textual characters, it is immediately discarded to prevent
-memory corruption or the unintentional analysis of compiled
-binaries.</li>
-<li>Exclusion Heuristics: To ensure performance and privacy, the
-loader prunes any path containing hidden files (starting with <strong>.</strong>)
-or common media/font extensions.</li>
+<li><strong>Heuristic Unpacking:</strong> The loader identifies source files while strictly excluding binary blobs, junk folders (<code>node_modules</code>, <code>__pycache__</code>, <code>.git</code>), and build artifacts (<code>dist</code>, <code>vendor</code>).</li>
+<li><strong>Binary Shield:</strong> The loader implements a mandatory null-byte detection check (<code>indexOf('\0')</code>). If a file contains non-textual characters, it is immediately discarded to prevent memory corruption or the unintentional analysis of compiled binaries.</li>
+<li><strong>Exclusion Heuristics:</strong> To ensure performance and privacy, the loader prunes any path containing hidden files (starting with <code>.</code>) or common media/font extensions.</li>
 </ul>
-<h1 id="163-implementation-detail-security-safeguards">1.6.3 Implementation Detail: Security Safeguards</h1>
+<h4 id="163-implementation-detail-security-safeguards">1.6.3 Implementation Detail: Security Safeguards</h4>
 <ul>
-<li>In-Memory Sanitization: Code is read as string buffers. No
-persistent files are ever created on the local file system by the
-application.</li>
-<li>Concurrency Protection: The <strong>isProcessing</strong> guard prevents
-memory overflow by ensuring only one unpacking operation occurs at a
-time, protecting the user\'s browser stability during large-scale
-Tier 4 (Megastructure) scans.</li>
+<li><strong>In-Memory Sanitization:</strong> Code is read as string buffers. No persistent files are ever created on the local file system by the application.</li>
+<li><strong>Concurrency Protection:</strong> The <code>isProcessing</code> guard prevents memory overflow by ensuring only one unpacking operation occurs at a time, protecting the user's browser stability during large-scale Tier 4 (Megastructure) scans.</li>
 </ul>
 
 

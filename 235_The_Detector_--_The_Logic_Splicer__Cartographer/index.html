@@ -1,0 +1,2422 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The structural DNA of massive software repositories.">
+      
+      
+      
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/235_The_Detector_--_The_Logic_Splicer__Cartographer/">
+      
+      
+        <link rel="prev" href="../234_The_Prism_--_Splitting_the_comments_from_the_code/">
+      
+      
+        <link rel="next" href="../236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>235 The Detector The Logic Splicer Cartographer - GitGalaxy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#235-the-detector-the-logic-splicer-cartographer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitGalaxy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              235 The Detector    The Logic Splicer  Cartographer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitGalaxy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0_Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Technical Specifications v4.1 (Master Blueprint)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_Foundation__Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundation  Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21A_Stars_Size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21A Stars Size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21B_Stars_Pulse_Rate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21B Stars Pulse Rate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21C_Stars_Shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21C Stars Shape
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21D_Satellite_Unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21D Satellite Unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21E_Satellite_Orbital_Distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21E Satellite Orbital Distance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21F_Number_of_satellites_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21F Number of satellites in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21G_Satellites_Relative_Positioning_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21G Satellites Relative Positioning in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21H_Node_Size_Metric_Argument_Count/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21H Node Size Metric Argument Count
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21I_Planetary_Rings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21I Planetary Rings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21J_Relative_Positioning_Metric_Sequence__Affinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21J Relative Positioning Metric Sequence  Affinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21K_Misc_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21K Misc Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21_How_we_represent_complexity_as_physical_structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 How we represent complexity as physical structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22A_Overview_of_methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22A Overview of methodology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22B_Sub-Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22B Sub Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22C_Transforming_Noisy_Regex_Counts_Into_Something_Meaningful/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22C Transforming Noisy Regex Counts Into Something Meaningful
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22D_Ownership_Mode_Shannon_Entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22D Ownership Mode Shannon Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22E_Cognitive_Load_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22E Cognitive Load Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22F_Churn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22F Churn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22G_Safety_Mode_Metric_Structural_Fortification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22G Safety Mode Metric Structural Fortification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22I_Technical_Debt_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22I Technical Debt Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22J_Documentation_Risk_Exposure_Metric_Sigmoid_Debt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22J Documentation Risk Exposure Metric Sigmoid Debt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22K_File_Stability_Commit_Heat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22K File Stability Commit Heat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22L_Test_Coverage_Metric_Verification_Density/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22L Test Coverage Metric Verification Density
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22M_The_Civil_War_Algorithm_Tabs_vs_Spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22M The Civil War Algorithm Tabs vs Spaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22N_The_Graveyard_Detector_Metric_Architectural_Transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22N The Graveyard Detector Metric Architectural Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22O_API_Exposure_Metric_The_Event_Horizon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22O API Exposure Metric The Event Horizon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22P_Concurrency_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22P Concurrency Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22Q_State_Flux_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22Q State Flux Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22_Color_Labeling_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 Color Labeling Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../230_The_GalaxyScope_Chassis_--_Optical_Orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    230 The GalaxyScope Chassis    Optical Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../231_The_Aperture_Filter_Adjusting_the_Telescopes_Filter_and_Focus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    231 The Aperture Filter Adjusting the Telescopes Filter and Focus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../232_The_GuideStar_Protocol_Contextual_Intelligence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    232 The GuideStar Protocol Contextual Intelligence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_Focusing_the_Language_Lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 Focusing the Language Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_The_Security_Lens_--_Threat_Detection_Physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 The Security Lens    Threat Detection Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../234_The_Prism_--_Splitting_the_comments_from_the_code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    234 The Prism    Splitting the comments from the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    235 The Detector    The Logic Splicer  Cartographer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    235 The Detector    The Logic Splicer  Cartographer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#235-the-detector-the-logic-splicer-cartographer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5. The Detector -- The Logic Splicer &amp; Cartographer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5. The Detector -- The Logic Splicer &amp; Cartographer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#235a-overview-the-emccd-sensor-galactic-cartography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.A. Overview: The EMCCD Sensor &amp; Galactic Cartography
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5.A. Overview: The EMCCD Sensor &amp; Galactic Cartography">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#236b-the-atomic-literal-shield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.6.B. The Atomic Literal Shield
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.6.B. The Atomic Literal Shield">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235c-coding-vs-comment-analysis-separation-of-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.C. Coding vs. Comment Analysis (Separation of Concerns)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235d-metric-vectorization-multi-dimensional-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.D. Metric Vectorization: Multi-Dimensional Physics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235e-satellite-physics-naming-shields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.E. Satellite Physics &amp; Naming Shields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f-the-cartographer-fractal-fibonacci-positioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F. The Cartographer: Fractal Fibonacci Positioning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5.F. The Cartographer: Fractal Fibonacci Positioning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#235f1-sectorization-hull-calculation-the-bounding-boxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.1. Sectorization &amp; Hull Calculation (The Bounding Boxes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f2-the-ray-casting-dynamic-mask-macro-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.2. The Ray-Casting Dynamic Mask (Macro Layout)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f3-local-star-systems-constellation-tilt-micro-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.3. Local Star Systems &amp; Constellation Tilt (Micro Layout)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f4-organic-entropy-hash-jitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.4. Organic Entropy (Hash Jitter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    236 Signal Processing Equations and 2nd Pass scanning Calculations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_Phase_0_Mission_Control_The_GalaxyScope_Orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 Phase 0 Mission Control The GalaxyScope Orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_The_Spectral_Audit_Quality_Control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 The Spectral Audit Quality Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../238_The_Audit_Recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    238 The Audit Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_GPU_Recorder_Hypercompressed_Data_Storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The GPU Recorder Hypercompressed Data Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_LLM_Recorder_AI_Translation_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The LLM Recorder AI Translation Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23 Data Analysis Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../240_Claim_1_--_Optimum_Search_Strategies_Change_with_Scale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    240 Claim 1    Optimum Search Strategies Change with Scale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../241_Claim_2_--_Coding_Languages_Evolve_Towards_Explicitness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    241 Claim 2    Coding Languages Evolve Towards Explicitness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../242_--_Claim_3_--_Intent_Scales_Across_Syntax_The_Taxonomical_Equivalence_Map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    242    Claim 3    Intent Scales Across Syntax The Taxonomical Equivalence Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 Strategy Validation    Does this work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7_Impacts__Future_Outlooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Impacts  Future Outlooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_Sidebar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#235-the-detector-the-logic-splicer-cartographer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5. The Detector -- The Logic Splicer &amp; Cartographer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5. The Detector -- The Logic Splicer &amp; Cartographer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#235a-overview-the-emccd-sensor-galactic-cartography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.A. Overview: The EMCCD Sensor &amp; Galactic Cartography
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5.A. Overview: The EMCCD Sensor &amp; Galactic Cartography">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#236b-the-atomic-literal-shield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.6.B. The Atomic Literal Shield
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.6.B. The Atomic Literal Shield">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235c-coding-vs-comment-analysis-separation-of-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.C. Coding vs. Comment Analysis (Separation of Concerns)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235d-metric-vectorization-multi-dimensional-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.D. Metric Vectorization: Multi-Dimensional Physics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235e-satellite-physics-naming-shields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.E. Satellite Physics &amp; Naming Shields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f-the-cartographer-fractal-fibonacci-positioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F. The Cartographer: Fractal Fibonacci Positioning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.5.F. The Cartographer: Fractal Fibonacci Positioning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#235f1-sectorization-hull-calculation-the-bounding-boxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.1. Sectorization &amp; Hull Calculation (The Bounding Boxes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f2-the-ray-casting-dynamic-mask-macro-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.2. The Ray-Casting Dynamic Mask (Macro Layout)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f3-local-star-systems-constellation-tilt-micro-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.3. Local Star Systems &amp; Constellation Tilt (Micro Layout)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#235f4-organic-entropy-hash-jitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.5.F.4. Organic Entropy (Hash Jitter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>235 The Detector    The Logic Splicer  Cartographer</h1>
+
+<h4 id="235-the-detector-the-logic-splicer-cartographer">2.3.5. The Detector -- The Logic Splicer &amp; Cartographer</h4>
+<h5 id="235a-overview-the-emccd-sensor-galactic-cartography">2.3.5.A. Overview: The EMCCD Sensor &amp; Galactic Cartography</h5>
+<p>Before the Splicer spends computational energy carving a logic stream,
+it performs a strict physical viability check. If a file enters the
+Splicer with a structural confidence score below <em>0.42</em>, it triggers the
+<strong>Singularity Bypass</strong>, safely relegating the file to \"Dark Matter\"
+(unparsed mass). Similarly, files explicitly verified as <em>markdown</em> or
+<em>plaintext</em> trigger a Prose Deflection, routing them entirely to \"Ghost
+Mass.\"</p>
+<p><strong>The Ecosystem Gravity Override:</strong> In the v6.3.0 Protocol, a critical
+exception was introduced for highly contested, declarative files---most
+notably C/C++ header files (<em>.h</em>). Pure-macro headers often lack the
+standard functional logic (braces, loops, branches) required to pass the
+0.42 confidence floor naturally, causing vital architectural maps to
+vanish into Dark Matter.</p>
+<p>To solve this, the Splicer now implements an <strong>Ecosystem Gravity
+Override</strong>. If the upstream Language Lens previously utilized ecosystem
+mass to safely lock a file into a C-family orbit (<em>c</em>, <em>cpp</em>, or
+<em>objective-c</em>), the Splicer trusts that macro-level gravity. It
+artificially boosts the file\'s parsing confidence to <em>1.0</em>, ensuring
+these critical structural components are fully mapped and integrated
+into the final spatial cartography.</p>
+<h6 id="_1"></h6>
+<h5 id="236b-the-atomic-literal-shield">2.3.6.B. The Atomic Literal Shield</h5>
+<p>Strings and text literals are the natural enemies of structural parsers.
+A stray opening brace <em>{</em> or an unmatched quote <em>\"</em> trapped inside a
+developer\'s string can permanently desynchronize the scope stack,
+shattering the parsed logic.</p>
+<p>To prevent this \"Quote Desynchronization,\" the Splicer utilizes the
+<strong>Atomic Literal Shield</strong>, an advanced pre-processing engine that
+securely masks disruptive text <em>without</em> altering the physical line
+counts or character indexing of the original file. This ensures the
+parsed logic perfectly maps 1:1 with the original source code.</p>
+<p>The v6.3.0 Protocol introduces heavily upgraded, language-aware
+shielding:</p>
+<ul>
+<li><strong>Advanced Atomic Quotes:</strong> The shield processes multi-character
+sequence markers strictly <em>before</em> single quotes. This surgical
+ordering correctly masks C++ Raw String Literals (e.g.,
+<em>R\"EOF(...)EOF\"</em>) and Python Triple Quotes (<em>\"\"\"</em> / <em>\'\'\'</em>)
+without prematurely triggering on standard double quotes contained
+within them.</li>
+<li><strong>Heredoc Isolation:</strong> For scripting languages (Shell, Bash, Ruby,
+Perl, Elixir), standard regex is insufficient. The Splicer deploys a
+line-by-line state machine to isolate complex Heredoc logic (e.g.,
+<em>\&lt;\&lt;-EOF</em>), safely blanking out massive text blocks that frequently
+contain rogue bash characters or unescaped quotes.</li>
+<li><strong>Ruby </strong><strong><em>%</em></strong><strong> Literals:</strong> Strictly gated to the Ruby ecosystem,
+a dedicated shield evaluates and masks the complex, bracketed <em>%</em>
+string syntax (e.g., <em>%w[...]</em>, <em>%q{...}</em>, <em>%x(...)</em>),
+preventing the internal brackets from falsely triggering the Mode D
+handshake stack.</li>
+<li><strong>Diagnostic Telemetry:</strong> To protect pipeline performance against
+catastrophic backtracking (ReDoS), the shield actively times its own
+regex operations. If shielding an excessively large or obfuscated
+file takes longer than 0.5 seconds, the engine logs a targeted
+diagnostic warning to trace the latency bottleneck.</li>
+</ul>
+<h6 id="_2"></h6>
+<h5 id="235c-coding-vs-comment-analysis-separation-of-concerns">2.3.5.C. Coding vs. Comment Analysis (Separation of Concerns)</h5>
+<p><strong><em>*To maintain absolute mathematical integrity, the GitGalaxy Splicer
+strictly enforces a Separation of Concerns between executable logic
+(Active Matter) and developer literature (Ghost Mass). Mixing these two
+streams during regex evaluation is the primary cause of \"Logic
+Erosion\" in legacy scanners, where a commented-out </em></strong><strong>if</strong><strong><em>
+statement falsely inflates a file\'s complexity score.</em></strong>*</p>
+<p>By routing the pre-split streams into distinct analysis engines,
+GitGalaxy guarantees that structural metrics and human intent are
+measured independently.</p>
+<p><strong>1. Coding Analysis (The 51-Element Schema Guarantee)</strong> The
+<em>coding_analysis</em> engine is responsible for measuring the raw physical
+properties of the Active Matter (branches, IO operations, memory
+manipulations). In the v6.3.0 Protocol, this engine was upgraded to
+enforce absolute schema rigidity:</p>
+<ul>
+<li><strong>Anti-Hallucination Binding:</strong> The engine initializes its counting
+dictionary directly from the <em>UNIVERSAL_METRICS_SCHEMA</em>. If a custom
+language definition attempts to inject an unregistered rule, the
+Splicer actively ignores it.</li>
+<li><strong>Deterministic Output:</strong> This strict bounding guarantees that the
+resulting metrics dictionary is <em>exactly</em> 51 elements long, in the
+exact same order, every single time. This absolute consistency is
+vital for preventing schema drift and ensuring downstream risk
+algorithms (which rely on fixed-length arrays) never crash or
+misalign.</li>
+<li><strong>Indentation Signatures:</strong> Alongside regex matching, the coding
+analyzer also calculates the physical indentation density (Tabs vs.
+Spaces) to help downstream models identify the formatting culture of
+the logic block.</li>
+</ul>
+<p><strong>2. Comment Analysis (Ghost Mass Telemetry)</strong> The <em>comment_analysis</em>
+engine scans the isolated literature of the file. Because it operates
+exclusively on the Ghost Mass, it uses a specialized subset of rules to
+measure developer intent and technical debt without polluting the core
+logic metrics. It actively tracks:</p>
+<ul>
+<li><strong>Debt Signatures:</strong> Specifically hunts for <em>planned_debt</em> (TODOs,
+FIXMEs) and <em>fragile_debt</em> (HACK, XXX) markers.</li>
+<li><strong>Shadow Logic:</strong> Evaluates the <em>graveyard</em> rule to find malicious
+links or dead code blocks trapped inside comments.</li>
+<li><strong>Documentation Density:</strong> Measures the sheer volume of <em>doc</em> tags
+to establish the \"Trust Dampening\" baseline (how well the file is
+explained vs. how complex it actually is).</li>
+</ul>
+<p><strong>3. Architectural Metadata Extraction</strong> Even if a file is relegated to
+Dark Matter (failing the 0.42 structural confidence floor), the Splicer
+still executes the <em>_decode_comment_stream</em> protocol. This specialized
+parser scans the top 500 lines of the Ghost Mass to surgically extract
+the file\'s <strong>Ownership</strong> (authorship tags) and its <strong>Architectural
+Purpose</strong> (via specific block/line intent rules). This ensures that even
+unparsed config files or monolithic scripts contribute their human
+context to the final repository map.</p>
+<h5 id="235d-metric-vectorization-multi-dimensional-physics">2.3.5.D. Metric Vectorization: Multi-Dimensional Physics</h5>
+<p>Because programming languages adhere to vastly different structural
+physics, a one-size-fits-all regex approach is mathematically
+impossible. To solve this, the <em>_function_slice</em> Master Dispatcher
+analyzes the language\'s lexical family and dynamically routes the
+Active Matter into one of five highly specialized extraction algorithms
+(Integration Modes).</p>
+<p><strong>Mode A: Label-Based Scan (Legacy Species)</strong> Used for legacy procedural
+languages like Assembly, AGC, and COBOL, which lack traditional scoping
+mechanisms. The Splicer uses a greedy, label-based scan
+(<em>_slice_by_labels</em>). It searches for functional start tags or labels
+and captures the entire block of logic until it encounters the next
+start tag or a definitive return instruction (e.g., <em>RET</em>, <em>GOBACK</em>,
+<em>END-PERFORM</em>), successfully isolating the structural satellite.</p>
+<p><strong>Mode B: Recursive Scope Analysis (C-Family &amp; Lisp)</strong> The standard
+algorithm for languages relying on braces <em>{}</em> or parentheses <em>()</em>. The
+v6.3.0 Protocol heavily fortifies this brace-tracking engine against
+syntax desynchronization:</p>
+<ul>
+<li><strong>The Atomic Alternation Shield:</strong> Evaluates double quotes, single
+quotes, and backticks simultaneously. This prevents complex string
+manipulation from confusing the scanner and falsely collapsing the
+closing braces.</li>
+<li><strong>The C++ Preprocessor Brace Shield:</strong> C/C++ macros frequently
+contain raw floating braces (e.g., <em>#else {</em>), which historically
+shattered scope stacks. The Splicer now implements a preprocessor
+shield that safely blinds the parser to duplicate or floating braces
+trapped inside dead structural branches (<em>#elif</em>, <em>#else</em>) and
+multi-line <em>#define</em> macros.</li>
+</ul>
+<p><strong>Mode C: Density Stratification (Python &amp; YAML)</strong> Languages that rely
+on whitespace require a topographical approach. Using
+<em>_slice_by_indentation</em>, the engine identifies a structural igniter
+(like <em>def</em> or <em>class</em>) and calculates its base indentation level. It
+then scans forward, line-by-line, through the code\'s density. The scope
+block is naturally terminated the moment the engine encounters a line of
+active code that drops back to or below the base indentation level.</p>
+<p><strong>Mode D: Semantic Handshake Stack (Keyword Scoping)</strong> A major addition
+in the v6.3.0 Protocol, Mode D (<em>_slice_by_keywords</em>) is explicitly
+designed for non-brace scripting languages like Shell, Ruby, Lua, and
+Elixir.</p>
+<ul>
+<li>Powered by the new <strong><em>SemanticScopeRegistry</em></strong>, this engine tracks
+structural depth via text keywords rather than symbols. It
+identifies specific <em>openers</em> (<em>if</em>, <em>def</em>, <em>case</em>) and <em>closers</em>
+(<em>fi</em>, <em>end</em>, <em>esac</em>) to manage the scope stack.</li>
+<li>It includes specialized heuristics, such as the <strong>Ruby Inline
+Modifier Guard</strong>, which prevents single-line modifiers (e.g.,
+<em>return true if x</em>) from falsely incrementing the depth stack.</li>
+</ul>
+<p><strong>Mode E: Terminator Cleaving (Declarative Architectures)</strong> Designed for
+declarative and query languages like SQL, Erlang, and Prolog
+(<em>_slice_by_terminator</em>). Rather than tracking nested scope, this mode
+monitors the stream for an <strong>Igniter</strong> keyword (e.g., <em>SELECT</em>,
+<em>CREATE</em>, or an Erlang function head) to start orbiting a new logic
+block. The block remains open until the engine detects the language\'s
+specific <strong>Terminator</strong> token (like a semicolon <em>;</em> or a period <em>.</em>), at
+which point the \"guillotine drops,\" cleaving the statement into a
+measurable satellite.</p>
+<h5 id="235e-satellite-physics-naming-shields">2.3.5.E. Satellite Physics &amp; Naming Shields</h5>
+<p>Once the Master Dispatcher successfully cleaves a block of logic from
+the file, it becomes a \"Satellite.\" Before it can be placed into the
+spatial map, the Splicer must calculate its physical properties and
+extract its true identity.</p>
+<p><strong>1. Satellite Physics (The Mathematical Engine)</strong> The
+<em>_process_satellite_physics</em> method analyzes the raw string of the
+isolated block to calculate its weight and trajectory in the final 3D
+visualization.</p>
+<ul>
+<li><strong>Control Flow Ratio (</strong><strong><em>cf_ratio</em></strong><strong>):</strong> Measures the density of
+branching logic vs. linear execution. The formula is <em>branches /
+max(total_hits, 1)</em>, clamped tightly between 0.0 and 1.0.</li>
+<li><strong>Logic Angle (</strong><strong><em>angle</em></strong><strong>):</strong> Determines the trajectory of the
+satellite\'s branches in the 3D viewer. It maps the Control Flow
+Ratio to a physical angle using the equation: <em>22.5 + (1.0 -
+cf_ratio) * 67.5</em>. (Highly linear functions branch at steep 90°
+angles; highly complex functions branch at wide 22.5° angles).</li>
+<li><strong>Magnitude (</strong><strong><em>mag</em></strong><strong>):</strong> The final physical mass of the block,
+calculated as: <em>(branches + 1) * (args + 1) + (0.05 * loc)</em>.</li>
+<li><em>Note on Arguments:</em> The v6.3.0 Protocol upgraded the argument
+counter to recognize space-separated arguments, ensuring languages
+like Lisp, Scheme, and Shell calculate accurate magnitudes alongside
+comma-separated C-family languages.</li>
+</ul>
+<p><strong>2. The Naming Shields</strong> Extracting a function name from raw text is
+notoriously difficult; naive regex frequently destroys complex C++
+signatures or Objective-C methods. To guarantee pristine architectural
+labeling, GitGalaxy utilizes a gauntlet of <strong>Naming Shields</strong>:</p>
+<ul>
+<li><strong>The C++ Operator Shield:</strong> Safely intercepts and extracts
+overloaded symbolic operators (e.g., <em>operator\&lt;\&lt;</em>, <em>operator==</em>)
+and type casts (e.g., <em>operator bool</em>) <em>before</em> standard extraction
+destroys the non-alphanumeric symbols.</li>
+<li><strong>The C++ Test Macro Shield:</strong> Extracts the true test name from
+complex macro wrappers, correctly labeling
+<em>BOOST_AUTO_TEST_CASE(MyTest)</em> or <em>TEST(Suite, MyTest)</em> simply as
+<em>MyTest</em>.</li>
+<li><strong>The C++ Scope Shield:</strong> Temporarily replaces the double-colon
+(<em>::</em>) with a safe <em>__SCOPE__</em> token. This blinds the standard
+single-colon guillotine, ensuring names like
+<em>std::vector::push_back</em> aren\'t erroneously truncated to <em>std</em>.</li>
+<li><strong>Objective-C Extraction:</strong> Surgically parses Apple\'s unique
+bracketed message syntax and leading <em>-</em>/<em>+</em> modifiers to extract
+the true method name.</li>
+<li><strong>Makefile Variable Shield:</strong> Protects <em>\$(VAR)</em> declarations from
+being shattered by parenthesis-splitting logic.</li>
+</ul>
+<p><strong>3. Functional Classification</strong> Finally, the satellite is assigned a
+<em>texture</em> (its functional classification: <em>io</em>, <em>mutation</em>, <em>logic</em>,
+<em>event</em>, etc.). The engine first checks for explicit architectural tags
+(like <em>\@gal_type: mutation</em> in the block\'s comments). If none exist,
+it infers the texture based on standard naming conventions (e.g.,
+functions starting with <em>fetch</em> become <em>io</em>; <em>parse</em> becomes <em>logic</em>).
+If the name is ambiguous, it falls back to the heavy regex sensors to
+classify the block based on its literal contents.</p>
+<h5 id="235f-the-cartographer-fractal-fibonacci-positioning">2.3.5.F. The Cartographer: Fractal Fibonacci Positioning</h5>
+<p>The Cartographer transforms flat file lists into a deterministic 3D star
+map. By applying procedurally generated patterns to digital
+architecture, it ensures the visual layout reflects the structural
+hierarchy and \"gravitational\" importance of the repository\'s
+components. Under the v6.3.0 Protocol, the engine utilizes a
+collision-aware packing algorithm to create organic, repeatable, and
+dense volumetric galaxies.</p>
+<h6 id="235f1-sectorization-hull-calculation-the-bounding-boxes">2.3.5.F.1. Sectorization &amp; Hull Calculation (The Bounding Boxes)</h6>
+<p>Before spatial coordinates are assigned, the engine must calculate the
+physical footprint of every folder (Constellation).</p>
+<ul>
+<li>
+<p><strong>Sector Census:</strong> Files are grouped by their root directory.</p>
+</li>
+<li>
+<p><strong>The Sun Mass:</strong> Within each constellation, the file with the
+highest Structural Mass is designated as the central \"Sun.\"</p>
+</li>
+<li>
+<p><strong>Dynamic Hull Radius:</strong> The engine calculates the required bounding
+box for the entire folder using the baseline spacing
+(<strong>MICRO_SPACING</strong> of <strong>250.0</strong>) combined with the footprint of its
+central star:</p>
+</li>
+</ul>
+<p><strong>Hull Radius = Sun Footprint + (sqrt(Star Count) * 250.0)</strong></p>
+<ul>
+<li><strong>Prioritization:</strong> The sectors are then sorted by their massive
+Hull Radii, ensuring the largest architectural hubs are placed
+nearest to the galactic core.</li>
+</ul>
+<h6 id="235f2-the-ray-casting-dynamic-mask-macro-layout">2.3.5.F.2. The Ray-Casting Dynamic Mask (Macro Layout)</h6>
+<p>Replaces the legacy static spiral with an active collision-avoidance
+system.</p>
+<ul>
+<li>
+<p><strong>The Core Exclusion Zone:</strong> The absolute center of the map is
+preserved by a <strong>CORE_EXCLUSION_RADIUS</strong> of <strong>600.0</strong> units,
+preventing massive monolithic files from collapsing into the origin
+point.</p>
+</li>
+<li>
+<p><strong>Angular Stepping:</strong> As the engine loops through the
+constellations, it calculates the required angular step
+(\$\Delta\theta\$) based on the combined radii of the current and
+previous constellations, ensuring an optimal <strong>MACRO_STEP_FACTOR</strong>
+of <strong>1.5x</strong>.</p>
+</li>
+<li>
+<p><strong>Ray-Casting Intersection Math:</strong> To prevent the spiral arms from
+overlapping as they wrap around the core, the engine shoots a
+mathematical ray down the current angle. It evaluates a quadratic
+intersection against an array of all previously <strong>placed_circles</strong>
+(representing previously placed constellations).</p>
+</li>
+</ul>
+<p>By solving the ray-circle intersection where \$r\$ is the distance
+along the ray and \$(p_x, p_z)\$ is the center of a previously
+placed constellation with radius \$p_r\$:</p>
+<p>\$\$r\^2 - 2r(p_x \cos\theta + p_z \sin\theta) + (p_x\^2 +
+p_z\^2 - (p_r \times 1.5)\^2) = 0\$\$</p>
+<ul>
+<li><strong>The \"Why\" (Dense Packing):</strong> The engine pushes the new
+constellation outward only to the furthest intersecting positive
+root (\$r\$). This guarantees zero collisions while ensuring the
+galaxy remains as tightly packed as mathematically possible,
+preventing sparse, disconnected visualizations.</li>
+</ul>
+<h6 id="235f3-local-star-systems-constellation-tilt-micro-layout">2.3.5.F.3. Local Star Systems &amp; Constellation Tilt (Micro Layout)</h6>
+<ul>
+<li><strong>Dynamic Footprints:</strong> The clearance required for a single star is
+no longer static. The <strong>_calculate_orbit_footprint</strong> method
+dynamically scales the visual radius and orbital clearance based on
+the star\'s literal Structural Mass.</li>
+<li><strong>The Golden Angle:</strong> Planets orbit their central Sun using the
+classic Fibonacci <strong>MICRO_GOLDEN_ANGLE</strong> (\$\approx\$ <strong>2.399</strong>
+radians). The radius expands based on the square root of the star\'s
+mass-rank, gracefully decreasing the density of the star system as
+it moves outward.</li>
+<li><strong>Volumetric Tilting:</strong> To break the artificial flatness of a 2D
+plane, each constellation is rotated on its local axis. Using
+hash-derived math, entire folders are tilted in unique directions
+with a maximum inclination (<strong>MAX_TILT_DEG</strong>) of <strong>15.0°</strong>, creating
+a true 3D volumetric cloud.</li>
+</ul>
+<h6 id="235f4-organic-entropy-hash-jitter">2.3.5.F.4. Organic Entropy (Hash Jitter)</h6>
+<p>To break the mechanical perfection of the mathematical spirals, the
+engine injects \"Organic Noise\" via the <strong>_hash_jitter</strong> function.</p>
+<ul>
+<li>
+<p><strong>MD5 Seed Logic:</strong> It hashes the filename to a hex string, mapping
+it to a normalized float between <strong>-1.0</strong> and <strong>1.0</strong>.</p>
+</li>
+<li>
+<p>3D Jitter Magnitudes:</p>
+</li>
+<li>
+<p><strong>X/Y Jitter:</strong> <strong>100</strong> units.</p>
+</li>
+<li>
+<p><strong>Z Jitter:</strong> <strong>400</strong> units (The Z-axis receives a 4x multiplier
+to aggressively deepen the volumetric layering of the stars).</p>
+</li>
+<li>
+<p><strong>The \"Why\" (Reproducible Chaos):</strong> A perfectly mathematical
+spiral feels artificial and makes it harder for the human eye to
+distinguish individual stars. Jitter provides the \"texture\" of a
+real galaxy. Because the seed is based on the filename, the chaos is
+strictly deterministic---a file will always \"vibrate\" to the exact
+same relative sub-coordinate every time the map is rendered,
+allowing the developer to build a persistent mental map of the
+project\'s physical shape.</p>
+</li>
+</ul>
+<h5 id="_3"></h5>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

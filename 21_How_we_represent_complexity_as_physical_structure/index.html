@@ -1,0 +1,3632 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The structural DNA of massive software repositories.">
+      
+      
+      
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/21_How_we_represent_complexity_as_physical_structure/">
+      
+      
+        <link rel="prev" href="../21K_Misc_Equations/">
+      
+      
+        <link rel="next" href="../22A_Overview_of_methodology/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>21 How we represent complexity as physical structure - GitGalaxy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#21-how-we-represent-complexity-as-physical-structure" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitGalaxy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              21 How we represent complexity as physical structure
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitGalaxy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0_Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Technical Specifications v4.1 (Master Blueprint)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_Foundation__Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundation  Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21A_Stars_Size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21A Stars Size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21B_Stars_Pulse_Rate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21B Stars Pulse Rate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21C_Stars_Shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21C Stars Shape
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21D_Satellite_Unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21D Satellite Unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21E_Satellite_Orbital_Distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21E Satellite Orbital Distance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21F_Number_of_satellites_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21F Number of satellites in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21G_Satellites_Relative_Positioning_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21G Satellites Relative Positioning in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21H_Node_Size_Metric_Argument_Count/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21H Node Size Metric Argument Count
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21I_Planetary_Rings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21I Planetary Rings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21J_Relative_Positioning_Metric_Sequence__Affinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21J Relative Positioning Metric Sequence  Affinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21K_Misc_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21K Misc Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 How we represent complexity as physical structure
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 How we represent complexity as physical structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#21-how-we-represent-complexity-as-physical-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 How we represent complexity as physical structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 How we represent complexity as physical structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21a-stars-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A. Star's Size
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.A. Star&#39;s Size">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a1-the-philosophy-physical-presence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.1. The Philosophy: Physical Presence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a2-the-inputs-measuring-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.2. The Inputs: Measuring Mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a3-the-equation-structural-mass-visual-radius" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.3. The Equation: Structural Mass &amp; Visual Radius
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a4-the-visual-thresholds-the-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.4. The Visual Thresholds (The Scale)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b-stars-pulse-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B. Star's Pulse Rate
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.B. Star&#39;s Pulse Rate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21b1-the-philosophy-bioluminescence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.1. The Philosophy: Bioluminescence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b2-the-inputs-measuring-gravity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.2. The Inputs: Measuring Gravity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b3-the-equation-intensity-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.3. The Equation: Intensity Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b4-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.4. Equation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b5-the-visual-thresholds-the-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.5. The Visual Thresholds (The Resonance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c-stars-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C Star's Shape
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.C Star&#39;s Shape">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21c1-the-philosophy-smooth-vs-sharp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.1. The Philosophy: Smooth vs. Sharp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c2-the-philosophy-thinking-vs-speaking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.2. The Philosophy: Thinking vs. Speaking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c3-the-inputs-the-control-flow-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.3. The Inputs: The control flow ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c4-the-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.4. The Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c5-the-equation-5-tier-morphing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.5. The Equation: 5-Tier Morphing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c6-the-visual-enhancements-wireframe-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.6. The Visual Enhancements (Wireframe Logic)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d-satellite-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D Satellite Unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.D Satellite Unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21d1-the-philosophy-the-toolkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.1. The Philosophy: The Toolkit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d2-the-inputs-identification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.2. The Inputs: Identification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d3-basal-values-the-standard-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.3. Basal Values (The Standard Model)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21e-satellite-orbital-distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.E Satellite Orbital Distance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f-number-of-satellites-in-a-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F Number of satellites in a unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.F Number of satellites in a unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21f1-the-philosophy-cognitive-friction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.1. The Philosophy: Cognitive Friction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f2-the-inputs-anatomy-of-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.2. The Inputs: Anatomy of Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f3-the-equation-calculating-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.3. The Equation: Calculating \'C\'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f4-the-visual-thresholds-the-step-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.4. The Visual Thresholds (The Step Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21g-satellites-relative-positioning-in-a-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.G Satellite's Relative Positioning in a unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.G Satellite&#39;s Relative Positioning in a unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21g1-the-visual-translation-the-lerp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.G.1. The Visual Translation (The Lerp)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h-node-size-metric-argument-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H Node Size (Metric: Argument Count)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.H Node Size (Metric: Argument Count)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.1. The Philosophy: Heavy vs. Light
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.2. The Inputs: Measuring Args
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.3. The Equation: Logarithmic Scaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h4-the-visual-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.4. The Visual Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i-planetary-rings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I. Planetary Rings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.I. Planetary Rings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.1. The Philosophy: The Gravity Well
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.2. The Inputs: Measuring Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.3. The Equation: Growth and Density
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i4-the-visual-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.4. The Visual Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j-relative-positioning-metric-sequence-affinity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J Relative Positioning (Metric: Sequence &amp; Affinity)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.J Relative Positioning (Metric: Sequence &amp; Affinity)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21j1-the-philosophy-the-tri-phase-displacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.1. The Philosophy: The Tri-Phase Displacement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j2-phase-1-the-gravity-sort-chronology-importance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.2. Phase 1: The Gravity Sort (Chronology &amp; Importance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j3-phase-2-the-gap-spiral-radial-positioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.3. Phase 2: The Gap Spiral (Radial Positioning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j4-phase-3-the-stratification-z-axis-type-layering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.4. Phase 3: The Stratification (Z-Axis Type Layering)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21k-misc-equations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.K Misc Equations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22A_Overview_of_methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22A Overview of methodology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22B_Sub-Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22B Sub Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22C_Transforming_Noisy_Regex_Counts_Into_Something_Meaningful/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22C Transforming Noisy Regex Counts Into Something Meaningful
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22D_Ownership_Mode_Shannon_Entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22D Ownership Mode Shannon Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22E_Cognitive_Load_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22E Cognitive Load Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22F_Churn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22F Churn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22G_Safety_Mode_Metric_Structural_Fortification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22G Safety Mode Metric Structural Fortification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22I_Technical_Debt_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22I Technical Debt Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22J_Documentation_Risk_Exposure_Metric_Sigmoid_Debt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22J Documentation Risk Exposure Metric Sigmoid Debt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22K_File_Stability_Commit_Heat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22K File Stability Commit Heat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22L_Test_Coverage_Metric_Verification_Density/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22L Test Coverage Metric Verification Density
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22M_The_Civil_War_Algorithm_Tabs_vs_Spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22M The Civil War Algorithm Tabs vs Spaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22N_The_Graveyard_Detector_Metric_Architectural_Transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22N The Graveyard Detector Metric Architectural Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22O_API_Exposure_Metric_The_Event_Horizon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22O API Exposure Metric The Event Horizon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22P_Concurrency_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22P Concurrency Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22Q_State_Flux_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22Q State Flux Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22_Color_Labeling_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 Color Labeling Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../230_The_GalaxyScope_Chassis_--_Optical_Orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    230 The GalaxyScope Chassis    Optical Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../231_The_Aperture_Filter_Adjusting_the_Telescopes_Filter_and_Focus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    231 The Aperture Filter Adjusting the Telescopes Filter and Focus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../232_The_GuideStar_Protocol_Contextual_Intelligence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    232 The GuideStar Protocol Contextual Intelligence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_Focusing_the_Language_Lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 Focusing the Language Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_The_Security_Lens_--_Threat_Detection_Physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 The Security Lens    Threat Detection Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../234_The_Prism_--_Splitting_the_comments_from_the_code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    234 The Prism    Splitting the comments from the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../235_The_Detector_--_The_Logic_Splicer__Cartographer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    235 The Detector    The Logic Splicer  Cartographer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    236 Signal Processing Equations and 2nd Pass scanning Calculations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_Phase_0_Mission_Control_The_GalaxyScope_Orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 Phase 0 Mission Control The GalaxyScope Orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_The_Spectral_Audit_Quality_Control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 The Spectral Audit Quality Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../238_The_Audit_Recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    238 The Audit Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_GPU_Recorder_Hypercompressed_Data_Storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The GPU Recorder Hypercompressed Data Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_LLM_Recorder_AI_Translation_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The LLM Recorder AI Translation Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23 Data Analysis Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../240_Claim_1_--_Optimum_Search_Strategies_Change_with_Scale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    240 Claim 1    Optimum Search Strategies Change with Scale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../241_Claim_2_--_Coding_Languages_Evolve_Towards_Explicitness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    241 Claim 2    Coding Languages Evolve Towards Explicitness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../242_--_Claim_3_--_Intent_Scales_Across_Syntax_The_Taxonomical_Equivalence_Map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    242    Claim 3    Intent Scales Across Syntax The Taxonomical Equivalence Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 Strategy Validation    Does this work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7_Impacts__Future_Outlooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Impacts  Future Outlooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_Sidebar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#21-how-we-represent-complexity-as-physical-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 How we represent complexity as physical structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 How we represent complexity as physical structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21a-stars-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A. Star's Size
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.A. Star&#39;s Size">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a1-the-philosophy-physical-presence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.1. The Philosophy: Physical Presence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a2-the-inputs-measuring-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.2. The Inputs: Measuring Mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a3-the-equation-structural-mass-visual-radius" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.3. The Equation: Structural Mass &amp; Visual Radius
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21a4-the-visual-thresholds-the-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.A.4. The Visual Thresholds (The Scale)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b-stars-pulse-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B. Star's Pulse Rate
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.B. Star&#39;s Pulse Rate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21b1-the-philosophy-bioluminescence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.1. The Philosophy: Bioluminescence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b2-the-inputs-measuring-gravity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.2. The Inputs: Measuring Gravity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b3-the-equation-intensity-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.3. The Equation: Intensity Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b4-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.4. Equation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21b5-the-visual-thresholds-the-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.B.5. The Visual Thresholds (The Resonance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c-stars-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C Star's Shape
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.C Star&#39;s Shape">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21c1-the-philosophy-smooth-vs-sharp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.1. The Philosophy: Smooth vs. Sharp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c2-the-philosophy-thinking-vs-speaking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.2. The Philosophy: Thinking vs. Speaking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c3-the-inputs-the-control-flow-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.3. The Inputs: The control flow ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c4-the-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.4. The Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c5-the-equation-5-tier-morphing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.5. The Equation: 5-Tier Morphing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21c6-the-visual-enhancements-wireframe-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.C.6. The Visual Enhancements (Wireframe Logic)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d-satellite-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D Satellite Unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.D Satellite Unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21d1-the-philosophy-the-toolkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.1. The Philosophy: The Toolkit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d2-the-inputs-identification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.2. The Inputs: Identification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21d3-basal-values-the-standard-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.3. Basal Values (The Standard Model)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21e-satellite-orbital-distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.E Satellite Orbital Distance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f-number-of-satellites-in-a-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F Number of satellites in a unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.F Number of satellites in a unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21f1-the-philosophy-cognitive-friction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.1. The Philosophy: Cognitive Friction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f2-the-inputs-anatomy-of-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.2. The Inputs: Anatomy of Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f3-the-equation-calculating-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.3. The Equation: Calculating \'C\'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21f4-the-visual-thresholds-the-step-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.F.4. The Visual Thresholds (The Step Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21g-satellites-relative-positioning-in-a-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.G Satellite's Relative Positioning in a unit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.G Satellite&#39;s Relative Positioning in a unit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21g1-the-visual-translation-the-lerp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.G.1. The Visual Translation (The Lerp)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h-node-size-metric-argument-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H Node Size (Metric: Argument Count)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.H Node Size (Metric: Argument Count)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.1. The Philosophy: Heavy vs. Light
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.2. The Inputs: Measuring Args
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.3. The Equation: Logarithmic Scaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21h4-the-visual-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.H.4. The Visual Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i-planetary-rings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I. Planetary Rings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.I. Planetary Rings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.1. The Philosophy: The Gravity Well
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.2. The Inputs: Measuring Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.3. The Equation: Growth and Density
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21i4-the-visual-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.I.4. The Visual Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j-relative-positioning-metric-sequence-affinity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J Relative Positioning (Metric: Sequence &amp; Affinity)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.J Relative Positioning (Metric: Sequence &amp; Affinity)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21j1-the-philosophy-the-tri-phase-displacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.1. The Philosophy: The Tri-Phase Displacement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j2-phase-1-the-gravity-sort-chronology-importance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.2. Phase 1: The Gravity Sort (Chronology &amp; Importance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j3-phase-2-the-gap-spiral-radial-positioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.3. Phase 2: The Gap Spiral (Radial Positioning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21j4-phase-3-the-stratification-z-axis-type-layering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.J.4. Phase 3: The Stratification (Z-Axis Type Layering)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21k-misc-equations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.K Misc Equations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>21 How we represent complexity as physical structure</h1>
+
+<h3 id="21-how-we-represent-complexity-as-physical-structure">2.1 How we represent complexity as physical structure</h3>
+<p>Code complexity is mapped to <strong><em>*physical structure</em></strong>*, creating
+organic, distinct shapes for different complexity patterns. This
+representation of complexity does not depend on color. They are
+summarized below.</p>
+<p>**</p>
+<hr />
+<p>Physical Attribute         Code Metric (Heuristic)               Visual Result (The \"Look\")
+<strong>Star's Size</strong>            Lines of Code (LOC) per File          <strong>Mass.</strong> Logarithmic scaling ensures that 10k+ LOC files appear as massive suns, while 10 LOC scripts remain small asteroids.
+<strong>Star's Pulse Rate</strong>      Inbound References (Popularity)       <strong>Bioluminescence.</strong> Core utilities pulse with a white-hot \"heartbeat.\" Unreferenced files remain dim and static.
+<strong>Star's Shape</strong>           control flow ratio (File Level)       <strong>Geometry.</strong> Morphs from a smooth <strong>Sphere</strong> (Declarative/Data) to a sharp <strong>Tetrahedron</strong> (Pure Algorithmic Logic).
+<strong>Satellite Unit</strong>         Function Declaration                  <strong>Moons.</strong> Every discrete function is materialized as a satellite orbiting its parent star. Limits for monorepos.
+<strong>Satellite Distance</strong>     Lines of Code (LOC) per Function      <strong>Orbital Reach.</strong> Long functions reach further into the void; small stubs orbit tightly near the star's surface.
+<strong>Number of Satellites</strong>   Cyclomatic Complexity                 <strong>Fractal Density.</strong> Highly complex functions spawn sub-clusters or dense swarms of satellites, creating a \"thorny\" silhouette.
+<strong>Satellite Position</strong>     control flow ratio (Function Level)   <strong>Branching Angle.</strong> Sharp, jagged angles (\&lt;45°) indicate complex control flow; 90° \"Circuit Board\" patterns indicate linear flow.
+<strong>Satellite Size</strong>         Argument Count                        <strong>Volume.</strong> Large moons represent \"Heavy\" functions with many inputs; small dots represent lightweight, encapsulated utilities.
+<strong>Star's Rings</strong>           External Library Imports              <strong>Accretion Disks.</strong> Files tethered to many external dependencies manifest glowing rings, symbolizing a large \"Gravity Well.\"
+<strong>Star's Position</strong>        Semantic Affinity (Directory/Path)    <strong>Neighborhoods.</strong> Files are grouped into sectoral clusters based on folder structure, creating distinct \"Auth,\" \"UI,\" and \"API\" continents.</p>
+<hr />
+<p>**</p>
+<h4 id="21a-stars-size">2.1.A. Star's Size</h4>
+<h5 id="_1"></h5>
+<p><strong><em>*Purpose: Visualize the sheer \"Gravitational Weight\" of a file
+within the system. Why: In a galaxy, size is the first thing you notice.
+But in software, \"length\" does not always equal \"weight.\" A 200-line
+configuration file is light, while a 50-line recursive algorithm is
+heavy. By calculating mass based on complexity, risk, and volume, we
+ensure that the most impactful files---the ones that are hard to read,
+dangerous to touch, or heavily connected---physically dominate the
+screen as super-massive suns. We use size to instantly communicate
+structural importance.</em></strong>*</p>
+<h5 id="21a1-the-philosophy-physical-presence">2.1.A.1. The Philosophy: Physical Presence</h5>
+<p>We treat code as physical matter, but we recognize that matter has
+different densities.</p>
+<p>Low Density: Simple data, linear lists, and standard config files. These
+are large but light, easy to move.</p>
+<p>High Density: Complex branching logic, heavy arguments, and high risk
+exposure. These are small but incredibly heavy, exerting high gravity.</p>
+<p>By scaling the star\'s size based on this Composite Mass, we create a
+visual hierarchy where the true \"Main Characters\"---the complex logic
+engines---naturally anchor the sector, while simple helper files drift
+in the background.</p>
+<h5 id="21a2-the-inputs-measuring-mass">2.1.A.2. The Inputs: Measuring Mass</h5>
+<p>The mass calculation ingests five distinct dimensions of code structure:</p>
+<ol>
+<li>Function Impact: The complexity of every function inside the file.</li>
+<li>API Exposure: How publicly visible the file is.</li>
+<li>Concurrency Exposure: The density of asynchronous/threading logic.</li>
+<li>State Flux Exposure: The density of variable mutation.</li>
+<li>LOC (Lines of Code): The raw physical volume (scaled down to act as
+a base substrate).</li>
+</ol>
+<h5 id="21a3-the-equation-structural-mass-visual-radius">2.1.A.3. The Equation: Structural Mass &amp; Visual Radius</h5>
+<p>We utilize a multi-stage summation to determine the raw mass. Complexity
+multiplies; volume merely adds. We then apply a logarithmic clamp to
+determine the final visual radius, ensuring that massive \"God Objects\"
+are distinct but do not consume the entire viewport.</p>
+<p>Step 1: Calculate Function Impact For every function in the file, we
+calculate an impact score based on its decision density (Branches),
+connectivity (Args), and length.</p>
+<p>Function Impact = ((BranchHits + 1) * (Args + 1) + (0.05 * LOC)) * 10</p>
+<p>Step 2: Calculate Total Mass (The Raw Metric) The file\'s final mass is
+the sum of its functions plus its system-wide risk exposures.</p>
+<p>Total Mass = Sum(Function Impacts) + API + Concurrency + Flux + (LOC /
+50)</p>
+<p>Step 3: Calculate Visual Radius (The Render Size) We apply a base-2
+logarithm to compress the massive range of weights (10 to 1,000,000)
+into a renderable scale (10 to 50 units).</p>
+<p>Radius = 10 + (Math.log2(Math.max(Total Mass, 1)) * 2)</p>
+<h5 id="21a4-the-visual-thresholds-the-scale">2.1.A.4. The Visual Thresholds (The Scale)</h5>
+<p>The Asteroid (Mass \&lt; 100): Radius \~16 units. Simple DTOs, interfaces,
+or small configs. Nimble, low-gravity rocks that drift in the periphery.</p>
+<p>The Planet (Mass 100 - 1,000): Radius \~20 to 26 units. Standard
+business logic. Visible, stable, but not overwhelming. The \"Middle
+Class\" of the galaxy.</p>
+<p>The Star (Mass 1,000 - 20,000): Radius \~27 to 38 units. Core utilities,
+major controllers, or complex engines. These anchor local clusters and
+exert visible gravity.</p>
+<p>The Super-Giant (Mass 20,000+): Radius \~40+ units. \"God Objects,\"
+massive reducers, or legacy core files. These dominate the screen,
+signaling extreme structural density.</p>
+<hr />
+<h4 id="21b-stars-pulse-rate">2.1.B. Star's Pulse Rate</h4>
+<p><strong>Metric</strong>: Inbound Reference Count (Popularity). ****</p>
+<p><strong>Purpose</strong>: <strong><em>*See how popular or highly referenced a file is</em></strong>*.</p>
+<hr />
+<p><strong>Why</strong>: <strong><em>*A fundamental measure of a file's importance in a
+system.</em></strong>*</p>
+<p><strong>Effect</strong>: Modulates the Emissive Intensity (Bloom Strength) and Pulse
+Floor. <strong><em>*Pulses</em></strong><em> should feel powerful </em><strong><em>and stately, never blinky
+and annoying</em></strong><em>. Instead of deadening the colors with opacity fades, we
+use Bioluminescence. A \"God Class\" </em><strong><em>file that is</em></strong><em> imported by
+</em><strong><em>many other files </em></strong><em>shouldn\'t just blink faster; it should burn
+hotter </em><strong><em>and</em></strong><em> overwhelm the surrounding atmosphere.</em>***</p>
+<h5 id="21b1-the-philosophy-bioluminescence">2.1.B.1. The Philosophy: Bioluminescence</h5>
+<p>We treat the codebase as a living deep-sea organism.</p>
+<ul>
+<li><strong>Hot:</strong> Core utilities or \"God Objects.\" These are the nuclear
+reactors of the system. They burn with a high-intensity, white-hot
+core that never fully dims.</li>
+<li><strong>Cold:</strong> Leaf nodes or configs. They emit a gentle, shallow
+phosphorescence.</li>
+</ul>
+<h5 id="21b2-the-inputs-measuring-gravity">2.1.B.2. The Inputs: Measuring Gravity</h5>
+<ul>
+<li><strong>Ref (Inbound References):</strong> The count of <em>other</em> files that import
+this specific file.</li>
+<li><strong>MaxRef:</strong> The highest reference count found in the entire
+repository. This sets the \"Ceiling\" for the simulation.</li>
+</ul>
+<h5 id="21b3-the-equation-intensity-mapping">2.1.B.3. The Equation: Intensity Mapping</h5>
+<p>We don\'t just change speed; we change the <strong>Dynamic Range</strong> of the
+glow.</p>
+<ul>
+<li>
+<p><strong>Logic:</strong></p>
+</li>
+<li>
+<p><strong>Frequency (Speed):</strong> Capped between 0.5Hz and 1.5Hz. We keep
+the pulse \"Stately\" and \"Breathing,\" avoiding rapid
+strobing.</p>
+</li>
+<li>
+<p><strong>Amplitude (Intensity):</strong> Mapped directly to popularity.</p>
+</li>
+<li>
+<p><strong>Floor:</strong> The minimum brightness. Popular files <em>never</em> go
+dark.</p>
+</li>
+<li><strong>Ceiling:</strong> The maximum brightness. Popular files bloom
+into pure white.</li>
+</ul>
+<h5 id="21b4-equation">2.1.B.4. Equation:</h5>
+<p><em>// Normalize Popularity (0.0 to 1.0)</em></p>
+<p><em>const P = Math.min(Ref / MaxRef, 1.0);</em></p>
+<p><em>// 1. Stately Speed (0.5Hz to 1.5Hz) - Preventing the \"Hazard
+Strobe\"</em></p>
+<p><em>const speed = 0.5 + (P * 1.0);</em></p>
+<p><em>// 2. The Bloom Floor (0.2 to 1.0)</em></p>
+<p><em>// Important files never fade below 1.0 (Full Brightness)</em></p>
+<p><em>const minIntensity = 0.2 + (P * 0.8);</em></p>
+<p><em>// 3. The Bloom Ceiling (1.5 to 4.0)</em></p>
+<p><em>// Important files burst into blinding white (4.0) at the peak</em></p>
+<p><em>const maxIntensity = 1.5 + (P * 2.5);</em></p>
+<p><em>// Final Shader Value</em></p>
+<p><em>emissiveIntensity = minIntensity + (sin(time * speed) *
+(maxIntensity - minIntensity));</em></p>
+<h5 id="21b5-the-visual-thresholds-the-resonance">2.1.B.5. The Visual Thresholds (The Resonance)</h5>
+<ul>
+<li>
+<p><strong>The Firefly (Low Refs):</strong></p>
+</li>
+<li>
+<p><strong>Pulse:</strong> 0.5 Hz (Slow).</p>
+</li>
+<li><strong>Range:</strong> 0.2 -&gt; 1.5.</li>
+<li>
+<p><strong>Visual:</strong> A gentle, rhythmic shimmer. The object retains its
+rich theme color (e.g., Deep Cyan) and occasionally brightens.</p>
+</li>
+<li>
+<p><strong>The Reactor (High Refs):</strong></p>
+</li>
+<li>
+<p><strong>Pulse:</strong> 1.5 Hz (Moderate/Stately).</p>
+</li>
+<li><strong>Range:</strong> 1.0 -&gt; 4.0.</li>
+<li><strong>Visual:</strong> A powerful, \"Core Saturation\" effect. The center
+of the object burns white-hot due to Bloom overload, while the
+edges retain the theme color. It feels \"heavy\" and \"alive,\"
+anchoring the scene.</li>
+</ul>
+<h4 id="21c-stars-shape">2.1.C Star's Shape</h4>
+<p><strong>Metric:</strong> control flow ratio ().</p>
+<p><strong>Purpose:</strong> Give every star a distinctive silhouette that communicates
+the \"State of Matter\" of the code.</p>
+<p><strong>Why:</strong> A file isn\'t just a size; it has a temperament. Declarative
+code (like a list of variables) is stable and solid. Algorithmic code
+(like a sorting method) is energetic and sharp. Without this variance,
+the galaxy looks like a generic ball field. By morphing the shape, we
+allow developers to \"feel\" the difference between a config file and a
+logic core without reading a single character.</p>
+<p><strong>Effect:</strong> Transitions the central mesh through five distinct geometric
+tiers.</p>
+<h5 id="21c1-the-philosophy-smooth-vs-sharp">2.1.C.1. The Philosophy: Smooth vs. Sharp</h5>
+<p>We categorize code into five \"Phases of Matter\" based on its
+decision-making density.</p>
+<ul>
+<li><strong>Organic (Smooth):</strong> Passive code that defines things. It feels
+safe and \"round.\"</li>
+<li><strong>Crystalline (Jagged):</strong> Active code that decides things. It feels
+sharp and \"dangerous.\"</li>
+</ul>
+<h5 id="21c2-the-philosophy-thinking-vs-speaking">2.1.C.2. The Philosophy: Thinking vs. Speaking</h5>
+<p>Code does two things: it either <strong>computes</strong> (makes decisions) or it
+<strong>declares</strong> (defines structures).</p>
+<ul>
+<li><strong>Computing (Logic):</strong> \"If X happens, do Y.\" This is jagged,
+non-linear, and energetic. It represents the \"Thinking\" brain.</li>
+<li><strong>Defining (Structure):</strong> \"Let X equal 5.\" This is flat, linear,
+and stable. It represents the \"Memory\" or \"Structure\" of the
+system.</li>
+</ul>
+<p><strong>We visualize this tension physically. A file that \"thinks\" a lot
+(algorithms) looks sharp and aggressive. A file that \"remembers\" a lot
+(configs, interfaces) </strong>has softer angles.****</p>
+<h5 id="21c3-the-inputs-the-control-flow-ratio">2.1.C.3. The Inputs: The control flow ratio</h5>
+<p>The scanner separates every regex hit into one of two buckets:</p>
+<ul>
+<li>
+<p><strong>A. Branch Hits (The Logic)</strong></p>
+</li>
+<li>
+<p><strong>Concept:</strong> Points where execution splits.</p>
+</li>
+<li><strong>Variables Used:</strong> <em>BranchHits</em> (from scanner).</li>
+<li><strong>Triggers:</strong> <em>if</em>, <em>else</em>, <em>switch</em>, <em>case</em>, <em>for</em>, <em>while</em>,
+<em>catch</em>, <em>&amp;&amp;</em>, <em>||</em>, ternary <em>?</em>.</li>
+<li>
+<p><strong>Meaning:</strong> High counts here mean the code is constantly
+changing direction.</p>
+</li>
+<li>
+<p><strong>B. Linear Hits (The Structure)</strong></p>
+</li>
+<li>
+<p><strong>Concept:</strong> Points where execution flows straight or data is
+defined.</p>
+</li>
+<li><strong>Variables Used:</strong> <em>LinearHits</em>.</li>
+<li><strong>Triggers:</strong> <em>const</em>, <em>let</em>, <em>return</em>, <em>import</em>, <em>export</em>,
+<em>class</em>, <em>interface</em>, <em>type</em>.</li>
+<li><strong>Meaning:</strong> High counts here mean the code is describing <em>what</em>
+things are, not <em>doing</em> things.</li>
+</ul>
+<h5 id="21c4-the-equation">2.1.C.4. The Equation</h5>
+<p>We calculate the <strong>control flow ratio ()</strong> as the percentage of relevant
+code that is dedicated to branching.</p>
+<ol>
+<li>
+<p><strong>Summation:</strong> We find the total \"Semantic Mass\" of the file.
+<em>TotalFlow = BranchHits + LinearHits</em></p>
+</li>
+<li>
+<p><strong>Ratio Calculation:</strong> <em>R_L = BranchHits / TotalFlow</em></p>
+</li>
+<li>
+<p><strong>Result 0.0:</strong> Pure Structure (e.g., a JSON file or TS
+Interface).</p>
+</li>
+<li><strong>Result 1.0:</strong> Pure Logic (e.g., a complex regex parser or math
+utility).</li>
+<li><strong>Result 0.5:</strong> Balanced code (Standard business logic).</li>
+</ol>
+<h5 id="21c5-the-equation-5-tier-morphing">2.1.C.5. The Equation: 5-Tier Morphing</h5>
+<p>The engine selects a <em>BufferGeometry</em> based on the following thresholds:</p>
+<hr />
+<p>control flow ratio ()   Geometry Type      Visual Style                 Human Translation
+<strong>0 -- </strong>0.59<strong><em>*       </em>*Sphere</strong>         Glowing Orb                  \"The Seed\": Pure data or metadata.
+<strong>0.</strong>6 - .69<strong><em>*       </em>*Icosahedron</strong>    20-sided Glowing Wireframe   Mostly declarative/classes.
+<strong><em>*0.7 -- 0.79</em></strong><em>     </em><em>Dodecahedron</em><em>   12-sided Glowing Wireframe   Balanced business logic.
+</em><em>0.</em><em>8 -- 0.89</em><strong><em>     </em>*Octahedron</strong>     8-sided Glowing Wireframe    Highly algorithmic/complex.
+<strong>0.</strong>90<strong> -- 1.0</strong>     <strong>Tetrahedron</strong>    4-sided Glowing Wireframe    Pure logic/Recursion.</p>
+<hr />
+<p><strong><em>*Note on Matrix Optimization: For wireframe-only modes (like \"The
+Matrix\" theme), the Sphere primitive in the 0.0-0.59 range should be
+replaced with </em></strong><em>a </em><strong><em>Icosidodecahedron (32 faces --
+</em></strong><em>Buckyball!)</em>***</p>
+<h5 id="21c6-the-visual-enhancements-wireframe-logic">2.1.C.6. The Visual Enhancements (Wireframe Logic)</h5>
+<p>To emphasize the \"Digital\" nature of high-logic code, the rendering
+style shifts as the shape sharpens:</p>
+<ul>
+<li><strong><em>*The Low Tier (Sphere):</em></strong>* Rendered with a solid, emissive
+material. It feels like a glowing planet with soft, volumetric
+light.</li>
+<li><strong><em>*The High Tiers (Icosahedron -- Tetrahedron):</em></strong><em> Rendered as
+</em><strong><em>Glow Wireframes</em></strong><em>. We expose the edges and facets, making the
+star look like a flickering vector projection. As the control flow
+ratio increases, the wireframe density thins out, making the final
+\"Tetrahedron\" look like </em><em>a lethal, minimalist pyramid of pure
+calculation</em>*.</li>
+</ul>
+<h4 id="21d-satellite-unit">2.1.D Satellite Unit</h4>
+<p><strong>Metric</strong>: Function Declaration (e.g., <strong><em>*</em>function</strong><strong><em>,
+</em></strong><strong>=&gt;</strong><strong><em>, </em></strong><strong>def</strong><strong><em>, </em></strong><strong>class method</strong><strong><em>). </em></strong>*</p>
+<p><strong>Purpose</strong>: Represents a discrete unit of logic---a
+\"Tool\"---contained within the file (the Toolbox). ****</p>
+<p><strong>Why</strong>: Files are rarely monolithic blocks of text; they are
+collections of distinct functions. We visualize these as moons orbiting
+the planet to show the granularity and inventory of the file at a
+glance. ****</p>
+<p><strong>Effect</strong>: Spawns a small spherical geometry orbiting the central
+parent.****</p>
+<h5 id="21d1-the-philosophy-the-toolkit">2.1.D.1. The Philosophy: The Toolkit</h5>
+<p>We treat the file as a container.</p>
+<ul>
+<li><strong>The Star:</strong> The Box (Class/Module).</li>
+<li><strong>The Satellites:</strong> The Tools (Functions/Methods). A star with no
+moons is likely a static data configuration. A star with 50 moons is
+a heavy utility class with many diverse tools.</li>
+</ul>
+<h5 id="21d2-the-inputs-identification">2.1.D.2. The Inputs: Identification</h5>
+<ul>
+<li><strong>Regex Hits:</strong> <em>function</em>, <em>=&gt;</em>, <em>def</em>, <em>func</em>.</li>
+<li><strong>Cap:</strong> \~12 satellites (To prevent rendering swarms, we visualize
+a representative sample).</li>
+</ul>
+<h5 id="21d3-basal-values-the-standard-model">2.1.D.3. Basal Values (The Standard Model)</h5>
+<p>Every satellite begins with these default physical properties before
+other metrics (like complexity) warp them:</p>
+<ul>
+<li><strong>Geometry:</strong> <em>SphereGeometry(2, 4, 4)</em> (Low-poly \"Moon\").</li>
+<li><strong>Radius:</strong> 2 Units (Fixed, small).</li>
+<li><strong>Color:</strong> Inherits Parent Star\'s color (Visual Cohesion).</li>
+<li><strong>Opacity:</strong> 0.8 (Slightly ghosted to indicate subservience).</li>
+<li><strong>Orbit:</strong> Rotates around the parent at a basal speed unless
+modified by \"Heat\" metrics.</li>
+</ul>
+<p>2.1.D.4. The Function Impact Score</p>
+<p>Not all moons are equal. A one-line \"getter\" is a pebble; a 500-line
+algorithm is a moon. To ensure the visualization is honest, we calculate
+an Impact Score for every function found. This score determines which 12
+satellites are rendered (we always show the heaviest) and how \"large\"
+they appear.</p>
+<p>Logic: We combine Complexity (Branches), Connectivity (Args), and Volume
+(LOC) into a single weight metric.</p>
+<p>Impact Score = ((BranchHits + 1) * (Args + 1) + (0.05 * LOC)) * 10</p>
+<p>BranchHits: The density of decision making. Args: The weight of
+inputs/coupling. LOC: The physical length (scaled down by 0.05 to
+prioritize logic over verbosity). Multiplier (10): Scales the integer
+for storage efficiency in vectorized formats.</p>
+<hr />
+<h4 id="21e-satellite-orbital-distance">2.1.E Satellite Orbital Distance</h4>
+<p><strong>Metric</strong>: Lines of Code in a function.</p>
+<p><strong>Effect</strong>: Bigger the function, the further the satellite.</p>
+<p><strong>Input</strong>: LOC (Lines of Code for the specific function/block).</p>
+<p><strong>Logic</strong>: Logarithmic Scaling. This ensures that we can visually
+differentiate between small (10 lines), large (1,000 lines), and massive
+(100,000 lines) files without the graphic growing infinitely off the
+screen.</p>
+<p><strong><em>*Equation:</em></strong>*</p>
+<ul>
+<li><em>Length_pixels = 60 + (Math.log2(Math.max(LOC, 1)) * 30)</em></li>
+</ul>
+<p><strong><em>*Scaling Examples: </em></strong>*</p>
+<ul>
+<li>
+<ul>
+<li><strong><em>*10 LOC:</em></strong>* \~160px (Visible Stub)</li>
+</ul>
+</li>
+<li><strong><em>*100 LOC:</em></strong>* \~260px (Standard Branch)</li>
+<li><strong><em>*1,000 LOC:</em></strong>* \~360px (Major Limb)</li>
+<li><strong><em>*100,000 LOC:</em></strong>* \~560px (Megastructure Reach)</li>
+</ul>
+<p><strong><em>*Visual Output:</em></strong>*</p>
+<ul>
+<li>
+<ul>
+<li><strong><em>*3D:</em></strong>* Distance of the orbiting satellite from the core
+(Orbital Radius).</li>
+</ul>
+</li>
+</ul>
+<h4 id="21f-number-of-satellites-in-a-unit">2.1.F Number of satellites in a unit</h4>
+<p><strong>Metric</strong>: <strong><em>*Extended Cyclomatic Complexity</em></strong>* Visualizes the
+\"Knotty\" nature of logic. High cognitive load manifests as dense,
+recursive fractals or clusters of satellites.</p>
+<p><strong>Input</strong>: <strong><em>*C</em></strong>* (Composite Complexity Score), defined in depth
+below.</p>
+<p><strong>Effect</strong>:</p>
+<ul>
+<li>3D: Number of satellites in satellite/function unit.</li>
+</ul>
+<h5 id="21f1-the-philosophy-cognitive-friction">2.1.F.1. The Philosophy: Cognitive Friction</h5>
+<p>Computers don\'t care about <em>try/catch</em> blocks or nested <em>if</em>
+statements; they execute them in nanoseconds. Humans, however, have
+limited working memory. Every time a developer reads an <em>if</em>, a loop, or
+an error handler, they have to \"fork\" their mental model of what the
+code is doing. We call this <strong><em>*Cognitive Friction</em></strong>*.</p>
+<p>In GitGalaxy, we visualize this friction physically. A simple, linear
+script grows like a straight bamboo shoot. A complex, defensive,
+branching function grows like a dense, thorny thicket.</p>
+<h5 id="21f2-the-inputs-anatomy-of-complexity">2.1.F.2. The Inputs: Anatomy of Complexity</h5>
+<p>To calculate this, we look at two distinct types of code patterns found
+by the scanner:</p>
+<ul>
+<li>
+<p><strong>A. Structural Complexity (The Skeleton)</strong></p>
+</li>
+<li>
+<p><strong>What it is:</strong> The actual decision points in the logic.</p>
+</li>
+<li><strong>Variables Used:</strong> <em>BranchHits</em> (from scanner).</li>
+<li><strong>Triggers:</strong> <em>if</em>, <em>else</em>, <em>for</em>, <em>while</em>, <em>switch</em>, logical
+operators (<em>&amp;&amp;</em>, <em>||</em>), and ternaries (<em>?</em>).</li>
+<li>
+<p><strong>Why it matters:</strong> Each of these represents a split in reality.
+\"If X is true, go left; otherwise, go right.\" Too many splits
+make the path impossible to follow.</p>
+</li>
+<li>
+<p><strong>B. Defensive Overhead (The Armor)</strong></p>
+</li>
+<li>
+<p><strong>What it is:</strong> Code written to protect against failure, not to
+perform the primary task.</p>
+</li>
+<li><strong>Variables Used:</strong> <em>SafetyHits</em>.</li>
+<li><strong>Triggers:</strong> <em>try</em>, <em>catch</em>, <em>finally</em>, <em>assert</em>, <em>guard</em>,
+<em>validate</em>.</li>
+<li><strong>Why it matters:</strong> While safety is good, it creates visual
+noise. A function wrapped in three layers of error handling is
+structurally denser than one that just does the math. We count
+this as complexity, but we weight it differently because it\'s
+\"necessary\" complexity.</li>
+</ul>
+<h5 id="21f3-the-equation-calculating-c">2.1.F.3. The Equation: Calculating \'C\'</h5>
+<p>We calculate the <strong>Composite Complexity Score (C)</strong> using a weighted
+sum.</p>
+<ol>
+<li><strong>Count the Branches:</strong> We take the raw count of structural
+elements. <em>Structural = BranchHits</em></li>
+<li><strong>Weigh the Armor:</strong> We take the count of safety elements and
+multiply by <strong>0.5</strong>. <em>Defensive = SafetyHits * 0.5</em> <em>Human
+Translation:</em> Two safety checks consume as much \"mental space\" as
+one actual logic branch. This prevents well-protected code from
+looking unfairly \"spaghetti-like\" while acknowledging that it is
+still denser than unsafe code.</li>
+<li><strong>Summation:</strong> <strong><em>*Composite Complexity Score (C</em></strong><em>)</em>***<em> =
+Structural + Defensive = BranchHits + 0.5 * SafetyHits</em></li>
+</ol>
+<h5 id="21f4-the-visual-thresholds-the-step-function">2.1.F.4. The Visual Thresholds (The Step Function)</h5>
+<p>We map the abstract number <em>C</em> to a physical <strong>Fractal Depth</strong>. This
+determines how many times the geometry splits or how many moons orbit
+the planet.</p>
+<ul>
+<li>
+<p><strong>Level 0: The Bamboo (C ≤ 2)</strong></p>
+</li>
+<li>
+<p><strong>Code looks like:</strong> A simple list of instructions. Do A, then
+B, then C.</p>
+</li>
+<li>
+<p><strong>Visual:</strong> A single, straight line or a planet with 0-1 moons.</p>
+</li>
+<li>
+<p><strong>Level 1: The Fork (C &gt; 2)</strong></p>
+</li>
+<li>
+<p><strong>Code looks like:</strong> A basic function with one or two checks.</p>
+</li>
+<li>
+<p><strong>Visual:</strong> The unit splits once.</p>
+</li>
+<li>
+<p><strong>Level 2: The Tree (C &gt; 8)</strong></p>
+</li>
+<li>
+<p><strong>Code looks like:</strong> Standard business logic. Loops inside
+conditions.</p>
+</li>
+<li>
+<p><strong>Visual:</strong> Distinct branching structure. 3-4 moons.</p>
+</li>
+<li>
+<p><strong>Level 3: The Thicket (C &gt; 15)</strong></p>
+</li>
+<li>
+<p><strong>Code looks like:</strong> Complex algorithms, state machines, or
+legacy parsers.</p>
+</li>
+<li>
+<p><strong>Visual:</strong> Dense, aggressive branching. A swarm of moons.</p>
+</li>
+<li>
+<p><strong>Level 4: The Jungle (C &gt; 25)</strong></p>
+</li>
+<li>
+<p><strong>Code looks like:</strong> \"God Objects,\" massive switch statements,
+or deep recursion.</p>
+</li>
+<li><strong>Visual:</strong> A chaotic, fractal explosion. The geometry is almost
+solid with branches.</li>
+</ul>
+<p><strong><em>*2</em></strong><em>.1.</em><strong><em>F</em></strong><em>.</em><strong><em>5 </em>*Equation Implementation:</strong></p>
+<p><em>// 1. Control Flow &amp; Logic (The Skeleton)</em></p>
+<p><em>// Matches: if, else, for, while, switch, &amp;&amp;, ||, ?, ??</em></p>
+<p><em>const Structural = count(Rules.branch);</em></p>
+<p><em>// 2. Defensive Overhead (The Armor)</em></p>
+<p><em>// We use the standard \'SafetyHits\' sub-equation from Spec 3.3.</em></p>
+<p><em>// Matches: try, catch, finally, assert, sanitize, validate, checkAuth,
+isinstance</em></p>
+<p><em>// We weight these at 50% because they add noise/density but often wrap
+existing logic.</em></p>
+<p><em>const Defensive = SafetyHits * 0.5;</em></p>
+<p><em>// 3. Composite Score</em></p>
+<p><em>const C = Structural + Defensive;</em></p>
+<p><em>// 4. Fractal Mapping (Step Function)</em></p>
+<p><em>if (C &gt; 25) Depth = 4 // \"Dense Thicket\" (The Jungle)</em></p>
+<p><em>else if (C &gt; 15) Depth = 3</em></p>
+<p><em>else if (C &gt; 8) Depth = 2</em></p>
+<p><em>else if (C &gt; 2) Depth = 1</em></p>
+<p><em>else Depth = 0 // \"Line\" (The Bamboo)</em></p>
+<h4 id="21g-satellites-relative-positioning-in-a-unit">2.1.G Satellite's Relative Positioning in a unit</h4>
+<p><strong>Metric</strong>: <strong><em>*Ratio </em></strong><em>of logic to declarative statements</em>***</p>
+<p><strong>Purpose</strong>: Give every function or deployment of satellites a
+distinctive shape depending on that function's ratio of logical
+statements to declarative statements. ****</p>
+<p><strong>Why: </strong>It looks boring and repetitive without it. ****</p>
+<p><strong>Effect</strong>: Alters how the satellites in a function are arranged in 3D
+space.</p>
+<h5 id="21g1-the-visual-translation-the-lerp">2.1.G.1. The Visual Translation (The Lerp)</h5>
+<p>We map the abstract ratio () to physical angles using <strong>Linear
+Interpolation (Lerp)</strong> ****and the control flow ratio defined above.</p>
+<hr />
+<p><strong><em>* </em></strong><em>2</em><strong><em>.1.</em></strong><em>G.</em><em>1. The Philosophy: Thinking vs. Speaking</em>*</p>
+<p>Code does two things: it either <strong>computes</strong> (makes decisions) or it
+<strong>declares</strong> (defines structures).</p>
+<ul>
+<li><strong>Computing (Logic):</strong> \"If X happens, do Y.\" This is jagged,
+non-linear, and energetic. It represents the \"Thinking\" brain.</li>
+<li><strong>Defining (Structure):</strong> \"Let X equal 5.\" This is flat, linear,
+and stable. It represents the \"Memory\" or \"Structure\" of the
+system.</li>
+</ul>
+<p><strong><em>*We visualize this tension physically. A file that \"thinks\" a lot
+(algorithms) looks sharp and aggressive. A file that \"remembers\" a lot
+(configs, interfaces) </em></strong><em>has softer angles.</em>***</p>
+<p><strong>Equation:</strong> <em>Angle = 22.5 + (1.0 - R_L) * (90 -- 22.5)</em></p>
+<p><strong>High Logic ():</strong> Angle . Branches diverge sharply, creating a
+\"Lightning Bolt\" look.</p>
+<p><strong>High Structure ():</strong> Angle . Branches diverge at right angles,
+creating a \"Circuit Board\" or \"Grid\" look.</p>
+<p>Angles are then used to build the position of the satellites.</p>
+<hr />
+<h4 id="21h-node-size-metric-argument-count">2.1.H Node Size (Metric: Argument Count)</h4>
+<p><strong><em>*Metric:</em></strong>*** Argument Count (Args). **</p>
+<p><strong><em>*Purpose:</em></strong>*** Visualizes the \"State Heaviness\" or I/O weight of a
+function. **</p>
+<p><strong><em>*Why:</em></strong>*** Functions with many arguments often carry significant
+state or context (\"I/O Weight\"). A clean utility usually takes 1-2
+arguments, while a legacy handler might take 10. We visualize this
+physically to differentiate sleek tools from heavy machinery. **</p>
+<p><strong><em>*Effect:</em></strong><strong>* Modulates the physical size (Scale) of the orbiting
+satellite.</strong></p>
+<h5 id="21h1-the-philosophy-heavy-vs-light">2.1.H.1. The Philosophy: Heavy vs. Light</h5>
+<p>We view arguments as \"Inputs\" or \"Cables\" plugged into the function.</p>
+<ul>
+<li><strong>Lightweight:</strong> 0-2 arguments. Sharp, encapsulated, easy to move.</li>
+<li><strong>Heavyweight:</strong> 5+ arguments. Bloated, carrying too much context,
+harder to maintain.</li>
+</ul>
+<h5 id="21h2-the-inputs-measuring-args">2.1.H.2. The Inputs: Measuring Args</h5>
+<ul>
+<li><strong>Args:</strong> The count of arguments in the function signature found by
+the scanner.</li>
+<li><strong>Range:</strong> Typically 0 to 20+.</li>
+</ul>
+<h5 id="21h3-the-equation-logarithmic-scaling">2.1.H.3. The Equation: Logarithmic Scaling</h5>
+<p>We use logarithmic scaling to prevent massive orbs for functions with
+many arguments (e.g., 20+). A linear scale would make them visually
+overwhelming; a log scale highlights the difference between 0 and 5, but
+compresses the difference between 10 and 20.</p>
+<p><strong>Equation:</strong> <em>Scale = 1.0 + (Math.log2(Math.max(Args, 1)) * 0.2)</em></p>
+<ul>
+<li><strong>Base Scale:</strong> 1.0 (Standard Unit).</li>
+<li><strong>Factor:</strong> * 0.2 (Gentle growth multiplier).</li>
+</ul>
+<h5 id="21h4-the-visual-output">2.1.H.4. The Visual Output</h5>
+<ul>
+<li><strong>3D:</strong> Radius of the orbiting Moon particles.</li>
+</ul>
+<h4 id="21i-planetary-rings">2.1.I. Planetary Rings</h4>
+<p><strong>Metric:</strong> External Library Import Count</p>
+<p><strong>Purpose:</strong> See which files import external libraries</p>
+<p><strong>Why: </strong>Determine which files have dependencies that you don't fully
+control.****</p>
+<p><strong>Effect:</strong> Spawns rings around the file to determine</p>
+<h5 id="21i1-the-philosophy-the-gravity-well">2.1.I.1. The Philosophy: The Gravity Well</h5>
+<p>A clean file is a sphere. It floats freely. A file with dependencies is
+tethered. The more it imports, the heavier it gets. We set a <strong>High
+Threshold</strong> for rings. We don\'t want visual noise for a single utility
+import. Rings are reserved for \"Heavy Lifters\" and \"Glue Code.\"</p>
+<h5 id="21i2-the-inputs-measuring-dependencies">2.1.I.2. The Inputs: Measuring Dependencies</h5>
+<ul>
+<li><strong>ImportHits:</strong> The count of <em>import</em>, <em>require</em>, or <em>include</em>
+statements found by the scanner.</li>
+<li><strong>Threshold:</strong> <strong>&gt; 5 Imports</strong>. Anything less is considered
+\"Standard Weight\" and renders with <strong>No Rings</strong>.</li>
+</ul>
+<h5 id="21i3-the-equation-growth-and-density">2.1.I.3. The Equation: Growth and Density</h5>
+<p>Instead of complex accretion disks, we use a single, evolving ring
+system that grows in <strong>Density (Opacity)</strong> and <strong>Mass (Width)</strong> as the
+gravity increases.</p>
+<ul>
+<li>
+<p><strong>Logic:</strong></p>
+</li>
+<li>
+<p><strong>Opacity (Visibility):</strong> Ranges from <strong>0.0 to 0.6</strong> over the
+first 26 imports.</p>
+</li>
+<li>
+<p><em>Math:</em> <em>Opacity = Math.min((ImportHits / 26) * 0.6, 0.6)</em></p>
+</li>
+<li>
+<p><em>Effect:</em> Rare imports create a barely visible \"Ghost
+Ring.\" As dependencies hit the critical mass (26), the ring
+becomes a distinct, semi-solid band.</p>
+</li>
+<li>
+<p><strong>Width (Tube Thickness):</strong> Grows continuously as imports
+increase.</p>
+</li>
+<li>
+<p><em>Math:</em> <em>TubeRadius = BaseWidth + (ImportHits * 0.1)</em></p>
+</li>
+<li><em>Effect:</em> The ring gets physically thicker and wider,
+consuming more visual space around the planet as the gravity
+well deepens.</li>
+</ul>
+<h5 id="21i4-the-visual-output">2.1.I.4. The Visual Output</h5>
+<ul>
+<li>
+<ul>
+<li><strong>Geometry:</strong> <em>TorusGeometry</em>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Tube Radius:</strong> Scaled linearly by <em>ImportHits</em>.</p>
+</li>
+<li>
+<p><strong>Material:</strong> Transparent with <em>opacity</em> capped at 0.6.</p>
+</li>
+<li>
+<p><strong>Tilt:</strong> Rings are tilted at randomized axes (Euler angles) to
+ensure they don\'t look like flat plates, but dynamic,
+gyroscope-like orbital paths.</p>
+</li>
+</ul>
+<p>**</p>
+<h4 id="21j-relative-positioning-metric-sequence-affinity">2.1.J Relative Positioning (Metric: Sequence &amp; Affinity)</h4>
+<p><strong>Metric:</strong> Semantic Affinity (Folder + Type + Importance).</p>
+<p><strong>Purpose:</strong> Group related files into \"Constellations\" or \"Sectors\"
+to create a navigable map, rather than a uniform noise field.</p>
+<p><strong>Why:</strong> A standard spiral is predictable but dumb---it places a
+<em>login.js</em> next to a <em>utils.js</em> just because they loaded sequentially.
+By sorting and offsetting based on metadata, we create
+\"Neighborhoods.\" Auth files cluster together; Tests float above the
+plane; Configs sink to the bottom.</p>
+<p><strong>Effect:</strong> Determines the final coordinates through a <strong><em>*Tri-Phase</em></strong>*
+procedural loop.</p>
+<h5 id="21j1-the-philosophy-the-tri-phase-displacement">2.1.J.1. The Philosophy: The Tri-Phase Displacement</h5>
+<p>We don\'t use expensive physics simulations (N-Body gravity). Instead,
+we use a predictable <strong>3-Pass Sort &amp; Offset</strong> algorithm. This ensures
+that the same code always generates the same galaxy (deterministic) but
+produces organic, organized clusters.</p>
+<h5 id="21j2-phase-1-the-gravity-sort-chronology-importance">2.1.J.2. Phase 1: The Gravity Sort (Chronology &amp; Importance)</h5>
+<p>Before positioning, we re-index the file list to determine \"Who sits at
+the Head of the Table?\"</p>
+<ul>
+<li>
+<p><strong>Primary Sort:</strong> <strong>Inbound Reference Count (descending).</strong></p>
+</li>
+<li>
+<p><em>Effect:</em> The \"God Classes\" and Core Utilities (High Gravity)
+naturally move to index <em>0</em> (The Galactic Center).</p>
+</li>
+<li>
+<p><strong>Secondary Sort:</strong> <strong>Directory Path.</strong></p>
+</li>
+<li>
+<p><em>Effect:</em> Files in the same folder (e.g., <em>src/auth/</em>) end up
+adjacent in the list, ensuring they spiral out together in a
+\"Sector.\"</p>
+</li>
+</ul>
+<h5 id="21j3-phase-2-the-gap-spiral-radial-positioning">2.1.J.3. Phase 2: The Gap Spiral (Radial Positioning)</h5>
+<p>We apply the Golden Angle Spiral, but we inject <strong>\"Void Gaps\"</strong> when
+the directory changes.</p>
+<ul>
+<li>
+<p><strong>Logic:</strong></p>
+</li>
+<li>
+<p>Iterate through the sorted list.</p>
+</li>
+<li>
+<p>Calculate standard spiral step: <em>angle += 0.5</em>.</p>
+</li>
+<li>
+<p><strong>The Check:</strong> If <em>CurrentFile.folder !== PreviousFile.folder</em>:</p>
+</li>
+<li>
+<p>Add <strong>buffer</strong> to the radius (<em>radius += 150</em>).</p>
+</li>
+<li>
+<p><em>Result:</em> This creates physical empty space between the
+\"Auth Sector\" and the \"UI Sector,\" visibly grouping them
+into islands along the spiral arm.</p>
+</li>
+<li>
+<p><strong>Standard:</strong> <em>radius += 12</em>. (Tight packing for related files).</p>
+</li>
+</ul>
+<h5 id="21j4-phase-3-the-stratification-z-axis-type-layering">2.1.J.4. Phase 3: The Stratification (Z-Axis Type Layering)</h5>
+<p>We use the vertical axis () to separate concerns, preventing the disk
+from looking like a flat pancake.</p>
+<ul>
+<li>
+<p><strong>Logic:</strong> instead of random jitter, we map <strong>File Type</strong> to
+<strong>Elevation</strong>.</p>
+</li>
+<li>
+<p><strong>The Logic Plane (Y = 0):</strong> Source Code (<em>.js</em>, <em>.ts</em>, <em>.py</em>,
+<em>.rs</em>). The active layer.</p>
+</li>
+<li><strong>The Asset Atmosphere (Y = +60):</strong> Styles &amp; Assets (<em>.css</em>,
+<em>.png</em>, <em>.svg</em>). Floating above the logic like clouds.</li>
+<li><strong>The Bedrock (Y = -60):</strong> Configs &amp; Data (<em>.json</em>, <em>.yml</em>,
+<em>.dockerfile</em>, <em>.md</em>). Sunk below the logic like a foundation.</li>
+<li><em>Random Jitter:</em> We add a small <em>±10</em> jitter to all layers to
+maintain organic volume.</li>
+</ul>
+<h4 id="21k-misc-equations">2.1.K Misc Equations</h4>
+<p><strong>The code implements a dynamic orbitRadius formula: 40 + (log2(loc) *
+10). This establishes an \"Event Horizon\" for functional moons,
+ensuring that high-mass files (Tier 4) do not physically intersect with
+their orbiting satellites, maintaining structural legibility at extreme
+scales.</strong></p>
+<p>**</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

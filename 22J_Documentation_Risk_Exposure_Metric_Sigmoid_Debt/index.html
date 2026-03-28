@@ -1,0 +1,2047 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The structural DNA of massive software repositories.">
+      
+      
+      
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/22J_Documentation_Risk_Exposure_Metric_Sigmoid_Debt/">
+      
+      
+        <link rel="prev" href="../22I_Technical_Debt_Exposure/">
+      
+      
+        <link rel="next" href="../22K_File_Stability_Commit_Heat/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>22J Documentation Risk Exposure Metric Sigmoid Debt - GitGalaxy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#22j-documentation-risk-exposure-metric-sigmoid-debt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitGalaxy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              22J Documentation Risk Exposure Metric Sigmoid Debt
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitGalaxy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0_Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Technical Specifications v4.1 (Master Blueprint)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_Foundation__Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundation  Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21A_Stars_Size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21A Stars Size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21B_Stars_Pulse_Rate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21B Stars Pulse Rate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21C_Stars_Shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21C Stars Shape
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21D_Satellite_Unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21D Satellite Unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21E_Satellite_Orbital_Distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21E Satellite Orbital Distance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21F_Number_of_satellites_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21F Number of satellites in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21G_Satellites_Relative_Positioning_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21G Satellites Relative Positioning in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21H_Node_Size_Metric_Argument_Count/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21H Node Size Metric Argument Count
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21I_Planetary_Rings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21I Planetary Rings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21J_Relative_Positioning_Metric_Sequence__Affinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21J Relative Positioning Metric Sequence  Affinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21K_Misc_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21K Misc Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21_How_we_represent_complexity_as_physical_structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 How we represent complexity as physical structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22A_Overview_of_methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22A Overview of methodology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22B_Sub-Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22B Sub Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22C_Transforming_Noisy_Regex_Counts_Into_Something_Meaningful/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22C Transforming Noisy Regex Counts Into Something Meaningful
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22D_Ownership_Mode_Shannon_Entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22D Ownership Mode Shannon Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22E_Cognitive_Load_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22E Cognitive Load Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22F_Churn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22F Churn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22G_Safety_Mode_Metric_Structural_Fortification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22G Safety Mode Metric Structural Fortification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22I_Technical_Debt_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22I Technical Debt Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22J Documentation Risk Exposure Metric Sigmoid Debt
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22J Documentation Risk Exposure Metric Sigmoid Debt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22j-documentation-risk-exposure-metric-sigmoid-debt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J. Documentation Risk Exposure (Metric: Sigmoid Debt)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2.J. Documentation Risk Exposure (Metric: Sigmoid Debt)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#22j1-the-philosophy-the-duty-of-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.1. The Philosophy: The Duty of Care
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j2-the-inputs-tiered-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.2. The Inputs (Tiered Efficiency)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j3-the-universal-framework-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.3. The Universal Framework Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j4-the-equation-the-dynamic-risk-sigmoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.4. The Equation: The Dynamic Risk Sigmoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j5-implementation-python-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.5. Implementation (Python Reference)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j6-visual-verification-the-risk-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.6. Visual Verification (\"The Risk Audit\")
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22K_File_Stability_Commit_Heat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22K File Stability Commit Heat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22L_Test_Coverage_Metric_Verification_Density/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22L Test Coverage Metric Verification Density
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22M_The_Civil_War_Algorithm_Tabs_vs_Spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22M The Civil War Algorithm Tabs vs Spaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22N_The_Graveyard_Detector_Metric_Architectural_Transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22N The Graveyard Detector Metric Architectural Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22O_API_Exposure_Metric_The_Event_Horizon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22O API Exposure Metric The Event Horizon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22P_Concurrency_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22P Concurrency Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22Q_State_Flux_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22Q State Flux Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22_Color_Labeling_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 Color Labeling Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../230_The_GalaxyScope_Chassis_--_Optical_Orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    230 The GalaxyScope Chassis    Optical Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../231_The_Aperture_Filter_Adjusting_the_Telescopes_Filter_and_Focus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    231 The Aperture Filter Adjusting the Telescopes Filter and Focus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../232_The_GuideStar_Protocol_Contextual_Intelligence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    232 The GuideStar Protocol Contextual Intelligence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_Focusing_the_Language_Lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 Focusing the Language Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_The_Security_Lens_--_Threat_Detection_Physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 The Security Lens    Threat Detection Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../234_The_Prism_--_Splitting_the_comments_from_the_code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    234 The Prism    Splitting the comments from the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../235_The_Detector_--_The_Logic_Splicer__Cartographer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    235 The Detector    The Logic Splicer  Cartographer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    236 Signal Processing Equations and 2nd Pass scanning Calculations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_Phase_0_Mission_Control_The_GalaxyScope_Orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 Phase 0 Mission Control The GalaxyScope Orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_The_Spectral_Audit_Quality_Control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 The Spectral Audit Quality Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../238_The_Audit_Recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    238 The Audit Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_GPU_Recorder_Hypercompressed_Data_Storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The GPU Recorder Hypercompressed Data Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_LLM_Recorder_AI_Translation_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The LLM Recorder AI Translation Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23 Data Analysis Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../240_Claim_1_--_Optimum_Search_Strategies_Change_with_Scale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    240 Claim 1    Optimum Search Strategies Change with Scale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../241_Claim_2_--_Coding_Languages_Evolve_Towards_Explicitness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    241 Claim 2    Coding Languages Evolve Towards Explicitness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../242_--_Claim_3_--_Intent_Scales_Across_Syntax_The_Taxonomical_Equivalence_Map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    242    Claim 3    Intent Scales Across Syntax The Taxonomical Equivalence Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 Strategy Validation    Does this work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7_Impacts__Future_Outlooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Impacts  Future Outlooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_Sidebar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22j-documentation-risk-exposure-metric-sigmoid-debt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J. Documentation Risk Exposure (Metric: Sigmoid Debt)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2.J. Documentation Risk Exposure (Metric: Sigmoid Debt)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#22j1-the-philosophy-the-duty-of-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.1. The Philosophy: The Duty of Care
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j2-the-inputs-tiered-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.2. The Inputs (Tiered Efficiency)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j3-the-universal-framework-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.3. The Universal Framework Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j4-the-equation-the-dynamic-risk-sigmoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.4. The Equation: The Dynamic Risk Sigmoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j5-implementation-python-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.5. Implementation (Python Reference)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22j6-visual-verification-the-risk-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.J.6. Visual Verification (\"The Risk Audit\")
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>22J Documentation Risk Exposure Metric Sigmoid Debt</h1>
+
+<h4 id="22j-documentation-risk-exposure-metric-sigmoid-debt">2.2.J. Documentation Risk Exposure (Metric: Sigmoid Debt)</h4>
+<h5 id="22j1-the-philosophy-the-duty-of-care">2.2.J.1. The Philosophy: The Duty of Care</h5>
+<p>Visualizes the \"Duty of Care\" a developer owes to their future self
+and the collective. This metric does not reward the raw volume of text;
+it measures the Density of Intent. We distinguish between
+\"Library-Grade\" engineering---where a component is supported by
+structured metadata---and \"Silent Logic,\" which requires the reader to
+perform manual mental compilation to understand the <em>why</em> behind the
+<em>what</em>.</p>
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum.</p>
+<ul>
+<li><strong>THOROUGH (Score 0-20, Blue):</strong> Saturated Map. Perfect coverage
+with high intent density.</li>
+<li><strong>MODERATE (Score 41-60, Yellow):</strong> Functional baseline. Meets
+standard safety thresholds.</li>
+<li><strong>UNDOCUMENTED (Score 90-100, Red):</strong> Total Opacity. Zero intent
+density, representing high maintenance risk.</li>
+</ul>
+<h5 id="22j2-the-inputs-tiered-efficiency">2.2.J.2. The Inputs (Tiered Efficiency)</h5>
+<p>The regex scanning has been abstracted out of the physics engine. The
+<em>blAST</em> engine now pre-calculates documentation lines and structured
+hits, passing them into the Signal Processor.</p>
+<hr />
+<p>Doc Hits      <strong>doc</strong>         1.0x    High     Tier 1 (The Interface). Gold standard tags (<strong>\@param</strong>, <strong>///</strong>). One hit provides a full point of intent density.
+Header Hits   <strong>ownership</strong>   0.5x    Medium   Tier 2 (The Metadata). Attribution and file-level summaries. Valuable context, but less critical for line-by-line logic comprehension.
+Doc LOC       <strong>doc_loc</strong>     0.33x   Low      Tier 3 (The Narrative). General inline comments. Requires 3 lines of text to equal 1 structured tag, honoring effort but demanding volume.</p>
+<hr />
+<h5 id="22j3-the-universal-framework-integration">2.2.J.3. The Universal Framework Integration</h5>
+<ul>
+<li>
+<p><strong>Fc (Fidelity Coefficient):</strong> Applied to the final risk reduction.
+We trust documentation in Explicit languages (e.g., Rust) more than
+in Implicit languages (e.g., Shell), where comments are prone to
+\"drifting\" from the actual logic.</p>
+</li>
+<li>
+<p><strong>Irc (Implicit Risk Correction):</strong> Applied to the Threshold.
+Implicit languages require a higher \"Opacity Tax.\" They need more
+documentation density just to reach a baseline safety level.</p>
+</li>
+<li>
+<p><strong>Mp (Path Modifier):</strong></p>
+</li>
+<li>
+<p><strong>Public/API (Mp = 1.5):</strong> High Bar. This is the face of the
+system. Lack of docs here is punished more severely.</p>
+</li>
+<li><strong>Tests/Experiments (Mp = 0.5):</strong> Low Bar. Internal logic is
+more \"forgiven\" for being silent.</li>
+</ul>
+<h5 id="22j4-the-equation-the-dynamic-risk-sigmoid">2.2.J.4. The Equation: The Dynamic Risk Sigmoid</h5>
+<p><em>We calculate the density of intent and map it to a \"Debt Curve\" where
+the score represents the Exposure caused by missing documentation.</em></p>
+<p><strong>Step A: The Micro-Bypass</strong> Tiny scripts (\&lt;= 2 lines of code) with 0
+documentation are automatically granted a <em>0.0</em> risk score. A one-line
+utility function does not require a map.</p>
+<p><strong>Step B: Calculate Intent Density</strong> We sum the weighted points and
+normalize them against the file size (<em>loc</em>). A 1000-line file requires
+significantly more intent-signaling than a 10-line utility.</p>
+<p><strong>Step C: Determine The Risk Threshold (The Bar)</strong> We calculate the
+\"Tipping Point\" where a file transitions from \"Well-Documented\" to
+\"High Risk.\" We add the Implicit Risk Correction (<em>Irc</em>)---meaning
+opaque languages like Shell require a higher density to reach baseline
+safety---and multiply by the Path Modifier (<em>Mp</em>). For example, public
+APIs (high <em>Mp</em>) raise the threshold significantly.</p>
+<p><strong>Step D: The Risk Sigmoid Map</strong> We use a sigmoid with a positive
+exponent. As Documentation Density increases, the Risk Score
+mathematically decreases.</p>
+<p><strong>Step E: Fidelity Trust Multiplier</strong> Finally, we apply the Fidelity
+Coefficient (<em>Fc</em>). Low-fidelity languages (high <em>Irc</em>, low <em>Fc</em>) suffer
+an inverted trust multiplier, acknowledging that comments in those
+languages are more prone to drifting from reality.</p>
+<h5 id="22j5-implementation-python-reference">2.2.J.5. Implementation (Python Reference)</h5>
+<p><em>import math</em></p>
+<p><em>from typing import Dict</em></p>
+<p><em>def _calc_documentation(self, loc: int, doc_loc: int, eq: Dict[str,
+int], fc: float, irc: int, mp: float) -&gt; float:</em></p>
+<ul>
+<li>
+<p>t = self.risk_tuning.get(\"documentation\", {})*</p>
+</li>
+<li>
+<p>*</p>
+</li>
+<li>
+<p># Step B: Calculate Intent Density*</p>
+</li>
+<li>
+<p>weighted_points = (eq.get(\"doc\", 0) * t.get(\"doc_weight\", 1.0)) +
+\*</p>
+</li>
+<li>
+<p>(eq.get(\"ownership\", 0) * t.get(\"ownership_weight\", 0.5)) + \*</p>
+</li>
+<li>
+<p>(doc_loc * t.get(\"doc_loc_weight\", 0.33))*</p>
+</li>
+<li>
+<p>density = (weighted_points / loc) * 100.0*</p>
+</li>
+<li>
+<p>*</p>
+</li>
+<li>
+<p># Step A: Micro-bypass for tiny utilities*</p>
+</li>
+<li>
+<p>if loc \&lt;= 2 and doc_loc == 0:*</p>
+</li>
+<li>
+<p>return 0.0*</p>
+</li>
+<li>
+<p>*</p>
+</li>
+<li>
+<p># Step C: Dynamic Threshold*</p>
+</li>
+<li>
+<p>threshold = (t.get(\"threshold_base\", 10.0) + irc) * mp*</p>
+</li>
+<li>
+<p>*</p>
+</li>
+<li>
+<p># Step D: Sigmoid Map*</p>
+</li>
+<li>
+<p>try:*</p>
+</li>
+<li>
+<p>raw_risk = 100.0 / (1.0 + math.exp(t.get(\"sigmoid_slope\", 0.2) *
+(density - threshold)))*</p>
+</li>
+<li>
+<p>except OverflowError:*</p>
+</li>
+<li>
+<p>raw_risk = 0.0 if density &gt; threshold else 100.0*</p>
+</li>
+<li>
+<p>*</p>
+</li>
+<li>
+<p># Step E: Fidelity Trust Multiplier*</p>
+</li>
+<li>
+<p>return min(raw_risk * (2.0 - fc), 100.0)*</p>
+</li>
+</ul>
+<h5 id="22j6-visual-verification-the-risk-audit">2.2.J.6. Visual Verification (\"The Risk Audit\")</h5>
+<p><em>Comparison: 100 Line File (Threshold 10)</em></p>
+<hr />
+<p>The Architect      15 <strong>\@param</strong> tags    15.0   \~27   LOW (Cyan)           Safe. High documentation density results in low risk exposure.
+The Professional   10 <strong>\@param</strong> tags    10.0   \~50   MODERATE (Yellow)    Stable. Hits the threshold exactly; moderate exposure.
+The Student        10 lines of comments   3.3    \~79   HIGH (Orange)        Risky. Minimal narrative effort fails to clear the safety bar.
+The Silent         0 comments             0.0    \~88   UNDOCUMENTED (Red)   Critical. Zero intent density results in high risk exposure.</p>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2299 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The structural DNA of massive software repositories.">
+      
+      
+      
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/1_Foundation__Architecture/">
+      
+      
+        <link rel="prev" href="../0_Introduction/">
+      
+      
+        <link rel="next" href="../21A_Stars_Size/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>1 Foundation Architecture - GitGalaxy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-foundation-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitGalaxy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1 Foundation  Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitGalaxy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0_Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Technical Specifications v4.1 (Master Blueprint)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundation  Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundation  Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-foundation-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Foundation &amp; Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Foundation &amp; Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-project-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Project Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-the-blast-paradigm-sequencing-software-as-dna" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 The blAST Paradigm: Sequencing Software as DNA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-visualizing-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Visualizing Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-system-architecture-high-level-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 System Architecture: High-Level Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-system-file-map-backend-scanner-vs-frontend-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 System File Map: Backend (Scanner) vs. Frontend (Viewer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-the-security-privacy-protocol-zero-trust-local-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-overview-your-code-never-leaves-your-computer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.7.1 Overview: \"Your Code Never Leaves Your Computer\"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#162-the-privacy-engine-ziploaderjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6.2 The \"Privacy Engine\": ZipLoader.js
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#163-implementation-detail-security-safeguards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6.3 Implementation Detail: Security Safeguards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21A_Stars_Size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21A Stars Size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21B_Stars_Pulse_Rate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21B Stars Pulse Rate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21C_Stars_Shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21C Stars Shape
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21D_Satellite_Unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21D Satellite Unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21E_Satellite_Orbital_Distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21E Satellite Orbital Distance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21F_Number_of_satellites_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21F Number of satellites in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21G_Satellites_Relative_Positioning_in_a_unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21G Satellites Relative Positioning in a unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21H_Node_Size_Metric_Argument_Count/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21H Node Size Metric Argument Count
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21I_Planetary_Rings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21I Planetary Rings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21J_Relative_Positioning_Metric_Sequence__Affinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21J Relative Positioning Metric Sequence  Affinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21K_Misc_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21K Misc Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21_How_we_represent_complexity_as_physical_structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 How we represent complexity as physical structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22A_Overview_of_methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22A Overview of methodology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22B_Sub-Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22B Sub Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22C_Transforming_Noisy_Regex_Counts_Into_Something_Meaningful/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22C Transforming Noisy Regex Counts Into Something Meaningful
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22D_Ownership_Mode_Shannon_Entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22D Ownership Mode Shannon Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22E_Cognitive_Load_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22E Cognitive Load Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22F_Churn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22F Churn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22G_Safety_Mode_Metric_Structural_Fortification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22G Safety Mode Metric Structural Fortification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22I_Technical_Debt_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22I Technical Debt Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22J_Documentation_Risk_Exposure_Metric_Sigmoid_Debt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22J Documentation Risk Exposure Metric Sigmoid Debt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22K_File_Stability_Commit_Heat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22K File Stability Commit Heat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22L_Test_Coverage_Metric_Verification_Density/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22L Test Coverage Metric Verification Density
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22M_The_Civil_War_Algorithm_Tabs_vs_Spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22M The Civil War Algorithm Tabs vs Spaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22N_The_Graveyard_Detector_Metric_Architectural_Transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22N The Graveyard Detector Metric Architectural Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22O_API_Exposure_Metric_The_Event_Horizon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22O API Exposure Metric The Event Horizon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22P_Concurrency_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22P Concurrency Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22Q_State_Flux_Exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22Q State Flux Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22_Color_Labeling_Equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 Color Labeling Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../230_The_GalaxyScope_Chassis_--_Optical_Orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    230 The GalaxyScope Chassis    Optical Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../231_The_Aperture_Filter_Adjusting_the_Telescopes_Filter_and_Focus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    231 The Aperture Filter Adjusting the Telescopes Filter and Focus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../232_The_GuideStar_Protocol_Contextual_Intelligence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    232 The GuideStar Protocol Contextual Intelligence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_Focusing_the_Language_Lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 Focusing the Language Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../233_The_Security_Lens_--_Threat_Detection_Physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    233 The Security Lens    Threat Detection Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../234_The_Prism_--_Splitting_the_comments_from_the_code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    234 The Prism    Splitting the comments from the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../235_The_Detector_--_The_Logic_Splicer__Cartographer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    235 The Detector    The Logic Splicer  Cartographer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    236 Signal Processing Equations and 2nd Pass scanning Calculations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_Phase_0_Mission_Control_The_GalaxyScope_Orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 Phase 0 Mission Control The GalaxyScope Orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../237_The_Spectral_Audit_Quality_Control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    237 The Spectral Audit Quality Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../238_The_Audit_Recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    238 The Audit Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_GPU_Recorder_Hypercompressed_Data_Storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The GPU Recorder Hypercompressed Data Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../239_The_LLM_Recorder_AI_Translation_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    239 The LLM Recorder AI Translation Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23 Data Analysis Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../240_Claim_1_--_Optimum_Search_Strategies_Change_with_Scale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    240 Claim 1    Optimum Search Strategies Change with Scale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../241_Claim_2_--_Coding_Languages_Evolve_Towards_Explicitness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    241 Claim 2    Coding Languages Evolve Towards Explicitness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../242_--_Claim_3_--_Intent_Scales_Across_Syntax_The_Taxonomical_Equivalence_Map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    242    Claim 3    Intent Scales Across Syntax The Taxonomical Equivalence Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 Strategy Validation    Does this work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7_Impacts__Future_Outlooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Impacts  Future Outlooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_Sidebar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitGalaxy Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-foundation-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Foundation &amp; Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Foundation &amp; Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-project-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Project Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-the-blast-paradigm-sequencing-software-as-dna" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 The blAST Paradigm: Sequencing Software as DNA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-visualizing-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Visualizing Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-system-architecture-high-level-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 System Architecture: High-Level Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-system-file-map-backend-scanner-vs-frontend-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 System File Map: Backend (Scanner) vs. Frontend (Viewer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-the-security-privacy-protocol-zero-trust-local-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-overview-your-code-never-leaves-your-computer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.7.1 Overview: \"Your Code Never Leaves Your Computer\"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#162-the-privacy-engine-ziploaderjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6.2 The \"Privacy Engine\": ZipLoader.js
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#163-implementation-detail-security-safeguards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6.3 Implementation Detail: Security Safeguards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>1 Foundation  Architecture</h1>
+
+<h2 id="1-foundation-architecture">1. Foundation &amp; Architecture</h2>
+<h3 id="11-project-overview">1.1 Project Overview</h3>
+<p>1. Code can be art. Logic can be art. Systems engineering can be art.
+GitGalaxy reveals the <strong>complexity of codebases</strong> <strong>as explorable 3D
+galaxies </strong>by using source code as a seed for procedural generative art.
+The human brain is not optimized for processing rows of digits; it is
+optimized for detecting patterns in nature or physics. By procedurally
+mapping complexity to things like spatial position, movement, pulses and
+colors, <strong>GitGalaxy taps into our evolutionary strengths to help us
+understand</strong> <strong>complex systems intuitively</strong>.</p>
+<p>2. While there are many ways to write code, organizations rely on
+agreed-upon standards for coding practices. <strong>GitGalaxy assesses
+deviations from organizational standards and displays that info as color
+overlays onto the 3D generated world. </strong>GitGalaxy does not measure
+\"Code Quality\", which feels like a judgment, but instead measures
+<strong>Risk</strong> <strong><em>*Exposure</em></strong>*. Our measurements do not judge; they
+highlight. They function as sensors, not critics.</p>
+<ul>
+<li><strong><em>*We do not </em></strong><em>assess</em><strong><em> \"Bad Code\";</em></strong><em> we measure
+</em><strong><em>Cognitive </em></strong><em>Load </em><strong><em>Exposure, </em></strong>*how hard it is for a human
+to work through the logic, because teams should be aware which files
+are the hardest to work on.</li>
+<li><strong><em>*We do not </em></strong><em>assess</em><strong><em> \"Missing Docs\";</em></strong><em> we assess
+</em><em>Documentation</em><em> Exposure, </em>***the risk to the team if a key person
+leaves.</li>
+<li><strong><em>*We do not </em></strong><em>assess</em><strong><em> \"</em></strong><em>Missing Testing</em><strong><em>\";</em></strong><em> we
+assess </em><em>Testing</em><em> Exposure, </em>***the risk of unshielded logic
+causing a meltdown in production.</li>
+<li><strong><em>*We do not measure </em></strong><em>\"System Security\";</em><strong><em> we measure
+</em></strong><em>Safety Exposure, </em>*<em><em>the structural brittleness caused by a lack
+of </em>try/except</em> blocks and robust error handling.</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;!-- --&gt;
+</code></pre></div>
+-   <strong><em>*We do not measure </em>*API Exposure</strong> <strong><em>*because its always bad,
+we just want </em></strong><em>teams</em><strong><em> to understand </em>*how sensitive a file
+might be to changes</strong>.<strong><em>*
+-   </em></strong><em>We do not measure </em><em>Concurrency Exposure</em><em> </em><strong><em>because it's
+always bad but because </em></strong><em>teams</em><strong><em> should be able to easily assess
+</em></strong><em>the </em><em>risk of race conditions and deadlocks</em><em> in multi-threaded
+logic.
+-   </em><strong><em>We do not measure </em></strong><em>State Flux Exposure </em><strong><em>because it's
+always </em></strong><em>bad but</em><strong><em> we </em></strong><em>because teams </em><strong><em>can easily assess
+</em></strong><em>the </em><em>risk of state conflicts</em><em>.
+-   We do not measure</em><em> Specification </em><em>Exposure</em><strong><em> to catch \"Cowboy
+Code that's out of spec,\" but to act as an </em></strong><em>organizational
+compass</em>***; it ensures that as a feature settles into the codebase,
+the documentation follows, fostering a culture where every line of
+logic has a traceable and understood home.</p>
+<p>By visualizing these exposures as toggle-able color overlays onto the
+generated galaxy, GitGalaxy provides an intuitive <strong>non-numeric
+dashboard</strong>. It allows a team to agree on standards and instantly
+see---without reading a single line of text---where their architecture
+might be drifting into dangerous territory.</p>
+<p>3. Many projects are multi-lingual. Traditional code analysis tools
+(ASTs) act like strict linguists---they understand the grammar of one
+language perfectly but not of any others. GitGalaxy acts as <strong>a Rosetta
+Stone for code complexity, project scale and risk exposure</strong>. By
+prioritizing consistent regex-based approximation over rigid syntax
+parsing, we can meaningfully compare different code bases of different
+languages. This consistent standard allows us to visually compare the
+scale and complexity of different coding projects, from Apollo 11
+(Assembly) to the Linux Kernel (C) to TensorFlow (Python) under the same
+set of rules.</p>
+<p><strong>Why This Matters:</strong></p>
+<ul>
+<li><strong>Identify Hotspots: </strong>Instantly spot files with high exposure, as
+they are literally glowing planets in space.</li>
+<li><strong>See Risk:</strong> See exactly where \"dangerous\" patterns cluster
+before they become issues.</li>
+<li><strong>Audit Legacy Systems: </strong>Map the topology of ancient codebases
+(like COBOL) to plan modernization strategies without reading a
+million lines of code.</li>
+<li>Analysis happens on your machine, takes seconds and makes a file
+smaller than a photo and with a data presentation so easy kids could
+get it.</li>
+</ul>
+<p>To accomplish this, GitGalaxy uses general Regex-based semantic
+signatures that have been adapted to each language, as either 1. the
+input to various Risk Exposure Equations or 2. as seeds for a
+procedurally generated algorithm to create a novel visual representation
+of codebase complexity. This project prioritizes ease of use, zero-setup
+scanning, comparative analyses and visual impact over the academic rigor
+of a single language Abstract Syntax Tree. <strong>This project does not
+visualize syntax or if it will compile</strong>; it visualizes aspects of
+functional intent.</p>
+<p>GitGalaxy comes pre-loaded with functional Risk Exposure Equations but
+customization may be needed to adapt for your team's standards. These
+equations define the intensity of the color overlay effect. All
+equations attempt to target a 0-100 scale. Although the developer has
+worked hard to make the equations as nuanced as they can be, the
+equations should be viewed as rough approximations only. They should be
+used to identify general trends (<strong>Good - this file has high API
+exposure</strong>) versus absolute ranking over tiny differences (<strong>Bad - this
+file is better than that one because it scored 1% higher in the tech
+debt equation</strong>). We took pains to hide the specific numbers, and
+instead only report out general tiers (very high, high, medium, low,
+very low).</p>
+<p>GitGalaxy calculates exposure metrics in a non-linear fashion with
+equations and sub-equations. This is because there are multiple ways to
+achieve the same goal, like how to adhere to safety standards, and this
+allows for the evaluation of different practices and to weigh them
+differently. Sometimes our sub-equations pop up in multiple equations;
+for example both the safety equation and the tech debt equation use the
+sub-equation of SafetyHits, which is a measure of counts of \'try\',
+\'catch\', \'finally\', \'assert\', \'sanitize\', etc.</p>
+<h3 id="12-the-blast-paradigm-sequencing-software-as-dna">1.2 The blAST Paradigm: Sequencing Software as DNA</h3>
+<p>Standard static analysis tools rely on language-specific Abstract Syntax
+Trees (ASTs). These are computationally expensive, fragile, and
+bottlenecked by compiler constraints. GitGalaxy abandons the AST
+entirely in favor of a novel <strong>blAST (Broad Lexical Abstract Syntax
+Tracker)</strong> algorithm.</p>
+<p>By applying the principles of biological sequence alignment and
+bioinformatics to software (namely the BLAST algorithm), blAST hunts for
+the universal structural markers of logic across over 40 languages and
+250 file extensions. It translates this genetic code into
+\"phenotypes\"---measurable risk exposures and architectural traits.</p>
+<p>** Hyper-Scale Velocity** By bypassing the compiler bottleneck, blAST
+achieves processing velocities that traditional scanners cannot match,
+allowing it to map planetary-scale repositories in seconds rather than
+hours:</p>
+<ul>
+<li><strong>Peak Velocity:</strong> Sequenced the 141,445 lines of the original
+Apollo-11 Guidance Computer assembly code in <strong>0.28 seconds</strong> (an
+alignment rate of 513,298 LOC/s).</li>
+<li><strong>Massive Monoliths:</strong> Processed the 3.2 million lines of OpenCV in
+just <strong>11.11 seconds</strong>.</li>
+<li><strong>Planetary Scale:</strong> Effortlessly maps the architectural DNA of
+hyper-scale repositories like TensorFlow (7.8M LOC), Kubernetes
+(5.5M LOC), and FreeBSD (24.4M LOC).</li>
+</ul>
+<p><strong>The Viral Security Lens (Behavioral Threat Hunting)</strong> Traditional
+security scanners rely on rigid, outdated virus signatures. The blAST
+algorithm acts as an architectural immune system, hunting for the
+<em>behavioral genetic markers</em> of a threat rather than specific strings of
+text.</p>
+<p>By analyzing the structural density of I/O hits, execution triggers, and
+security bypasses, blAST proactively flags novel attack vectors:</p>
+<ul>
+<li><strong>Supply-Chain Poisoning:</strong> Instantly flags setup scripts possessing
+an anomalous density of network I/O and dynamic execution.</li>
+<li><strong>Logic Bombs &amp; Sabotage:</strong> Identifies code designed to destroy
+infrastructure by catching dense concentrations of catastrophic OS
+commands and hardware aborts.</li>
+<li><strong>Steganography &amp; Obfuscated Malware:</strong> Mathematically exposes
+evasion techniques, flagging Unicode Smuggling (homoglyphs) and
+sub-atomic custom XOR decryption loops.</li>
+<li><strong>Credential Hemorrhaging:</strong> Acts as a ruthless data vault scanner,
+isolating hardcoded cryptographic assets buried deep within massive
+repositories.</li>
+</ul>
+<h3 id="13-visualizing-complexity">1.3 Visualizing Complexity</h3>
+<p>GitGalaxy operates on the principle that source code can be used as a
+procedural generation seed. Just as a random string of text in Minecraft
+dictates the rise of mountains or the depth of oceans, your codebase\'s
+logic dictates the topology of the galaxy that emerges. We treat code
+not as a set of instructions to be compiled, but as a seed for a
+generative galaxy.</p>
+<p>GitGalaxy renders code bases with the following visual metaphors:</p>
+<ul>
+<li>
+<ul>
+<li><strong>Files</strong> = Stars orbiting around an unseen black hole</li>
+</ul>
+</li>
+<li><strong>External libraries = </strong>Rings around planets****</li>
+<li><strong>File Relationships = </strong>Relative locations <strong><em>*of stars </em></strong><em>in
+</em><strong><em>the </em></strong><em>galaxy</em>***</li>
+<li><strong>Inbound imports = </strong>A star's pulse <strong><em>*rate</em></strong>*</li>
+<li><strong><em>*Functions</em></strong><em> </em><strong><em>=</em></strong><em> </em><strong><em>Satellites</em></strong><em> </em><strong><em>orbit
+stars</em></strong>*</li>
+<li><strong>Function complexity </strong>=<strong> </strong>Arrangement, number and size of
+satellites in a unit</li>
+<li><strong>Function length = </strong>Satellite orbital distance</li>
+<li><strong>Function Arguments</strong> = satellite size</li>
+<li>File Complexity = Star shape</li>
+<li><strong>Tech debt</strong> <strong>exposure </strong>= color overlay</li>
+<li><strong>Documentation exposure</strong> = color overlay</li>
+<li><strong>Cognitive Load exposure</strong>= color overlay</li>
+<li><strong>Safety exposure</strong> = color overlay</li>
+<li><strong>Testing exposure</strong> = color overlay</li>
+<li><strong>API exposure</strong> = color overlay</li>
+<li><strong>Concurrency exposure</strong> = color overlay</li>
+<li><strong>State Flux exposure </strong>= color overlay</li>
+<li><strong>Private Info exposure</strong> = color overlay</li>
+<li><strong>Churn</strong> = color overlay</li>
+<li><strong>Commit Heat</strong> = color overlay</li>
+<li>Languages used = color overlay</li>
+<li>Authorship = color overlay</li>
+<li><strong>Audit exposure </strong>= color overlay</li>
+</ul>
+<h3 id="14-system-architecture-high-level-stack">1.4 System Architecture: High-Level Stack</h3>
+<p>The application utilizes a concern-separated architecture designed to
+bridge raw forensic data with cinematic visualization. The primary
+deployment model is a <strong><em>*Client-Side \"Zero-Trust\" Application</em></strong><em>
+(Open Source), with an optional </em><strong><em>Enterprise Backend.</em></strong>*</p>
+<p><strong><em>*The Open-Source Core (Browser-Based Engine):</em></strong>*</p>
+<ul>
+<li><strong>scanner.worker.js</strong><strong><em>* (The Primary Engine):</em></strong>* The heart of the
+free version. It runs in a background Web Worker to perform 100%
+local analysis. It digests regex hits and calculates risk exposures
+without transmitting code to a server.</li>
+<li><strong>scanner_config.js</strong><strong><em>* (The Rulebook):</em></strong>* A ported,
+JavaScript-native registry of heuristic patterns. It includes the
+standard Regex library for 18+ languages.</li>
+<li><strong>zip_loader.js</strong><strong><em>* (The Ingestion Layer):</em></strong>* Handles the
+\"Zero-Trust\" unpacking of repositories directly in browser memory.</li>
+</ul>
+<p><strong><em>*The Bridge (Data Schema):</em></strong>*</p>
+<ul>
+<li>
+<p><strong>result.json</strong><strong><em>* (The Interface Contract):</em></strong>* While the user
+never sees this file in the web version, it acts as the strict data
+schema that decouples the logic from the rendering.</p>
+</li>
+<li>
+<p><strong><em>*In Web Mode:</em></strong><em> It exists as an ephemeral in-memory object
+passed from the Worker to the Main Thread via </em><em>postMessage</em>*.</p>
+</li>
+<li><strong><em>*In Enterprise Mode:</em></strong>* It is serialized to disk for CI/CD
+reporting or trends over time analyses.</li>
+<li><strong><em>*Role:</em></strong><em> It carries the unified payload for physics
+coordinates and </em><strong><em>risk exposure</em></strong>*, ensuring the 3D Viewer
+behaves identically regardless of the source.</li>
+</ul>
+<p><strong><em>*The Viewer (Frontend):</em></strong>*</p>
+<ul>
+<li><strong>engine-3d.js</strong><strong><em>* (The Visualizer):</em></strong>* A Three.js WebGL engine
+that displays the spatial and color information of a codebase into
+an interactive non-numeric dashboard.</li>
+</ul>
+<h3 id="15-system-file-map-backend-scanner-vs-frontend-viewer">1.5 System File Map: Backend (Scanner) vs. Frontend (Viewer)</h3>
+<p><strong>ROOT/</strong></p>
+<p><strong>├── pyproject.toml # Package manifest for the GitGalaxy CLI</strong></p>
+<p><strong>├── README.md # Documentation &amp; Quickstart</strong></p>
+<p><strong>├── data/ # Output directory for generated artifacts</strong></p>
+<p><strong>├── gitgalaxy/ # [THE BACKEND] The blAST Analysis Engine</strong></p>
+<p><strong>│ ├── gitgalaxy_standards_v1.py # The Universal Laws: Taxonomy,
+Threat Policies, &amp; Config</strong></p>
+<p><strong>│ ├── language_lens.py # Entity Census &amp; Identity Locks</strong></p>
+<p><strong>│ ├── prism.py # The Optical Splitter (Logic vs. Literature)</strong></p>
+<p><strong>│ ├── detector.py # Logic Splicer &amp; 3D Cartographer</strong></p>
+<p><strong>│ ├── security_lens.py # Threat Detection &amp; Vulnerability Scanning</strong></p>
+<p><strong>│ ├── signal_processor.py # The Physics Engine &amp; Exposure Math</strong></p>
+<p><strong>│ ├── spectral_auditor.py # Statistical Outlier Detection (Quality
+Control)</strong></p>
+<p><strong>│ ├── audit_recorder.py # Human-Readable Forensic Manifest
+Generator</strong></p>
+<p><strong>│ ├── llm_recorder.py #: </strong>AI-agent &amp; <strong>RAG SQLite &amp; Markdown Brief
+Generator</strong></p>
+<p><strong>│ └─── gpu_recorder.py # Hypercompressed Columnar JSON Generator</strong></p>
+<p><strong>│</strong></p>
+<p><strong>├── airgap_observatory/ # [THE FRONTEND] Zero-Telemetry Local
+Visualizer (Static)</strong></p>
+<p><strong>│ ├── index.html # Main Entry Point (UI Shell &amp; Canvas Container)</strong></p>
+<p><strong>│ ├── main.js # Main Controller (UI \&lt;-&gt; Engine Pipeline)</strong></p>
+<p><strong>│ ├── config/</strong></p>
+<p><strong>│ │ └── colors.js # Palette Registry (Exposure, Texture, and Language
+colors)</strong></p>
+<p><strong>│ ├── css/</strong></p>
+<p><strong>│ │ └── styles.css # Post-processed Tailwind UI styling</strong></p>
+<p><strong>│ ├── core/ # The \"Brain &amp; Eyes\" (Data Processing &amp; Rendering)</strong></p>
+<p><strong>│ │ ├── data-parser.js # Decodes the hypercompressed
+galaxy_gpu.json</strong></p>
+<p><strong>│ │ ├── galaxy-engine.js # The Physics Core (Three.js WebGL scene
+orchestrator)</strong></p>
+<p><strong>│ │ ├── phase-6-shaders.js # Custom WebGPU/WebGL Shader logic for
+particles</strong></p>
+<p><strong>│ │ └── materials.js # The Visual Cortex (Data Focus Protocol &amp; Node
+Textures)</strong></p>
+<p><strong>│ ├── tools/ # The \"Hands\" (Interaction &amp; Utilities)</strong></p>
+<p><strong>│ │ ├── search.js # Neural Nav - Fuzzy Indexing &amp; Hacker HUD UI</strong></p>
+<p><strong>│ │ ├── perf_monitor.js # The GalaxyScope (Tilde `\~` Telemetry
+HUD)</strong></p>
+<p><strong>│ │ ├── ally.js # The Parallel DOM (Accessibility Engine)</strong></p>
+<p><strong>│ │ └── poster.js # The Gift Shop (High-Res Artifact Generator)</strong></p>
+<p><strong>│ └── lib/ # Third-Party Dependencies (Three.js, Tween - Collapsed)</strong></p>
+<p><strong>│</strong></p>
+<p><strong>└── site/ # [THE FRONTEND] Live Web Application (GitGalaxy.io)</strong></p>
+<p>** ├── app.py # Server routing for the live web application**</p>
+<p>** ├── index.html # Web Entry Point**</p>
+<p>** ├── js/**</p>
+<p>** │ ├── main.js # Web App Controller**</p>
+<p>** │ └── core/ # Web App Rendering Engine (Mirrors
+airgap_observatory/core)**</p>
+<p>** ├── css/ # Web App Styling**</p>
+<p>** ├── config/ # Web App Palette Registry**</p>
+<p>** ├── tools/ # Web App Interaction Utilities**</p>
+<p>** └── museum/ # Pre-baked JSON galaxies (Apollo-11, Linux, etc.)**</p>
+<h3 id="16-the-security-privacy-protocol-zero-trust-local-analysis">1.6 The Security &amp; Privacy Protocol: Zero-Trust Local Analysis</h3>
+<h4 id="171-overview-your-code-never-leaves-your-computer">1.7.1 Overview: \"Your Code Never Leaves Your Computer\"</h4>
+<p>GitGalaxy is built on a <strong><em>*Zero-Trust Privacy Model</em></strong>*. GitGalaxy
+performs 100% of its scanning, vectorization, and rendering within the
+local browser environment.</p>
+<ul>
+<li><strong><em>*No Data Transmission:</em></strong>* Source code is never transmitted to
+any API, cloud database, or third-party service.</li>
+<li><strong><em>*Ephemeral Memory Processing:</em></strong>* Repositories are unpacked into
+a volatile memory buffer (RAM) and are automatically purged when the
+browser tab is closed.</li>
+<li><strong><em>*Privacy-by-Design:</em></strong>* Even when \"uploading\" a repository, the
+browser merely reads the local file into a Web Worker; the data
+remains behind the user\'s firewall at all times.</li>
+</ul>
+<h4 id="162-the-privacy-engine-ziploaderjs">1.6.2 The \"Privacy Engine\": ZipLoader.js</h4>
+<p>The technical cornerstone of this protocol is the client-side
+<strong><em>*ZipLoader</em></strong>*, which utilizes the JSZip library to handle repository
+ingestion safely:</p>
+<ul>
+<li><strong><em>*Heuristic Unpacking:</em></strong><em> The loader identifies source files
+while strictly excluding binary blobs, junk folders
+(</em><em>node_modules</em><em>, </em><em>__pycache__</em><em>, </em><em>.git</em><em>), and build
+artifacts (</em><em>dist</em><em>, </em><em>vendor</em>*).</li>
+<li><strong><em>*Binary Shield:</em></strong><em> The loader implements a mandatory null-byte
+detection check (</em><em>indexOf(\'\0\')</em>*). If a file contains
+non-textual characters, it is immediately discarded to prevent
+memory corruption or the unintentional analysis of compiled
+binaries.</li>
+<li><strong><em>*Exclusion Heuristics:</em></strong><em> To ensure performance and privacy, the
+loader prunes any path containing hidden files (starting with </em><em>.</em>*)
+or common media/font extensions.</li>
+</ul>
+<h4 id="163-implementation-detail-security-safeguards">1.6.3 Implementation Detail: Security Safeguards</h4>
+<ul>
+<li><strong><em>*In-Memory Sanitization:</em></strong>* Code is read as string buffers. No
+persistent files are ever created on the local file system by the
+application.</li>
+<li><strong><em>*Concurrency Protection:</em></strong><em> The </em><em>isProcessing</em>* guard prevents
+memory overflow by ensuring only one unpacking operation occurs at a
+time, protecting the user\'s browser stability during large-scale
+Tier 4 (Megastructure) scans.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#237-phase-0-mission-control-the-galaxyscope-orchestrator" class="md-skip">
+        <a href="#237-mission-control-the-galaxyscope-orchestrator" class="md-skip">
           Skip to content
         </a>
       
@@ -1258,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1595,7 +1595,7 @@
   <a href="#237c-o1-relational-resolution-pass-15" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.7.C. O(1) Relational Resolution (Pass 1.5)
+        2.3.7.C. \(O(1)\) Relational Resolution (Pass 1.5)
       
     </span>
   </a>
@@ -1806,7 +1806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -1998,7 +1998,7 @@
   <a href="#237c-o1-relational-resolution-pass-15" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.7.C. O(1) Relational Resolution (Pass 1.5)
+        2.3.7.C. \(O(1)\) Relational Resolution (Pass 1.5)
       
     </span>
   </a>
@@ -2044,100 +2044,43 @@
 
 
 
-<h1 id="237-phase-0-mission-control-the-galaxyscope-orchestrator">2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)</h1>
-<p>The GalaxyScope Orchestrator (<strong>galaxyscope.py</strong>) is the central nervous
-system of the blAST engine. It acts as Mission Control, managing the
-flow of data from the initial file-system radar ping down to the final
-serialization of the 3D map. Its primary responsibility is maximizing
-computational velocity while preventing catastrophic memory leaks or
-regex deadlocks during hyper-scale scans.</p>
+<h1 id="237-mission-control-the-galaxyscope-orchestrator">2.3.7. Mission Control (The GalaxyScope Orchestrator)</h1>
+<blockquote>
+<p><strong>Phase 0: Mission Control</strong></p>
+<p>The GalaxyScope Orchestrator (<code>galaxyscope.py</code>) is the central nervous system of the blAST engine. It acts as Mission Control, managing the flow of data from the initial file-system radar ping down to the final serialization of the 3D map. Its primary responsibility is maximizing computational velocity while preventing catastrophic memory leaks or regex deadlocks during hyper-scale scans.</p>
+</blockquote>
 <h2 id="237a-multi-core-extraction-the-worker-pool">2.3.7.A. Multi-Core Extraction (The Worker Pool)</h2>
-<p>Parsing millions of lines of code on a single thread is a bottleneck. To
-achieve hyper-scale velocity (100,000+ LOC/s), the Orchestrator
-implements a highly tuned <strong>ProcessPoolExecutor</strong> Map-Reduce
-architecture.</p>
+<p>Parsing millions of lines of code on a single thread is a bottleneck. To achieve hyper-scale velocity (100,000+ LOC/s), the Orchestrator implements a highly tuned <code>ProcessPoolExecutor</code> Map-Reduce architecture.</p>
 <ul>
-<li><strong>Isolated Memory Spaces:</strong> The <strong>_init_worker</strong> function boots
-copies of the heavy regex engines (<strong>LogicSplicer</strong>, <strong>Prism</strong>,
-<strong>LanguageDetector</strong>) directly into the isolated memory of each CPU
-core. This prevents cross-thread lockups.</li>
-<li><strong>Cache Warming:</strong> The workers force-warm the regex compilers for
-the specific languages found in the repository during the radar
-ping, completely eliminating the \"Plaintext Stutter\" (lazy-loading
-lag) on the first few thousand files.</li>
-<li><strong>The Phantom Check:</strong> Workers perform an instantaneous disk-check
-before parsing. If a file was reported by Git but has since vanished
-from the disk, it is silently evaporated as a \"Phantom,\"
-preventing the main thread from logging false anomalies.</li>
+<li><strong>Isolated Memory Spaces:</strong> The <code>_init_worker</code> function boots copies of the heavy regex engines (<code>LogicSplicer</code>, <code>Prism</code>, <code>LanguageDetector</code>) directly into the isolated memory of each CPU core. This prevents cross-thread lockups.</li>
+<li><strong>Cache Warming:</strong> The workers force-warm the regex compilers for the specific languages found in the repository during the radar ping, completely eliminating the "Plaintext Stutter" (lazy-loading lag) on the first few thousand files.</li>
+<li><strong>The Phantom Check:</strong> Workers perform an instantaneous disk-check before parsing. If a file was reported by Git but has since vanished from the disk, it is silently evaporated as a "Phantom," preventing the main thread from logging false anomalies.</li>
 </ul>
 <h2 id="237b-the-starvation-monitor-redos-shield">2.3.7.B. The Starvation Monitor (ReDoS Shield)</h2>
-<p>When scanning massive, auto-generated codebases, poorly written files
-can occasionally trigger Catastrophic Regex Backtracking (ReDoS), which
-locks a CPU core in an infinite loop.</p>
+<p>When scanning massive, auto-generated codebases, poorly written files can occasionally trigger Catastrophic Regex Backtracking (ReDoS), which locks a CPU core in an infinite loop.</p>
 <ul>
-<li><strong>The 60-Second Guillotine:</strong> Instead of blindly waiting for the
-worker pool to finish, the Orchestrator uses a
-<strong>concurrent.futures.wait</strong> loop. If all CPU workers freeze and fail
-to return a single processed file within 60 seconds, the Starvation
-Monitor detects the deadlock.</li>
-<li><strong>Graceful Abort:</strong> It instantly logs the exact file paths that
-caused the hang, relegates them to the Singularity audit log, and
-forcefully shuts down the executor pool to unfreeze the user\'s
-terminal.</li>
+<li><strong>The 60-Second Guillotine:</strong> Instead of blindly waiting for the worker pool to finish, the Orchestrator uses a <code>concurrent.futures.wait</code> loop. If all CPU workers freeze and fail to return a single processed file within 60 seconds, the Starvation Monitor detects the deadlock.</li>
+<li><strong>Graceful Abort:</strong> It instantly logs the exact file paths that caused the hang, relegates them to the Singularity audit log, and forcefully shuts down the executor pool to unfreeze the user's terminal.</li>
 </ul>
-<h2 id="237c-o1-relational-resolution-pass-15">2.3.7.C. O(1) Relational Resolution (Pass 1.5)</h2>
-<p>To build the dependency graph, the engine must figure out which files
-are importing which other files. Cross-referencing thousands of raw
-import strings (e.g., <strong>import utils</strong>) against thousands of file paths
-(e.g., <strong>src/core/utils.py</strong>) originally created an exponential
-$O(N\^2)$ compute bomb.</p>
+<h2 id="237c-o1-relational-resolution-pass-15">2.3.7.C. <span class="arithmatex">\(O(1)\)</span> Relational Resolution (Pass 1.5)</h2>
+<p>To build the dependency graph, the engine must figure out which files are importing which other files. Cross-referencing thousands of raw import strings (e.g., <code>import utils</code>) against thousands of file paths (e.g., <code>src/core/utils.py</code>) originally created an exponential <span class="arithmatex">\(O(N^2)\)</span> compute bomb.</p>
 <ul>
-<li><strong>The Suffix Hash Map:</strong> Pass 1.5 defuses this bomb. It pre-computes
-every possible valid path suffix for every file in the repository
-and stores them in a lightning-fast hash map.</li>
-<li><strong>O(1) Lookups:</strong> When evaluating a raw import string, the engine
-simply checks if the string exists as a key in the map. This turns
-an exponential search into an instantaneous $O(1)$ lookup,
-allowing GitGalaxy to resolve millions of dependency links in
-milliseconds.</li>
+<li><strong>The Suffix Hash Map:</strong> Pass 1.5 defuses this bomb. It pre-computes every possible valid path suffix for every file in the repository and stores them in a lightning-fast hash map.</li>
+<li><strong><span class="arithmatex">\(O(1)\)</span> Lookups:</strong> When evaluating a raw import string, the engine simply checks if the string exists as a key in the map. This turns an exponential search into an instantaneous <span class="arithmatex">\(O(1)\)</span> lookup, allowing GitGalaxy to resolve millions of dependency links in milliseconds.</li>
 </ul>
 <h2 id="237d-relational-context-mass-dampeners-pass-2">2.3.7.D. Relational Context &amp; Mass Dampeners (Pass 2)</h2>
-<p>In Pass 2, the Orchestrator evaluates files based on their surrounding
-neighborhood before handing them off to the Signal Processor.</p>
+<p>In Pass 2, the Orchestrator evaluates files based on their surrounding neighborhood before handing them off to the Signal Processor.</p>
 <ul>
-<li><strong>Domain Ontologies:</strong> It tallies the languages in every folder to
-determine the \"Dominant Ecosystem,\" allowing downstream engines to
-spot Trojan files (e.g., a C++ file hiding in a JavaScript folder).</li>
-<li><strong>The Umbrella Shield:</strong> It calculates the total percentage of the
-repository dedicated to testing (<strong>/tests/</strong> folders). If a repo is
-heavily tested globally, the Orchestrator applies an \"Umbrella
-Bonus\" that mathematically dampens the testing risk for individual
-logic files.</li>
-<li><strong>Structural Mass Dampeners:</strong> It intercepts files acting as heavy,
-non-executable data dumps (like Wycheproof test vectors, vendored
-Kubernetes code-gen, or massive translation dictionaries) and
-physically crushes their mass multiplier so they do not
-mathematically eclipse the human-written architecture in the 3D
-view.</li>
+<li><strong>Domain Ontologies:</strong> It tallies the languages in every folder to determine the "Dominant Ecosystem," allowing downstream engines to spot Trojan files (e.g., a C++ file hiding in a JavaScript folder).</li>
+<li><strong>The Umbrella Shield:</strong> It calculates the total percentage of the repository dedicated to testing (<code>/tests/</code> folders). If a repo is heavily tested globally, the Orchestrator applies an "Umbrella Bonus" that mathematically dampens the testing risk for individual logic files.</li>
+<li><strong>Structural Mass Dampeners:</strong> It intercepts files acting as heavy, non-executable data dumps (like Wycheproof test vectors, vendored Kubernetes code-gen, or massive translation dictionaries) and physically crushes their mass multiplier so they do not mathematically eclipse the human-written architecture in the 3D view.</li>
 </ul>
 <h2 id="237e-the-cli-smart-threat-switch">2.3.7.E. The CLI &amp; Smart Threat Switch</h2>
-<p>The <strong>main()</strong> entry point manages user interaction and environment
-overrides.</p>
+<p>The <code>main()</code> entry point manages user interaction and environment overrides.</p>
 <ul>
-<li><strong>Dialect Injection:</strong> It intercepts the <strong>PROJECT_OVERRIDES</strong>
-registry. If the user is scanning a known legacy repository (like
-the FreeBSD kernel), it dynamically hot-patches the
-<strong>LANGUAGE_DEFINITIONS</strong> in RAM to parse its specific dialect
-perfectly.</li>
-<li><strong>The Smart Threat Switch (</strong>--paranoid<strong>):</strong> If invoked,
-the Orchestrator loads the \"Hazmat Suit\" threat policy, lowering
-the threshold for the Security Lens to flag deeply hidden
-steganography and logic bombs.</li>
-<li><strong>Instant RAM Eviction:</strong> Once the artifacts are sealed to the disk,
-the CLI invokes a hard <strong>os._exit(0)</strong>. This violently drops the
-Python process, instantly freeing gigabytes of RAM back to the
-operating system without waiting for the garbage collector to slowly
-unwind the massive AST dictionaries.</li>
+<li><strong>Dialect Injection:</strong> It intercepts the <code>PROJECT_OVERRIDES</code> registry. If the user is scanning a known legacy repository (like the FreeBSD kernel), it dynamically hot-patches the <code>LANGUAGE_DEFINITIONS</code> in RAM to parse its specific dialect perfectly.</li>
+<li><strong>The Smart Threat Switch (<code>--paranoid</code>):</strong> If invoked, the Orchestrator loads the "Hazmat Suit" threat policy, lowering the threshold for the Security Lens to flag deeply hidden steganography and logic bombs.</li>
+<li><strong>Instant RAM Eviction:</strong> Once the artifacts are sealed to the disk, the CLI invokes a hard <code>os._exit(0)</code>. This violently drops the Python process, instantly freeing gigabytes of RAM back to the operating system without waiting for the garbage collector to slowly unwind the massive AST dictionaries.</li>
 </ul>
 
 

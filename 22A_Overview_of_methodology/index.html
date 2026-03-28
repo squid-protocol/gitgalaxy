@@ -765,6 +765,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodology
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -781,6 +799,58 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22a1-the-universal-risk-spectrum-a11y-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.1. The Universal Risk Spectrum (A11y Standard)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22a2-the-exposure-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.2. The Exposure Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22a3-custom-diverging-scales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.3. Custom Diverging Scales
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1268,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1714,7 +1784,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -1874,6 +1944,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22a1-the-universal-risk-spectrum-a11y-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.1. The Universal Risk Spectrum (A11y Standard)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22a2-the-exposure-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.2. The Exposure Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22a3-custom-diverging-scales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.A.3. Custom Diverging Scales
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1889,119 +2000,101 @@
 
 
 
-<h1 id="22a-overview-of-methodology">2.2.A. Overview of methodology</h1>
-<p>+----------------+----------------+----------------+----------------+
-| Labeling Mode  | What It    | Color          | Visual Effect  |
-|                | Checks     |                |                |
-+----------------+----------------+----------------+----------------+
-| Ownership  | <strong>Who wrote    |  White | </strong>Rainbow.<strong>   |
-|            | this?</strong> Shows  |                | Single colors  |
-|                | if a file is   |                | are            |
-|                | owned by one   |                | individuals;   |
-|                | person (Solo)  |                | bright White   |
-|                | or everyone    |                | is a team      |
-|                | (Collective).  |                | effort.        |
-+----------------+----------------+----------------+----------------+
-| Cognitive  | <strong>How hard is  |            | </strong>Purple.<strong>    |
-| Load       | it to read?</strong>  |            | The deeper the |
-|                | Highlights     | Purple | purple, the    |
-|                | confusing      |                | harder the     |
-|                | logic that     |                | logic is to    |
-|                | requires high  |                | follow.        |
-|                | mental effort. |                |                |
-+----------------+----------------+----------------+----------------+
-| Churn  | <strong>How often    | Orange | </strong>Orange.<strong>    |
-|            | does it        |                | Bright orange  |
-|                | change?</strong>      |                | indicates a    |
-|                | Identifies     |                | file that      |
-|                | files that are |                | refuses to     |
-|                | constantly     |                | settle down.   |
-|                | being          |                |                |
-|                | rewritten or   |                |                |
-|                | patched.       |                |                |
-+----------------+----------------+----------------+----------------+
-| Safety     | <strong>Is it        | Red    | </strong>Red to       |
-|            | bulletproof?<strong> |                | Cyan.</strong> Red is |
-|                | Checks for     | to     | fragile/risky; |
-|                | defensive code |                | Cyan is        |
-|                | (error         |  Cyan  | f              |
-|                | handling) vs.  |                | ortified/safe. |
-|                | risky code.    |                |                |
-+----------------+----------------+----------------+----------------+
-| Tech       | <strong>Are there    | Red    | </strong>Red.<strong>       |
-| Debt       | shortcuts?</strong>   |                | Glowing red    |
-|                | Scans for      |                | highlights     |
-|                | \"TODOs\",     |                | unfinished     |
-|                | \"Hacks\", and |                | business.      |
-|                | temporary      |                |                |
-|                | fixes.         |                |                |
-+----------------+----------------+----------------+----------------+
-| Doc        | <strong>Is it        | Library    | </strong>Gold.<strong>      |
-| Mode       | explained?</strong>   | Gold       | Bright gold    |
-|                | Measures the   |                | indicates      |
-|                | quality of     |                | library-grade  |
-|                | instruction    |                | documentation. |
-|                | manuals and    |                |                |
-|                | comments.      |                |                |
-+----------------+----------------+----------------+----------------+
-| Commit     | <strong>Is it        | Green          | </strong>Green.<strong>     |
-| Heat       | fresh?</strong> Shows |                | Radioactive    |
-|                | where work is  |                | green means it |
-|                | happening      |                | was edited     |
-|                | <em>right now</em>    |                | today.         |
-|                | vs. months     |                |                |
-|                | ago.           |                |                |
-+----------------+----------------+----------------+----------------+
-| Test       | <strong>Is it        | Pink           | </strong>Pink.<strong>      |
-| Coverage   | verified?</strong>    |                | Glowing pink   |
-|                | Checks if the  |                | means the code |
-|                | code has a     |                | is heavily     |
-|                | safety net of  |                | tested.        |
-|                | tests proving  |                |                |
-|                | it works.      |                |                |
-+----------------+----------------+----------------+----------------+
-| []{#a          | <strong>Tabs or      | Green Vs.      | </strong>Green vs     |
-| nchor-63}Civil | Spaces?<strong>      | Yellow         | Yellow.</strong> Blue |
-| War            | Checks for     |                | indicates a    |
-|                | indentation    |                | messy mix of   |
-|                | consistency.   |                | both.          |
-+----------------+----------------+----------------+----------------+
-| []{#ancho      | <strong>Is there     | Purple         | </strong>Purple.<strong> A  |
-| r-64}Graveyard | dead code?</strong>   |                | \"haunted\"    |
-|                | Finds blocks   |                | purple glow    |
-|                | of code that   |                | indicates      |
-|                | were commented |                | historical     |
-|                | out and        |                | hoarding.      |
-|                | abandoned.     |                |                |
-+----------------+----------------+----------------+----------------+
-| API Exposure   | <strong>Is it        | #ff007f        | </strong>Electric     |
-|                | public?<strong>      |                | Rose.</strong>        |
-|                | Highlights the | Electric Rose  | Indicates a    |
-|                | entry points   |                | public         |
-|                | where the      |                | interface or   |
-|                | system talks   |                | endpoint.      |
-|                | to the outside |                |                |
-|                | world.         |                |                |
-+----------------+----------------+----------------+----------------+
-| Concurrency    | <strong>Is it        | #7b2ff7        | **             |
-| Exposure       | m              |                | Ultraviolet.</strong> |
-|                | ultitasking?<strong> | Electric       | Indicates      |
-|                | Highlights     | Ultraviolet    | potential race |
-|                | complex        |                | conditions or  |
-|                | timing,        |                | timing risks.  |
-|                | threads, or    |                |                |
-|                | asynchronous   |                |                |
-|                | logic.         |                |                |
-+----------------+----------------+----------------+----------------+
-| State Flux     | </strong>Is the data  | #ffb84e        | <strong>Clyde        |
-| Exposure       | changing?</strong>    |                | Orange.**      |
-|                | Highlights     | Clyde Orange   | Indicates      |
-|                | variables that |                | \"boiling\"    |
-|                | are constantly |                | data that is   |
-|                | being          |                | hard to track. |
-|                | mod            |                |                |
-|                | ified/mutated. |                |                |
-+----------------+----------------+----------------+----------------+</p>
+<h1 id="22a-overview-of-methodology">2.2.A. Overview of Methodology</h1>
+<blockquote>
+<p><strong>The Core Philosophy: Genotype to Phenotype</strong></p>
+<p>GitGalaxy does not measure subjective "Code Quality," which implies judgment. Instead, it measures objective <strong>Risk Exposures</strong>. We identify structural markers in the code (the Genotype) and translate them into visible risk heatmaps (the Phenotype). This allows teams to instantly see where their architecture is drifting into dangerous territory without reading a single line of text.</p>
+</blockquote>
+<h2 id="22a1-the-universal-risk-spectrum-a11y-standard">2.2.A.1. The Universal Risk Spectrum (A11y Standard)</h2>
+<p>To reduce cognitive load on the user, GitGalaxy v6.0 abandons distinct color palettes for individual metrics. Instead, we utilize a single, unified <strong>High-Contrast Spectrum</strong> for all risk and exposure dashboards. </p>
+<p>Regardless of the metric being viewed, the visual translation is always the same:
+* 🟦 <strong>Deep Blue:</strong> Very Low Exposure (Safe / Cold / Clean)
+* 🩵 <strong>Cyan:</strong> Low Exposure
+* 🟨 <strong>Yellow:</strong> Moderate / Intermediate Exposure
+* 🟧 <strong>Orange:</strong> High Exposure
+* 🟥 <strong>Bright Red:</strong> Critical / Extreme Exposure (Hot / Dangerous)</p>
+<h2 id="22a2-the-exposure-metrics">2.2.A.2. The Exposure Metrics</h2>
+<p>When a user selects a metric from the HUD, the galaxy recolors itself using the Universal Spectrum. The table below defines what the engine is looking for, and what a "Red" (Critical) state represents for each mode.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Labeling Mode</th>
+<th style="text-align: left;">What It Checks</th>
+<th style="text-align: left;">The "Red" (Critical) State Indicates...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Cognitive Load</strong></td>
+<td style="text-align: left;"><strong>How hard is it to read?</strong> Scans for deeply nested logic, sprawling methods, and high control-flow complexity.</td>
+<td style="text-align: left;">The logic is incredibly difficult for a human to follow. A prime target for refactoring.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Deep Churn</strong></td>
+<td style="text-align: left;"><strong>How often does it change?</strong> Identifies files that are constantly being rewritten, patched, or reverted.</td>
+<td style="text-align: left;">The file refuses to settle down. It is highly fluid and likely a source of recurring bugs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Error &amp; Exception Exposure</strong></td>
+<td style="text-align: left;"><strong>Is it fragile?</strong> Compares the ratio of defensive code (error handling, guards) against aggressive logic.</td>
+<td style="text-align: left;">The file lacks safety nets. It is performing complex logic without adequate exception handling.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech Debt</strong></td>
+<td style="text-align: left;"><strong>Are there shortcuts?</strong> Scans for <code>TODO</code>s, <code>FIXME</code>s, known hacks, and temporary architectural band-aids.</td>
+<td style="text-align: left;">The file is heavily burdened by unfinished business and documented technical debt.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Documentation Risk</strong></td>
+<td style="text-align: left;"><strong>Is it explained?</strong> Measures the ratio and quality of instructional comments against the raw code.</td>
+<td style="text-align: left;">The file is essentially undocumented. It operates as a "black box" to new developers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Verification (Tests)</strong></td>
+<td style="text-align: left;"><strong>Is it proven?</strong> Checks if the file has a corresponding safety net of tests proving it works.</td>
+<td style="text-align: left;">The code is heavily exposed due to a severe lack of testing and verification coverage.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Stability (Heat)</strong></td>
+<td style="text-align: left;"><strong>Is it fresh?</strong> Shows where work is happening <em>right now</em> vs. code that was written months ago.</td>
+<td style="text-align: left;">The file is "Hot." It has been actively edited or committed in the very recent past.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Graveyard</strong></td>
+<td style="text-align: left;"><strong>Is there dead code?</strong> Finds massive blocks of code that were commented out and abandoned.</td>
+<td style="text-align: left;">The file is hoarding historical, dead code that needs to be purged.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>API Exposure</strong></td>
+<td style="text-align: left;"><strong>Is it public?</strong> Highlights the entry points where the system talks to the outside world.</td>
+<td style="text-align: left;">The file serves as a major public endpoint, demanding strict security scrutiny.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Concurrency</strong></td>
+<td style="text-align: left;"><strong>Is it multitasking?</strong> Highlights complex timing, threads, or asynchronous logic.</td>
+<td style="text-align: left;">Heavy reliance on asynchronous timing, introducing severe risks for race conditions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>State Flux</strong></td>
+<td style="text-align: left;"><strong>Is the data changing?</strong> Highlights variables that are constantly being modified or mutated.</td>
+<td style="text-align: left;">"Boiling" data. The file mutates state aggressively, making it hard to track standard values.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Authorship</strong></td>
+<td style="text-align: left;"><strong>Who wrote this?</strong> Measures the Shannon Entropy of Git blame data to see if a file is owned by one person or many.</td>
+<td style="text-align: left;">A "Community" file. It has been touched by so many different developers that no single person owns it.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="22a3-custom-diverging-scales">2.2.A.3. Custom Diverging Scales</h2>
+<p>Certain metrics do not represent a "Safe to Dangerous" pipeline, but rather a difference in style or identity. These bypass the Universal Spectrum and use custom palettes.</p>
+<ul>
+<li><strong>Civil War (Tabs vs. Spaces):</strong> Checks for indentation consistency across the codebase.</li>
+<li>🟩 <strong>Green:</strong> Strictly uses Tabs.</li>
+<li>🟨 <strong>Yellow:</strong> Strictly uses Spaces.</li>
+<li>🟦 <strong>Blue:</strong> A chaotic, mixed indentation style (The "Warzone").</li>
+<li><strong>Language Identity:</strong> Colors the file based on its file extension (e.g., JavaScript is Yellow, Python is Blue, Rust is Orange) to create a visual taxonomy of the system's tech stack.</li>
+</ul>
 
 
 

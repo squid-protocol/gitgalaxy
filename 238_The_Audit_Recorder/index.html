@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#238-the-audit-recorder" class="md-skip">
+        <a href="#239-the-audit-recorder" class="md-skip">
           Skip to content
         </a>
       
@@ -1258,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1626,10 +1626,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#238a-key-architectural-features" class="md-nav__link">
+  <a href="#239a-key-architectural-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.8.A. Key Architectural Features
+        2.3.9.A. Key Architectural Features
       
     </span>
   </a>
@@ -1637,10 +1637,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#238b-the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
+  <a href="#239b-the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.8.B. The Blank Audit Skeleton (galaxy_audit.json)
+        2.3.9.B. The Blank Audit Skeleton (galaxy_audit.json)
       
     </span>
   </a>
@@ -1773,7 +1773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -1940,10 +1940,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#238a-key-architectural-features" class="md-nav__link">
+  <a href="#239a-key-architectural-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.8.A. Key Architectural Features
+        2.3.9.A. Key Architectural Features
       
     </span>
   </a>
@@ -1951,10 +1951,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#238b-the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
+  <a href="#239b-the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3.8.B. The Blank Audit Skeleton (galaxy_audit.json)
+        2.3.9.B. The Blank Audit Skeleton (galaxy_audit.json)
       
     </span>
   </a>
@@ -1978,250 +1978,92 @@
 
 
 
-<h1 id="238-the-audit-recorder">2.3.8. The Audit Recorder</h1>
-<p>The Astrograph Auditor (<em>audit_recorder.py</em>) is the final stage of the
-GitGalaxy pipeline. It extracts the raw telemetry from live RAM and
-compiles it into a verbose, human-readable forensic JSON manifest.
-Designed for strict enterprise compliance and deep-dive debugging, it
-guarantees absolute traceability for every file evaluated.</p>
-<h2 id="238a-key-architectural-features">2.3.8.A. Key Architectural Features</h2>
+<h1 id="239-the-audit-recorder">2.3.9. The Audit Recorder</h1>
+<blockquote>
+<p><strong>The SHBOM (Structural Health Bill of Materials)</strong></p>
+<p>The Astrograph Auditor (<code>audit_recorder.py</code>) is the final stage of the GitGalaxy pipeline. It extracts the raw telemetry from live RAM and compiles it into a verbose, human-readable forensic JSON manifest. Designed for strict enterprise compliance and deep-dive debugging, it guarantees absolute traceability for every file evaluated.</p>
+</blockquote>
+<h2 id="239a-key-architectural-features">2.3.9.A. Key Architectural Features</h2>
 <ul>
-<li><strong>The Traceability Anchor:</strong> Imprints the exact Git footprint
-(Branch, SHA-1 Hash, Remote URL) and engine timestamp into the
-header, ensuring the audit is permanently cryptographically tied to
-the state of the repository at the exact moment of the scan.</li>
-<li><strong>Hierarchical Constellation Mapping:</strong> Rather than dumping a flat
-list of files, the Auditor intelligently sorts the \"Visible
-Matter\" by Constellation (folder) and ranks them descending by
-total structural mass.</li>
-<li><strong>Security Triage Routing:</strong> To prevent alert fatigue, the engine
-explicitly decouples active malicious threats from general
-structural risks. It evaluates the raw threat signatures and assigns
-a strict repository status: <em>SECURE</em>, <em>ELEVATED_SURFACE_RISK</em>, or
-<em>CRITICAL_THREATS_DETECTED</em>.</li>
-<li><strong>Dark Matter Preservation:</strong> Files rejected during the pipeline are
-never silently deleted. They are logged in the Dark Matter archive
-with explicit diagnostic reasons (e.g., \"Optical Bypass,\"
-\"Ecosystem Orphan,\" \"Unsupported Extension\") so engineers can
-audit the pipeline\'s blind spots.</li>
+<li><strong>The Traceability Anchor:</strong> Imprints the exact Git footprint (Branch, SHA-1 Hash, Remote URL) and engine timestamp into the header, ensuring the audit is permanently cryptographically tied to the state of the repository at the exact moment of the scan.</li>
+<li><strong>Hierarchical Constellation Mapping:</strong> Rather than dumping a flat list of files, the Auditor intelligently sorts the "Visible Matter" by Constellation (folder) and ranks them descending by total structural mass.</li>
+<li><strong>Security Triage Routing:</strong> To prevent alert fatigue, the engine explicitly decouples active malicious threats from general structural risks. It evaluates the raw threat signatures and assigns a strict repository status: <code>SECURE</code>, <code>ELEVATED_SURFACE_RISK</code>, or <code>CRITICAL_THREATS_DETECTED</code>.</li>
+<li><strong>Dark Matter Preservation:</strong> Files rejected during the pipeline are never silently deleted. They are logged in the Dark Matter archive with explicit diagnostic reasons (e.g., "Optical Bypass," "Ecosystem Orphan," "Unsupported Extension") so engineers can audit the pipeline's blind spots.</li>
 </ul>
-<h2 id="238b-the-blank-audit-skeleton-galaxy_auditjson">2.3.8.B. The Blank Audit Skeleton (<em>galaxy_audit.json</em>)</h2>
-<p>Here is the structural blueprint of the final output. You can use this
-blank template to understand the exact data hierarchy GitGalaxy
-produces:</p>
-<p>JSON</p>
-<p><em>{</em></p>
-<ul>
-<li>
-<p>\"Audit Protocol\": \"GitGalaxy v6.2.0-Audit\",*</p>
-</li>
-<li>
-<p>\"1. Forensic Trail (Traceability)\": {*</p>
-</li>
-<li>
-<p>\"Analysis Context\": {*</p>
-</li>
-<li>
-<p>\"Engine Identity\": \"\",*</p>
-</li>
-<li>
-<p>\"Target Root Name\": \"\",*</p>
-</li>
-<li>
-<p>\"Absolute Project Path\": \"\",*</p>
-</li>
-<li>
-<p>\"Analysis ISO Timestamp\": \"\",*</p>
-</li>
-<li>
-<p>\"Total Scan Duration\": \"\"*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"Source Control Footprint (Immutable Anchor)\": {*</p>
-</li>
-<li>
-<p>\"Active Branch\": \"\",*</p>
-</li>
-<li>
-<p>\"Commit Hash (SHA-1)\": \"\",*</p>
-</li>
-<li>
-<p>\"Remote Origin URL\": \"\",*</p>
-</li>
-<li>
-<p>\"Last Code Integration Date\": \"\"*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"2. Global Synthesis Summary\": {*</p>
-</li>
-<li>
-<p>\"summary\": {},*</p>
-</li>
-<li>
-<p>\"singularity\": {},*</p>
-</li>
-<li>
-<p>\"health\": {},*</p>
-</li>
-<li>
-<p>\"composition\": {},*</p>
-</li>
-<li>
-<p>\"constellations\": {}*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"3. Forensic Security &amp; Vulnerability Audit\": {*</p>
-</li>
-<li>
-<p>\"Audit Status\": \"[SECURE | ELEVATED_SURFACE_RISK |
-CRITICAL_THREATS_DETECTED]\",*</p>
-</li>
-<li>
-<p>\"Scope\": {},*</p>
-</li>
-<li>
-<p>\"Exposed Secrets &amp; Credentials (Quarantined Files)\": [],*</p>
-</li>
-<li>
-<p>\"Vulnerability Exposures (Threshold Breaches)\": {},*</p>
-</li>
-<li>
-<p>\"Raw Threat Signature Hits (Total Repository Occurrences)\": {}*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"4. High-Value Forensic Report\": {*</p>
-</li>
-<li>
-<p>\"exposures\": {*</p>
-</li>
-<li>
-<p>\"cognitive_load\": { \"highest\": [], \"lowest\": [] },*</p>
-</li>
-<li>
-<p>\"safety_score\": { \"highest\": [], \"lowest\": [] },*</p>
-</li>
-<li>
-<p>\"tech_debt\": { \"highest\": [], \"lowest\": [] }*</p>
-</li>
-<li>
-<p>// ... iterates through all 18 risk exposures*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"file_impact\": { \"highest\": [], \"lowest\": [] },*</p>
-</li>
-<li>
-<p>\"function_impact\": { \"highest\": [], \"lowest\": [] },*</p>
-</li>
-<li>
-<p>\"cumulative_risk\": { \"highest\": [], \"lowest\": [] }*</p>
-</li>
-<li>
-<p>},*</p>
-</li>
-<li>
-<p>\"5. Dark Matter (Excluded Artifacts)\": [*</p>
-</li>
-<li>
-<p>{*</p>
-</li>
-<li>
-<p>\"Path\": \"\",*</p>
-</li>
-<li>
-<p>\"Forensic Category\": \"Dark Matter (Excluded Artifact)\",*</p>
-</li>
-<li>
-<p>\"Diagnostic Reason\": \"\",*</p>
-</li>
-<li>
-<p>\"Size\": \"\",*</p>
-</li>
-<li>
-<p>\"Identity Confidence\": \"\",*</p>
-</li>
-<li>
-<p>\"Discovery Proof\": \"\"*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-<li>
-<p>],*</p>
-</li>
-<li>
-<p>\"6. Visible Matter (Scanned Artifacts)\": {*</p>
-</li>
-<li>
-<p>\"[Constellation/Folder Name]\": {*</p>
-</li>
-<li>
-<p>\"Constellation Mass\": 0.0,*</p>
-</li>
-<li>
-<p>\"File Count\": 0,*</p>
-</li>
-<li>
-<p>\"Average Risk Exposures\": {},*</p>
-</li>
-<li>
-<p>\"Stars / Files\": {*</p>
-</li>
-<li>
-<p>\"[File Path]\": {*</p>
-</li>
-<li>
-<p>\"1. Identity\": {},*</p>
-</li>
-<li>
-<p>\"2. Spatial Coordinates\": {},*</p>
-</li>
-<li>
-<p>\"3. Galactic Profile\": {},*</p>
-</li>
-<li>
-<p>\"4. Risk Exposures\": {},*</p>
-</li>
-<li>
-<p>\"5. Function Analysis (Satellites)\": [],*</p>
-</li>
-<li>
-<p>\"6. Structural DNA (Raw Hits)\": {},*</p>
-</li>
-<li>
-<p>\"7. Extracted Dependencies\": []*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-<li>
-<p>}*</p>
-</li>
-</ul>
-<p><em>}</em></p>
+<h2 id="239b-the-blank-audit-skeleton-galaxy_auditjson">2.3.9.B. The Blank Audit Skeleton (<code>galaxy_audit.json</code>)</h2>
+<p>Here is the structural blueprint of the final output. You can use this blank template to understand the exact data hierarchy GitGalaxy produces:</p>
+<p>```json
+{
+  "Audit Protocol": "GitGalaxy v6.2.0-Audit",
+  "1. Forensic Trail (Traceability)": {
+    "Analysis Context": {
+      "Engine Identity": "",
+      "Target Root Name": "",
+      "Absolute Project Path": "",
+      "Analysis ISO Timestamp": "",
+      "Total Scan Duration": ""
+    },
+    "Source Control Footprint (Immutable Anchor)": {
+      "Active Branch": "",
+      "Commit Hash (SHA-1)": "",
+      "Remote Origin URL": "",
+      "Last Code Integration Date": ""
+    }
+  },
+  "2. Global Synthesis Summary": {
+    "summary": {},
+    "singularity": {},
+    "health": {},
+    "composition": {},
+    "constellations": {}
+  },
+  "3. Forensic Security &amp; Vulnerability Audit": {
+    "Audit Status": "[SECURE | ELEVATED_SURFACE_RISK | CRITICAL_THREATS_DETECTED]",
+    "Scope": {},
+    "Exposed Secrets &amp; Credentials (Quarantined Files)": [],
+    "Vulnerability Exposures (Threshold Breaches)": {},
+    "Raw Threat Signature Hits (Total Repository Occurrences)": {}
+  },
+  "4. High-Value Forensic Report": {
+    "exposures": {
+      "cognitive_load": { "highest": [], "lowest": [] },
+      "safety_score": { "highest": [], "lowest": [] },
+      "tech_debt": { "highest": [], "lowest": [] }
+      // ... iterates through all 18 risk exposures
+    },
+    "file_impact": { "highest": [], "lowest": [] },
+    "function_impact": { "highest": [], "lowest": [] },
+    "cumulative_risk": { "highest": [], "lowest": [] }
+  },
+  "5. Dark Matter (Excluded Artifacts)": [
+    {
+      "Path": "",
+      "Forensic Category": "Dark Matter (Excluded Artifact)",
+      "Diagnostic Reason": "",
+      "Size": "",
+      "Identity Confidence": "",
+      "Discovery Proof": ""
+    }
+  ],
+  "6. Visible Matter (Scanned Artifacts)": {
+    "[Constellation/Folder Name]": {
+      "Constellation Mass": 0.0,
+      "File Count": 0,
+      "Average Risk Exposures": {},
+      "Stars / Files": {
+        "[File Path]": {
+          "1. Identity": {},
+          "2. Spatial Coordinates": {},
+          "3. Galactic Profile": {},
+          "4. Risk Exposures": {},
+          "5. Function Analysis (Satellites)": [],
+          "6. Structural DNA (Raw Hits)": {},
+          "7. Extracted Dependencies": []
+        }
+      }
+    }
+  }
+}</p>
 
 
 

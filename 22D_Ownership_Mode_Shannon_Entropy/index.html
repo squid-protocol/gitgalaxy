@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#22d-ownership-mode-shannon-entropy" class="md-skip">
+        <a href="#22d-authorship-ownership-entropy" class="md-skip">
           Skip to content
         </a>
       
@@ -922,10 +922,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#22d3-equation" class="md-nav__link">
+  <a href="#22d3-the-equation-shannon-entropy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2.D.3. Equation
+        2.2.D.3. The Equation: Shannon Entropy
       
     </span>
   </a>
@@ -940,23 +940,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2.2.D.4. Why This Model is Superior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1388,7 +1371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1834,7 +1817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -2023,10 +2006,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#22d3-equation" class="md-nav__link">
+  <a href="#22d3-the-equation-shannon-entropy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2.D.3. Equation
+        2.2.D.3. The Equation: Shannon Entropy
       
     </span>
   </a>
@@ -2041,23 +2024,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2.2.D.4. Why This Model is Superior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2100,112 +2066,70 @@
 
 
 
-<h1 id="22d-ownership-mode-shannon-entropy">2.2.D. Ownership Mode: Shannon Entropy</h1>
-<p>Ownership displays the distribution of authorship within a file.
-Ownership isn't about blaming a single author; it's about visualizing
-the Collective Mind. A healthy culture is transparent about where
-knowledge is shared and where it is siloed.</p>
-<p>Rather than a linear author count, this system utilizes Shannon Entropy
-to determine the concentration or dispersion of contributions. This
-entropy score is then mapped directly to the GitGalaxy Universal Risk
-Spectrum, allowing you to instantly spot heavily siloed knowledge (\"Bus
-Factor\" risks) versus highly distributed community code.</p>
+<h1 id="22d-authorship-ownership-entropy">2.2.D. Authorship (Ownership Entropy)</h1>
+<blockquote>
+<p><strong>Metric: Shannon Entropy of Git Blame Data</strong></p>
+<p><strong>Purpose:</strong> Visualizes the distribution of authorship within a file to identify where knowledge is siloed versus where it is shared. </p>
+<p><strong>Why:</strong> Ownership isn't about blaming a single author; it's about visualizing the Collective Mind. Rather than a linear author count, this system utilizes Shannon Entropy to determine the concentration or dispersion of contributions. This entropy score is mapped directly to the Universal Risk Spectrum, allowing you to instantly spot heavily siloed knowledge ("Bus Factor" risks) versus highly distributed community code.</p>
+</blockquote>
 <h2 id="22d1-the-philosophy-knowledge-concentration">2.2.D.1. The Philosophy: Knowledge Concentration</h2>
-<p>Authorship is analyzed as a variable of structural clarity versus
-architectural diffusion.</p>
+<p>Authorship is analyzed as a variable of structural clarity versus architectural diffusion:</p>
 <ul>
-<li><strong>Low Entropy (Individual Ownership):</strong> Contributions are highly
-concentrated within a single primary author. This represents a
-unified mental model, but also a potential \"Silo Risk\" if that
-developer is unavailable.</li>
-<li><strong>High Entropy (Community Diffusion):</strong> Contributions are
-distributed across multiple authors. As more developers influence
-the file, the architectural intent becomes shared, indicating a
-high-traffic module maintained by the collective.</li>
+<li><strong>Low Entropy (Individual Ownership):</strong> Contributions are highly concentrated within a single primary author. This represents a unified mental model, but also a potential "Silo Risk" if that developer is unavailable.</li>
+<li><strong>High Entropy (Community Diffusion):</strong> Contributions are distributed across multiple authors. As more developers influence the file, the architectural intent becomes shared, indicating a high-traffic module maintained by the collective.</li>
 </ul>
 <h2 id="22d2-the-inputs-contribution-share">2.2.D.2. The Inputs: Contribution Share</h2>
 <ul>
-<li><strong>Authors:</strong> A data map of author identifiers to their specific
-commit frequencies for the file.</li>
-<li><strong>TotalCommits:</strong> The aggregate sum of all commits recorded for the
-file.</li>
-<li><strong>GlobalAuthorCount:</strong> The total number of unique contributors
-across the entire repository.</li>
+<li><strong>Authors:</strong> A data map of author identifiers to their specific commit frequencies for the file.</li>
+<li><strong>TotalCommits:</strong> The aggregate sum of all commits recorded for the file.</li>
+<li><strong>GlobalAuthorCount:</strong> The total number of unique contributors across the entire repository.</li>
 </ul>
-<h2 id="22d3-equation">2.2.D.3. Equation</h2>
-<p><strong>p_i:</strong> The proportion of total commits made by author \"i\" (e.g., if
-Author A made 20/100 commits, p = 0.2).</p>
-<p>Entropy = H = -sum(p_i * log2(p_i))</p>
-<p>OwnershipScore = min(H * 32, 100)</p>
+<h2 id="22d3-the-equation-shannon-entropy">2.2.D.3. The Equation: Shannon Entropy</h2>
+<p>First, we calculate the proportion of total commits (<span class="arithmatex">\(p_i\)</span>) made by author <span class="arithmatex">\(i\)</span>. (e.g., if Author A made 20 out of 100 commits, <span class="arithmatex">\(p_i = 0.2\)</span>).</p>
+<p>We then apply the Shannon Entropy formula to calculate the total diffusion (<span class="arithmatex">\(H\)</span>):</p>
+<div class="arithmatex">\[H = -\sum \left( p_i \times \log_2(p_i) \right)\]</div>
+<p>Finally, we scale the entropy into a normalized <span class="arithmatex">\(0\)</span> to <span class="arithmatex">\(100\)</span> score for the rendering engine:</p>
+<div class="arithmatex">\[\text{OwnershipScore} = \min(H \times 32, 100)\]</div>
 <h2 id="22d4-why-this-model-is-superior">2.2.D.4. Why This Model is Superior</h2>
-<ol>
-<li>
-<p><strong>It Solves the \"Long Tail\" Problem:</strong> A file with 1 Major Author
-(90%) and 1 Minor Author (10%) is relatively stable. A file with 1
-Major Author (90%) and 10 Minor Authors (1% each) is chaotic. The
-Linear model scores these identical (Score: 10). The Entropy model
-correctly identifies the second file as significantly more
-\"active\" or \"noisy\" because it accounts for the sheer number of
-distinct voices in the mix while still marking it mostly with the
-color of the main author. While the Linear model only asks \"Who is
-the biggest author, regardless of commit size?\", the entropy model
-displays \"How much <strong>uncertainty</strong> exists in the authorship?\". In
-GitGalaxy, high entropy means diffusion of authorship.</p>
-</li>
-<li>
-<h5 id="_1"></h5>
-</li>
-</ol>
+<p>It solves the "Long Tail" problem. 
+* A file with 1 Major Author (90%) and 1 Minor Author (10%) is relatively stable. 
+* A file with 1 Major Author (90%) and 10 Minor Authors (1% each) is chaotic. </p>
+<p>A linear model scores these identically by just counting heads. The Entropy model correctly identifies the second file as significantly more "active" or "noisy" because it accounts for the sheer number of distinct voices in the mix. While the linear model asks, <em>"Who is the biggest author?"</em>, the entropy model asks, <em>"How much </em><em>uncertainty</em><em> exists in the authorship?"</em></p>
 <h2 id="22d5-visual-interpretation-ownership-vs-collective-diffusion">2.2.D.5. Visual Interpretation: Ownership vs. Collective Diffusion</h2>
-<p>-</p>
-<p><strong>GitGalaxy utilizes the standard 5-stop Universal Risk Spectrum to
-visualize the entropy score, scaling from cool, isolated development to
-hot, multi-author environments.</strong></p>
-<ul>
-<li>
-<p>INDIVIDUAL (Score 0 - 20):</p>
-</li>
-<li>
-<p><strong>Visual:</strong> Deep Blue (<em>#0055ff</em>).</p>
-</li>
-<li>
-<p><strong>Definition:</strong> Pure Ownership. The logic represents a single
-individual\'s architectural intent.</p>
-</li>
-<li>
-<p>SMALL TEAM / SQUAD (Score 21 - 60):</p>
-</li>
-<li>
-<p><strong>Visual:</strong> Cyan (<em>#00ffff</em>) transitioning to Yellow
-(<em>#ffff00</em>).</p>
-</li>
-<li>
-<p><strong>Definition:</strong> Core Collaboration. Responsibility is shared
-among a tight-knit group of contributors.</p>
-</li>
-<li>
-<p>DEPT / COMMUNITY (Score 61 - 100):</p>
-</li>
-<li>
-<p><strong>Visual:</strong> Orange (<em>#ff8800</em>) transitioning to intense Red
-(<em>#ff0000</em>).</p>
-</li>
-<li><strong>Definition:</strong> Collective Maintenance. The module experiences
-constant, multi-author input and has reached a state of complete
-architectural diffusion.</li>
-</ul>
+<p>GitGalaxy utilizes the standard 5-stop Universal Risk Spectrum to visualize the entropy score, scaling from cool, isolated development to hot, multi-author environments.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Score Range</th>
+<th style="text-align: left;">Classification</th>
+<th style="text-align: left;">Visual Target</th>
+<th style="text-align: left;">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>0 - 20</strong></td>
+<td style="text-align: left;"><strong>Individual</strong></td>
+<td style="text-align: left;">🟦 <strong>Deep Blue</strong></td>
+<td style="text-align: left;">Pure Ownership. The logic represents a single individual's architectural intent.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>21 - 60</strong></td>
+<td style="text-align: left;"><strong>Small Team / Squad</strong></td>
+<td style="text-align: left;">🩵 <strong>Cyan</strong> <span class="arithmatex">\(\rightarrow\)</span> 🟨 <strong>Yellow</strong></td>
+<td style="text-align: left;">Core Collaboration. Responsibility is shared among a tight-knit group of contributors.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>61 - 100</strong></td>
+<td style="text-align: left;"><strong>Dept / Community</strong></td>
+<td style="text-align: left;">🟧 <strong>Orange</strong> <span class="arithmatex">\(\rightarrow\)</span> 🟥 <strong>Red</strong></td>
+<td style="text-align: left;">Collective Maintenance. The module experiences constant, multi-author input and has reached complete architectural diffusion.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="22d6-rqm-scaling-logic-visual-overload">2.2.D.6. RQM: Scaling Logic &amp; Visual Overload</h2>
-<p>By unifying Ownership under the v6.0 Universal Risk Spectrum, GitGalaxy
-eliminates the need for expensive, multi-pass chromatic aberration
-shaders and per-author deterministic hashing.</p>
-<p>Because the Shannon Entropy calculation condenses infinite author
-complexity into a clean <em>0.0 - 100.0</em> exposure vector in the backend
-<em>signal_processor.py</em>, the frontend renderer instantly inherently
-scales. Whether a file has 2 authors or 2,000, the WebGPU engine simply
-translates the float into the static linear gradient. This guarantees
-smooth 60 FPS performance even when mapping planetary-scale
-megastructures like Linux or Kubernetes, without requiring visual
-fallbacks or macroscopic LOD (Level of Detail) toggles.</p>
+<p>By unifying Ownership under the v6.0 Universal Risk Spectrum, GitGalaxy eliminates the need for expensive, multi-pass chromatic aberration shaders and per-author deterministic hashing.</p>
+<p>Because the Shannon Entropy calculation condenses infinite author complexity into a clean <span class="arithmatex">\(0.0 - 100.0\)</span> exposure vector in the backend (<code>signal_processor.py</code>), the frontend renderer inherently scales. Whether a file has 2 authors or 2,000, the WebGPU engine simply translates the float into the static linear gradient. This guarantees smooth 60 FPS performance even when mapping planetary-scale megastructures like Linux or Kubernetes, without requiring visual fallbacks or macroscopic LOD (Level of Detail) toggles.</p>
 
 
 

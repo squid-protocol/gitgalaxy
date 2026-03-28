@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#22b-sub-equations" class="md-skip">
+        <a href="#22b-sub-equations-the-scanner-variables" class="md-skip">
           Skip to content
         </a>
       
@@ -793,6 +793,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sub-Equations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -809,6 +827,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-physics-engine-geometry-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Physics Engine (Geometry &amp; Structure)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-risk-engine-structural-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Risk Engine (Structural Integrity)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-specialized-sensors-architecture-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Specialized Sensors (Architecture &amp; Domain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-extracted-sub-equations-specialized-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Extracted Sub-Equations (Specialized Systems)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-5-thermodynamic-balance-yin-yang" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Thermodynamic Balance (Yin &amp; Yang)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1268,7 +1360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1714,7 +1806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -1874,6 +1966,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-physics-engine-geometry-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Physics Engine (Geometry &amp; Structure)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-risk-engine-structural-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Risk Engine (Structural Integrity)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-specialized-sensors-architecture-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Specialized Sensors (Architecture &amp; Domain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-extracted-sub-equations-specialized-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Extracted Sub-Equations (Specialized Systems)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-5-thermodynamic-balance-yin-yang" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Thermodynamic Balance (Yin &amp; Yang)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1889,133 +2044,264 @@
 
 
 
-<h1 id="22b-sub-equations">2.2.B. Sub-Equations</h1>
-<p>To ensure the equations above are actionable, the following variables
-are defined based on the scanner\'s regex hits:</p>
-<p><strong>branch_hits:</strong> Control flow constructs including
-conditionals (<em>if</em>, <em>switch</em>), loops (<em>for</em>,
-<em>while</em>), jumps (<em>break</em>, <em>throw</em>), and logical
-operators (<em>&amp;&amp;</em>, <em>||</em>) that divert execution paths.</p>
-<ul>
-<li><strong>args_hits:</strong> Function signatures, parameter lists,
-input registers, or lambda arguments that define the data inputs for
-a logic block.</li>
-</ul>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>linear_hits:</strong> Sequential flow markers, including
-variable declarations (<em>const</em>, <em>var</em>), imports, returns, and
-structural keywords that indicate non-branching logic.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>func_start_hits:</strong> The syntactic anchor identifying
-the beginning of a named function, method, subroutine, or procedure
-definition (excluding classes/interfaces).</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>class_start_hits:</strong> The syntax that defines an
-object-oriented class, struct, record, or enum, driving API surface
-area calculations.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>safety_hits:</strong> Defensive constructs such as
-exception handling (<em>try/catch</em>), type assertions, null checks, and
-memory protection mechanisms (<em>readonly</em>).</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>safety_neg_hits:</strong> Risk factors including error
-suppression, dynamic code execution (<em>eval</em>), type-system bypasses
-(<em>any</em>, <em>!</em>), and unsafe pointer usage.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>danger_hits:</strong> Critical indicators of technical debt
-(<em>TODO/FIXME</em>), destructive system calls (<em>process.exit</em>), hardcoded
-secrets, or catastrophic failure modes.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>io_hits:</strong> Interactions with external boundaries,
-including file systems, network requests (<em>fetch</em>), database
-queries, and hardware I/O.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>api_hits:</strong> Keywords identifying public interfaces
-(<em>export</em>, <em>public</em>), exported members, or globally accessible entry
-points that define surface area.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>flux_hits:</strong> Markers of state change, including
-variable assignment (<em>let</em>, <em>mut</em>), mutable collections, pointer
-updates, and side-effect triggers.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>graveyard_hits:</strong> Patterns detecting commented-out
-code blocks (<em>// if</em>), legacy logic, or \"zombie\" code (<em>//
-console.log</em>) that remains in the source file.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>doc_hits:</strong> Structured documentation syntax,
-including JSDoc (<em>/**</em>), XML comments, and standard metadata tags
-describing code intent.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>test_hits:</strong> Framework-specific keywords for
-assertions, unit test definitions, mocks, and verification suites
-(<em>describe</em>, <em>assert</em>, <em>mock</em>).</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>concurrency_hits:</strong> Constructs for asynchronous
-execution (<em>async/await</em>), threading, parallel processing,
-coroutines, and synchronization primitives.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>ui_framework_hits:</strong> Patterns specific to frontend
-or UI development, including component definitions, view bindings
-(<em>document.getElementById</em>), and rendering logic.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>closures_hits:</strong> Syntax for anonymous functions,
-lambdas, blocks, or inline delegates that capture local context
-(<em>=&gt;</em>).</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>globals_hits:</strong> References to global scope
-(<em>window.</em>, <em>process.env</em>), environment variables, singletons, or
-system-wide shared state.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>decorators_hits:</strong> Annotations, attributes, or
-wrapper syntax used to modify or tag classes and methods with
-metadata (<em>\@Injectable</em>).</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>generics_hits:</strong> Syntax defining type parameters
-(<em>\&lt;T&gt;</em>), templates, or polymorphic structures for type-agnostic
-logic.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>comprehensions_hits:</strong> High-density logic patterns
-including list comprehensions, functional chains (<em>.map</em>,
-<em>.filter</em>), and array transformations.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>scientific_hits:</strong> Usage of mathematical libraries
-(<em>Math.</em>, <em>numpy</em>), tensor operations, arbitrary precision
-arithmetic, or complex number processing.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>heat_triggers_hits:</strong> High-complexity constructs
-such as metaprogramming, reflection (<em>Proxy</em>, <em>eval</em>), macros, or
-dynamic dispatch that increase cognitive load.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>import_hits:</strong> Syntax for dependency management,
-module loading (<em>import</em>, <em>require</em>), file inclusion, or library
-linking.</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>&lt;!-- --&gt;
-</code></pre></div>
--   <strong>ownership_hits:</strong> Metadata extraction patterns for
-identifying authors, maintainers, or copyright holders within file
-headers (<em>\@author</em>).</p>
+<h1 id="22b-sub-equations-the-scanner-variables">2.2.B. Sub-Equations (The Scanner Variables)</h1>
+<blockquote>
+<p><strong>Purpose: Defining the Raw Inputs of the Universe</strong></p>
+<p>To ensure the risk and complexity equations are actionable, the engine relies on a standardized array of regex variables extracted from the source code. The GitGalaxy Physics Engine operates in a strict 5-Phase sequence. </p>
+<p><em>(Note: The scanner appends a <code>_hits</code> suffix to all output variables. For example, the <code>branch</code> regex rule outputs its final count as <code>branch_hits</code>)</em>.</p>
+</blockquote>
+<h2 id="phase-1-physics-engine-geometry-structure">Phase 1: Physics Engine (Geometry &amp; Structure)</h2>
+<p>These variables define the raw physical shape and mass of the file.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>branch_hits</code></td>
+<td style="text-align: left;">Logic forcing execution to split or jump (conditionals, loops, short-circuits). Excludes unrecoverable exceptions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>args_hits</code></td>
+<td style="text-align: left;">Functional signatures defining the parameter mass and data inputs. Used to calculate coupling weight.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>linear_hits</code></td>
+<td style="text-align: left;">Declarative pathing defining the file's architectural skeleton (imports, returns, package declarations).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>func_start_hits</code></td>
+<td style="text-align: left;">The primary syntactic anchor identifying the beginning of executable intent (named functions, methods, subroutines).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>class_start_hits</code></td>
+<td style="text-align: left;">Defines the boundaries of Object-Oriented entities or structural data definitions (classes, interfaces, structs).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-2-risk-engine-structural-integrity">Phase 2: Risk Engine (Structural Integrity)</h2>
+<p>These variables track defensive programming versus reckless execution.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>safety_hits</code></td>
+<td style="text-align: left;">Explicit signals of safe boundary management, error handling, and strict equality (e.g., <code>try/catch</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>safety_neg_hits</code></td>
+<td style="text-align: left;">Active bypasses of type systems, error suppression, or unsafe pointer usage (e.g., <code>any</code>, <code>unsafe</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>danger_hits</code></td>
+<td style="text-align: left;">Catastrophic execution risks, un-sanitized process triggers, or dynamic execution (e.g., <code>eval</code>, <code>process.exit</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>io_hits</code></td>
+<td style="text-align: left;">Interaction with the external universe (Disk, Network, Database).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>api_hits</code></td>
+<td style="text-align: left;">Identification of code surface area exposed to external scopes (public interfaces, exported members).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>flux_hits</code></td>
+<td style="text-align: left;">Direct mutation of state, memory reassignments, and side-effect triggers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>graveyard_hits</code></td>
+<td style="text-align: left;">Commented-out execution logic indicating dead features or "zombie" code.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>doc_hits</code></td>
+<td style="text-align: left;">Signals of structured metadata/docs intended for humans and parsers (e.g., JSDoc).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test_hits</code></td>
+<td style="text-align: left;">Triggers indicating internal verification or testing framework proximity (e.g., <code>describe</code>, <code>assert</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-3-specialized-sensors-architecture-domain">Phase 3: Specialized Sensors (Architecture &amp; Domain)</h2>
+<p>These variables detect the specific paradigm and domain behavior of the code.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>concurrency_hits</code></td>
+<td style="text-align: left;">Asynchronous primitives, coroutines, and thread orchestration.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ui_framework_hits</code></td>
+<td style="text-align: left;">Density of visual layout primitives or framework-specific UI bindings (e.g., JSX components).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>closures_hits</code></td>
+<td style="text-align: left;">Anonymous scopes, lambda callbacks, and inline delegates.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>globals_hits</code></td>
+<td style="text-align: left;">Access to global registries, environment variables, or singleton states.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>decorators_hits</code></td>
+<td style="text-align: left;">Architectural annotations modifying block behavior or tagging metadata.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>generics_hits</code></td>
+<td style="text-align: left;">Signals of generic contracts, templates, and type parameterization.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>comprehensions_hits</code></td>
+<td style="text-align: left;">High-density logic patterns (mapping, filtering, list-comps) acting as inline data pipelines.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>scientific_hits</code></td>
+<td style="text-align: left;">Math libraries, tensor operations, and linear algebra primitives.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>heat_triggers_hits</code></td>
+<td style="text-align: left;">Metaprogramming, reflection, or dynamic property binding that increases cognitive load.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>import_hits</code></td>
+<td style="text-align: left;">Dependency resolution, module loading, and file inclusion.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ownership_hits</code></td>
+<td style="text-align: left;">Identifying the architect within comments (e.g., <code>@author</code>, <code>Maintainer:</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-4-extracted-sub-equations-specialized-systems">Phase 4: Extracted Sub-Equations (Specialized Systems)</h2>
+<p>These variables capture highly specific execution contexts and known technical debt.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>planned_debt_hits</code></td>
+<td style="text-align: left;">Future engineering work that doesn't break execution (e.g., <code>TODO</code>, <code>WIP</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>fragile_debt_hits</code></td>
+<td style="text-align: left;">Explicit admissions of hacks or 'ugly' code (e.g., <code>FIXME</code>, <code>HACK</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>private_info_hits</code></td>
+<td style="text-align: left;">Hardcoded credentials or secrets tied directly to assignment operators.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>spec_exposure_hits</code></td>
+<td style="text-align: left;">Documentation tracking code back to architecture specs, RFCs, or formal audits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ssr_boundaries_hits</code></td>
+<td style="text-align: left;">Server-side rendering hydration or template boundaries.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>events_hits</code></td>
+<td style="text-align: left;">Event dispatching, message emission, and signal publishers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dependency_injection_hits</code></td>
+<td style="text-align: left;">Wiring, container resolution signatures, and inversion of control.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>macros_hits</code></td>
+<td style="text-align: left;">Compile-time logic generation hooks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>pointers_hits</code></td>
+<td style="text-align: left;">Raw memory addressing and explicit pointer manipulation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>memory_alloc_hits</code></td>
+<td style="text-align: left;">Explicit heap control and manual memory allocation (e.g., <code>malloc</code>, <code>new</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>inline_asm_hits</code></td>
+<td style="text-align: left;">Direct hardware instruction injection.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-5-thermodynamic-balance-yin-yang">Phase 5: Thermodynamic Balance (Yin &amp; Yang)</h2>
+<p>These variables provide the mathematical counter-weights to Phase 2 and Phase 3 risks, ensuring standard language paradigms aren't unfairly penalized.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>telemetry_hits</code></td>
+<td style="text-align: left;">Structured logging, observability, and tracing frameworks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>print_hits</code></td>
+<td style="text-align: left;">Ad-hoc terminal dumps for transient debugging (e.g., <code>console.log</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cast_hits</code></td>
+<td style="text-align: left;">Forceful type coercion bypassing the safety engine (Standard friction, not a structural fracture).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bailout_hits</code></td>
+<td style="text-align: left;">Hard execution destruction and unrecoverable exceptions (e.g., <code>panic!</code>, <code>abort</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>halt_hits</code></td>
+<td style="text-align: left;">Forcing threads to sleep (often a symptom of hidden race conditions).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bitwise_hits</code></td>
+<td style="text-align: left;">Low-level byte and binary manipulation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sync_locks_hits</code></td>
+<td style="text-align: left;">Explicit coordination to prevent race conditions (The counter-weight to Concurrency).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>freeze_hits</code></td>
+<td style="text-align: left;">Explicit locking of data to prevent mutation (The counter-weight to Flux).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cleanup_hits</code></td>
+<td style="text-align: left;">Explicit destruction of state or closing of streams (The counter-weight to Memory Alloc/IO).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>encapsulation_hits</code></td>
+<td style="text-align: left;">Logic deliberately hidden from view (The counter-weight to API Exposure).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>listeners_hits</code></td>
+<td style="text-align: left;">Waiting to receive state from an external broadcast (The counter-weight to Events).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test_skip_hits</code></td>
+<td style="text-align: left;">Framework code that explicitly bypasses verification (e.g., <code>it.skip</code>).</td>
+</tr>
+</tbody>
+</table>
 
 
 

@@ -1073,6 +1073,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Civil War (Tabs vs Spaces)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1089,6 +1107,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22m1-the-philosophy-the-linear-polarization-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.1. The Philosophy: The Linear Polarization Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m2-the-inputs-indentation-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.2. The Inputs (Indentation Context)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m3-the-equation-the-polarization-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.3. The Equation: The Polarization Ratio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m4-implementation-python-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.4. Implementation (Python Reference)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1268,7 +1349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23_Data_Analysis_Pipeline/" class="md-nav__link">
+      <a href="../23_Data_Analysis_Pipeline.md" class="md-nav__link">
         
   
   
@@ -1714,7 +1795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24_Strategy_Validation_--_Does_this_work/" class="md-nav__link">
+      <a href="../24_Strategy_Validation_--_Does_this_work.md" class="md-nav__link">
         
   
   
@@ -1874,6 +1955,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22m1-the-philosophy-the-linear-polarization-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.1. The Philosophy: The Linear Polarization Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m2-the-inputs-indentation-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.2. The Inputs (Indentation Context)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m3-the-equation-the-polarization-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.3. The Equation: The Polarization Ratio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22m4-implementation-python-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.M.4. Implementation (Python Reference)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1889,53 +2022,72 @@
 
 
 
-<h1 id="22m-the-civil-war-algorithm-tabs-vs-spaces">2.2.M. The \"Civil War\" Algorithm: Tabs vs. Spaces</h1>
-<ul>
-<li>
-<p>Visual Mapping:</p>
-</li>
-<li>
-<p>Score 0 (Pure Tabs): Visual: Glowing Green
-(#00FF00). Emissive intensity is maxed.</p>
-</li>
-<li>Score 100 (Pure Spaces): Visual: Glowing Yellow
-(#FFFF00). Emissive intensity is maxed.</li>
-<li>Score 50 (Maximum Conflict): Visual: Deep Blue
-(#0000FF). 50/50 split triggers the \"Bifurcation Shimmer\"
-(geometry flickering).</li>
-<li>
-<p>Gradient: Linear transition from Green (0) → Blue (50) →
-Yellow (100).</p>
-</li>
-<li>
-<p>Equation:</p>
-</li>
-</ul>
-<p><em># 1. Gather Indentation Context:</em></p>
-<p><em># Lt = Count of lines starting with Tabs</em></p>
-<p><em># Ls = Count of lines starting with Spaces</em></p>
-<p><em># Ltotal = Total lines with indentation context</em></p>
-<p><em>Ltotal = TabLines + SpaceLines</em></p>
-<p><em># 2. Calculate Space-Ratio (R):</em></p>
-<p><em># 0.0 means 100% Tabs. 1.0 means 100% Spaces.</em></p>
-<p><em>R = SpaceLines / max(Ltotal, 1)</em></p>
-<p><em># 3. Final Score Mapping (0-100):</em></p>
-<p><em>FinalScore = R * 100</em></p>
-<ul>
-<li>
-<p>Range: <strong>0</strong> (Pure Tabs) to <strong>100</strong> (Pure Spaces).</p>
-</li>
-<li>
-<p>Why this works: This is a Linear Polarization Model.</p>
-</li>
-<li>
-<p>Terminology: While colloquially referred to as \"Civil
-War,\" the equation measures Layout Unity.</p>
-</li>
-<li>Logic: By mapping Tabs to 0 and Spaces to 100, the \"War
-Zone\" (50/50 mix) naturally sits at the center of the spectrum
-(Score 50).</li>
-</ul>
+<h1 id="22m-the-civil-war-algorithm-tabs-vs-spaces">2.2.M. The "Civil War" Algorithm (Tabs vs. Spaces)</h1>
+<blockquote>
+<p><strong>Metric: Layout Unity (Indentation Polarization)</strong></p>
+<p><strong>Summary:</strong> While colloquially referred to as "Civil War," this equation measures Layout Unity. It visualizes the structural formatting consistency of a file by calculating the ratio of space-indented lines to tab-indented lines. </p>
+<p><strong>Effect:</strong> This metric <strong>bypasses the Universal Risk Spectrum</strong> because it does not measure escalating danger. Instead, it uses a custom Diverging Spectrum.
+* 🟩 <strong>TABS (Score 0-19):</strong> Pure Tabs. Glowing Green (<code>#39ff14</code>). Emissive intensity is maxed.
+* 🟦 <strong>MIXED (Score 20-79):</strong> The "War Zone". Maximum conflict sits at exactly <span class="arithmatex">\(50\)</span>. Deep Blue (<code>#0000ff</code>). Triggers the "Bifurcation Shimmer" (geometry flickering).
+* 🟨 <strong>SPACES (Score 80-100):</strong> Pure Spaces. Glowing Yellow (<code>#ffff00</code>). Emissive intensity is maxed.</p>
+</blockquote>
+<h2 id="22m1-the-philosophy-the-linear-polarization-model">2.2.M.1. The Philosophy: The Linear Polarization Model</h2>
+<p>By mapping Tabs to <span class="arithmatex">\(0\)</span> and Spaces to <span class="arithmatex">\(100\)</span>, the "War Zone" (a 50/50 mix of indentation styles) naturally falls into the center of the spectrum (Score <span class="arithmatex">\(50\)</span>). </p>
+<p>This visually exposes files that lack a unified formatting standard. A file glowing bright green or bright yellow is unified and clean. A file glowing deep blue is structurally fractured, indicating that multiple developers with conflicting IDE configurations are fighting over the layout.</p>
+<h2 id="22m2-the-inputs-indentation-context">2.2.M.2. The Inputs (Indentation Context)</h2>
+<p>The scanner counts the absolute number of lines that lead with either tabs or spaces.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Structural Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>indent_tabs</code></td>
+<td style="text-align: left;">Scanner</td>
+<td style="text-align: left;">Count of lines starting with one or more Tabs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>indent_spaces</code></td>
+<td style="text-align: left;">Scanner</td>
+<td style="text-align: left;">Count of lines starting with one or more Spaces.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="22m3-the-equation-the-polarization-ratio">2.2.M.3. The Equation: The Polarization Ratio</h2>
+<p><strong>Step A: Gather Indentation Context</strong>
+We calculate the total number of lines that contain measurable indentation context. If a file has no indentation at all, it defaults to the neutral center (<span class="arithmatex">\(50\)</span>).</p>
+<div class="arithmatex">\[L_{total} = L_t + L_s\]</div>
+<p><strong>Step B: Calculate Space-Ratio (<span class="arithmatex">\(R\)</span>)</strong>
+We calculate the percentage of indented lines that are controlled by spaces. A result of <span class="arithmatex">\(0.0\)</span> means <span class="arithmatex">\(100\%\)</span> Tabs. A result of <span class="arithmatex">\(1.0\)</span> means <span class="arithmatex">\(100\%\)</span> Spaces.</p>
+<div class="arithmatex">\[R = \frac{L_s}{\max(L_{total}, 1)}\]</div>
+<p><strong>Step C: Final Score Mapping</strong>
+We map the ratio to a standard <span class="arithmatex">\(0-100\)</span> visual scale.</p>
+<div class="arithmatex">\[\text{FinalScore} = R \times 100.0\]</div>
+<h2 id="22m4-implementation-python-reference">2.2.M.4. Implementation (Python Reference)</h2>
+<p>```python
+def _calc_civil_war(self, eq: Dict[str, int]) -&gt; float:
+    """
+    Calculates Layout Unity (Tabs vs Spaces). 
+    0 = Pure Tabs (Green), 100 = Pure Spaces (Yellow), 50 = War Zone (Blue).
+    """
+    tab_lines = eq.get('indent_tabs', 0)
+    space_lines = eq.get('indent_spaces', 0)</p>
+<div class="highlight"><pre><span></span><code>l_total = tab_lines + space_lines
+
+# Handle Void States (No indentation at all)
+if l_total == 0:
+    return 50.0 # Default to Neutral Blue
+
+# Calculate Space-Ratio (R)
+space_ratio = space_lines / l_total
+
+# Final Score Mapping (0-100)
+return space_ratio * 100.0
+</code></pre></div>
 
 
 

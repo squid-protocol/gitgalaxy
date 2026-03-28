@@ -624,6 +624,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -666,6 +668,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -674,18 +678,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21i-planetary-rings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.I. Planetary Rings
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.I. Planetary Rings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -695,8 +687,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -706,8 +698,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -717,8 +709,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i4-the-visual-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -726,11 +718,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1965,6 +1952,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1973,18 +1962,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21i-planetary-rings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.I. Planetary Rings
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.I. Planetary Rings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1994,8 +1971,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2005,8 +1982,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2016,8 +1993,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21i4-the-visual-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2025,11 +2002,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2050,77 +2022,35 @@
 
 
 
-  <h1>Planetary Rings</h1>
-
-<h4 id="21i-planetary-rings">2.1.I. Planetary Rings</h4>
-<p><strong>Metric:</strong> External Library Import Count</p>
-<p><strong>Purpose:</strong> See which files import external libraries</p>
-<p><strong>Why: </strong>Determine which files have dependencies that you don't fully
-control.****</p>
-<p><strong>Effect:</strong> Spawns rings around the file to determine</p>
-<h5 id="21i1-the-philosophy-the-gravity-well">2.1.I.1. The Philosophy: The Gravity Well</h5>
-<p>A clean file is a sphere. It floats freely. A file with dependencies is
-tethered. The more it imports, the heavier it gets. We set a <strong>High
-Threshold</strong> for rings. We don\'t want visual noise for a single utility
-import. Rings are reserved for \"Heavy Lifters\" and \"Glue Code.\"</p>
-<h5 id="21i2-the-inputs-measuring-dependencies">2.1.I.2. The Inputs: Measuring Dependencies</h5>
+<h1 id="21i-planetary-rings">2.1.I. Planetary Rings</h1>
+<blockquote>
+<p><strong>Metric: External Library Import Count</strong></p>
+<p><strong>Purpose:</strong> See which files import external libraries.</p>
+<p><strong>Why:</strong> Determine which files have dependencies that you don't fully control.</p>
+<p><strong>Effect:</strong> Spawns rings around the file to visually represent its external dependency weight.</p>
+</blockquote>
+<h2 id="21i1-the-philosophy-the-gravity-well">2.1.I.1. The Philosophy: The Gravity Well</h2>
+<p>A clean file is a sphere. It floats freely. A file with dependencies is tethered. The more it imports, the heavier it gets. We set a <strong>High Threshold</strong> for rings. We don't want visual noise for a single utility import. Rings are reserved strictly for "Heavy Lifters" and "Glue Code."</p>
+<h2 id="21i2-the-inputs-measuring-dependencies">2.1.I.2. The Inputs: Measuring Dependencies</h2>
 <ul>
-<li><strong>ImportHits:</strong> The count of <em>import</em>, <em>require</em>, or <em>include</em>
-statements found by the scanner.</li>
-<li><strong>Threshold:</strong> <strong>&gt; 5 Imports</strong>. Anything less is considered
-\"Standard Weight\" and renders with <strong>No Rings</strong>.</li>
+<li><strong>ImportHits:</strong> The count of <code>import</code>, <code>require</code>, or <code>include</code> statements found by the scanner.</li>
+<li><strong>Threshold:</strong> <strong>&gt; 5 Imports</strong>. Anything less is considered "Standard Weight" and renders with <strong>No Rings</strong>.</li>
 </ul>
-<h5 id="21i3-the-equation-growth-and-density">2.1.I.3. The Equation: Growth and Density</h5>
-<p>Instead of complex accretion disks, we use a single, evolving ring
-system that grows in <strong>Density (Opacity)</strong> and <strong>Mass (Width)</strong> as the
-gravity increases.</p>
+<h2 id="21i3-the-equation-growth-and-density">2.1.I.3. The Equation: Growth and Density</h2>
+<p>Instead of complex accretion disks, we use a single, evolving ring system that grows in <strong>Density (Opacity)</strong> and <strong>Mass (Width)</strong> as the gravity increases.</p>
+<p><strong>1. Opacity (Visibility)</strong>
+Ranges from <span class="arithmatex">\(0.0\)</span> to <span class="arithmatex">\(0.6\)</span> over the first 26 imports. Rare imports create a barely visible "Ghost Ring." As dependencies hit the critical mass (26), the ring becomes a distinct, semi-solid band.</p>
+<div class="arithmatex">\[\text{Opacity} = \min\left( \left(\frac{\text{ImportHits}}{26}\right) \times 0.6,\ 0.6 \right)\]</div>
+<p><strong>2. Width (Tube Thickness)</strong>
+Grows continuously as imports increase. The ring gets physically thicker and wider, consuming more visual space around the planet as the gravity well deepens.</p>
+<div class="arithmatex">\[\text{TubeRadius} = \text{BaseWidth} + (\text{ImportHits} \times 0.1)\]</div>
+<h2 id="21i4-the-visual-output">2.1.I.4. The Visual Output</h2>
 <ul>
-<li>
-<p><strong>Logic:</strong></p>
-</li>
-<li>
-<p><strong>Opacity (Visibility):</strong> Ranges from <strong>0.0 to 0.6</strong> over the
-first 26 imports.</p>
-</li>
-<li>
-<p><em>Math:</em> <em>Opacity = Math.min((ImportHits / 26) * 0.6, 0.6)</em></p>
-</li>
-<li>
-<p><em>Effect:</em> Rare imports create a barely visible \"Ghost
-Ring.\" As dependencies hit the critical mass (26), the ring
-becomes a distinct, semi-solid band.</p>
-</li>
-<li>
-<p><strong>Width (Tube Thickness):</strong> Grows continuously as imports
-increase.</p>
-</li>
-<li>
-<p><em>Math:</em> <em>TubeRadius = BaseWidth + (ImportHits * 0.1)</em></p>
-</li>
-<li><em>Effect:</em> The ring gets physically thicker and wider,
-consuming more visual space around the planet as the gravity
-well deepens.</li>
+<li><strong>Geometry:</strong> <code>TorusGeometry</code>.</li>
+<li><strong>Tube Radius:</strong> Scaled linearly by <code>ImportHits</code>.</li>
+<li><strong>Material:</strong> Transparent with <code>opacity</code> capped at <span class="arithmatex">\(0.6\)</span>.</li>
+<li><strong>Tilt:</strong> Rings are tilted at randomized axes (Euler angles) to ensure they don't look like flat plates, but dynamic, gyroscope-like orbital paths.</li>
 </ul>
-<h5 id="21i4-the-visual-output">2.1.I.4. The Visual Output</h5>
-<ul>
-<li>
-<ul>
-<li><strong>Geometry:</strong> <em>TorusGeometry</em>.</li>
-</ul>
-</li>
-<li>
-<p><strong>Tube Radius:</strong> Scaled linearly by <em>ImportHits</em>.</p>
-</li>
-<li>
-<p><strong>Material:</strong> Transparent with <em>opacity</em> capped at 0.6.</p>
-</li>
-<li>
-<p><strong>Tilt:</strong> Rings are tilted at randomized axes (Euler angles) to
-ensure they don\'t look like flat plates, but dynamic,
-gyroscope-like orbital paths.</p>
-</li>
-</ul>
-<p>**</p>
 
 
 
@@ -2174,6 +2104,10 @@ gyroscope-like orbital paths.</p>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       
     
   </body>

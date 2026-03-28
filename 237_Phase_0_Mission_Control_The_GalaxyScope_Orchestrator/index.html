@@ -1516,6 +1516,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -1558,6 +1560,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1566,18 +1570,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#237-phase-0-mission-control-the-galaxyscope-orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#237a-multi-core-extraction-the-worker-pool" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1587,8 +1579,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237b-the-starvation-monitor-redos-shield" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1598,8 +1590,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237c-o1-relational-resolution-pass-15" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1609,8 +1601,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237d-relational-context-mass-dampeners-pass-2" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1620,8 +1612,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237e-the-cli-smart-threat-switch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1629,11 +1621,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1976,6 +1963,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1984,18 +1973,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#237-phase-0-mission-control-the-galaxyscope-orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#237a-multi-core-extraction-the-worker-pool" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2005,8 +1982,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237b-the-starvation-monitor-redos-shield" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2016,8 +1993,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237c-o1-relational-resolution-pass-15" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2027,8 +2004,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237d-relational-context-mass-dampeners-pass-2" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2038,8 +2015,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#237e-the-cli-smart-threat-switch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2047,11 +2024,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2072,16 +2044,14 @@
 
 
 
-  <h1>Phase 0 Orchestrator</h1>
-
-<h4 id="237-phase-0-mission-control-the-galaxyscope-orchestrator">2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)</h4>
+<h1 id="237-phase-0-mission-control-the-galaxyscope-orchestrator">2.3.7. Phase 0: Mission Control (The GalaxyScope Orchestrator)</h1>
 <p>The GalaxyScope Orchestrator (<strong>galaxyscope.py</strong>) is the central nervous
 system of the blAST engine. It acts as Mission Control, managing the
 flow of data from the initial file-system radar ping down to the final
 serialization of the 3D map. Its primary responsibility is maximizing
 computational velocity while preventing catastrophic memory leaks or
 regex deadlocks during hyper-scale scans.</p>
-<h5 id="237a-multi-core-extraction-the-worker-pool">2.3.7.A. Multi-Core Extraction (The Worker Pool)</h5>
+<h2 id="237a-multi-core-extraction-the-worker-pool">2.3.7.A. Multi-Core Extraction (The Worker Pool)</h2>
 <p>Parsing millions of lines of code on a single thread is a bottleneck. To
 achieve hyper-scale velocity (100,000+ LOC/s), the Orchestrator
 implements a highly tuned <strong>ProcessPoolExecutor</strong> Map-Reduce
@@ -2100,7 +2070,7 @@ before parsing. If a file was reported by Git but has since vanished
 from the disk, it is silently evaporated as a \"Phantom,\"
 preventing the main thread from logging false anomalies.</li>
 </ul>
-<h5 id="237b-the-starvation-monitor-redos-shield">2.3.7.B. The Starvation Monitor (ReDoS Shield)</h5>
+<h2 id="237b-the-starvation-monitor-redos-shield">2.3.7.B. The Starvation Monitor (ReDoS Shield)</h2>
 <p>When scanning massive, auto-generated codebases, poorly written files
 can occasionally trigger Catastrophic Regex Backtracking (ReDoS), which
 locks a CPU core in an infinite loop.</p>
@@ -2115,23 +2085,23 @@ caused the hang, relegates them to the Singularity audit log, and
 forcefully shuts down the executor pool to unfreeze the user\'s
 terminal.</li>
 </ul>
-<h5 id="237c-o1-relational-resolution-pass-15">2.3.7.C. O(1) Relational Resolution (Pass 1.5)</h5>
+<h2 id="237c-o1-relational-resolution-pass-15">2.3.7.C. O(1) Relational Resolution (Pass 1.5)</h2>
 <p>To build the dependency graph, the engine must figure out which files
 are importing which other files. Cross-referencing thousands of raw
 import strings (e.g., <strong>import utils</strong>) against thousands of file paths
 (e.g., <strong>src/core/utils.py</strong>) originally created an exponential
-\$O(N\^2)\$ compute bomb.</p>
+$O(N\^2)$ compute bomb.</p>
 <ul>
 <li><strong>The Suffix Hash Map:</strong> Pass 1.5 defuses this bomb. It pre-computes
 every possible valid path suffix for every file in the repository
 and stores them in a lightning-fast hash map.</li>
 <li><strong>O(1) Lookups:</strong> When evaluating a raw import string, the engine
 simply checks if the string exists as a key in the map. This turns
-an exponential search into an instantaneous \$O(1)\$ lookup,
+an exponential search into an instantaneous $O(1)$ lookup,
 allowing GitGalaxy to resolve millions of dependency links in
 milliseconds.</li>
 </ul>
-<h5 id="237d-relational-context-mass-dampeners-pass-2">2.3.7.D. Relational Context &amp; Mass Dampeners (Pass 2)</h5>
+<h2 id="237d-relational-context-mass-dampeners-pass-2">2.3.7.D. Relational Context &amp; Mass Dampeners (Pass 2)</h2>
 <p>In Pass 2, the Orchestrator evaluates files based on their surrounding
 neighborhood before handing them off to the Signal Processor.</p>
 <ul>
@@ -2150,7 +2120,7 @@ physically crushes their mass multiplier so they do not
 mathematically eclipse the human-written architecture in the 3D
 view.</li>
 </ul>
-<h5 id="237e-the-cli-smart-threat-switch">2.3.7.E. The CLI &amp; Smart Threat Switch</h5>
+<h2 id="237e-the-cli-smart-threat-switch">2.3.7.E. The CLI &amp; Smart Threat Switch</h2>
 <p>The <strong>main()</strong> entry point manages user interaction and environment
 overrides.</p>
 <ul>
@@ -2159,7 +2129,7 @@ registry. If the user is scanning a known legacy repository (like
 the FreeBSD kernel), it dynamically hot-patches the
 <strong>LANGUAGE_DEFINITIONS</strong> in RAM to parse its specific dialect
 perfectly.</li>
-<li><strong>The Smart Threat Switch (</strong><strong><em>*--paranoid</em></strong><strong>*):</strong> If invoked,
+<li><strong>The Smart Threat Switch (</strong>--paranoid<strong>):</strong> If invoked,
 the Orchestrator loads the \"Hazmat Suit\" threat policy, lowering
 the threshold for the Security Lens to flag deeply hidden
 steganography and logic bombs.</li>
@@ -2222,6 +2192,10 @@ unwind the massive AST dictionaries.</li>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       
     
   </body>

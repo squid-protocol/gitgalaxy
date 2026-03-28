@@ -484,6 +484,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -526,6 +528,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -534,18 +538,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21d-satellite-unit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.D Satellite Unit
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.D Satellite Unit">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21d1-the-philosophy-the-toolkit" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -555,8 +547,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21d2-the-inputs-identification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -566,8 +558,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21d3-basal-values-the-standard-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -577,9 +569,15 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#21d4-the-function-impact-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.4. The Function Impact Score
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1954,6 +1952,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1962,18 +1962,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21d-satellite-unit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.D Satellite Unit
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.D Satellite Unit">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21d1-the-philosophy-the-toolkit" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1983,8 +1971,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21d2-the-inputs-identification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1994,8 +1982,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21d3-basal-values-the-standard-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2005,9 +1993,15 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#21d4-the-function-impact-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1.D.4. The Function Impact Score
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2028,58 +2022,72 @@
 
 
 
-  <h1>Satellite Unit</h1>
-
-<h4 id="21d-satellite-unit">2.1.D Satellite Unit</h4>
-<p><strong>Metric</strong>: Function Declaration (e.g., <strong><em>*</em>function</strong><strong><em>,
-</em></strong><strong>=&gt;</strong><strong><em>, </em></strong><strong>def</strong><strong><em>, </em></strong><strong>class method</strong><strong><em>). </em></strong>*</p>
-<p><strong>Purpose</strong>: Represents a discrete unit of logic---a
-\"Tool\"---contained within the file (the Toolbox). ****</p>
-<p><strong>Why</strong>: Files are rarely monolithic blocks of text; they are
-collections of distinct functions. We visualize these as moons orbiting
-the planet to show the granularity and inventory of the file at a
-glance. ****</p>
-<p><strong>Effect</strong>: Spawns a small spherical geometry orbiting the central
-parent.****</p>
-<h5 id="21d1-the-philosophy-the-toolkit">2.1.D.1. The Philosophy: The Toolkit</h5>
+<h1 id="21d-satellite-unit">2.1.D. Satellite Unit</h1>
+<blockquote>
+<p><strong>Metric: Function Declaration (e.g., <code>function</code>, <code>=&gt;</code>, <code>def</code>, class method)</strong></p>
+<p><strong>Purpose:</strong> Represents a discrete unit of logic—a "Tool"—contained within the file (the Toolbox). </p>
+<p><strong>Why:</strong> Files are rarely monolithic blocks of text; they are collections of distinct functions. We visualize these as moons orbiting the planet to show the granularity and inventory of the file at a glance. </p>
+<p><strong>Effect:</strong> Spawns a small spherical geometry orbiting the central parent.</p>
+</blockquote>
+<h2 id="21d1-the-philosophy-the-toolkit">2.1.D.1. The Philosophy: The Toolkit</h2>
 <p>We treat the file as a container.</p>
 <ul>
 <li><strong>The Star:</strong> The Box (Class/Module).</li>
-<li><strong>The Satellites:</strong> The Tools (Functions/Methods). A star with no
-moons is likely a static data configuration. A star with 50 moons is
-a heavy utility class with many diverse tools.</li>
+<li><strong>The Satellites:</strong> The Tools (Functions/Methods). </li>
 </ul>
-<h5 id="21d2-the-inputs-identification">2.1.D.2. The Inputs: Identification</h5>
+<p>A star with no moons is likely a static data configuration. A star with 50 moons is a heavy utility class with many diverse tools.</p>
+<h2 id="21d2-the-inputs-identification">2.1.D.2. The Inputs: Identification</h2>
 <ul>
-<li><strong>Regex Hits:</strong> <em>function</em>, <em>=&gt;</em>, <em>def</em>, <em>func</em>.</li>
-<li><strong>Cap:</strong> \~12 satellites (To prevent rendering swarms, we visualize
-a representative sample).</li>
+<li><strong>Regex Hits:</strong> <code>function</code>, <code>=&gt;</code>, <code>def</code>, <code>func</code>, etc.</li>
+<li><strong>Cap:</strong> ~12 satellites (To prevent rendering swarming clouds of visual noise, we visualize a representative sample of the heaviest functions).</li>
 </ul>
-<h5 id="21d3-basal-values-the-standard-model">2.1.D.3. Basal Values (The Standard Model)</h5>
-<p>Every satellite begins with these default physical properties before
-other metrics (like complexity) warp them:</p>
-<ul>
-<li><strong>Geometry:</strong> <em>SphereGeometry(2, 4, 4)</em> (Low-poly \"Moon\").</li>
-<li><strong>Radius:</strong> 2 Units (Fixed, small).</li>
-<li><strong>Color:</strong> Inherits Parent Star\'s color (Visual Cohesion).</li>
-<li><strong>Opacity:</strong> 0.8 (Slightly ghosted to indicate subservience).</li>
-<li><strong>Orbit:</strong> Rotates around the parent at a basal speed unless
-modified by \"Heat\" metrics.</li>
-</ul>
-<p>2.1.D.4. The Function Impact Score</p>
-<p>Not all moons are equal. A one-line \"getter\" is a pebble; a 500-line
-algorithm is a moon. To ensure the visualization is honest, we calculate
-an Impact Score for every function found. This score determines which 12
-satellites are rendered (we always show the heaviest) and how \"large\"
-they appear.</p>
-<p>Logic: We combine Complexity (Branches), Connectivity (Args), and Volume
-(LOC) into a single weight metric.</p>
-<p>Impact Score = ((BranchHits + 1) * (Args + 1) + (0.05 * LOC)) * 10</p>
-<p>BranchHits: The density of decision making. Args: The weight of
-inputs/coupling. LOC: The physical length (scaled down by 0.05 to
-prioritize logic over verbosity). Multiplier (10): Scales the integer
-for storage efficiency in vectorized formats.</p>
-<hr />
+<h2 id="21d3-basal-values-the-standard-model">2.1.D.3. Basal Values (The Standard Model)</h2>
+<p>Every satellite begins with these default physical properties before other metrics (like complexity or churn) warp them:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Default Value</th>
+<th style="text-align: left;">Visual Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Geometry</strong></td>
+<td style="text-align: left;"><code>SphereGeometry(2, 4, 4)</code></td>
+<td style="text-align: left;">Renders as a low-poly "Moon".</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Radius</strong></td>
+<td style="text-align: left;">2 Units</td>
+<td style="text-align: left;">Keeps the satellite fixed and small.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Color</strong></td>
+<td style="text-align: left;">Inherits Parent</td>
+<td style="text-align: left;">Maintains visual cohesion with the central star.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Opacity</strong></td>
+<td style="text-align: left;">0.8</td>
+<td style="text-align: left;">Slightly ghosted to indicate subservience to the parent.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Orbit</strong></td>
+<td style="text-align: left;">Basal Speed</td>
+<td style="text-align: left;">Rotates uniformly around the parent unless modified by "Heat" metrics.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="21d4-the-function-impact-score">2.1.D.4. The Function Impact Score</h2>
+<p>Not all moons are equal. A one-line "getter" is a pebble; a 500-line algorithm is a massive moon. To ensure the visualization is honest, we calculate an Impact Score for every function found. This score determines which 12 satellites are actually rendered (we always show the heaviest) and how "large" they appear.</p>
+<p><strong>The Logic:</strong> We combine Complexity (Branches), Connectivity (Arguments), and Volume (Lines of Code) into a single weight metric.</p>
+<div class="arithmatex">\[\text{Impact Score} = \left( (\text{BranchHits} + 1) \times (\text{Args} + 1) + (0.05 \times \text{LOC}) \right) \times 10\]</div>
+<p><strong>The Variables:</strong>
+* <strong>BranchHits:</strong> The density of decision making inside the function.
+* <strong>Args:</strong> The weight of inputs and coupling.
+* <strong>LOC:</strong> The physical length of the function (scaled down by <span class="arithmatex">\(0.05\)</span> to prioritize logic over verbosity).
+* <strong>Multiplier (10):</strong> Scales the integer up for storage efficiency in vectorized formats.</p>
 
 
 
@@ -2133,6 +2141,10 @@ for storage efficiency in vectorized formats.</p>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       
     
   </body>

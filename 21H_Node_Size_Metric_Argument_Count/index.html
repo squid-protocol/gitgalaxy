@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#21h-node-size-metric-argument-count" class="md-skip">
+        <a href="#21h-node-size" class="md-skip">
           Skip to content
         </a>
       
@@ -596,6 +596,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -638,6 +640,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -646,18 +650,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21h-node-size-metric-argument-count" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.H Node Size (Metric: Argument Count)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.H Node Size (Metric: Argument Count)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -667,8 +659,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -678,8 +670,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -689,8 +681,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h4-the-visual-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -698,11 +690,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1965,6 +1952,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1973,18 +1962,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21h-node-size-metric-argument-count" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1.H Node Size (Metric: Argument Count)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2.1.H Node Size (Metric: Argument Count)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1994,8 +1971,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2005,8 +1982,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2016,8 +1993,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#21h4-the-visual-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2025,11 +2002,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2050,45 +2022,64 @@
 
 
 
-  <h1>Node Size (Argument Count)</h1>
-
-<h4 id="21h-node-size-metric-argument-count">2.1.H Node Size (Metric: Argument Count)</h4>
-<p><strong><em>*Metric:</em></strong>*** Argument Count (Args). **</p>
-<p><strong><em>*Purpose:</em></strong>*** Visualizes the \"State Heaviness\" or I/O weight of a
-function. **</p>
-<p><strong><em>*Why:</em></strong>*** Functions with many arguments often carry significant
-state or context (\"I/O Weight\"). A clean utility usually takes 1-2
-arguments, while a legacy handler might take 10. We visualize this
-physically to differentiate sleek tools from heavy machinery. **</p>
-<p><strong><em>*Effect:</em></strong><strong>* Modulates the physical size (Scale) of the orbiting
-satellite.</strong></p>
-<h5 id="21h1-the-philosophy-heavy-vs-light">2.1.H.1. The Philosophy: Heavy vs. Light</h5>
-<p>We view arguments as \"Inputs\" or \"Cables\" plugged into the function.</p>
+<h1 id="21h-node-size">2.1.H. Node Size</h1>
+<blockquote>
+<p><strong>Metric: Argument Count (Args)</strong></p>
+<p><strong>Purpose:</strong> Visualizes the "State Heaviness" or I/O weight of a function.</p>
+<p><strong>Why:</strong> Functions with many arguments often carry significant state or context. A clean utility usually takes 1-2 arguments, while a legacy handler might take 10. We visualize this physically to differentiate sleek tools from heavy machinery.</p>
+<p><strong>Effect:</strong> Modulates the physical size (Scale) of the orbiting satellite.</p>
+</blockquote>
+<h2 id="21h1-the-philosophy-heavy-vs-light">2.1.H.1. The Philosophy: Heavy vs. Light</h2>
+<p>We view arguments as "Inputs" or "Cables" plugged into the function.</p>
 <ul>
-<li><strong>Lightweight:</strong> 0-2 arguments. Sharp, encapsulated, easy to move.</li>
-<li><strong>Heavyweight:</strong> 5+ arguments. Bloated, carrying too much context,
-harder to maintain.</li>
+<li><strong>Lightweight (0-2 arguments):</strong> Sharp, encapsulated, easy to move and test.</li>
+<li><strong>Heavyweight (5+ arguments):</strong> Bloated, carrying too much context, and harder to maintain.</li>
 </ul>
-<h5 id="21h2-the-inputs-measuring-args">2.1.H.2. The Inputs: Measuring Args</h5>
+<h2 id="21h2-the-inputs-measuring-args">2.1.H.2. The Inputs: Measuring Args</h2>
 <ul>
-<li><strong>Args:</strong> The count of arguments in the function signature found by
-the scanner.</li>
-<li><strong>Range:</strong> Typically 0 to 20+.</li>
+<li><strong>Args:</strong> The count of arguments in the function signature, as found by the scanner.</li>
+<li><strong>Range:</strong> Typically <span class="arithmatex">\(0\)</span> to <span class="arithmatex">\(20+\)</span>.</li>
 </ul>
-<h5 id="21h3-the-equation-logarithmic-scaling">2.1.H.3. The Equation: Logarithmic Scaling</h5>
-<p>We use logarithmic scaling to prevent massive orbs for functions with
-many arguments (e.g., 20+). A linear scale would make them visually
-overwhelming; a log scale highlights the difference between 0 and 5, but
-compresses the difference between 10 and 20.</p>
-<p><strong>Equation:</strong> <em>Scale = 1.0 + (Math.log2(Math.max(Args, 1)) * 0.2)</em></p>
+<h2 id="21h3-the-equation-logarithmic-scaling">2.1.H.3. The Equation: Logarithmic Scaling</h2>
+<p>We use logarithmic scaling to prevent functions with many arguments (e.g., 20+) from spawning massive, screen-obscuring orbs. A linear scale would make them visually overwhelming. A logarithmic scale highlights the crucial difference between 0 and 5 arguments, but gently compresses the difference between 10 and 20.</p>
+<div class="arithmatex">\[\text{Scale} = 1.0 + \left( \log_2(\max(\text{Args}, 1)) \times 0.2 \right)\]</div>
 <ul>
-<li><strong>Base Scale:</strong> 1.0 (Standard Unit).</li>
-<li><strong>Factor:</strong> * 0.2 (Gentle growth multiplier).</li>
+<li><strong>Base Scale:</strong> <span class="arithmatex">\(1.0\)</span> (Standard Unit).</li>
+<li><strong>Factor:</strong> <span class="arithmatex">\(0.2\)</span> (Gentle growth multiplier).</li>
 </ul>
-<h5 id="21h4-the-visual-output">2.1.H.4. The Visual Output</h5>
-<ul>
-<li><strong>3D:</strong> Radius of the orbiting Moon particles.</li>
-</ul>
+<h2 id="21h4-the-visual-output">2.1.H.4. The Visual Output</h2>
+<p>This calculated scale directly modulates the 3D radius of the orbiting moon particles. </p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Argument Count</th>
+<th style="text-align: left;">Calculated Scale</th>
+<th style="text-align: left;">Visual Representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>0 - 1 Args</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(1.00\)</span></td>
+<td style="text-align: left;"><strong>Standard Moon:</strong> Sleek, highly encapsulated utility.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2 - 4 Args</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(\sim 1.20 - 1.40\)</span></td>
+<td style="text-align: left;"><strong>Swollen Moon:</strong> Normal business logic, carrying standard state.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5 - 10 Args</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(\sim 1.46 - 1.66\)</span></td>
+<td style="text-align: left;"><strong>Heavy Moon:</strong> Bloated function, heavy I/O weight.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>15+ Args</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(\sim 1.78+\)</span></td>
+<td style="text-align: left;"><strong>Gas Giant:</strong> Visually burdensome, signaling a prime target for refactoring.</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -2142,6 +2133,10 @@ compresses the difference between 10 and 20.</p>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       
     
   </body>

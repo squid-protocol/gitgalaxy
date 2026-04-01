@@ -2108,117 +2108,115 @@
 <h2 id="the-16-file-archetypes">🧬 The 16 File Archetypes</h2>
 <p>Here are the 16 archetypes identified by the clustering algorithm. Each micro-species represents a distinct architectural fingerprint based on structural DNA, independent of human-defined folders or logic tags.</p>
 <p><strong>0. Testing &amp; Verification</strong>
-The verification layer, characterized by unit test assertions, closures, and intentional safety bypasses. Because it relies heavily on mock data, this cluster naturally isolates test-bound credential leaks and avoids false alarms in production logic.
-* <strong>Cluster Size:</strong> 19,615 files (4.2%)
-* <strong>Spatial Dispersion:</strong> 3.89 
-* <strong>Dominant Languages:</strong> Java (26.8%), Kotlin (22.8%), Groovy (18.2%), Python (12.1%), Dart (9.8%), Other (10.2%)
-* <strong>Top Repositories:</strong> elasticsearch (26.0%), kotlin (23.1%), gradle (17.5%), sdk (8.2%), odoo (3.7%), Other (21.5%)
-* <strong>Top Signatures:</strong> Unit Test Assertions (+2.62 IQR), Closures/Anonymous Functions (+0.82 IQR), Generic Type Abstractions (+0.71 IQR), Type Safety Bypasses (+0.66 IQR)</p>
+The verification layer, characterized by unit test assertions, closures, and intentional safety bypasses. Because it relies heavily on mock data, this cluster naturally isolates test-bound credential leaks and avoids false alarms in production logic.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 19,615 files (4.2%)</li>
+<li><strong>Spatial Dispersion:</strong> 3.89 </li>
+<li><strong>Dominant Languages:</strong> Java (26.8%), Kotlin (22.8%), Groovy (18.2%), Python (12.1%), Dart (9.8%), Other (10.2%)</li>
+<li><strong>Top Repositories:</strong> elasticsearch (26.0%), kotlin (23.1%), gradle (17.5%), sdk (8.2%), odoo (3.7%), Other (21.5%)</li>
+<li><strong>Top Signatures:</strong> Unit Test Assertions (+2.62 IQR), Closures/Anonymous Functions (+0.82 IQR), Generic Type Abstractions (+0.71 IQR), Type Safety Bypasses (+0.66 IQR)</li>
+</ul>
 <p><strong>1. Heavy Pointer Implementations</strong>
-The low-level procedural architecture. These files are defined by massive pointer arithmetic and preprocessor macro usage, making them highly susceptible to memory corruption vectors.
-* <strong>Cluster Size:</strong> 17,436 files (3.7%)
-* <strong>Spatial Dispersion:</strong> 5.61
-* <strong>Dominant Languages:</strong> C++ (48.5%), C (42.9%), Go (5.1%), Assembly (0.8%), Zig (0.5%), Other (2.2%)
-* <strong>Top Repositories:</strong> freebsd-src (38.3%), root (14.0%), godot (7.3%), tensorflow (6.9%), node (6.3%), Other (27.3%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+104.34 IQR), Structural Tab Indentations (+1.38 IQR), Preprocessor Macros (+1.04 IQR), Log Popularity In (+0.94 IQR)</p>
+The low-level procedural architecture. These files are defined by massive pointer arithmetic and preprocessor macro usage, making them highly susceptible to memory corruption vectors.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 17,436 files (3.7%)</li>
+<li><strong>Spatial Dispersion:</strong> 5.61</li>
+<li><strong>Dominant Languages:</strong> C++ (48.5%), C (42.9%), Go (5.1%), Assembly (0.8%), Zig (0.5%), Other (2.2%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (38.3%), root (14.0%), godot (7.3%), tensorflow (6.9%), node (6.3%), Other (27.3%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+104.34 IQR), Structural Tab Indentations (+1.38 IQR), Preprocessor Macros (+1.04 IQR), Log Popularity In (+0.94 IQR)</li>
+</ul>
 <p><strong>2. Documented Procedural Logic</strong>
-The documented boundaries of low-level systems. Featuring high pointer density but balanced with structured documentation blocks, these files act as the readable interfaces and structural contracts for C, C++, and Go systems.
-* <strong>Cluster Size:</strong> 9,752 files (2.1%)
-* <strong>Spatial Dispersion:</strong> 7.00
-* <strong>Dominant Languages:</strong> C++ (34.8%), C (22.0%), Go (22.0%), Rust (6.3%), Zig (3.3%), Other (11.6%)
-* <strong>Top Repositories:</strong> freebsd-src (20.5%), kubernetes (10.0%), tensorflow (8.6%), go (7.0%), node (7.0%), Other (46.8%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+46.51 IQR), Structural Tab Indentations (+1.73 IQR), Log Popularity In (+1.01 IQR), Structured Documentation (+0.91 IQR)</p>
+The documented boundaries of low-level systems. Featuring high pointer density but balanced with structured documentation blocks, these files act as the readable interfaces and structural contracts for C, C++, and Go systems.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 9,752 files (2.1%)</li>
+<li><strong>Spatial Dispersion:</strong> 7.00</li>
+<li><strong>Dominant Languages:</strong> C++ (34.8%), C (22.0%), Go (22.0%), Rust (6.3%), Zig (3.3%), Other (11.6%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (20.5%), kubernetes (10.0%), tensorflow (8.6%), go (7.0%), node (7.0%), Other (46.8%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+46.51 IQR), Structural Tab Indentations (+1.73 IQR), Log Popularity In (+1.01 IQR), Structured Documentation (+0.91 IQR)</li>
+</ul>
 <p><strong>3. Extreme Memory Manipulation</strong>
-The absolute highest-risk zone for memory leaks and buffer overflows. Displaying extreme pointer arithmetic deviation, these files represent the raw, unshielded "meat grinder" of C codebases.
-* <strong>Cluster Size:</strong> 5,217 files (1.1%)
-* <strong>Spatial Dispersion:</strong> 7.82
-* <strong>Dominant Languages:</strong> C (78.5%), C++ (16.9%), Go (3.9%), Assembly (0.2%), Dart (0.2%), Other (0.3%)
-* <strong>Top Repositories:</strong> freebsd-src (37.1%), circuitpython (22.0%), root (11.2%), node (7.4%), godot (6.5%), Other (15.8%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+146.64 IQR), Log Popularity In (+1.74 IQR), Preprocessor Macros (+1.36 IQR), Authorship Metadata (+1.26 IQR)</p>
+The absolute highest-risk zone for memory leaks and buffer overflows. Displaying extreme pointer arithmetic deviation, these files represent the raw, unshielded "meat grinder" of C codebases.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 5,217 files (1.1%)</li>
+<li><strong>Spatial Dispersion:</strong> 7.82</li>
+<li><strong>Dominant Languages:</strong> C (78.5%), C++ (16.9%), Go (3.9%), Assembly (0.2%), Dart (0.2%), Other (0.3%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (37.1%), circuitpython (22.0%), root (11.2%), node (7.4%), godot (6.5%), Other (15.8%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+146.64 IQR), Log Popularity In (+1.74 IQR), Preprocessor Macros (+1.36 IQR), Authorship Metadata (+1.26 IQR)</li>
+</ul>
 <p><strong>4. Stateful C/C++ Components</strong>
-The active engines of state transformation in low-level systems. These files blend heavy pointers and macros with dense state mutation, variable reassignment, and explicit type casts.
-* <strong>Cluster Size:</strong> 15,190 files (3.3%)
-* <strong>Spatial Dispersion:</strong> 6.15
-* <strong>Dominant Languages:</strong> C++ (43.6%), C (31.2%), Go (14.0%), Rust (3.4%), Zig (2.3%), Other (5.5%)
-* <strong>Top Repositories:</strong> freebsd-src (29.2%), tensorflow (9.9%), root (8.6%), kubernetes (7.8%), node (6.7%), Other (37.7%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+77.91 IQR), Structural Tab Indentations (+1.59 IQR), Log Popularity In (+0.89 IQR), Preprocessor Macros (+0.87 IQR)</p>
+The active engines of state transformation in low-level systems. These files blend heavy pointers and macros with dense state mutation, variable reassignment, and explicit type casts.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 15,190 files (3.3%)</li>
+<li><strong>Spatial Dispersion:</strong> 6.15</li>
+<li><strong>Dominant Languages:</strong> C++ (43.6%), C (31.2%), Go (14.0%), Rust (3.4%), Zig (2.3%), Other (5.5%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (29.2%), tensorflow (9.9%), root (8.6%), kubernetes (7.8%), node (6.7%), Other (37.7%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+77.91 IQR), Structural Tab Indentations (+1.59 IQR), Log Popularity In (+0.89 IQR), Preprocessor Macros (+0.87 IQR)</li>
+</ul>
 <p><strong>5. Annotated Object-Oriented Structures</strong>
-The connective tissue of enterprise applications. Defined by massive decorator and annotation density, generic type abstractions, and strict encapsulation.
-* <strong>Cluster Size:</strong> 54,271 files (11.7%)
-* <strong>Spatial Dispersion:</strong> 4.21
-* <strong>Dominant Languages:</strong> Java (49.6%), Dart (10.6%), Kotlin (9.9%), Python (8.6%), C# (7.3%), Other (14.2%)
-* <strong>Top Repositories:</strong> elasticsearch (26.2%), gradle (10.7%), kotlin (9.3%), odoo (8.2%), kafka (5.9%), Other (39.7%)
-* <strong>Top Signatures:</strong> Decorators And Annotations (+4.77 IQR), Generic Type Abstractions (+1.17 IQR), Private Encapsulated Scopes (+0.94 IQR), Closures (+0.91 IQR)</p>
+The connective tissue of enterprise applications. Defined by massive decorator and annotation density, generic type abstractions, and strict encapsulation.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 54,271 files (11.7%)</li>
+<li><strong>Spatial Dispersion:</strong> 4.21</li>
+<li><strong>Dominant Languages:</strong> Java (49.6%), Dart (10.6%), Kotlin (9.9%), Python (8.6%), C# (7.3%), Other (14.2%)</li>
+<li><strong>Top Repositories:</strong> elasticsearch (26.2%), gradle (10.7%), kotlin (9.3%), odoo (8.2%), kafka (5.9%), Other (39.7%)</li>
+<li><strong>Top Signatures:</strong> Decorators And Annotations (+4.77 IQR), Generic Type Abstractions (+1.17 IQR), Private Encapsulated Scopes (+0.94 IQR), Closures (+0.91 IQR)</li>
+</ul>
 <p><strong>6. Complex C/Go Systems</strong>
-High-complexity system files balancing moderate pointer math with strict private encapsulated scopes and explicit type casts. They serve as safe operational boundaries for memory management.
-* <strong>Cluster Size:</strong> 6,407 files (1.4%)
-* <strong>Spatial Dispersion:</strong> 7.80
-* <strong>Dominant Languages:</strong> C++ (30.2%), Go (23.2%), C (19.2%), Rust (6.7%), C# (3.9%), Other (16.8%)
-* <strong>Top Repositories:</strong> freebsd-src (17.1%), kubernetes (9.7%), go (9.6%), tensorflow (7.3%), node (7.2%), Other (49.0%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+26.50 IQR), Structural Tab Indentations (+1.72 IQR), Log Popularity In (+1.00 IQR), Log Max Func Complexity (+0.88 IQR)</p>
+High-complexity system files balancing moderate pointer math with strict private encapsulated scopes and explicit type casts. They serve as safe operational boundaries for memory management.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 6,407 files (1.4%)</li>
+<li><strong>Spatial Dispersion:</strong> 7.80</li>
+<li><strong>Dominant Languages:</strong> C++ (30.2%), Go (23.2%), C (19.2%), Rust (6.7%), C# (3.9%), Other (16.8%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (17.1%), kubernetes (9.7%), go (9.6%), tensorflow (7.3%), node (7.2%), Other (49.0%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+26.50 IQR), Structural Tab Indentations (+1.72 IQR), Log Popularity In (+1.00 IQR), Log Max Func Complexity (+0.88 IQR)</li>
+</ul>
 <p><strong>7. High-Density Macros &amp; Pointers</strong>
-Algorithmic and heavily preprocessed C/C++ files. These are driven by massive macro expansion, pointer arithmetic, and exposed public exports that interact directly with the compiler.
-* <strong>Cluster Size:</strong> 13,580 files (2.9%)
-* <strong>Spatial Dispersion:</strong> 6.09
-* <strong>Dominant Languages:</strong> C (64.4%), C++ (28.5%), Go (6.2%), Assembly (0.2%), Zig (0.1%), Other (0.6%)
-* <strong>Top Repositories:</strong> freebsd-src (48.7%), root (13.0%), godot (7.1%), node (6.5%), kubernetes (4.9%), Other (19.8%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+129.72 IQR), Structural Tab Indentations (+1.83 IQR), Log Max Func Complexity (+1.02 IQR), Preprocessor Macros (+1.01 IQR)</p>
+Algorithmic and heavily preprocessed C/C++ files. These are driven by massive macro expansion, pointer arithmetic, and exposed public exports that interact directly with the compiler.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 13,580 files (2.9%)</li>
+<li><strong>Spatial Dispersion:</strong> 6.09</li>
+<li><strong>Dominant Languages:</strong> C (64.4%), C++ (28.5%), Go (6.2%), Assembly (0.2%), Zig (0.1%), Other (0.6%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (48.7%), root (13.0%), godot (7.1%), node (6.5%), kubernetes (4.9%), Other (19.8%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+129.72 IQR), Structural Tab Indentations (+1.83 IQR), Log Max Func Complexity (+1.02 IQR), Preprocessor Macros (+1.01 IQR)</li>
+</ul>
 <p><strong>8. High-Dependency Keystones</strong>
-The 'God Nodes' of a codebase. These files possess massive inbound popularity and heavy macro usage, acting as the structural pillars that hold the rest of the application together. Changes here have a massive blast radius.
-* <strong>Cluster Size:</strong> 23,903 files (5.1%)
-* <strong>Spatial Dispersion:</strong> 4.60
-* <strong>Dominant Languages:</strong> C++ (46.3%), C (35.1%), Java (5.7%), Python (2.9%), Dart (1.8%), Other (8.3%)
-* <strong>Top Repositories:</strong> freebsd-src (25.3%), tensorflow (18.2%), node (7.8%), root (5.8%), circuitpython (4.8%), Other (38.2%)
-* <strong>Top Signatures:</strong> Log Popularity In (+2.80 IQR), Preprocessor Macros (+2.53 IQR), Authorship Metadata (+1.45 IQR), Metaprogramming/Reflection (+0.93 IQR)</p>
+The 'God Nodes' of a codebase. These files possess massive inbound popularity and heavy macro usage, acting as the structural pillars that hold the rest of the application together. Changes here have a massive blast radius.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 23,903 files (5.1%)</li>
+<li><strong>Spatial Dispersion:</strong> 4.60</li>
+<li><strong>Dominant Languages:</strong> C++ (46.3%), C (35.1%), Java (5.7%), Python (2.9%), Dart (1.8%), Other (8.3%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (25.3%), tensorflow (18.2%), node (7.8%), root (5.8%), circuitpython (4.8%), Other (38.2%)</li>
+<li><strong>Top Signatures:</strong> Log Popularity In (+2.80 IQR), Preprocessor Macros (+2.53 IQR), Authorship Metadata (+1.45 IQR), Metaprogramming/Reflection (+0.93 IQR)</li>
+</ul>
 <p><strong>9. Formatting Outliers &amp; Configs</strong>
-Files with massive structural formatting deviations (e.g., extreme tab indentation). Heavily composed of TypeScript, PHP, and Shell scripts, these files often define I/O boundaries and network configurations.
-* <strong>Cluster Size:</strong> 36,139 files (7.8%)
-* <strong>Spatial Dispersion:</strong> 4.42
-* <strong>Dominant Languages:</strong> TypeScript (15.2%), Go (13.2%), PHP (12.8%), Shell (12.6%), JSON (11.4%), Other (34.8%)
-* <strong>Top Repositories:</strong> freebsd-src (27.9%), mediawiki (19.3%), vscode (18.2%), go (7.9%), kubernetes (4.9%), Other (21.9%)
-* <strong>Top Signatures:</strong> Structural Tab Indentations (+4.02 IQR), Structured Documentation (+1.00 IQR), Type Safety Bypasses (+0.71 IQR), Private Encapsulated Scopes (+0.64 IQR)</p>
+Files with massive structural formatting deviations (e.g., extreme tab indentation). Heavily composed of TypeScript, PHP, and Shell scripts, these files often define I/O boundaries and network configurations.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 36,139 files (7.8%)</li>
+<li><strong>Spatial Dispersion:</strong> 4.42</li>
+<li><strong>Dominant Languages:</strong> TypeScript (15.2%), Go (13.2%), PHP (12.8%), Shell (12.6%), JSON (11.4%), Other (34.8%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (27.9%), mediawiki (19.3%), vscode (18.2%), go (7.9%), kubernetes (4.9%), Other (21.9%)</li>
+<li><strong>Top Signatures:</strong> Structural Tab Indentations (+4.02 IQR), Structured Documentation (+1.00 IQR), Type Safety Bypasses (+0.71 IQR), Private Encapsulated Scopes (+0.64 IQR)</li>
+</ul>
 <p><strong>10. Static Configuration &amp; Data</strong>
-Structural dark matter. Highly static, consisting of inert data, YAML, JSON, and PBTXT. However, because it lacks executable logic, this cluster frequently acts as a host for homoglyph evasion and hardcoded secrets.
-* <strong>Cluster Size:</strong> 106,635 files (22.9%)
-* <strong>Spatial Dispersion:</strong> 2.75
-* <strong>Dominant Languages:</strong> Kotlin (16.8%), YAML (15.3%), PBTXT (7.1%), Python (6.9%), JSON (5.5%), Other (48.4%)
-* <strong>Top Repositories:</strong> kotlin (19.0%), freebsd-src (12.8%), tensorflow (9.8%), discourse (7.7%), kubernetes (6.7%), Other (44.0%)
-* <strong>Top Signatures:</strong> Class Entity Declarations (+0.26 IQR), Structured Documentation (+0.24 IQR), Exposed API Public Exports (+0.21 IQR), Log Popularity In (+0.20 IQR)</p>
+Structural dark matter. Highly static, consisting of inert data, YAML, JSON, and PBTXT. However, because it lacks executable logic, this cluster frequently acts as a host for homoglyph evasion and hardcoded secrets.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 106,635 files (22.9%)</li>
+<li><strong>Spatial Dispersion:</strong> 2.75</li>
+<li><strong>Dominant Languages:</strong> Kotlin (16.8%), YAML (15.3%), PBTXT (7.1%), Python (6.9%), JSON (5.5%), Other (48.4%)</li>
+<li><strong>Top Repositories:</strong> kotlin (19.0%), freebsd-src (12.8%), tensorflow (9.8%), discourse (7.7%), kubernetes (6.7%), Other (44.0%)</li>
+<li><strong>Top Signatures:</strong> Class Entity Declarations (+0.26 IQR), Structured Documentation (+0.24 IQR), Exposed API Public Exports (+0.21 IQR), Log Popularity In (+0.20 IQR)</li>
+</ul>
 <p><strong>11. Highly Documented Native Code</strong>
-The well-defined architectural blueprints of C/C++ systems. These files pair heavy pointer arithmetic with extensive, structured documentation blocks, bridging the gap between raw hardware execution and human intent.
-* <strong>Cluster Size:</strong> 17,583 files (3.8%)
-* <strong>Spatial Dispersion:</strong> 5.64
-* <strong>Dominant Languages:</strong> C (51.9%), C++ (41.7%), Go (4.7%), Assembly (0.4%), Zig (0.2%), Other (1.1%)
-* <strong>Top Repositories:</strong> freebsd-src (43.3%), root (14.1%), node (7.5%), godot (7.4%), tensorflow (4.2%), Other (23.4%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+116.83 IQR), Structural Tab Indentations (+1.52 IQR), Preprocessor Macros (+1.05 IQR), Log Max Func Complexity (+0.99 IQR)</p>
+The well-defined architectural blueprints of C/C++ systems. These files pair heavy pointer arithmetic with extensive, structured documentation blocks, bridging the gap between raw hardware execution and human intent.</p>
+<ul>
+<li><strong>Cluster Size:</strong> 17,583 files (3.8%)</li>
+<li><strong>Spatial Dispersion:</strong> 5.64</li>
+<li><strong>Dominant Languages:</strong> C (51.9%), C++ (41.7%), Go (4.7%), Assembly (0.4%), Zig (0.2%), Other (1.1%)</li>
+<li><strong>Top Repositories:</strong> freebsd-src (43.3%), root (14.1%), node (7.5%), godot (7.4%), tensorflow (4.2%), Other (23.4%)</li>
+<li><strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+116.83 IQR), Structural Tab Indentations (+1.52 IQR), Preprocessor Macros (+1.05 IQR), Log Max Func Complexity (+0.99 IQR)</li>
+</ul>
 <p><strong>12. Complex Control Flow &amp; Defensive Logic</strong>
-The baseline execution layer of modern software. High in defensive programming, generics, and closures, these files gracefully handle state flux and exceptions.
-* <strong>Cluster Size:</strong> 70,155 files (15.1%)
-* <strong>Spatial Dispersion:</strong> 4.39
-* <strong>Dominant Languages:</strong> Kotlin (19.8%), C# (14.8%), Python (11.6%), Java (11.0%), Dart (8.6%), Other (34.3%)
-* <strong>Top Repositories:</strong> kotlin (19.6%), roslyn (10.0%), sdk (6.9%), elasticsearch (4.8%), spm12 (3.8%), Other (55.0%)
-* <strong>Top Signatures:</strong> Defensive Programming Constructs (+1.08 IQR), Generic Type Abstractions (+0.90 IQR), Log Max Func Complexity (+0.84 IQR), Closures (+0.76 IQR)</p>
-<p><strong>13. Dependency Injected Services</strong>
-The configuration glue that wires modules together. Defined by extreme decorator/annotation density and class declarations, these files heavily utilize Inversion of Control to boot applications.
-* <strong>Cluster Size:</strong> 39,791 files (8.6%)
-* <strong>Spatial Dispersion:</strong> 4.25
-* <strong>Dominant Languages:</strong> Java (46.5%), Kotlin (23.6%), JavaScript (8.1%), C# (7.0%), Python (3.0%), Other (11.7%)
-* <strong>Top Repositories:</strong> kotlin (28.0%), gradle (12.1%), spring-boot (11.7%), elasticsearch (8.9%), fineract (6.1%), Other (33.3%)
-* <strong>Top Signatures:</strong> Decorators And Annotations (+8.09 IQR), Class Entity Declarations (+0.83 IQR), Structured Documentation (+0.81 IQR), Exposed API Public Exports (+0.74 IQR)</p>
-<p><strong>14. Native Systems with Scoping</strong>
-Core C/C++ logic files relying on heavy pointers, explicit type casts, and strict private encapsulated scopes to safely execute foundational operations without leaking memory access.
-* <strong>Cluster Size:</strong> 12,879 files (2.8%)
-* <strong>Spatial Dispersion:</strong> 6.45
-* <strong>Dominant Languages:</strong> C++ (38.8%), C (27.4%), Go (18.1%), Rust (5.3%), Zig (2.9%), Other (7.4%)
-* <strong>Top Repositories:</strong> freebsd-src (26.2%), kubernetes (9.3%), tensorflow (9.3%), node (6.7%), root (6.2%), Other (42.4%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+62.96 IQR), Structural Tab Indentations (+1.74 IQR), Log Popularity In (+0.94 IQR), Structured Documentation (+0.84 IQR)</p>
-<p><strong>15. Core Architectural Implementations</strong>
-Massive C/C++ implementations with heavy pointers, preprocessor macros, and high inbound popularity. These represent the primary execution engines of the system.
-* <strong>Cluster Size:</strong> 16,684 files (3.6%)
-* <strong>Spatial Dispersion:</strong> 5.87
-* <strong>Dominant Languages:</strong> C++ (48.4%), C (37.0%), Go (7.9%), Rust (1.4%), Zig (1.2%), Other (3.9%)
-* <strong>Top Repositories:</strong> freebsd-src (33.7%), root (11.0%), tensorflow (9.5%), node (7.0%), godot (6.2%), Other (32.7%)
-* <strong>Top Signatures:</strong> Pointer Arithmetic/Addressing (+91.74 IQR), Structural Tab Indentations (+1.42 IQR), Preprocessor Macros (+1.02 IQR), Log Popularity In (+0.94 IQR)</p>
+The baseline execution layer of modern software. High in defensive programming, generics, and closures, these files gracefully handle state flux and exceptions.</p>
 <hr />
 <h3 id="thoughts">Thoughts</h3>
 <p>One of the most profound discoveries of this clustering process is that not a single architectural micro-species is composed of only one programming language.</p>

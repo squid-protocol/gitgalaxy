@@ -1986,6 +1986,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../DOOM_Comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 7 (Comparing DOOM Ports)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../7_Impacts__Future_Outlooks/" class="md-nav__link">
         
   
@@ -2105,7 +2133,9 @@
 
 
 <h1 id="claim-4-comparing-languages">Claim 4 (Comparing Languages)</h1>
-<p>If I have an engine that can scan and compare codebases across time and language, independent of compilation, I don't know about you but I want to take it for a spin! What patterns will emerge as we compare repos of python, COBOL and typescript? This is my current validation/proof of principle data set. I've analyzed 104 code bases and score them according to the blAST engine's risk exposure metrics and present it publically for validation and criticism. Openness and public input is the only way forward with a system like this. The following ridge line plots visualize the distribution of risk exposures and other metrics across languages. Please note, this data set needs to grow and likely has non-representative numbers of repos per language (3-10). Once I get a better automated pipeline going, I hope to automate the scanning of repos to get more representative distributions. The population distributions also clearly highlight that some of my risk exposure metrics are not dialed in well, like concurrency, these should produce ranges not be binary on/off measures. I have currently set the security measures to be very sensitive so normal coding practices are being listed as security warnings, but the sensitivity of these detections can be tuned down for a less annoying workflow and then turned back to --paranoid for your final sanity check before pushing it live.</p>
+<p>If I have an engine that can scan and compare codebases across time and language, independent of compilation, I don't know about you, but I want to take it for a spin! What patterns will emerge as we compare repositories of Python, COBOL, and TypeScript at a massive scale? </p>
+<p>This is my current validation and proof-of-principle dataset. I have scaled the pipeline up to analyze over <strong>14,000 repositories</strong> encompassing <strong>2.57 million files</strong> across 50+ languages. The engine scores them according to GitGalaxy's physical risk exposure metrics and structural DNA, and I am presenting it publicly for validation and criticism. Openness and public input are the only ways forward with a system like this. </p>
+<p>The following ridge line plots visualize the distribution of these risk exposures and other metrics across the language ecosystem. I currently have the security measures set to be highly sensitive, meaning normal (but risky) coding practices are being listed as security warnings. The sensitivity of these detections can be tuned down for a less annoying daily workflow, and then cranked back to <code>--paranoid</code> for your final sanity check before pushing a release live.</p>
 <p><em>Click on any image to view it at full resolution.</em></p>
 <h2 id="core-security-vulnerability-risks">Core Security &amp; Vulnerability Risks</h2>
 <table style="width:100%; text-align:center;">

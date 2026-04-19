@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/04-01-pipeline-overview/">
       
       
+        <link rel="prev" href="../03-16-state-flux-exposure/">
       
-        <link rel="next" href="01-project-overview/">
+      
+        <link rel="next" href="../04-02-optical-orchestration/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>GitGalaxy</title>
+        <title>Pipeline Overview - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitgalaxy-documentation" class="md-skip">
+        <a href="#23-data-analysis-pipeline-the-optical-pipeline" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Pipeline Overview
             
           </span>
         </div>
@@ -200,7 +202,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -254,37 +256,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -300,98 +275,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. The blAST Engine - The GalaxyScope (Backend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The Observatory (Frontend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quickstart
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-Trust Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Viral Security Lens
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -450,7 +333,7 @@
   
   
     <li class="md-nav__item">
-      <a href="01-project-overview/" class="md-nav__link">
+      <a href="../01-project-overview/" class="md-nav__link">
         
   
   
@@ -532,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-01-code-complexity/" class="md-nav__link">
+      <a href="../02-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -560,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-02-stars-size/" class="md-nav__link">
+      <a href="../02-02-stars-size/" class="md-nav__link">
         
   
   
@@ -588,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../02-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -616,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-04-stars-shape/" class="md-nav__link">
+      <a href="../02-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -644,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-05-satellite-unit/" class="md-nav__link">
+      <a href="../02-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -672,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../02-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -700,7 +583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-07-number-of-satellites/" class="md-nav__link">
+      <a href="../02-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -728,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-08-relative-positioning/" class="md-nav__link">
+      <a href="../02-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -756,7 +639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-09-node-size/" class="md-nav__link">
+      <a href="../02-09-node-size/" class="md-nav__link">
         
   
   
@@ -784,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-10-planetary-rings/" class="md-nav__link">
+      <a href="../02-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -812,7 +695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-11-sequence-affinity/" class="md-nav__link">
+      <a href="../02-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -894,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-01-methodology/" class="md-nav__link">
+      <a href="../03-01-methodology/" class="md-nav__link">
         
   
   
@@ -922,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-02-sub-equations/" class="md-nav__link">
+      <a href="../03-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -950,7 +833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-03-transforming-regex-counts/" class="md-nav__link">
+      <a href="../03-03-transforming-regex-counts/" class="md-nav__link">
         
   
   
@@ -978,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-04-ownership-entropy/" class="md-nav__link">
+      <a href="../03-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -1006,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-05-cognitive-load/" class="md-nav__link">
+      <a href="../03-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -1034,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-06-deep-churn/" class="md-nav__link">
+      <a href="../03-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -1062,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-07-structural-fortification/" class="md-nav__link">
+      <a href="../03-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -1090,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-08-technical-debt/" class="md-nav__link">
+      <a href="../03-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -1118,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-09-documentation-risk/" class="md-nav__link">
+      <a href="../03-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -1146,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-10-file-stability/" class="md-nav__link">
+      <a href="../03-10-file-stability/" class="md-nav__link">
         
   
   
@@ -1174,7 +1057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-11-test-coverage/" class="md-nav__link">
+      <a href="../03-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -1202,7 +1085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-12-civil-war/" class="md-nav__link">
+      <a href="../03-12-civil-war/" class="md-nav__link">
         
   
   
@@ -1230,7 +1113,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-13-graveyard-detector/" class="md-nav__link">
+      <a href="../03-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -1258,7 +1141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-14-api-exposure/" class="md-nav__link">
+      <a href="../03-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -1286,7 +1169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../03-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -1314,7 +1197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../03-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -1346,18 +1229,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1378,7 +1263,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1393,10 +1278,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="04-01-pipeline-overview/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1412,6 +1322,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#23-data-analysis-pipeline-the-optical-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3. Data Analysis Pipeline (The Optical Pipeline)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3. Data Analysis Pipeline (The Optical Pipeline)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#230-the-galaxyscope-chassis-optical-orchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.0. The GalaxyScope Chassis – Optical Orchestration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.0. The GalaxyScope Chassis – Optical Orchestration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#230a-the-adaptive-lightpath-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.0.A. The Adaptive Lightpath System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#230b-adaptive-features-and-hardware-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.0.B. Adaptive Features and Hardware Overrides
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1424,7 +1408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-02-optical-orchestration/" class="md-nav__link">
+      <a href="../04-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -1452,7 +1436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-03-aperture-filter/" class="md-nav__link">
+      <a href="../04-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -1480,7 +1464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../04-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -1508,7 +1492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-05-language-lens/" class="md-nav__link">
+      <a href="../04-05-language-lens/" class="md-nav__link">
         
   
   
@@ -1536,7 +1520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-06-security-lens/" class="md-nav__link">
+      <a href="../04-06-security-lens/" class="md-nav__link">
         
   
   
@@ -1564,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-07-the-prism/" class="md-nav__link">
+      <a href="../04-07-the-prism/" class="md-nav__link">
         
   
   
@@ -1592,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-08-the-detector/" class="md-nav__link">
+      <a href="../04-08-the-detector/" class="md-nav__link">
         
   
   
@@ -1620,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-09-signal-processing/" class="md-nav__link">
+      <a href="../04-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -1648,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-10-phase-0-orchestrator/" class="md-nav__link">
+      <a href="../04-10-phase-0-orchestrator/" class="md-nav__link">
         
   
   
@@ -1676,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-11-spectral-audit/" class="md-nav__link">
+      <a href="../04-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -1704,7 +1688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-12-audit-recorder/" class="md-nav__link">
+      <a href="../04-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -1732,7 +1716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-13-gpu-recorder/" class="md-nav__link">
+      <a href="../04-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -1760,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-14-llm-recorder/" class="md-nav__link">
+      <a href="../04-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -1842,7 +1826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../05-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -1870,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../05-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -1898,7 +1882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../05-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -1926,7 +1910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../05-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -1954,7 +1938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../05-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -1982,7 +1966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -2010,7 +1994,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../05-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -2038,7 +2022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-08-future-outlooks/" class="md-nav__link">
+      <a href="../05-08-future-outlooks/" class="md-nav__link">
         
   
   
@@ -2083,8 +2067,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2093,55 +2075,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
+  <a href="#23-data-analysis-pipeline-the-optical-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. The blAST Engine - The GalaxyScope (Backend)
+        2.3. Data Analysis Pipeline (The Optical Pipeline)
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The Observatory (Frontend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quickstart
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
+    <nav class="md-nav" aria-label="2.3. Data Analysis Pipeline (The Optical Pipeline)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
+  <a href="#230-the-galaxyscope-chassis-optical-orchestration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Zero-Trust Architecture
+        2.3.0. The GalaxyScope Chassis – Optical Orchestration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3.0. The GalaxyScope Chassis – Optical Orchestration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#230a-the-adaptive-lightpath-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.0.A. The Adaptive Lightpath System
       
     </span>
   </a>
@@ -2149,13 +2110,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
+  <a href="#230b-adaptive-features-and-hardware-overrides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Viral Security Lens
+        2.3.0.B. Adaptive Features and Hardware Overrides
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2184,36 +2150,142 @@
   
 
 
-<h1 id="gitgalaxy-documentation">GitGalaxy Documentation</h1>
-<p><strong>Code is art. Logic is art. Systems engineering is art.</strong></p>
-<p>GitGalaxy is a two-part ecosystem connected by a universal JSON contract. It is designed to extract the structural DNA of massive software repositories and render their non-visual architecture into measurable, explorable 3D galaxies.</p>
-<h3 id="1-the-blast-engine-the-galaxyscope-backend">1. The blAST Engine - The GalaxyScope (Backend)</h3>
-<p>A hyper-scale, language-agnostic static analysis CLI. Based on 50 years of bioinformatics and genetic sequencing algorithms, it parses code at ~100,000 LOC/second. It outputs rich JSON telemetry, SQLite databases, and low-token Markdown briefs optimized for AI-agent workflows.</p>
-<h3 id="2-the-observatory-frontend">2. The Observatory (Frontend)</h3>
-<p>Drop your <code>galaxy.json</code> into the free viewer at <a href="https://gitgalaxy.io">GitGalaxy.io</a> or use the repo's <code>airgap_observatory</code>, a standalone, zero-telemetry WebGPU visualizer. Both visualizers read the JSON contract and render the entire code base as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.</p>
+  <h1>Pipeline Overview</h1>
+
+<h2 id="23-data-analysis-pipeline-the-optical-pipeline">2.3. Data Analysis Pipeline (The Optical Pipeline)</h2>
+<p>Sometimes code is art. Right now, it's data, and it’s gotta be cleaned up to be meaningful. Basically, we need to assess what to assess, find what language it's in, strip out the comments, regex count, and then calculate risk based on standardization metrics. </p>
+<p>The GalaxyScope is a modular computational instrument designed to resolve raw source code into intuitive 3D physical structures. Rather than a standard "scanner," the system operates as an optical pipeline where each module serves as a discrete component housed within the GalaxyScope Chassis. </p>
+<p>Just as light flows through a telescope, data flows through our GalaxyScope. We adjust the aperture (what files are blocked), we use guidestars (creator’s READMEs), each file’s language is brought into focus, the data stream is sent through a prism to split the <code>coding_stream</code> from the <code>comment_stream</code> (comment parsing), each info stream is fed to a detector (regex count data), analyzed by a signal processor (2nd pass calculations, equations), and then validated by a spectral auditor (statistical anomaly analysis), where it is finally packaged by a record keeper (saved into a vectorized JSON). </p>
+<p>Just as different telescopes can have different lenses and prisms to see different things, I hope this architecture inspires people to build better versions of these things and view data analysis through the lens of scientific instrumentation.</p>
+<p>Incoming data is treated as raw light. To resolve a clear image of the codebase, it must pass through the following interchangeable parts:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">The Component</th>
+<th style="text-align: left;">Digital Module (<code>.py</code>)</th>
+<th style="text-align: left;">Operational Function</th>
+<th style="text-align: left;">"Optical" Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>The Adaptive Light Path System</strong></td>
+<td style="text-align: left;"><code>galaxyscope.py</code></td>
+<td style="text-align: left;"><strong>Orchestrator.</strong> Parses data through specific files and functions during the analysis.</td>
+<td style="text-align: left;">The adaptive light path is able to swap lenses on the fly to ensure focus and visibility.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Aperture Filter</strong></td>
+<td style="text-align: left;"><code>aperture_filter.py</code></td>
+<td style="text-align: left;"><strong>Noise reduction.</strong> Strips <code>.gitignore</code> noise, binaries, and minified artifacts.</td>
+<td style="text-align: left;"><strong>Clear Field:</strong> Eliminates "Radio Noise" before it hits the sensors.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Security Lens</strong></td>
+<td style="text-align: left;"><code>security_lens.py</code></td>
+<td style="text-align: left;"><strong>The threat detection physics engine.</strong> Scans raw structural realities using specialized heuristics to detect adversarial behaviors (obfuscated payloads, logic bombs, exfiltration vectors, and hardcoded secrets), evaluating them against dynamic policy thresholds.</td>
+<td style="text-align: left;"><strong>Threat Hunting:</strong> Applies a specialized high-contrast filter to the incoming light, illuminating hostile anomalies, killer asteroids, and structural vulnerabilities.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The GuideStar Protocol</strong></td>
+<td style="text-align: left;"><code>guidestar_protocol.py</code></td>
+<td style="text-align: left;"><strong>Calibration and indexing.</strong> Ensures the instrument is focused on core architectural importance. Reads git lists, <code>package.json</code>, etc.</td>
+<td style="text-align: left;"><strong>Alignment:</strong> Establishes the coordinate center of the survey.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Language Lens</strong></td>
+<td style="text-align: left;"><code>language_lens.py</code></td>
+<td style="text-align: left;"><strong>Language identification.</strong> Compares lines of evidence (ext/shebang, system context) to assign a language to each file along with a confidence score, allowing us to thoroughly assess if our determinations seem plausible.</td>
+<td style="text-align: left;"><strong>Focus:</strong> Spectral identification; determines if we have a lens to best focus that wavelength of light.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Prism</strong></td>
+<td style="text-align: left;"><code>prism.py</code></td>
+<td style="text-align: left;">Once the language has been identified, the correct comment style can be applied to parse comments from code.</td>
+<td style="text-align: left;"><strong>Spectral Splitting:</strong> Splits the wavelength of light into two streams that can be analyzed separately.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Primary Detector</strong></td>
+<td style="text-align: left;"><code>detector.py</code></td>
+<td style="text-align: left;"><strong>Heuristic sensor.</strong> Performs high-speed regex counting to detect functional intent.</td>
+<td style="text-align: left;"><strong>Raw Signal:</strong> Captures the discrete counts of logic hits. Where the photons hit the EMCCD chip.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Signal Processor</strong></td>
+<td style="text-align: left;"><code>signal_processor.py</code></td>
+<td style="text-align: left;"><strong>Equation engine.</strong> Converts raw counts into non-linear risk exposures and physical mass.</td>
+<td style="text-align: left;"><strong>Analyzed Signal:</strong> Transforms hits into meaningful 0-100 exposure scores.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Spectral Auditor</strong></td>
+<td style="text-align: left;"><code>spectral_auditor.py</code></td>
+<td style="text-align: left;"><strong>Bayesian Quality control.</strong> If sample size permits, performs statistical Z-score checks to assess if files with low confidence language determinations have further evidence supporting that label.</td>
+<td style="text-align: left;"><strong>Integrity:</strong> Relegates mysterious signals to the Singularity of Ambiguity to highlight unanalyzable signals.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Chronometer</strong></td>
+<td style="text-align: left;"><code>chronometer.py</code></td>
+<td style="text-align: left;"><strong>A high-fidelity temporal sensor.</strong> Analyzes Git commit history and filesystem metadata to measure code churn, file stability, and ownership entropy.</td>
+<td style="text-align: left;"><strong>Temporal Telemetry:</strong> Measures the "redshift" and volatility of artifacts over time, adding history and movement to the static star map.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The Audit Recorder</strong></td>
+<td style="text-align: left;"><code>audit_recorder.py</code></td>
+<td style="text-align: left;">Full level audit record of every file scanned, results and hits, saved into a large JSON archive. To make your lawyers happy.</td>
+<td style="text-align: left;"><strong>The SHBOM:</strong> A permanent "Black Box" record (Structural Health Bill of Materials).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>The GPU Recorder</strong></td>
+<td style="text-align: left;"><code>gpu_recorder.py</code></td>
+<td style="text-align: left;"><strong>Vectorization.</strong> Seals the processed signal into a lightweight, high-density JSON archive.</td>
+<td style="text-align: left;"><strong>The Starmap:</strong> Converts analyzed data into galaxy format for the 3D rendering engine.</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="quickstart">🚀 Quickstart</h2>
-<p><strong>1. Install</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitgalaxy
-</code></pre></div></p>
-<p><strong>2. Scan a Repository</strong>
-Point the GalaxyScope at any local repository or ZIP archive. The engine runs entirely on your local machine—zero data is transmitted.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>galaxyscope<span class="w"> </span>/path/to/your/local/repo
-</code></pre></div></p>
-<p><strong>3. View the Galaxy</strong>
-GitGalaxy offers two ways to visualize your 3D architecture, both built on a strict Zero-Trust Privacy Model where your code never leaves your machine.
-* <strong>The Web Viewer (Frictionless):</strong> Drag and drop your generated <code>_galaxy.json</code> file directly into GitGalaxy.io. All rendering and scanning happens entirely in your browser's local memory.
-* <strong>The Local Server (Enterprise &amp; Offline):</strong> For teams operating under strict compliance rules, GitGalaxy includes a 100% static, zero-telemetry local viewer called the Airgap Observatory.</p>
-<hr />
-<h2 id="the-blast-paradigm-sequencing-the-dna-of-software">🧬 The blAST Paradigm: Sequencing the DNA of Software</h2>
-<p>Traditional computer science treats software like a rigid blueprint, using slow, language-specific Abstract Syntax Trees (ASTs) to analyze code. GitGalaxy treats code as a living, mutating organism using <strong>blAST</strong> (Broad Lexical Abstract Syntax Tracker).</p>
-<p>By applying the principles of biological sequence alignment to software, blAST hunts for the universal structural markers of logic across ~40 languages and ~250 file extensions. We translate this genetic code into "phenotypes"—measurable risk exposures.</p>
-<h3 id="zero-trust-architecture">Zero-Trust Architecture</h3>
-<p>Your code never leaves your machine. GitGalaxy performs 100% of its scanning and vectorization locally.
-* <strong>No Data Transmission:</strong> Source code is never transmitted to any API, cloud database, or third-party service.
-* <strong>Ephemeral Memory Processing:</strong> Repositories are unpacked into a volatile memory buffer (RAM) and are automatically purged when the browser tab is closed.</p>
-<h3 id="the-viral-security-lens">The Viral Security Lens</h3>
-<p>Traditional security scanners rely on rigid, outdated virus signatures. blAST acts like an immune system, hunting for the behavioral genetic markers of a threat. By analyzing the structural density of I/O hits, execution triggers, and security bypasses, blAST is perfectly engineered to stop modern attack vectors.</p>
+<h3 id="230-the-galaxyscope-chassis-optical-orchestration">2.3.0. The GalaxyScope Chassis – Optical Orchestration</h3>
+<p>The GalaxyScope (implemented as the <code>Orchestrator</code> class in <code>galaxyscope.py</code>) is the primary structural frame of the GitGalaxy engine. It serves as the physical chassis that houses and synchronizes every optical module, ensuring that raw source code flows through the system in a deterministic, scientific sequence. Without a central chassis, the individual sensors and lenses would lack the synchronization required to build a cohesive 3D map; the Orchestrator ensures that data is refracted, analyzed, and recorded with perfect temporal alignment.</p>
+<h4 id="230a-the-adaptive-lightpath-system">2.3.0.A. The Adaptive Lightpath System</h4>
+<p>The analysis is executed as a series of "Lightpath Phases." By organizing the pipeline into distinct sequential passes, the system can discard noise early, allowing the high-compute detectors to focus exclusively on verified logical matter, while enabling complex relational math (like dependency mapping and folder contexts) to be calculated globally.</p>
+<ul>
+<li><strong>2.3.0.A.1. Phase 0: The Radar Scan (Ignition)</strong>
+    The engine initiates by building a project "Census" using Git Authority (or a standard filesystem walk as a fallback). The Radar Scan identifies every artifact, performs pre-flight integrity checks to instantly discard phantom/missing files, and tallies extension frequencies. This creates the global context needed to calculate "Ecosystem Gravity" before the primary lenses ever engage.</li>
+<li><strong>2.3.0.A.2. Phase 1: Parallel Refraction (Map-Reduce)</strong>
+    Before calculating relational physics, the engine must map the dependency graph. A naive approach (checking every import against every file) creates a catastrophic O(N^2) computational bomb on massive repositories.<ul>
+<li><em>The Optimization:</em> The chassis builds an O(1) Pre-computed Suffix Hash Map. This allows it to instantly resolve raw import strings (like <code>import core/utils</code>) to their exact physical files in a fraction of a second, tallying the "Popularity Score" that determines the gravitational center of the 3D galaxy.</li>
+</ul>
+</li>
+<li><strong>2.3.0.A.3. Phase 2: Relational Physics (Global Aggregation)</strong>
+    Once the dependency graph is resolved, the chassis executes a Second Pass to calculate project-wide relationships that a single file cannot know in isolation.<ul>
+<li><em>Domain Ontologies:</em> It tallies the languages in every folder to determine the "dominant ecosystem" of that neighborhood, passing this context to the physics engine to calculate Alien/Trojan penalties.</li>
+<li><em>The Global Test Umbrella:</em> It calculates the total percentage of the repository dedicated to testing, creating a global defense bonus.</li>
+<li><em>The Secrets Supernova Injection:</em> As a final safety measure before handing data to the GPU, the Orchestrator checks the "Dark Matter" reject pile. If the Security Lens flagged a filtered file for a Critical Credential Leak, the chassis artificially injects a "Supernova" onto the map—forcing the hardcoded secret to be rendered in the UI despite its architectural insignificance.</li>
+</ul>
+</li>
+</ul>
+<h4 id="230b-adaptive-features-and-hardware-overrides">2.3.0.B. Adaptive Features and Hardware Overrides</h4>
+<p>The GalaxyScope is designed as an "Open Chassis," capable of swapping lenses and patching logic on the fly based on the specific "Atmospheric Conditions" of the target repository.</p>
+<ul>
+<li><strong>2.3.0.B.1. The Domain Dialect Pre-Flight Patch</strong>
+    Before ignition, the chassis checks for "Project Overrides" in the scanning configuration. If a project name matches a registered Dialect, the engine live-patches the language regex geometry (updating both extensions and structural rules). Standard language rules often fail in projects with unique coding standards or internal DSLs. Dialect patching allows the instrument to recalibrate its "Spectral Focus" to match the local reality of a specific project without breaking the global standard.</li>
+<li><strong>2.3.0.B.2. Splicer Pre-loading</strong>
+    To prevent severe performance lag during parallel multiprocessing, the chassis "Force-Warms" the workers by pre-loading the <code>LogicSplicer</code> cache as soon as the worker process initializes.<ul>
+<li><em>The "Plaintext Stutter":</em> If a worker had to lazily evaluate and compile the massive regex dictionaries for every single fallback file (like Markdown or Plaintext) mid-stream, it would create redundant <code>[AUTO-HEAL]</code> log spam and throttle the CPU.</li>
+<li><em>The Fix:</em> The Orchestrator passes the <code>ext_tally</code> (from the Phase 0 Census) to the workers, allowing them to pre-compile the exact regex rules needed for the active languages in the project, ensuring the data flows through the pipeline without interruption.</li>
+</ul>
+</li>
+<li><strong>2.3.0.B.3. The Smart Threat Switch (Zero-Trust Mode)</strong>
+    The chassis allows the operator to swap the optical thresholds of the Security Lens at runtime. If the orchestrator is booted in <code>--paranoid</code> mode, the chassis injects a maximum-sensitivity threat policy into the engine. This dynamically lowers the tolerance thresholds for logic bombs, memory corruption, and injection surfaces, allowing security teams to audit high-risk environments with a "Zero-Trust" posture.</li>
+<li><strong>2.3.0.B.4. Exclusive Recorder Routing</strong>
+    Because the final stage of processing (pivoting the data for the WebGPU visualizer) requires destructively clearing RAM, the chassis features an intelligent output router. The Orchestrator can split the final telemetry stream into three distinct artifacts:<ul>
+<li><em>The GPU Recorder:</em> Seals the processed signal into a lightweight, minified JSON archive for the 3D visualizer.</li>
+<li><em>The Audit Recorder:</em> Generates a comprehensive, human-readable forensic log.</li>
+<li><em>The LLM Recorder:</em> Generates AI-optimized markdown translations for agentic workflows. By passing exclusive flags (<code>--gpu-only</code>, <code>--audit-only</code>, <code>--llm-only</code>), the chassis can bypass unneeded formatting steps to save memory.</li>
+</ul>
+</li>
+<li><strong>2.3.0.B.5. Shared Metadata Locking (The Session Lock)</strong>
+    As the mission concludes, the chassis generates a <code>session_meta</code> payload containing the Engine Identity, Scan Duration, and an immutable Git Audit (including Branch, SHA-1 Hash, Remote URL, and Latest Commit Date). The Session Lock ensures that every architectural map is permanently anchored to a specific point in the project's history, providing the "Black Box" data required for SBOM (Software Bill of Materials) compliance and legal audits.</li>
+</ul>
 
 
 
@@ -2288,12 +2360,12 @@ GitGalaxy offers two ways to visualize your 3D architecture, both built on a str
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": [], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="javascripts/mathjax.js"></script>
+        <script src="../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

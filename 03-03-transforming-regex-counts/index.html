@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/03-03-transforming-regex-counts/">
       
       
+        <link rel="prev" href="../03-02-sub-equations/">
       
-        <link rel="next" href="01-project-overview/">
+      
+        <link rel="next" href="../03-04-ownership-entropy/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>GitGalaxy</title>
+        <title>Transforming Regex Counts - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitgalaxy-documentation" class="md-skip">
+        <a href="#22c-transforming-noisy-regex-counts-into-something-meaningful" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Transforming Regex Counts
             
           </span>
         </div>
@@ -200,7 +202,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -254,37 +256,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -300,98 +275,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. The blAST Engine - The GalaxyScope (Backend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The Observatory (Frontend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quickstart
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-Trust Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Viral Security Lens
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -450,7 +333,7 @@
   
   
     <li class="md-nav__item">
-      <a href="01-project-overview/" class="md-nav__link">
+      <a href="../01-project-overview/" class="md-nav__link">
         
   
   
@@ -532,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-01-code-complexity/" class="md-nav__link">
+      <a href="../02-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -560,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-02-stars-size/" class="md-nav__link">
+      <a href="../02-02-stars-size/" class="md-nav__link">
         
   
   
@@ -588,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../02-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -616,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-04-stars-shape/" class="md-nav__link">
+      <a href="../02-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -644,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-05-satellite-unit/" class="md-nav__link">
+      <a href="../02-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -672,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../02-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -700,7 +583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-07-number-of-satellites/" class="md-nav__link">
+      <a href="../02-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -728,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-08-relative-positioning/" class="md-nav__link">
+      <a href="../02-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -756,7 +639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-09-node-size/" class="md-nav__link">
+      <a href="../02-09-node-size/" class="md-nav__link">
         
   
   
@@ -784,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-10-planetary-rings/" class="md-nav__link">
+      <a href="../02-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -812,7 +695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-11-sequence-affinity/" class="md-nav__link">
+      <a href="../02-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -844,18 +727,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -876,7 +761,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -894,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-01-methodology/" class="md-nav__link">
+      <a href="../03-01-methodology/" class="md-nav__link">
         
   
   
@@ -922,7 +807,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-02-sub-equations/" class="md-nav__link">
+      <a href="../03-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -947,10 +832,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="03-03-transforming-regex-counts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transforming Regex Counts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -966,6 +878,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#22c1-the-four-stabilizing-forces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.C.1. The Four Stabilizing Forces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22c2-the-physics-of-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.C.2. The Physics of Risk
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2.C.2. The Physics of Risk">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-language-confidence-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Language Confidence Tiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-universal-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Universal Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-general-risk-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The General Risk Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -978,7 +971,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-04-ownership-entropy/" class="md-nav__link">
+      <a href="../03-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -1006,7 +999,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-05-cognitive-load/" class="md-nav__link">
+      <a href="../03-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -1034,7 +1027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-06-deep-churn/" class="md-nav__link">
+      <a href="../03-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -1062,7 +1055,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-07-structural-fortification/" class="md-nav__link">
+      <a href="../03-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -1090,7 +1083,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-08-technical-debt/" class="md-nav__link">
+      <a href="../03-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -1118,7 +1111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-09-documentation-risk/" class="md-nav__link">
+      <a href="../03-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -1146,7 +1139,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-10-file-stability/" class="md-nav__link">
+      <a href="../03-10-file-stability/" class="md-nav__link">
         
   
   
@@ -1174,7 +1167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-11-test-coverage/" class="md-nav__link">
+      <a href="../03-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -1202,7 +1195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-12-civil-war/" class="md-nav__link">
+      <a href="../03-12-civil-war/" class="md-nav__link">
         
   
   
@@ -1230,7 +1223,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-13-graveyard-detector/" class="md-nav__link">
+      <a href="../03-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -1258,7 +1251,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-14-api-exposure/" class="md-nav__link">
+      <a href="../03-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -1286,7 +1279,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../03-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -1314,7 +1307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../03-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -1396,7 +1389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-01-pipeline-overview/" class="md-nav__link">
+      <a href="../04-01-pipeline-overview/" class="md-nav__link">
         
   
   
@@ -1424,7 +1417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-02-optical-orchestration/" class="md-nav__link">
+      <a href="../04-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -1452,7 +1445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-03-aperture-filter/" class="md-nav__link">
+      <a href="../04-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -1480,7 +1473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../04-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -1508,7 +1501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-05-language-lens/" class="md-nav__link">
+      <a href="../04-05-language-lens/" class="md-nav__link">
         
   
   
@@ -1536,7 +1529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-06-security-lens/" class="md-nav__link">
+      <a href="../04-06-security-lens/" class="md-nav__link">
         
   
   
@@ -1564,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-07-the-prism/" class="md-nav__link">
+      <a href="../04-07-the-prism/" class="md-nav__link">
         
   
   
@@ -1592,7 +1585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-08-the-detector/" class="md-nav__link">
+      <a href="../04-08-the-detector/" class="md-nav__link">
         
   
   
@@ -1620,7 +1613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-09-signal-processing/" class="md-nav__link">
+      <a href="../04-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -1648,7 +1641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-10-phase-0-orchestrator/" class="md-nav__link">
+      <a href="../04-10-phase-0-orchestrator/" class="md-nav__link">
         
   
   
@@ -1676,7 +1669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-11-spectral-audit/" class="md-nav__link">
+      <a href="../04-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -1704,7 +1697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-12-audit-recorder/" class="md-nav__link">
+      <a href="../04-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -1732,7 +1725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-13-gpu-recorder/" class="md-nav__link">
+      <a href="../04-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -1760,7 +1753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-14-llm-recorder/" class="md-nav__link">
+      <a href="../04-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -1842,7 +1835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../05-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -1870,7 +1863,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../05-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -1898,7 +1891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../05-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -1926,7 +1919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../05-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -1954,7 +1947,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../05-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -1982,7 +1975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -2010,7 +2003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../05-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -2038,7 +2031,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-08-future-outlooks/" class="md-nav__link">
+      <a href="../05-08-future-outlooks/" class="md-nav__link">
         
   
   
@@ -2093,10 +2086,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
+  <a href="#22c1-the-four-stabilizing-forces" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. The blAST Engine - The GalaxyScope (Backend)
+        2.2.C.1. The Four Stabilizing Forces
       
     </span>
   </a>
@@ -2104,44 +2097,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
+  <a href="#22c2-the-physics-of-risk" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. The Observatory (Frontend)
+        2.2.C.2. The Physics of Risk
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quickstart
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
+    <nav class="md-nav" aria-label="2.2.C.2. The Physics of Risk">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
+  <a href="#the-language-confidence-tiers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Zero-Trust Architecture
+        The Language Confidence Tiers
       
     </span>
   </a>
@@ -2149,10 +2120,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
+  <a href="#the-universal-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Viral Security Lens
+        The Universal Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-general-risk-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The General Risk Equation
       
     </span>
   </a>
@@ -2184,36 +2166,63 @@
   
 
 
-<h1 id="gitgalaxy-documentation">GitGalaxy Documentation</h1>
-<p><strong>Code is art. Logic is art. Systems engineering is art.</strong></p>
-<p>GitGalaxy is a two-part ecosystem connected by a universal JSON contract. It is designed to extract the structural DNA of massive software repositories and render their non-visual architecture into measurable, explorable 3D galaxies.</p>
-<h3 id="1-the-blast-engine-the-galaxyscope-backend">1. The blAST Engine - The GalaxyScope (Backend)</h3>
-<p>A hyper-scale, language-agnostic static analysis CLI. Based on 50 years of bioinformatics and genetic sequencing algorithms, it parses code at ~100,000 LOC/second. It outputs rich JSON telemetry, SQLite databases, and low-token Markdown briefs optimized for AI-agent workflows.</p>
-<h3 id="2-the-observatory-frontend">2. The Observatory (Frontend)</h3>
-<p>Drop your <code>galaxy.json</code> into the free viewer at <a href="https://gitgalaxy.io">GitGalaxy.io</a> or use the repo's <code>airgap_observatory</code>, a standalone, zero-telemetry WebGPU visualizer. Both visualizers read the JSON contract and render the entire code base as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.</p>
-<hr />
-<h2 id="quickstart">🚀 Quickstart</h2>
-<p><strong>1. Install</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitgalaxy
-</code></pre></div></p>
-<p><strong>2. Scan a Repository</strong>
-Point the GalaxyScope at any local repository or ZIP archive. The engine runs entirely on your local machine—zero data is transmitted.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>galaxyscope<span class="w"> </span>/path/to/your/local/repo
-</code></pre></div></p>
-<p><strong>3. View the Galaxy</strong>
-GitGalaxy offers two ways to visualize your 3D architecture, both built on a strict Zero-Trust Privacy Model where your code never leaves your machine.
-* <strong>The Web Viewer (Frictionless):</strong> Drag and drop your generated <code>_galaxy.json</code> file directly into GitGalaxy.io. All rendering and scanning happens entirely in your browser's local memory.
-* <strong>The Local Server (Enterprise &amp; Offline):</strong> For teams operating under strict compliance rules, GitGalaxy includes a 100% static, zero-telemetry local viewer called the Airgap Observatory.</p>
-<hr />
-<h2 id="the-blast-paradigm-sequencing-the-dna-of-software">🧬 The blAST Paradigm: Sequencing the DNA of Software</h2>
-<p>Traditional computer science treats software like a rigid blueprint, using slow, language-specific Abstract Syntax Trees (ASTs) to analyze code. GitGalaxy treats code as a living, mutating organism using <strong>blAST</strong> (Broad Lexical Abstract Syntax Tracker).</p>
-<p>By applying the principles of biological sequence alignment to software, blAST hunts for the universal structural markers of logic across ~40 languages and ~250 file extensions. We translate this genetic code into "phenotypes"—measurable risk exposures.</p>
-<h3 id="zero-trust-architecture">Zero-Trust Architecture</h3>
-<p>Your code never leaves your machine. GitGalaxy performs 100% of its scanning and vectorization locally.
-* <strong>No Data Transmission:</strong> Source code is never transmitted to any API, cloud database, or third-party service.
-* <strong>Ephemeral Memory Processing:</strong> Repositories are unpacked into a volatile memory buffer (RAM) and are automatically purged when the browser tab is closed.</p>
-<h3 id="the-viral-security-lens">The Viral Security Lens</h3>
-<p>Traditional security scanners rely on rigid, outdated virus signatures. blAST acts like an immune system, hunting for the behavioral genetic markers of a threat. By analyzing the structural density of I/O hits, execution triggers, and security bypasses, blAST is perfectly engineered to stop modern attack vectors.</p>
+<h1 id="22c-transforming-noisy-regex-counts-into-something-meaningful">2.2.C. Transforming Noisy Regex Counts Into Something Meaningful</h1>
+<blockquote>
+<p><strong>The Universal Exposure Framework</strong></p>
+<p>We recognize that raw heuristic counts are inherently fragile; they are easily fooled by "safety theater" (like empty catch blocks) and lack the deep contextual awareness of a compiler. To transform this fuzzy, easily manipulated data into actionable intelligence, we implemented a Universal Exposure Framework that treats code metrics not as absolute truths, but as weighted signals within a "Physics Engine."</p>
+</blockquote>
+<h2 id="22c1-the-four-stabilizing-forces">2.2.C.1. The Four Stabilizing Forces</h2>
+<p>To counteract the noise of static analysis, the engine applies four specific stabilizing forces to the raw data:</p>
+<ul>
+<li><strong>Weighted Asymmetry (The Entropy Check):</strong> A simple counter treats a vulnerability and a safeguard as equal opposites (<span class="arithmatex">\(1 - 1 = 0\)</span>). In reality, it is significantly harder to secure a system than to break it. We apply a <strong>2.5x multiplier</strong> to all detected risks, forcing the code to demonstrate disproportionate defensive density before it can achieve a "Safe" rating. This prevents minor cosmetic fixes from masking structural brittleness.</li>
+<li><strong>The Breach Cap (Zero-Trust Logic):</strong> To prevent large files with high test coverage from masking critical flaws, we enforce a hard limit: if the raw count of <strong>Risk Hits</strong> exceeds <strong>Guardrail Hits</strong>, the module is capped at a "Fragile" rating regardless of its other qualities. This overrides the math with a reality check—no amount of unit testing can neutralize a fundamentally insecure architecture.</li>
+<li><strong>The Sigmoid Clamp (Noise Gating):</strong> Linear counting penalizes large files for having trace amounts of technical debt. We utilize a logistic function to act as a noise gate, suppressing trivial findings (0-5% density) while aggressively highlighting clusters of debt once they cross a critical threshold (~20%). This ensures the visualization focuses on systemic patterns rather than isolated infractions.</li>
+<li><strong>Quantized Final Tiering (Removing False Precision):</strong> Presenting a "Safety Score" of 87.4% implies a level of precision that regex cannot provide. By binning complex scores into five distinct <strong>Qualitative Tiers</strong> (Unshielded, Fragile, Stable, Defended, Fortified), we remove false precision and deliver a binary truth: the module is either sufficiently defended for its context, or it is not.</li>
+</ul>
+<h2 id="22c2-the-physics-of-risk">2.2.C.2. The Physics of Risk</h2>
+<p>Instead of a single "Master Equation" for all Risk Exposures, we employ a Universal Framework that is instantiated and calibrated for each specific Risk Domain. </p>
+<p>While each domain has a unique formula, they all adhere to the exact same physics: we weigh risk heavier than defenses, we add an "Opacity Tax" to the risk for dynamic languages, and we dampen the defenses based on our trust in the language's explicit syntax.</p>
+<h3 id="the-language-confidence-tiers">The Language Confidence Tiers</h3>
+<p>Every coding language is assigned to a tier that dictates its mathematical dampeners.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Confidence Tier</th>
+<th style="text-align: left;">Classification</th>
+<th style="text-align: left;">Example Languages</th>
+<th style="text-align: left;">Mathematical Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Tier 1</strong></td>
+<td style="text-align: left;">Explicit Languages (High Trust)</td>
+<td style="text-align: left;">Rust, Go, C++</td>
+<td style="text-align: left;">Standard baseline calculations.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tier 2</strong></td>
+<td style="text-align: left;">Structured Languages (Minor Doubt)</td>
+<td style="text-align: left;">Java, TypeScript</td>
+<td style="text-align: left;">Minor risk dampening applied.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tier 3</strong></td>
+<td style="text-align: left;">Implicit Languages (Fog of War)</td>
+<td style="text-align: left;">Shell, Python, JS</td>
+<td style="text-align: left;">High "Opacity Tax" added; Defensive hits are dampened.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-universal-variables">The Universal Variables</h3>
+<ul>
+<li><strong><span class="arithmatex">\(\text{Fc}\)</span> (Fidelity Coefficient):</strong> A dampener used to reduce our trust in the defensive keywords of ambiguous languages.</li>
+<li><strong><span class="arithmatex">\(\text{Irc}\)</span> (Implicit Risk Correction):</strong> A flat penalty added to ambiguous languages (The "Opacity Tax").</li>
+<li><strong><span class="arithmatex">\(\text{Mp}\)</span> (Multiplier / Path Modifier):</strong> Scales risk based on the file's physical location in the repository (e.g., Core vs. Lab vs. Tests). This mathematically rewards teams for good folder architecture.</li>
+</ul>
+<h3 id="the-general-risk-equation">The General Risk Equation</h3>
+<p>All risk domains follow this fundamental structural pattern:</p>
+<div class="arithmatex">\[\text{RiskExposure} = \left( \frac{((\text{RiskHits} + \text{Irc}) \times \text{Weight}) - (\text{DefenseHits} \times \text{Fc})}{\text{LOC}} \right) \times \text{Mp}\]</div>
 
 
 
@@ -2288,12 +2297,12 @@ GitGalaxy offers two ways to visualize your 3D architecture, both built on a str
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": [], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="javascripts/mathjax.js"></script>
+        <script src="../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

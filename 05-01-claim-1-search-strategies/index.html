@@ -1,0 +1,2981 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The structural DNA of massive software repositories.">
+      
+      
+      
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/05-01-claim-1-search-strategies/">
+      
+      
+        <link rel="prev" href="../04-14-llm-recorder/">
+      
+      
+        <link rel="next" href="../05-02-claim-2-explicitness/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Claim 1 (Search Strategies) - GitGalaxy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#240a-trapped-in-the-smith-waterman-era" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitGalaxy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Claim 1 (Search Strategies)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/squid-protocol/gitgalaxy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    squid-protocol/gitgalaxy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitGalaxy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/squid-protocol/gitgalaxy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    squid-protocol/gitgalaxy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://gitgalaxy.io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🌌 Open GitGalaxy Visualizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Foundation & Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    1. Foundation & Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-project-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Physical Structure
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2. Physical Structure
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-code-complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-stars-size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stars Size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-stars-pulse-rate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stars Pulse Rate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-stars-shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stars Shape
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-satellite-unit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite Unit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-06-satellite-orbital-distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite Orbital Distance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-07-number-of-satellites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Number of satellites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-08-relative-positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relative Positioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-09-node-size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Size (Argument Count)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-10-planetary-rings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planetary Rings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-11-sequence-affinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sequence Affinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Color Labeling (Risk)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    3. Color Labeling (Risk)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-sub-equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sub-Equations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-transforming-regex-counts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transforming Regex Counts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-ownership-entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ownership Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-cognitive-load/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cognitive Load Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-06-deep-churn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep Churn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-07-structural-fortification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structural Fortification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-08-technical-debt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical Debt Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-09-documentation-risk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation Risk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-10-file-stability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Stability (Heat)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-11-test-coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-12-civil-war/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Civil War (Tabs vs Spaces)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-13-graveyard-detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graveyard Detector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-14-api-exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-15-concurrency-exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concurrency Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-16-state-flux-exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State Flux Exposure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Data Pipeline
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Data Pipeline
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-01-pipeline-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-02-optical-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optical Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-03-aperture-filter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aperture Filter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-04-guidestar-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GuideStar Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-05-language-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-06-security-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-07-the-prism/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Prism
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-08-the-detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Detector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-09-signal-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signal Processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-10-phase-0-orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 0 Orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-11-spectral-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-12-audit-recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-13-gpu-recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPU Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-14-llm-recorder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Recorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Validation & Outlook
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    5. Validation & Outlook
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 1 (Search Strategies)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 1 (Search Strategies)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#240a-trapped-in-the-smith-waterman-era" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.0.A. Trapped in the Smith-Waterman Era
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#240b-trading-the-microscope-for-a-telescope-enter-blast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.0.B. Trading the Microscope for a Telescope: Enter blAST
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4.0.B. Trading the Microscope for a Telescope: Enter blAST">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#galactic-census-planetary-scale-benchmark-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Galactic Census: Planetary-Scale Benchmark Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-02-claim-2-explicitness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 2 (Explicitness)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-03-claim-3-taxonomy-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 3 (Taxonomy Map)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-04-claim-4-comparing-languages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 4 (Comparing Languages)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-05-claim-5-file-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 6 (Keyword Fingerprinting)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-07-claim-7-doom-comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 7 (Comparing DOOM Ports)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-08-future-outlooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Outlooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#240a-trapped-in-the-smith-waterman-era" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.0.A. Trapped in the Smith-Waterman Era
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#240b-trading-the-microscope-for-a-telescope-enter-blast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.0.B. Trading the Microscope for a Telescope: Enter blAST
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4.0.B. Trading the Microscope for a Telescope: Enter blAST">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#galactic-census-planetary-scale-benchmark-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Galactic Census: Planetary-Scale Benchmark Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Claim 1 (Search Strategies)</h1>
+
+<p>Claim 1: Optimum Search Strategies Change with Scale</p>
+<blockquote>
+<p><strong>The BLAST Philosophy</strong></p>
+<p>In the late 1980s, computational biology hit a wall. DNA databases were growing exponentially, but the algorithm used to search them—the <strong>Smith-Waterman algorithm</strong>—was bottlenecked by its own perfection. It exhaustively evaluated every single base-pair combination to guarantee the absolute optimal alignment. As databases scaled, running a single search began taking days of supercomputer time. The pursuit of microscopic precision was blinding scientists to the macroscopic reality of the genome.</p>
+<p>Then came <strong>BLAST</strong>. </p>
+<p>BLAST committed what purists considered a scientific sin: <strong>it intentionally abandoned mathematical perfection.</strong> It used a <em>heuristic</em> approach, scanning for short, high-scoring patterns and extrapolating the rest. It occasionally missed the absolute optimal match. But it was <em>orders of magnitude faster</em>. By trading a tiny margin of pedantic accuracy for massive speed, BLAST unlocked the genomic revolution.</p>
+</blockquote>
+<h2 id="240a-trapped-in-the-smith-waterman-era">2.4.0.A. Trapped in the Smith-Waterman Era</h2>
+<p>Software Engineering is currently trapped in its own Smith-Waterman era. Today, enterprise software is reaching planetary scale. Driven by microservice sprawl and Generative AI, codebases are ballooning to millions of lines across dozens of languages.</p>
+<p>Yet, the static analysis industry is obsessively clinging to its own version of Smith-Waterman: <strong>The Abstract Syntax Tree (AST).</strong></p>
+<p>ASTs are mathematically perfect. They understand scope, types, and compiler logic flawlessly. But they are incredibly heavy. They require your code to perfectly compile. They choke if a single dependency is missing. And crucially, they are monolingual. Trying to run an AST across a 100,000-file, multi-lingual enterprise system takes hours, requires uploading your IP to a cloud server, and forces you to pray the build doesn't fail.</p>
+<h2 id="240b-trading-the-microscope-for-a-telescope-enter-blast">2.4.0.B. Trading the Microscope for a Telescope: Enter blAST</h2>
+<p>When we built GitGalaxy to visualize software architecture as explorable 3D universes, we made a deliberate, engineered choice: we threw out the traditional AST. </p>
+<p>Instead, we built <strong>blAST (Broad Lexical Abstract Syntax Tracker)</strong>. </p>
+<p>It serves as the bridge between two worlds: the structural intent of an Abstract Syntax Tree and the hyper-scale heuristic velocity of genomic sequencing, see below. By applying the principles of biological sequence alignment to software, blAST treats code as a living, mutating organism. It hunts for the universal structural markers of logic across ~40 languages, completely bypassing the compiler bottleneck.</p>
+<p>Does it have blind spots? Yes. We document them openly in our physics engine. We know that complex C++ macros or deeply nested, esoteric syntax can cause a slight margin of error.</p>
+<p>But by accepting that 5% margin of microscopic error, we unlocked a macroscopic superpower. <strong>We map <em>intent</em>, not machine execution—processing over 100,000 lines of code per second, entirely locally, regardless of if the code compiles.</strong></p>
+<p>If a legacy <code>PaymentController.java</code> file is 4,000 lines long, contains 45 <code>try/catch</code> blocks, 12 instances of variable mutation, and 8 nested <code>switch</code> statements, missing a single edge-case ternary operator does not change the physical mass of the star. It doesn't change the overarching "phenotype" of the file. It doesn't change the fact that the architecture is radiating <strong>Deep Purple (Brain-Melting Cognitive Load).</strong></p>
+<p>The visual <em>Gestalt</em> remains absolutely, undeniably accurate.</p>
+<p>If you need to know exactly which line of code is missing a semicolon, use a compiler. Use a traditional AST. Use a microscope.</p>
+<p>But if you are trying to understand where the AI-generated sprawl is hiding, where the technical debt is violently expanding, and where the cognitive load is melting your team's brains... you don't need a microscope. <strong>You need a telescope.</strong></p>
+<h3 id="galactic-census-planetary-scale-benchmark-telemetry">Galactic Census: Planetary-Scale Benchmark Telemetry</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Rank</th>
+<th style="text-align: left;">Repository</th>
+<th style="text-align: left;">LOC Scanned</th>
+<th style="text-align: left;">Rate (LOC/s)</th>
+<th style="text-align: left;">Engine Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">---</td>
+<td style="text-align: left;">---</td>
+<td style="text-align: left;">---</td>
+<td style="text-align: left;">---</td>
+<td style="text-align: left;">---</td>
+</tr>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Apollo-11</td>
+<td style="text-align: left;">131,419</td>
+<td style="text-align: left;">228,147</td>
+<td style="text-align: left;">0.58s</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">DOOM</td>
+<td style="text-align: left;">50,869</td>
+<td style="text-align: left;">181,846</td>
+<td style="text-align: left;">0.28s</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">gnupg</td>
+<td style="text-align: left;">452,915</td>
+<td style="text-align: left;">176,708</td>
+<td style="text-align: left;">2.56s</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">linux-1.0</td>
+<td style="text-align: left;">173,629</td>
+<td style="text-align: left;">165,529</td>
+<td style="text-align: left;">1.05s</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">sqlite</td>
+<td style="text-align: left;">473,028</td>
+<td style="text-align: left;">161,683</td>
+<td style="text-align: left;">2.93s</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">tokio</td>
+<td style="text-align: left;">171,002</td>
+<td style="text-align: left;">153,334</td>
+<td style="text-align: left;">1.12s</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">bevy</td>
+<td style="text-align: left;">566,323</td>
+<td style="text-align: left;">147,608</td>
+<td style="text-align: left;">3.84s</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">node</td>
+<td style="text-align: left;">8,538,143</td>
+<td style="text-align: left;">142,073</td>
+<td style="text-align: left;">60.10s</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">pandas</td>
+<td style="text-align: left;">740,372</td>
+<td style="text-align: left;">139,489</td>
+<td style="text-align: left;">5.31s</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">redis</td>
+<td style="text-align: left;">448,050</td>
+<td style="text-align: left;">134,620</td>
+<td style="text-align: left;">3.33s</td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">bugzilla</td>
+<td style="text-align: left;">149,357</td>
+<td style="text-align: left;">134,607</td>
+<td style="text-align: left;">1.11s</td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">root</td>
+<td style="text-align: left;">6,294,207</td>
+<td style="text-align: left;">132,792</td>
+<td style="text-align: left;">47.40s</td>
+</tr>
+<tr>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">scapy</td>
+<td style="text-align: left;">224,494</td>
+<td style="text-align: left;">132,416</td>
+<td style="text-align: left;">1.70s</td>
+</tr>
+<tr>
+<td style="text-align: left;">14</td>
+<td style="text-align: left;">okhttp</td>
+<td style="text-align: left;">147,516</td>
+<td style="text-align: left;">132,358</td>
+<td style="text-align: left;">1.11s</td>
+</tr>
+<tr>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">spm12</td>
+<td style="text-align: left;">690,874</td>
+<td style="text-align: left;">131,664</td>
+<td style="text-align: left;">5.25s</td>
+</tr>
+<tr>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">abapGit</td>
+<td style="text-align: left;">218,713</td>
+<td style="text-align: left;">128,050</td>
+<td style="text-align: left;">1.71s</td>
+</tr>
+<tr>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">PowerShell</td>
+<td style="text-align: left;">812,217</td>
+<td style="text-align: left;">125,224</td>
+<td style="text-align: left;">6.49s</td>
+</tr>
+<tr>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">eeglab</td>
+<td style="text-align: left;">145,680</td>
+<td style="text-align: left;">124,176</td>
+<td style="text-align: left;">1.17s</td>
+</tr>
+<tr>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;">freebsd-src</td>
+<td style="text-align: left;">24,572,271</td>
+<td style="text-align: left;">123,901</td>
+<td style="text-align: left;">198.32s</td>
+</tr>
+<tr>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">vscode</td>
+<td style="text-align: left;">2,769,175</td>
+<td style="text-align: left;">122,875</td>
+<td style="text-align: left;">22.54s</td>
+</tr>
+<tr>
+<td style="text-align: left;">21</td>
+<td style="text-align: left;">impacket</td>
+<td style="text-align: left;">166,310</td>
+<td style="text-align: left;">120,800</td>
+<td style="text-align: left;">1.38s</td>
+</tr>
+<tr>
+<td style="text-align: left;">22</td>
+<td style="text-align: left;">ripgrep</td>
+<td style="text-align: left;">65,622</td>
+<td style="text-align: left;">120,643</td>
+<td style="text-align: left;">0.54s</td>
+</tr>
+<tr>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;">tensorflow</td>
+<td style="text-align: left;">5,239,868</td>
+<td style="text-align: left;">118,424</td>
+<td style="text-align: left;">44.25s</td>
+</tr>
+<tr>
+<td style="text-align: left;">24</td>
+<td style="text-align: left;">abap-cleaner</td>
+<td style="text-align: left;">151,895</td>
+<td style="text-align: left;">117,583</td>
+<td style="text-align: left;">1.29s</td>
+</tr>
+<tr>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">fieldtrip</td>
+<td style="text-align: left;">407,744</td>
+<td style="text-align: left;">114,917</td>
+<td style="text-align: left;">3.55s</td>
+</tr>
+<tr>
+<td style="text-align: left;">26</td>
+<td style="text-align: left;">cpython</td>
+<td style="text-align: left;">1,215,456</td>
+<td style="text-align: left;">113,683</td>
+<td style="text-align: left;">10.69s</td>
+</tr>
+<tr>
+<td style="text-align: left;">27</td>
+<td style="text-align: left;">prometheus</td>
+<td style="text-align: left;">193,180</td>
+<td style="text-align: left;">113,029</td>
+<td style="text-align: left;">1.71s</td>
+</tr>
+<tr>
+<td style="text-align: left;">28</td>
+<td style="text-align: left;">tauri</td>
+<td style="text-align: left;">124,934</td>
+<td style="text-align: left;">112,775</td>
+<td style="text-align: left;">1.11s</td>
+</tr>
+<tr>
+<td style="text-align: left;">29</td>
+<td style="text-align: left;">swift</td>
+<td style="text-align: left;">2,568,247</td>
+<td style="text-align: left;">112,561</td>
+<td style="text-align: left;">22.82s</td>
+</tr>
+<tr>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">react</td>
+<td style="text-align: left;">823,633</td>
+<td style="text-align: left;">111,976</td>
+<td style="text-align: left;">7.36s</td>
+</tr>
+<tr>
+<td style="text-align: left;">31</td>
+<td style="text-align: left;">pyarmor</td>
+<td style="text-align: left;">37,311</td>
+<td style="text-align: left;">111,263</td>
+<td style="text-align: left;">0.34s</td>
+</tr>
+<tr>
+<td style="text-align: left;">32</td>
+<td style="text-align: left;">nvda</td>
+<td style="text-align: left;">240,096</td>
+<td style="text-align: left;">110,756</td>
+<td style="text-align: left;">2.17s</td>
+</tr>
+<tr>
+<td style="text-align: left;">33</td>
+<td style="text-align: left;">ghostty</td>
+<td style="text-align: left;">309,165</td>
+<td style="text-align: left;">110,322</td>
+<td style="text-align: left;">2.80s</td>
+</tr>
+<tr>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;">mediawiki</td>
+<td style="text-align: left;">1,371,757</td>
+<td style="text-align: left;">108,441</td>
+<td style="text-align: left;">12.65s</td>
+</tr>
+<tr>
+<td style="text-align: left;">35</td>
+<td style="text-align: left;">Alamofire</td>
+<td style="text-align: left;">50,081</td>
+<td style="text-align: left;">106,679</td>
+<td style="text-align: left;">0.47s</td>
+</tr>
+<tr>
+<td style="text-align: left;">36</td>
+<td style="text-align: left;">tigerbeetle</td>
+<td style="text-align: left;">204,354</td>
+<td style="text-align: left;">106,636</td>
+<td style="text-align: left;">1.92s</td>
+</tr>
+<tr>
+<td style="text-align: left;">37</td>
+<td style="text-align: left;">pandoc</td>
+<td style="text-align: left;">166,483</td>
+<td style="text-align: left;">106,206</td>
+<td style="text-align: left;">1.57s</td>
+</tr>
+<tr>
+<td style="text-align: left;">38</td>
+<td style="text-align: left;">terraform</td>
+<td style="text-align: left;">270,020</td>
+<td style="text-align: left;">103,790</td>
+<td style="text-align: left;">2.60s</td>
+</tr>
+<tr>
+<td style="text-align: left;">39</td>
+<td style="text-align: left;">sqlmap</td>
+<td style="text-align: left;">94,574</td>
+<td style="text-align: left;">103,772</td>
+<td style="text-align: left;">0.91s</td>
+</tr>
+<tr>
+<td style="text-align: left;">40</td>
+<td style="text-align: left;">apex-recipes</td>
+<td style="text-align: left;">32,452</td>
+<td style="text-align: left;">103,549</td>
+<td style="text-align: left;">0.31s</td>
+</tr>
+<tr>
+<td style="text-align: left;">41</td>
+<td style="text-align: left;">openclaw-typescript</td>
+<td style="text-align: left;">645,946</td>
+<td style="text-align: left;">102,279</td>
+<td style="text-align: left;">6.32s</td>
+</tr>
+<tr>
+<td style="text-align: left;">42</td>
+<td style="text-align: left;">kubernetes</td>
+<td style="text-align: left;">2,698,425</td>
+<td style="text-align: left;">101,871</td>
+<td style="text-align: left;">26.49s</td>
+</tr>
+<tr>
+<td style="text-align: left;">43</td>
+<td style="text-align: left;">bun</td>
+<td style="text-align: left;">1,547,153</td>
+<td style="text-align: left;">101,596</td>
+<td style="text-align: left;">15.23s</td>
+</tr>
+<tr>
+<td style="text-align: left;">44</td>
+<td style="text-align: left;">roslyn</td>
+<td style="text-align: left;">6,259,269</td>
+<td style="text-align: left;">99,711</td>
+<td style="text-align: left;">62.77s</td>
+</tr>
+<tr>
+<td style="text-align: left;">45</td>
+<td style="text-align: left;">flutter</td>
+<td style="text-align: left;">2,154,878</td>
+<td style="text-align: left;">99,571</td>
+<td style="text-align: left;">21.64s</td>
+</tr>
+<tr>
+<td style="text-align: left;">46</td>
+<td style="text-align: left;">exiftool</td>
+<td style="text-align: left;">552,032</td>
+<td style="text-align: left;">99,187</td>
+<td style="text-align: left;">5.57s</td>
+</tr>
+<tr>
+<td style="text-align: left;">47</td>
+<td style="text-align: left;">angr</td>
+<td style="text-align: left;">325,591</td>
+<td style="text-align: left;">98,945</td>
+<td style="text-align: left;">3.29s</td>
+</tr>
+<tr>
+<td style="text-align: left;">48</td>
+<td style="text-align: left;">spamassassin</td>
+<td style="text-align: left;">163,171</td>
+<td style="text-align: left;">98,131</td>
+<td style="text-align: left;">1.66s</td>
+</tr>
+<tr>
+<td style="text-align: left;">49</td>
+<td style="text-align: left;">pwntools</td>
+<td style="text-align: left;">142,246</td>
+<td style="text-align: left;">97,427</td>
+<td style="text-align: left;">1.46s</td>
+</tr>
+<tr>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">godot</td>
+<td style="text-align: left;">4,533,861</td>
+<td style="text-align: left;">97,247</td>
+<td style="text-align: left;">46.62s</td>
+</tr>
+<tr>
+<td style="text-align: left;">51</td>
+<td style="text-align: left;">spock</td>
+<td style="text-align: left;">119,844</td>
+<td style="text-align: left;">96,830</td>
+<td style="text-align: left;">1.24s</td>
+</tr>
+<tr>
+<td style="text-align: left;">52</td>
+<td style="text-align: left;">AppFlowy</td>
+<td style="text-align: left;">373,494</td>
+<td style="text-align: left;">96,522</td>
+<td style="text-align: left;">3.87s</td>
+</tr>
+<tr>
+<td style="text-align: left;">53</td>
+<td style="text-align: left;">kafka</td>
+<td style="text-align: left;">1,530,960</td>
+<td style="text-align: left;">96,364</td>
+<td style="text-align: left;">15.89s</td>
+</tr>
+<tr>
+<td style="text-align: left;">54</td>
+<td style="text-align: left;">micropython</td>
+<td style="text-align: left;">679,117</td>
+<td style="text-align: left;">96,095</td>
+<td style="text-align: left;">7.07s</td>
+</tr>
+<tr>
+<td style="text-align: left;">55</td>
+<td style="text-align: left;">django</td>
+<td style="text-align: left;">510,164</td>
+<td style="text-align: left;">95,713</td>
+<td style="text-align: left;">5.33s</td>
+</tr>
+<tr>
+<td style="text-align: left;">56</td>
+<td style="text-align: left;">rails</td>
+<td style="text-align: left;">262,621</td>
+<td style="text-align: left;">92,580</td>
+<td style="text-align: left;">2.84s</td>
+</tr>
+<tr>
+<td style="text-align: left;">57</td>
+<td style="text-align: left;">retrofit</td>
+<td style="text-align: left;">58,970</td>
+<td style="text-align: left;">90,335</td>
+<td style="text-align: left;">0.65s</td>
+</tr>
+<tr>
+<td style="text-align: left;">58</td>
+<td style="text-align: left;">gnucobol</td>
+<td style="text-align: left;">190,225</td>
+<td style="text-align: left;">90,221</td>
+<td style="text-align: left;">2.11s</td>
+</tr>
+<tr>
+<td style="text-align: left;">59</td>
+<td style="text-align: left;">sdk</td>
+<td style="text-align: left;">3,879,429</td>
+<td style="text-align: left;">89,832</td>
+<td style="text-align: left;">43.19s</td>
+</tr>
+<tr>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;">openzeppelin-contracts</td>
+<td style="text-align: left;">65,308</td>
+<td style="text-align: left;">88,049</td>
+<td style="text-align: left;">0.74s</td>
+</tr>
+<tr>
+<td style="text-align: left;">61</td>
+<td style="text-align: left;">bitcoin-0.1.0</td>
+<td style="text-align: left;">20,225</td>
+<td style="text-align: left;">85,978</td>
+<td style="text-align: left;">0.24s</td>
+</tr>
+<tr>
+<td style="text-align: left;">62</td>
+<td style="text-align: left;">vue</td>
+<td style="text-align: left;">34,037</td>
+<td style="text-align: left;">85,712</td>
+<td style="text-align: left;">0.40s</td>
+</tr>
+<tr>
+<td style="text-align: left;">63</td>
+<td style="text-align: left;">jellyfin</td>
+<td style="text-align: left;">253,729</td>
+<td style="text-align: left;">84,184</td>
+<td style="text-align: left;">3.01s</td>
+</tr>
+<tr>
+<td style="text-align: left;">64</td>
+<td style="text-align: left;">opencv</td>
+<td style="text-align: left;">1,876,494</td>
+<td style="text-align: left;">83,259</td>
+<td style="text-align: left;">22.54s</td>
+</tr>
+<tr>
+<td style="text-align: left;">65</td>
+<td style="text-align: left;">micropython-ulab</td>
+<td style="text-align: left;">25,969</td>
+<td style="text-align: left;">82,995</td>
+<td style="text-align: left;">0.31s</td>
+</tr>
+<tr>
+<td style="text-align: left;">66</td>
+<td style="text-align: left;">vapor</td>
+<td style="text-align: left;">37,827</td>
+<td style="text-align: left;">82,871</td>
+<td style="text-align: left;">0.46s</td>
+</tr>
+<tr>
+<td style="text-align: left;">67</td>
+<td style="text-align: left;">elasticsearch</td>
+<td style="text-align: left;">6,033,699</td>
+<td style="text-align: left;">82,181</td>
+<td style="text-align: left;">73.42s</td>
+</tr>
+<tr>
+<td style="text-align: left;">68</td>
+<td style="text-align: left;">odoo</td>
+<td style="text-align: left;">2,476,940</td>
+<td style="text-align: left;">81,162</td>
+<td style="text-align: left;">30.52s</td>
+</tr>
+<tr>
+<td style="text-align: left;">69</td>
+<td style="text-align: left;">gradle</td>
+<td style="text-align: left;">2,233,807</td>
+<td style="text-align: left;">81,111</td>
+<td style="text-align: left;">27.54s</td>
+</tr>
+<tr>
+<td style="text-align: left;">70</td>
+<td style="text-align: left;">WorldWideWeb</td>
+<td style="text-align: left;">8,455</td>
+<td style="text-align: left;">80,636</td>
+<td style="text-align: left;">0.10s</td>
+</tr>
+<tr>
+<td style="text-align: left;">71</td>
+<td style="text-align: left;">platform_dalvik</td>
+<td style="text-align: left;">371,935</td>
+<td style="text-align: left;">79,864</td>
+<td style="text-align: left;">4.66s</td>
+</tr>
+<tr>
+<td style="text-align: left;">72</td>
+<td style="text-align: left;">abap2xlsx</td>
+<td style="text-align: left;">60,597</td>
+<td style="text-align: left;">78,869</td>
+<td style="text-align: left;">0.77s</td>
+</tr>
+<tr>
+<td style="text-align: left;">73</td>
+<td style="text-align: left;">spring-boot</td>
+<td style="text-align: left;">873,397</td>
+<td style="text-align: left;">78,004</td>
+<td style="text-align: left;">11.20s</td>
+</tr>
+<tr>
+<td style="text-align: left;">74</td>
+<td style="text-align: left;">jenkins</td>
+<td style="text-align: left;">633,114</td>
+<td style="text-align: left;">76,427</td>
+<td style="text-align: left;">8.28s</td>
+</tr>
+<tr>
+<td style="text-align: left;">75</td>
+<td style="text-align: left;">fineract</td>
+<td style="text-align: left;">932,587</td>
+<td style="text-align: left;">76,297</td>
+<td style="text-align: left;">12.22s</td>
+</tr>
+<tr>
+<td style="text-align: left;">76</td>
+<td style="text-align: left;">circuitpython</td>
+<td style="text-align: left;">606,107</td>
+<td style="text-align: left;">76,245</td>
+<td style="text-align: left;">7.95s</td>
+</tr>
+<tr>
+<td style="text-align: left;">77</td>
+<td style="text-align: left;">flask</td>
+<td style="text-align: left;">19,159</td>
+<td style="text-align: left;">75,915</td>
+<td style="text-align: left;">0.25s</td>
+</tr>
+<tr>
+<td style="text-align: left;">78</td>
+<td style="text-align: left;">kotlin</td>
+<td style="text-align: left;">5,854,409</td>
+<td style="text-align: left;">75,500</td>
+<td style="text-align: left;">77.54s</td>
+</tr>
+<tr>
+<td style="text-align: left;">79</td>
+<td style="text-align: left;">discourse</td>
+<td style="text-align: left;">938,377</td>
+<td style="text-align: left;">75,412</td>
+<td style="text-align: left;">12.44s</td>
+</tr>
+<tr>
+<td style="text-align: left;">80</td>
+<td style="text-align: left;">racket</td>
+<td style="text-align: left;">1,485,013</td>
+<td style="text-align: left;">74,480</td>
+<td style="text-align: left;">19.94s</td>
+</tr>
+<tr>
+<td style="text-align: left;">81</td>
+<td style="text-align: left;">cics-genapp</td>
+<td style="text-align: left;">13,937</td>
+<td style="text-align: left;">74,252</td>
+<td style="text-align: left;">0.19s</td>
+</tr>
+<tr>
+<td style="text-align: left;">82</td>
+<td style="text-align: left;">ansible</td>
+<td style="text-align: left;">156,281</td>
+<td style="text-align: left;">71,598</td>
+<td style="text-align: left;">2.18s</td>
+</tr>
+<tr>
+<td style="text-align: left;">83</td>
+<td style="text-align: left;">PowerToys</td>
+<td style="text-align: left;">651,583</td>
+<td style="text-align: left;">70,230</td>
+<td style="text-align: left;">9.28s</td>
+</tr>
+<tr>
+<td style="text-align: left;">84</td>
+<td style="text-align: left;">AFNetworking</td>
+<td style="text-align: left;">23,610</td>
+<td style="text-align: left;">68,621</td>
+<td style="text-align: left;">0.34s</td>
+</tr>
+<tr>
+<td style="text-align: left;">85</td>
+<td style="text-align: left;">gitgalaxy</td>
+<td style="text-align: left;">11,833</td>
+<td style="text-align: left;">65,107</td>
+<td style="text-align: left;">0.18s</td>
+</tr>
+<tr>
+<td style="text-align: left;">86</td>
+<td style="text-align: left;">blast</td>
+<td style="text-align: left;">248,791</td>
+<td style="text-align: left;">64,483</td>
+<td style="text-align: left;">3.86s</td>
+</tr>
+<tr>
+<td style="text-align: left;">87</td>
+<td style="text-align: left;">cobol-check</td>
+<td style="text-align: left;">32,690</td>
+<td style="text-align: left;">63,386</td>
+<td style="text-align: left;">0.52s</td>
+</tr>
+<tr>
+<td style="text-align: left;">88</td>
+<td style="text-align: left;">cobol-programming-course</td>
+<td style="text-align: left;">12,120</td>
+<td style="text-align: left;">57,738</td>
+<td style="text-align: left;">0.21s</td>
+</tr>
+<tr>
+<td style="text-align: left;">89</td>
+<td style="text-align: left;">brew</td>
+<td style="text-align: left;">130,395</td>
+<td style="text-align: left;">57,041</td>
+<td style="text-align: left;">2.29s</td>
+</tr>
+<tr>
+<td style="text-align: left;">90</td>
+<td style="text-align: left;">curl</td>
+<td style="text-align: left;">291,005</td>
+<td style="text-align: left;">51,039</td>
+<td style="text-align: left;">5.70s</td>
+</tr>
+<tr>
+<td style="text-align: left;">91</td>
+<td style="text-align: left;">wordpress</td>
+<td style="text-align: left;">954,764</td>
+<td style="text-align: left;">46,578</td>
+<td style="text-align: left;">20.50s</td>
+</tr>
+<tr>
+<td style="text-align: left;">92</td>
+<td style="text-align: left;">express</td>
+<td style="text-align: left;">9,487</td>
+<td style="text-align: left;">46,473</td>
+<td style="text-align: left;">0.20s</td>
+</tr>
+<tr>
+<td style="text-align: left;">93</td>
+<td style="text-align: left;">alphafold_2018</td>
+<td style="text-align: left;">4,992</td>
+<td style="text-align: left;">43,709</td>
+<td style="text-align: left;">0.11s</td>
+</tr>
+<tr>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;">wrf-fortran</td>
+<td style="text-align: left;">1,862,831</td>
+<td style="text-align: left;">33,203</td>
+<td style="text-align: left;">56.10s</td>
+</tr>
+<tr>
+<td style="text-align: left;">95</td>
+<td style="text-align: left;">voyager</td>
+<td style="text-align: left;">3,008</td>
+<td style="text-align: left;">32,948</td>
+<td style="text-align: left;">0.09s</td>
+</tr>
+<tr>
+<td style="text-align: left;">96</td>
+<td style="text-align: left;">moby</td>
+<td style="text-align: left;">233,367</td>
+<td style="text-align: left;">31,599</td>
+<td style="text-align: left;">7.39s</td>
+</tr>
+<tr>
+<td style="text-align: left;">97</td>
+<td style="text-align: left;">srfi-1</td>
+<td style="text-align: left;">5,314</td>
+<td style="text-align: left;">25,848</td>
+<td style="text-align: left;">0.21s</td>
+</tr>
+<tr>
+<td style="text-align: left;">98</td>
+<td style="text-align: left;">go</td>
+<td style="text-align: left;">1,852,753</td>
+<td style="text-align: left;">25,624</td>
+<td style="text-align: left;">72.31s</td>
+</tr>
+<tr>
+<td style="text-align: left;">99</td>
+<td style="text-align: left;">laravel</td>
+<td style="text-align: left;">2,046</td>
+<td style="text-align: left;">20,428</td>
+<td style="text-align: left;">0.10s</td>
+</tr>
+<tr>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">livecode</td>
+<td style="text-align: left;">902,383</td>
+<td style="text-align: left;">17,739</td>
+<td style="text-align: left;">50.87s</td>
+</tr>
+<tr>
+<td style="text-align: left;">101</td>
+<td style="text-align: left;">macports-base</td>
+<td style="text-align: left;">19,623</td>
+<td style="text-align: left;">16,197</td>
+<td style="text-align: left;">1.21s</td>
+</tr>
+<tr>
+<td style="text-align: left;">102</td>
+<td style="text-align: left;">tcpip_historical</td>
+<td style="text-align: left;">22,923</td>
+<td style="text-align: left;">15,167</td>
+<td style="text-align: left;">1.51s</td>
+</tr>
+<tr>
+<td style="text-align: left;">103</td>
+<td style="text-align: left;">iwubi</td>
+<td style="text-align: left;">794</td>
+<td style="text-align: left;">13,378</td>
+<td style="text-align: left;">0.06s</td>
+</tr>
+<tr>
+<td style="text-align: left;">104</td>
+<td style="text-align: left;">fflib-apex-common</td>
+<td style="text-align: left;">184</td>
+<td style="text-align: left;">4,540</td>
+<td style="text-align: left;">0.04s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mission Summary</strong>
+* <strong>Total Repositories Scanned:</strong> 104
+* <strong>Total LOC Scanned:</strong> 120,418,731
+* <strong>Total Clock Time Taken:</strong> 1694.22 seconds
+* <strong>Global Average Scan Rate:</strong> 71,076 LOC/s</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Joseph Michael Esquibel
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://gitgalaxy.io/" target="_blank" rel="noopener" title="GitGalaxy Visualizer" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M351.9 280H161c2.9 64.5 17.2 123.9 37.5 167.4 11.4 24.5 23.7 41.8 35.1 52.4 11.2 10.5 18.9 12.2 22.9 12.2s11.7-1.7 22.9-12.2c11.4-10.6 23.7-28 35.1-52.4 20.3-43.5 34.6-102.9 37.5-167.4zm-191-48h190.9c-2.8-64.5-17.1-123.9-37.4-167.4-11.4-24.4-23.7-41.8-35.1-52.4C268.1 1.7 260.4 0 256.4 0s-11.7 1.7-22.9 12.2c-11.4 10.6-23.7 28-35.1 52.4-20.3 43.5-34.6 102.9-37.5 167.4m-48 0c3.5-85.6 25.6-165.1 57.9-217.3C78.7 47.3 10.9 131.2 1.5 232zM1.5 280c9.4 100.8 77.2 184.7 169.3 217.3-32.3-52.2-54.4-131.7-57.9-217.3zm398.4 0c-3.5 85.6-25.6 165.1-57.9 217.3 92.1-32.7 159.9-116.5 169.3-217.3zm111.4-48C501.9 131.2 434.1 47.3 342 14.7c32.3 52.2 54.4 131.7 57.9 217.3z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/squid-protocol/gitgalaxy" target="_blank" rel="noopener" title="GitHub Source Code" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

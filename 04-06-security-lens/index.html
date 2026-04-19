@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/04-06-security-lens/">
       
       
+        <link rel="prev" href="../04-05-language-lens/">
       
-        <link rel="next" href="01-project-overview/">
+      
+        <link rel="next" href="../04-07-the-prism/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>GitGalaxy</title>
+        <title>Security Lens - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitgalaxy-documentation" class="md-skip">
+        <a href="#233-the-security-lens-threat-detection-physics" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Security Lens
             
           </span>
         </div>
@@ -200,7 +202,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -254,37 +256,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -300,98 +275,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. The blAST Engine - The GalaxyScope (Backend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The Observatory (Frontend)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quickstart
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-Trust Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Viral Security Lens
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -450,7 +333,7 @@
   
   
     <li class="md-nav__item">
-      <a href="01-project-overview/" class="md-nav__link">
+      <a href="../01-project-overview/" class="md-nav__link">
         
   
   
@@ -532,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-01-code-complexity/" class="md-nav__link">
+      <a href="../02-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -560,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-02-stars-size/" class="md-nav__link">
+      <a href="../02-02-stars-size/" class="md-nav__link">
         
   
   
@@ -588,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../02-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -616,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-04-stars-shape/" class="md-nav__link">
+      <a href="../02-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -644,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-05-satellite-unit/" class="md-nav__link">
+      <a href="../02-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -672,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../02-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -700,7 +583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-07-number-of-satellites/" class="md-nav__link">
+      <a href="../02-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -728,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-08-relative-positioning/" class="md-nav__link">
+      <a href="../02-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -756,7 +639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-09-node-size/" class="md-nav__link">
+      <a href="../02-09-node-size/" class="md-nav__link">
         
   
   
@@ -784,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-10-planetary-rings/" class="md-nav__link">
+      <a href="../02-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -812,7 +695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-11-sequence-affinity/" class="md-nav__link">
+      <a href="../02-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -894,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-01-methodology/" class="md-nav__link">
+      <a href="../03-01-methodology/" class="md-nav__link">
         
   
   
@@ -922,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-02-sub-equations/" class="md-nav__link">
+      <a href="../03-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -950,7 +833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-03-transforming-regex-counts/" class="md-nav__link">
+      <a href="../03-03-transforming-regex-counts/" class="md-nav__link">
         
   
   
@@ -978,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-04-ownership-entropy/" class="md-nav__link">
+      <a href="../03-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -1006,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-05-cognitive-load/" class="md-nav__link">
+      <a href="../03-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -1034,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-06-deep-churn/" class="md-nav__link">
+      <a href="../03-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -1062,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-07-structural-fortification/" class="md-nav__link">
+      <a href="../03-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -1090,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-08-technical-debt/" class="md-nav__link">
+      <a href="../03-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -1118,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-09-documentation-risk/" class="md-nav__link">
+      <a href="../03-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -1146,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-10-file-stability/" class="md-nav__link">
+      <a href="../03-10-file-stability/" class="md-nav__link">
         
   
   
@@ -1174,7 +1057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-11-test-coverage/" class="md-nav__link">
+      <a href="../03-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -1202,7 +1085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-12-civil-war/" class="md-nav__link">
+      <a href="../03-12-civil-war/" class="md-nav__link">
         
   
   
@@ -1230,7 +1113,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-13-graveyard-detector/" class="md-nav__link">
+      <a href="../03-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -1258,7 +1141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-14-api-exposure/" class="md-nav__link">
+      <a href="../03-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -1286,7 +1169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../03-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -1314,7 +1197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../03-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -1346,18 +1229,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1378,7 +1263,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1396,7 +1281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-01-pipeline-overview/" class="md-nav__link">
+      <a href="../04-01-pipeline-overview/" class="md-nav__link">
         
   
   
@@ -1424,7 +1309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-02-optical-orchestration/" class="md-nav__link">
+      <a href="../04-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -1452,7 +1337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-03-aperture-filter/" class="md-nav__link">
+      <a href="../04-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -1480,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../04-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -1508,7 +1393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-05-language-lens/" class="md-nav__link">
+      <a href="../04-05-language-lens/" class="md-nav__link">
         
   
   
@@ -1533,10 +1418,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="04-06-security-lens/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Lens
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1552,6 +1464,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#233a-dynamic-policy-injection-threshold-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.3.A. Dynamic Policy Injection (Threshold Governance)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#233b-raw-sensors-the-11-threat-signatures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.3.B. Raw Sensors: The 11 Threat Signatures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#233c-the-scan-engine-structural-reality-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.3.C. The Scan Engine: Structural Reality Capture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#233d-risk-evaluation-exposure-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3.3.D. Risk Evaluation &amp; Exposure Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1564,7 +1540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-07-the-prism/" class="md-nav__link">
+      <a href="../04-07-the-prism/" class="md-nav__link">
         
   
   
@@ -1592,7 +1568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-08-the-detector/" class="md-nav__link">
+      <a href="../04-08-the-detector/" class="md-nav__link">
         
   
   
@@ -1620,7 +1596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-09-signal-processing/" class="md-nav__link">
+      <a href="../04-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -1648,7 +1624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-10-phase-0-orchestrator/" class="md-nav__link">
+      <a href="../04-10-phase-0-orchestrator/" class="md-nav__link">
         
   
   
@@ -1676,7 +1652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-11-spectral-audit/" class="md-nav__link">
+      <a href="../04-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -1704,7 +1680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-12-audit-recorder/" class="md-nav__link">
+      <a href="../04-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -1732,7 +1708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-13-gpu-recorder/" class="md-nav__link">
+      <a href="../04-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -1760,7 +1736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-14-llm-recorder/" class="md-nav__link">
+      <a href="../04-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -1842,7 +1818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../05-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -1870,7 +1846,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../05-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -1898,7 +1874,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../05-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -1926,7 +1902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../05-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -1954,7 +1930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../05-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -1982,7 +1958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../05-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -2010,7 +1986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../05-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -2038,7 +2014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-08-future-outlooks/" class="md-nav__link">
+      <a href="../05-08-future-outlooks/" class="md-nav__link">
         
   
   
@@ -2093,10 +2069,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-the-blast-engine-the-galaxyscope-backend" class="md-nav__link">
+  <a href="#233a-dynamic-policy-injection-threshold-governance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. The blAST Engine - The GalaxyScope (Backend)
+        2.3.3.A. Dynamic Policy Injection (Threshold Governance)
       
     </span>
   </a>
@@ -2104,10 +2080,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-the-observatory-frontend" class="md-nav__link">
+  <a href="#233b-raw-sensors-the-11-threat-signatures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. The Observatory (Frontend)
+        2.3.3.B. Raw Sensors: The 11 Threat Signatures
       
     </span>
   </a>
@@ -2115,10 +2091,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quickstart" class="md-nav__link">
+  <a href="#233c-the-scan-engine-structural-reality-capture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🚀 Quickstart
+        2.3.3.C. The Scan Engine: Structural Reality Capture
       
     </span>
   </a>
@@ -2126,41 +2102,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-blast-paradigm-sequencing-the-dna-of-software" class="md-nav__link">
+  <a href="#233d-risk-evaluation-exposure-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧬 The blAST Paradigm: Sequencing the DNA of Software
+        2.3.3.D. Risk Evaluation &amp; Exposure Mapping
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="🧬 The blAST Paradigm: Sequencing the DNA of Software">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-Trust Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-viral-security-lens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Viral Security Lens
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2184,36 +2132,51 @@
   
 
 
-<h1 id="gitgalaxy-documentation">GitGalaxy Documentation</h1>
-<p><strong>Code is art. Logic is art. Systems engineering is art.</strong></p>
-<p>GitGalaxy is a two-part ecosystem connected by a universal JSON contract. It is designed to extract the structural DNA of massive software repositories and render their non-visual architecture into measurable, explorable 3D galaxies.</p>
-<h3 id="1-the-blast-engine-the-galaxyscope-backend">1. The blAST Engine - The GalaxyScope (Backend)</h3>
-<p>A hyper-scale, language-agnostic static analysis CLI. Based on 50 years of bioinformatics and genetic sequencing algorithms, it parses code at ~100,000 LOC/second. It outputs rich JSON telemetry, SQLite databases, and low-token Markdown briefs optimized for AI-agent workflows.</p>
-<h3 id="2-the-observatory-frontend">2. The Observatory (Frontend)</h3>
-<p>Drop your <code>galaxy.json</code> into the free viewer at <a href="https://gitgalaxy.io">GitGalaxy.io</a> or use the repo's <code>airgap_observatory</code>, a standalone, zero-telemetry WebGPU visualizer. Both visualizers read the JSON contract and render the entire code base as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.</p>
-<hr />
-<h2 id="quickstart">🚀 Quickstart</h2>
-<p><strong>1. Install</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitgalaxy
-</code></pre></div></p>
-<p><strong>2. Scan a Repository</strong>
-Point the GalaxyScope at any local repository or ZIP archive. The engine runs entirely on your local machine—zero data is transmitted.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>galaxyscope<span class="w"> </span>/path/to/your/local/repo
-</code></pre></div></p>
-<p><strong>3. View the Galaxy</strong>
-GitGalaxy offers two ways to visualize your 3D architecture, both built on a strict Zero-Trust Privacy Model where your code never leaves your machine.
-* <strong>The Web Viewer (Frictionless):</strong> Drag and drop your generated <code>_galaxy.json</code> file directly into GitGalaxy.io. All rendering and scanning happens entirely in your browser's local memory.
-* <strong>The Local Server (Enterprise &amp; Offline):</strong> For teams operating under strict compliance rules, GitGalaxy includes a 100% static, zero-telemetry local viewer called the Airgap Observatory.</p>
-<hr />
-<h2 id="the-blast-paradigm-sequencing-the-dna-of-software">🧬 The blAST Paradigm: Sequencing the DNA of Software</h2>
-<p>Traditional computer science treats software like a rigid blueprint, using slow, language-specific Abstract Syntax Trees (ASTs) to analyze code. GitGalaxy treats code as a living, mutating organism using <strong>blAST</strong> (Broad Lexical Abstract Syntax Tracker).</p>
-<p>By applying the principles of biological sequence alignment to software, blAST hunts for the universal structural markers of logic across ~40 languages and ~250 file extensions. We translate this genetic code into "phenotypes"—measurable risk exposures.</p>
-<h3 id="zero-trust-architecture">Zero-Trust Architecture</h3>
-<p>Your code never leaves your machine. GitGalaxy performs 100% of its scanning and vectorization locally.
-* <strong>No Data Transmission:</strong> Source code is never transmitted to any API, cloud database, or third-party service.
-* <strong>Ephemeral Memory Processing:</strong> Repositories are unpacked into a volatile memory buffer (RAM) and are automatically purged when the browser tab is closed.</p>
-<h3 id="the-viral-security-lens">The Viral Security Lens</h3>
-<p>Traditional security scanners rely on rigid, outdated virus signatures. blAST acts like an immune system, hunting for the behavioral genetic markers of a threat. By analyzing the structural density of I/O hits, execution triggers, and security bypasses, blAST is perfectly engineered to stop modern attack vectors.</p>
+<h1 id="233-the-security-lens-threat-detection-physics">2.3.3. The Security Lens (Threat Detection Physics)</h1>
+<blockquote>
+<p><strong>Structural Reality and Attack Patterns</strong></p>
+<p>The Security Lens acts as GitGalaxy's physics engine for threat detection. Rather than relying on static vulnerability databases, legacy CVE lists, or hunting for specific, hardcoded malicious strings, it operates strictly on <strong>structural reality and attack patterns</strong>.</p>
+<p>Hackers constantly change variable names, cycle IP addresses, and obfuscate text, rendering traditional string-matching tools brittle and obsolete. By scanning the raw Active Matter of a file for the <em>mechanical signatures</em> and <em>behavioral structures</em> of an attack—such as the precise sequence of operations required to open a reverse shell, mutate a global prototype, or dynamically execute a payload—the Lens becomes highly flexible and robust.</p>
+<p>This pattern-based approach allows GitGalaxy to proactively shield against novel, zero-day vulnerabilities. Because the engine measures the literal density of dangerous operations and structural intent, it can successfully detect and flag malicious code even if that specific payload has never been seen before in the wild.</p>
+</blockquote>
+<h2 id="233a-dynamic-policy-injection-threshold-governance">2.3.3.A. Dynamic Policy Injection (Threshold Governance)</h2>
+<p>To maintain architectural purity and extreme adaptability, the Security Lens is entirely decoupled from policy-making; it does not hardcode rigid rules or rely on easily bypassed blocklists. Instead, it acts strictly as a structural measurement tool.</p>
+<p>Upon initialization, the Lens ingests a dynamic threshold policy (typically provided by <code>gitgalaxy_standards.ThreatPolicy</code>). This governs the trigger limits for five core exposure vectors: Secrets Risk, Hidden Malware, Logic Bombs, Injection Surfaces, and Memory Corruption.</p>
+<p>Because the underlying sensors detect <em>categories of malicious behavior</em> rather than exact string matches, these dynamic thresholds allow security teams to easily dial their risk tolerance up or down. If a novel class of obfuscation or injection emerges, the structural sensors are highly likely to catch its mechanical footprint automatically; the orchestrator simply adjusts the threshold policy to tighten the net. If no strict policy is provided by the orchestrator, the Lens safely falls back to a highly secure baseline threshold.</p>
+<h2 id="233b-raw-sensors-the-11-threat-signatures">2.3.3.B. Raw Sensors: The 11 Threat Signatures</h2>
+<p>The engine utilizes specialized, hardware-level regex sensors to scan the logic streams. Crucially, these sensors are not hunting for known, hardcoded malicious strings—they are scanning for the <strong>invariable mechanical footprints of an attack</strong>.</p>
+<p>While a hacker can easily change variable names, cycle IP addresses, or invent a novel zero-day payload, they <em>cannot</em> change the fundamental laws of computing. To execute a payload, they must eventually spawn a shell; to hide code, they must encode it; to establish command and control, they must open a socket. By measuring these structural necessities, the Security Lens detects the <em>intent</em> of the code.</p>
+<p><strong>The Permutation Scale:</strong> Because these sensors use highly advanced regex matrices to account for arbitrary whitespace, variable naming, and nesting depths, a single signature in GitGalaxy effectively scans against millions of syntactical permutations simultaneously. Across all 11 sensors, the engine is evaluating the code against an effectively infinite combination of attack structures in a single pass, rendering evasion highly difficult.</p>
+<p>These are the 11 structural patterns the engine actively measures:</p>
+<ol>
+<li><strong>The Glassworm (Obfuscation):</strong> Detects the thermal signatures of hidden payloads. Rather than looking for specific malware hashes, this sensor triggers on the <em>structure</em> of evasion: nested encoding functions (<code>atob</code>, <code>base64_decode</code>, <code>gzuncompress</code>), massive strings of raw base64 data, and invisible Unicode characters (like Zero-Width Spaces) actively used to bypass standard lexical scanners.</li>
+<li><strong>The Trojan (Identity Masking &amp; Safety Bypasses):</strong> Flags logic that actively attempts to disarm the host environment's safety parameters. It detects the structural pattern of lowering shields—such as assigning false to SSL verification (<code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>), dynamically turning off <code>safe_mode</code> or <code>open_basedir</code>, or executing recursive decodes.</li>
+<li><strong>Exfiltration Vectors (System IO):</strong> Monitors the code for aggressive external gravity. It doesn't just block known bad domains; it flags the <em>mechanics</em> of unauthorized networking, such as hardcoded raw IP structures, anomalous raw socket creation, and direct protocol connections to tunneling services (e.g., <code>ngrok.io</code>, <code>localtunnel.me</code>, <code>pastebin.com</code>).</li>
+<li><strong>The Executioner (Dynamic Payloads):</strong> Detects the structural shape of dangerous, dynamic execution capabilities. This catches zero-day payloads by flagging the literal syntax required to execute arbitrary strings, including raw <code>eval()</code>, OS-level shell spawning (<code>child_process.exec</code>, <code>passthru</code>), and dangerous prototype manipulations.</li>
+<li><strong>Environment Poisoning (State Flux):</strong> Flags attempts to mutate the fundamental state of the application. It looks for the syntactical patterns of overriding global architectures, triggering on <code>__proto__</code> pollution, overriding global <code>fetch</code>/<code>eval</code> functions, or rewriting core server environment arrays (<code>$_SERVER</code>, <code>sys.modules</code>).</li>
+<li><strong>Shadow Logic (Necrosis / Graveyard):</strong> Scans the Ghost Mass (the isolated <code>comment_stream</code>) for dead or hidden threats. By looking for the syntax of active execution (like <code>nc -e</code> or <code>curl | bash</code>) trapped inside inactive documentation, it catches malicious logic masquerading as innocent prose.</li>
+<li><strong>Sub-Atomic Decryption (Bitwise Math):</strong> Detects dense, looping clusters of bitwise XOR (<code>^</code>) operations. While occasionally used in legitimate cryptography, the specific looping <em>structure</em> of dense XOR clusters in standard application code is a primary, invariable indicator of custom malware decryption routines.</li>
+<li><strong>Shadow Imports (Steganography):</strong> Identifies the structural contradiction of attempting to execute non-executable file types. Triggers when the logic stream tries to <code>require</code> or <code>import</code> media structures (<code>.png</code>, <code>.jpg</code>), PDFs, or audio files as active logic scripts.</li>
+<li><strong>Unicode Smuggling (Homoglyphs &amp; Typosquatting):</strong> Detects Cyrillic or specialized Unicode blocks maliciously injected within standard <code>import</code> or <code>fetch</code> statements. It identifies the visual spoofing mechanic used to hijack execution flow by mimicking legitimate library names.</li>
+<li><strong>The Vault Door (Credential &amp; Secret Leaks):</strong> A highly sensitive sensor scanning the assignment patterns of high-entropy literal strings bound to secure-sounding keys (e.g., <code>api_key</code>, <code>client_secret</code>, <code>auth_token</code>), catching leaked credentials regardless of the specific token value.</li>
+<li><strong>Raw Memory Overrides:</strong> Flags the mechanical manipulation of RAM. It detects the specific syntax for manual memory allocation (<code>malloc</code>, <code>memcpy</code>, <code>free</code>) as well as inline assembly instructions (<code>__asm__</code>), which are the invariable prerequisites for introducing buffer overflow vulnerabilities.</li>
+</ol>
+<h2 id="233c-the-scan-engine-structural-reality-capture">2.3.3.C. The Scan Engine: Structural Reality Capture</h2>
+<p>During the scan phase, the <code>scan_content</code> method acts as a completely passive observer. It channels the file's pure logic stream (the Active Matter) through the 11 hardware sensors, tallying the raw integer count of structural hits.</p>
+<p>At this stage, the engine makes absolutely no judgments about intent or risk; it simply captures the physical reality of the code's architecture. By decoupling observation from evaluation, GitGalaxy eliminates the "noisy scanner" problem. A file isn't immediately flagged as malicious just because it contains a single base64 decode or a raw network socket. The scan engine's only job is to generate the pristine, objective telemetry required for the physics engine to calculate its math.</p>
+<h2 id="233d-risk-evaluation-exposure-mapping">2.3.3.D. Risk Evaluation &amp; Exposure Mapping</h2>
+<p>Traditional security scanners often drown development teams in false positives because they rely on raw hit counts. A 10,000-line monolithic legacy file will naturally contain more IO calls and base64 strings than a 10-line microservice, even if both are completely benign.</p>
+<p>To solve this scaling problem, the <code>evaluate_risk</code> method calculates <strong>Threat Density</strong> using a strict equation: </p>
+<div class="arithmatex">\[\text{Threat Density} = \frac{\text{Total Hits}}{\text{Safe LOC}}\]</div>
+<p>By measuring the <em>concentration</em> of dangerous patterns relative to the file's total mass, the engine perfectly scales its risk assessment regardless of repository size.</p>
+<p>The engine mathematically aggregates the telemetry from the 11 raw sensors into <strong>5 core exposure vectors</strong>. It only triggers actionable alerts if the calculated density breaches the dynamically injected policy thresholds:</p>
+<ul>
+<li><strong>Hidden Malware Risk:</strong> Measures the density of active evasion and steganography tactics. <em>(Aggregation: Glassworm + Bitwise Math + Shadow Imports + Homoglyphs)</em></li>
+<li><strong>Logic Bomb Risk:</strong> Detects sabotage and destructive payloads. Because dynamic execution is highly volatile in this context, the engine applies a severe penalty multiplier. <em>(Aggregation: Graveyard + (Executioner <span class="arithmatex">\(\times\)</span> 1.5))</em></li>
+<li><strong>Data Injection Risk:</strong> Maps the structural attack surface for unauthorized state manipulation, remote code execution, and data exfiltration. <em>(Aggregation: System IO + Executioner + State Flux)</em></li>
+<li><strong>Memory Corruption Risk:</strong> Strictly isolates the density of manual memory manipulation, flagging potential buffer overflow and use-after-free vulnerabilities. <em>(Aggregation: Raw Memory Overrides)</em></li>
+<li><strong>Secrets Leak Risk:</strong> A highly sensitive threshold strictly monitoring Vault Door hits. Because hardcoded credentials require almost zero density to be catastrophic, this vector operates on a micro-threshold to instantly flag leaked keys.</li>
+</ul>
 
 
 
@@ -2288,12 +2251,12 @@ GitGalaxy offers two ways to visualize your 3D architecture, both built on a str
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": [], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="javascripts/mathjax.js"></script>
+        <script src="../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

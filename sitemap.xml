@@ -2,214 +2,214 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/1_Foundation__Architecture/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/01-project-overview/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21A_Stars_Size/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-01-code-complexity/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21B_Stars_Pulse_Rate/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-02-stars-size/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21C_Stars_Shape/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-03-stars-pulse-rate/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21D_Satellite_Unit/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-04-stars-shape/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21E_Satellite_Orbital_Distance/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-05-satellite-unit/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21F_Number_of_satellites_in_a_unit/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-06-satellite-orbital-distance/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21G_Satellites_Relative_Positioning_in_a_unit/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-07-number-of-satellites/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21H_Node_Size_Metric_Argument_Count/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-08-relative-positioning/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21I_Planetary_Rings/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-09-node-size/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21J_Relative_Positioning_Metric_Sequence__Affinity/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-10-planetary-rings/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21K_Misc_Equations/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-11-sequence-affinity/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/21_How_we_represent_complexity_as_physical_structure/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/02-12-misc-equations/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22A_Overview_of_methodology/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-01-methodology/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22B_Sub-Equations/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-02-sub-equations/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22C_Transforming_Noisy_Regex_Counts_Into_Something_Meaningful/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-03-transforming-regex-counts/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22D_Ownership_Mode_Shannon_Entropy/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-04-ownership-entropy/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22E_Cognitive_Load_Exposure/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-05-cognitive-load/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22F_Churn/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-06-deep-churn/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22G_Safety_Mode_Metric_Structural_Fortification/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-07-structural-fortification/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22I_Technical_Debt_Exposure/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-08-technical-debt/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22J_Documentation_Risk_Exposure_Metric_Sigmoid_Debt/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-09-documentation-risk/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22K_File_Stability_Commit_Heat/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-10-file-stability/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22L_Test_Coverage_Metric_Verification_Density/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-11-test-coverage/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22M_The_Civil_War_Algorithm_Tabs_vs_Spaces/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-12-civil-war/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22N_The_Graveyard_Detector_Metric_Architectural_Transparency/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-13-graveyard-detector/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22O_API_Exposure_Metric_The_Event_Horizon/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-14-api-exposure/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22P_Concurrency_Exposure/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-15-concurrency-exposure/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22Q_State_Flux_Exposure/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-16-state-flux-exposure/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/22_Color_Labeling_Equations/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/03-17-color-labeling-equations-orphan/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/230_The_GalaxyScope_Chassis_--_Optical_Orchestration/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-01-pipeline-overview/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/231_The_Aperture_Filter_Adjusting_the_Telescopes_Filter_and_Focus/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-02-optical-orchestration/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/232_The_GuideStar_Protocol_Contextual_Intelligence/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-03-aperture-filter/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/233_Focusing_the_Language_Lens/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-04-guidestar-protocol/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/233_The_Security_Lens_--_Threat_Detection_Physics/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-05-language-lens/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/234_The_Prism_--_Splitting_the_comments_from_the_code/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-06-security-lens/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/235_The_Detector_--_The_Logic_Splicer__Cartographer/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-07-the-prism/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/236_Signal_Processing_Equations_and_2nd_Pass_scanning_Calculations/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-08-the-detector/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/237_Phase_0_Mission_Control_The_GalaxyScope_Orchestrator/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-09-signal-processing/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/237_The_Spectral_Audit_Quality_Control/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-10-phase-0-orchestrator/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/238_The_Audit_Recorder/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-11-spectral-audit/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/239_The_GPU_Recorder_Hypercompressed_Data_Storage/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-12-audit-recorder/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/239_The_LLM_Recorder_AI_Translation_Layer/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-13-gpu-recorder/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/23_Data_Analysis_Pipeline/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-14-llm-recorder/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/240_Claim_1_--_Optimum_Search_Strategies_Change_with_Scale/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-01-claim-1-search-strategies/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/241_Claim_2_--_Coding_Languages_Evolve_Towards_Explicitness/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-02-claim-2-explicitness/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/242_--_Claim_3_--_Intent_Scales_Across_Syntax_The_Taxonomical_Equivalence_Map/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-03-claim-3-taxonomy-map/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/7_Impacts__Future_Outlooks/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-04-claim-4-comparing-languages/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/DOOM_Comparisons/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-05-claim-5-file-archetypes/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/File_Archetypes/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-06-claim-6-keyword-fingerprinting/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/Keyword_Fingerprinting/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-07-claim-7-doom-comparisons/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/Ridgelines_Plots/</loc>
-         <lastmod>2026-04-08</lastmod>
+         <loc>https://squid-protocol.github.io/gitgalaxy/05-08-future-outlooks/</loc>
+         <lastmod>2026-04-19</lastmod>
     </url>
 </urlset>

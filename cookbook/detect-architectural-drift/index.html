@@ -12,31 +12,31 @@
         <meta name="author" content="Joseph Michael Esquibel">
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/08-09-documentation-risk/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/cookbook/detect-architectural-drift/">
       
       
-        <link rel="prev" href="../08-08-technical-debt/">
+        <link rel="prev" href="../audit-local-ai-models/">
       
       
-        <link rel="next" href="../08-10-file-stability/">
+        <link rel="next" href="../map-cobol-monoliths/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Documentation Risk - GitGalaxy</title>
+        <title>Detect Architectural Drift & Trojans - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +55,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#documentation-risk-exposure" class="md-skip">
+        <a href="#how-to-detect-architectural-drift-and-trojan-files" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href="../.." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Documentation Risk
+              Detect Architectural Drift & Trojans
             
           </span>
         </div>
@@ -204,7 +204,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href="../.." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -261,7 +261,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -285,18 +285,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -317,7 +319,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -335,7 +337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/continuous-delta-monitoring/" class="md-nav__link">
+      <a href="../continuous-delta-monitoring/" class="md-nav__link">
         
   
   
@@ -363,7 +365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/generate-llm-architecture-briefs/" class="md-nav__link">
+      <a href="../generate-llm-architecture-briefs/" class="md-nav__link">
         
   
   
@@ -391,7 +393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/generate-zero-trust-sbom/" class="md-nav__link">
+      <a href="../generate-zero-trust-sbom/" class="md-nav__link">
         
   
   
@@ -419,7 +421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/prevent-agentic-rce/" class="md-nav__link">
+      <a href="../prevent-agentic-rce/" class="md-nav__link">
         
   
   
@@ -447,7 +449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/sandbox-autonomous-agents/" class="md-nav__link">
+      <a href="../sandbox-autonomous-agents/" class="md-nav__link">
         
   
   
@@ -475,7 +477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/hunt-pii-leaks/" class="md-nav__link">
+      <a href="../hunt-pii-leaks/" class="md-nav__link">
         
   
   
@@ -503,7 +505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/prove-dead-code-logs/" class="md-nav__link">
+      <a href="../prove-dead-code-logs/" class="md-nav__link">
         
   
   
@@ -531,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/hunt-shadow-apis/" class="md-nav__link">
+      <a href="../hunt-shadow-apis/" class="md-nav__link">
         
   
   
@@ -559,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/deploy-vault-sentinel/" class="md-nav__link">
+      <a href="../deploy-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -587,7 +589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../enforce-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -615,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/detect-binary-anomalies/" class="md-nav__link">
+      <a href="../detect-binary-anomalies/" class="md-nav__link">
         
   
   
@@ -643,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/audit-local-ai-models/" class="md-nav__link">
+      <a href="../audit-local-ai-models/" class="md-nav__link">
         
   
   
@@ -668,10 +670,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../cookbook/detect-architectural-drift/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect Architectural Drift & Trojans
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -687,6 +716,65 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-spectral-auditor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Spectral Auditor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Spectral Auditor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-chimeric-drift-check-refactoring-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Chimeric Drift Check (Refactoring Targets)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-biaxial-trojan-check-malicious-camouflage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Biaxial Trojan Check (Malicious Camouflage)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -699,7 +787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/map-cobol-monoliths/" class="md-nav__link">
+      <a href="../map-cobol-monoliths/" class="md-nav__link">
         
   
   
@@ -727,7 +815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/scaffold-spring-boot/" class="md-nav__link">
+      <a href="../scaffold-spring-boot/" class="md-nav__link">
         
   
   
@@ -809,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-project-overview/" class="md-nav__link">
+      <a href="../../01-project-overview/" class="md-nav__link">
         
   
   
@@ -837,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-02-galaxyscope-cli-reference/" class="md-nav__link">
+      <a href="../../01-02-galaxyscope-cli-reference/" class="md-nav__link">
         
   
   
@@ -919,7 +1007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-01-pipeline-overview/" class="md-nav__link">
+      <a href="../../02-01-pipeline-overview/" class="md-nav__link">
         
   
   
@@ -947,7 +1035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-02-optical-orchestration/" class="md-nav__link">
+      <a href="../../02-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -975,7 +1063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-03-aperture-filter/" class="md-nav__link">
+      <a href="../../02-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -1003,7 +1091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../../02-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -1031,7 +1119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-05-language-lens/" class="md-nav__link">
+      <a href="../../02-05-language-lens/" class="md-nav__link">
         
   
   
@@ -1059,7 +1147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-06-security-lens/" class="md-nav__link">
+      <a href="../../02-06-security-lens/" class="md-nav__link">
         
   
   
@@ -1087,7 +1175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-07-the-prism/" class="md-nav__link">
+      <a href="../../02-07-the-prism/" class="md-nav__link">
         
   
   
@@ -1115,7 +1203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-08-the-detector/" class="md-nav__link">
+      <a href="../../02-08-the-detector/" class="md-nav__link">
         
   
   
@@ -1143,7 +1231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-09-signal-processing/" class="md-nav__link">
+      <a href="../../02-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -1171,7 +1259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-11-spectral-audit/" class="md-nav__link">
+      <a href="../../02-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -1199,7 +1287,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-12-audit-recorder/" class="md-nav__link">
+      <a href="../../02-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -1227,7 +1315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-13-gpu-recorder/" class="md-nav__link">
+      <a href="../../02-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -1255,7 +1343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-14-llm-recorder/" class="md-nav__link">
+      <a href="../../02-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -1283,7 +1371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-15-chronometer/" class="md-nav__link">
+      <a href="../../02-15-chronometer/" class="md-nav__link">
         
   
   
@@ -1311,7 +1399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-16-network-risk-sensor/" class="md-nav__link">
+      <a href="../../02-16-network-risk-sensor/" class="md-nav__link">
         
   
   
@@ -1339,7 +1427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-17-ai-appsec-sensor/" class="md-nav__link">
+      <a href="../../02-17-ai-appsec-sensor/" class="md-nav__link">
         
   
   
@@ -1367,7 +1455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-18-dev-agent-firewall/" class="md-nav__link">
+      <a href="../../02-18-dev-agent-firewall/" class="md-nav__link">
         
   
   
@@ -1395,7 +1483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-19-neural-auditor/" class="md-nav__link">
+      <a href="../../02-19-neural-auditor/" class="md-nav__link">
         
   
   
@@ -1423,7 +1511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-20-security-auditor/" class="md-nav__link">
+      <a href="../../02-20-security-auditor/" class="md-nav__link">
         
   
   
@@ -1451,7 +1539,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-21-record-keeper/" class="md-nav__link">
+      <a href="../../02-21-record-keeper/" class="md-nav__link">
         
   
   
@@ -1479,7 +1567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-22-state-rehydrator/" class="md-nav__link">
+      <a href="../../02-22-state-rehydrator/" class="md-nav__link">
         
   
   
@@ -1561,7 +1649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../../03-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -1589,7 +1677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../../03-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -1617,7 +1705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../../03-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -1645,7 +1733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../../03-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -1673,7 +1761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../../03-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -1701,7 +1789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -1729,7 +1817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../../03-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -1757,7 +1845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-08-future-outlooks/" class="md-nav__link">
+      <a href="../../03-08-future-outlooks/" class="md-nav__link">
         
   
   
@@ -1839,7 +1927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-01-full-api-network-map/" class="md-nav__link">
+      <a href="../../04-01-full-api-network-map/" class="md-nav__link">
         
   
   
@@ -1867,7 +1955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-02-sbom-generator/" class="md-nav__link">
+      <a href="../../04-02-sbom-generator/" class="md-nav__link">
         
   
   
@@ -1895,7 +1983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -1923,7 +2011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-04-vault-sentinel/" class="md-nav__link">
+      <a href="../../04-04-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -1951,7 +2039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-05-binary-anomaly-detector/" class="md-nav__link">
+      <a href="../../04-05-binary-anomaly-detector/" class="md-nav__link">
         
   
   
@@ -1979,7 +2067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-06-pii-leak-hunter/" class="md-nav__link">
+      <a href="../../04-06-pii-leak-hunter/" class="md-nav__link">
         
   
   
@@ -2007,7 +2095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-07-terabyte-log-scanner/" class="md-nav__link">
+      <a href="../../04-07-terabyte-log-scanner/" class="md-nav__link">
         
   
   
@@ -2089,7 +2177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-01-legacy-refraction-controller/" class="md-nav__link">
+      <a href="../../05-01-legacy-refraction-controller/" class="md-nav__link">
         
   
   
@@ -2117,7 +2205,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-02-spring-boot-scaffolding/" class="md-nav__link">
+      <a href="../../05-02-spring-boot-scaffolding/" class="md-nav__link">
         
   
   
@@ -2145,7 +2233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-03-entity-and-memory-mapping/" class="md-nav__link">
+      <a href="../../05-03-entity-and-memory-mapping/" class="md-nav__link">
         
   
   
@@ -2173,7 +2261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-04-api-and-service-contracts/" class="md-nav__link">
+      <a href="../../05-04-api-and-service-contracts/" class="md-nav__link">
         
   
   
@@ -2201,7 +2289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-05-autonomous-agent-tickets/" class="md-nav__link">
+      <a href="../../05-05-autonomous-agent-tickets/" class="md-nav__link">
         
   
   
@@ -2229,7 +2317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-06-batch-test-harness/" class="md-nav__link">
+      <a href="../../05-06-batch-test-harness/" class="md-nav__link">
         
   
   
@@ -2257,7 +2345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-07-mainframe-compiler-forge/" class="md-nav__link">
+      <a href="../../05-07-mainframe-compiler-forge/" class="md-nav__link">
         
   
   
@@ -2285,7 +2373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-08-dag-architect/" class="md-nav__link">
+      <a href="../../05-08-dag-architect/" class="md-nav__link">
         
   
   
@@ -2313,7 +2401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-09-etl-unpacker/" class="md-nav__link">
+      <a href="../../05-09-etl-unpacker/" class="md-nav__link">
         
   
   
@@ -2341,7 +2429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-10-graveyard-reaper/" class="md-nav__link">
+      <a href="../../05-10-graveyard-reaper/" class="md-nav__link">
         
   
   
@@ -2369,7 +2457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-11-jcl-meta-auditor/" class="md-nav__link">
+      <a href="../../05-11-jcl-meta-auditor/" class="md-nav__link">
         
   
   
@@ -2397,7 +2485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-12-zero-trust-jcl-forge/" class="md-nav__link">
+      <a href="../../05-12-zero-trust-jcl-forge/" class="md-nav__link">
         
   
   
@@ -2425,7 +2513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-13-lexical-patcher/" class="md-nav__link">
+      <a href="../../05-13-lexical-patcher/" class="md-nav__link">
         
   
   
@@ -2453,7 +2541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-14-microservice-slicer/" class="md-nav__link">
+      <a href="../../05-14-microservice-slicer/" class="md-nav__link">
         
   
   
@@ -2481,7 +2569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-15-cloud-schema-forge/" class="md-nav__link">
+      <a href="../../05-15-cloud-schema-forge/" class="md-nav__link">
         
   
   
@@ -2509,7 +2597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-16-anomaly-agent-task-forge/" class="md-nav__link">
+      <a href="../../05-16-anomaly-agent-task-forge/" class="md-nav__link">
         
   
   
@@ -2537,7 +2625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-17-system-limits-reporter/" class="md-nav__link">
+      <a href="../../05-17-system-limits-reporter/" class="md-nav__link">
         
   
   
@@ -2619,7 +2707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-01-gitgalaxy-config/" class="md-nav__link">
+      <a href="../../06-01-gitgalaxy-config/" class="md-nav__link">
         
   
   
@@ -2647,7 +2735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-02-language-standards/" class="md-nav__link">
+      <a href="../../06-02-language-standards/" class="md-nav__link">
         
   
   
@@ -2675,7 +2763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-03-analysis-lens/" class="md-nav__link">
+      <a href="../../06-03-analysis-lens/" class="md-nav__link">
         
   
   
@@ -2757,7 +2845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-01-code-complexity/" class="md-nav__link">
+      <a href="../../07-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -2785,7 +2873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-02-stars-size/" class="md-nav__link">
+      <a href="../../07-02-stars-size/" class="md-nav__link">
         
   
   
@@ -2813,7 +2901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../../07-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -2841,7 +2929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-04-stars-shape/" class="md-nav__link">
+      <a href="../../07-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -2869,7 +2957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-05-satellite-unit/" class="md-nav__link">
+      <a href="../../07-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -2897,7 +2985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../../07-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -2925,7 +3013,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-07-number-of-satellites/" class="md-nav__link">
+      <a href="../../07-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -2953,7 +3041,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-08-relative-positioning/" class="md-nav__link">
+      <a href="../../07-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -2981,7 +3069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-09-node-size/" class="md-nav__link">
+      <a href="../../07-09-node-size/" class="md-nav__link">
         
   
   
@@ -3009,7 +3097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-10-planetary-rings/" class="md-nav__link">
+      <a href="../../07-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -3037,7 +3125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-11-sequence-affinity/" class="md-nav__link">
+      <a href="../../07-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -3065,7 +3153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-12-misc-equations/" class="md-nav__link">
+      <a href="../../07-12-misc-equations/" class="md-nav__link">
         
   
   
@@ -3097,20 +3185,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
         
           
           <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
@@ -3131,7 +3217,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3149,7 +3235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-01-methodology/" class="md-nav__link">
+      <a href="../../08-01-methodology/" class="md-nav__link">
         
   
   
@@ -3177,7 +3263,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-02-sub-equations/" class="md-nav__link">
+      <a href="../../08-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -3205,7 +3291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-03-transforming-regex-counts/" class="md-nav__link">
+      <a href="../../08-03-transforming-regex-counts/" class="md-nav__link">
         
   
   
@@ -3233,7 +3319,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-04-ownership-entropy/" class="md-nav__link">
+      <a href="../../08-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -3261,7 +3347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-05-cognitive-load/" class="md-nav__link">
+      <a href="../../08-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -3289,7 +3375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-06-deep-churn/" class="md-nav__link">
+      <a href="../../08-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -3317,7 +3403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-07-structural-fortification/" class="md-nav__link">
+      <a href="../../08-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -3345,7 +3431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-08-technical-debt/" class="md-nav__link">
+      <a href="../../08-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -3370,37 +3456,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Documentation Risk
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../08-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -3416,87 +3475,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-inputs-tiered-efficiency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Inputs (Tiered Efficiency)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#universal-framework-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Universal Framework Integration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-equation-the-dynamic-risk-sigmoid" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Equation: The Dynamic Risk Sigmoid
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-python-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implementation (Python Reference)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Implementation (Python Reference)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🌌 Powered by the blAST Engine
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -3509,7 +3487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-10-file-stability/" class="md-nav__link">
+      <a href="../../08-10-file-stability/" class="md-nav__link">
         
   
   
@@ -3537,7 +3515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-11-test-coverage/" class="md-nav__link">
+      <a href="../../08-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -3565,7 +3543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-12-civil-war/" class="md-nav__link">
+      <a href="../../08-12-civil-war/" class="md-nav__link">
         
   
   
@@ -3593,7 +3571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-13-graveyard-detector/" class="md-nav__link">
+      <a href="../../08-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -3621,7 +3599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-14-api-exposure/" class="md-nav__link">
+      <a href="../../08-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -3649,7 +3627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../../08-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -3677,7 +3655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../../08-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -3705,7 +3683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-18-specification-alignment/" class="md-nav__link">
+      <a href="../../08-18-specification-alignment/" class="md-nav__link">
         
   
   
@@ -3733,7 +3711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-19-obscured-payload-exposure/" class="md-nav__link">
+      <a href="../../08-19-obscured-payload-exposure/" class="md-nav__link">
         
   
   
@@ -3761,7 +3739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure/" class="md-nav__link">
+      <a href="../../08-20-logic-bomb-exposure/" class="md-nav__link">
         
   
   
@@ -3789,7 +3767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
+      <a href="../../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
   
@@ -3817,7 +3795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-22-memory-corruption-exposure/" class="md-nav__link">
+      <a href="../../08-22-memory-corruption-exposure/" class="md-nav__link">
         
   
   
@@ -3845,7 +3823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
+      <a href="../../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
         
   
   
@@ -3900,55 +3878,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-inputs-tiered-efficiency" class="md-nav__link">
+  <a href="#the-spectral-auditor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Inputs (Tiered Efficiency)
+        The Spectral Auditor
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#universal-framework-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Universal Framework Integration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-equation-the-dynamic-risk-sigmoid" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Equation: The Dynamic Risk Sigmoid
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-python-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implementation (Python Reference)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Implementation (Python Reference)">
+    <nav class="md-nav" aria-label="The Spectral Auditor">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#1-the-chimeric-drift-check-refactoring-targets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        1. The Chimeric Drift Check (Refactoring Targets)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-biaxial-trojan-check-malicious-camouflage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Biaxial Trojan Check (Malicious Camouflage)
       
     </span>
   </a>
@@ -3980,107 +3936,30 @@
   
 
 
-<h1 id="documentation-risk-exposure">Documentation Risk Exposure</h1>
-<blockquote>
-<p><strong>Metric: Density of Intent (Sigmoid Debt)</strong></p>
-<p><strong>Summary:</strong> Visualizes the "Duty of Care" a developer owes to their future self and the collective within the knowledge graph. This metric does not reward the raw volume of text; it measures the <strong>Density of Intent</strong>. We distinguish between "Library-Grade" engineering—where a component is supported by structured metadata—and "Silent Logic," which requires the reader to perform manual mental compilation to understand the <em>why</em> behind the <em>what</em>.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum.
-* 🟦 <strong>VERY LOW (Score 0-19):</strong> Thorough. Saturated map. Perfect coverage with high intent density.
-* 🟨 <strong>INTERMEDIATE (Score 40-59):</strong> Moderate. Functional baseline. Meets standard safety thresholds.
-* 🟥 <strong>VERY HIGH (Score 80-100):</strong> Undocumented. Total Opacity. Zero intent density, representing high maintenance risk.</p>
-</blockquote>
-<h2 id="the-inputs-tiered-efficiency">The Inputs (Tiered Efficiency)</h2>
-<p>The heuristic scanning has been decoupled from the core deterministic engine. The analysis engine pre-calculates documentation lines and structured hits, passing them into the Signal Processor.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Variable</th>
-<th style="text-align: left;">Weight</th>
-<th style="text-align: left;">Value</th>
-<th style="text-align: left;">Structural Definition</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>doc_hits</code></td>
-<td style="text-align: left;">1.0x</td>
-<td style="text-align: left;"><strong>High</strong></td>
-<td style="text-align: left;"><strong>Tier 1 (The Interface).</strong> Gold standard tags (<code>@param</code>, <code>///</code>). One hit provides a full point of intent density.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>ownership_hits</code></td>
-<td style="text-align: left;">0.5x</td>
-<td style="text-align: left;"><strong>Medium</strong></td>
-<td style="text-align: left;"><strong>Tier 2 (The Metadata).</strong> Attribution and file-level summaries. Valuable context, but less critical for line-by-line logic comprehension.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>doc_loc</code></td>
-<td style="text-align: left;">0.33x</td>
-<td style="text-align: left;"><strong>Low</strong></td>
-<td style="text-align: left;"><strong>Tier 3 (The Narrative).</strong> General inline comments. Requires 3 lines of text to equal 1 structured tag, honoring effort but demanding volume.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="universal-framework-integration">Universal Framework Integration</h2>
-<ul>
-<li><strong><span class="arithmatex">\(Fc\)</span> (Fidelity Coefficient):</strong> Applied to the final risk reduction. We trust documentation in Explicit languages (e.g., Rust) more than in Implicit languages (e.g., Shell), where comments are prone to "drifting" from the actual logic.</li>
-<li><strong><span class="arithmatex">\(Irc\)</span> (Implicit Risk Correction):</strong> Applied to the Threshold. Implicit languages require a higher "Opacity Tax." They need more documentation density just to reach a baseline safety level.</li>
-<li><strong><span class="arithmatex">\(Mp\)</span> (Path Modifier):</strong> * <em>Public/API (<span class="arithmatex">\(Mp = 1.5\)</span>):</em> High Bar. This is the face of the system. Lack of docs here is punished more severely.</li>
-<li><em>Tests/Experiments (<span class="arithmatex">\(Mp = 0.5\)</span>):</em> Low Bar. Internal logic is more "forgiven" for being silent.</li>
-</ul>
-<h2 id="the-equation-the-dynamic-risk-sigmoid">The Equation: The Dynamic Risk Sigmoid</h2>
-<p>We calculate the density of intent and map it to a "Debt Curve" where the score represents the Exposure caused by missing documentation.</p>
-<p><strong>Step A: The Micro-Bypass</strong>
-Tiny scripts (<span class="arithmatex">\(\le 2\)</span> lines of code) with <span class="arithmatex">\(0\)</span> documentation are automatically granted a <span class="arithmatex">\(0.0\)</span> risk score. A one-line utility function does not require a map.</p>
-<p><strong>Step B: Calculate Intent Density</strong>
-We sum the weighted points and normalize them against the file size (<span class="arithmatex">\(LOC\)</span>). A 1,000-line file requires significantly more intent-signaling than a 10-line utility.</p>
-<div class="arithmatex">\[WeightedPoints = (doc\_hits \times 1.0) + (ownership\_hits \times 0.5) + (doc\_loc \times 0.33)$$
-$$Density = \left( \frac{WeightedPoints}{LOC} \right) \times 100.0\]</div>
-<p><strong>Step C: Determine The Risk Threshold (The Bar)</strong>
-We calculate the "Tipping Point" where a file transitions from "Well-Documented" to "High Risk." We add the Implicit Risk Correction (<span class="arithmatex">\(Irc\)</span>) and multiply by the Path Modifier (<span class="arithmatex">\(Mp\)</span>).</p>
-<div class="arithmatex">\[Threshold = (BaseThreshold + Irc) \times Mp\]</div>
-<p><strong>Step D: The Risk Sigmoid Map</strong>
-We use a sigmoid with a positive exponent. As Documentation Density increases, the denominator grows, causing the Risk Score to mathematically decrease.</p>
-<div class="arithmatex">\[RawRisk = \frac{100.0}{1 + e^{0.2 \times (Density - Threshold)}}\]</div>
-<p><strong>Step E: Fidelity Trust Multiplier</strong>
-Finally, we apply the Fidelity Coefficient (<span class="arithmatex">\(Fc\)</span>). Low-fidelity languages suffer an inverted trust multiplier, acknowledging that comments in those languages are more prone to drifting from reality.</p>
-<div class="arithmatex">\[FinalRisk = \min(RawRisk \times (2.0 - Fc), 100.0)\]</div>
-<h2 id="implementation-python-reference">Implementation (Python Reference)</h2>
-<p>```python
-import math
-from typing import Dict</p>
-<p>def _calc_documentation(self, loc: int, doc_loc: int, eq: Dict[str, int], fc: float, irc: int, mp: float) -&gt; float:
-    t = self.risk_tuning.get("documentation", {})</p>
-<div class="highlight"><pre><span></span><code># Step B: Calculate Intent Density
-weighted_points = (eq.get(&quot;doc&quot;, 0) * t.get(&quot;doc_weight&quot;, 1.0)) + \
-                  (eq.get(&quot;ownership&quot;, 0) * t.get(&quot;ownership_weight&quot;, 0.5)) + \
-                  (doc_loc * t.get(&quot;doc_loc_weight&quot;, 0.33))
-density = (weighted_points / loc) * 100.0
-
-# Step A: Micro-bypass for tiny utilities
-if loc &lt;= 2 and doc_loc == 0:
-    return 0.0
-
-# Step C: Dynamic Threshold
-threshold = (t.get(&quot;threshold_base&quot;, 10.0) + irc) * mp
-
-# Step D: Sigmoid Map
-try:
-    raw_risk = 100.0 / (1.0 + math.exp(t.get(&quot;sigmoid_slope&quot;, 0.2) * (density - threshold)))
-except OverflowError:
-    raw_risk = 0.0 if density &gt; threshold else 100.0
-
-# Step E: Fidelity Trust Multiplier
-return min(raw_risk * (2.0 - fc), 100.0)
+<h1 id="how-to-detect-architectural-drift-and-trojan-files">How to Detect Architectural Drift and Trojan Files</h1>
+<p>Codebases do not break overnight; they degrade slowly. Over years of development, a clean microservice architecture will naturally drift back into a monolithic "Big Ball of Mud" as developers cut corners to meet deadlines. </p>
+<p>Furthermore, sophisticated attackers often hide malicious scripts inside files that appear entirely normal to human reviewers (e.g., hiding an orchestration script inside a file named <code>utils.js</code>).</p>
+<p>GitGalaxy detects both structural decay and malicious camouflage using <strong>Biaxial Anomaly Detection</strong> and <strong>Z-Score Mathematics</strong>, comparing every file against the mathematical norms of its native programming language.</p>
+<h2 id="the-spectral-auditor">The Spectral Auditor</h2>
+<p>GitGalaxy uses an unsupervised Machine Learning algorithm (K-Means Clustering) trained on millions of files to define standard "Archetypes" (e.g., <em>The God Node</em>, <em>Declarative Glue</em>, <em>Async Orchestrator</em>).</p>
+<p>When a file is scanned, the Spectral Auditor places it into a Global Archetype and calculates its "Drift" (measured in Interquartile Ranges, or IQR) from the center of that cluster. </p>
+<h3 id="1-the-chimeric-drift-check-refactoring-targets">1. The Chimeric Drift Check (Refactoring Targets)</h3>
+<p>If a file sits perfectly between two distinct archetypes (a Delta of &lt;= 0.9 IQR), the Spectral Auditor flags it as a "Chimeric" file. </p>
+<p>This mathematically proves a violation of the Single Responsibility Principle. The file is trying to do two completely different things (e.g., acting as both a database schema and an active network router), making it the perfect target for a refactoring sprint.</p>
+<h3 id="2-the-biaxial-trojan-check-malicious-camouflage">2. The Biaxial Trojan Check (Malicious Camouflage)</h3>
+<p>To find "Trojan" files, GitGalaxy compares the file's Global Drift against its Local Drift (how much it deviates from standard patterns within its specific language). </p>
+<p>If a file blends in perfectly on a global scale but heavily violates the conventions of its native language, the Biaxial Ratio spikes. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>## 13. BIAXIAL ANOMALY &amp; ARCHITECTURAL DRIFT
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>### 🚨 Biaxial Anomalies (Severe Anti-Patterns / Language Violations)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>- `src/utils/logger.js` (JAVASCRIPT) | Biaxial Ratio: 2.45x
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  * Global Archetype: `Declarative Glue` (Drift: 0.2 IQR)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  * Local Reality: `Network Orchestrator` (Drift: 3.8 IQR)
 </code></pre></div>
-<p><br><br></p>
-<hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
-<ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
-</ul>
+<p>In the example above, the file pretends to be a simple declarative logger globally, but locally, it utilizes structural syntax matching a heavy network orchestrator. This massive Biaxial Ratio (2.45x) alerts security teams that <code>logger.js</code> is likely camouflaging a malicious data-exfiltration script.</p>
+<blockquote>
+<p><strong>Read the full technical specification:</strong> <a href="../../02-11-spectral-audit/">Spectral Audit</a></p>
+</blockquote>
 
 
 
@@ -4155,12 +4034,12 @@ return min(raw_risk * (2.0 - fc), 100.0)
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="../javascripts/mathjax.js"></script>
+        <script src="../../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

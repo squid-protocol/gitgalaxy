@@ -373,11 +373,19 @@
          <lastmod>2026-04-19</lastmod>
     </url>
     <url>
+         <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/audit-local-ai-models/</loc>
+         <lastmod>2026-04-19</lastmod>
+    </url>
+    <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/continuous-delta-monitoring/</loc>
          <lastmod>2026-04-19</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/deploy-vault-sentinel/</loc>
+         <lastmod>2026-04-19</lastmod>
+    </url>
+    <url>
+         <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/detect-architectural-drift/</loc>
          <lastmod>2026-04-19</lastmod>
     </url>
     <url>

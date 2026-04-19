@@ -1567,6 +1567,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Allowlist Bypasses &amp; CI/CD Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by the blAST Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3482,6 +3499,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Allowlist Bypasses &amp; CI/CD Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by the blAST Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3530,6 +3564,11 @@
 <h2 id="allowlist-bypasses-cicd-integration">Allowlist Bypasses &amp; CI/CD Integration</h2>
 <p>In testing environments, developers often use mock API keys or dummy certificates. To prevent the Sentinel from blocking legitimate test data, it cross-references the file path against the <code>ALLOWLIST_PATHS</code> defined in the global <code>gitgalaxy_config.py</code>. If a mock secret is found in an allowlisted test file, the tool logs it as an <code>[ALLOWED BYPASS]</code> but does not fail the build.</p>
 <p>When the scan is complete, the Sentinel generates a strict Mission Report detailing the Uncontrolled Leaks. If even a single unauthorized secret is exposed, the script exits with a status code of <code>1</code>, violently blocking the <code>git commit</code> or Pull Request.</p>
+<hr />
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.
+* <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.
+* <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</p>
 
 
 

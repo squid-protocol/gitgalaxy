@@ -1549,10 +1549,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#11-project-overview-the-engine-vs-the-layer" class="md-nav__link">
+  <a href="#11-project-overview-the-deterministic-knowledge-graph" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.1 Project Overview: The Engine vs. The Layer
+        1.1 Project Overview: The Deterministic Knowledge Graph
       
     </span>
   </a>
@@ -4704,10 +4704,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#11-project-overview-the-engine-vs-the-layer" class="md-nav__link">
+  <a href="#11-project-overview-the-deterministic-knowledge-graph" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.1 Project Overview: The Engine vs. The Layer
+        1.1 Project Overview: The Deterministic Knowledge Graph
       
     </span>
   </a>
@@ -4819,13 +4819,16 @@
   <h1>Project Overview</h1>
 
 <h2 id="1-foundation-architecture">1. Foundation &amp; Architecture</h2>
-<h3 id="11-project-overview-the-engine-vs-the-layer">1.1 Project Overview: The Engine vs. The Layer</h3>
-<p>GitGalaxy is, fundamentally, a high-velocity, deterministic knowledge graph generator for planetary-scale codebases. </p>
-<p>While the project is widely recognized for its interactive 3D WebGL visualizer—which renders repositories as explorable galaxies—this visualizer is ultimately just a presentation layer. The true core of the project is the analysis engine that powers it. </p>
-<p>We built GitGalaxy because modern software engineering has outgrown traditional analysis tools. Abstract Syntax Trees (ASTs) are computationally expensive, deeply fragile, and require compilable code—meaning they fail completely when analyzing legacy mainframes or fragmented microservices. On the other end of the spectrum, Large Language Models (LLMs) suffer from severe context window limitations and output probabilistic, hallucination-prone architectural summaries.</p>
-<p>GitGalaxy solves this by treating code files as raw structural text, scanning for functional anchors and architectural triggers to build a deterministic 3D knowledge graph in seconds. It seamlessly handles mid-file language switching, assesses the architectural ratio of test files to logic, and extracts invaluable project structure data that standard parsers ignore.</p>
+<h3 id="11-project-overview-the-deterministic-knowledge-graph">1.1 Project Overview: The Deterministic Knowledge Graph</h3>
+<p>GitGalaxy is, fundamentally, a high-velocity, <strong>deterministic function-level knowledge graph engine</strong> designed for planetary-scale codebases. </p>
+<p>While the project is widely recognized for its interactive 3D WebGL visualizer—which renders repositories as explorable galaxies—this visualizer is ultimately just a presentation layer. The true core of the project is the analysis engine that powers next-generation <strong>Retrieval-Augmented Generation (RAG)</strong> pipelines. </p>
+<p>We built GitGalaxy because modern software engineering has outgrown traditional analysis tools. Abstract Syntax Trees (ASTs) are computationally expensive, deeply fragile, and require fully compilable code—meaning they fail completely when analyzing legacy mainframes, incomplete snippets, or fragmented microservices. On the other end of the spectrum, Large Language Models (LLMs) suffer from severe context window limitations and output probabilistic, hallucination-prone architectural summaries.</p>
+<p>GitGalaxy bridges this gap by generating a <strong>deterministic</strong> graph. Instead of asking an LLM to guess how code connects, GitGalaxy proves it mathematically. It creates a structured, function-level map of the repository that serves as a flawless retrieval foundation for RAG engines, allowing AI agents to surgically inject exact context rather than guessing across thousands of files.</p>
 <h3 id="12-the-blast-paradigm-bypassing-llms-asts">1.2 The blAST Paradigm: Bypassing LLMs &amp; ASTs</h3>
-<p>To achieve this, GitGalaxy abandons the AST entirely in favor of a novel algorithm: <strong>blAST (Bypassing LLMs and ASTs)</strong>. </p>
+<p>To achieve this, GitGalaxy abandons the AST entirely in favor of a novel algorithmic approach: <strong>blAST (Bypassing LLMs and ASTs)</strong>. </p>
+<p>The blAST engine works by treating code files as raw structural text, applying high-performance syntactic heuristics (regex) to scan for architectural triggers and functional anchors. It identifies exactly where a function starts (<code>func_start</code>), where a class is declared (<code>class_start</code>), how many parameters it couples with (<code>args</code>), and what state it mutates (<code>flux</code>).</p>
+<p>By mapping these structural "physics," blAST builds a deterministic, function-level knowledge graph in seconds—without ever needing to compile or execute the code. It seamlessly handles mid-file language switching, assesses the architectural ratio of test files to logic, and extracts invaluable project structure data that standard parsers ignore. </p>
+<p>When integrated into an AI pipeline as a <strong>RAG engine</strong>, GitGalaxy provides the LLM with a pre-computed map of reality. The LLM can retrieve the exact line numbers, structural mass, and dependency edges of a function, bypassing context limits and entirely eliminating architectural hallucinations.</p>
 <p>The engine hunts for the universal structural markers of logic across over 50 languages and 250 file extensions. The blAST engine scans source code for regular expression (regex) profiles that indicate specific architectural intent. It parses the software's heuristics to identify:
 * <strong>Structural Purity:</strong> Where does the actual logic live versus the literature and comments?
 * <strong>Network Topology:</strong> How do files mechanically couple to one another?
@@ -4857,22 +4860,22 @@ By bypassing the compiler bottleneck and focusing on lexical alignment, blAST ac
 </ul>
 <h3 id="15-system-file-map-hub-spoke-architecture">1.5 System File Map: Hub &amp; Spoke Architecture</h3>
 <p>The backend ecosystem is organized into strict domains, separating the core graphing logic from the operational toolsets:</p>
-<p>```text
-gitgalaxy/
-├── galaxyscope.py                  # The Main CLI Entry Point
-├── ai_guardrails/                  # Autonomous AI AppSec Constraints
-├── core/                           # The Hub: File ingestion, network graphing, and lens routing
-├── physics/                        # The Engine: Signal processing, ML analytics, and chronometers
-├── recorders/                      # The Exporters: JSON, SQLite, and LLM-ready markdown generators
-├── security/                       # The ML Models: XGBoost multiclass threat inference
-├── standards/                      # The Universal Laws: Language heuristics and analysis schemas
-└── tools/                          # The Spokes: Enterprise operations driven by the core graph
-    ├── cobol_to_cobol/             # Legacy modernization and JCL analysis
-    ├── cobol_to_java/              # Automated Spring Boot microservice forging
-    ├── compliance/                 # Zero-Trust SBOM generators
-    ├── network_auditing/           # API boundary mappers (Shadow API hunting)
-    ├── supply_chain_security/      # Quarantines, vault sentinels, and binary X-Rays
-    └── terabyte_log_scanning/      # High-velocity PII leak and mainframe SMF telemetry hunters</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitgalaxy/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── galaxyscope.py                  # The Main CLI Entry Point
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── ai_guardrails/                  # Autonomous AI AppSec Constraints
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── core/                           # The Hub: File ingestion, network graphing, and lens routing
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── physics/                        # The Engine: Signal processing, ML analytics, and chronometers
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── recorders/                      # The Exporters: JSON, SQLite, and LLM-ready markdown generators
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── security/                       # The ML Models: XGBoost multiclass threat inference
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── standards/                      # The Universal Laws: Language heuristics and analysis schemas
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└── tools/                          # The Spokes: Enterprise operations driven by the core graph
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── cobol_to_cobol/             # Legacy modernization and JCL analysis
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── cobol_to_java/              # Automated Spring Boot microservice forging
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    ├── compliance/                 # Zero-Trust SBOM generators
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── network_auditing/           # API boundary mappers (Shadow API hunting)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    ├── supply_chain_security/      # Quarantines, vault sentinels, and binary X-Rays
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    └── terabyte_log_scanning/      # High-velocity PII leak and mainframe SMF telemetry hunters
+</code></pre></div>
 <h3 id="16-measuring-risk-exposure-not-code-quality">1.6 Measuring Risk Exposure, Not "Code Quality"</h3>
 <p>GitGalaxy assesses deviations from organizational standards and displays that info as localized heatmaps onto the 3D generated world. Importantly, GitGalaxy does not measure subjective "Code Quality." It measures <strong>Risk Exposure</strong>. Our measurements do not judge; they highlight. They function as sensors, not critics.</p>
 <ul>

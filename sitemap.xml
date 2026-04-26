@@ -2,570 +2,574 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/01-02-galaxyscope-cli-reference/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/01-project-overview/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-01-pipeline-overview/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-02-optical-orchestration/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-03-aperture-filter/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-04-guidestar-protocol/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-05-language-lens/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-06-security-lens/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-07-the-prism/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-08-the-detector/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-09-signal-processing/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-11-spectral-audit/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-12-audit-recorder/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-13-gpu-recorder/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-14-llm-recorder/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-15-chronometer/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-16-network-risk-sensor/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-17-ai-appsec-sensor/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-18-dev-agent-firewall/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-19-neural-auditor/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-20-security-auditor/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-21-record-keeper/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/02-22-state-rehydrator/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-02-claim-2-explicitness/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-03-claim-3-taxonomy-map/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-04-claim-4-comparing-languages/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-05-claim-5-file-archetypes/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-06-claim-6-keyword-fingerprinting/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-07-claim-7-doom-comparisons/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/03-08-future-outlooks/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
+    </url>
+    <url>
+         <loc>https://squid-protocol.github.io/gitgalaxy/04-00-security_landscape/</loc>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-01-full-api-network-map/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-02-sbom-generator/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-03-supply-chain-firewall/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-04-vault-sentinel/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-05-binary-anomaly-detector/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-06-pii-leak-hunter/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/04-07-terabyte-log-scanner/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-01-legacy-refraction-controller/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-02-spring-boot-scaffolding/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-03-entity-and-memory-mapping/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-04-api-and-service-contracts/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-05-autonomous-agent-tickets/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-06-batch-test-harness/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-07-mainframe-compiler-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-08-dag-architect/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-09-etl-unpacker/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-10-graveyard-reaper/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-11-jcl-meta-auditor/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-12-zero-trust-jcl-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-13-lexical-patcher/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-14-microservice-slicer/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-15-cloud-schema-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-16-anomaly-agent-task-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/05-17-system-limits-reporter/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/06-01-gitgalaxy-config/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/06-02-language-standards/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/06-03-analysis-lens/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-01-code-complexity/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-02-stars-size/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-03-stars-pulse-rate/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-04-stars-shape/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-05-satellite-unit/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-06-satellite-orbital-distance/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-07-number-of-satellites/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-08-relative-positioning/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-09-node-size/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-10-planetary-rings/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-11-sequence-affinity/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/07-12-misc-equations/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-01-methodology/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-02-sub-equations/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-03-transforming-regex-counts/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-04-ownership-entropy/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-05-cognitive-load/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-06-deep-churn/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-07-structural-fortification/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-08-technical-debt/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-09-documentation-risk/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-10-file-stability/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-11-test-coverage/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-12-civil-war/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-13-graveyard-detector/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-14-api-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-15-concurrency-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-16-state-flux-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-18-specification-alignment/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-19-obscured-payload-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-20-logic-bomb-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-21-injection-surface-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-22-memory-corruption-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-23-hardcoded-secrets-exposure/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/Cross-Cultural-M%26A-Technical-Due-Diligence/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/audit-local-ai-models/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-microservice-slicing/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-to-java-REST-API-generation/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-to-java-automated-spring-boot-build-system/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-to-java-mainframe-data-serialization-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-to-java-spring-boot-entity-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/cobol-to-java-spring-boot-service-forge/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/continuous-delta-monitoring/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/creating-dag-from-cobol-files/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/creating-jcl-from-cobol-files/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/creating-schema-from-cobol-files/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/deploy-vault-sentinel/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/detect-architectural-drift/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/detect-binary-anomalies/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/enforce-supply-chain-firewall/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/generate-llm-architecture-briefs/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/generate-zero-trust-sbom/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/hunt-pii-leaks/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/hunt-shadow-apis/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/identifying-dead-code-in-cobol/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/map-cobol-monoliths/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/prevent-agentic-rce/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/prove-dead-code-logs/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/sandbox-autonomous-agents/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/scaffold-spring-boot/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/cookbook/unpacking-etl-from-cbl-files/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-alphafold/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-android/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-apollo-11/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-bitcoin/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-blast/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-doom/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-fineract/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-freebsd/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-gnupg/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-kubernetes/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-linux/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-mediawiki/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-nvda/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-opencv/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-pandas/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-root/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-sqlite/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-tensorflow/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-wordpress/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/museum-of-code/teardown-of-wrf-fortran/</loc>
-         <lastmod>2026-04-22</lastmod>
+         <lastmod>2026-04-26</lastmod>
     </url>
 </urlset>

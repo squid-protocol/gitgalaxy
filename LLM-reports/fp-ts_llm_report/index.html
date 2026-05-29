@@ -8628,6 +8628,8 @@
 <li><strong>Illuminate Scripting Blind Bottlenecks:</strong> Enforce basic JSDoc or TSDoc standards on the internal tooling housed in the <code>scripts/</code> directory, specifically <code>linter.ts</code> and <code>build.ts</code>. Reducing their 100% Documentation Risk is critical to ensuring the CI/CD pipeline remains maintainable for outside contributors.</li>
 <li><strong>Optimize Linter Recursion:</strong> Investigate the O(2^N) parsing functions within <code>scripts/linter.ts</code> (<code>parseType</code>, <code>getTypeArguments</code>). Replacing deeply recursive AST evaluations with iterative traversal patterns or caching mechanisms will reduce the I/O latency risks associated with the build process.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

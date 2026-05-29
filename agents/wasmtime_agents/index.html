@@ -8748,6 +8748,8 @@
 <li><strong>Mitigate Blind Bottlenecks in Memory Tests:</strong> Document the implicit contracts and invariants tested within <code>tests/all/memory.rs</code> and <code>crates/wiggle/tests/variant.rs</code>. Because they serve as structural pillars with near 100% Doc Risk, explicit comments detailing the memory model assumptions will prevent regressions during future Wasm spec updates.</li>
 <li><strong>Stabilize JIT Configuration:</strong> <code>crates/wasmtime/src/config.rs</code> exhibits dangerous volatility. Consider decoupling this configuration hub into smaller, domain-specific configuration structs (e.g., separating Cranelift tuning from WASI capabilities) to isolate churn and reduce merge conflicts.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

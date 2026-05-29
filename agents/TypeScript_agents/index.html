@@ -8746,6 +8746,8 @@
 <li><strong>Isolate and Modularize Test Runner Configuration:</strong> The test harnesses (<code>src/testRunner/unittests/helpers/virtualFileSystemWithWatch.ts</code>, <code>src/harness/harnessLanguageService.ts</code>) exhibit extreme cumulative risk and high cognitive load. Refactor the Virtual File System (VFS) mocks into smaller, single-responsibility modules to reduce test fragility and compilation overhead.</li>
 <li><strong>Formalize <code>checker.ts</code> Sub-Domains:</strong> While rewriting <code>src/compiler/checker.ts</code> is unfeasible, establish stricter logical boundaries within the file (or via partial classes/mixins if the build step permits) for discrete tasks like JSX resolution, control flow analysis, and generic instantiation. This will lower the cognitive load required to navigate the 54k LOC monolith.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

@@ -8747,6 +8747,8 @@
 <li><strong>Mitigate Compose Lowering Silo:</strong> Refactor <code>ComposableFunctionBodyTransformer.kt</code> to extract specific IR transformations (e.g., state hoisting, slot management) into distinct, testable visitor classes. This will reduce its 8500+ Structural Mass and alleviate the 100% single-person silo risk.</li>
 <li><strong>Document Native Runtime Boundaries:</strong> Aggressively add architectural documentation to <code>Memory.h</code>, <code>Types.h</code>, and <code>KotlinRuntimeSupport.swift</code>. These files represent severe blind bottlenecks; establishing explicit ABI and memory management contracts will lower the risk of cross-platform segmentation faults during Native runtime updates.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

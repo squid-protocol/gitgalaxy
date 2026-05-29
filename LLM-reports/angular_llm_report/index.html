@@ -8628,6 +8628,8 @@
 <li><strong>Stabilize the Signals Forms API:</strong> Address the extreme volatility in <code>packages/forms/signals/src/field/node.ts</code> and associated types. Freeze the core interface contracts and enforce strict code-review boundaries to lower the technical debt (96.7%) and cognitive load before finalizing the public API.</li>
 <li><strong>Decompose the Component Handler:</strong> <code>packages/compiler-cli/src/ngtsc/annotations/component/src/handler.ts</code> violates the Single Responsibility Principle. Extract the highly complex AST resolution logic (such as <code>isUsedPipe</code> and defer-block resolution) into isolated, testable visitor classes to reduce the O(2^N) bottlenecks and lower the file's overall physical mass.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

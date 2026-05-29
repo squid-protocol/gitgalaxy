@@ -8627,6 +8627,8 @@
 <li><strong>Illuminate the Blind Test Bottlenecks:</strong> Immediately mandate descriptive POD or standard Perl documentation headers for critical regression tests (e.g., <code>abort-chain-*.t</code>, <code>accept_context_regression.t</code>). Because these files prevent critical dispatch failures, reducing their 100% Documentation Risk is essential to ensure future maintainers understand the constraints of the MVC engine.</li>
 <li><strong>Decouple the Chained Action Tests:</strong> The files testing chained controller actions (e.g., <code>live_component_controller_action_chained.t</code>) are highly fragile orchestrators with excessive branching. Refactor these to utilize smaller, discrete mocked contexts rather than spinning up the entire live Catalyst engine for every state mutation check.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

@@ -8627,6 +8627,8 @@
 <li><strong>Decouple the UI from Core Consensus:</strong> <code>src/ui.cpp</code> currently executes direct database and wallet operations. Extract the core Bitcoin logic (mining, transaction validation, networking) from the <code>CMainFrame</code> classes and establish a clear API boundary (e.g., an RPC layer or distinct service classes) so the UI only acts as a thin presentation client.</li>
 <li><strong>Fortify Cryptographic Math Headers:</strong> Address the 'House of Cards' risk in <code>src/uint256.h</code> and <code>src/bignum.h</code>. Add strict bounds checking, overflow protections, and formal unit test coverage to these deeply embedded files to mitigate their 86% Error Risk exposure and prevent silent consensus failures.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

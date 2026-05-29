@@ -8628,6 +8628,8 @@
 <li><strong>Illuminate Foundational Blind Bottlenecks:</strong> Enforce strict documentation standards on deeply embedded headers like <code>EXTERNAL_HEADERS/stdint.h</code> and <code>sys/sys/errno.h</code>. Reducing their high Documentation Risk is critical to safely onboarding new contributors who must interact with the system's lowest abstraction layers.</li>
 <li><strong>Decompose TCP Stack &amp; Driver Monoliths:</strong> Investigate the massive state machines within <code>sys/netinet/tcp_stacks/rack.c</code> and <code>sys/dev/pms/RefTisa/tisa/sassata/host/sat.c</code>. Extracting isolated sub-routines and utilizing table-driven logic where possible will reduce their extreme cognitive load and lower the O(2^N) algorithmic complexity currently choking these components.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

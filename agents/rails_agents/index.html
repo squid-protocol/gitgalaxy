@@ -8746,6 +8746,8 @@
 <li><strong>Mitigate ActionMailbox Silos:</strong> Distribute domain knowledge regarding the ActionMailbox ingress controllers (Mailgun, Mandrill) to reduce the reliance on single contributors. Ensuring multiple maintainers understand the MIME parsing logic will improve security auditing.</li>
 <li><strong>Refactor Volatile Rakefiles:</strong> <code>railties/Rakefile</code> and <code>actioncable/Rakefile</code> suffer from high churn, high tech debt, and injection risks. Decompose these monolithic Rakefiles by moving complex build or test orchestration logic into dedicated, testable Ruby classes within a <code>lib/tasks/</code> or <code>tools/</code> directory.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

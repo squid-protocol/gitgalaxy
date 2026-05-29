@@ -8628,6 +8628,8 @@
 <li><strong>Refactor Rendering Loop Bottlenecks:</strong> Address the massive data gravity in the <code>update</code> methods of <code>BillboardCollection.js</code> and <code>PointPrimitiveCollection.js</code>. Transition these operations to use more efficient typed-array bulk updates or offload matrix calculations to Web Workers to relieve main-thread rendering pressure.</li>
 <li><strong>Distribute Domain Knowledge:</strong> Break the 100% ownership isolation on terrain generation and 3D Tiles (<code>TerrainFillMesh.js</code>, <code>Cesium3DTile.js</code>). Enforce cross-team code reviews and assign secondary maintainers to these high-impact files to mitigate Key Person dependencies in the rendering engine.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

@@ -8628,6 +8628,8 @@
 <li><strong>Decouple TaskInstance and DAG Hotspots:</strong> The extreme volatility in <code>taskinstance.py</code> indicates a violation of the Single Responsibility Principle. Extract the heavy O(2^N) state-resolution and dependency-checking logic into isolated, independently tested state-machine classes to reduce the cognitive load and churn on the primary data model.</li>
 <li><strong>Distribute Provider Knowledge Silos:</strong> Break the 100% ownership isolation in the provider network (<code>ssh_remote_job.py</code>, <code>dataplex.py</code>, <code>cloud_sql.py</code>). Enforce mandatory cross-team code reviews and assign secondary maintainers to these massive files to mitigate Key Person risk.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

@@ -8748,6 +8748,8 @@
 <li><strong>Harden React Flight Serialization Boundaries:</strong> Given the high cumulative risk and exploit generation exposure in the Flight (RSC) clients and servers, isolate the serialization and stream-parsing logic into strictly typed, independent modules. This will limit the blast radius and allow for more targeted security fuzzing of the hydration payloads.</li>
 <li><strong>Document the <code>shared-runtime.ts</code> Blind Bottleneck:</strong> <code>shared-runtime.ts</code> holds a massive blast radius for the React Compiler (549 inbound connections) but suffers from high documentation risk (74%). Formalize the API contracts and usage constraints via TSDoc to prevent downstream compiler pipeline breakages and reduce "House of Cards" fragility.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

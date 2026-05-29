@@ -8748,6 +8748,8 @@
 <li><strong>Decompose LiveCode Monoliths:</strong> The massive LiveCode scripts (<code>revliburl.livecodescript</code>, <code>revsaveasstandalone.livecodescript</code>, <code>package_compiler.livecodescript</code>) are immense single points of failure. Refactor these into smaller, single-responsibility domain libraries to reduce their structural mass and limit testing exposure.</li>
 <li><strong>Audit Execution Interface Bindings:</strong> The <code>exec-interface-*.cpp</code> files have severe "Design Slop" metrics due to orphaned functions. Audit the build system's macro expansion or code generation to ensure these API bridges are actually necessary, removing truly dead bindings to lower compilation overhead.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

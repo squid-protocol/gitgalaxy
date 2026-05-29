@@ -8628,6 +8628,8 @@
 <li><strong>Isolate and Deprecate Legacy Drivers:</strong> Address the high cognitive load in peripheral database drivers (e.g., <code>oci8</code>, <code>ibase</code>, <code>cubrid</code>). Ensure they are cleanly encapsulated behind interfaces and consider formal deprecation paths for drivers that lack active upstream support, reducing the framework's maintenance burden.</li>
 <li><strong>Modernize the Core Loader:</strong> While preserving backward compatibility is paramount for CodeIgniter, internally decoupling the <code>Loader.php</code> logic from the <code>Controller.php</code> state will reduce the 100% Tech Debt exposure. Introduce internal boundaries that prevent the core super-object from mutating uncontrollably during runtime.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

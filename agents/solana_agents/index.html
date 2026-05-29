@@ -8747,6 +8747,8 @@
 <li><strong>Prune Design Slop in the Ledger and RPC:</strong> <code>ledger/src/blockstore.rs</code> and <code>rpc-client/src/nonblocking/rpc_client.rs</code> hold significant "Design Slop" (70+ orphaned functions each). Audit these massive files to determine if the functions are genuinely dead code or dynamically invoked. If dead, prune them to reduce the AST size and compilation overhead.</li>
 <li><strong>Document Blind Bottlenecks:</strong> Address the 100% Documentation Risk in <code>net/common.sh</code> and <code>scripts/read-cargo-variable.sh</code>. Establishing explicit, written contracts inside these scripts will mitigate the "House of Cards" error risk for downstream CI/CD dependent processes.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

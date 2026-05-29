@@ -8628,6 +8628,8 @@
 <li><strong>Decompose the Toolchain Orchestrator:</strong> The <code>cosmocross</code> bash script is collapsing under high churn and cognitive load. Extract the specific OS/Arch compilation stages into discrete, modular scripts or migrate the logic to a safer, declarative build system (e.g., Bazel/Make) to reduce the shell script's monolithic fragility.</li>
 <li><strong>Distribute Core Libc Knowledge:</strong> Break the 100% ownership isolation held by Justine Tunney on the foundational C implementations (<code>fmt.c</code>, <code>x86.c</code>, <code>demangle.c</code>). Enforce cross-team code reviews and assign secondary maintainers to these critical files to mitigate severe Key Person risk.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

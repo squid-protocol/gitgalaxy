@@ -8629,6 +8629,8 @@
 <li><strong>Decouple the Reader/Writer Monoliths:</strong> <code>zcl_excel_reader_2007.clas.abap</code> and <code>zcl_excel_worksheet.clas.abap</code> are violating the Single Responsibility Principle. Refactor the O(N^6) <code>load_worksheet</code> logic by extracting XML parsing, style mapping, and memory allocation into isolated, heavily tested strategy classes.</li>
 <li><strong>Distribute Key Person Knowledge:</strong> The <code>not_cloud/zcl_excel_ole.clas.abap</code> and <code>zcl_excel_common</code> nodes represent severe systemic risk due to their size (Mass &gt; 400) and 100% isolated ownership. Mandate comprehensive JSDoc/ABAPDoc documentation for these files and require cross-team code reviews for any future commits to break the knowledge silo.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

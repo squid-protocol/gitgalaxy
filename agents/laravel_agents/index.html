@@ -8742,6 +8742,8 @@
 <li><strong>Mitigate Blind Bottlenecks:</strong> Add explicit, structured documentation (JSDoc/PHPDoc) to <code>vite.config.js</code> and <code>bootstrap/app.php</code>. Explaining their exact role in the asset pipeline and framework bootstrapping will reduce their severity as undocumented choke points.</li>
 <li><strong>Resolve Design Slop in Providers:</strong> The <code>app/Providers/AppServiceProvider.php</code> file contains functions (<code>boot</code>, <code>register</code>) flagged as "orphaned" because they are invoked dynamically by the framework, not directly by local code. Add inline architectural comments clarifying their framework-driven lifecycle to suppress static analysis warnings and guide future agents.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

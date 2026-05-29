@@ -8627,6 +8627,8 @@
 <li><strong>Decompose the Terminal State Machine:</strong> Refactor <code>apps/ansiterm.c</code>. The <code>ansi_parse</code> and <code>vt52_parse</code> functions should be broken down into discrete dispatch tables or isolated helper functions for specific escape codes. This will reduce the extreme cognitive load and Database Complexity currently housed in single functions.</li>
 <li><strong>Distribute Core Domain Knowledge:</strong> Address the 100% ownership isolation currently held by David Given on core OS subsystems (<code>src/bdos/filesystem.S</code>, <code>apps/asm.c</code>). Encourage secondary maintainers to review and document these dense assembly and C modules to distribute critical knowledge regarding the BDOS and filesystem implementation.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

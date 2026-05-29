@@ -8746,6 +8746,8 @@
 <li><strong>Document Foundational Blind Bottlenecks:</strong> Address the 100% documentation risk in <code>src/vs/base/common/path.ts</code> and <code>extensions/typescript-language-features/src/utils/fs.ts</code>. Adding rigorous JSDoc/TSDoc architectural contracts to these files will mitigate the "House of Cards" error risk for the hundreds of downstream dependents.</li>
 <li><strong>Refactor Test Service Locators:</strong> <code>workbenchTestServices.ts</code> exhibits severe design slop (130 orphaned functions) and pulls in 189 outbound dependencies. Split this monolithic test helper into domain-specific mock service providers (e.g., <code>editorTestServices.ts</code>, <code>terminalTestServices.ts</code>) to reduce testing fragility and improve test compilation times.</li>
 </ol>
+<hr />
+<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
 
 
 

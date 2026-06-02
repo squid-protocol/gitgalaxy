@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#overview-of-methodology" class="md-skip">
+        <a href="#overview-of-methodology-risk-exposure-index" class="md-skip">
           Skip to content
         </a>
       
@@ -7953,10 +7953,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-universal-risk-spectrum-a11y-standard" class="md-nav__link">
+  <a href="#the-universal-risk-spectrum" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Universal Risk Spectrum (A11y Standard)
+        The Universal Risk Spectrum
       
     </span>
   </a>
@@ -7964,10 +7964,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-exposure-metrics-graph-telemetry" class="md-nav__link">
+  <a href="#primary-risk-exposures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Exposure Metrics (Graph Telemetry)
+        Primary Risk Exposures
       
     </span>
   </a>
@@ -7983,7 +7983,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Custom Topological Scales">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expanding-the-physics-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expanding the Physics Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expanding the Physics Framework">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8633,10 +8644,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-universal-risk-spectrum-a11y-standard" class="md-nav__link">
+  <a href="#the-universal-risk-spectrum" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Universal Risk Spectrum (A11y Standard)
+        The Universal Risk Spectrum
       
     </span>
   </a>
@@ -8644,10 +8655,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-exposure-metrics-graph-telemetry" class="md-nav__link">
+  <a href="#primary-risk-exposures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Exposure Metrics (Graph Telemetry)
+        Primary Risk Exposures
       
     </span>
   </a>
@@ -8663,7 +8674,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Custom Topological Scales">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expanding-the-physics-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expanding the Physics Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expanding the Physics Framework">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8702,101 +8724,211 @@
   
 
 
-<h1 id="overview-of-methodology">Overview of Methodology</h1>
+<h1 id="overview-of-methodology-risk-exposure-index">Overview of Methodology &amp; Risk Exposure Index</h1>
 <blockquote>
 <p><strong>The Core Philosophy: From Raw Text to Relational Knowledge Graph</strong></p>
 <p>GitGalaxy does not measure subjective "Code Quality," which implies judgment. Instead, it measures objective <strong>Risk Exposures</strong>. </p>
 <p>By utilizing deterministic keyword heuristics, the engine parses raw text to build a massive, interconnected knowledge graph of the entire repository. We extract structural markers from the code (the data) and translate them into visible risk heatmaps (the projection). This allows architecture teams to instantly see where their system is drifting into dangerous territory without reading a single line of code.</p>
+<p><strong>The Structural Taxonomy of GitGalaxy</strong></p>
+<p>GitGalaxy assesses functions against 50+ metrics. We then roll these measurements up to the class, file, folder and repo level. </p>
 </blockquote>
-<h2 id="the-universal-risk-spectrum-a11y-standard">The Universal Risk Spectrum (A11y Standard)</h2>
-<p>To reduce cognitive load on the user, GitGalaxy abandons distinct color palettes for individual metrics. Instead, we project the knowledge graph's telemetry using a single, unified <strong>High-Contrast Spectrum</strong> for all risk and exposure dashboards. </p>
-<p>Regardless of the metric being viewed, the visual translation is always the same:
-* 🟦 <strong>Deep Blue:</strong> Very Low Exposure (Safe / Cold / Clean)
+<h2 id="the-universal-risk-spectrum">The Universal Risk Spectrum</h2>
+<p>Regardless of the risk metric being viewed, the visual translation is always the same color palette:
+* 🟦 <strong>Blue:</strong> Very Low Exposure 
 * 🩵 <strong>Cyan:</strong> Low Exposure
 * 🟨 <strong>Yellow:</strong> Moderate / Intermediate Exposure
 * 🟧 <strong>Orange:</strong> High Exposure
 * 🟥 <strong>Bright Red:</strong> Critical / Extreme Exposure (Hot / Dangerous)</p>
-<h2 id="the-exposure-metrics-graph-telemetry">The Exposure Metrics (Graph Telemetry)</h2>
-<p>When a user selects a metric from the HUD, the visualizer queries the underlying knowledge graph and recolors the nodes using the Universal Spectrum. The table below defines what the engine's heuristics are actively hunting for, and what a "Red" (Critical) state represents for each mode.</p>
+<h2 id="primary-risk-exposures">Primary Risk Exposures</h2>
+<p><strong>Definition:</strong> The mathematical output of parsing regex heuristics, file boundaries, version control counts, and ecosystem multipliers. These metrics represent the unified risk calculations applied across the repository.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Labeling Mode</th>
-<th style="text-align: left;">Heuristic Target</th>
-<th style="text-align: left;">The "Red" (Critical) State Indicates...</th>
+<th style="text-align: left;">Metric</th>
+<th style="text-align: left;">Level 1: Function<br>(<a href="../08-02-sub-equations/">count based</a>)<br>(0-infinity)</th>
+<th style="text-align: left;">Level 2: Class<br>(<a href="../08-02-sub-equations/">count based</a>)<br>(0-infinity)</th>
+<th style="text-align: left;">Level 3: File<br>(<a href="../08-03-transforming-regex-counts/">Sigmoid normalized</a>)<br>(0-100)</th>
+<th style="text-align: left;">Level 4: Folder<br>(Weighted Avg)<br>(0-100)</th>
+<th style="text-align: left;">Level 5: Repo<br>(Weighted Avg)<br>(0-100)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Cognitive Load</strong></td>
-<td style="text-align: left;"><strong>How hard is it to read?</strong> Scans for deeply nested logic, sprawling methods, and high control-flow complexity.</td>
-<td style="text-align: left;">The logic is incredibly difficult for a human to follow. A prime target for refactoring.</td>
+<td style="text-align: left;"><strong><a href="../08-05-cognitive-load/">Cognitive Load</a></strong></td>
+<td style="text-align: left;"># of branches, mutations, and danger triggers, adjusted</td>
+<td style="text-align: left;">Sum of function counts + Gini</td>
+<td style="text-align: left;">Normalized via sigmoid function + GuideStar Shield</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Deep Churn</strong></td>
-<td style="text-align: left;"><strong>How often does it change?</strong> Identifies files that are constantly being rewritten, patched, or reverted based on Git history.</td>
-<td style="text-align: left;">The file refuses to settle down. It is highly fluid and likely a source of recurring bugs.</td>
+<td style="text-align: left;"><strong><a href="../08-16-state-flux-exposure/">State Flux</a></strong></td>
+<td style="text-align: left;"># of variable mutations, adjusted</td>
+<td style="text-align: left;">Sum of function counts + LCOM</td>
+<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Error &amp; Exception Exposure</strong></td>
-<td style="text-align: left;"><strong>Is it fragile?</strong> Compares the ratio of defensive code (error handling, guards) against aggressive logic.</td>
-<td style="text-align: left;">The file lacks safety nets. It is performing complex logic without adequate exception handling.</td>
+<td style="text-align: left;"><strong><a href="../08-15-concurrency-exposure/">Concurrency</a></strong></td>
+<td style="text-align: left;"># of async/thread operations minus locks, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Tech Debt</strong></td>
-<td style="text-align: left;"><strong>Are there shortcuts?</strong> Scans for <code>TODO</code>s, <code>FIXME</code>s, known hacks, and temporary architectural band-aids.</td>
-<td style="text-align: left;">The file is heavily burdened by unfinished business and documented technical debt.</td>
+<td style="text-align: left;"><strong><a href="../08-08-technical-debt/">Technical Debt</a></strong></td>
+<td style="text-align: left;"># of engineer comments (ex: HACK, TODO), adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Documentation Risk</strong></td>
-<td style="text-align: left;"><strong>Is it explained?</strong> Measures the ratio and quality of instructional literature against the raw executable code.</td>
-<td style="text-align: left;">The file is essentially undocumented. It operates as a "black box" to new developers.</td>
+<td style="text-align: left;"><strong><a href="../08-07-structural-fortification/">Structural Fortification</a></strong></td>
+<td style="text-align: left;"># of attacker vs. defender keywords, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function w/ Breach Floor</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Verification (Tests)</strong></td>
-<td style="text-align: left;"><strong>Is it proven?</strong> Checks if the file has a corresponding safety net of tests proving it works.</td>
-<td style="text-align: left;">The code is heavily exposed due to a severe lack of testing and verification coverage.</td>
+<td style="text-align: left;"><strong><a href="../08-13-graveyard-detector/">Graveyard</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Commented out code lines, normalized via sigmoid function</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Stability (Heat)</strong></td>
-<td style="text-align: left;"><strong>Is it fresh?</strong> Shows where work is happening <em>right now</em> vs. code that was written months ago via OS <code>mtime</code> or Git logs.</td>
-<td style="text-align: left;">The file is "Hot." It has been actively edited or committed in the very recent past.</td>
+<td style="text-align: left;"><strong><a href="../08-18-specification-alignment/">Specification Alignment</a></strong></td>
+<td style="text-align: left;"># of functions with Spec tags, adjusted</td>
+<td style="text-align: left;">Sum of function counts w/ Spec mapping</td>
+<td style="text-align: left;">Percentage of entities lacking spec tags, adjusted</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Graveyard</strong></td>
-<td style="text-align: left;"><strong>Is there dead code?</strong> Finds massive blocks of code that were commented out and abandoned.</td>
-<td style="text-align: left;">The file is hoarding historical, dead code that needs to be purged.</td>
+<td style="text-align: left;"><strong><a href="../08-12-civil-war/">Civil War (Tabs/Spaces)</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Ratio of tab vs space indented lines, percentage</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>API Exposure</strong></td>
-<td style="text-align: left;"><strong>Is it public?</strong> Highlights the entry points and network routers where the system talks to the outside world.</td>
-<td style="text-align: left;">The file serves as a major public endpoint, demanding strict security scrutiny.</td>
+<td style="text-align: left;"><strong><a href="../08-04-ownership-entropy/">Ownership Entropy</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Distribution of git authors, normalized via Shannon entropy</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Concurrency</strong></td>
-<td style="text-align: left;"><strong>Is it multitasking?</strong> Highlights complex timing, threads, or asynchronous execution logic.</td>
-<td style="text-align: left;">Heavy reliance on asynchronous timing, introducing severe risks for race conditions.</td>
+<td style="text-align: left;"><strong><a href="../08-06-deep-churn/">Deep Churn</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Total git commits over time, normalized via log curve</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>State Flux</strong></td>
-<td style="text-align: left;"><strong>Is the data changing?</strong> Highlights variables that are constantly being modified or mutated in memory.</td>
-<td style="text-align: left;">"Boiling" data. The file mutates state aggressively, making it hard to track standard values.</td>
+<td style="text-align: left;"><strong><a href="../08-10-file-stability/">File Stability (Heat)</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Time since last commit, normalized via time distance</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Ownership Entropy</strong></td>
-<td style="text-align: left;"><strong>Who wrote this?</strong> Measures the Shannon Entropy of Git blame data to see if a file is owned by one person or many.</td>
-<td style="text-align: left;">A "Community" file. It has been touched by so many different developers that no single person truly owns it.</td>
+<td style="text-align: left;"><strong><a href="../08-11-test-coverage/">Verification Risk (Test Coverage)</a></strong></td>
+<td style="text-align: left;"># of unverified execution paths, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Cross-File Test Tethers</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-09-documentation-risk/">Documentation Risk Exposure</a></strong></td>
+<td style="text-align: left;"># of missing docstrings, comments, and readmes, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Bus Factor</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-14-api-exposure/">API Exposure</a></strong></td>
+<td style="text-align: left;"># of export/public modifiers, adjusted</td>
+<td style="text-align: left;">Sum of function counts + Public interfaces</td>
+<td style="text-align: left;">Normalized via ratio and volume * Network Blast Radius</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-24-Big-O-Detection/">Algorithmic DoS Exposure</a></strong></td>
+<td style="text-align: left;"># of deep loops interacting with data/network, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Network Blast Radius</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-20-logic-bomb-exposure/">Logic Bomb Exposure</a></strong></td>
+<td style="text-align: left;"># of conditions leading to payloads, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Taint Flow Tracking</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-21-injection-surface-exposure/">Injection Surface Exposure</a></strong></td>
+<td style="text-align: left;"># of inputs flowing to execution, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Taint Flow Tracking</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-22-memory-corruption-exposure/">Memory Corruption Exposure</a></strong></td>
+<td style="text-align: left;"># of pointers/allocations minus cleanups, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * ML Archetype Map</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-19-obscured-payload-exposure/">Obscured Payload Exposure</a></strong></td>
+<td style="text-align: left;"># of obfuscation and intent triggers, adjusted</td>
+<td style="text-align: left;">Sum of function counts</td>
+<td style="text-align: left;">Normalized via sigmoid function * Biaxial Drift</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="../08-23-hardcoded-secrets-exposure/">Hardcoded Secrets Exposure</a></strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Detected credential strings, normalized via sigmoid function</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
+<td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 </tbody>
 </table>
 <h2 id="custom-topological-scales">Custom Topological Scales</h2>
-<p>Certain metrics do not represent a "Safe to Dangerous" pipeline, but rather a difference in structural style or identity within the graph. These bypass the Universal Spectrum and use custom rendering palettes.</p>
+<p>Certain metrics do not represent a "Safe to Dangerous" pipeline, but rather a difference in structural style within the graph. These bypass the Universal Spectrum and use custom rendering palettes.</p>
 <ul>
 <li><strong>Civil War (Tabs vs. Spaces):</strong> Checks for indentation consistency across the codebase.</li>
 <li>🟩 <strong>Green:</strong> Strictly uses Tabs.</li>
 <li>🟨 <strong>Yellow:</strong> Strictly uses Spaces.</li>
 <li>🟦 <strong>Blue:</strong> A chaotic, mixed indentation style (The "Warzone").</li>
-<li><strong>Language Identity:</strong> Colors the file based on its evaluated taxonomy (e.g., JavaScript is Yellow, Python is Blue, Rust is Orange) to create a visual map of the system's tech stack.</li>
+</ul>
+<hr />
+<h2 id="expanding-the-physics-framework">Expanding the Physics Framework</h2>
+<p>These documents outline the specific variables and mathematical normalization strategies that power the equations detailed in the matrix above.</p>
+<ul>
+<li><a href="../08-02-sub-equations/">08-02: Sub-Equations (Scanner Variables)</a></li>
+<li><a href="../08-03-transforming-regex-counts/">08-03: Transforming Regex Counts (The UEF)</a></li>
 </ul>
 <p><br><br></p>
 <hr />

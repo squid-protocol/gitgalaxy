@@ -25,7 +25,7 @@
     
     
       
-        <title>The Architecture of Apollo 11: A Structural Physics Teardown of the AGC Codebase - GitGalaxy</title>
+        <title>THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE - GitGalaxy</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-architecture-of-apollo-11-a-structural-physics-teardown-of-the-agc-codebase" class="md-skip">
+        <a href="#the-architecture-of-apollo-a-static-analysis-retrospective" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              The Architecture of Apollo 11: A Structural Physics Teardown of the AGC Codebase
+              THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE
             
           </span>
         </div>
@@ -8530,10 +8530,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#welcome-to-the-museum-of-code" class="md-nav__link">
+  <a href="#exhibit-apollo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Welcome to the Museum of Code
+        === EXHIBIT: APOLLO ===
       
     </span>
   </a>
@@ -8541,10 +8541,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-3d-cartography" class="md-nav__link">
+  <a href="#1-the-twin-hubs-comanche-and-luminary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The 3D Cartography
+        1. The Twin Hubs: Comanche and Luminary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. The Twin Hubs: Comanche and Luminary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architectural-symmetry-and-information-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural Symmetry and Information Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-information-flow-the-physical-reality-of-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Information Flow &amp; The Physical Reality of Code
       
     </span>
   </a>
@@ -8552,10 +8580,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-house-of-cards-architectural-choke-points" class="md-nav__link">
+  <a href="#3-the-pinball-interface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The "House of Cards": Architectural Choke Points
+        3. The "Pinball" Interface
       
     </span>
   </a>
@@ -8563,10 +8591,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#technical-debt-the-god-nodes" class="md-nav__link">
+  <a href="#4-priority-scheduling-cycle-syncing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Technical Debt &amp; The "God Nodes"
+        4. Priority Scheduling &amp; Cycle Syncing
       
     </span>
   </a>
@@ -8574,10 +8602,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-security-perimeter-zero-trust-x-ray" class="md-nav__link">
+  <a href="#5-orbital-mechanics-the-heavy-lifters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Security Perimeter (Zero-Trust &amp; X-Ray)
+        5. Orbital Mechanics &amp; The Heavy Lifters
       
     </span>
   </a>
@@ -8585,21 +8613,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#conclusion-a-masterclass-in-constraints" class="md-nav__link">
+  <a href="#6-the-reality-of-risk-in-1969" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Conclusion: A Masterclass in Constraints
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-your-own-code-in-3d" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Your Own Code in 3D
+        6. The Reality of "Risk" in 1969
       
     </span>
   </a>
@@ -8626,101 +8643,58 @@
   
 
 
-<h1 id="the-architecture-of-apollo-11-a-structural-physics-teardown-of-the-agc-codebase">The Architecture of Apollo 11: A Structural Physics Teardown of the AGC Codebase</h1>
-<p><strong>Executive Summary:</strong> We performed a deep <strong>static code analysis</strong> on the historic Apollo 11 Guidance Computer (AGC) source code. By mapping its structural physics, we uncover the extreme <strong>technical debt</strong>, monolithic <strong>software architecture</strong>, and legendary "God Nodes" that successfully orchestrated the 1969 lunar landing—long before modern <strong>microservices</strong>, <strong>code smells</strong>, or CI/CD pipelines existed.</p>
-<h3 id="welcome-to-the-museum-of-code">Welcome to the Museum of Code</h3>
-<p>In 1969, the Apollo Guidance Computer (AGC) safely navigated humanity to the surface of the moon. Woven into core rope memory by a team led by Margaret Hamilton at the MIT Instrumentation Laboratory, this codebase is arguably the most culturally significant repository in human history. It is the grandfather of modern embedded systems—a real-time, priority-interrupt-driven operating system crammed into just 72 kilobytes of ROM.</p>
-<p>But what does a 1960s lunar lander look like when subjected to modern architectural scrutiny? We ran the digitized Apollo 11 repository through the <strong>GitGalaxy blAST engine</strong>—an AST-free structural physics scanner—to strip away the history and visualize the raw code complexity, coupling, and fragility. Here is what we found under the hood of the ultimate legacy monolith.</p>
-<h3 id="the-3d-cartography">The 3D Cartography</h3>
+<h1 id="the-architecture-of-apollo-a-static-analysis-retrospective">THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE</h1>
 <blockquote>
-<p>[!NOTE]
-<em>Insert WebGL/Video rotation of the galaxy here</em></p>
+<h3 id="exhibit-apollo">=== EXHIBIT: APOLLO ===</h3>
+<p><strong>WHY IT MATTERS:</strong>
+The code that defined software engineering.</p>
+<p><strong>THE ARCHITECTS:</strong>
+Margaret Hamilton &amp; The MIT Instrumentation Lab.</p>
+<p><strong>HISTORICAL SIGNIFICANCE:</strong>
+Written for the Apollo Guidance Computer (AGC), this code operated on only 4KB of RAM and 72KB of ROM. Margaret Hamilton’s leadership and vision propelled her team to create a system so thorough and robust, that it permanently altered humanity’s view on the role of software in projects. The literal birth place of software engineering, as Margaret coined that term during this project to describe the seriousness and scale of the endeavor that she was leading. When 72KB of code is the only thing standing between three humans and the void, does programming become an act of engineering, or an act of faith? Would you go to space armed with less than one emoji’s worth of data? The digital preservation of this artifact is made possible by the meticulous efforts from the Virtual AGC Project. By manually transcribing the original scanned printouts from the MIT Instrumentation Laboratory, they ensured this code survived into the modern era. The complete assembly source code for the Command and Lunar Modules is now preserved and publicly accessible.</p>
+<p><strong>--- AUDIO &amp; ARTIFACTS ---</strong>
+▶ <strong>13 Minutes to the Moon: The fourth astronaut</strong>
+The definitive audio history of the Apollo Guidance Computer, the fourth astronaut. It features direct interviews with Margaret Hamilton and Jack Garman. BBC World Service.
+<a href="https://www.bbc.com/audio/play/w3csz4dn">Listen Here</a></p>
+<p>▶ <strong>Science Friday: The Women Who Brought Us Apollo 11</strong>
+This interview with Margaret Hamilton explores how she coined the term "Software Engineering." It highlights the human touch: she brought her daughter to the lab, and her daughter playing with the simulator actually revealed a bug that could have wiped the memory.
+<a href="https://www.sciencefriday.com/segments/the-women-who-brought-us-apollo-11/">Listen Here</a></p>
+<p>▶ <strong>Radiolab: Mixtapes to the Moon</strong>
+While less about the code, this provides the "human texture" of the mission—specifically the audio tapes and the feeling of the 400,000 people working in sync. Highlights how humans can work together as a collective to achieve the impossible.
+<a href="https://radiolab.org/podcast/mixtapes-to-the-moon">Listen Here</a></p>
 </blockquote>
-<p>When we map the repository, we are looking at a system built out of sheer, unadulterated necessity. There are no dynamic libraries or clean microservice boundaries here. </p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Macro State Metric</th>
-<th style="text-align: left;">Value</th>
-<th style="text-align: left;">Architectural Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Total LOC</strong></td>
-<td style="text-align: left;">74,153</td>
-<td style="text-align: left;">A remarkably dense, compact system for flying a spacecraft.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Language Profile</strong></td>
-<td style="text-align: left;">69.5% AGC Assembly, 30.1% Markdown</td>
-<td style="text-align: left;">Pure metal. The markdown represents modern transcriptions and docs.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Network Modularity</strong></td>
-<td style="text-align: left;">0.0</td>
-<td style="text-align: left;">A perfectly flat, zero-modularity monolith. Everything touches everything.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Cyclic Density</strong></td>
-<td style="text-align: left;">0.0%</td>
-<td style="text-align: left;">Zero static friction or dependency loops, enforcing a strictly linear compile path.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Articulation Points</strong></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Highly redundant network topology with no single file acting as a network-shattering choke point.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="the-house-of-cards-architectural-choke-points">The "House of Cards": Architectural Choke Points</h3>
-<p>In software architecture, we look for two distinct types of nodes: <strong>Structural Pillars</strong> (the foundational data that everything relies on) and <strong>Fragile Orchestrators</strong> (the complex controllers that pull everything together). </p>
-<p>Here is how the AGC distributes its logic:</p>
-<p><strong>Top 3 Structural Pillars (Highest Inbound Blast Radius):</strong>
-These files act as the foundation. Changes here carry a high risk of cascading breaks across the module.
-* <code>Luminary099/R31.agc</code> (Radar control logic)
-* <code>Comanche055/README.md</code> (Modern repository documentation)
-* <code>Luminary099/README.md</code></p>
-<p><strong>Top 3 Fragile Orchestrators (Highest Outbound Coupling):</strong>
-These files pull in massive amounts of external dependencies. They are highly coupled and fragile to API changes.
-* <code>Comanche055/TAGS_FOR_RELATIVE_SETLOC.agc</code> — <strong>43 outbound dependencies</strong>
-* <code>Comanche055/P20-P25.agc</code> (Navigation/Rendezvous logic) — <strong>39 outbound dependencies</strong>
-* <code>Comanche055/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code> (DSKY UI interface) — <strong>39 outbound dependencies</strong></p>
-<p><em>Architectural Insight:</em> The AGC separates its global addressing (<code>TAGS_FOR_RELATIVE_SETLOC</code>) from its UI layer (<code>PINBALL_GAME_BUTTONS_AND_LIGHTS</code>). However, the UI layer is an absolute behemoth of an orchestrator, tightly coupled to 39 different system dependencies to feed data to the astronaut's display.</p>
-<h3 id="technical-debt-the-god-nodes">Technical Debt &amp; The "God Nodes"</h3>
-<p>When you write assembly for a moon landing, you don't have the luxury of refactoring for clean code. You optimize for instruction cycles. This results in massive <strong>God Nodes</strong> and heavy functions.</p>
-<p><strong>The Heaviest Functions (Impact Score):</strong>
-* <strong><code>R60CALL</code></strong> (in <code>Comanche055/P20-P25.agc</code>): Impact Score <strong>206.2</strong> (453 LOC). This is a load-bearing "Main Character" orchestrating spacecraft attitude maneuvers.
-* <strong><code>OPJUMP3</code></strong> (in <code>Comanche055/INTERPRETER.agc</code>): Impact Score <strong>135.8</strong> (117 LOC). Dispatches unary and short shift operations.
-* <strong><code>P23</code></strong> (in <code>Comanche055/P20-P25.agc</code>): Impact Score <strong>85.8</strong> (117 LOC). Cislunar midcourse navigation.</p>
-<p><strong>Cumulative Risk Outliers:</strong>
-The highest multi-dimensional technical debt in the system belongs to the steering and executive loops. 
-* <code>Comanche055/KALCMANU_STEERING.agc</code>: Cumulative Risk of <strong>494.03</strong> with massive Tech Debt (85.2%) and extreme time complexity (<code>O(2^N) [Recursive]</code> inside <code>INCRDCDU</code>). 
-* <code>Luminary099/EXECUTIVE.agc</code>: The OS kernel itself sits at a risk score of <strong>473.39</strong>, heavily burdened by dense cognitive load (65.5%).</p>
-<p><strong>The Key Person Risk (Modern Silos):</strong>
-While the original code was written by a massive team at MIT, GitGalaxy tracks modern Git history to calculate the "Bus Factor." The modern digital archaeologists maintaining this repository hold immense, isolated ownership:
-* <code>PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code> (Mass: 2143.32) -&gt; <strong>Zachary Pedigo</strong> (100.0% isolated ownership)
-* <code>EXTENDED_VERBS.agc</code> (Mass: 845.96) -&gt; <strong>Matt Chaulklin</strong> (100.0% isolated ownership)</p>
-<h3 id="the-security-perimeter-zero-trust-x-ray">The Security Perimeter (Zero-Trust &amp; X-Ray)</h3>
-<p>How secure is 1960s code against modern static threat models? Surprisingly resilient, though physically risky by design.</p>
-<ul>
-<li><strong>Malware &amp; Autonomous Threats:</strong> <strong>0 detected</strong>. </li>
-<li><strong>Blacklisted Dependencies:</strong> <strong>0</strong>. (The AGC relies on no third-party supply chains!).</li>
-<li><strong>Binary Anomalies (X-Ray):</strong> <strong>5 hits</strong>. The X-Ray Inspector flagged high entropy in a few files, primarily due to densely packed octal payloads representing literal hardware memory addresses.</li>
-<li><strong>Exploit Generation Surface:</strong> Hit <strong>20.0%</strong> in <code>DISPLAY_INTERFACE_ROUTINES.agc</code> and <code>FRESH_START_AND_RESTART.agc</code>. Because the AGC requires raw memory manipulation and direct hardware jumps (weaponizable vectors in modern web apps), the physics engine flags these as highly exploitable surfaces if they were deployed in a modern context.</li>
-</ul>
-<h3 id="conclusion-a-masterclass-in-constraints">Conclusion: A Masterclass in Constraints</h3>
-<p>The Apollo 11 codebase is a breathtaking example of constraint-driven engineering. It suffers from extreme coupling and recursive bottlenecks that would fail a modern CI/CD pipeline instantly. Yet, its absolute lack of external dependencies, its rigidly verified state mutation, and its zero-modularity architecture made it utterly indestructible in the vacuum of space. It is a house of cards glued together by genius.</p>
 <hr />
-<h3 id="see-your-own-code-in-3d">See Your Own Code in 3D</h3>
-<p>This architectural teardown was generated using <strong>GitGalaxy</strong>, an AST-free structural physics engine that treats codebases like gravitational networks.</p>
+<h2 id="1-the-twin-hubs-comanche-and-luminary">1. The Twin Hubs: Comanche and Luminary</h2>
+<p>To understand the AGC's topology, we first have to map its two distinct operational hemispheres. The system topology is split between two primary mission directories—<code>Comanche055</code> and <code>Luminary099</code>—which act as the dominant functional hubs containing the core execution logic. </p>
+<p>While they exist in the same repository, they were compiled for two physically separate computers residing in two entirely different spacecraft. <code>Comanche055</code> orchestrated the Command Module (CM)—the mothership responsible for deep-space navigation, getting the astronauts to lunar orbit, and safely managing the fiery reentry back to Earth. <code>Luminary099</code> piloted the Lunar Module (LM)—the specialized landing craft that detached in orbit, descended to the lunar surface, and ascended back up to rendezvous with the CM.</p>
+<h3 id="architectural-symmetry-and-information-flow">Architectural Symmetry and Information Flow</h3>
+<p>Despite their different mission objectives, Comanche and Luminary are structural mirror images of one another. The GitGalaxy ecosystem fingerprinting reveals that both directories are overwhelmingly dominated by the exact same architectural archetype (<code>file_cluster_15</code>), which accounts for 67.9% of the Command Module's files and 68.5% of the Lunar Module's files. They share a perfectly flat, highly centralized network structure with a global modularity of 0.0, indicating a system where logic is tightly coupled for maximum execution speed rather than separated into modern, abstracted micro-modules.</p>
+<p>Because they lived on separate spacecraft, they did not share a central brain or a single display. Instead, each directory contains its own dedicated orchestrator and its own visual output systems:</p>
 <ul>
-<li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
-<li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li><strong>The Twin Brains:</strong> Both Comanche and Luminary possess their own parallel copies of <code>EXECUTIVE.agc</code> and <code>WAITLIST.agc</code> to manage priority task scheduling.</li>
+<li><strong>The Twin Faces:</strong> Both spacecraft had their own physical DSKY (Display and Keyboard) units. Consequently, both directories maintain their own massive interface drivers, like <code>DISPLAY_INTERFACE_ROUTINES.agc</code> and <code>PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code>, to translate machine state into human-readable nouns and verbs.</li>
+<li><strong>The Nervous System:</strong> Information flows through both systems using an identical paradigm. Raw telemetry from hardware sensors triggers interrupts (handled by identically named files like <code>T4RUPT_PROGRAM.agc</code> in both directories), which pass data into the <code>EXECUTIVE.agc</code> to be prioritized, calculated, and fed into the Digital Autopilot (DAP) to fire the thrusters.</li>
 </ul>
-<hr />
-<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
+<p>While the flow of data is mirrored, the physics they process are uniquely specialized. Luminary ingests raw data from the landing radar and processes heavy descent mathematics via <code>LUNAR_LANDING_GUIDANCE_EQUATIONS.agc</code>. Conversely, Comanche ignores landing logic entirely, instead relying on files like <code>CM_ENTRY_DIGITAL_AUTOPILOT.agc</code> to handle the intense atmospheric reentry dynamics. They are twin sisters—speaking the exact same language, sharing the exact same structural DNA, but trained for two completely different survival scenarios.</p>
+<h2 id="2-information-flow-the-physical-reality-of-code">2. Information Flow &amp; The Physical Reality of Code</h2>
+<p>This system maps closest to the Macro-Species designation of Cluster 4, yet it exhibits an exceptionally high Architectural Drift Z-Score of 6.405. In modern enterprise architecture, this deviation would trigger an immediate refactoring alert; here, it is a badge of absolute honor. This high deviation indicates a highly unique, domain-specific execution model optimized for low-level spaceflight controls rather than standardized application software patterns. </p>
+<p>Information flows strictly through low-level assembly routines and macro calls, resulting in a global network modularity of exactly 0.0. This lack of isolation wasn't a flaw; the code was literally woven into physical "Core Rope Memory" by teams of skilled seamstresses. When software is copper wire, foundational infrastructure files like <code>Luminary099/R31.agc</code> cannot rely on virtualized micro-services—they operate as immediate, high-speed entry points to save precious processing cycles.</p>
+<h2 id="3-the-pinball-interface">3. The "Pinball" Interface</h2>
+<p>One of the most historically fascinating files is <code>Comanche055/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code>. This is the software that drove the DSKY (Display and Keyboard) interface. The engineers affectionately named it "Pinball" because of all the flashing lights. It allowed astronauts in bulky gloves to punch in "Verb" (action) and "Noun" (data) commands—an incredibly intuitive UX achievement for 1969. </p>
+<p>The structural audit reveals just how much gravitational pull this interface carried: it is the most massive file in the scanned repository, registering a staggering structural mass of 2,143.32 across 3,809 lines of code. Rather than acting as a simple peripheral script, "Pinball" operates as a primary orchestrator tethered to 35 outbound dependencies, relying on heavy, load-bearing functions like <code>TESTNN</code> (Impact: 40.3) and <code>DECTEST</code> (Impact: 40.2) to continuously translate physical keypresses into raw guidance data.</p>
+<h2 id="4-priority-scheduling-cycle-syncing">4. Priority Scheduling &amp; Cycle Syncing</h2>
+<p>The system relies heavily on <code>EXECUTIVE.agc</code> and <code>WAITLIST.agc</code>. This was one of the world's first asynchronous, priority-based operating systems. During the descent to the lunar surface, a radar hardware glitch flooded the computer with useless data. Because the architecture was synced to computer cycles and prioritized strictly by importance, the Executive routine deliberately dropped low-priority tasks (triggering the famous 1201 and 1202 alarms) to ensure the landing math never missed a beat. </p>
+<p>The deterministic physics of this codebase perfectly illustrates this frantic, high-speed juggling act: <code>Luminary099/EXECUTIVE.agc</code> exhibits one of the highest State Flux Risk Exposures in the entire codebase at 27.47%, reflecting its constant data mutation as it managed concurrent tasks. To execute this flawless prioritization, the routine utilized complex algorithms like <code>SPVACIN</code> and <code>JOBWAKE4</code>, alongside the primary <code>EJSCAN</code> function, which registers as one of the heaviest individual routines in the entire Apollo system (Impact: 68.5).</p>
+<h2 id="5-orbital-mechanics-the-heavy-lifters">5. Orbital Mechanics &amp; The Heavy Lifters</h2>
+<p>When humans are hurtling through a vacuum, the logic density becomes highly concentrated. The codebase relies on a collection of fragile orchestrators—highly coupled files that pull in massive amounts of external dependencies. <code>Comanche055/P20-P25.agc</code> alone maintains 38 outbound dependencies to handle deep-space navigation and radar tracking. </p>
+<p>Buried within this file is the single heaviest function in the system by a large margin: <code>R60CALL</code>. This load-bearing routine registers a structural magnitude score of 206.2 over 453 lines of code. To squeeze maximum capability out of the limited memory, the engineers also built custom virtual machines inside the hardware. The dispatching interpreter loops (<code>OPJUMP3</code>) found in both modules' <code>INTERPRETER.agc</code> files span over 115 lines of code with structural impacts exceeding 135.0, allowing the AGC to execute complex vector mathematics that the bare metal processor couldn't natively understand.</p>
+<h2 id="6-the-reality-of-risk-in-1969">6. The Reality of "Risk" in 1969</h2>
+<p>Several files present severe statistical anomalies and high cumulative risk profiles. While today we might view these as "technical debt" or "volatility," in the context of the 1960s space race, they represent the intense realities of cutting-edge physics.</p>
+<ul>
+<li><strong>Cognitive Load:</strong> The ignition routine <code>Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc</code> represents a major cognitive load outlier (70.1% exposure). Famously named after the catchphrase of 1960s R&amp;B disc jockey Magnificent Montague, the "cognitive load" here is simply the reality of cramming orbital mechanics, throttle control, and master ignition timing into a 1,059-line control flow.</li>
+<li><strong>Extreme Cumulative Risk:</strong> <code>Comanche055/KALCMANU_STEERING.agc</code> holds the highest multi-dimensional risk score in the repository at 494.03. Its elevated profile is driven by what modern scanners calculate as documentation density gaps (99.5%) and structural tech debt (85.2%).</li>
+<li><strong>Weaponizable Surfaces vs. Elite Optimization:</strong> Modern perimeter defense rules flag files like <code>Comanche055/PINBALL_NOUN_TABLES.agc</code> for raw memory manipulation vectors (~10.0% exposure) due to direct memory allocation and raw pointer tracking. In a modern web application, this is an exploit generation surface. In the Apollo 11 AGC, this was sheer survival. The engineers expertly manipulated exact memory addresses because every single byte of magnetic core memory dictated the success of the mission.</li>
+</ul>
 
 
 

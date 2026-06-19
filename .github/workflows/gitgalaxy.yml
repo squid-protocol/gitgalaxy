@@ -9,7 +9,7 @@ jobs:
     name: Vault Sentinel
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: squid-protocol/gitgalaxy@v2.2.6
         with:
           tool: 'vault-sentinel'
@@ -19,7 +19,7 @@ jobs:
     name: X-Ray Inspector
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: squid-protocol/gitgalaxy@v2.2.6
         with:
           tool: 'xray-inspector'
@@ -29,7 +29,7 @@ jobs:
     name: Supply Chain Firewall
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: squid-protocol/gitgalaxy@v2.2.6
         with:
           tool: 'supply-chain-firewall'
@@ -43,7 +43,7 @@ jobs:
     permissions:
       contents: write # Critical: Grants the Action permission to push to main
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

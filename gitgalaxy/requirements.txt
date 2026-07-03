@@ -50,7 +50,7 @@ llvmlite==0.47.0
 Markdown==3.10.2
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
-matplotlib==3.10.8
+matplotlib==3.10.9
 matplotlib-inline==0.2.2
 mccabe==0.7.0
 mdurl==0.1.2

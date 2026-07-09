@@ -20,10 +20,6 @@ Zero-Trust DevSecOps tools designed for pre-commit hooks and CI/CD pipeline bloc
 * **Vault Sentinel:** Hyper-speed, two-tier pre-commit hook for detecting exposed cryptographic keys and SaaS tokens.
 * **Binary Anomaly Detector:** A localized triage engine that utilizes Shannon Entropy to detect packed malware and execution headers hidden inside static binary artifacts.
 
-### 📜 [Compliance & Auditing Suite](./compliance/README.md)
-Tools for generating forensic, mathematically verified records of software architecture.
-* **Zero-Trust SBOM Generator:** Rejects standard manifest assumptions. Physically hunts dependencies on disk and validates their structural identity before signing off on CycloneDX/SPDX manifests.
-
 ### 🕵️ [High-Velocity Log Streaming & Incident Response](./terabyte_log_scanning/README.md)
 Unindexed binary streaming engines for processing massive data outputs without RAM exhaustion.
 * **PII Leak Hunter:** Streams terabytes of raw database/server logs to instantly detect and redact accidentally exposed PII (SSNs, Credit Cards, AWS Keys).

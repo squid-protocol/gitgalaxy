@@ -28,8 +28,22 @@ Each file in this directory represents a specialized data exit strategy, tailore
 
 * **`gpu_recorder.py` (The Visual Payload Generator):** Generates the `_gpu.json` payload. It performs the Destructive RAM Eviction and Columnar Pivot, compressing the multi-dimensional graph into a minified manifest built strictly for high-performance WebGPU rendering engines.
 * **`record_keeper.py` (The SQL Telemetry Layer):** Generates the `_master.db` artifact. A native SQLite3 recorder that captures the complete forensic state of the scan. It creates a robust, time-series schema designed for Enterprise Data Warehouse (EDW) aggregation, SQL-based security auditing, and delta-scan rehydration.
+* **`sarif_recorder.py` (The Enterprise CI/CD Layer):** Generates the `_sarif.json` payload. Translates the XGBoost threat classifications, AI AppSec guardrails, and structural risk thresholds into the industry-standard Static Analysis Results Interchange Format (SARIF 2.1.0), enabling native integration with GitHub Advanced Security and GitLab Ultimate.
+* **`sbom_recorder.py` (The Supply Chain Manifest):** Generates the `_sbom.json` payload. Transforms the resolved repository dependency graph into a formalized CycloneDX 1.4 manifest. Integrates a Zero-Trust physical audit to flag locally spoofed or maliciously packed dependencies.
 * **`llm_recorder.py` (The AI Context Layer):** Generates the `_llm.md` and `_graph.sqlite` artifacts. It calculates repository-wide statistical metrics (Min/Max/Mean for all 18 risk dimensions) and produces a targeted brief that grants autonomous AI agents (like Claude or Cursor) total ecosystem awareness before they write a single line of code.
 * **`audit_recorder.py` (The Compliance & Forensic Layer):** Generates the `_audit.json` log. Designed for compliance, security debugging, and human review. It cryptographically binds the scan to a specific Git Commit Hash (acting as a Structural Health Bill of Materials), decodes the internal XGBoost ML Threat taxonomy, and maps raw integers back to descriptive, enterprise-friendly terminology.
+
+---
+
+## Standard Orchestrator Output
+When running the `galaxyscope.py` orchestrator without exclusive flags, the engine automatically routes the centralized RAM state through all recorders, emitting the following standard artifacts for a given target (e.g., `project-name`):
+
+* `project-name_galaxy_gpu.json` (WebGL UI Payload)
+* `project-name_galaxy_master.db` (Relational SQL Database)
+* `project-name_galaxy_sarif.json` (CI/CD Security Alerts)
+* `project-name_galaxy_sbom.json` (CycloneDX Dependency Manifest)
+* `project-name_galaxy_audit.json` (Human-Readable Compliance Log)
+* `project-name_galaxy_llm.md` (Compressed Context Window Brief)
 
 ---
 

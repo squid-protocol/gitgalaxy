@@ -119,7 +119,7 @@ seaborn==0.13.2
 SecretStorage==3.5.0
 setuptools==82.0.1
 six==1.17.0
-soupsieve==2.8.3
+soupsieve==2.8.4
 stack-data==0.6.3
 stdlib-list==0.12.0
 stripe==14.4.1

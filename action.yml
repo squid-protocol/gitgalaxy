@@ -8,7 +8,7 @@ inputs:
   tool:
     description: >
       The GitGalaxy command to execute. 
-      Options: galaxyscope, blast, vault-sentinel, supply-chain-firewall, xray-inspector, zero-trust-sbom, pii-leak-hunter, terabyte-log-scanner, api-network-map.
+      Options: galaxyscope, blast, vault-sentinel, supply-chain-firewall, xray-inspector, pii-leak-hunter, terabyte-log-scanner, api-network-map. (Note: SARIF and SBOM generation are now native to galaxyscope).
     required: true
     default: 'galaxyscope'
   target:
@@ -16,7 +16,7 @@ inputs:
     required: true
     default: '.'
   args:
-    description: 'Any additional CLI arguments to pass to the tool (e.g., --output json, --paranoid).'
+    description: 'Additional CLI arguments to pass to the tool (e.g., --sarif-only, --sbom-only, --fail-on-secrets, --fail-on-malware, --max-risk-exposure 85.0).'
     required: false
     default: ''
   version:

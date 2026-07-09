@@ -724,15 +724,20 @@ export class GalaxyEngine {
         this.uMoonFadeDist.value = maxDist;
 
         // Handle Singularity
-        const sigData = raw.global_summary?.singularity;
-        if (sigData && sigData.ambig_file_count > 0) {
+        const sigData = raw.singularity; // Grab directly from the root
+        const ambigCount = sigData?.paths?.length || 0; // Count is the length of the columnar array
+
+        if (sigData && ambigCount > 0) {
             this.singularityData = sigData;
+            // Inject the count back so the HTML HUD can read it
+            this.singularityData.ambig_file_count = ambigCount;
             this.singularityData.visible_percent = raw.global_summary?.summary?.Percent_Visible || 0; 
             this.singularityGroup.visible = true;
-            const bhScale = 20 + Math.pow(sigData.ambig_file_count, 0.5) * 5; 
+            
+            // Calculate scale based on the array length
+            const bhScale = 20 + Math.pow(ambigCount, 0.5) * 5; 
             this.singularityGroup.scale.setScalar(bhScale);
         } else {
-            this.singularityData = null;
             this.singularityGroup.visible = false;
         }
 

@@ -58,13 +58,14 @@ export class DataParser {
 
         const galaxy = raw.galaxy;
         const count = galaxy.names.length;
+        const stride = raw.meta?.schemas?.risk_vector_x1000?.length || 19;
         const processed = {
             entities: [],
             groups: this.createEmptyGroups()
         };
 
         for (let i = 0; i < count; i++) {
-            const entity = this.transformEntity(galaxy, i);
+            const entity = this.transformEntity(galaxy, i, stride);
             processed.entities.push(entity);
             
             // 1. Add Star to geometry group
@@ -116,7 +117,7 @@ export class DataParser {
         return processed;
     }
 
-    transformEntity(galaxy, i) {
+    transformEntity(galaxy, i, stride = 19) {
         const loc = galaxy.locs[i];
         const m_loc = galaxy.m_locs[i];
         const mass = galaxy.mass[i];
@@ -136,6 +137,13 @@ export class DataParser {
         const realPopularity = (galaxy.popularity && galaxy.popularity[i]) || 
                                (galaxy.telemetry && galaxy.telemetry[i] ? galaxy.telemetry[i].popularity : 0) || 0;
 
+        let r = Array(stride).fill(-10);
+        if (galaxy.risks_flat) {
+            r = galaxy.risks_flat.slice(i * stride, (i + 1) * stride);
+        } else if (galaxy.risks && galaxy.risks[i]) {
+            r = galaxy.risks[i];
+        }
+
         return {
             id: i,
             name: galaxy.names[i],
@@ -145,7 +153,7 @@ export class DataParser {
             visualType: type,
             logicRatio: logicRatio,
             pos: { x: galaxy.pos_x[i] / 10.0, y: galaxy.pos_y[i] / 10.0, z: galaxy.pos_z[i] / 10.0 },
-            risks: galaxy.risks[i] || Array(18).fill(-10), // Increased from 13 to 18
+            risks: r,
             satellites: galaxy.satellites ? galaxy.satellites[i] : [],
             popularity: realPopularity,    // <--- Store the real value
             importHits: realPopularity     // <--- Wire rings to actual popularity, not regex hits!

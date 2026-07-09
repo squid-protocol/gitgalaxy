@@ -1,9 +1,10 @@
 import pytest
 import json
 import sys
+import logging
 from unittest.mock import patch
 
-from gitgalaxy.tools.compliance.sbom_generator import UniversalManifestSlicer, main
+from gitgalaxy.recorders.sbom_recorder import UniversalManifestSlicer, SbomRecorder
 
 
 # ==============================================================================
@@ -131,31 +132,35 @@ def test_locate_physical_package(tmp_path):
 
 
 # ==============================================================================
-# TEST 3: System Exits and Empty Voids
+# TEST 3: Graceful Fallbacks (Missing Targets & Empty Voids)
 # ==============================================================================
-def test_sbom_generator_system_exits(tmp_path):
+def test_sbom_generator_graceful_fallbacks(tmp_path, caplog):
     """Proves the orchestrator aborts gracefully if the target is invalid or empty."""
+    recorder = SbomRecorder()
 
     # 1. Invalid Target
-    with patch.object(sys, "argv", ["sbom_generator.py", "/path/does/not/exist"]):
-        with pytest.raises(SystemExit) as exc:
-            main()
-        assert exc.value.code == 1
+    with caplog.at_level(logging.ERROR):
+        recorder.generate_report([], {}, {"target_directory": "/path/does/not/exist"}, str(tmp_path / "out.json"))
+    assert "does not exist" in caplog.text
 
     # 2. Valid Target, No Manifests
     empty_dir = tmp_path / "empty_project"
     empty_dir.mkdir()
-    with patch.object(sys, "argv", ["sbom_generator.py", str(empty_dir)]):
-        with pytest.raises(SystemExit) as exc:
-            main()
-        assert exc.value.code == 0
+    out_file = tmp_path / "empty_bom.json"
+    
+    with caplog.at_level(logging.WARNING):
+        recorder.generate_report([], {}, {"target_directory": str(empty_dir)}, str(out_file))
+        
+    assert "No supported manifests found" in caplog.text
+    # Proves it still successfully dumps the standard CycloneDX shell!
+    assert out_file.exists()
 
 
 # ==============================================================================
 # TEST 4: The Zero-Trust CycloneDX Matrix (Spoofs & Exceptions)
 # ==============================================================================
-@patch("gitgalaxy.tools.compliance.sbom_generator.SecurityLens")
-@patch("gitgalaxy.tools.compliance.sbom_generator.LanguageDetector")
+@patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
+@patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
 def test_zero_trust_sbom_generation_anomalies(
     mock_detector_class, mock_security_class, tmp_path
 ):
@@ -195,18 +200,13 @@ def test_zero_trust_sbom_generation_anomalies(
             raise PermissionError("Locked")
         return original_open(file, *args, **kwargs)
 
-    with (
-        patch("builtins.open", side_effect=conditional_open),
-        patch.object(
-            sys,
-            "argv",
-            ["sbom_generator.py", str(project_dir), "--out", "test_bom.json"],
-        ),
-    ):
-        main()
+    out_file = tmp_path / "test_bom.json"
+    recorder = SbomRecorder()
 
-    bom_file = tmp_path / "target_project_test_bom.json"
-    bom_data = json.loads(bom_file.read_text(encoding="utf-8"))
+    with patch("builtins.open", side_effect=conditional_open):
+        recorder.generate_report([], {}, {"target_directory": str(project_dir)}, str(out_file))
+
+    bom_data = json.loads(out_file.read_text(encoding="utf-8"))
 
     components = {c["name"]: c for c in bom_data["components"]}
 
@@ -226,8 +226,8 @@ def test_zero_trust_sbom_generation_anomalies(
 # ==============================================================================
 # TEST 5: Perfect Clean Execution
 # ==============================================================================
-@patch("gitgalaxy.tools.compliance.sbom_generator.SecurityLens")
-@patch("gitgalaxy.tools.compliance.sbom_generator.LanguageDetector")
+@patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
+@patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
 def test_zero_trust_sbom_clean_run(mock_detector_class, mock_security_class, tmp_path):
     """Proves the generator successfully outputs a VERIFIED_SAFE SBOM status."""
     project_dir = tmp_path / "clean_project"
@@ -245,13 +245,12 @@ def test_zero_trust_sbom_clean_run(mock_detector_class, mock_security_class, tmp
     mock_sec_instance.scan_content.return_value = {"counts": {"entropy": 0.0}}
     mock_det_instance.inspect.return_value = {"anomaly_flags": []}
 
-    with patch.object(
-        sys, "argv", ["sbom_generator.py", str(project_dir), "--out", "clean_bom.json"]
-    ):
-        main()
+    out_file = tmp_path / "clean_bom.json"
+    recorder = SbomRecorder()
+    
+    recorder.generate_report([], {}, {"target_directory": str(project_dir)}, str(out_file))
 
-    bom_file = tmp_path / "clean_project_clean_bom.json"
-    bom_data = json.loads(bom_file.read_text(encoding="utf-8"))
+    bom_data = json.loads(out_file.read_text(encoding="utf-8"))
 
     props = {p["name"]: p["value"] for p in bom_data["components"][0]["properties"]}
     assert props["gitgalaxy:trust_status"] == "VERIFIED_SAFE"

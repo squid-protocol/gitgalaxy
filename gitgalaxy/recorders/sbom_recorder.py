@@ -1,18 +1,16 @@
-#!/usr/bin/env python3
 # ==============================================================================
 # GitGalaxy Spoke: Universal Zero-Trust SBOM Generator
 # Purpose: Generates a CycloneDX SBOM with physical verification of dependencies
 #          across multiple language ecosystems (NPM, Composer, PyPI, Cargo).
 # ==============================================================================
-import argparse
-import sys
 import os
 import json
 import uuid
 import re
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List, Any
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.security.security_lens import SecurityLens
@@ -69,7 +67,6 @@ class UniversalManifestSlicer:
                         for line in block.splitlines():
                             line = line.strip()
                             if line and not line.startswith("#") and "=" in line:
-                                pkg_name = line.split("=")[0].strip()
                                 pkg_name = line.split("=")[0].strip()
                                 deps[pkg_name] = "latest"  # Simplified version extraction
 
@@ -176,172 +173,163 @@ class UniversalManifestSlicer:
         return None
 
 
-def main():
-    from gitgalaxy.licensing import enforce_licensing_guard
+class SbomRecorder:
+    """
+    Transforms the verified repository state into a CycloneDX SBOM manifest.
+    Integrates the zero-trust physical audit to guarantee component integrity.
+    """
 
-    enforce_licensing_guard("Universal Zero-Trust SBOM Generator")
+    def __init__(self, version: str = "2.4.0", parent_logger: logging.Logger = None):
+        self.logger = parent_logger.getChild("sbom_recorder") if parent_logger else logging.getLogger("sbom_recorder")
+        self.version = version
 
-    parser = argparse.ArgumentParser(description="Universal Zero-Trust SBOM Generator")
-    parser.add_argument("target", help="Root directory of the project")
-    parser.add_argument(
-        "--out",
-        default="bom.json",
-        help="Output JSON filename (appended to target name)",
-    )
-    args = parser.parse_args()
+    def generate_report(
+        self,
+        parsed_files: List[Dict[str, Any]],
+        summary: Dict[str, Any],
+        session_meta: Dict[str, Any],
+        output_path: str,
+    ) -> None:
+        target_path = Path(session_meta.get("target_directory", "")).resolve()
+        
+        if not target_path.exists():
+            self.logger.error(f"SBOM_FAILURE: Target directory {target_path} does not exist.")
+            return
 
-    target_path = Path(args.target).resolve()
-    if not target_path.exists():
-        print(f"Error: Target {target_path} does not exist.")
-        sys.exit(1)
+        self.logger.info(f"SBOM: Engaging Universal Zero-Trust Generation on {target_path.name}...")
 
-    print(f"📦 GitGalaxy Universal SBOM Generator engaging on {target_path.name}...")
+        security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
+        detector = LanguageDetector(LANGUAGE_DEFINITIONS, LEXICAL_FAMILY_HEURISTICS)
+        slicer = UniversalManifestSlicer()
 
-    security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
-    detector = LanguageDetector(LANGUAGE_DEFINITIONS, LEXICAL_FAMILY_HEURISTICS)
-    slicer = UniversalManifestSlicer()
+        components = []
+        total_anomalies = 0
+        total_missing = 0
+        total_verified = 0
 
-    components = []
-    total_anomalies = 0
-    total_missing = 0
-    total_verified = 0
+        # 1. Harvest Manifests Universally
+        manifest_targets = [
+            "package.json",
+            "composer.json",
+            "requirements.txt",
+            "Cargo.toml",
+            "go.mod",
+            "Gemfile",
+            "pom.xml",
+        ]
+        found_manifests = [target_path / m for m in manifest_targets if (target_path / m).exists()]
 
-    # 1. Harvest Manifests Universally
-    manifest_targets = [
-        "package.json",
-        "composer.json",
-        "requirements.txt",
-        "Cargo.toml",
-        "go.mod",
-        "Gemfile",
-        "pom.xml",
-    ]
-    found_manifests = [target_path / m for m in manifest_targets if (target_path / m).exists()]
+        if not found_manifests:
+            self.logger.warning("SBOM: No supported manifests found in the root directory. Outputting empty BOM.")
 
-    if not found_manifests:
-        print("⚠️  No supported manifests found in the root directory.")
-        sys.exit(0)
+        # 2. The Zero-Trust Physical Audit
+        for manifest in found_manifests:
+            ecosystem, packages = slicer.slice_manifest(manifest)
+            if not packages:
+                continue
 
-    # 2. The Zero-Trust Physical Audit
-    for manifest in found_manifests:
-        ecosystem, packages = slicer.slice_manifest(manifest)
-        if not packages:
-            continue
+            self.logger.debug(f"SBOM: Auditing {len(packages)} {ecosystem.upper()} dependencies from {manifest.name}...")
 
-        print(f"\n🔎 Auditing {len(packages)} {ecosystem.upper()} dependencies from {manifest.name}...")
+            for pkg_name, pkg_version in packages.items():
+                trust_status = "VERIFIED_SAFE"
+                anomaly_notes = []
 
-        for pkg_name, pkg_version in packages.items():
-            trust_status = "VERIFIED_SAFE"
-            anomaly_notes = []
+                pkg_path = slicer.locate_physical_package(target_path, pkg_name, ecosystem)
 
-            pkg_path = slicer.locate_physical_package(target_path, pkg_name, ecosystem)
-
-            if not pkg_path:
-                trust_status = "UNVERIFIED_MISSING_ON_DISK"
-                anomaly_notes.append("Package declared in manifest but not found locally.")
-                total_missing += 1
-            else:
-                # Physical Audit (Max 5 core files to maintain velocity)
-                scanned_files = 0
-                for root, _, files in os.walk(pkg_path):
-                    if scanned_files > 5:
-                        break
-
-                    for file in files:
-                        if not file.endswith((".js", ".py", ".ts", ".php", ".rs")):
-                            continue
-
-                        file_path = Path(root) / file
-                        try:
-                            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-                                content = f.read(8192)
-
-                            sec_results = security.scan_content(content, 100)
-                            if sec_results["counts"].get("entropy", 0) > 0:
-                                trust_status = "SPOOF_DETECTED"
-                                anomaly_notes.append(f"High Entropy (>4.8) in {file}")
-
-                            id_result = detector.inspect(file_path, content)
-                            if id_result["anomaly_flags"]:
-                                trust_status = "SPOOF_DETECTED"
-                                anomaly_notes.extend(id_result["anomaly_flags"])
-
-                            scanned_files += 1
-                        except Exception:
-                            pass
-
-                if trust_status == "SPOOF_DETECTED":
-                    total_anomalies += 1
-                    print(f"   🚨 [SPOOF DETECTED] {pkg_name}@{pkg_version}")
+                if not pkg_path:
+                    trust_status = "UNVERIFIED_MISSING_ON_DISK"
+                    anomaly_notes.append("Package declared in manifest but not found locally.")
+                    total_missing += 1
                 else:
-                    total_verified += 1
+                    # Physical Audit (Max 5 core files to maintain velocity)
+                    scanned_files = 0
+                    for root, _, files in os.walk(pkg_path):
+                        if scanned_files > 5:
+                            break
 
-            if trust_status == "UNVERIFIED_MISSING_ON_DISK":
-                print(f"   ⚠️  [MISSING] {pkg_name}@{pkg_version}")
+                        for file in files:
+                            if not file.endswith((".js", ".py", ".ts", ".php", ".rs")):
+                                continue
 
-            components.append(
-                {
-                    "type": "library",
-                    "name": pkg_name,
-                    "version": pkg_version,
-                    "purl": f"pkg:{ecosystem}/{pkg_name}@{pkg_version}",
-                    "properties": [
-                        {"name": "gitgalaxy:trust_status", "value": trust_status},
-                        {
-                            "name": "gitgalaxy:anomaly_notes",
-                            "value": (" | ".join(anomaly_notes) if anomaly_notes else "None"),
-                        },
-                    ],
-                }
+                            file_path = Path(root) / file
+                            try:
+                                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                                    content = f.read(8192)
+
+                                sec_results = security.scan_content(content, 100)
+                                if sec_results["counts"].get("entropy", 0) > 0:
+                                    trust_status = "SPOOF_DETECTED"
+                                    anomaly_notes.append(f"High Entropy (>4.8) in {file}")
+
+                                id_result = detector.inspect(file_path, content)
+                                if id_result["anomaly_flags"]:
+                                    trust_status = "SPOOF_DETECTED"
+                                    anomaly_notes.extend(id_result["anomaly_flags"])
+
+                                scanned_files += 1
+                            except Exception:
+                                pass
+
+                    if trust_status == "SPOOF_DETECTED":
+                        total_anomalies += 1
+                        self.logger.warning(f"🚨 [SPOOF DETECTED] {pkg_name}@{pkg_version}")
+                    else:
+                        total_verified += 1
+
+                components.append(
+                    {
+                        "type": "library",
+                        "name": pkg_name,
+                        "version": pkg_version,
+                        "purl": f"pkg:{ecosystem}/{pkg_name}@{pkg_version}",
+                        "properties": [
+                            {"name": "gitgalaxy:trust_status", "value": trust_status},
+                            {
+                                "name": "gitgalaxy:anomaly_notes",
+                                "value": (" | ".join(anomaly_notes) if anomaly_notes else "None"),
+                            },
+                        ],
+                    }
+                )
+
+        # 3. Dependency Mode Meta Flag
+        is_zero_dep = session_meta.get("zero_dependency_mode", False)
+
+        # 4. CycloneDX JSON Formatting
+        bom = {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.4",
+            "serialNumber": f"urn:uuid:{uuid.uuid4()}",
+            "version": 1,
+            "metadata": {
+                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "tools": [
+                    {
+                        "vendor": "GitGalaxy",
+                        "name": "Universal Zero-Trust SBOM",
+                        "version": f"v{self.version}",
+                    }
+                ],
+                "component": {"type": "application", "name": target_path.name},
+                "properties": [
+                    {
+                        "name": "gitgalaxy:zero_dependency_mode",
+                        "value": str(is_zero_dep).lower()
+                    }
+                ]
+            },
+            "components": components,
+        }
+
+        # Output the sealed manifest
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(bom, f, indent=4)
+
+            self.logger.info(
+                f"SBOM_SEALED: {len(components)} dependencies mapped -> {Path(output_path).resolve()}"
             )
-
-    # ==============================================================================
-    # CYCLONEDX JSON FORMATTING
-    # ==============================================================================
-    bom = {
-        "bomFormat": "CycloneDX",
-        "specVersion": "1.4",
-        "serialNumber": f"urn:uuid:{uuid.uuid4()}",
-        "version": 1,
-        "metadata": {
-            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "tools": [
-                {
-                    "vendor": "GitGalaxy",
-                    "name": "Universal Zero-Trust SBOM",
-                    "version": "6.3.0",
-                }
-            ],
-            "component": {"type": "application", "name": target_path.name},
-        },
-        "components": components,
-    }
-
-    # Output to the parent directory of the target
-    out_path = target_path.parent / f"{target_path.name}_{args.out}"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(bom, f, indent=4)
-
-    # ==============================================================================
-    # MISSION REPORT
-    # ==============================================================================
-    print("\n" + "=" * 75)
-    print(" 📦 SBOM GENERATOR: MISSION REPORT")
-    print("=" * 75)
-    print(f" Dependencies Claimed : {len(components)}")
-    print(" Standard Export      : CycloneDX 1.4 JSON")
-    print(f" Output Location      : {out_path.resolve()}")
-    print("-" * 75)
-    print(f" Verified Safe        : {total_verified}")
-    print(f" Missing on Disk      : {total_missing}")
-    print(f" Spoofed / Infected   : {total_anomalies}")
-    print("-" * 75)
-    if total_anomalies > 0:
-        print(f" ❌ ALERT: {total_anomalies} dependencies failed physical structural verification.")
-    else:
-        print(" ✅ SUCCESS: Mathematical verification complete. SBOM sealed.")
-    print("=" * 75 + "\n")
-
-
-if __name__ == "__main__":
-    main()
+            if total_anomalies > 0:
+                self.logger.warning(f"SBOM_ALERT: {total_anomalies} dependencies failed physical structural verification.")
+        except Exception as e:
+            self.logger.error(f"SBOM_FAILURE: Could not export CycloneDX payload. {e}", exc_info=True)

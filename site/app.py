@@ -360,11 +360,11 @@ def stripe_webhook():
                 f"SUCCESS! Printify order created for Product {new_product_id} with Quantity {final_quantity}!"
             )
 
-        except requests.exceptions.RequestException as e:
+        except (requests.exceptions.RequestException, ValueError, Exception) as e:
             # ==========================================
             # 🚨 THE ULTIMATE FAILSAFE (DEAD-LETTER)
             # ==========================================
-            # Printify is down or rejected the payload. The customer paid, but the order failed.
+            # Printify is down, returned invalid JSON, or crashed. The customer paid, but the order failed.
             error_msg = f"CRITICAL DROP: Printify failed to process Stripe Session {session.get('id')}. Error: {str(e)}"
 
             # Logs to the special 'gitgalaxy_dropped_orders.log' file
@@ -396,11 +396,11 @@ def capture_enterprise_lead():
                 400,
             )
 
-        # SANITIZATION: Prevent CRLF Log Injection
-        safe_company = str(company).replace("\n", " ").replace("\r", "")
-        safe_size = str(codebase_size).replace("\n", " ").replace("\r", "")
-        safe_case = str(use_case).replace("\n", " ").replace("\r", "")
-        safe_email = str(email).replace("\n", " ").replace("\r", "")
+        # SANITIZATION: Prevent CRLF Log Injection and Memory Exhaustion (Cap at 500 chars)
+        safe_company = str(company)[:500].replace("\n", " ").replace("\r", "")
+        safe_size = str(codebase_size)[:500].replace("\n", " ").replace("\r", "")
+        safe_case = str(use_case)[:500].replace("\n", " ").replace("\r", "")
+        safe_email = str(email)[:500].replace("\n", " ").replace("\r", "")
 
         # Log the massive lead safely
         lead_msg = f"🚨 ENTERPRISE LEAD CAPTURED: {safe_company} | Size: {safe_size} | Case: {safe_case} | Contact: {safe_email}"

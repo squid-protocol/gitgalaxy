@@ -1,30 +1,10 @@
-# GitGalaxy Enterprise Security Scanner
-# Integration: GitLab CI/CD
-
-variables:
-  GITGALAXY_MAX_RISK: "80"
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-# Cache pip dependencies between pipeline runs to drastically reduce execution time
-cache:
-  paths:
-    - .cache/pip
-
-stages:
-  - security
-
-gitgalaxy_scan:
-  stage: security
-  image: python:3.12-slim
-  before_script:
-    - echo "Installing GitGalaxy Engine..."
-    - pip install --upgrade pip
-    - pip install gitgalaxy>=2.4.0
+create-release:
+  stage: deploy
+  image: [registry.gitlab.com/gitlab-org/release-cli:latest](https://registry.gitlab.com/gitlab-org/release-cli:latest)
+  rules:
+    - if: $CI_COMMIT_TAG
   script:
-    - echo "Initiating GitGalaxy Zero-Trust Scan..."
-    - galaxyscope . --max-risk-exposure $GITGALAXY_MAX_RISK --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
-  artifacts:
-    when: always
-    reports:
-      sast: gitgalaxy-results_sarif.json
-  allow_failure: false
+    - echo "Publishing CI/CD Catalog Release for $CI_COMMIT_TAG"
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: "Automated component release synced directly from GitHub Source of Truth."

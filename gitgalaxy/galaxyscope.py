@@ -44,6 +44,8 @@ from gitgalaxy.recorders.gpu_recorder import GPURecorder
 from gitgalaxy.recorders.audit_recorder import AuditRecorder
 from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
+from gitgalaxy.recorders.sarif_recorder import SarifRecorder
+from gitgalaxy.recorders.sbom_recorder import SbomRecorder
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.security.security_auditor import SecurityAuditor, ML_AVAILABLE
 from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
@@ -626,6 +628,10 @@ class Orchestrator:
         self.llm_recorder = LLMRecorder(parent_logger=logger)
         # DB Recorder: Archives relational tables natively to SQLite3
         self.db_recorder = RecordKeeper(parent_logger=logger)
+        # SARIF Recorder: Exports industry-standard JSON for enterprise security dashboards
+        self.sarif_recorder = SarifRecorder(version=self.version, parent_logger=logger)
+        # SBOM Recorder: Produces mathematically verified CycloneDX manifests
+        self.sbom_recorder = SbomRecorder(version=self.version, parent_logger=logger)
 
         # --- NEW: THE SMART THREAT SWITCH (MAIN THREAD) ---
         if self.config.get("PARANOID_MODE", False):
@@ -827,6 +833,51 @@ class Orchestrator:
             summary["ecosystem_audits"] = ecosystem_audits
 
             # ==========================================================
+            # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
+            # ==========================================================
+            self.policy_failed = False
+            max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
+            
+            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_risk_allowed > 0.0:
+                logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
+                
+                from gitgalaxy.metrics.signal_processor import SignalProcessor
+                
+                for file_data in (repository_graph or []):
+                    # 1. Absolute Security Floor (Secrets)
+                    if self.config.get("FAIL_ON_SECRETS"):
+                        has_secrets = False
+                        if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                            idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                            if file_data.get("risk_vector", []) and len(file_data["risk_vector"]) > idx:
+                                if file_data["risk_vector"][idx] > 0.0:
+                                    has_secrets = True
+                        
+                        threat_snippets = file_data.get("telemetry", {}).get("threat_snippets", {})
+                        if "hardcoded_secrets" in threat_snippets or "sec_hardcoded_secrets" in threat_snippets:
+                            has_secrets = True
+                        elif "CRITICAL CREDENTIAL LEAK DETECTED" in file_data.get("telemetry", {}).get("domain_context", {}).get("warning", ""):
+                            has_secrets = True
+                            
+                        if has_secrets:
+                            logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")
+                            self.policy_failed = True
+
+                    # 2. XGBoost Malware Floor
+                    if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
+                        ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                        logger.critical(f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}")
+                        self.policy_failed = True
+                        
+                    # 3. Maximum Risk Exposure Ratchet
+                    if max_risk_allowed > 0.0:
+                        risk_vec = file_data.get("risk_vector", [])
+                        highest_risk = max(risk_vec) if risk_vec else 0.0
+                        if highest_risk >= max_risk_allowed:
+                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)")
+                            self.policy_failed = True
+
+            # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING
             # ==========================================================
             # Calculate physical mass before the GPU Recorder destroys the repository_graph list
@@ -872,6 +923,8 @@ class Orchestrator:
                 or self.config.get("GPU_ONLY")
                 or self.config.get("AUDIT_ONLY")
                 or self.config.get("DB_ONLY")
+                or self.config.get("SARIF_ONLY")
+                or self.config.get("SBOM_ONLY")
             )
             audit_output = "Skipped"
 
@@ -941,7 +994,43 @@ class Orchestrator:
                         exc_info=True,
                     )
 
-            # --- Phase 12.4: GPU Recorder (Destructive Columnar Pivot) ---
+            # --- Phase 12.4: SARIF Recorder (Enterprise Security JSON) ---
+            if not exclusive_mode or self.config.get("SARIF_ONLY"):
+                try:
+                    sarif_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_sarif.json"))
+                    logger.info(f"SARIF: Generating standardized security payload -> {sarif_output}")
+
+                    self.sarif_recorder.generate_report(
+                        parsed_files=repository_graph,
+                        summary=summary,
+                        session_meta=session_meta,
+                        output_path=sarif_output,
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"SARIF_FAILURE: Could not generate enterprise payload. {e}",
+                        exc_info=True,
+                    )
+
+            # --- Phase 12.5: SBOM Recorder (CycloneDX Generation) ---
+            if not exclusive_mode or self.config.get("SBOM_ONLY"):
+                try:
+                    sbom_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_sbom.json"))
+                    logger.info(f"SBOM: Generating standard manifest -> {sbom_output}")
+
+                    self.sbom_recorder.generate_report(
+                        parsed_files=repository_graph,
+                        summary=summary,
+                        session_meta=session_meta,
+                        output_path=sbom_output,
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"SBOM_FAILURE: Could not generate CycloneDX manifest. {e}",
+                        exc_info=True,
+                    )
+
+            # --- Phase 12.6: GPU Recorder (Destructive Columnar Pivot) ---
             gpu_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_gpu.json"))
 
             if not exclusive_mode or self.config.get("GPU_ONLY"):
@@ -2208,6 +2297,11 @@ def main():
     parser.add_argument("--gpu-only", action="store_true", help="Run ONLY the GPU recorder")
     parser.add_argument("--audit-only", action="store_true", help="Run ONLY the Audit recorder")
     parser.add_argument("--db-only", action="store_true", help="Run ONLY the native SQLite recorder")
+    parser.add_argument("--sarif-only", action="store_true", help="Run ONLY the SARIF exporter")
+    parser.add_argument("--sbom-only", action="store_true", help="Run ONLY the CycloneDX SBOM generator")
+    parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
+    parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
+    parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
     parser.add_argument(
         "--splicing-speed",
         action="store_true",
@@ -2328,6 +2422,11 @@ def main():
             "GPU_ONLY": args.gpu_only,
             "AUDIT_ONLY": args.audit_only,
             "DB_ONLY": args.db_only,
+            "SARIF_ONLY": args.sarif_only,
+            "SBOM_ONLY": args.sbom_only,
+            "FAIL_ON_SECRETS": args.fail_on_secrets,
+            "FAIL_ON_MALWARE": args.fail_on_malware,
+            "MAX_RISK_EXPOSURE": args.max_risk_exposure,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
         }
@@ -2338,7 +2437,10 @@ def main():
         scope.execute_pipeline(final_output)
 
         # --- THE FIX: INSTANT RAM EVICTION ---
-        os._exit(0)
+        if getattr(scope, "policy_failed", False):
+            os._exit(1)
+        else:
+            os._exit(0)
 
     except Exception as e:
         logging.error(f"Critical failure during execution: {e}", exc_info=True)

@@ -51,27 +51,36 @@ const Colors = {
         'bin': 0x505050, 'exe': 0x505050
     },
 
+    // High-Visibility fallback palette for unknown languages
+    FALLBACK_PALETTE: [
+        0xFF007F, // Neon Pink
+        0x00FF00, // Lime Green
+        0x00F3FF, // Cyan
+        0xFFD700, // Gold
+        0xBF00FF, // Magenta
+        0xFF5500, // Bright Orange
+        0x00FF99, // Spring Green
+        0xBFFF00, // Chartreuse
+        0xFF00FF, // Fuchsia
+        0x0088FF, // Azure
+        0xFF4444, // Coral Red
+        0x88FF00  // Neon Yellow-Green
+    ],
+
     getLanguageColor: (langString) => {
         if (!langString) return 0xffffff;
         const normalized = langString.toLowerCase().trim();
         
         if (Colors.LANGUAGES[normalized]) return Colors.LANGUAGES[normalized];
 
+        // Deterministic hash to map an unknown language string to a fixed, high-vis color
         let hash = 0;
-        for (let i = 0; i < normalized.length; i++) hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+        for (let i = 0; i < normalized.length; i++) {
+            hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+        }
         
-        const h = Math.abs(hash) % 360;
-        const s = 80 + (Math.abs(hash >> 8) % 20); 
-        const l = 60 + (Math.abs(hash >> 16) % 20); 
-
-        const lNorm = l / 100;
-        const a = (s / 100) * Math.min(lNorm, 1 - lNorm);
-        const f = n => {
-            const k = (n + h / 30) % 12;
-            const color = lNorm - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-            return Math.round(255 * color).toString(16).padStart(2, '0');
-        };
-        return parseInt(`0x${f(0)}${f(8)}${f(4)}`, 16);
+        const index = Math.abs(hash) % Colors.FALLBACK_PALETTE.length;
+        return Colors.FALLBACK_PALETTE[index];
     },
 
     // 3. HUD LEGEND CONFIGURATION (Stripped of redundant colors)
@@ -84,11 +93,13 @@ const Colors = {
         concurrency: { title: "Concurrency Exposure", bins: [20, 50, 80], labels: ["LOW", "MODERATE", "HIGH", "VERY HIGH"] },
         state_flux: { title: "State Flux Exposure", bins: [20, 40, 60, 80], labels: ["VERY LOW", "LOW", "MODERATE", "HIGH", "VERY HIGH"] },
         graveyard: { title: "Graveyard (Dead Code)", bins: [10, 30, 50, 70], labels: ["CLEAN", "LOW", "INTERMEDIATE", "HIGH", "GRAVEYARD"] },
+        dead_code: { title: "Graveyard (Dead Code)", bins: [10, 30, 50, 70], labels: ["CLEAN", "LOW", "INTERMEDIATE", "HIGH", "GRAVEYARD"] },
         spec_match: { title: "Spec Alignment", bins: [20, 40, 60, 90], labels: ["HIGHLY ALIGNED", "ALIGNED", "MODERATE", "LOW", "VERY LOW"] },
         stability: { title: "Stability (Recent Commits)", bins: [20, 40, 60, 80], labels: ["HOT/NEW", "RECENT", "ACTIVE", "ESTABLISHED", "ENDURING"] },
         churn: { title: "Deep Churn", bins: [20, 40, 60, 80], labels: ["STATIC", "SETTLED", "FLUID", "ACTIVE", "HIGHLY ACTIVE"] },
         documentation: { title: "Documentation Risk", bins: [20, 40, 60, 90], labels: ["THOROUGH", "LOW", "MODERATE", "HIGH", "UNDOCUMENTED"] },
         ownership: { title: "Authorship", bins: [20, 40, 60, 80], labels: ["INDIVIDUAL", "SMALL TEAM", "SQUAD", "DEPT", "COMMUNITY"] },
+        algorithmic_dos: { title: "Algorithmic DoS Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
         obscured_payload: { title: "Obfuscation & Evasion Surface", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
         logic_bomb: { title: "Logic Bomb Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
         injection_surface: { title: "Injection Surface Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
@@ -102,9 +113,21 @@ const Colors = {
             bins: [20, 80], labels: ["TABS", "MIXED", "SPACES"],
             colors: ["#39ff14", "#0000ff", "#ffff00"]
         },
+        tabs_vs_spaces: { 
+            title: "Civil War (Tabs vs Spaces)", 
+            gradient: "linear-gradient(90deg, #39ff14 0%, #0000ff 50%, #ffff00 100%)", 
+            bins: [20, 80], labels: ["TABS", "MIXED", "SPACES"],
+            colors: ["#39ff14", "#0000ff", "#ffff00"]
+        },
+
+        language_identity: {
+            title: "Language Identity",
+            isCategorical: true,
+            isDynamicLanguage: true
+        },
         
-        file_architecture: { 
-            title: "File Architecture", 
+        file_architecture: {
+            title: "File Architecture (Current Research, unvalidated)", 
             isCategorical: true,
             colors: [
                 "#FF3B30", "#FF9500", "#FFCC00", "#FFEE58", "#A4E720", 
@@ -174,8 +197,8 @@ const Colors = {
 // --- GLOBAL METRIC COLOR INJECTION ---
 // Automatically wires up the UI Legends to the Universal Spectrum
 Object.keys(Colors.LEGENDS).forEach(key => {
-    // Skip diverging scales AND categorical palettes like File Architecture
-    if (key === 'civil_war' || Colors.LEGENDS[key].isCategorical) return; 
+    // Skip diverging scales AND categorical palettes like File Architecture and Language
+    if (key === 'civil_war' || key === 'tabs_vs_spaces' || Colors.LEGENDS[key].isCategorical) return; 
 
     Colors.LEGENDS[key].gradient = UNIVERSAL_GRADIENT;
     Colors.LEGENDS[key].colors = UNIVERSAL_COLORS.slice(0, Colors.LEGENDS[key].labels.length);

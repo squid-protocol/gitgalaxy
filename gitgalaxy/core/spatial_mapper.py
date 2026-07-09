@@ -48,18 +48,18 @@ class SpatialMapper:
         self.MACRO_GOLDEN_ANGLE = math.radians(92.4)
 
         # Base expansion multipliers
-        self.MICRO_SPACING = 250.0  # Internal node-to-node density baseline
-        self.MACRO_STEP_FACTOR = 1.5  # Inter-cluster step multiplier (Center-to-Center)
+        self.MICRO_SPACING = 150.0  # Internal node-to-node density baseline
+        self.MACRO_STEP_FACTOR = 1.15  # Inter-cluster step multiplier (Center-to-Center)
         self.MAX_TILT_DEG = 15.0  # Max degrees a cluster can tilt from the horizontal plane
         self.CORE_EXCLUSION_RADIUS = 600.0  # Clear center zone to prevent origin overlapping
-        self.JITTER_MAGNITUDE = 100
+        self.JITTER_MAGNITUDE = 45
 
     def _calculate_spatial_clearance(self, magnitude: float) -> float:
         """Determines the required tight clearance radius for a node based on its structural magnitude."""
         visual_radius = 10 + (math.pow(max(magnitude, 1), 1 / 3) * 2)
         clearance = 40 + (math.log2(max(magnitude, 2)) * 5)
 
-        return visual_radius + clearance
+        return min(visual_radius + clearance, 150.0)
 
     def _hash_jitter(self, seed: str, amplitude: float) -> float:
         """
@@ -133,9 +133,10 @@ class SpatialMapper:
                 current_angle = 0.0
                 prev_dist_from_center = dist
             else:
-                arc_step = (prev_radius + sec_radius) * self.MACRO_STEP_FACTOR
-                delta_theta = arc_step / max(prev_dist_from_center, 1.0)
-                current_angle += delta_theta
+                # --- THE FIX: SUNFLOWER SEED MACRO SPIRAL ---
+                # Lock the ray rotation to the exact Golden Angle multiplier
+                # to prevent decaying rotation (the "comma" shape).
+                current_angle = i * self.MACRO_GOLDEN_ANGLE
 
                 cos_th = math.cos(current_angle)
                 sin_th = math.sin(current_angle)

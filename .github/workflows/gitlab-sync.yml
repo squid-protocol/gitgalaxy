@@ -17,5 +17,5 @@ jobs:
       - name: Sync Code and Tags to GitLab
         run: |
           git remote add gitlab https://oauth2:${{ secrets.GITLAB_SYNC_TOKEN }}@gitlab.com/squid-protocol1/gitgalaxy.git
-          git push -f gitlab main
+          git push -f gitlab HEAD:main
           git push -f --tags gitlab

@@ -1,0 +1,24 @@
+# GitGalaxy Enterprise Security Scanner
+# Integration: GitLab CI/CD
+
+variables:
+  GITGALAXY_MAX_RISK: "80"
+  GITGALAXY_FAIL_SECRETS: "true"
+  GITGALAXY_FAIL_MALWARE: "true"
+
+stages:
+  - security
+
+gitgalaxy_scan:
+  stage: security
+  image: 
+    name: squidprotocol/gitgalaxy:latest
+    entrypoint: [""]
+  script:
+    - echo "Initiating GitGalaxy Zero-Trust Scan..."
+    - galaxyscope scan . --max-risk-exposure $GITGALAXY_MAX_RISK --fail-on-secrets $GITGALAXY_FAIL_SECRETS --fail-on-malware $GITGALAXY_FAIL_MALWARE --format sarif --out gitgalaxy-results.sarif
+  artifacts:
+    when: always
+    reports:
+      sast: gitgalaxy-results.sarif
+  allow_failure: false

@@ -267,8 +267,8 @@ class SbomRecorder:
                                     anomaly_notes.extend(id_result["anomaly_flags"])
 
                                 scanned_files += 1
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                self.logger.debug(f"Skipped unreadable file during physical audit ({file_path}): {e}")
 
                     if trust_status == "SPOOF_DETECTED":
                         total_anomalies += 1

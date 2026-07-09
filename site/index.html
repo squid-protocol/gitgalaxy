@@ -20,8 +20,15 @@
             // =====================================================================
             document.addEventListener('webglcontextlost', function(event) {
                 event.preventDefault(); 
-                Sentry.captureMessage("FATAL: WebGL Context Lost on Mobile");
+                Sentry.captureMessage("FATAL: WebGL Context Lost");
             }, false);
+
+            // WebGPU specific device loss tracking (Caught via unhandled async errors in Three's backend)
+            window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.message && event.reason.message.includes('device is lost')) {
+                    Sentry.captureMessage("FATAL: WebGPU Device Lost (OOM or Driver Crash)");
+                }
+            });
 
             // =====================================================================
             // HOOK 2: Catch Unhandled Promise Rejections (The Async Crash)
@@ -368,48 +375,79 @@
                 const lblDiv = document.querySelector('.legend-labels');
 
                 if (leg.isCategorical) {
-                    // 1. DYNAMIC DATA FILTERING: Find which clusters actually exist in this repo
-                    let activeIndices = [];
-                    const raw = window.currentRawGalaxyData;
-                    if (raw && raw.galaxy && raw.galaxy.a_ids) {
-                        // Extract the primary archetype (first element) and map it to its absolute Cluster ID
-                        const archetypesList = raw.meta?.schemas?.lookups?.archetypes || [];
-                        const clusters = raw.galaxy.a_ids.map(arr => {
-                            const cId = Array.isArray(arr) ? arr[0] : arr;
-                            const archStr = archetypesList[cId] || "";
-                            
-                            const match = archStr.match(/Cluster (\d+)/);
-                            if (match) return parseInt(match[1], 10);
-                            if (typeof cId === 'number' && cId >= 0 && cId <= 15) return cId; // Legacy fallback
-                            return 15; // default slate gray
-                        });
-                        // Use a Set to instantly find the unique values, then sort them
-                        activeIndices = Array.from(new Set(clusters)).sort((a, b) => a - b);
-                    } else {
-                        // Fallback: If no cluster data exists, just show index 0 (Core Base)
-                        activeIndices = [0]; 
-                    }
-
-                    // 2. AESTHETIC UPGRADE: Clean 2-column grid with wrapping text
                     gradDiv.style.background = 'transparent';
                     gradDiv.style.height = 'auto';
                     gradDiv.style.border = 'none';
                     gradDiv.style.boxShadow = 'none';
-                    
-                    // Enforce 2 columns to maximize horizontal text space
-                    gradDiv.innerHTML = `<div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px 15px; padding-top: 5px;">` +
-                        activeIndices.map(i => {
-                            const c = leg.colors[i];
-                            const rawLabel = leg.labels[i] || 'Type ' + i;
-                            // Strip the "0: ", "1: " prefix off the text to make it sleeker
-                            const cleanLabel = rawLabel.replace(/^\d+:\s*/, '');
-                            
-                            return `<div style="display:flex; align-items:flex-start; gap:10px;">
-                                        <div style="width:10px; height:10px; background:${c}; border-radius:50%; box-shadow: 0 0 8px ${c}; flex-shrink:0; margin-top:2px;"></div>
-                                        <span style="font-family:'Space Mono', monospace; font-size:11px; font-weight:bold; color:#fff; text-transform:uppercase; letter-spacing:0.5px; line-height:1.3;" title="${cleanLabel}">${cleanLabel}</span>
-                                    </div>`;
-                        }).join('') +
-                        `</div>`;
+
+                    let htmlContent = '';
+
+                    // --- BRANCH 1: DYNAMIC LANGUAGE IDENTITY ---
+                    if (leg.isDynamicLanguage) {
+                        const raw = window.currentRawGalaxyData;
+                        let activeLangs = new Map(); // Maps Name -> Color Hex
+
+                        if (raw && raw.galaxy && (raw.galaxy.lang_ids || raw.galaxy.language)) {
+                            const langArr = raw.galaxy.lang_ids || raw.galaxy.language;
+                            const langLookup = raw.meta?.schemas?.lookups?.languages || [];
+
+                            langArr.forEach(id => {
+                                const langName = (typeof id === 'number') ? (langLookup[id] || 'Unknown') : id;
+                                if (!activeLangs.has(langName)) {
+                                    const colorInt = window.Colors.getLanguageColor(langName);
+                                    const colorHex = '#' + colorInt.toString(16).padStart(6, '0');
+                                    activeLangs.set(langName, colorHex);
+                                }
+                            });
+                        }
+
+                        // Convert to array and sort alphabetically
+                        const sortedLangs = Array.from(activeLangs.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+                        htmlContent = `<div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px 15px; padding-top: 5px;">` +
+                            sortedLangs.map(([langName, color]) => {
+                                return `<div style="display:flex; align-items:flex-start; gap:10px;">
+                                            <div style="width:10px; height:10px; background:${color}; border-radius:50%; box-shadow: 0 0 8px ${color}; flex-shrink:0; margin-top:2px;"></div>
+                                            <span style="font-family:'Space Mono', monospace; font-size:11px; font-weight:bold; color:#fff; text-transform:uppercase; letter-spacing:0.5px; line-height:1.3;" title="${langName}">${langName}</span>
+                                        </div>`;
+                            }).join('') +
+                            `</div>`;
+                    } 
+                    // --- BRANCH 2: FILE ARCHITECTURE (ARCHETYPES) ---
+                    else {
+                        let activeIndices = [];
+                        const raw = window.currentRawGalaxyData;
+                        if (raw && raw.galaxy && raw.galaxy.a_ids) {
+                            const archetypesList = raw.meta?.schemas?.lookups?.archetypes || [];
+                            const clusters = raw.galaxy.a_ids.map(arr => {
+                                const cId = Array.isArray(arr) ? arr[0] : arr;
+                                const archStr = archetypesList[cId] || "";
+                                
+                                const match = archStr.match(/Cluster (\d+)/);
+                                if (match) return parseInt(match[1], 10);
+                                if (typeof cId === 'number' && cId >= 0 && cId <= 15) return cId; 
+                                return 15; 
+                            });
+                            activeIndices = Array.from(new Set(clusters)).sort((a, b) => a - b);
+                        } else {
+                            activeIndices = [0]; 
+                        }
+
+                        htmlContent = `<div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px 15px; padding-top: 5px;">` +
+                            activeIndices.map(i => {
+                                const c = leg.colors[i];
+                                const rawLabel = leg.labels[i] || 'Type ' + i;
+                                const cleanLabel = rawLabel.replace(/^\d+:\s*/, '');
+                                
+                                return `<div style="display:flex; align-items:flex-start; gap:10px;">
+                                            <div style="width:10px; height:10px; background:${c}; border-radius:50%; box-shadow: 0 0 8px ${c}; flex-shrink:0; margin-top:2px;"></div>
+                                            <span style="font-family:'Space Mono', monospace; font-size:11px; font-weight:bold; color:#fff; text-transform:uppercase; letter-spacing:0.5px; line-height:1.3;" title="${cleanLabel}">${cleanLabel}</span>
+                                        </div>`;
+                            }).join('') +
+                            `</div>`;
+                    }
+
+                    gradDiv.innerHTML = htmlContent;
                     lblDiv.style.display = 'none';
                 } else {
                     // Standard Gradient UI (Restore CSS properties removed by categorical mode)

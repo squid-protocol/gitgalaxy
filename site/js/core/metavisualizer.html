@@ -186,20 +186,25 @@
                 { id: 'popularity', label: 'Imported by # (Popularity)', keys: ['popularity', 'Popularity', 'pop'] },
                 ],
             risk: [
-                // ... (Keep your existing risk array exactly as it is) ...
-                { slug: 'cognitive_load', label: 'Cognitive Load Exposure', isRisk: true },
-                { slug: 'safety_score', label: 'Safety Risk Exposure', isRisk: true },
-                { slug: 'tech_debt', label: 'Tech Debt Exposure', isRisk: true },
-                { slug: 'verification', label: 'Testing Exposure', isRisk: true },
-                { slug: 'api_exposure', label: 'API Exposure', isRisk: true },
-                { slug: 'concurrency', label: 'Concurrency Exposure', isRisk: true },
-                { slug: 'state_flux', label: 'State Flux Exposure', isRisk: true },
-                { slug: 'graveyard', label: 'Dead Code Exposure', isRisk: true },
-                { slug: 'spec_match', label: 'Specification Exposure', isRisk: true },
-                { slug: 'stability', label: 'Stability', isRisk: true },
-                { slug: 'churn', label: 'Churn', isRisk: true },
-                { slug: 'documentation', label: 'Documentation Risk Exposure', isRisk: true },
-                { slug: 'civil_war', label: 'Layout Unity (Civil War)', isRisk: true, isCivilWar: true }
+                { slug: 'cognitive_load', keys: ['cognitive_load'], label: 'Cognitive Load Exposure', isRisk: true },
+                { slug: 'safety_score', keys: ['safety_score'], label: 'Safety Risk Exposure', isRisk: true },
+                { slug: 'tech_debt', keys: ['tech_debt'], label: 'Tech Debt Exposure', isRisk: true },
+                { slug: 'verification', keys: ['verification'], label: 'Testing Exposure', isRisk: true },
+                { slug: 'api_exposure', keys: ['api_exposure'], label: 'API Exposure', isRisk: true },
+                { slug: 'concurrency', keys: ['concurrency'], label: 'Concurrency Exposure', isRisk: true },
+                { slug: 'state_flux', keys: ['state_flux'], label: 'State Flux Exposure', isRisk: true },
+                { slug: 'dead_code', keys: ['dead_code', 'graveyard'], label: 'Dead Code Exposure', isRisk: true },
+                { slug: 'spec_match', keys: ['spec_match'], label: 'Specification Exposure', isRisk: true },
+                { slug: 'stability', keys: ['stability'], label: 'Stability', isRisk: true },
+                { slug: 'churn', keys: ['churn'], label: 'Churn', isRisk: true },
+                { slug: 'documentation', keys: ['documentation'], label: 'Documentation Risk Exposure', isRisk: true },
+                { slug: 'tabs_vs_spaces', keys: ['tabs_vs_spaces', 'civil_war'], label: 'Layout Unity (Civil War)', isRisk: true, isCivilWar: true },
+                { slug: 'algorithmic_dos', keys: ['algorithmic_dos'], label: 'Algorithmic DoS Exposure', isRisk: true },
+                { slug: 'obscured_payload', keys: ['obscured_payload'], label: 'Obfuscation Exposure', isRisk: true },
+                { slug: 'logic_bomb', keys: ['logic_bomb'], label: 'Logic Bomb Exposure', isRisk: true },
+                { slug: 'injection_surface', keys: ['injection_surface'], label: 'Injection Surface Exposure', isRisk: true },
+                { slug: 'memory_corruption', keys: ['memory_corruption'], label: 'Memory Corruption Exposure', isRisk: true },
+                { slug: 'secrets_risk', keys: ['secrets_risk'], label: 'Hardcoded Secrets Exposure', isRisk: true }
             ],
             satellite: [
                 { id: 'impact', label: 'Function Impact #', keys: ['mag_x10', 'magnitude', 'impact'] },
@@ -484,7 +489,8 @@
             if (source.risks_flat || source.risks) {
                 const stride = riskSchema.length;
                 CONFIG.risk.forEach(target => {
-                    const sIdx = findIdx(riskSchema, [target.slug]);
+                    const searchKeys = target.keys || [target.slug];
+                    const sIdx = findIdx(riskSchema, searchKeys);
                     if (sIdx !== -1) {
                         let values = [];
                         // --- THE FIX: Handle the new 1D flat array with a stride ---
@@ -568,11 +574,28 @@
             e.preventDefault();
             document.body.classList.remove('drag-over');
             const file = e.dataTransfer.files[0];
+            
             if (file) {
+                const mbSize = (file.size / (1024 * 1024)).toFixed(1);
+                
+                // The Soft Cap Warning (50MB)
+                if (file.size > 50 * 1024 * 1024) {
+                    const proceed = window.confirm(
+                        `⚠️ WARNING: MASSIVE PAYLOAD DETECTED (${mbSize}MB) ⚠️\n\n` +
+                        `Files over 50MB require significant RAM to parse into 3D geometry. ` +
+                        `Depending on your hardware, this may cause your browser tab to crash (OOM).\n\n` +
+                        `This is a hardware limitation. Our data is compressed, but 3D arrays are heavy. Proceed at your own risk?`
+                    );
+                    if (!proceed) return; // Abort if they get scared
+                }
+
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    try { processGalaxyData(JSON.parse(event.target.result)); } 
-                    catch (err) { console.error("[MetaVisualizer] Parse Failure", err); }
+                    // Yield the thread so the loading screen actually renders before the CPU lock
+                    setTimeout(() => {
+                        try { processGalaxyData(JSON.parse(event.target.result)); } 
+                        catch (err) { console.error("[MetaVisualizer] Parse Failure", err); }
+                    }, 50);
                 };
                 reader.readAsText(file);
             }

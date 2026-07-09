@@ -172,8 +172,14 @@ class AppController {
                 if (file.name.endsWith('.json')) {
                     const maxSize = 50 * 1024 * 1024; 
                     if (file.size > maxSize) {
-                        alert(`File is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max upload size is 50MB to prevent browser memory crashes.`);
-                        return;
+                        const mbSize = (file.size / 1024 / 1024).toFixed(1);
+                        const proceed = window.confirm(
+                            `⚠️ WARNING: MASSIVE PAYLOAD DETECTED (${mbSize}MB) ⚠️\n\n` +
+                            `Files over 50MB require significant RAM to parse into 3D geometry. ` +
+                            `Depending on your hardware, this may cause your browser tab to crash (OOM).\n\n` +
+                            `This is a hardware limitation. Our data is highly compressed, but 3D arrays are heavy. Proceed at your own risk?`
+                        );
+                        if (!proceed) return; // Abort if they choose to cancel
                     }
 
                     const loader = document.getElementById('loading-screen');
@@ -329,8 +335,8 @@ class AppController {
         // Insert Language Identity right after Civil War (which is the 14th element in the select DOM)
         select.insertBefore(langOption, select.children[14]);
 
-        // --- NEW: Inject File Architecture (Mode 20) ---
-        const archModeId = 20;
+        // --- NEW: Inject File Architecture (Mode 21) ---
+        const archModeId = 21;
         const archModeName = "File Architecture";
         this.METRIC_NAMES[archModeId] = archModeName;
 
@@ -671,7 +677,7 @@ class AppController {
         if (window.updateLegend) {
             let schemaKey = null;
             if (mode === 14) schemaKey = 'language_identity'; 
-            else if (mode === 20) schemaKey = 'file_architecture'; // <-- ADD THIS
+            else if (mode === 21) schemaKey = 'file_architecture'; // <-- SHIFT TO 21
             else if (mode >= 15) schemaKey = window.RISK_SCHEMA[mode - 2]; 
             else if (mode > 0) schemaKey = window.RISK_SCHEMA[mode - 1]; 
             

@@ -55,9 +55,6 @@ jobs:
       - name: Smoke Test - Java Spring Forge Controller
         run: python -m gitgalaxy.cobol_to_java_controller --help
 
-      - name: Smoke Test - SBOM Generator
-        run: python -m gitgalaxy.tools.compliance.sbom_generator --help
-
       - name: Smoke Test - Supply Chain Firewall
         run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
 

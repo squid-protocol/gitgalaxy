@@ -380,9 +380,9 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             "_dependency_capture": re.compile(
-                r"\bfrom\s+([a-zA-Z0-9_.]+)\s+import\b|"  # Group 1: from X import ...
-                r"\bimport\s+([a-zA-Z0-9_., \t]+)|"  # Group 2: import X, Y as Z
-                r"\b(?:__import__|importlib\.import_module)\s*\(\s*['\"]([a-zA-Z0-9_.]+)['\"]",  # Group 3: __import__('X')
+                r"\bfrom\s+([a-zA-Z0-9_.]+)\s+import\b|"
+                r"\bimport\s+([a-zA-Z0-9_.]+(?:[ \t]*,[ \t]*[a-zA-Z0-9_.]+)*)|"
+                r"\b(?:__import__|importlib\.import_module)\s*\(\s*['\"]([a-zA-Z0-9_.]+)['\"]",
                 re.M,
             ),
             "_named_token_capture": re.compile(r"^[ \t]*from\s+[\w.]+\s+import\s+([^({\n]+)", re.M),

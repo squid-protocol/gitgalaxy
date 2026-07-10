@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Publish to PyPI and Sync to GitLab
 
 on:
   push:
@@ -21,16 +21,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
-
-      - name: Nuke malformed tag locally
-        run: git tag -d v.2.3.2 || true
 
       - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
@@ -41,4 +37,20 @@ jobs:
         run: python -m build
 
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  gitlab-sync:
+    name: Sync to GitLab Component Catalog
+    needs: pypi-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Code and Tags to GitLab
+        run: |
+          git remote add gitlab https://oauth2:${{ secrets.GITLAB_SYNC_TOKEN }}@gitlab.com/squid-protocol1/gitgalaxy.git
+          git push -f gitlab HEAD:main
+          git push -f --tags gitlab

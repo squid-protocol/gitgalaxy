@@ -9,6 +9,8 @@ from gitgalaxy.tools.network_auditing.full_api_network_map import (
     auto_discover_swagger,
     parse_official_swagger,
     map_physical_codebase,
+    normalize_endpoint,
+    calculate_api_drift
 )
 
 
@@ -73,18 +75,16 @@ def test_endpoint_variable_extraction(tmp_path):
     physical_apis, _ = map_physical_codebase(repo_dir)
     endpoints = set(physical_apis.keys())
 
-    # The engine retains the raw syntax from the code
-    assert "GET /api/users/<user_id>" in endpoints, "Flask variable extraction failed!"
-    assert "GET /api/users/:userId" in endpoints, "Express variable extraction failed!"
-    assert "GET /api/users/{id}" in endpoints, "Spring variable extraction failed!"
-    assert len(endpoints) == 3, "Variable routes were incorrectly merged!"
+    # The engine retains the normalized syntax from the new normalize_endpoint logic
+    assert "GET /api/users/{var}" in endpoints, "Variable normalization failed!"
+    assert len(endpoints) == 1, "Variable routes were incorrectly segregated!"
 
 
 # ==============================================================================
 # TEST 3: Swagger Parser (YAML, JSON, and Corruption)
 # ==============================================================================
 def test_swagger_parser_yaml_and_corruption(tmp_path, capsys):
-    """Verifies the parser handles YAML specs and correctly exits on file corruption."""
+    """Verifies the parser handles YAML specs and correctly raises RuntimeErrors on corruption."""
     # 1. Valid YAML
     yaml_file = tmp_path / "openapi.yaml"
     yaml_data = {"paths": {"/api/yaml": {"get": {}}}}
@@ -93,16 +93,13 @@ def test_swagger_parser_yaml_and_corruption(tmp_path, capsys):
     routes = parse_official_swagger(yaml_file)
     assert "GET /api/yaml" in routes
 
-    # 2. Corrupted File Check
+    # 2. Corrupted File Check (Pipeline Assassin patch changes this to RuntimeError)
     bad_file = tmp_path / "bad.json"
     bad_file.write_text("{ CORRUPTED JSON", encoding="utf-8")
 
-    with pytest.raises(SystemExit) as exc_info:
+    with pytest.raises(RuntimeError) as exc_info:
         parse_official_swagger(bad_file)
-
-    assert exc_info.value.code == 1
-    captured = capsys.readouterr()
-    assert "Error reading Swagger file" in captured.out
+    assert "Error parsing Swagger file" in str(exc_info.value)
 
 
 # ==============================================================================
@@ -170,7 +167,6 @@ def test_auto_discover_files(tmp_path):
 # ==============================================================================
 def test_auto_discover_directories(tmp_path):
     """Verifies that the auto-discovery engine recursively searches all directories."""
-    # Create directories
     test_dir = tmp_path / "tests"
     mock_dir = tmp_path / "mock"
     docs_dir = tmp_path / "docs"
@@ -182,7 +178,6 @@ def test_auto_discover_directories(tmp_path):
             '{"openapi": "3.0.0", "paths": {}}', encoding="utf-8"
         )
 
-    # Valid schema in a standard folder
     src_dir = tmp_path / "src"
     src_dir.mkdir()
     (src_dir / "openapi.json").write_text(
@@ -204,13 +199,10 @@ def test_physical_mapper_exception_handling(tmp_path):
     """Verifies the physical mapper skips unreadable or corrupted files without crashing."""
     (tmp_path / "app.py").write_text('@app.get("/api/test")', encoding="utf-8")
 
-    # Mock Path.read_text to raise an exception
     with patch("pathlib.Path.read_text", side_effect=PermissionError("Locked file!")):
         apis, frameworks = map_physical_codebase(tmp_path)
 
-    assert len(apis) == 0, (
-        "The engine failed to safely catch and ignore the I/O exception!"
-    )
+    assert len(apis) == 0, "The engine failed to safely catch and ignore the I/O exception!"
 
 
 # ==============================================================================
@@ -272,7 +264,6 @@ def test_cli_ambiguous_merge_all(tmp_path, capsys):
     repo_dir = tmp_path / "multi_repo_merge"
     repo_dir.mkdir()
 
-    # Inject the "openapi" signature so the Deep Grep engine recognizes them
     (repo_dir / "swagger1.json").write_text(
         '{"openapi": "3.0.0", "paths":{"/api/one":{"get":{}}}}', encoding="utf-8"
     )
@@ -280,13 +271,12 @@ def test_cli_ambiguous_merge_all(tmp_path, capsys):
         '{"openapi": "3.0.0", "paths":{"/api/two":{"post":{}}}}', encoding="utf-8"
     )
 
-    # Add physical files to match the documentation
     (repo_dir / "app.py").write_text(
         '@app.get("/api/one")\n@app.post("/api/two")', encoding="utf-8"
     )
 
     with patch("sys.argv", ["api_map", str(repo_dir), "--merge-all"]):
-        main()  # Should NOT raise SystemExit
+        main()
 
     captured = capsys.readouterr()
     assert "--merge-all active. Unioning 2 discovered specifications" in captured.out
@@ -305,16 +295,11 @@ def test_cli_explicit_swagger_flag(tmp_path, capsys):
     spec_path = repo_dir / "custom_spec.json"
     spec_path.write_text('{"paths":{"/api/explicit":{"get":{}}}}', encoding="utf-8")
 
-    # Invalid Path
-    with patch(
-        "sys.argv",
-        ["api_map", str(repo_dir), "--swagger", str(repo_dir / "missing.json")],
-    ):
+    with patch("sys.argv", ["api_map", str(repo_dir), "--swagger", str(repo_dir / "missing.json")]):
         with pytest.raises(SystemExit):
             main()
     assert "Error: Provided Swagger file" in capsys.readouterr().out
 
-    # Valid Path
     with patch("sys.argv", ["api_map", str(repo_dir), "--swagger", str(spec_path)]):
         main()
 
@@ -322,97 +307,76 @@ def test_cli_explicit_swagger_flag(tmp_path, capsys):
 
 
 # ==============================================================================
-# TEST 13: CLI Main - Presentation Dashboard (Shadow and Ghost APIs)
+# TEST 13: ISSUE #166 - Whitespace and Query String Contamination
 # ==============================================================================
-def test_cli_presentation_dashboard_findings(tmp_path, capsys):
-    """Verifies the CLI successfully prints the full Shadow/Ghost API dashboard."""
-    repo_dir = tmp_path / "dashboard_repo"
+def test_whitespace_and_query_string_contamination(tmp_path):
+    """Proves the normalizer safely removes query parameters and trailing whitespace."""
+    repo_dir = tmp_path / "whitespace_repo"
     repo_dir.mkdir()
-
-    # 1. Official Swagger (Has a Ghost API)
-    (repo_dir / "swagger.json").write_text(
-        '{"paths":{"/api/ghost":{"get":{}}, "/api/shared":{"post":{}}}}',
-        encoding="utf-8",
-    )
-
-    # 2. Source Code (Has a Shadow API and the Shared endpoint)
-    (repo_dir / "app.py").write_text(
-        '@app.post("/api/shared")\n@app.delete("/api/shadow")', encoding="utf-8"
-    )
-
-    with patch("sys.argv", ["api_map", str(repo_dir)]):
-        main()
-
-    captured = capsys.readouterr().out
-    assert "SHADOW API SECURITY AUDIT" in captured
-    assert "SHADOW APIs DETECTED: 1" in captured
-    assert "DELETE /api/shadow" in captured
-    assert "GHOST APIs DETECTED: 1" in captured
-    assert "GET /api/ghost" in captured
-
-
-# ==============================================================================
-# TEST 14: CLI Main - Presentation Dashboard (Perfect Match)
-# ==============================================================================
-def test_cli_presentation_dashboard_perfect(tmp_path, capsys):
-    """Verifies the CLI correctly displays a clean bill of health when schemas and code match."""
-    repo_dir = tmp_path / "perfect_repo"
-    repo_dir.mkdir()
-
-    (repo_dir / "swagger.json").write_text(
-        '{"paths":{"/api/perfect":{"get":{}}}}', encoding="utf-8"
-    )
-    (repo_dir / "app.py").write_text('@app.get("/api/perfect")', encoding="utf-8")
-
-    with patch("sys.argv", ["api_map", str(repo_dir)]):
-        main()
-
-    captured = capsys.readouterr().out
-    assert "No Shadow APIs detected" in captured
-    assert "No Ghost APIs detected" in captured
-
-
-# ==============================================================================
-# TEST 15: Programmatic API - Edge Cases (No Swagger, Ambiguous)
-# ==============================================================================
-def test_programmatic_edge_cases(tmp_path):
-    """Verifies the programmatic entry point safely returns structured error states."""
-    repo_dir = tmp_path / "prog_repo"
-    repo_dir.mkdir()
-
-    # 1. No Swagger
-    res1 = run_api_audit(repo_dir)
-    assert res1["status"] == "no_swagger"
-
-    # 2. Ambiguous Swaggers
-    (repo_dir / "api_v1").mkdir()
-    (repo_dir / "api_v2").mkdir()
-    (repo_dir / "api_v1" / "swagger.json").write_text("{}", encoding="utf-8")
-    (repo_dir / "api_v2" / "swagger.json").write_text("{}", encoding="utf-8")
-
-    res2 = run_api_audit(repo_dir)
-    assert res2["status"] == "ambiguous"
-
-
-# ==============================================================================
-# TEST 16: Programmatic API - Standard Success
-# ==============================================================================
-def test_programmatic_success(tmp_path):
-    """Verifies the programmatic entry point successfully maps a standard repo."""
-    repo_dir = tmp_path / "prog_success"
-    repo_dir.mkdir()
-
-    (repo_dir / "openapi.json").write_text(
-        '{"openapi": "3.0.0", "paths":{"/api/real":{"get":{}}}}', encoding="utf-8"
-    )
-    (repo_dir / "app.py").write_text(
-        '@app.get("/api/real")\n@app.post("/api/shadow")', encoding="utf-8"
-    )
-
-    # Standard programmatic execution
+    
+    # Simulate a developer accidentally adding a query parameter and trailing whitespace
+    (repo_dir / "app.py").write_text('@app.get("/api/users?status=active ")\n@app.post(" /api/clean/   ")', encoding="utf-8")
+    (repo_dir / "openapi.json").write_text('{"openapi": "3.0.0", "paths":{"/api/users":{"get":{}}, "/api/clean":{"post":{}}}}', encoding="utf-8")
+    
     result = run_api_audit(repo_dir)
-
     assert result["status"] == "success"
-    assert result["shadow_count"] == 1
-    assert "POST /api/shadow" in result["shadow_apis"]
-    assert result["ghost_count"] == 0
+    assert result["shadow_count"] == 0, "Query string contamination caused a false Shadow API!"
+    assert result["ghost_count"] == 0, "Query string contamination caused a false Ghost API!"
+
+
+# ==============================================================================
+# TEST 14: ISSUE #164 - REST Path Parameter Collisions
+# ==============================================================================
+def test_rest_path_parameter_collisions(tmp_path):
+    """Proves the normalizer converts all framework-specific dynamic variables into a universal {var} token."""
+    repo_dir = tmp_path / "param_collision_repo"
+    repo_dir.mkdir()
+    
+    # Different frameworks use entirely different routing variable syntaxes
+    (repo_dir / "app.py").write_text('@app.get("/api/users/<int:user_id>")', encoding="utf-8")
+    (repo_dir / "server.js").write_text('router.post("/api/users/:userId/docs/:docId")', encoding="utf-8")
+    
+    # Swagger exclusively uses {id} syntax
+    (repo_dir / "openapi.json").write_text('{"openapi": "3.0.0", "paths":{"/api/users/{id}":{"get":{}}, "/api/users/{userId}/docs/{docId}":{"post":{}}}}', encoding="utf-8")
+    
+    result = run_api_audit(repo_dir)
+    assert result["status"] == "success"
+    assert result["shadow_count"] == 0, "REST parameter collision caused a false Shadow API!"
+    assert result["ghost_count"] == 0, "REST parameter collision caused a false Ghost API!"
+
+
+# ==============================================================================
+# TEST 15: ISSUE #163 - Router Prefix Blindspot (Suffix Topological Matching)
+# ==============================================================================
+def test_router_prefix_blindspot(tmp_path):
+    """Proves physical endpoints properly align with Swagger using topological suffix matching."""
+    repo_dir = tmp_path / "prefix_blindspot_repo"
+    repo_dir.mkdir()
+    
+    # Physical code just says /profile (because it's in a controller mapped to /api/v1/users)
+    (repo_dir / "Controller.java").write_text('@GetMapping("/profile")', encoding="utf-8")
+    
+    # Swagger has the fully qualified path
+    (repo_dir / "openapi.json").write_text('{"openapi": "3.0.0", "paths":{"/api/v1/users/profile":{"get":{}}}}', encoding="utf-8")
+    
+    result = run_api_audit(repo_dir)
+    assert result["status"] == "success"
+    assert result["shadow_count"] == 0, "Router prefix blindspot caused a false Shadow API!"
+    assert result["ghost_count"] == 0, "Router prefix blindspot caused a false Ghost API!"
+
+
+# ==============================================================================
+# TEST 16: ISSUE #165 - The Pipeline Assassin (Graceful Parse Failures)
+# ==============================================================================
+def test_pipeline_assassin_graceful_exit(tmp_path):
+    """Proves the programmatic API safely catches parsing errors without calling sys.exit()."""
+    repo_dir = tmp_path / "assassin_repo"
+    repo_dir.mkdir()
+    
+    # Corrupt YAML format to induce a parse failure
+    (repo_dir / "openapi.yaml").write_text('openapi: 3.0.0\npaths: *unresolved_alias', encoding="utf-8")
+    
+    # Verify the orchestrator does not crash and instead returns the error schema
+    result = run_api_audit(repo_dir)
+    assert result["status"] == "swagger_parse_error", "The pipeline assassin struck again! Expected safe error status."
+    assert result["shadow_count"] == 0

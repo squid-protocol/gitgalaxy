@@ -22,6 +22,7 @@ jobs:
         with:
           tool: vault-sentinel
           target: .
+          version: local
 
   xray-inspector:
     name: X-Ray Inspector
@@ -35,6 +36,7 @@ jobs:
         with:
           tool: xray-inspector
           target: .
+          version: local
 
   supply-chain-firewall:
     name: Supply Chain Firewall

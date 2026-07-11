@@ -752,6 +752,15 @@ class SignalProcessor:
                 "secrets_risk": self._calc_secrets_risk(loc, raw_signals, mp_map.get("secrets", 1.0)),
             }
 
+            # ==================================================================
+            # INLINE SUPPRESSION OVERRIDE (galaxyscope:ignore)
+            # ==================================================================
+            mitigations = meta.get("mitigations", [])
+            for suppressed_risk in mitigations:
+                if suppressed_risk in exposure_vector:
+                    self.logger.debug(f"[{rel_path}] Suppressing {suppressed_risk} due to inline galaxyscope:ignore")
+                    exposure_vector[suppressed_risk] = 0.0
+
             # ------------------------------------------------------------------
             # 3. VECTOR ASSEMBLY (Locked to RISK_SCHEMA order)
             # ------------------------------------------------------------------
@@ -816,7 +825,7 @@ class SignalProcessor:
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
                 "domain_context": ghost_meta,
-                "mitigation_telemetry": meta.get("mitigation_telemetry", {}),
+                "mitigation_telemetry": meta.get("mitigations", []),
             }
 
             if mp_map:

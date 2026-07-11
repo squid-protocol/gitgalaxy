@@ -27,12 +27,14 @@ class PrismResult(TypedDict):
         comment_stream (str): The documentation surface.
         coding_loc (int): Lines of code (non-empty, non-comment).
         doc_loc (int): Lines of comments/documentation.
+        mitigations (List[str]): Extracted inline suppressions.
     """
 
     code_stream: str
     comment_stream: str
     coding_loc: int
     doc_loc: int
+    mitigations: List[str]
 
 
 class PrismError(Exception):
@@ -123,7 +125,14 @@ class Prism:
                 "comment_stream": "",
                 "coding_loc": 0,
                 "doc_loc": 0,
+                "mitigations": [],
             }
+
+        # ---> INLINE SUPPRESSION EXTRACTION <---
+        mitigations = []
+        for match in re.finditer(r"galaxyscope:ignore\s+([a-zA-Z0-9_-]+)", content, re.IGNORECASE):
+            mitigations.append(match.group(1).lower())
+            self.logger.debug(f"Extracted inline suppression for: {match.group(1)}")
 
         # --- THE UNPARSABLE BYPASS (Spec 2.3.4.A.1) ---
         if primary_lang in ("undeterminable", "unknown"):
@@ -134,6 +143,7 @@ class Prism:
                 "comment_stream": "",
                 "coding_loc": coding_loc,
                 "doc_loc": 0,
+                "mitigations": mitigations,
             }
 
         # --- THE PROSE BYPASS ---
@@ -146,6 +156,7 @@ class Prism:
                 "comment_stream": content,
                 "coding_loc": 0,
                 "doc_loc": doc_loc,
+                "mitigations": mitigations,
             }
 
         # 1. METADATA GUARD
@@ -197,6 +208,7 @@ class Prism:
                 "comment_stream": final_comments,
                 "coding_loc": coding_loc,
                 "doc_loc": doc_loc,
+                "mitigations": mitigations,
             }
 
         except Exception as e:

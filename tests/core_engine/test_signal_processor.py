@@ -1507,3 +1507,53 @@ def test_signal_processor_concurrency_threshold_scaling(processor):
     assert score > 50.0, (
         f"Concurrency scaling bug regression! Expected a high risk score, but got {score}%."
     )
+
+
+# ==============================================================================
+# TEST 50: INLINE SUPPRESSION MATH OVERRIDE (galaxyscope:ignore)
+# ==============================================================================
+def test_signal_processor_inline_suppressions(processor):
+    """
+    DEVIOUS EDGE CASES:
+    1. Proves a mathematically catastrophic risk can be hard-overridden to 0.0.
+    2. Proves the engine doesn't crash on "Phantom Risks" (schema drift / typos).
+    3. Proves un-suppressed risks remain dangerously high.
+    """
+    # Create an apocalyptic file that triggers maximum risk everywhere
+    meta, sig = create_synthetic_star(
+        processor,
+        "suppression_test",
+        100,
+        {
+            "branch": 5000, 
+            "high_risk_execution": 5000,
+            "sec_high_risk_execution": 5000,
+            "sec_io": 5000,
+            "fragile_debt": 5000,
+        },
+    )
+
+    # Inject the developer suppressions
+    meta["mitigations"] = [
+        "logic_bomb",         # Valid override
+        "tech_debt",          # Valid override
+        "made_up_phantom_123" # Schema drift / fake risk
+    ]
+
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_lb = processor.RISK_SCHEMA.index("logic_bomb")
+    idx_debt = processor.RISK_SCHEMA.index("tech_debt")
+    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
+
+    # 1. Assert the targeted risks were zeroed out
+    assert res["risk_vector"][idx_lb] == 0.0, "Inline suppression failed to zero out Logic Bomb!"
+    assert res["risk_vector"][idx_debt] == 0.0, "Inline suppression failed to zero out Tech Debt!"
+
+    # 2. Assert un-suppressed risks are still 100% lethal
+    assert res["risk_vector"][idx_inj] > 80.0, "Inline suppression accidentally wiped out Injection Surface!"
+
+    # 3. Assert the metadata passed cleanly to the telemetry for the UI
+    assert "made_up_phantom_123" in res["telemetry"]["mitigation_telemetry"], (
+        "Phantom risk was not passed to the UI telemetry payload!"
+    )

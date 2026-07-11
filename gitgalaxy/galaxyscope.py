@@ -520,8 +520,9 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             "prior_lock": has_prior,
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
+            "mitigations": refraction.get("mitigations", []), # <--- THE FIX: Route the suppressions
             "raw_imports": list(raw_imports),
-            "named_tokens": list(named_tokens),  # <--- NEW: Send tokens to Orchestrator
+            "named_tokens": list(named_tokens),  
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -1947,6 +1948,13 @@ class Orchestrator:
             try:
                 self.temp_dir = tempfile.mkdtemp(prefix="refraction_")
                 with zipfile.ZipFile(input_path, "r") as zip_ref:
+                    # DEVIOUS SHIELD: Zip Bomb Protection (Max 5GB expansion)
+                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024 
+                    total_uncompressed_size = sum(file_info.file_size for file_info in zip_ref.infolist())
+                    
+                    if total_uncompressed_size > MAX_SAFE_BYTES:
+                        raise ValueError(f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes.")
+                        
                     zip_ref.extractall(self.temp_dir)
                 return Path(self.temp_dir).resolve()
             except Exception as e:
@@ -2302,6 +2310,8 @@ def main():
     parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
     parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
     parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
+    parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
+    parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
         action="store_true",
@@ -2316,6 +2326,26 @@ def main():
     args = parser.parse_args()
 
     log_level = logging.DEBUG if args.debug else logging.INFO
+
+    # ---------------------------------------------------------
+    # YAML Configuration File Interceptor
+    # ---------------------------------------------------------
+    config_file_data = {}
+    if args.config and HAS_PYYAML:
+        import yaml
+        try:
+            with open(args.config, 'r') as f:
+                config_file_data = yaml.safe_load(f) or {}
+            logging.info(f"⚙️ Loaded repository configuration from {args.config}")
+        except Exception as e:
+            logging.error(f"Failed to load config file {args.config}: {e}")
+    
+    # Map YAML configurations directly to argparse attributes if not overridden via CLI
+    if 'galaxyscope' in config_file_data:
+        for key, val in config_file_data['galaxyscope'].items():
+            arg_key = key.replace('-', '_')
+            if hasattr(args, arg_key) and getattr(args, arg_key) in (None, False, 0.0, ""):
+                setattr(args, arg_key, val)
 
     logging.basicConfig(
         level=log_level,
@@ -2416,8 +2446,7 @@ def main():
             "TEST_NAMING_CONVENTIONS": TEST_NAMING_CONVENTIONS,
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
-            "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,  # <--- Pass the flag
-            # --- PASS EXCLUSIVE FLAGS TO ORCHESTRATOR ---
+            "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
             "LLM_ONLY": args.llm_only,
             "GPU_ONLY": args.gpu_only,
             "AUDIT_ONLY": args.audit_only,
@@ -2430,11 +2459,68 @@ def main():
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
         }
+
         # ---------------------------------------------------------
         # 4. Ignite the Engine
         # ---------------------------------------------------------
         scope = Orchestrator(args.target, full_config)
-        scope.execute_pipeline(final_output)
+
+        if args.incremental:
+            from gitgalaxy.state_rehydrator import StateRehydrator
+            logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
+            
+            db_out_path = str(Path(final_output).with_name(f"{Path(final_output).stem}_master.db"))
+            rehydrator = StateRehydrator(args.incremental)
+            baseline_state = rehydrator.load_latest_state(project_name)
+
+            if baseline_state:
+                baseline_commit = baseline_state["commit_hash"]
+                ram_cache = baseline_state["ram_cache"]
+                
+                try:
+                    import subprocess
+                    diff_output = subprocess.check_output(
+                        ["git", "diff", "--name-status", baseline_commit],
+                        cwd=target_path,
+                        text=True,
+                        stderr=subprocess.DEVNULL
+                    )
+                    
+                    added, modified, deleted = [], [], []
+                    for line in diff_output.splitlines():
+                        if not line.strip():
+                            continue
+                        
+                        # DEVIOUS SHIELD: Split strictly by tabs, as filenames may contain spaces.
+                        parts = line.split('\t')
+                        status = parts[0]
+                        
+                        # Safely strip Git's quotation marks from spaced filenames
+                        def _clean(p): return p.strip('"\n\r')
+                        
+                        if status.startswith('A'):
+                            added.append(_clean(parts[1]))
+                        elif status.startswith('M'):
+                            modified.append(_clean(parts[1]))
+                        elif status.startswith('D'):
+                            deleted.append(_clean(parts[1]))
+                        elif status.startswith('R') or status.startswith('C'):
+                            # Git Outputs: R100 \t "old file.py" \t "new file.py"
+                            deleted.append(_clean(parts[1]))
+                            if len(parts) > 2:
+                                added.append(_clean(parts[2]))
+                    
+                    logging.info(f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted")
+                    scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
+                    
+                except subprocess.CalledProcessError:
+                    logging.warning(f"⚠️ Git diff failed against {baseline_commit}. Falling back to full scan.")
+                    scope.execute_pipeline(final_output)
+            else:
+                logging.warning("⚠️ Rehydration failed. Falling back to full baseline scan.")
+                scope.execute_pipeline(final_output)
+        else:
+            scope.execute_pipeline(final_output)
 
         # --- THE FIX: INSTANT RAM EVICTION ---
         if getattr(scope, "policy_failed", False):

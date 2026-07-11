@@ -1,0 +1,53 @@
+name: Generate GitGalaxy Artifacts (Post-Gate)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  security-events: write
+
+jobs:
+  generate-compliance-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitGalaxy (Full Precision)
+        uses: squid-protocol/gitgalaxy@v2.4.0 # Or your composite action path
+        with:
+          tool: 'galaxyscope'
+          target: '.'
+          full_precision: 'true'
+
+      - name: Generate SARIF, SBOM, and LLM Brief
+        run: |
+          # Execute galaxyscope to generate all required outputs
+          galaxyscope . --sarif-only --output gitgalaxy-results_sarif.json
+          galaxyscope . --sbom-only --output gitgalaxy-sbom.json
+          galaxyscope . --llm-only --output gitgalaxy_architecture_brief.md
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitgalaxy-results_sarif.json
+
+      - name: Upload SBOM as Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitgalaxy-sbom
+          path: gitgalaxy-sbom.json
+
+      - name: Commit LLM Brief to Docs
+        run: |
+          mkdir -p docs
+          mv gitgalaxy_architecture_brief.md docs/ || true
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/gitgalaxy_architecture_brief.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update LLM architectural brief" && git push)

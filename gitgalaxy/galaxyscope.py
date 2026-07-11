@@ -2522,16 +2522,16 @@ def main():
         else:
             scope.execute_pipeline(final_output)
 
-        # --- THE FIX: INSTANT RAM EVICTION ---
+        # --- THE FIX: SAFE RAM EVICTION ---
         if getattr(scope, "policy_failed", False):
-            os._exit(1)
+            sys.exit(1)
         else:
-            os._exit(0)
+            sys.exit(0)
 
     except Exception as e:
         logging.error(f"Critical failure during execution: {e}", exc_info=True)
-        # --- THE FIX: INSTANT ERROR EXIT ---
-        os._exit(1)
+        # --- THE FIX: SAFE ERROR EXIT ---
+        sys.exit(1)
 
 
 # This tells Python to run main() if you call the file directly,

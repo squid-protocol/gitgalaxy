@@ -221,7 +221,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     # TEST 7: YAML CONFIGURATION INGESTION & CLI PRIORITY
     # ==============================================================================
-    @patch("os._exit")
+    @patch("sys.exit")
     @patch("gitgalaxy.galaxyscope.Orchestrator")
     @patch("gitgalaxy.licensing.enforce_licensing_guard")
     def test_yaml_configuration_and_cli_priority(self, mock_license, mock_orchestrator, mock_exit):

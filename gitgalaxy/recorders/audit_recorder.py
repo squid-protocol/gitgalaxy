@@ -214,6 +214,11 @@ class AuditRecorder:
             folder_archetype_counts[d_name][arch] = folder_archetype_counts[d_name].get(arch, 0) + 1
 
             mitigation_data = telemetry.get("mitigation_telemetry", {})
+            
+            # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
+            if isinstance(mitigation_data, list):
+                mitigation_data = {m: 1 for m in mitigation_data}
+                
             formatted_mitigations = {
                 key.replace("_", " ").title(): f"{val} instances" for key, val in mitigation_data.items() if val > 0
             }

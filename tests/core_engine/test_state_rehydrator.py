@@ -193,7 +193,7 @@ def test_rehydrator_legacy_schema_drift(tmp_path):
     
     try:
         # If this throws an IndexError, the Rehydrator isn't resilient to schema drift!
-        result = rehydrator.load_latest_state("test_repo")
+        rehydrator.load_latest_state("test_repo")
         
         # Depending on how we implemented the fix in state_rehydrator.py, it should 
         # either succeed with a default value, or we need to update state_rehydrator.py 

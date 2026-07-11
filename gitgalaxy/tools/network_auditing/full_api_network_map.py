@@ -341,8 +341,8 @@ def main():
             for c in candidates:
                 try:
                     approved_apis.update(parse_official_swagger(c))
-                except RuntimeError:
-                    pass
+                except RuntimeError as e:
+                    print(f" ⚠️  [SKIP] Failed to parse discovered specification '{c.relative_to(source_path)}': {e}")
         else:
             swagger_path = candidates[0]
             print(f" [DISCOVERY] Auto-discovered Swagger specification: {swagger_path.relative_to(source_path)}\n")

@@ -2350,7 +2350,7 @@ def main():
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-        stream=sys.stdout,
+        stream=sys.stderr, # <--- THE FIX: Route logs to stderr so CI/CD catches them
         force=True,
     )
 
@@ -2523,15 +2523,12 @@ def main():
         else:
             scope.execute_pipeline(final_output)
 
-        # --- THE FIX: SAFE RAM EVICTION ---
+        # --- THE FIX: NATURAL RETURN FOR WRAPPERS ---
         if getattr(scope, "policy_failed", False):
             sys.exit(1)
-        else:
-            sys.exit(0)
 
     except Exception as e:
         logging.error(f"Critical failure during execution: {e}", exc_info=True)
-        # --- THE FIX: SAFE ERROR EXIT ---
         sys.exit(1)
 
 

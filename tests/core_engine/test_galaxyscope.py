@@ -221,10 +221,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     # TEST 7: YAML CONFIGURATION INGESTION & CLI PRIORITY
     # ==============================================================================
-    @patch("sys.exit")
     @patch("gitgalaxy.galaxyscope.Orchestrator")
     @patch("gitgalaxy.licensing.enforce_licensing_guard")
-    def test_yaml_configuration_and_cli_priority(self, mock_license, mock_orchestrator, mock_exit):
+    def test_yaml_configuration_and_cli_priority(self, mock_license, mock_orchestrator):
         """
         DEVIOUS EDGE CASE: A repository has a .galaxyscope.yaml file that dictates 
         fail-on-secrets: true and max-risk-exposure: 10.0. 

@@ -243,6 +243,9 @@ def main():
                 
                 if not audit_files:
                     print("❌ GalaxyScope did not produce an audit JSON in the temp directory.")
+                    print("\n--- 🕵️ ENGINE TELEMETRY & CRASH LOGS ---")
+                    print(result.stderr)
+                    print("------------------------------------------\n")
                     sys.exit(1)
                     
                 with open(audit_files[0], "r", encoding="utf-8") as f:

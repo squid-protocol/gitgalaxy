@@ -217,3 +217,70 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 self.fail("Parser accepted a null-byte injection!")
             except ValueError as e:
                 self.assertIn("Null-byte", str(e))
+
+    # ==============================================================================
+    # TEST 7: YAML CONFIGURATION INGESTION & CLI PRIORITY
+    # ==============================================================================
+    @patch("os._exit")
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_configuration_and_cli_priority(self, mock_license, mock_orchestrator, mock_exit):
+        """
+        DEVIOUS EDGE CASE: A repository has a .galaxyscope.yaml file that dictates 
+        fail-on-secrets: true and max-risk-exposure: 10.0. 
+        However, the GitHub Action CLI command explicitly passes --max-risk-exposure 80.0.
+        The engine MUST ingest the YAML, but the CLI flags MUST maintain absolute priority.
+        """
+        import yaml
+        import sys
+        from gitgalaxy.galaxyscope import main
+        
+        # 1. Create a valid mock YAML configuration file
+        valid_yaml_payload = """
+        galaxyscope:
+          fail-on-secrets: true
+          max-risk-exposure: 10.0
+          paranoid: true
+        """
+        
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write(valid_yaml_payload)
+
+        # 2. Mock the command line arguments as if running from a CI/CD runner
+        # We explicitly omit --fail-on-secrets and --paranoid to test YAML injection,
+        # but we EXPLICITLY pass --max-risk-exposure to test CLI dominance.
+        test_args = [
+            "galaxyscope", 
+            ".", 
+            "--config", temp_yaml_path, 
+            "--max-risk-exposure", "80.0"
+        ]
+        
+        with patch.object(sys, 'argv', test_args):
+            # Force the mock to simulate a clean run so it doesn't trigger the failure gate
+            mock_orchestrator.return_value.policy_failed = False
+            
+            # Run the main CLI entrypoint
+            main()
+
+        # 3. Intercept the configuration dictionary passed to the Orchestrator ignition
+        mock_orchestrator.assert_called_once()
+        args, kwargs = mock_orchestrator.call_args
+        
+        # Extract the full_config dictionary that the Orchestrator was ignited with
+        ignited_config = args[1] 
+
+        try:
+            # ASSERTION 1: YAML Injection Success
+            self.assertTrue(ignited_config["FAIL_ON_SECRETS"], "YAML failed to inject fail-on-secrets!")
+            self.assertTrue(ignited_config["PARANOID_MODE"], "YAML failed to inject paranoid mode!")
+            
+            # ASSERTION 2: CLI Priority Dominance (The Silent Override Shield)
+            self.assertEqual(ignited_config["MAX_RISK_EXPOSURE"], 80.0, "YAML illegally overwrote an explicit CLI flag!")
+            
+            # ASSERTION 3: Ensure the pipeline exited cleanly without killing Pytest
+            mock_exit.assert_called_with(0)
+        finally:
+            # Clean up the physical temp file
+            os.remove(temp_yaml_path)

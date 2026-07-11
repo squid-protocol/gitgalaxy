@@ -2360,7 +2360,8 @@ def main():
         # ---------------------------------------------------------
         # 1. Target Identification
         # ---------------------------------------------------------
-        target_path = Path(args.target)
+        # THE FIX: Resolve the path immediately so '.' becomes the actual folder name
+        target_path = Path(args.target).resolve()
         project_name = target_path.name
 
         # ---> DEFAULT PROTOTYPING PATH <---

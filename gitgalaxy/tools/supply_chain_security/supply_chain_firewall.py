@@ -85,7 +85,10 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         # =====================================================================
         # 1. ZERO-TRUST IMPORT VERIFICATION
         # =====================================================================
-        for raw_pkg in file_node.get("raw_imports", []):
+        for imp in file_node.get("raw_imports", []):
+            # JSON serializes Python tuples as lists, so we must check for both
+            raw_pkg = imp[0] if isinstance(imp, (tuple, list)) else imp
+
             # DEFENSIVE DESIGN (RELATIVE PATH SHIELD):
             # Ignore native internal routing (e.g., './utils') to focus strictly 
             # on external supply chain dependencies.
@@ -137,8 +140,11 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         equations = file_node.get("equations", {})
         loc = file_node.get("coding_loc", 1)
 
-        # Clone the dictionary to safely apply the sandbox multiplier without corrupting global RAM
-        local_counts = dict(equations)
+        # Clone the dictionary and strip the 'sec_' prefix for the security evaluator
+        local_counts = {}
+        for k, v in equations.items():
+            clean_key = k[4:] if k.startswith("sec_") else k
+            local_counts[clean_key] = v
 
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):
         # Configuration scripts (like setup.py or package.json) are executed by CI/CD 
@@ -156,8 +162,6 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         ]:
             build_time_multiplier = 10.0
 
-        safe_loc = max(loc + 150, 1)
-
         if build_time_multiplier > 1.0:
             for k in local_counts:
                 if isinstance(local_counts[k], (int, float)):
@@ -165,13 +169,14 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
 
         # Evaluate risk using Phase 1 network topography context (e.g., Downstream Exposure)
         network_metrics = file_node.get("dependency_network", {})
-        exposures = security.evaluate_risk(local_counts, safe_loc, network_metrics)
+        exposures = security.evaluate_risk(local_counts, loc, network_metrics)
 
         if (
             "Hidden Malware Risk" in exposures
             or "Data Injection Risk" in exposures
             or "Secrets Leak Risk" in exposures
             or "Logic Bomb Risk" in exposures
+            or "Memory Corruption Risk" in exposures
         ):
             if is_whitelisted:
                 threats_allowed += 1
@@ -221,8 +226,9 @@ def main():
             
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Run the orchestrator to generate the JSON graph in a temp directory
+                target_out_file = str(Path(tmpdir) / "firewall_temp.json")
                 result = subprocess.run(
-                    ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", tmpdir],
+                    ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", target_out_file],
                     capture_output=True,
                     text=True
                 )
@@ -233,7 +239,7 @@ def main():
                 
                 # Dynamically locate the generated audit file to avoid naming convention bugs
                 tmp_path = Path(tmpdir)
-                audit_files = list(tmp_path.glob("*_galaxy_audit.json"))
+                audit_files = list(tmp_path.glob("*_audit.json"))
                 
                 if not audit_files:
                     print("❌ GalaxyScope did not produce an audit JSON in the temp directory.")
@@ -241,12 +247,23 @@ def main():
                     
                 with open(audit_files[0], "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    parsed_files = data.get("artifacts", data.get("stars", []))
+                    # Extract files from the structured audit directory groups
+                    parsed_files = []
+                    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+                    for folder_data in groups.values():
+                        for path, file_info in folder_data.get("Files", {}).items():
+                            file_info["path"] = path # Ensure path remains attached
+                            parsed_files.append(file_info)
         else:
             # Standard file-based load
             with open(target_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                parsed_files = data.get("artifacts", data.get("stars", []))
+                parsed_files = []
+                groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+                for folder_data in groups.values():
+                    for path, file_info in folder_data.get("Files", {}).items():
+                        file_info["path"] = path
+                        parsed_files.append(file_info)
                 
     except Exception as e:
         print(f"❌ Failed to parse RAM graph: {e}")

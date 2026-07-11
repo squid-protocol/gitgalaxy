@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install GitGalaxy (Full Precision)
-        uses: squid-protocol/gitgalaxy@v2.4.0 # Or your composite action path
+        uses: ./
         with:
           tool: 'galaxyscope'
           target: '.'

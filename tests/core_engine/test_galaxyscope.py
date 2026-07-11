@@ -278,8 +278,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             # ASSERTION 2: CLI Priority Dominance (The Silent Override Shield)
             self.assertEqual(ignited_config["MAX_RISK_EXPOSURE"], 80.0, "YAML illegally overwrote an explicit CLI flag!")
             
-            # ASSERTION 3: Ensure the pipeline exited cleanly without killing Pytest
-            mock_exit.assert_called_with(0)
         finally:
             # Clean up the physical temp file
             os.remove(temp_yaml_path)

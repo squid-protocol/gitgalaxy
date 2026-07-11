@@ -930,6 +930,11 @@ class LLMRecorder:
                         lines.append(f"    * *Intent:* {clean_doc}")
 
             mitigations = tel.get("mitigation_telemetry", {})
+            
+            # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
+            if isinstance(mitigations, list):
+                mitigations = {m: 1 for m in mitigations}
+                
             active_mitigations = {k: v for k, v in mitigations.items() if v > 0}
             if active_mitigations:
                 lines.append("**Contextual Mitigations & Amplifications:**")

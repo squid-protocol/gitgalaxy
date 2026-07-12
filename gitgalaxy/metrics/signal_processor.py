@@ -333,19 +333,20 @@ class SignalProcessor:
                 return {
                     "risk_vector": blanket_risk_vector,
                     "hit_vector": [0] * len(self.SIGNAL_SCHEMA),
-                    "file_impact": 150.0,  # Massive structural footprint for the topological map
+                    "file_impact": 150.0,  # <-- FIX: Restored the 150.0 mass spike for critical leaks
                     "telemetry": {
                         "archetype": getattr(config, "STATIC_ARCHETYPES", {}).get(
-                            "data", "Static: Declarative Data & Configurations"
+                            "quarantine", "Static: Critical Contraband Leak"
                         ),
                         "control_flow_ratio": 0.0,
-                        "ownership_entropy": self._calc_ownership_entropy(authors_map),
-                        "author_distribution": self._calculate_silo_risk(authors_map),
+                        "ownership_entropy": 0.0,
+                        "author_distribution": 0.0,
                         "ownership": dominant_author,
                         "domain_context": {
                             "alert": "CRITICAL LEAK BYPASS",
                             **ghost_meta,
                         },
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -389,6 +390,7 @@ class SignalProcessor:
                             "alert": "MINIFIED VENDOR BYPASS",
                             **ghost_meta,
                         },
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -431,6 +433,7 @@ class SignalProcessor:
                         "author_distribution": 0.0,  # <-- FIX: Plaintext changelogs don't have Authorship Centralization risk
                         "ownership": dominant_author,
                         "domain_context": ghost_meta,
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -830,6 +833,7 @@ class SignalProcessor:
                 "ownership": dominant_author,
                 "domain_context": ghost_meta,
                 "mitigation_telemetry": meta.get("mitigations", []),
+                "threat_locations": meta.get("threat_locations", {}),
             }
 
             if mp_map:

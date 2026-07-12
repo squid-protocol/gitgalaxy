@@ -1557,3 +1557,52 @@ def test_signal_processor_inline_suppressions(processor):
     assert "made_up_phantom_123" in res["telemetry"]["mitigation_telemetry"], (
         "Phantom risk was not passed to the UI telemetry payload!"
     )
+
+
+# ==============================================================================
+# TEST 51: SARIF EXACT LOC INJECTION
+# ==============================================================================
+def test_sarif_exact_loc_injection():
+    """
+    COVERAGE TARGET: sarif_recorder.py (_build_location).
+    Ensures the SARIF exporter consumes the threat_locations array and outputs
+    the exact line number instead of falling back to line 1.
+    """
+    from gitgalaxy.recorders.sarif_recorder import SarifRecorder
+    import json
+    import tempfile
+    import os
+    
+    recorder = SarifRecorder()
+    
+    mock_file = {
+        "path": "src/vulnerable.py",
+        "start_line": 1,
+        "telemetry": {
+            "threat_snippets": {
+                "hardcoded_secrets": ["password='123'"]
+            },
+            "threat_locations": {
+                "sec_hardcoded_secrets": [42]  # The exact line number
+            }
+        }
+    }
+    
+    fd, temp_path = tempfile.mkstemp(suffix=".json")
+    os.close(fd)
+    
+    try:
+        recorder.generate_report([mock_file], {}, {}, temp_path)
+        
+        with open(temp_path, "r") as f:
+            sarif_output = json.load(f)
+            
+        results = sarif_output["runs"][0]["results"]
+        assert len(results) == 1, "Failed to generate SARIF result!"
+        
+        # Extract the exact line number from the payload
+        exact_line = results[0]["locations"][0]["physicalLocation"]["region"]["startLine"]
+        assert exact_line == 42, f"SARIF fell back to start_line! Expected 42, got {exact_line}."
+        
+    finally:
+        os.remove(temp_path)

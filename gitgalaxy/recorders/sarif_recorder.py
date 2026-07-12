@@ -86,10 +86,18 @@ class SarifRecorder:
 
             # B. Extract Passive Security Lens Snippets (SAST)
             threat_snippets = telemetry.get("threat_snippets", {})
+            threat_locations = telemetry.get("threat_locations", {})
+
             for threat_type, snippets in threat_snippets.items():
-                for snippet in snippets:
+                # Attempt to retrieve exact line locations, matching by raw or sec_ prefixed key
+                locs = threat_locations.get(threat_type) or threat_locations.get(f"sec_{threat_type}", [])
+
+                for idx, snippet in enumerate(snippets):
                     # Safely determine severity
                     severity = "error" if any(x in threat_type for x in ["secret", "injection", "execution", "corruption"]) else "warning"
+                    
+                    # Fallback to file's start_line if specific LOC isn't captured
+                    exact_line = locs[idx] if idx < len(locs) else start_line
                     
                     results_list.append({
                         "ruleId": f"GG-SAST-{threat_type.upper()}",
@@ -97,7 +105,7 @@ class SarifRecorder:
                         "message": {
                             "text": f"Vulnerability signature triggered: {snippet}"
                         },
-                        "locations": [self._build_location(rel_path, start_line)],
+                        "locations": [self._build_location(rel_path, exact_line)],
                         "properties": {
                             "category": "Structural SAST"
                         }

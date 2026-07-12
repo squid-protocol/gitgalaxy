@@ -422,7 +422,7 @@ class StructuralExtractor:
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
 
-            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents = self.coding_analysis(
+            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = self.coding_analysis(
                 segments, regex_telemetry if profile_regex else None
             )
 
@@ -552,6 +552,7 @@ class StructuralExtractor:
                 "financial_read_cost": (
                     round((file_token_mass / 1000000) * 3.00, 5) if file_token_mass is not None else None
                 ),
+                "threat_locations": threat_locations,
             }
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry
@@ -840,7 +841,7 @@ class StructuralExtractor:
 
     def coding_analysis(
         self, segments: List[Tuple[str, str, int]], regex_telemetry: dict = None
-    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str]]:
+    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str], Dict[str, List[int]]]:
         counts: Dict[str, int] = {key: 0 for key in self.UNIVERSAL_METRICS_SCHEMA}
 
         # --- THE FIX: INJECT APPSEC SENSORS ---
@@ -858,8 +859,9 @@ class StructuralExtractor:
         }
         segment_spatial_maps = []
         extracted_parents = []
+        threat_locations: Dict[str, List[int]] = {}
 
-        for seg_lang, seg_code, _ in segments:
+        for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
             rules = self.languages.get(seg_lang, {}).get("rules", {}).copy()
 
@@ -895,6 +897,11 @@ class StructuralExtractor:
                     if hasattr(pattern, "finditer"):
                         matches = list(pattern.finditer(seg_code))
                         hit_indices = [m.start() for m in matches]
+                        
+                        # ---> NEW: Offset to LOC Conversion <---
+                        for m in matches:
+                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            threat_locations.setdefault(mapped_key, []).append(line_number)
 
                         # ---> THE LINEAGE EXTRACTOR <---
                         # If the regex has 2+ capture groups, group 2 contains the inheritance mapping
@@ -903,7 +910,13 @@ class StructuralExtractor:
                                 if m.group(2):
                                     extracted_parents.append(m.group(2).strip())
                     else:
-                        hit_indices = [m.start() for m in re.finditer(str(pattern), seg_code)]
+                        matches = list(re.finditer(str(pattern), seg_code))
+                        hit_indices = [m.start() for m in matches]
+                        
+                        # ---> NEW: Offset to LOC Conversion <---
+                        for m in matches:
+                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            threat_locations.setdefault(mapped_key, []).append(line_number)
 
                     c = len(hit_indices)
 
@@ -1026,7 +1039,7 @@ class StructuralExtractor:
             counts["indent_spaces"] += len(re.findall(r"^[ ]{2,}(?=\S)", seg_code, flags=re.MULTILINE))
             segment_spatial_maps.append(spatial_map)
 
-        return counts, mitigations, segment_spatial_maps, extracted_parents
+        return counts, mitigations, segment_spatial_maps, extracted_parents, threat_locations
 
     def comment_analysis(self, comment_stream: str, lang_id: str, counts: Dict[str, int]) -> Dict[str, int]:
         """

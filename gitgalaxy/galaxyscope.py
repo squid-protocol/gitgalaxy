@@ -849,22 +849,25 @@ class Orchestrator:
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
                         
-                        # THE FIX: Check if the file explicitly ignored secret sensors
-                        mitigations = file_data.get("mitigations", [])
-                        if isinstance(mitigations, dict):
-                            mitigations = list(mitigations.keys())
+                        # THE FIX: Safely extract mitigations from either the root or telemetry dict
+                        mitigs = file_data.get("mitigations", file_data.get("telemetry", {}).get("mitigation_telemetry", []))
+                        if isinstance(mitigs, dict):
+                            mitigs = list(mitigs.keys())
                             
-                        if "sec_hardcoded_secrets" not in mitigations and "secrets_risk" not in mitigations:
+                        if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
                             if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
                                 idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
-                                if file_data.get("risk_vector", []) and len(file_data["risk_vector"]) > idx:
-                                    if file_data["risk_vector"][idx] > 0.0:
-                                        has_secrets = True
+                                rv = file_data.get("risk_vector", [])
+                                if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
+                                    has_secrets = True
                             
-                            threat_snippets = file_data.get("telemetry", {}).get("threat_snippets", {})
-                            if "hardcoded_secrets" in threat_snippets or "sec_hardcoded_secrets" in threat_snippets:
+                            # THE FIX: Enforce strict dictionary type-safety on snippets
+                            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                            if isinstance(ts, dict) and ("hardcoded_secrets" in ts or "sec_hardcoded_secrets" in ts):
                                 has_secrets = True
-                            elif "CRITICAL CREDENTIAL LEAK DETECTED" in file_data.get("telemetry", {}).get("domain_context", {}).get("warning", ""):
+                                
+                            ctx = file_data.get("telemetry", {}).get("domain_context", {})
+                            if isinstance(ctx, dict) and "CRITICAL CREDENTIAL LEAK DETECTED" in ctx.get("warning", ""):
                                 has_secrets = True
                                 
                         if has_secrets:
@@ -880,7 +883,7 @@ class Orchestrator:
                     # 3. Maximum Risk Exposure Ratchet
                     if max_risk_allowed > 0.0:
                         risk_vec = file_data.get("risk_vector", [])
-                        highest_risk = max(risk_vec) if risk_vec else 0.0
+                        highest_risk = max(risk_vec) if isinstance(risk_vec, list) and risk_vec else 0.0
                         if highest_risk >= max_risk_allowed:
                             logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)")
                             self.policy_failed = True

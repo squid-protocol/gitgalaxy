@@ -1,8 +1,12 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io
 # GitGalaxy Spoke: Universal Zero-Trust SBOM Generator
 # Purpose: Generates a CycloneDX SBOM with physical verification of dependencies
 #          across multiple language ecosystems (NPM, Composer, PyPI, Cargo).
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io
 
 # galaxyscope:ignore sec_high_risk_execution, ai_guardrails, sec_io
 

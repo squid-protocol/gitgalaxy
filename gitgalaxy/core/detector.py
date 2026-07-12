@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 # galaxyscope:ignore sec_high_risk_execution
 
@@ -39,9 +43,13 @@ def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 2.5 & 7.5: Logic Splicer & Topological Mapper
 # Strategy v6.3.0 Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 
 class FunctionNode(TypedDict, total=False):
@@ -100,8 +108,12 @@ class LogicData(TypedDict, total=False):
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # THE STRUCTURAL SIGNATURE CONFIGURATION MATRIX
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 
 class ScopeParsingRegistry:
@@ -943,8 +955,12 @@ class StructuralExtractor:
             # ---> NEW: SPATIAL CORRELATION (Runs once per segment) <---
 
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
             # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
             # 0a. The Exfiltration Distance Check
             if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
                 # Measures the physical call-path distance between the memory read and the socket
@@ -961,6 +977,8 @@ class StructuralExtractor:
                 # RCE funnels inside JS/TS/Python are fatal structural anomalies. Multiply the mass.
                 counts["rce_funnel"] += len(spatial_map["rce_funnel"]) * 50
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
             # 1. Taint Tracking (RCE Weaponization)
             if "sec_high_risk_execution" in spatial_map and ("sec_io" in spatial_map or "io" in spatial_map):
@@ -1081,8 +1099,12 @@ class StructuralExtractor:
         return counts
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # PRE-PROCESSING HELPERS
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _apply_literal_shield(self, text: str, lang_id: str = None) -> str:
         """
@@ -1201,8 +1223,12 @@ class StructuralExtractor:
         return "Anonymous_Block"
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # THE MASTER DISPATCHER
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _function_slice(
         self,
@@ -1271,8 +1297,12 @@ class StructuralExtractor:
         return all_satellites, global_impact
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # INTEGRATION MODES (Slicers)
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
         self,
@@ -1880,8 +1910,12 @@ class StructuralExtractor:
         return satellites, sum_fxn_impact
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # SHARED FUNCTIONAL METRICS ENGINE
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _calculate_block_metrics(
         self,

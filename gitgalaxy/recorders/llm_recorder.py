@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 
 # galaxyscope:ignore sec_high_risk_execution, ai_guardrails, sec_db_hooks
 
@@ -18,9 +22,13 @@ from typing import List, Dict, Any, Optional, Tuple
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 # GitGalaxy Phase 10: LLM Recorder (The AI Translation Layer)
 # Strategy v6.3.0 Protocol: Token Density, Distribution Topology & Context Graphs
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 
 
 class LLMRecorder:
@@ -780,8 +788,12 @@ class LLMRecorder:
         lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 11. CUMULATIVE RISK HITLIST ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)")
         lines.append(
             "> Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.\n"
@@ -838,8 +850,12 @@ class LLMRecorder:
             lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files) ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files)")
         lines.append(
             "> *Note: 'Magnitude' represents the file's total Structural Magnitude and impact within the system. It is independent of its Risk Profile. High magnitude implies high structural importance and centralization.*\n"
@@ -974,8 +990,12 @@ class LLMRecorder:
             lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
         lines.append(
             "> **AI CONTEXT:** Pay close attention to 'Anti-Pattern' files. These files blend in globally (Low Global Drift), but heavily violate the standard conventions of their native programming language (High Local Drift). 'Mixed-Responsibility' files sit perfectly between two global archetypes (Delta <= 0.9 IQR), indicating a violation of the Single Responsibility Principle.\n"
@@ -1073,8 +1093,12 @@ class LLMRecorder:
             lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.5 STRATEGIC REFACTORING TARGETS ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)")
         lines.append(
             "> **AI CONTEXT:** Use these intersections to recommend pragmatic next steps. Risk is exponentially worse when combined with high churn (frequent edits) or high authorship centralization (single points of failure).\n"
@@ -1126,8 +1150,12 @@ class LLMRecorder:
             lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Physics) ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         sys_bots = forensic_report.get("systemic_bottlenecks", {})
         if any(v and v[0]["score"] > 0 for v in sys_bots.values()):
             lines.append("## 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)")
@@ -1175,8 +1203,12 @@ class LLMRecorder:
                 lines.append("")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 14. SYSTEM PROMPT: HOW TO RESPOND ---
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## AI SYSTEM INSTRUCTIONS (OUTPUT FORMAT)")
         lines.append(
             "> **CRITICAL TONE DIRECTIVE:** Act as a Principal Staff Engineer. Use grounded, professional software engineering terminology (e.g., coupling, cohesion, technical debt, single responsibility). DO NOT use sci-fi, dramatic, or sensational jargon (e.g., 'Trojan', 'violently violates', 'parasitic', 'chimeric'). Be objective, practical, and direct."

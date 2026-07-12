@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
 # galaxyscope:ignore sec_io, llm_hooks
 
@@ -20,9 +24,13 @@ from typing import Dict, Any, Optional, List, Tuple, Union
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 # GitGalaxy Phase 0.5: Sector Intelligence (The GuideStar Lens)
 # Strategy: v6.3.0 (Deep Manifest Inspection & Evidence Hierarchy)
 # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
 
 class GuideStarLens:
@@ -177,8 +185,12 @@ class GuideStarLens:
         }
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
     # DEEP MANIFEST INSPECTION
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_package_manifests(self):
         """Identifies authoritative project contextual baselines and parses their internal logic."""
@@ -319,8 +331,12 @@ class GuideStarLens:
             self._inject_intent_lock(filename, predicted_lang, 0.85, f"Execution Trigger ({prefix_clean})")
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
     # EXPLICIT AUTHORITY
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_gitattributes(self):
         """
@@ -373,8 +389,12 @@ class GuideStarLens:
             self.logger.debug(f"GuideStar: Deep inspection failed for .gitattributes: {e}")
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
     # SECURITY EVASION DETECTION
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_gitignore_evasion(self):
         """
@@ -418,8 +438,12 @@ class GuideStarLens:
             self.logger.debug(f"GuideStar: Evasion inspection failed for .gitignore: {e}")
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
     # DOCUMENTATION COVERAGE MAP
     # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
 
     def _calculate_documentation_coverage(self):
         """

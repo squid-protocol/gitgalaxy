@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 # GitGalaxy: COBOL Refractor Controller (v4.0 - Hybrid Enterprise Scale)
 # Purpose: Orchestrates the Universal Translator suite using a Hybrid
 #          Intermediate Representation (IR) State Manager. Dynamically toggles
 #          between high-speed RAM and SQLite3 to prevent OOM crashes.
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
@@ -34,8 +38,12 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jc
 from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 # THE SCALE SENSOR & HYBRID STATE MANAGER
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
 def calibrate_ir_medium(target_path: Path, max_files=2000, max_mb=200) -> tuple:
@@ -132,8 +140,12 @@ class IRStateManager:
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 # THE PROCESSING PIPELINE
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
 def process_payload(filepath: Path, state_manager: IRStateManager, target_var: str = None) -> dict:
@@ -233,8 +245,12 @@ def process_payload(filepath: Path, state_manager: IRStateManager, target_var: s
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 # MAIN ORCHESTRATION LOOP
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
 def main():

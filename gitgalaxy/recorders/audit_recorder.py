@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 
 # galaxyscope:ignore sec_high_risk_execution
 
@@ -19,10 +23,14 @@ from typing import Any
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 # GitGalaxy Phase 8 & 9: Forensic Audit Recorder
 # Strategy v6.2.0 Protocol: Data Provenance & State Decoding
 # Stage 2.5: Total Feature Parity (Descriptive Descriptors + Performance)
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 
 
 class AuditRecorder:

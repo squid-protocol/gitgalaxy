@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 # galaxyscope:ignore sec_high_risk_execution
 
@@ -19,10 +23,14 @@ from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards import gitgalaxy_config
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 9: GPU Recorder
 # Strategy v6.2.0 Protocol: Destructive Columnar Pivot & Text Interning
 # Stage 3.3: Destructive RAM Eviction (Final Pipeline Phase)
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 
 class GPURecorder:
@@ -147,8 +155,12 @@ class GPURecorder:
         inbound_edges = [[] for _ in range(len(parsed_files))]
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         # DESTRUCTIVE PIVOT: Parsed Artifacts
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         while parsed_files:
             current_idx = len(repository_graph["paths"])
             file_data = parsed_files.pop()
@@ -290,8 +302,12 @@ class GPURecorder:
         repository_graph["edges"] = [list(set(edges)) for edges in inbound_edges]
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         # DESTRUCTIVE PIVOT: Excluded Artifacts Queue
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         while unparsable_files:
             unparsable = unparsable_files.pop()
             path = unparsable.get("path", "")
@@ -310,8 +326,12 @@ class GPURecorder:
         self.logger.debug("GPU_RECORDER: RAM Eviction complete. Python GC cycle triggered.")
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         # SUMMARY FLATTENING (UI Diagnostics)
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         unparsable_sum = summary.get("unparsable_files", {})
         breakdown = {
             "binary": unparsable_sum.get("binary", 0),
@@ -335,8 +355,12 @@ class GPURecorder:
         summary["unparsable_files"]["breakdown"] = breakdown
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         # MISSION LORE INJECTION
         # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
         project_stories = getattr(gitgalaxy_config, "PROJECT_STORIES", {})
 
         story_payload = project_stories.get(

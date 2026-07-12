@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # ==============================================================================
+
+# galaxyscope:ignore sec_io
 # GitGalaxy Tool: COBOL to Java Translation Controller
 #
 # PURPOSE:
@@ -17,6 +19,8 @@
 # the internal business logic to the AI agent, ensuring architectural integrity 
 # and guaranteed compilability out-of-the-box.
 # ==============================================================================
+
+# galaxyscope:ignore sec_io
 
 # galaxyscope:ignore sec_io
 

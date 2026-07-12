@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 
@@ -118,8 +122,12 @@ class StateRehydrator:
             return None
     
     # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 # TEST 6: DICTIONARY OVERRIDE TYPE SPOOFING
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 def test_rehydrator_dictionary_type_spoofing(tmp_path):
     """
     DEVIOUS EDGE CASE: An attacker (or corrupted DB) places a String into a column 

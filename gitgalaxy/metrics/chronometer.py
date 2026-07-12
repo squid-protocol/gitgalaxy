@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
@@ -19,9 +23,13 @@ from typing import Dict, Any, Optional, List, Tuple
 from gitgalaxy.standards import gitgalaxy_config as config
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 # GitGalaxy Phase 3: Chronometer (Time-Series Analyzer)
 # Strategy v6.3.0 Protocol: Bulk Survey, Dynamic Windowing & Thread-Safety
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
 
 class Chronometer:

@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -10,15 +12,21 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
+
 import statistics
 import logging
 from typing import List, Dict, Any, Tuple, Optional
 import math
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 # GitGalaxy Phase 7: Spectral Auditor (Quality Control)
 # Strategy v6.2.0 Protocol: Bayesian Accountability & Unparsable Artifacts
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 
 
 class StatisticalAuditor:

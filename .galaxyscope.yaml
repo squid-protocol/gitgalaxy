@@ -12,6 +12,7 @@ galaxyscope:
       - "tests"
       - ".github"
       - "docs"
+
       - "gitgalaxy/standards"
     
     # Exact paths or wildcards to block (e.g., test fixtures)

@@ -848,18 +848,25 @@ class Orchestrator:
                     # 1. Absolute Security Floor (Secrets)
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
-                        if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
-                            idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
-                            if file_data.get("risk_vector", []) and len(file_data["risk_vector"]) > idx:
-                                if file_data["risk_vector"][idx] > 0.0:
-                                    has_secrets = True
                         
-                        threat_snippets = file_data.get("telemetry", {}).get("threat_snippets", {})
-                        if "hardcoded_secrets" in threat_snippets or "sec_hardcoded_secrets" in threat_snippets:
-                            has_secrets = True
-                        elif "CRITICAL CREDENTIAL LEAK DETECTED" in file_data.get("telemetry", {}).get("domain_context", {}).get("warning", ""):
-                            has_secrets = True
+                        # THE FIX: Check if the file explicitly ignored secret sensors
+                        mitigations = file_data.get("mitigations", [])
+                        if isinstance(mitigations, dict):
+                            mitigations = list(mitigations.keys())
                             
+                        if "sec_hardcoded_secrets" not in mitigations and "secrets_risk" not in mitigations:
+                            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                                idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                                if file_data.get("risk_vector", []) and len(file_data["risk_vector"]) > idx:
+                                    if file_data["risk_vector"][idx] > 0.0:
+                                        has_secrets = True
+                            
+                            threat_snippets = file_data.get("telemetry", {}).get("threat_snippets", {})
+                            if "hardcoded_secrets" in threat_snippets or "sec_hardcoded_secrets" in threat_snippets:
+                                has_secrets = True
+                            elif "CRITICAL CREDENTIAL LEAK DETECTED" in file_data.get("telemetry", {}).get("domain_context", {}).get("warning", ""):
+                                has_secrets = True
+                                
                         if has_secrets:
                             logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")
                             self.policy_failed = True

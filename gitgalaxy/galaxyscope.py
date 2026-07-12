@@ -904,8 +904,23 @@ class Orchestrator:
             ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
             
             for file_data in (repository_graph or []):
-                file_path = file_data.get("path", "")
+                # Ensure cross-platform slash normalization
+                file_path = file_data.get("path", "").replace("\\", "/")
                 path_excluded = any(p in file_path for p in ignored_paths)
+                
+                if path_excluded:
+                    # COMPLETE PATH EXCLUSION: Wipe all threat indicators so SARIF ignores this file
+                    file_data["equations"] = {}
+                    file_data["is_ml_threat"] = False
+                    if "telemetry" in file_data:
+                        file_data["telemetry"]["threat_snippets"] = {}
+                        if "domain_context" in file_data["telemetry"]:
+                            file_data["telemetry"]["domain_context"].pop("warning", None)
+                            file_data["telemetry"]["domain_context"].pop("AI Threat Class", None)
+                    if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
+                        # Zero out the risk vector so thresholds aren't breached
+                        file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
+                    continue
                 
                 mitigs = file_data.get("mitigations", [])
                 if isinstance(mitigs, dict):
@@ -914,21 +929,32 @@ class Orchestrator:
                     mitigs = []
                 
                 ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                if isinstance(ts, dict):
-                    if path_excluded:
-                        keys_to_delete = list(ts.keys())
-                    else:
-                        keys_to_delete = [
-                            k for k in ts.keys() 
-                            if k in mitigs 
-                            or f"sec_{k}" in mitigs 
-                            or k.replace("sec_", "") in mitigs
-                            or k in ignored_rules
-                            or f"sec_{k}" in ignored_rules
-                        ]
-                        
-                    for k in keys_to_delete:
-                        del ts[k]
+                eqs = file_data.get("equations", {})
+                
+                if isinstance(ts, dict) and isinstance(eqs, dict):
+                    keys_to_delete_ts = [
+                        k for k in ts.keys() 
+                        if k in mitigs 
+                        or f"sec_{k}" in mitigs 
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or f"sec_{k}" in ignored_rules
+                    ]
+                    keys_to_delete_eqs = [
+                        k for k in eqs.keys()
+                        if k in mitigs
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or k.replace("sec_", "") in ignored_rules
+                    ]
+                    
+                    for k in keys_to_delete_ts:
+                        if k in ts:
+                            del ts[k]
+                            
+                    for k in keys_to_delete_eqs:
+                        if k in eqs:
+                            del eqs[k]
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING

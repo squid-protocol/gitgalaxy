@@ -901,8 +901,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             with patch("gitgalaxy.licensing.enforce_licensing_guard"):
                 try:
                     main()
-                except SystemExit:
-                    pass
+                except SystemExit as exc:
+                    self.assertIn(exc.code, (None, 0), f"Unexpected SystemExit code: {exc.code}")
                     
         # Extract the arguments passed to execute_incremental_scan
         mock_execute_inc.assert_called_once()

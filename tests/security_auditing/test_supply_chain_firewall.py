@@ -68,7 +68,7 @@ def test_import_truncation_and_local_shield(monkeypatch):
 # ==============================================================================
 # TEST 3: Alias Spoofing Detection
 # ==============================================================================
-def test_alias_spoofing_detection(monkeypatch, capsys):
+def test_alias_spoofing_detection(monkeypatch, caplog):
     """
     Validates that the firewall correctly detects when a safe alias is mapped
     to a blacklisted upstream package via the alias_map.
@@ -90,11 +90,10 @@ def test_alias_spoofing_detection(monkeypatch, capsys):
     mock_alias_map = {".": {"safe-utils": "malicious-core"}}
 
     result = firewall_module.run_firewall_audit(mock_ram_graph, alias_map=mock_alias_map)
-    captured = capsys.readouterr()
     
     assert result["imports_blacklisted"] == 1, "Failed to dereference spoofed alias."
     assert result["threats_found"] == 1, "Spoofed alias did not increment threat counter."
-    assert "Spoofed alias blocked" in captured.out, "Missing spoofed alias log output."
+    assert "Spoofed alias blocked" in caplog.text, "Missing spoofed alias log output."
 
 # ==============================================================================
 # TEST 4: Strict Policy Enforcement Mode (Updated Schema)
@@ -226,7 +225,7 @@ def test_main_corrupted_json(tmp_path, capsys):
 # ==============================================================================
 # TEST 9: Monorepo Contextual Alias Resolution
 # ==============================================================================
-def test_monorepo_contextual_alias_resolution(monkeypatch, capsys):
+def test_monorepo_contextual_alias_resolution(monkeypatch, caplog):
     """
     Proves that the firewall resolves package aliases contextually based on the 
     physical directory of the audited file, traversing upwards to find the nearest
@@ -250,12 +249,11 @@ def test_monorepo_contextual_alias_resolution(monkeypatch, capsys):
     ]
 
     result = firewall_module.run_firewall_audit(mock_ram_graph, alias_map=mock_alias_map)
-    captured = capsys.readouterr()
 
     assert result["imports_blacklisted"] == 3, "Failed to resolve contextual aliases correctly!"
     assert result["threats_found"] == 3, "Failed to increment threats for contextually spoofed packages!"
-    assert "'lodash' -> 'rogue-ui'" in captured.out, "Failed to resolve exact directory alias (Frontend)!"
-    assert "'lodash' -> 'malicious-core'" in captured.out, "Failed to traverse upwards to authoritative manifest!"
+    assert "'lodash' -> 'rogue-ui'" in caplog.text, "Failed to resolve exact directory alias (Frontend)!"
+    assert "'lodash' -> 'malicious-core'" in caplog.text, "Failed to traverse upwards to authoritative manifest!"
 
 # ==============================================================================
 # TEST 10: THE ALLOWLIST LOOPHOLE GUARD (UNHAPPY PATH)

@@ -194,8 +194,12 @@ class RecordKeeper:
         # DEFENSIVE GUARD: Auto-Heal Schema Drift
         try:
             cursor.execute("ALTER TABLE repo_data ADD COLUMN is_zero_dependency_mode INTEGER DEFAULT 0")
-        except sqlite3.OperationalError:
-            pass
+        except sqlite3.OperationalError as exc:
+            # Expected on existing databases where migration was already applied.
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'is_zero_dependency_mode' already exists.")
+            else:
+                raise
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (

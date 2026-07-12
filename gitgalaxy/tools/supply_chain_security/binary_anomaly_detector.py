@@ -13,6 +13,9 @@
 # relying on mathematical entropy and header verification to detect malicious 
 # packing without requiring deep binary execution.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import os

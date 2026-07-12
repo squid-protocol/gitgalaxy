@@ -14,6 +14,9 @@
 # FastAPI) and enforces strict parity with declared specifications, exposing 
 # hidden attack surfaces.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import re

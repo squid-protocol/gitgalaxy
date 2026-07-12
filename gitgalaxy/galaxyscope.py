@@ -2392,6 +2392,18 @@ def main():
         merged_langs = copy.deepcopy(base_langs)
         merged_aperture = copy.deepcopy(base_aperture)
 
+        if 'galaxyscope' in config_file_data and 'APERTURE_CONFIG' in config_file_data['galaxyscope']:
+            yaml_aperture = config_file_data['galaxyscope']['APERTURE_CONFIG']
+            if 'IGNORED_DIRECTORIES' in yaml_aperture:
+                if "IGNORED_DIRECTORIES" not in merged_aperture:
+                    merged_aperture["IGNORED_DIRECTORIES"] = set()
+                merged_aperture["IGNORED_DIRECTORIES"].update(yaml_aperture['IGNORED_DIRECTORIES'])
+            
+            if 'CONTRABAND_PATTERNS' in yaml_aperture:
+                if "CONTRABAND_PATTERNS" not in merged_aperture:
+                    merged_aperture["CONTRABAND_PATTERNS"] = []
+                merged_aperture["CONTRABAND_PATTERNS"].extend(yaml_aperture['CONTRABAND_PATTERNS'])
+
         if project_name in project_overrides:
             logging.info(f"🌌 DIALECT DETECTED: Injecting Project Overrides for '{project_name}'")
             dialect_dict = project_overrides[project_name]

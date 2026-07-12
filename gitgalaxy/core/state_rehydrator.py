@@ -8,7 +8,6 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
-Python
 import sqlite3
 from pathlib import Path
 from typing import Dict, Any

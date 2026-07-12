@@ -735,33 +735,33 @@ class Orchestrator:
             t_phase = time.time()
             self.guidestar.scan_project_config()
             self._build_file_census()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
 
             # PHASE 1: Workers & IPC Extraction
             # Bypasses the GIL, deploying CPU-heavy regex scanning into isolated Memory spaces.
             t_phase = time.time()
             self._extract_features_parallel()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 1 - Workers & IPC]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 1 - Workers & IPC]: {time.time() - t_phase:.2f}s")
 
             # PHASE 2: Dependency Resolution (Import Graph)
             # Reconstructs inter-file linkages. Executes *before* Relational Analysis so we
             # can mathematically define a file's public exposure index.
             t_phase = time.time()
             self._resolve_dependency_graph()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 2 - Dependency Resolution]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 2 - Dependency Resolution]: {time.time() - t_phase:.2f}s")
 
             # PHASE 3: Structural Impact Analysis
             # Fuses chronological Git telemetry with raw token counts to calculate multi-dimensional
             # risks (e.g., Tech Debt, Cognitive Load, State Flux).
             t_phase = time.time()
             self._calculate_risk_exposures()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 3 - Structural Impact Analysis]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 3 - Structural Impact Analysis]: {time.time() - t_phase:.2f}s")
 
             # PHASE 4: Network Topology & Downstream Exposure
             # Computes PageRank and Betweenness Centrality on the assembled Dependency Graph.
             t_phase = time.time()
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
@@ -771,14 +771,14 @@ class Orchestrator:
 
             appsec_sensor = AIAppSecSensor(parent_logger=logger)
             self.parsed_files = appsec_sensor.hunt_threats(self.parsed_files)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
 
             # PHASE 6: Spectral Audit & Verification
             # Uses standard deviations to identify and drop un-parseable data dumps or log files.
             t_phase = time.time()
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
             total_unparsable = self.unparsable_files + unparsable_audits
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 6 - Spectral Audit]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 6 - Spectral Audit]: {time.time() - t_phase:.2f}s")
 
             # PHASE 7: Dependency Graphing & Visualization
             # Assigns coordinates based on topological hierarchies for WebGL.
@@ -786,7 +786,7 @@ class Orchestrator:
             if repository_graph:
                 repository_graph = self.spatial_mapper.map_repository(repository_graph)
             files_mapped_count = len(repository_graph) if repository_graph else 0
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 7 - Dependency Graphing]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 7 - Dependency Graphing]: {time.time() - t_phase:.2f}s")
 
             # PHASE 8: Metrics Synthesis & Forensics
             # Aggregates raw outputs for the LLM payload generation.
@@ -794,7 +794,7 @@ class Orchestrator:
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
             report = self.processor.generate_forensic_report(repository_graph)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
 
             # PHASE 9: ML Threat Inference & Graph Resolution
             # Processes the fully formed context through XGBoost trees to isolate embedded Trojans/Stealers.
@@ -805,7 +805,7 @@ class Orchestrator:
                 repository_graph = self.model_auditor.audit_repository(
                     repository_graph, is_shadow_patch=is_shadow_patch
                 )
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
 
             # ==========================================================
             # PHASE 10: ECOSYSTEM SECURITY AUDITS
@@ -1359,7 +1359,7 @@ class Orchestrator:
                     completed_count += 1
 
                     if completed_count % 50 == 0:
-                        logger.info(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
+                        logger.debug(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
 
                     try:
                         res = future.result()

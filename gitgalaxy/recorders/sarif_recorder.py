@@ -196,8 +196,9 @@ class SarifRecorder:
             },
             {
                 "id": "GG-AGENT-GUARDRAIL",
-                "shortDescription": {"text": "Autonomous Agent Boundary Breach"},
-                "properties": {"tags": ["architecture", "ai-guardrail"]}
+                "shortDescription": {"text": "Guardrail: High-Complexity File (No Autonomous AI Edits)"},
+                "fullDescription": {"text": "This file's structural complexity, downstream exposure, or state flux makes it unsafe for autonomous AI agents to edit. Human-in-the-Loop (HITL) supervision is strictly required to prevent architectural degradation or hallucinated logic."},
+                "properties": {"tags": ["architecture", "ai-guardrail", "hitl-required"]}
             },
             {
                 "id": "GG-ML-STEALER_TROJAN",

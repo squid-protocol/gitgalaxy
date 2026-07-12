@@ -970,18 +970,18 @@ class Orchestrator:
                         if k in eqs:
                             del eqs[k]
 
-            if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
-                if "ai_appsec" in file_data.get("telemetry", {}):
-                    del file_data["telemetry"]["ai_appsec"]
+                if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
+                    if "ai_appsec" in file_data.get("telemetry", {}):
+                        del file_data["telemetry"]["ai_appsec"]
 
-            if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
-                if "ai_guardrails" in file_data.get("telemetry", {}):
-                    del file_data["telemetry"]["ai_guardrails"]
-                    
-            if file_data.get("is_ml_threat"):
-                ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
-                    file_data["is_ml_threat"] = False
+                if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
+                    if "ai_guardrails" in file_data.get("telemetry", {}):
+                        del file_data["telemetry"]["ai_guardrails"]
+                        
+                if file_data.get("is_ml_threat"):
+                    ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                    if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
+                        file_data["is_ml_threat"] = False
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING

@@ -621,7 +621,11 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         
         # Assertions
         self.assertEqual(len(scope.census), 2, "Fallback walk failed to populate the census!")
-        self.assertIn("src/main.py", scope.stem_map, "Fallback walk missed nested files!")
+        
+        # Cross-platform compatibility for Windows CI/CD runners
+        expected_path = os.path.join("src", "main.py")
+        self.assertIn(expected_path, scope.stem_map, "Fallback walk missed nested files!")
+        
         self.assertEqual(len(scope.unparsable_files), 1, "Fallback walk failed to route excluded files!")
         self.assertIn("CRITICAL LEAK", scope.unparsable_files[0]["reason"])
 

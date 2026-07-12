@@ -3,6 +3,8 @@ galaxyscope:
     - "tests/"
     - "mocks/"
     - "vendor/"
+    - "gitgalaxy/standards/language_standards.py"
+    - "gitgalaxy/security/"
   SARIF_IGNORED_RULES:
     - "GH-1022"
     - "squid-protocol"

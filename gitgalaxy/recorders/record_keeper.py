@@ -192,14 +192,12 @@ class RecordKeeper:
         """)
 
         # DEFENSIVE GUARD: Auto-Heal Schema Drift
-        # If an older database exists, it won't have the new column. Dynamically patch it.
         try:
             cursor.execute("ALTER TABLE repo_data ADD COLUMN is_zero_dependency_mode INTEGER DEFAULT 0")
         except sqlite3.OperationalError:
-            pass  # The column already exists
+            pass
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS folder_data (
             CREATE TABLE IF NOT EXISTS folder_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 repo_name TEXT,

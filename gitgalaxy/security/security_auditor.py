@@ -162,11 +162,16 @@ class SecurityAuditor:
                         "SHADOW PATCH: Hash mutated without version bump!"
                     )
 
-                # ---> NEW: The Machine Learning Assembly Shield <---
-                # XGBoost falsely flags raw Assembly/AGC instructions as obfuscated Droppers
-                # due to extreme physical entropy and low cyclomatic complexity.
+                # ---> NEW: The Machine Learning Assembly & Static Asset Shield <---
+                # XGBoost falsely flags raw Assembly, inert static files (Markdown/JSON), 
+                # and Legacy ecosystems (Perl/Templates) as obfuscated Droppers 
+                # due to their lack of modern cyclomatic complexity or extreme density.
                 lang = str(artifact.get("lang_id", "")).lower()
-                if lang in {"assembly", "agc_assembly"}:
+                if lang in {
+                    "assembly", "agc_assembly", "markdown", "plaintext", 
+                    "json", "yaml", "csv", "xml", "toml", "ini", "properties", "text",
+                    "perl", "template", "html", "css"
+                }:
                     ml_score = 0.0
                     predicted_class = 0
 

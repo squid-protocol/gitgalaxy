@@ -288,7 +288,10 @@ class NetworkRiskSensor:
 
                 # B. Assortativity (Resiliency)
                 try:
-                    assort = nx.degree_assortativity_coefficient(G)
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", category=RuntimeWarning)
+                        assort = nx.degree_assortativity_coefficient(G)
                     macro_metrics["assortativity"] = round(assort, 4) if not math.isnan(assort) else 0.0
                 except Exception:
                     pass

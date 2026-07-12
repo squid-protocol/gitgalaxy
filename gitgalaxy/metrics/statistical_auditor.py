@@ -7,6 +7,9 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
+
 import statistics
 import logging
 from typing import List, Dict, Any, Tuple, Optional

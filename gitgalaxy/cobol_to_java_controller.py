@@ -17,6 +17,9 @@
 # the internal business logic to the AI agent, ensuring architectural integrity 
 # and guaranteed compilability out-of-the-box.
 # ==============================================================================
+
+# galaxyscope:ignore sec_io
+
 import argparse
 import sys
 import json

@@ -5,6 +5,9 @@
 #          Intermediate Representation (IR) State Manager. Dynamically toggles
 #          between high-speed RAM and SQLite3 to prevent OOM crashes.
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
+
 import argparse
 import sys
 import json

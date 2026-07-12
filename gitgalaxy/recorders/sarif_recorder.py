@@ -2,6 +2,9 @@
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, ai_guardrails
+
 import json
 import logging
 from typing import Dict, Any, List

@@ -6,6 +6,8 @@ galaxyscope:
     - "gitgalaxy/standards/"
     - "gitgalaxy/security/"
     - "gitgalaxy/tools/"
+    - "templates/"
+    - ".github/workflows/"
   SARIF_IGNORED_RULES:
     - "GH-1022"
     - "squid-protocol"

@@ -3,7 +3,7 @@
 # Copyright (c) 2026 Joe Esquibel
 # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, ai_guardrails
+# galaxyscope:ignore sec_high_risk_execution
 
 import json
 import logging
@@ -34,7 +34,7 @@ class SarifRecorder:
 
         # 2. Build the foundational SARIF Schema
         sarif_payload = {
-            "$schema": "[https://json.schemastore.org/sarif-2.1.0.json](https://json.schemastore.org/sarif-2.1.0.json)",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
             "version": "2.1.0",
             "runs": [
                 {
@@ -42,7 +42,7 @@ class SarifRecorder:
                         "driver": {
                             "name": "GitGalaxy Scanner",
                             "version": session_meta.get("engine", f"v{self.version}"),
-                            "informationUri": "[https://gitgalaxy.io](https://gitgalaxy.io)",
+                            "informationUri": "https://gitgalaxy.io",
                             "rules": self._build_rules_taxonomy()
                         }
                     },

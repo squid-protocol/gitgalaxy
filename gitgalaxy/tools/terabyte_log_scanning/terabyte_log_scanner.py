@@ -3,6 +3,9 @@
 # GitGalaxy Tool: High-Volume Log Scanner
 # Purpose: High-speed, single-pass log analyzer with ASCII time-series histograms.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import re

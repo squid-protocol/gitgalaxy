@@ -12,13 +12,12 @@ galaxyscope:
       - "tests"
       - ".github"
       - "docs"
-
-      - "gitgalaxy/standards"
     
     # Exact paths or wildcards to block (e.g., test fixtures)
     CONTRABAND_PATTERNS:
       - "tests/fixtures/*"
       - "tests/core_engine/dummy_payload.bin"
+      - "gitgalaxy/standards/*"
       
     # Bypasses heavy regex extraction to save CPU cycles
     VENDOR_MINIFICATION_PATHS:

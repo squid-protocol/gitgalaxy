@@ -918,10 +918,16 @@ class Orchestrator:
                     if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
                         file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
                         
+                    # THE NUCLEAR SCRUB: Annihilate all telemetry except what the 3D map requires
                     if "telemetry" in file_data:
-                        file_data["telemetry"]["threat_snippets"] = {}
-                        file_data["telemetry"]["network_metrics"] = {} 
-                        file_data["telemetry"]["domain_context"] = {}
+                        file_data["telemetry"] = {
+                            "popularity": file_data["telemetry"].get("popularity", 0),
+                            "ownership": file_data["telemetry"].get("ownership", "Unknown")
+                        }
+                    
+                    if "metadata" in file_data:
+                        file_data["metadata"] = {}
+                        
                     continue
                 
                 mitigs = file_data.get("mitigations", [])

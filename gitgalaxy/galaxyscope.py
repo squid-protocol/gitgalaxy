@@ -939,33 +939,33 @@ class Orchestrator:
                 eqs = file_data.get("equations", {})
                 
                 if isinstance(ts, dict) and isinstance(eqs, dict):
-                keys_to_delete_ts = [
-                    k for k in ts.keys() 
-                    if k in mitigs 
-                    or f"sec_{k}" in mitigs 
-                    or k.replace("sec_", "") in mitigs
-                    or k in ignored_rules
-                    or f"sec_{k}" in ignored_rules
-                    or f"GG-SAST-{k.upper()}" in ignored_rules
-                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
-                ]
-                keys_to_delete_eqs = [
-                    k for k in eqs.keys()
-                    if k in mitigs
-                    or k.replace("sec_", "") in mitigs
-                    or k in ignored_rules
-                    or k.replace("sec_", "") in ignored_rules
-                    or f"GG-SAST-{k.upper()}" in ignored_rules
-                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
-                ]
-                
-                for k in keys_to_delete_ts:
-                    if k in ts:
-                        del ts[k]
-                        
-                for k in keys_to_delete_eqs:
-                    if k in eqs:
-                        del eqs[k]
+                    keys_to_delete_ts = [
+                        k for k in ts.keys() 
+                        if k in mitigs 
+                        or f"sec_{k}" in mitigs 
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or f"sec_{k}" in ignored_rules
+                        or f"GG-SAST-{k.upper()}" in ignored_rules
+                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                    ]
+                    keys_to_delete_eqs = [
+                        k for k in eqs.keys()
+                        if k in mitigs
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or k.replace("sec_", "") in ignored_rules
+                        or f"GG-SAST-{k.upper()}" in ignored_rules
+                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                    ]
+                    
+                    for k in keys_to_delete_ts:
+                        if k in ts:
+                            del ts[k]
+                            
+                    for k in keys_to_delete_eqs:
+                        if k in eqs:
+                            del eqs[k]
 
             if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
                 if "ai_appsec" in file_data.get("telemetry", {}):

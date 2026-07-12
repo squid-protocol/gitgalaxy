@@ -1937,7 +1937,14 @@ class Orchestrator:
         # Extract files flagged as secret leaks from the unparsable queue
         # and forcefully inject them into the parsed map for visualization.
         # ==================================================================
-        leaks = [cand for cand in self.unparsable_files if "CRITICAL LEAK" in cand.get("reason", "")]
+        leaks = []
+        for cand in self.unparsable_files:
+            if "CRITICAL LEAK" in cand.get("reason", ""):
+                safe_path = cand.get("path", "").lower()
+                # DEFENSIVE GUARD: Do not escalate mock cryptographic keys used in unit tests
+                if "/test/" in safe_path or "/tests/" in safe_path or "mock" in safe_path or "dummy" in safe_path:
+                    continue
+                leaks.append(cand)
 
         # Remove them from Excluded Artifacts so they aren't double-counted in the summary
         self.unparsable_files = [
@@ -1946,9 +1953,12 @@ class Orchestrator:
 
         from gitgalaxy.metrics.signal_processor import SignalProcessor
 
+        if leaks:
+            logger.info(f"🚨 Escalated {len(leaks)} critical credential exposures onto the 3D map.")
+
         for leak in leaks:
             rel_path = leak["path"]
-            logger.critical(f"Threat Escalation: Forcing {rel_path} onto the 3D Map!")
+            logger.debug(f"Threat Escalation: Forcing {rel_path} onto the 3D Map!")
 
             synthetic_artifact = {
                 "name": Path(rel_path).name,

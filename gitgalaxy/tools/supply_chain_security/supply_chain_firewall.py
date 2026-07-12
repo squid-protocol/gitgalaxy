@@ -142,8 +142,11 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         # 2. BEHAVIORAL POLICY ENFORCEMENT (Leveraging Phase 1 Measurements)
         # =====================================================================
         # Shield inert static assets (SVGs, Templates, XMLs) from executing behavioral heuristics
+        safe_path_lower = rel_path_str.lower()
         ext = Path(rel_path_str).suffix.lower()
-        if ext in {".svg", ".xml", ".jelly", ".html", ".css", ".md", ".json", ".yaml", ".yml", ".txt", ".properties"}:
+        
+        # .d.ts files are TypeScript declarations. They contain no executable logic.
+        if ext in {".svg", ".xml", ".jelly", ".html", ".css", ".md", ".json", ".yaml", ".yml", ".txt", ".properties"} or safe_path_lower.endswith(".d.ts"):
             continue
 
         # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data, 

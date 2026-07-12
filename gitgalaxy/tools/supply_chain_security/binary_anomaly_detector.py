@@ -236,7 +236,12 @@ def main():
 
 def run_xray_audit(target_path: Path) -> dict:
     """Programmatic entry point for GalaxyScope (orchestrator execution)."""
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+    import logging
+    # Mute the noisy Aperture Filter init during headless Phase 10 execution
+    quiet_logger = logging.getLogger("GalaxyScope.xray")
+    quiet_logger.setLevel(logging.WARNING)
+    
+    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG, parent_logger=quiet_logger)
     security = SecurityLens()
     security.THREAT_SIGNATURES = {
         "reflection_metaprogramming": security.THREAT_SIGNATURES["reflection_metaprogramming"],

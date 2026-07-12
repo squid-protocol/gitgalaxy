@@ -1328,6 +1328,8 @@ class Orchestrator:
         max_workers = max(1, cpu_count - 1)
 
         current_log_level = logging.getLogger().getEffectiveLevel()
+        # DEFENSIVE UI: Mute the initialization spam from the 16-32 worker cores unless in debug mode
+        worker_log_level = logging.DEBUG if current_log_level == logging.DEBUG else logging.WARNING
         completed_count = 0
 
         with concurrent.futures.ProcessPoolExecutor(
@@ -1337,7 +1339,7 @@ class Orchestrator:
                 str(self.root),
                 self.config,
                 self.ext_tally,
-                current_log_level,
+                worker_log_level,
                 self.git_tracked_files,
                 self.census,
             ),

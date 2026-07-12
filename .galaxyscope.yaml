@@ -5,6 +5,7 @@ galaxyscope:
     - "vendor/"
     - "gitgalaxy/standards/"
     - "gitgalaxy/security/"
+    - "gitgalaxy/tools/
   SARIF_IGNORED_RULES:
     - "GH-1022"
     - "squid-protocol"

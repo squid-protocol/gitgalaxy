@@ -54,3 +54,19 @@ jobs:
           git remote add gitlab https://oauth2:${{ secrets.GITLAB_SYNC_TOKEN }}@gitlab.com/squid-protocol1/gitgalaxy.git
           git push -f gitlab HEAD:main
           git push -f --tags gitlab
+
+  bitbucket-sync:
+    name: Sync to Bitbucket Repository
+    needs: pypi-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Code and Tags to Bitbucket
+        run: |
+          git remote add bitbucket https://${{ secrets.BITBUCKET_USERNAME }}:${{ secrets.BITBUCKET_SYNC_TOKEN }}@bitbucket.org/squid-protocol/gitgalaxy.git
+          git push -f bitbucket HEAD:main
+          git push -f --tags bitbucket

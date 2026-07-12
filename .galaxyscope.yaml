@@ -1,0 +1,6 @@
+galaxyscope:
+  APERTURE_CONFIG:
+    IGNORED_DIRECTORIES:
+      - "tests"
+      - ".github"
+      - "docs"

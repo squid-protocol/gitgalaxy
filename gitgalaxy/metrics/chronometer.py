@@ -8,7 +8,7 @@
 # of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+# galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
 import os
 import subprocess

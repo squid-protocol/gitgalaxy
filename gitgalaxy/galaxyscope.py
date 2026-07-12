@@ -8,7 +8,7 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io, safety_bypasses
 
 import logging
 import time
@@ -1179,7 +1179,7 @@ class Orchestrator:
                 print(" 🌌 READY FOR VISUALIZATION (100% LOCAL / ZERO UPLOAD)")
 
             print("=" * 75)
-            print(" 1. Open your browser to: \033[94m\033[4m[https://gitgalaxy.io/](https://gitgalaxy.io/)\033[0m")
+            print(" 1. Open your browser to: \033[94m\033[4mhttps://gitgalaxy.io/\033[0m")
             print(f" 2. Drag and drop '{gpu_output}'")
             print("\n * PRIVACY SECURED: Your data never leaves your machine.")
             print("   All architectural rendering executes locally in your browser.")

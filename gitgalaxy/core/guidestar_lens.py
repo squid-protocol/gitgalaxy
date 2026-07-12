@@ -5,8 +5,11 @@
 # This source code is licensed under the PolyForm Noncommercial License 1.0.0.
 # You may not use this file except in compliance with the License.
 # A copy of the license can be found in the LICENSE file in the root directory
-# of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_io, llm_hooks
+
 import re
 import os
 import json

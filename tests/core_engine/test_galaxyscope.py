@@ -1004,8 +1004,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         with patch.object(sys, 'argv', test_args), patch("gitgalaxy.licensing.enforce_licensing_guard"):
             try:
                 main()
-            except SystemExit:
-                pass
+            except SystemExit as exc:
+                # CLI entrypoints may call sys.exit(); this is expected in tests.
+                self.assertIn(exc.code, (0, None), f"Unexpected SystemExit code: {exc.code}")
                 
         mock_full_scan.assert_called_once()
         mock_inc_scan.assert_not_called()
@@ -1019,8 +1020,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         with patch.object(sys, 'argv', test_args), patch("gitgalaxy.licensing.enforce_licensing_guard"):
             try:
                 main()
-            except SystemExit:
-                pass
+            except SystemExit as exc:
+                # CLI entrypoints may call sys.exit(); this is expected in tests.
+                self.assertIn(exc.code, (0, None), f"Unexpected SystemExit code: {exc.code}")
                     
         mock_full_scan.assert_called_once()
         mock_inc_scan.assert_not_called()

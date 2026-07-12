@@ -909,30 +909,19 @@ class Orchestrator:
                 path_excluded = any(p in file_path for p in ignored_paths)
                 
                 if path_excluded:
-                    # COMPLETE PATH EXCLUSION: Wipe all threat indicators so SARIF ignores this file
                     file_data["equations"] = {}
                     file_data["is_ml_threat"] = False
                     
-                    # 1. NEW: Wipe the numeric hit vector (The SARIF Recorder's primary data source)
                     if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
                         file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
                         
-                    # 2. Zero out the risk vector
                     if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
                         file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
                         
-                    # 3. Wipe all telemetry strings and contexts
                     if "telemetry" in file_data:
                         file_data["telemetry"]["threat_snippets"] = {}
-                        if "domain_context" in file_data["telemetry"]:
-                            file_data["telemetry"]["domain_context"].pop("warning", None)
-                            file_data["telemetry"]["domain_context"].pop("alert", None)
-                            file_data["telemetry"]["domain_context"].pop("AI Threat Class", None)
-                            
-                    if "metadata" in file_data:
-                        file_data["metadata"].pop("warning", None)
-                        file_data["metadata"].pop("alert", None)
-                        
+                        file_data["telemetry"]["network_metrics"] = {} 
+                        file_data["telemetry"]["domain_context"] = {}
                     continue
                 
                 mitigs = file_data.get("mitigations", [])

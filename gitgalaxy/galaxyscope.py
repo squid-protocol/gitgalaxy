@@ -918,7 +918,6 @@ class Orchestrator:
                     if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
                         file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
                         
-                    # THE NUCLEAR SCRUB: Annihilate all telemetry except what the 3D map requires
                     if "telemetry" in file_data:
                         file_data["telemetry"] = {
                             "popularity": file_data["telemetry"].get("popularity", 0),
@@ -940,29 +939,46 @@ class Orchestrator:
                 eqs = file_data.get("equations", {})
                 
                 if isinstance(ts, dict) and isinstance(eqs, dict):
-                    keys_to_delete_ts = [
-                        k for k in ts.keys() 
-                        if k in mitigs 
-                        or f"sec_{k}" in mitigs 
-                        or k.replace("sec_", "") in mitigs
-                        or k in ignored_rules
-                        or f"sec_{k}" in ignored_rules
-                    ]
-                    keys_to_delete_eqs = [
-                        k for k in eqs.keys()
-                        if k in mitigs
-                        or k.replace("sec_", "") in mitigs
-                        or k in ignored_rules
-                        or k.replace("sec_", "") in ignored_rules
-                    ]
+                keys_to_delete_ts = [
+                    k for k in ts.keys() 
+                    if k in mitigs 
+                    or f"sec_{k}" in mitigs 
+                    or k.replace("sec_", "") in mitigs
+                    or k in ignored_rules
+                    or f"sec_{k}" in ignored_rules
+                    or f"GG-SAST-{k.upper()}" in ignored_rules
+                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                ]
+                keys_to_delete_eqs = [
+                    k for k in eqs.keys()
+                    if k in mitigs
+                    or k.replace("sec_", "") in mitigs
+                    or k in ignored_rules
+                    or k.replace("sec_", "") in ignored_rules
+                    or f"GG-SAST-{k.upper()}" in ignored_rules
+                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                ]
+                
+                for k in keys_to_delete_ts:
+                    if k in ts:
+                        del ts[k]
+                        
+                for k in keys_to_delete_eqs:
+                    if k in eqs:
+                        del eqs[k]
+
+            if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
+                if "ai_appsec" in file_data.get("telemetry", {}):
+                    del file_data["telemetry"]["ai_appsec"]
+
+            if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
+                if "ai_guardrails" in file_data.get("telemetry", {}):
+                    del file_data["telemetry"]["ai_guardrails"]
                     
-                    for k in keys_to_delete_ts:
-                        if k in ts:
-                            del ts[k]
-                            
-                    for k in keys_to_delete_eqs:
-                        if k in eqs:
-                            del eqs[k]
+            if file_data.get("is_ml_threat"):
+                ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
+                    file_data["is_ml_threat"] = False
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING

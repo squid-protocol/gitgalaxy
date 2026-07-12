@@ -141,6 +141,17 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         # =====================================================================
         # 2. BEHAVIORAL POLICY ENFORCEMENT (Leveraging Phase 1 Measurements)
         # =====================================================================
+        # Shield inert static assets (SVGs, Templates, XMLs) from executing behavioral heuristics
+        ext = Path(rel_path_str).suffix.lower()
+        if ext in {".svg", ".xml", ".jelly", ".html", ".css", ".md", ".json", ".yaml", ".yml", ".txt", ".properties"}:
+            continue
+
+        # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data, 
+        # and contain high-entropy strings which trigger massive false positives in behavioral heuristics.
+        safe_path = rel_path_str.lower()
+        if "/test/" in safe_path or "/tests/" in safe_path or "test_" in Path(safe_path).name or "_test" in Path(safe_path).name:
+            continue
+
         # Extract the raw structural signatures calculated natively by the Structural Signature Analysis Engine in Phase 1
         equations = file_node.get("equations", {})
         loc = file_node.get("coding_loc", 1)

@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -59,6 +62,7 @@ jobs:
           path: gitgalaxy-sbom.json
 
       - name: Commit LLM Brief to Docs
+        if: github.event_name == 'push'
         run: |
           mkdir -p docs
           mv gitgalaxy_architecture_brief.md docs/ || true

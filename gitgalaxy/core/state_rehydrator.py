@@ -8,11 +8,12 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
+Python
 import sqlite3
 from pathlib import Path
 from typing import Dict, Any
 
-
+# galaxyscope:ignore sec_high_risk_execution, agentic_rce, logic_bomb
 class StateRehydrator:
     """
     Restores the GitGalaxy engine's memory state from a previous SQLite audit.

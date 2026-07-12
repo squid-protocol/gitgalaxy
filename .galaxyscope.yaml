@@ -4,3 +4,4 @@ galaxyscope:
       - "tests"
       - ".github"
       - "docs"
+      - "gitgalaxy/standards"

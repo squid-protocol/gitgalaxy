@@ -768,7 +768,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         config = self.mock_config.copy()
         config["SARIF_IGNORED_PATHS"] = ["vendor/", "tests/"]
         
-        scope = Orchestrator(".", config)
+        Orchestrator(".", config)
         mock_repo_graph = [
             {
                 "path": "vendor/library.js",

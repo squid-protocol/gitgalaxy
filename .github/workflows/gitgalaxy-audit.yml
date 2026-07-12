@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# REQUIRED: Grants the action permission to post to the Security tab
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   spectral-audit:
     runs-on: ubuntu-latest
@@ -29,9 +34,15 @@ jobs:
       - name: Execute Spectral Audit
         run: |
           # Relaxed thresholds until --incremental or --ignore are implemented
-          galaxyscope . --config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+          galaxyscope . --config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json
           
-      - name: Upload SARIF Artifact
+      - name: Upload SARIF to GitHub Security Tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: gitgalaxy-results_sarif.json
+
+      - name: Upload SARIF as Build Artifact (Backup)
         if: always()
         uses: actions/upload-artifact@v4
         with:

@@ -896,6 +896,24 @@ class Orchestrator:
                             self.policy_failed = True
 
             # ==========================================================
+            # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts)
+            # ==========================================================
+            logger.info("🧹 Sanitizing telemetry to prevent export of mitigated threats...")
+            for file_data in (repository_graph or []):
+                mitigs = file_data.get("mitigations", [])
+                if isinstance(mitigs, dict):
+                    mitigs = list(mitigs.keys())
+                elif not isinstance(mitigs, list):
+                    mitigs = []
+                
+                ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                if isinstance(ts, dict):
+                    # Cross-reference standard sensor names and passive security sensor names
+                    keys_to_delete = [k for k in ts.keys() if k in mitigs or f"sec_{k}" in mitigs or k.replace("sec_", "") in mitigs]
+                    for k in keys_to_delete:
+                        del ts[k]
+
+            # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING
             # ==========================================================
             # Calculate physical mass before the GPU Recorder destroys the repository_graph list

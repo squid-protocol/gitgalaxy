@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 galaxyscope:
   # --- CI/CD ENFORCEMENT GATES ---
   fail-on-secrets: true
@@ -8,10 +9,14 @@ galaxyscope:
   # --- THE APERTURE SHIELD ---
   APERTURE_CONFIG:
     # Folders entirely blinded from the scanner (Noise reduction)
+=======
+APERTURE_CONFIG:
+>>>>>>> Stashed changes
     IGNORED_DIRECTORIES:
       - "tests"
       - ".github"
       - "docs"
+<<<<<<< Updated upstream
     
     # Exact paths or wildcards to block (e.g., test fixtures)
     CONTRABAND_PATTERNS:
@@ -28,3 +33,10 @@ galaxyscope:
     SECRETS_EXACT:
       - ".env.production"
       - "master_database_key.pem"
+=======
+      - "standards"
+      
+    CONTRABAND_PATTERNS:
+      - "tests/fixtures/*"
+      - "tests/core_engine/dummy_payload.bin"
+>>>>>>> Stashed changes

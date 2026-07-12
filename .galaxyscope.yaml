@@ -1,42 +1,8 @@
-<<<<<<< Updated upstream
 galaxyscope:
-  # --- CI/CD ENFORCEMENT GATES ---
-  fail-on-secrets: true
-  fail-on-malware: true
-  max-risk-exposure: 150.0
-  paranoid: false
-
-  # --- THE APERTURE SHIELD ---
-  APERTURE_CONFIG:
-    # Folders entirely blinded from the scanner (Noise reduction)
-=======
-APERTURE_CONFIG:
->>>>>>> Stashed changes
-    IGNORED_DIRECTORIES:
-      - "tests"
-      - ".github"
-      - "docs"
-<<<<<<< Updated upstream
-    
-    # Exact paths or wildcards to block (e.g., test fixtures)
-    CONTRABAND_PATTERNS:
-      - "tests/fixtures/*"
-      - "tests/core_engine/dummy_payload.bin"
-      - "gitgalaxy/standards/*"
-      
-    # Bypasses heavy regex extraction to save CPU cycles
-    VENDOR_MINIFICATION_PATHS:
-      - "vendor/"
-      - "third_party/"
-
-    # Files that instantly fail the build if detected
-    SECRETS_EXACT:
-      - ".env.production"
-      - "master_database_key.pem"
-=======
-      - "standards"
-      
-    CONTRABAND_PATTERNS:
-      - "tests/fixtures/*"
-      - "tests/core_engine/dummy_payload.bin"
->>>>>>> Stashed changes
+  SARIF_IGNORED_PATHS:
+    - "tests/"
+    - "mocks/"
+    - "vendor/"
+  SARIF_IGNORED_RULES:
+    - "GH-1022"
+    - "squid-protocol"

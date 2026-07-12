@@ -896,10 +896,17 @@ class Orchestrator:
                             self.policy_failed = True
 
             # ==========================================================
-            # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts)
+            # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts & Config Exclusions)
             # ==========================================================
-            logger.info("🧹 Sanitizing telemetry to prevent export of mitigated threats...")
+            logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
+            
+            ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
+            ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
+            
             for file_data in (repository_graph or []):
+                file_path = file_data.get("path", "")
+                path_excluded = any(p in file_path for p in ignored_paths)
+                
                 mitigs = file_data.get("mitigations", [])
                 if isinstance(mitigs, dict):
                     mitigs = list(mitigs.keys())
@@ -908,8 +915,18 @@ class Orchestrator:
                 
                 ts = file_data.get("telemetry", {}).get("threat_snippets", {})
                 if isinstance(ts, dict):
-                    # Cross-reference standard sensor names and passive security sensor names
-                    keys_to_delete = [k for k in ts.keys() if k in mitigs or f"sec_{k}" in mitigs or k.replace("sec_", "") in mitigs]
+                    if path_excluded:
+                        keys_to_delete = list(ts.keys())
+                    else:
+                        keys_to_delete = [
+                            k for k in ts.keys() 
+                            if k in mitigs 
+                            or f"sec_{k}" in mitigs 
+                            or k.replace("sec_", "") in mitigs
+                            or k in ignored_rules
+                            or f"sec_{k}" in ignored_rules
+                        ]
+                        
                     for k in keys_to_delete:
                         del ts[k]
 
@@ -2517,6 +2534,8 @@ def main():
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
+            "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),
+            "SARIF_IGNORED_PATHS": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_PATHS", []),
         }
 
         # ---------------------------------------------------------

@@ -1,7 +1,30 @@
 galaxyscope:
+  # --- CI/CD ENFORCEMENT GATES ---
+  fail-on-secrets: true
+  fail-on-malware: true
+  max-risk-exposure: 150.0
+  paranoid: false
+
+  # --- THE APERTURE SHIELD ---
   APERTURE_CONFIG:
+    # Folders entirely blinded from the scanner (Noise reduction)
     IGNORED_DIRECTORIES:
       - "tests"
       - ".github"
       - "docs"
       - "gitgalaxy/standards"
+    
+    # Exact paths or wildcards to block (e.g., test fixtures)
+    CONTRABAND_PATTERNS:
+      - "tests/fixtures/*"
+      - "tests/core_engine/dummy_payload.bin"
+      
+    # Bypasses heavy regex extraction to save CPU cycles
+    VENDOR_MINIFICATION_PATHS:
+      - "vendor/"
+      - "third_party/"
+
+    # Files that instantly fail the build if detected
+    SECRETS_EXACT:
+      - ".env.production"
+      - "master_database_key.pem"

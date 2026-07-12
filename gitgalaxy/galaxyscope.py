@@ -2394,6 +2394,7 @@ def main():
 
         if 'galaxyscope' in config_file_data and 'APERTURE_CONFIG' in config_file_data['galaxyscope']:
             yaml_aperture = config_file_data['galaxyscope']['APERTURE_CONFIG']
+            
             if 'IGNORED_DIRECTORIES' in yaml_aperture:
                 if "IGNORED_DIRECTORIES" not in merged_aperture:
                     merged_aperture["IGNORED_DIRECTORIES"] = set()
@@ -2403,6 +2404,16 @@ def main():
                 if "CONTRABAND_PATTERNS" not in merged_aperture:
                     merged_aperture["CONTRABAND_PATTERNS"] = []
                 merged_aperture["CONTRABAND_PATTERNS"].extend(yaml_aperture['CONTRABAND_PATTERNS'])
+
+            if 'VENDOR_MINIFICATION_PATHS' in yaml_aperture:
+                if "VENDOR_MINIFICATION_PATHS" not in merged_aperture:
+                    merged_aperture["VENDOR_MINIFICATION_PATHS"] = []
+                merged_aperture["VENDOR_MINIFICATION_PATHS"].extend(yaml_aperture['VENDOR_MINIFICATION_PATHS'])
+                
+            if 'SECRETS_EXACT' in yaml_aperture:
+                if "SECRETS_EXACT" not in merged_aperture:
+                    merged_aperture["SECRETS_EXACT"] = set()
+                merged_aperture["SECRETS_EXACT"].update(yaml_aperture['SECRETS_EXACT'])
 
         if project_name in project_overrides:
             logging.info(f"🌌 DIALECT DETECTED: Injecting Project Overrides for '{project_name}'")

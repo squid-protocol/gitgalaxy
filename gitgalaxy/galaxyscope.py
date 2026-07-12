@@ -832,7 +832,7 @@ class Orchestrator:
 
             # Attach it to the summary payload
             summary["ecosystem_audits"] = ecosystem_audits
-
+            
             # ==========================================================
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
             # ==========================================================
@@ -849,26 +849,33 @@ class Orchestrator:
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
                         
-                        # THE FIX: Safely extract mitigations from either the root or telemetry dict
-                        mitigs = file_data.get("mitigations", file_data.get("telemetry", {}).get("mitigation_telemetry", []))
+                        # Extract mitigations safely
+                        mitigs = file_data.get("mitigations", [])
                         if isinstance(mitigs, dict):
                             mitigs = list(mitigs.keys())
+                        elif not isinstance(mitigs, list):
+                            mitigs = []
                             
                         if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
+                            # Check Risk Vector
                             if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
                                 idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
                                 rv = file_data.get("risk_vector", [])
                                 if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
                                     has_secrets = True
                             
-                            # THE FIX: Enforce strict dictionary type-safety on snippets
+                            # THE FIX: Bulletproof Truthiness Check
                             ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                            if isinstance(ts, dict) and ("hardcoded_secrets" in ts or "sec_hardcoded_secrets" in ts):
-                                has_secrets = True
+                            if isinstance(ts, dict):
+                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
+                                    has_secrets = True
                                 
+                            # Check Domain Context
                             ctx = file_data.get("telemetry", {}).get("domain_context", {})
-                            if isinstance(ctx, dict) and "CRITICAL CREDENTIAL LEAK DETECTED" in ctx.get("warning", ""):
-                                has_secrets = True
+                            if isinstance(ctx, dict):
+                                warning_msg = ctx.get("warning", "")
+                                if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
+                                    has_secrets = True
                                 
                         if has_secrets:
                             logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")

@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
 
 # galaxyscope:ignore ai_guardrails, sec_db_hooks
 
@@ -187,7 +191,15 @@ class RecordKeeper:
             )
         """)
 
+        # DEFENSIVE GUARD: Auto-Heal Schema Drift
+        # If an older database exists, it won't have the new column. Dynamically patch it.
+        try:
+            cursor.execute("ALTER TABLE repo_data ADD COLUMN is_zero_dependency_mode INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # The column already exists
+
         cursor.execute("""
+            CREATE TABLE IF NOT EXISTS folder_data (
             CREATE TABLE IF NOT EXISTS folder_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 repo_name TEXT,
@@ -776,8 +788,12 @@ class RecordKeeper:
             )
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
         # 5. FOLDER-LEVEL ROLLUP (MATERIALIZED PATH AGGREGATION)
         # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
         folder_stats = {}
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
 

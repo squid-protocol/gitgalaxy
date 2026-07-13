@@ -840,9 +840,9 @@ class Orchestrator:
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
             # ==========================================================
             self.policy_failed = False
-            max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
+            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
             
-            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_risk_allowed > 0.0:
+            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_systemic_threat > 0.0:
                 logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
                 
                 from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -890,12 +890,18 @@ class Orchestrator:
                         logger.critical(f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}")
                         self.policy_failed = True
                         
-                    # 3. Maximum Risk Exposure Ratchet
-                    if max_risk_allowed > 0.0:
+                    # 3. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
+                    if max_systemic_threat > 0.0:
                         risk_vec = file_data.get("risk_vector", [])
-                        highest_risk = max(risk_vec) if isinstance(risk_vec, list) and risk_vec else 0.0
-                        if highest_risk >= max_risk_allowed:
-                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)")
+                        cumulative_risk = sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
+                        
+                        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
+                        blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
+                        
+                        systemic_threat = cumulative_risk * blast_radius
+                        
+                        if systemic_threat >= max_systemic_threat:
+                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}")
                             self.policy_failed = True
 
             # ==========================================================

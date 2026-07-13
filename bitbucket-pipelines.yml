@@ -17,8 +17,8 @@ pipelines:
           
           # 2. Execute Zero-Trust Spectral Audit with Enterprise Gates
           # Added --ignore tests/ to prevent mock data from tripping the secrets firewall
-          - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
-                    
+          - galaxyscope gitgalaxy/ --max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+                
         artifacts:
           # 3. Publish SARIF telemetry for Bitbucket Code Insights
           - gitgalaxy-results_sarif.json

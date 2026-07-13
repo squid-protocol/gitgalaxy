@@ -16,7 +16,7 @@ inputs:
     required: true
     default: '.'
   args:
-    description: 'Additional CLI arguments to pass to the tool (e.g., --sarif-only, --sbom-only, --fail-on-secrets, --fail-on-malware, --max-risk-exposure 85.0).'
+    description: 'Additional CLI arguments to pass to the tool (e.g., --sarif-only, --sbom-only, --fail-on-secrets, --fail-on-malware, --max-systemic-threat 150.0).'
     required: false
     default: ''
   version:

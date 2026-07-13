@@ -25,6 +25,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enforce Main Branch Tagging
+        run: |
+          git fetch origin main
+          if ! git branch -r --contains ${{ github.sha }} | grep -q "origin/main"; then
+            echo "🛑 ERROR: Tag was cut from a side branch. Releases are only allowed from main."
+            exit 1
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:

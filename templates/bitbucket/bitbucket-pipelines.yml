@@ -22,3 +22,16 @@ pipelines:
         artifacts:
           # 3. Publish SARIF telemetry for Bitbucket Code Insights
           - gitgalaxy-results_sarif.json
+          
+  custom:
+    manual-security-scan:
+      - step:
+          name: 'GitGalaxy Zero-Trust Spectral Audit (Manual)'
+          caches:
+            - pip
+          script:
+            - pip install --upgrade pip
+            - pip install gitgalaxy>=2.4.0 networkx tiktoken xgboost pandas numpy
+            - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+          artifacts:
+            - gitgalaxy-results_sarif.json

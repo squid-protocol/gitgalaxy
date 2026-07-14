@@ -3,6 +3,9 @@
 
 image: python:3.12-slim
 
+clone:
+  depth: full
+
 pipelines:
   default:
     - step:
@@ -17,8 +20,8 @@ pipelines:
           
           # 2. Execute Zero-Trust Spectral Audit with Enterprise Gates
           # Added --ignore tests/ to prevent mock data from tripping the secrets firewall
-          - galaxyscope gitgalaxy/ --max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
-                
+          - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json
+                    
         artifacts:
           # 3. Publish SARIF telemetry for Bitbucket Code Insights
           - gitgalaxy-results_sarif.json
@@ -32,6 +35,6 @@ pipelines:
           script:
             - pip install --upgrade pip
             - pip install gitgalaxy>=2.4.0 networkx tiktoken xgboost pandas numpy
-            - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+            - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json
           artifacts:
             - gitgalaxy-results_sarif.json

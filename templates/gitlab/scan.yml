@@ -3,10 +3,21 @@
 
 spec:
   inputs:
-    max-risk:
-      type: string
-      default: "80"
-      description: "Maximum allowable calculated risk exposure threshold before forcing pipeline failure"
+    tool:
+      description: "The GitGalaxy command to execute."
+      default: "galaxyscope"
+    target:
+      description: "The directory or file path to scan."
+      default: "."
+    args:
+      description: "Additional CLI arguments to pass to the tool."
+      default: "--max-risk-exposure 95.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+    version:
+      description: "The version of GitGalaxy to install from PyPI. Defaults to latest."
+      default: "latest"
+    full_precision:
+      description: "Opt-in to install heavy physics engines for Blast Radius and ML Threat Inference."
+      default: "true"
 
 ---
 
@@ -15,18 +26,44 @@ gitgalaxy_scan:
   image: python:3.12-slim
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    GIT_DEPTH: "0"  # Forces full chronological fetch to prevent Temporal Collapse
   cache:
     paths:
       - .cache/pip
-  before_script:
-    - echo "Initializing GitGalaxy blAST Engine Environment..."
-    - pip install --upgrade pip
-    - pip install gitgalaxy>=2.3.1
   script:
-    - echo "Executing Zero-Trust Spectral Audit..."
-    - galaxyscope . --max-risk-exposure $[[ inputs.max-risk ]] --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+    - echo "Initializing GitGalaxy Component Environment..."
+    - export GG_TOOL="$[[ inputs.tool ]]"
+    - export GG_TARGET="$[[ inputs.target ]]"
+    - export GG_ARGS="$[[ inputs.args ]]"
+    - export GG_VERSION="$[[ inputs.version ]]"
+    - export GG_FULL_PRECISION="$[[ inputs.full_precision ]]"
+    - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+    
+    - pip install --upgrade pip
+    - |
+      if [ "$GG_VERSION" = "local" ]; then
+        echo "Dogfooding local GitGalaxy source..."
+        pip install -e .
+      elif [ "$GG_VERSION" = "latest" ]; then
+        echo "Installing latest GitGalaxy from PyPI..."
+        pip install gitgalaxy
+      else
+        echo "Installing GitGalaxy version ${GG_VERSION}..."
+        pip install "gitgalaxy==${GG_VERSION}"
+      fi
+    - |
+      if [ "$GG_FULL_PRECISION" = "true" ]; then
+        echo "Unlocking Full Precision Mode..."
+        pip install networkx tiktoken xgboost pandas numpy
+      else
+        echo "Running in ultra-fast Zero-Dependency Mode."
+      fi
+
+    - echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+    - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
   artifacts:
     when: always
     reports:
+      # Automatically maps the SARIF output directly into GitLab's native Security Dashboard
       sast: gitgalaxy-results_sarif.json
   allow_failure: false

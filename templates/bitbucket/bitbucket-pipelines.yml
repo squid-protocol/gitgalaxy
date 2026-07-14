@@ -3,6 +3,9 @@
 
 image: python:3.12-slim
 
+clone:
+  depth: full
+
 pipelines:
   default:
     - step:
@@ -10,17 +13,37 @@ pipelines:
         caches:
           - pip
         script:
-          # 1. Initialize Python Environment & Install GitGalaxy CLI Engine
-          # Added heavy physics engines for full precision (networkx, tiktoken, etc.)
-          - pip install --upgrade pip
-          - pip install gitgalaxy>=2.4.0 networkx tiktoken xgboost pandas numpy
+          # 1. Configuration Variables
+          - export GG_TOOL="galaxyscope"
+          - export GG_TARGET="."
+          - export GG_ARGS="--max-risk-exposure 95.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+          - export GG_VERSION="latest"
+          - export GG_FULL_PRECISION="true"
           
-          # 2. Execute Zero-Trust Spectral Audit with Enterprise Gates
-          # Added --ignore tests/ to prevent mock data from tripping the secrets firewall
-          - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+          # 2. Dynamic Installation Logic
+          - pip install --upgrade pip
+          - |
+            if [ "$GG_VERSION" = "latest" ]; then
+              echo "Installing latest GitGalaxy from PyPI..."
+              pip install gitgalaxy
+            else
+              echo "Installing GitGalaxy version ${GG_VERSION}..."
+              pip install "gitgalaxy==${GG_VERSION}"
+            fi
+          - |
+            if [ "$GG_FULL_PRECISION" = "true" ]; then
+              echo "Unlocking Full Precision Mode..."
+              pip install networkx tiktoken xgboost pandas numpy
+            else
+              echo "Running in ultra-fast Zero-Dependency Mode."
+            fi
+
+          # 3. Dynamic Execution
+          - echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+          - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
                     
         artifacts:
-          # 3. Publish SARIF telemetry for Bitbucket Code Insights
+          # 4. Publish SARIF telemetry for Bitbucket Code Insights
           - gitgalaxy-results_sarif.json
           
   custom:
@@ -30,8 +53,22 @@ pipelines:
           caches:
             - pip
           script:
+            - export GG_TOOL="galaxyscope"
+            - export GG_TARGET="."
+            - export GG_ARGS="--max-risk-exposure 95.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+            - export GG_VERSION="latest"
+            - export GG_FULL_PRECISION="true"
             - pip install --upgrade pip
-            - pip install gitgalaxy>=2.4.0 networkx tiktoken xgboost pandas numpy
-            - galaxyscope gitgalaxy/ --max-risk-exposure ${GITGALAXY_MAX_RISK:-95} --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json
+            - |
+              if [ "$GG_VERSION" = "latest" ]; then
+                pip install gitgalaxy
+              else
+                pip install "gitgalaxy==${GG_VERSION}"
+              fi
+            - |
+              if [ "$GG_FULL_PRECISION" = "true" ]; then
+                pip install networkx tiktoken xgboost pandas numpy
+              fi
+            - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
           artifacts:
             - gitgalaxy-results_sarif.json

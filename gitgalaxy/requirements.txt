@@ -117,7 +117,7 @@ scikit-learn==1.8.0
 scipy==1.17.1
 seaborn==0.13.2
 SecretStorage==3.5.0
-setuptools==82.0.1
+setuptools==83.0.0
 six==1.17.0
 soupsieve==2.8.4
 stack-data==0.6.3

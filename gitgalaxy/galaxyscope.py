@@ -2433,6 +2433,7 @@ def main():
     parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
     parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
     parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
+    parser.add_argument("--max-systemic-threat", type=float, default=0.0, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
     parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
@@ -2603,6 +2604,7 @@ def main():
             "FAIL_ON_SECRETS": args.fail_on_secrets,
             "FAIL_ON_MALWARE": args.fail_on_malware,
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,
+            "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
             "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),

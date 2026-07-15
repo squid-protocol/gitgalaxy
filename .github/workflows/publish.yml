@@ -92,5 +92,5 @@ jobs:
       - name: Sync Code and Tags to Azure
         run: |
           git remote add azure https://gitgalaxy:${{ secrets.AZURE_DEVOPS_TOKEN }}@dev.azure.com/gitgalaxy/gitgalaxy/_git/gitgalaxy
-          git push -f azure HEAD:main
+          git push -f azure HEAD:refs/heads/main
           git push -f --tags azure

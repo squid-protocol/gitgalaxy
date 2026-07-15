@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Extract UI inputs from Azure DevOps environment variables
 TARGET=${INPUT_TARGET:-"."}
 MAX_RISK=${INPUT_MAXRISK:-"95.0"}

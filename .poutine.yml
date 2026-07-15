@@ -1,0 +1,5 @@
+skip:
+  - rule: untrusted_checkout_exec
+    path:
+      - azure-pipelines.yml
+      - templates/azure/azure-pipelines.yml

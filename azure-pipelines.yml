@@ -38,7 +38,6 @@ stages:
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
 
-    # poutine:ignore untrusted_checkout_exec
     - script: |
         python -m pip install --upgrade pip
         

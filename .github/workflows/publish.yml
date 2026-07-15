@@ -78,3 +78,20 @@ jobs:
           git remote add bitbucket https://${{ secrets.BITBUCKET_USERNAME }}:${{ secrets.BITBUCKET_SYNC_TOKEN }}@bitbucket.org/squid-protocol/gitgalaxy.git
           git push -f bitbucket HEAD:main
           git push -f --tags bitbucket
+
+  azure-sync:
+    name: Sync to Azure DevOps
+    needs: pypi-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Code and Tags to Azure
+        run: |
+          # Note: Azure Organization, Project, and Repository are all named gitgalaxy
+          git remote add azure https://${{ secrets.AZURE_DEVOPS_TOKEN }}@https://dev.azure.com/gitgalaxy/gitgalaxy/_git/gitgalaxy
+          git push -f azure HEAD:main
+          git push -f --tags azure

@@ -14,7 +14,8 @@ fi
 
 echo "Installing GitGalaxy & Heavy Physics Engines..."
 python -m pip install --upgrade pip
-pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+pip install gitgalaxy
+pip install -r requirements.txt
 
 echo "Running: galaxyscope $TARGET$ARGS"
 galaxyscope $TARGET$ARGS

@@ -63,7 +63,7 @@ def test_c_knr_ambiguity_trap():
         + "    INVALID_MACRO"
     )
 
-    assert_redos_immune(c_func, poison_knr)
+    assert_redos_immune(c_func, poison_knr, timeout_sec=3.0)
 
     # Ensure it still correctly matches the MS-DOS BEGIN edge case
     valid_knr = "int legacy_func(a) \n    int a; \n BEGIN \n"

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: [https://pypi.org/p/gitgalaxy](https://pypi.org/p/gitgalaxy)
+      url: https://pypi.org/p/gitgalaxy
     permissions:
       id-token: write
       contents: read

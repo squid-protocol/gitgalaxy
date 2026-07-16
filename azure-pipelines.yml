@@ -12,7 +12,7 @@ trigger:
 variables:
   GG_TOOL: 'galaxyscope'
   GG_TARGET: '.'
-  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results_sarif.json'
+  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
   PIP_CACHE_DIR: '$(Pipeline.Workspace)/.pip-cache'
   GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
 

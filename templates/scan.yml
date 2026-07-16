@@ -11,7 +11,7 @@ spec:
       default: "."
     args:
       description: "Additional CLI arguments to pass to the tool."
-      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
+      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
     version:
       description: "The version of GitGalaxy to install from PyPI. Defaults to latest."
       default: "latest"

@@ -12,7 +12,7 @@ trigger:
 variables:
   GG_TOOL: 'galaxyscope'
   GG_TARGET: '.'
-  GG_ARGS: '--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
+  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results_sarif.json'
   PIP_CACHE_DIR: '$(Pipeline.Workspace)/.pip-cache'
   GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
 
@@ -56,7 +56,7 @@ stages:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
+        targetPath: '$(Build.ArtifactStagingDirectory)/gitgalaxy-results_sarif.json'
         artifact: 'GitGalaxySecurityLogs'
         publishLocation: 'pipeline'
       displayName: 'Upload SARIF Security Metrics'

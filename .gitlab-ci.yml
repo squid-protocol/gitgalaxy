@@ -1,7 +1,7 @@
 include:
   - local: '/templates/scan.yml'
     inputs:
-      target: 'gitgalaxy/'
+      target: '.'
       version: 'local'
 
 create-release:

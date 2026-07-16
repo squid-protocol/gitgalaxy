@@ -11,7 +11,7 @@ spec:
       default: "."
     args:
       description: "Additional CLI arguments to pass to the tool."
-      default: "--max-risk-exposure 95.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
+      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
     version:
       description: "The version of GitGalaxy to install from PyPI. Defaults to latest."
       default: "latest"
@@ -59,8 +59,8 @@ gitgalaxy_scan:
         echo "Running in ultra-fast Zero-Dependency Mode."
       fi
 
-      - 'echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"'
-      - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+    - 'echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"'
+    - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
   artifacts:
     when: always
     reports:

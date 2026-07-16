@@ -13,10 +13,10 @@ pipelines:
         caches:
           - pip
         script:
-          # 1. Configuration Variables (Mirroring GitHub Action Inputs)
+          # 1. Configuration Variables
           - export GG_TOOL="galaxyscope"
           - export GG_TARGET="."
-          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
+          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
           - export GG_VERSION="latest"
           - export GG_FULL_PRECISION="true"
           - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
@@ -44,11 +44,20 @@ pipelines:
 
           # 3. Dynamic Execution
           - |
-            echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
-            ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+            echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+            ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            
+          # 4. Bitbucket Code Insights Native Integration
+          # Automatically translates the SARIF output into inline Pull Request annotations
+          - |
+            if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then
+              echo "Publishing Code Insights..."
+              python templates/bitbucket/bitbucket_insights.py gitgalaxy-results_sarif.json
+            else
+              echo "Code Insights utility not found at templates/bitbucket/bitbucket_insights.py. Skipping annotations."
+            fi
                     
         artifacts:
-          # 4. Publish SARIF telemetry for Bitbucket Code Insights
           - gitgalaxy-results_sarif.json
           
   custom:
@@ -60,7 +69,7 @@ pipelines:
           script:
             - export GG_TOOL="galaxyscope"
             - export GG_TARGET="."
-            - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
+            - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
             - export GG_VERSION="latest"
             - export GG_FULL_PRECISION="true"
             - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
@@ -78,7 +87,11 @@ pipelines:
                 pip install networkx tiktoken xgboost pandas numpy
               fi
             - |
-              echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
-              ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+              echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+              ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            - |
+              if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then
+                python templates/bitbucket/bitbucket_insights.py gitgalaxy-results_sarif.json
+              fi
           artifacts:
             - gitgalaxy-results_sarif.json

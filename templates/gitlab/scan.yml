@@ -26,7 +26,7 @@ gitgalaxy_scan:
   image: python:3.12-slim
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-    GIT_DEPTH: "0"  # Forces full chronological fetch to prevent Temporal Collapse
+    GIT_DEPTH: "0"
   cache:
     paths:
       - .cache/pip
@@ -59,11 +59,10 @@ gitgalaxy_scan:
         echo "Running in ultra-fast Zero-Dependency Mode."
       fi
 
-    - 'echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"'
-    - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+    - 'echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"'
+    - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
   artifacts:
     when: always
     reports:
-      # Automatically maps the SARIF output directly into GitLab's native Security Dashboard
       sast: gitgalaxy-results_sarif.json
   allow_failure: false

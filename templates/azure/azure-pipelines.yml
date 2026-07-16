@@ -12,7 +12,7 @@ trigger:
 variables:
   GG_TOOL: 'galaxyscope'
   GG_TARGET: '.'
-  GG_ARGS: '--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
+  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
   PIP_CACHE_DIR: '$(Pipeline.Workspace)/.pip-cache'
   GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
 
@@ -37,18 +37,15 @@ stages:
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
 
-    # 1. Install the tool globally FIRST (Immune to Poisoned PRs)
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
 
-    # 2. NOW pull the potentially untrusted code onto the runner
     - checkout: self
       fetchDepth: 0
       displayName: 'Checkout Repository (Full Depth)'
 
-    # 3. Execute the scan (No package managers allowed down here)
     - script: |
         echo "Running: $(GG_TOOL) $(GG_TARGET)$(GG_ARGS)"
         $(GG_TOOL) $(GG_TARGET)$(GG_ARGS)
@@ -56,7 +53,7 @@ stages:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
+        targetPath: '$(Build.ArtifactStagingDirectory)/gitgalaxy-results_sarif.json'
         artifact: 'GitGalaxySecurityLogs'
         publishLocation: 'pipeline'
       displayName: 'Upload SARIF Security Metrics'

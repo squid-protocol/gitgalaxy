@@ -13,17 +13,21 @@ pipelines:
         caches:
           - pip
         script:
-          # 1. Configuration Variables
+          # 1. Configuration Variables (Mirroring GitHub Action Inputs)
           - export GG_TOOL="galaxyscope"
           - export GG_TARGET="."
-          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
           - export GG_VERSION="latest"
           - export GG_FULL_PRECISION="true"
-          
+          - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+
           # 2. Dynamic Installation Logic
           - pip install --upgrade pip
           - |
-            if [ "$GG_VERSION" = "latest" ]; then
+            if [ "$GG_VERSION" = "local" ]; then
+              echo "Dogfooding local GitGalaxy source..."
+              pip install -e .
+            elif [ "$GG_VERSION" = "latest" ]; then
               echo "Installing latest GitGalaxy from PyPI..."
               pip install gitgalaxy
             else
@@ -39,8 +43,9 @@ pipelines:
             fi
 
           # 3. Dynamic Execution
-          - echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
-          - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+          - |
+            echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
+            ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
                     
         artifacts:
           # 4. Publish SARIF telemetry for Bitbucket Code Insights
@@ -55,12 +60,15 @@ pipelines:
           script:
             - export GG_TOOL="galaxyscope"
             - export GG_TARGET="."
-            - export GG_ARGS="--max-risk-exposure 95.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+            - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
             - export GG_VERSION="latest"
             - export GG_FULL_PRECISION="true"
+            - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
             - pip install --upgrade pip
             - |
-              if [ "$GG_VERSION" = "latest" ]; then
+              if [ "$GG_VERSION" = "local" ]; then
+                pip install -e .
+              elif [ "$GG_VERSION" = "latest" ]; then
                 pip install gitgalaxy
               else
                 pip install "gitgalaxy==${GG_VERSION}"
@@ -69,6 +77,8 @@ pipelines:
               if [ "$GG_FULL_PRECISION" = "true" ]; then
                 pip install networkx tiktoken xgboost pandas numpy
               fi
-            - ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            - |
+              echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
+              ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
           artifacts:
             - gitgalaxy-results_sarif.json

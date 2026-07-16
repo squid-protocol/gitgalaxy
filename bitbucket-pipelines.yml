@@ -15,8 +15,8 @@ pipelines:
         script:
           # 1. Configuration Variables (Mirroring GitHub Action Inputs)
           - export GG_TOOL="galaxyscope"
-          - export GG_TARGET="gitgalaxy/"
-          - export GG_ARGS="--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+          - export GG_TARGET="."
+          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
           - export GG_VERSION="latest"
           - export GG_FULL_PRECISION="true"
           - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
@@ -59,8 +59,8 @@ pipelines:
             - pip
           script:
             - export GG_TOOL="galaxyscope"
-            - export GG_TARGET="gitgalaxy/"
-            - export GG_ARGS="--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+            - export GG_TARGET="."
+            - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
             - export GG_VERSION="latest"
             - export GG_FULL_PRECISION="true"
             - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"

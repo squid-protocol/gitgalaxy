@@ -78,7 +78,7 @@ pipelines:
                 pip install networkx tiktoken xgboost pandas numpy
               fi
             - |
-              echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+              echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
               ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
           artifacts:
             - gitgalaxy-results_sarif.json

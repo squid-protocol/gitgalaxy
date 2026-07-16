@@ -44,8 +44,8 @@ pipelines:
 
           # 3. Dynamic Execution
           - |
-            echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
-            ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
+            ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
                     
         artifacts:
           # 4. Publish SARIF telemetry for Bitbucket Code Insights
@@ -60,7 +60,7 @@ pipelines:
           script:
             - export GG_TOOL="galaxyscope"
             - export GG_TARGET="gitgalaxy/"
-            - export GG_ARGS="--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+            - export GG_ARGS="--max-systemic-threat 150.0 --fail-on-secrets --fail-on-malware --sarif-only --output gitgalaxy-results_sarif.json"
             - export GG_VERSION="latest"
             - export GG_FULL_PRECISION="true"
             - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
@@ -78,6 +78,7 @@ pipelines:
                 pip install networkx tiktoken xgboost pandas numpy
               fi
             - |
-              ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+              echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
+              ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
           artifacts:
             - gitgalaxy-results_sarif.json

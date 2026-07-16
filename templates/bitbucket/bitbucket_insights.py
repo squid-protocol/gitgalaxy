@@ -15,7 +15,6 @@ def publish_insights(sarif_path: str):
     workspace = os.environ.get("BITBUCKET_WORKSPACE")
     repo = os.environ.get("BITBUCKET_REPO_SLUG")
     commit = os.environ.get("BITBUCKET_COMMIT")
-    proxy_auth = os.environ.get("BITBUCKET_STEP_OIDC_TOKEN") # Or standard App Password
 
     if not all([workspace, repo, commit]):
         print("⚠️  Skipping Code Insights: Not running inside a Bitbucket Pipeline environment.")
@@ -82,10 +81,16 @@ def publish_insights(sarif_path: str):
         "result": "FAILED" if any(a["severity"] == "HIGH" for a in bitbucket_annotations) else "PASSED"
     }).encode("utf-8")
 
+    # Enforce loopback destination boundaries to neutralize remote protocol exploits
+    if not base_url.startswith("http://localhost:29418/"):
+        print("❌ Security Violation: Invalid localized API destination.")
+        sys.exit(1)
+
     req = urllib.request.Request(base_url, data=report_payload, method="PUT")
     req.add_header("Content-Type", "application/json")
     
     try:
+        # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
         urllib.request.urlopen(req)
         print(f"✅ Created Code Insights Report: {report_id}")
     except urllib.error.URLError as e:
@@ -100,10 +105,15 @@ def publish_insights(sarif_path: str):
         chunk = bitbucket_annotations[i:i + chunk_size]
         chunk_payload = json.dumps(chunk).encode("utf-8")
         
+        if not annotations_url.startswith("http://localhost:29418/"):
+            print("❌ Security Violation: Invalid localized API destination.")
+            sys.exit(1)
+            
         req = urllib.request.Request(annotations_url, data=chunk_payload, method="POST")
         req.add_header("Content-Type", "application/json")
         
         try:
+            # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
             urllib.request.urlopen(req)
             print(f"✅ Published chunk of {len(chunk)} inline annotations.")
         except urllib.error.URLError as e:

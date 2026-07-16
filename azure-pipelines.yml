@@ -51,7 +51,7 @@ stages:
     # 3. Execute the scan (No package managers allowed down here)
     - script: |
         echo "Running: $(GG_TOOL) $(GG_TARGET) $(GG_ARGS)"
-        $(GG_TOOL) $(GG_TARGET)$(GG_ARGS)
+        $(GG_TOOL) $(GG_TARGET) $(GG_ARGS)
       displayName: 'Execute Zero-Trust Spectral Audit'
 
     - task: PublishPipelineArtifact@1

@@ -59,8 +59,8 @@ gitgalaxy_scan:
         echo "Running in ultra-fast Zero-Dependency Mode."
       fi
 
-    - echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
-    - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+      - 'echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"'
+      - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
   artifacts:
     when: always
     reports:

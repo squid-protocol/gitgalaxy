@@ -2,7 +2,7 @@ include:
   - local: '/templates/scan.yml'
     inputs:
       target: 'gitgalaxy/'
-      version: 'local'
+      version: 'latest'
 
 create-release:
   stage: deploy

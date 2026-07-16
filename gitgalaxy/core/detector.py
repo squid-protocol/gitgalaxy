@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,11 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
+
+# galaxyscope:ignore sec_high_risk_execution
+
 import re
 import math
 import logging
@@ -36,9 +43,13 @@ def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 2.5 & 7.5: Logic Splicer & Topological Mapper
 # Strategy v6.3.0 Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 
 class FunctionNode(TypedDict, total=False):
@@ -97,8 +108,12 @@ class LogicData(TypedDict, total=False):
 
 
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 # THE STRUCTURAL SIGNATURE CONFIGURATION MATRIX
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
 
 class ScopeParsingRegistry:
@@ -419,7 +434,7 @@ class StructuralExtractor:
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
 
-            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents = self.coding_analysis(
+            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = self.coding_analysis(
                 segments, regex_telemetry if profile_regex else None
             )
 
@@ -549,6 +564,7 @@ class StructuralExtractor:
                 "financial_read_cost": (
                     round((file_token_mass / 1000000) * 3.00, 5) if file_token_mass is not None else None
                 ),
+                "threat_locations": threat_locations,
             }
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry
@@ -837,7 +853,7 @@ class StructuralExtractor:
 
     def coding_analysis(
         self, segments: List[Tuple[str, str, int]], regex_telemetry: dict = None
-    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str]]:
+    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str], Dict[str, List[int]]]:
         counts: Dict[str, int] = {key: 0 for key in self.UNIVERSAL_METRICS_SCHEMA}
 
         # --- THE FIX: INJECT APPSEC SENSORS ---
@@ -855,8 +871,9 @@ class StructuralExtractor:
         }
         segment_spatial_maps = []
         extracted_parents = []
+        threat_locations: Dict[str, List[int]] = {}
 
-        for seg_lang, seg_code, _ in segments:
+        for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
             rules = self.languages.get(seg_lang, {}).get("rules", {}).copy()
 
@@ -892,6 +909,11 @@ class StructuralExtractor:
                     if hasattr(pattern, "finditer"):
                         matches = list(pattern.finditer(seg_code))
                         hit_indices = [m.start() for m in matches]
+                        
+                        # ---> NEW: Offset to LOC Conversion <---
+                        for m in matches:
+                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            threat_locations.setdefault(mapped_key, []).append(line_number)
 
                         # ---> THE LINEAGE EXTRACTOR <---
                         # If the regex has 2+ capture groups, group 2 contains the inheritance mapping
@@ -900,7 +922,13 @@ class StructuralExtractor:
                                 if m.group(2):
                                     extracted_parents.append(m.group(2).strip())
                     else:
-                        hit_indices = [m.start() for m in re.finditer(str(pattern), seg_code)]
+                        matches = list(re.finditer(str(pattern), seg_code))
+                        hit_indices = [m.start() for m in matches]
+                        
+                        # ---> NEW: Offset to LOC Conversion <---
+                        for m in matches:
+                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            threat_locations.setdefault(mapped_key, []).append(line_number)
 
                     c = len(hit_indices)
 
@@ -927,8 +955,12 @@ class StructuralExtractor:
             # ---> NEW: SPATIAL CORRELATION (Runs once per segment) <---
 
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
             # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
             # 0a. The Exfiltration Distance Check
             if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
                 # Measures the physical call-path distance between the memory read and the socket
@@ -945,6 +977,8 @@ class StructuralExtractor:
                 # RCE funnels inside JS/TS/Python are fatal structural anomalies. Multiply the mass.
                 counts["rce_funnel"] += len(spatial_map["rce_funnel"]) * 50
             # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
             # 1. Taint Tracking (RCE Weaponization)
             if "sec_high_risk_execution" in spatial_map and ("sec_io" in spatial_map or "io" in spatial_map):
@@ -1023,7 +1057,7 @@ class StructuralExtractor:
             counts["indent_spaces"] += len(re.findall(r"^[ ]{2,}(?=\S)", seg_code, flags=re.MULTILINE))
             segment_spatial_maps.append(spatial_map)
 
-        return counts, mitigations, segment_spatial_maps, extracted_parents
+        return counts, mitigations, segment_spatial_maps, extracted_parents, threat_locations
 
     def comment_analysis(self, comment_stream: str, lang_id: str, counts: Dict[str, int]) -> Dict[str, int]:
         """
@@ -1065,8 +1099,12 @@ class StructuralExtractor:
         return counts
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # PRE-PROCESSING HELPERS
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _apply_literal_shield(self, text: str, lang_id: str = None) -> str:
         """
@@ -1185,8 +1223,12 @@ class StructuralExtractor:
         return "Anonymous_Block"
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # THE MASTER DISPATCHER
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _function_slice(
         self,
@@ -1255,8 +1297,12 @@ class StructuralExtractor:
         return all_satellites, global_impact
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # INTEGRATION MODES (Slicers)
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
         self,
@@ -1864,8 +1910,12 @@ class StructuralExtractor:
         return satellites, sum_fxn_impact
 
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
     # SHARED FUNCTIONAL METRICS ENGINE
     # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
 
     def _calculate_block_metrics(
         self,

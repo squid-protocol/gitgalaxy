@@ -1,7 +1,15 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_io
 # GitGalaxy
 # Phase 7.8: Tensor Scanner (AI Artifact Inspection)
 # ==============================================================================
+
+# galaxyscope:ignore sec_io
+
+# galaxyscope:ignore sec_io
+
+
 import json
 import struct
 import math

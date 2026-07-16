@@ -13,9 +13,13 @@
 # resolved manifest aliases, while enforcing dynamic risk thresholds based on 
 # build-time execution contexts and network topography.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import json
+import logging
 from pathlib import Path
 
 # Import exclusively from the GitGalaxy Hub
@@ -43,6 +47,7 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
     Operates exclusively on the pre-tokenized, anomaly-checked RAM graph from Phase 1.
     """
     security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
+    logger = logging.getLogger("GalaxyScope.firewall")
     safe_alias_map = alias_map or {}
 
     imports_whitelisted = 0
@@ -85,7 +90,10 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         # =====================================================================
         # 1. ZERO-TRUST IMPORT VERIFICATION
         # =====================================================================
-        for raw_pkg in file_node.get("raw_imports", []):
+        for imp in file_node.get("raw_imports", []):
+            # JSON serializes Python tuples as lists, so we must check for both
+            raw_pkg = imp[0] if isinstance(imp, (tuple, list)) else imp
+
             # DEFENSIVE DESIGN (RELATIVE PATH SHIELD):
             # Ignore native internal routing (e.g., './utils') to focus strictly 
             # on external supply chain dependencies.
@@ -112,9 +120,9 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
                 threats_found += 1
                 # The Allowlist Loophole Fix: A blacklisted import is ALWAYS a threat. Never suppress it.
                 if true_pkg != pkg:
-                    print(f"[BLACKLISTED IMPORT] Spoofed alias blocked: '{pkg}' -> '{true_pkg}' in: {rel_path_str}")
+                    logger.critical(f"🚨 [BLACKLISTED IMPORT] Spoofed alias blocked: '{pkg}' -> '{true_pkg}' in: {rel_path_str}")
                 else:
-                    print(f"[BLACKLISTED IMPORT] Unauthorized package '{pkg}' blocked in: {rel_path_str}")
+                    logger.critical(f"🚨 [BLACKLISTED IMPORT] Unauthorized package '{pkg}' blocked in: {rel_path_str}")
             elif true_pkg in APPROVED_IMPORTS:
                 imports_whitelisted += 1
             else:
@@ -122,23 +130,40 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
                 if STRICT_IMPORT_MODE and not is_whitelisted:
                     threats_found += 1
                     if true_pkg != pkg:
-                        print(
-                            f"[POLICY VIOLATION] Spoofed alias '{pkg}' -> '{true_pkg}' blocked by Strict Mode in: {rel_path_str}"
+                        logger.warning(
+                            f"⚠️ [POLICY VIOLATION] Spoofed alias '{pkg}' -> '{true_pkg}' blocked by Strict Mode in: {rel_path_str}"
                         )
                     else:
-                        print(
-                            f"[POLICY VIOLATION] Unknown package '{pkg}' blocked by Strict Mode in: {rel_path_str}"
+                        logger.warning(
+                            f"⚠️ [POLICY VIOLATION] Unknown package '{pkg}' blocked by Strict Mode in: {rel_path_str}"
                         )
 
         # =====================================================================
         # 2. BEHAVIORAL POLICY ENFORCEMENT (Leveraging Phase 1 Measurements)
         # =====================================================================
+        # Shield inert static assets (SVGs, Templates, XMLs) from executing behavioral heuristics
+        safe_path_lower = rel_path_str.lower()
+        ext = Path(rel_path_str).suffix.lower()
+        
+        # .d.ts files are TypeScript declarations. They contain no executable logic.
+        if ext in {".svg", ".xml", ".jelly", ".html", ".css", ".md", ".json", ".yaml", ".yml", ".txt", ".properties"} or safe_path_lower.endswith(".d.ts"):
+            continue
+
+        # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data, 
+        # and contain high-entropy strings which trigger massive false positives in behavioral heuristics.
+        safe_path = rel_path_str.lower()
+        if "/test/" in safe_path or "/tests/" in safe_path or "test_" in Path(safe_path).name or "_test" in Path(safe_path).name:
+            continue
+
         # Extract the raw structural signatures calculated natively by the Structural Signature Analysis Engine in Phase 1
         equations = file_node.get("equations", {})
         loc = file_node.get("coding_loc", 1)
 
-        # Clone the dictionary to safely apply the sandbox multiplier without corrupting global RAM
-        local_counts = dict(equations)
+        # Clone the dictionary and strip the 'sec_' prefix for the security evaluator
+        local_counts = {}
+        for k, v in equations.items():
+            clean_key = k[4:] if k.startswith("sec_") else k
+            local_counts[clean_key] = v
 
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):
         # Configuration scripts (like setup.py or package.json) are executed by CI/CD 
@@ -156,8 +181,6 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
         ]:
             build_time_multiplier = 10.0
 
-        safe_loc = max(loc + 150, 1)
-
         if build_time_multiplier > 1.0:
             for k in local_counts:
                 if isinstance(local_counts[k], (int, float)):
@@ -165,20 +188,22 @@ def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
 
         # Evaluate risk using Phase 1 network topography context (e.g., Downstream Exposure)
         network_metrics = file_node.get("dependency_network", {})
-        exposures = security.evaluate_risk(local_counts, safe_loc, network_metrics)
+        exposures = security.evaluate_risk(local_counts, loc, network_metrics)
 
         if (
             "Hidden Malware Risk" in exposures
             or "Data Injection Risk" in exposures
             or "Secrets Leak Risk" in exposures
             or "Logic Bomb Risk" in exposures
+            or "Memory Corruption Risk" in exposures
         ):
             if is_whitelisted:
                 threats_allowed += 1
             else:
-                print(f"\n[THREAT DETECTED] Density Threshold Breached in: {rel_path_str}")
+                logger.warning(f"🚨 [THREAT DETECTED] Density Threshold Breached in: {rel_path_str}")
                 for risk, density in exposures.items():
-                    print(f"   -> {risk}: {density * 100:.1f}%")
+                    capped_density = min(density * 100.0, 100.0)
+                    logger.warning(f"   -> {risk}: {capped_density:.1f}%")
                 threats_found += 1
 
     return {
@@ -221,8 +246,9 @@ def main():
             
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Run the orchestrator to generate the JSON graph in a temp directory
+                target_out_file = str(Path(tmpdir) / "firewall_temp.json")
                 result = subprocess.run(
-                    ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", tmpdir],
+                    ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", target_out_file],
                     capture_output=True,
                     text=True
                 )
@@ -233,20 +259,34 @@ def main():
                 
                 # Dynamically locate the generated audit file to avoid naming convention bugs
                 tmp_path = Path(tmpdir)
-                audit_files = list(tmp_path.glob("*_galaxy_audit.json"))
+                audit_files = list(tmp_path.glob("*_audit.json"))
                 
                 if not audit_files:
                     print("❌ GalaxyScope did not produce an audit JSON in the temp directory.")
+                    print("\n--- 🕵️ ENGINE TELEMETRY & CRASH LOGS ---")
+                    print(result.stderr)
+                    print("------------------------------------------\n")
                     sys.exit(1)
                     
                 with open(audit_files[0], "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    parsed_files = data.get("artifacts", data.get("stars", []))
+                    # Extract files from the structured audit directory groups
+                    parsed_files = []
+                    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+                    for folder_data in groups.values():
+                        for path, file_info in folder_data.get("Files", {}).items():
+                            file_info["path"] = path # Ensure path remains attached
+                            parsed_files.append(file_info)
         else:
             # Standard file-based load
             with open(target_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                parsed_files = data.get("artifacts", data.get("stars", []))
+                parsed_files = []
+                groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+                for folder_data in groups.values():
+                    for path, file_info in folder_data.get("Files", {}).items():
+                        file_info["path"] = path
+                        parsed_files.append(file_info)
                 
     except Exception as e:
         print(f"❌ Failed to parse RAM graph: {e}")

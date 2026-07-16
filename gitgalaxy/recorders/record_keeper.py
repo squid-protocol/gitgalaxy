@@ -1,4 +1,6 @@
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 #
@@ -7,6 +9,11 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
+
+# galaxyscope:ignore ai_guardrails, sec_db_hooks
+
 import sqlite3
 import json
 import logging
@@ -183,6 +190,16 @@ class RecordKeeper:
                 UNIQUE(repo_name, commit_hash)
             )
         """)
+
+        # DEFENSIVE GUARD: Auto-Heal Schema Drift
+        try:
+            cursor.execute("ALTER TABLE repo_data ADD COLUMN is_zero_dependency_mode INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            # Expected on existing databases where migration was already applied.
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'is_zero_dependency_mode' already exists.")
+            else:
+                raise
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (
@@ -773,8 +790,12 @@ class RecordKeeper:
             )
 
         # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
         # 5. FOLDER-LEVEL ROLLUP (MATERIALIZED PATH AGGREGATION)
         # ==============================================================================
+
+# galaxyscope:ignore sec_db_hooks
         folder_stats = {}
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
 

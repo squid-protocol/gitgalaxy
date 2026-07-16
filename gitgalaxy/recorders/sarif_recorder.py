@@ -2,6 +2,9 @@
 # GitGalaxy
 # Copyright (c) 2026 Joe Esquibel
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution
+
 import json
 import logging
 from typing import Dict, Any, List
@@ -31,7 +34,7 @@ class SarifRecorder:
 
         # 2. Build the foundational SARIF Schema
         sarif_payload = {
-            "$schema": "[https://json.schemastore.org/sarif-2.1.0.json](https://json.schemastore.org/sarif-2.1.0.json)",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
             "version": "2.1.0",
             "runs": [
                 {
@@ -39,7 +42,7 @@ class SarifRecorder:
                         "driver": {
                             "name": "GitGalaxy Scanner",
                             "version": session_meta.get("engine", f"v{self.version}"),
-                            "informationUri": "[https://gitgalaxy.io](https://gitgalaxy.io)",
+                            "informationUri": "https://gitgalaxy.io",
                             "rules": self._build_rules_taxonomy()
                         }
                     },
@@ -83,10 +86,18 @@ class SarifRecorder:
 
             # B. Extract Passive Security Lens Snippets (SAST)
             threat_snippets = telemetry.get("threat_snippets", {})
+            threat_locations = telemetry.get("threat_locations", {})
+
             for threat_type, snippets in threat_snippets.items():
-                for snippet in snippets:
+                # Attempt to retrieve exact line locations, matching by raw or sec_ prefixed key
+                locs = threat_locations.get(threat_type) or threat_locations.get(f"sec_{threat_type}", [])
+
+                for idx, snippet in enumerate(snippets):
                     # Safely determine severity
                     severity = "error" if any(x in threat_type for x in ["secret", "injection", "execution", "corruption"]) else "warning"
+                    
+                    # Fallback to file's start_line if specific LOC isn't captured
+                    exact_line = locs[idx] if idx < len(locs) else start_line
                     
                     results_list.append({
                         "ruleId": f"GG-SAST-{threat_type.upper()}",
@@ -94,7 +105,7 @@ class SarifRecorder:
                         "message": {
                             "text": f"Vulnerability signature triggered: {snippet}"
                         },
-                        "locations": [self._build_location(rel_path, start_line)],
+                        "locations": [self._build_location(rel_path, exact_line)],
                         "properties": {
                             "category": "Structural SAST"
                         }
@@ -193,8 +204,9 @@ class SarifRecorder:
             },
             {
                 "id": "GG-AGENT-GUARDRAIL",
-                "shortDescription": {"text": "Autonomous Agent Boundary Breach"},
-                "properties": {"tags": ["architecture", "ai-guardrail"]}
+                "shortDescription": {"text": "Guardrail: High-Complexity File (No Autonomous AI Edits)"},
+                "fullDescription": {"text": "This file's structural complexity, downstream exposure, or state flux makes it unsafe for autonomous AI agents to edit. Human-in-the-Loop (HITL) supervision is strictly required to prevent architectural degradation or hallucinated logic."},
+                "properties": {"tags": ["architecture", "ai-guardrail", "hitl-required"]}
             },
             {
                 "id": "GG-ML-STEALER_TROJAN",

@@ -51,7 +51,7 @@ jobs:
           mv *_llm.md gitgalaxy_architecture_brief.md 2>/dev/null || true
 
       - name: Upload SARIF to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.0
         with:
           sarif_file: gitgalaxy-results_sarif.json
 

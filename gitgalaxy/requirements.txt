@@ -87,7 +87,7 @@ pluggy==1.6.0
 prompt_toolkit==3.0.52
 ptyprocess==0.7.0
 pure_eval==0.2.3
-pyan3==2.4.0
+pyan3==2.6.1
 pycodestyle==2.14.0
 pycparser==3.0
 pydeps==3.0.2

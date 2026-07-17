@@ -88,7 +88,7 @@ pipelines:
               fi
             - |
               echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
-              ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+              ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
             - |
               if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then
                 python templates/bitbucket/bitbucket_insights.py gitgalaxy-results_sarif.json

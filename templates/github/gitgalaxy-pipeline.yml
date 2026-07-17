@@ -1,0 +1,37 @@
+name: GitGalaxy Zero-Trust Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  vault-sentinel:
+    name: Vault Sentinel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: squid-protocol/gitgalaxy@v2.4.0
+        with:
+          tool: 'vault-sentinel'
+          target: '.'
+
+  xray-inspector:
+    name: X-Ray Inspector
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: squid-protocol/gitgalaxy@v2.4.0
+        with:
+          tool: 'xray-inspector'
+          target: '.'
+
+  supply-chain-firewall:
+    name: Supply Chain Firewall
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: squid-protocol/gitgalaxy@v2.4.0
+        with:
+          tool: 'supply-chain-firewall'
+          target: '.'

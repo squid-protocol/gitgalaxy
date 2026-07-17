@@ -177,7 +177,7 @@ class NetworkRiskSensor:
 
             # Closeness Centrality has no built-in sampling. Hard bypass at 1500 nodes.
             if len(G.nodes()) > 1500:
-                self.logger.warning("Graph too massive for exact Closeness Centrality. Bypassing.")
+                self.logger.debug("Graph too massive for exact Closeness Centrality. Bypassing.")
                 closeness = {n: 0.0 for n in G.nodes()}
             else:
                 closeness = nx.closeness_centrality(G)
@@ -273,7 +273,7 @@ class NetworkRiskSensor:
                 # A. Modularity (Spaghetti vs Microservice)
                 try:
                     if len(U) > 5000:
-                        self.logger.warning("Graph too massive for Modularity. Bypassing.")
+                        self.logger.debug("Graph too massive for Modularity. Bypassing.")
                         macro_metrics["modularity"] = 0.0
                     else:
                         # Attempt Louvain (blazing fast), fallback to Greedy (slow)
@@ -288,7 +288,10 @@ class NetworkRiskSensor:
 
                 # B. Assortativity (Resiliency)
                 try:
-                    assort = nx.degree_assortativity_coefficient(G)
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", category=RuntimeWarning)
+                        assort = nx.degree_assortativity_coefficient(G)
                     macro_metrics["assortativity"] = round(assort, 4) if not math.isnan(assort) else 0.0
                 except Exception:
                     pass
@@ -304,7 +307,7 @@ class NetworkRiskSensor:
                 # D. Average Shortest Path (Coupling Distance)
                 try:
                     if len(U) > 5000:
-                        self.logger.warning("Graph too massive for Avg Path Length. Bypassing.")
+                        self.logger.debug("Graph too massive for Avg Path Length. Bypassing.")
                         macro_metrics["avg_path_length"] = 0.0
                     else:
                         largest_cc = max(nx.connected_components(U), key=len)

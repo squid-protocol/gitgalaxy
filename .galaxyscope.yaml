@@ -1,0 +1,13 @@
+galaxyscope:
+  SARIF_IGNORED_PATHS:
+    - "tests/"
+    - "mocks/"
+    - "vendor/"
+    - "gitgalaxy/standards/"
+    - "gitgalaxy/security/"
+    - "gitgalaxy/tools/"
+    - "templates/"
+    - ".github/workflows/"
+  SARIF_IGNORED_RULES:
+    - "GH-1022"
+    - "squid-protocol"

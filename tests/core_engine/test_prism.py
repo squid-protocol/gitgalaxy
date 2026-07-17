@@ -279,3 +279,67 @@ def test_prism_regex_matrix_calibration_edge_cases():
     assert "multi_style_dash" in engine_fallback.REGEX_MATRIX
 
     # We check if the safely escaped version of '
+
+# ==============================================================================
+# TEST 10: INLINE SUPPRESSION EXTRACTION (Devious Edge Cases)
+# ==============================================================================
+def test_prism_inline_suppression_extraction(prism_engine):
+    """
+    DEVIOUS EDGE CASES: 
+    1. Case insensitivity (GALAXYscope:IGNORE)
+    2. Multiple tags on a single line
+    3. The "String Trap" (Extraction from within a literal)
+    4. Dashes and underscores in risk names
+    """
+    content = """
+    // Normal suppression
+    // galaxyscope:ignore logic_bomb
+
+    /* Weird casing suppression */
+    /* GALAXYscope:IGNORE MeMoRy_CoRrUpTiOn */
+
+    # Multiple suppressions on one line with erratic spacing
+    # galaxyscope:ignore tech_debt       galaxyscope:ignore secrets-risk
+
+    let warning = "Do not galaxyscope:ignore injection_surface in this block!";
+    """
+
+    result = prism_engine.split_streams(content, primary_lang="javascript")
+
+    mitigations = result.get("mitigations", [])
+
+    # Assert it caught everything and lowercased the risk names
+    assert "logic_bomb" in mitigations, "Failed to extract standard suppression."
+    assert "memory_corruption" in mitigations, "Failed to handle erratic casing."
+    assert "tech_debt" in mitigations, "Failed to extract multiple tags (1)."
+    assert "secrets-risk" in mitigations, "Failed to handle dashes in risk names."
+    
+    # The "String Trap" - Because extraction happens at the top of split_streams, 
+    # it WILL extract from string literals. This test explicitly proves this behavior.
+    assert "injection_surface" in mitigations, "Failed the String Trap extraction."
+
+# ==============================================================================
+# TEST 11: THE SUPPRESSION REGEX BOMB (Memory / ReDoS Exhaustion)
+# ==============================================================================
+import time
+
+def test_prism_suppression_regex_bomb(prism_engine):
+    """
+    DEVIOUS EDGE CASE: An attacker uploads a file with 100,000 inline suppressions 
+    to trigger Catastrophic Backtracking (ReDoS) and starve the worker thread, 
+    or consume all available RAM with the mitigations array.
+    """
+    # Generate a massive file with 100,000 suppression tags
+    massive_content = "// galaxyscope:ignore everything \n" * 100000
+    
+    start_time = time.time()
+    result = prism_engine.split_streams(massive_content, primary_lang="javascript")
+    duration = time.time() - start_time
+    
+    mitigations = result.get("mitigations", [])
+    
+    # Assert it processed the 100k tags in under 1 second (proving O(N) linear time)
+    assert duration < 1.0, f"Suppression regex triggered ReDoS! Took {duration}s"
+    
+    # Assert the array handled the mass allocation without dropping data
+    assert len(mitigations) == 100000, "Failed to allocate massive mitigation array."

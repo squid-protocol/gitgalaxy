@@ -7,6 +7,9 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io, safety_bypasses
+
 import logging
 import time
 import zipfile
@@ -520,8 +523,9 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             "prior_lock": has_prior,
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
+            "mitigations": refraction.get("mitigations", []), # <--- THE FIX: Route the suppressions
             "raw_imports": list(raw_imports),
-            "named_tokens": list(named_tokens),  # <--- NEW: Send tokens to Orchestrator
+            "named_tokens": list(named_tokens),  
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -731,33 +735,33 @@ class Orchestrator:
             t_phase = time.time()
             self.guidestar.scan_project_config()
             self._build_file_census()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
 
             # PHASE 1: Workers & IPC Extraction
             # Bypasses the GIL, deploying CPU-heavy regex scanning into isolated Memory spaces.
             t_phase = time.time()
             self._extract_features_parallel()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 1 - Workers & IPC]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 1 - Workers & IPC]: {time.time() - t_phase:.2f}s")
 
             # PHASE 2: Dependency Resolution (Import Graph)
             # Reconstructs inter-file linkages. Executes *before* Relational Analysis so we
             # can mathematically define a file's public exposure index.
             t_phase = time.time()
             self._resolve_dependency_graph()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 2 - Dependency Resolution]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 2 - Dependency Resolution]: {time.time() - t_phase:.2f}s")
 
             # PHASE 3: Structural Impact Analysis
             # Fuses chronological Git telemetry with raw token counts to calculate multi-dimensional
             # risks (e.g., Tech Debt, Cognitive Load, State Flux).
             t_phase = time.time()
             self._calculate_risk_exposures()
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 3 - Structural Impact Analysis]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 3 - Structural Impact Analysis]: {time.time() - t_phase:.2f}s")
 
             # PHASE 4: Network Topology & Downstream Exposure
             # Computes PageRank and Betweenness Centrality on the assembled Dependency Graph.
             t_phase = time.time()
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
@@ -767,14 +771,14 @@ class Orchestrator:
 
             appsec_sensor = AIAppSecSensor(parent_logger=logger)
             self.parsed_files = appsec_sensor.hunt_threats(self.parsed_files)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
 
             # PHASE 6: Spectral Audit & Verification
             # Uses standard deviations to identify and drop un-parseable data dumps or log files.
             t_phase = time.time()
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
             total_unparsable = self.unparsable_files + unparsable_audits
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 6 - Spectral Audit]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 6 - Spectral Audit]: {time.time() - t_phase:.2f}s")
 
             # PHASE 7: Dependency Graphing & Visualization
             # Assigns coordinates based on topological hierarchies for WebGL.
@@ -782,7 +786,7 @@ class Orchestrator:
             if repository_graph:
                 repository_graph = self.spatial_mapper.map_repository(repository_graph)
             files_mapped_count = len(repository_graph) if repository_graph else 0
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 7 - Dependency Graphing]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 7 - Dependency Graphing]: {time.time() - t_phase:.2f}s")
 
             # PHASE 8: Metrics Synthesis & Forensics
             # Aggregates raw outputs for the LLM payload generation.
@@ -790,7 +794,7 @@ class Orchestrator:
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
             report = self.processor.generate_forensic_report(repository_graph)
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
 
             # PHASE 9: ML Threat Inference & Graph Resolution
             # Processes the fully formed context through XGBoost trees to isolate embedded Trojans/Stealers.
@@ -801,7 +805,7 @@ class Orchestrator:
                 repository_graph = self.model_auditor.audit_repository(
                     repository_graph, is_shadow_patch=is_shadow_patch
                 )
-            logger.info(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
 
             # ==========================================================
             # PHASE 10: ECOSYSTEM SECURITY AUDITS
@@ -831,14 +835,14 @@ class Orchestrator:
 
             # Attach it to the summary payload
             summary["ecosystem_audits"] = ecosystem_audits
-
+            
             # ==========================================================
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
             # ==========================================================
             self.policy_failed = False
-            max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
+            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
             
-            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_risk_allowed > 0.0:
+            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_systemic_threat > 0.0:
                 logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
                 
                 from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -847,18 +851,35 @@ class Orchestrator:
                     # 1. Absolute Security Floor (Secrets)
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
-                        if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
-                            idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
-                            if file_data.get("risk_vector", []) and len(file_data["risk_vector"]) > idx:
-                                if file_data["risk_vector"][idx] > 0.0:
-                                    has_secrets = True
                         
-                        threat_snippets = file_data.get("telemetry", {}).get("threat_snippets", {})
-                        if "hardcoded_secrets" in threat_snippets or "sec_hardcoded_secrets" in threat_snippets:
-                            has_secrets = True
-                        elif "CRITICAL CREDENTIAL LEAK DETECTED" in file_data.get("telemetry", {}).get("domain_context", {}).get("warning", ""):
-                            has_secrets = True
+                        # Extract mitigations safely
+                        mitigs = file_data.get("mitigations", [])
+                        if isinstance(mitigs, dict):
+                            mitigs = list(mitigs.keys())
+                        elif not isinstance(mitigs, list):
+                            mitigs = []
                             
+                        if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
+                            # Check Risk Vector
+                            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                                idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                                rv = file_data.get("risk_vector", [])
+                                if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
+                                    has_secrets = True
+                            
+                            # THE FIX: Bulletproof Truthiness Check
+                            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                            if isinstance(ts, dict):
+                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
+                                    has_secrets = True
+                                
+                            # Check Domain Context
+                            ctx = file_data.get("telemetry", {}).get("domain_context", {})
+                            if isinstance(ctx, dict):
+                                warning_msg = ctx.get("warning", "")
+                                if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
+                                    has_secrets = True
+                                
                         if has_secrets:
                             logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")
                             self.policy_failed = True
@@ -869,13 +890,104 @@ class Orchestrator:
                         logger.critical(f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}")
                         self.policy_failed = True
                         
-                    # 3. Maximum Risk Exposure Ratchet
-                    if max_risk_allowed > 0.0:
+                    # 3. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
+                    if max_systemic_threat > 0.0:
                         risk_vec = file_data.get("risk_vector", [])
-                        highest_risk = max(risk_vec) if risk_vec else 0.0
-                        if highest_risk >= max_risk_allowed:
-                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)")
+                        cumulative_risk = sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
+                        
+                        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
+                        blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
+                        
+                        systemic_threat = cumulative_risk * blast_radius
+                        
+                        if systemic_threat >= max_systemic_threat:
+                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}")
                             self.policy_failed = True
+
+            # ==========================================================
+            # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts & Config Exclusions)
+            # ==========================================================
+            logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
+            
+            ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
+            ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
+            
+            for file_data in (repository_graph or []):
+                # Ensure cross-platform slash normalization
+                file_path = file_data.get("path", "").replace("\\", "/")
+                path_excluded = any(p in file_path for p in ignored_paths)
+                
+                if path_excluded:
+                    file_data["equations"] = {}
+                    file_data["is_ml_threat"] = False
+                    
+                    if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
+                        file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
+                        
+                    if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
+                        file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
+                        
+                    if "telemetry" in file_data:
+                        file_data["telemetry"] = {
+                            "popularity": file_data["telemetry"].get("popularity", 0),
+                            "ownership": file_data["telemetry"].get("ownership", "Unknown")
+                        }
+                    
+                    if "metadata" in file_data:
+                        file_data["metadata"] = {}
+                        
+                    continue
+                
+                mitigs = file_data.get("mitigations", [])
+                if isinstance(mitigs, dict):
+                    mitigs = list(mitigs.keys())
+                elif not isinstance(mitigs, list):
+                    mitigs = []
+                
+                ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                eqs = file_data.get("equations", {})
+                
+                if isinstance(ts, dict) and isinstance(eqs, dict):
+                    keys_to_delete_ts = [
+                        k for k in ts.keys() 
+                        if k in mitigs 
+                        or f"sec_{k}" in mitigs 
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or f"sec_{k}" in ignored_rules
+                        or f"GG-SAST-{k.upper()}" in ignored_rules
+                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                    ]
+                    keys_to_delete_eqs = [
+                        k for k in eqs.keys()
+                        if k in mitigs
+                        or k.replace("sec_", "") in mitigs
+                        or k in ignored_rules
+                        or k.replace("sec_", "") in ignored_rules
+                        or f"GG-SAST-{k.upper()}" in ignored_rules
+                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                    ]
+                    
+                    for k in keys_to_delete_ts:
+                        if k in ts:
+                            del ts[k]
+                            
+                    for k in keys_to_delete_eqs:
+                        if k in eqs:
+                            del eqs[k]
+
+                if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
+                    if "ai_appsec" in file_data.get("telemetry", {}):
+                        del file_data["telemetry"]["ai_appsec"]
+
+                if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
+                    if "ai_guardrails" in file_data.get("telemetry", {}):
+                        del file_data["telemetry"]["ai_guardrails"]
+                        
+                if file_data.get("is_ml_threat"):
+                    ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                    if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
+                        file_data["is_ml_threat"] = False
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING
@@ -1073,7 +1185,7 @@ class Orchestrator:
                 print(" 🌌 READY FOR VISUALIZATION (100% LOCAL / ZERO UPLOAD)")
 
             print("=" * 75)
-            print(" 1. Open your browser to: \033[94m\033[4m[https://gitgalaxy.io/](https://gitgalaxy.io/)\033[0m")
+            print(" 1. Open your browser to: \033[94m\033[4mhttps://gitgalaxy.io/\033[0m")
             print(f" 2. Drag and drop '{gpu_output}'")
             print("\n * PRIVACY SECURED: Your data never leaves your machine.")
             print("   All architectural rendering executes locally in your browser.")
@@ -1222,6 +1334,8 @@ class Orchestrator:
         max_workers = max(1, cpu_count - 1)
 
         current_log_level = logging.getLogger().getEffectiveLevel()
+        # DEFENSIVE UI: Mute the initialization spam from the 16-32 worker cores unless in debug mode
+        worker_log_level = logging.DEBUG if current_log_level == logging.DEBUG else logging.WARNING
         completed_count = 0
 
         with concurrent.futures.ProcessPoolExecutor(
@@ -1231,7 +1345,7 @@ class Orchestrator:
                 str(self.root),
                 self.config,
                 self.ext_tally,
-                current_log_level,
+                worker_log_level,
                 self.git_tracked_files,
                 self.census,
             ),
@@ -1253,7 +1367,7 @@ class Orchestrator:
                     completed_count += 1
 
                     if completed_count % 50 == 0:
-                        logger.info(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
+                        logger.debug(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
 
                     try:
                         res = future.result()
@@ -1829,7 +1943,14 @@ class Orchestrator:
         # Extract files flagged as secret leaks from the unparsable queue
         # and forcefully inject them into the parsed map for visualization.
         # ==================================================================
-        leaks = [cand for cand in self.unparsable_files if "CRITICAL LEAK" in cand.get("reason", "")]
+        leaks = []
+        for cand in self.unparsable_files:
+            if "CRITICAL LEAK" in cand.get("reason", ""):
+                safe_path = cand.get("path", "").lower()
+                # DEFENSIVE GUARD: Do not escalate mock cryptographic keys used in unit tests
+                if "/test/" in safe_path or "/tests/" in safe_path or "mock" in safe_path or "dummy" in safe_path:
+                    continue
+                leaks.append(cand)
 
         # Remove them from Excluded Artifacts so they aren't double-counted in the summary
         self.unparsable_files = [
@@ -1838,9 +1959,12 @@ class Orchestrator:
 
         from gitgalaxy.metrics.signal_processor import SignalProcessor
 
+        if leaks:
+            logger.info(f"🚨 Escalated {len(leaks)} critical credential exposures onto the 3D map.")
+
         for leak in leaks:
             rel_path = leak["path"]
-            logger.critical(f"Threat Escalation: Forcing {rel_path} onto the 3D Map!")
+            logger.debug(f"Threat Escalation: Forcing {rel_path} onto the 3D Map!")
 
             synthetic_artifact = {
                 "name": Path(rel_path).name,
@@ -1947,6 +2071,13 @@ class Orchestrator:
             try:
                 self.temp_dir = tempfile.mkdtemp(prefix="refraction_")
                 with zipfile.ZipFile(input_path, "r") as zip_ref:
+                    # DEVIOUS SHIELD: Zip Bomb Protection (Max 5GB expansion)
+                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024 
+                    total_uncompressed_size = sum(file_info.file_size for file_info in zip_ref.infolist())
+                    
+                    if total_uncompressed_size > MAX_SAFE_BYTES:
+                        raise ValueError(f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes.")
+                        
                     zip_ref.extractall(self.temp_dir)
                 return Path(self.temp_dir).resolve()
             except Exception as e:
@@ -2302,6 +2433,9 @@ def main():
     parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
     parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
     parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
+    parser.add_argument("--max-systemic-threat", type=float, default=0.0, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
+    parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
+    parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
         action="store_true",
@@ -2317,10 +2451,30 @@ def main():
 
     log_level = logging.DEBUG if args.debug else logging.INFO
 
+    # ---------------------------------------------------------
+    # YAML Configuration File Interceptor
+    # ---------------------------------------------------------
+    config_file_data = {}
+    if args.config and HAS_PYYAML:
+        import yaml
+        try:
+            with open(args.config, 'r') as f:
+                config_file_data = yaml.safe_load(f) or {}
+            logging.info(f"⚙️ Loaded repository configuration from {args.config}")
+        except Exception as e:
+            logging.error(f"Failed to load config file {args.config}: {e}")
+    
+    # Map YAML configurations directly to argparse attributes if not overridden via CLI
+    if 'galaxyscope' in config_file_data:
+        for key, val in config_file_data['galaxyscope'].items():
+            arg_key = key.replace('-', '_')
+            if hasattr(args, arg_key) and getattr(args, arg_key) in (None, False, 0.0, ""):
+                setattr(args, arg_key, val)
+
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-        stream=sys.stdout,
+        stream=sys.stderr, # <--- THE FIX: Route logs to stderr so CI/CD catches them
         force=True,
     )
 
@@ -2330,7 +2484,8 @@ def main():
         # ---------------------------------------------------------
         # 1. Target Identification
         # ---------------------------------------------------------
-        target_path = Path(args.target)
+        # THE FIX: Resolve the path immediately so '.' becomes the actual folder name
+        target_path = Path(args.target).resolve()
         project_name = target_path.name
 
         # ---> DEFAULT PROTOTYPING PATH <---
@@ -2360,6 +2515,29 @@ def main():
 
         merged_langs = copy.deepcopy(base_langs)
         merged_aperture = copy.deepcopy(base_aperture)
+
+        if 'galaxyscope' in config_file_data and 'APERTURE_CONFIG' in config_file_data['galaxyscope']:
+            yaml_aperture = config_file_data['galaxyscope']['APERTURE_CONFIG']
+            
+            if 'IGNORED_DIRECTORIES' in yaml_aperture:
+                if "IGNORED_DIRECTORIES" not in merged_aperture:
+                    merged_aperture["IGNORED_DIRECTORIES"] = set()
+                merged_aperture["IGNORED_DIRECTORIES"].update(yaml_aperture['IGNORED_DIRECTORIES'])
+            
+            if 'CONTRABAND_PATTERNS' in yaml_aperture:
+                if "CONTRABAND_PATTERNS" not in merged_aperture:
+                    merged_aperture["CONTRABAND_PATTERNS"] = []
+                merged_aperture["CONTRABAND_PATTERNS"].extend(yaml_aperture['CONTRABAND_PATTERNS'])
+
+            if 'VENDOR_MINIFICATION_PATHS' in yaml_aperture:
+                if "VENDOR_MINIFICATION_PATHS" not in merged_aperture:
+                    merged_aperture["VENDOR_MINIFICATION_PATHS"] = []
+                merged_aperture["VENDOR_MINIFICATION_PATHS"].extend(yaml_aperture['VENDOR_MINIFICATION_PATHS'])
+                
+            if 'SECRETS_EXACT' in yaml_aperture:
+                if "SECRETS_EXACT" not in merged_aperture:
+                    merged_aperture["SECRETS_EXACT"] = set()
+                merged_aperture["SECRETS_EXACT"].update(yaml_aperture['SECRETS_EXACT'])
 
         if project_name in project_overrides:
             logging.info(f"🌌 DIALECT DETECTED: Injecting Project Overrides for '{project_name}'")
@@ -2416,8 +2594,7 @@ def main():
             "TEST_NAMING_CONVENTIONS": TEST_NAMING_CONVENTIONS,
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
-            "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,  # <--- Pass the flag
-            # --- PASS EXCLUSIVE FLAGS TO ORCHESTRATOR ---
+            "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
             "LLM_ONLY": args.llm_only,
             "GPU_ONLY": args.gpu_only,
             "AUDIT_ONLY": args.audit_only,
@@ -2427,25 +2604,82 @@ def main():
             "FAIL_ON_SECRETS": args.fail_on_secrets,
             "FAIL_ON_MALWARE": args.fail_on_malware,
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,
+            "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
+            "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),
+            "SARIF_IGNORED_PATHS": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_PATHS", []),
         }
+
         # ---------------------------------------------------------
         # 4. Ignite the Engine
         # ---------------------------------------------------------
         scope = Orchestrator(args.target, full_config)
-        scope.execute_pipeline(final_output)
 
-        # --- THE FIX: INSTANT RAM EVICTION ---
-        if getattr(scope, "policy_failed", False):
-            os._exit(1)
+        if args.incremental:
+            from gitgalaxy.state_rehydrator import StateRehydrator
+            logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
+            
+            db_out_path = str(Path(final_output).with_name(f"{Path(final_output).stem}_master.db"))
+            rehydrator = StateRehydrator(args.incremental)
+            baseline_state = rehydrator.load_latest_state(project_name)
+
+            if baseline_state:
+                baseline_commit = baseline_state["commit_hash"]
+                ram_cache = baseline_state["ram_cache"]
+                
+                try:
+                    import subprocess
+                    diff_output = subprocess.check_output(
+                        ["git", "diff", "--name-status", baseline_commit],
+                        cwd=target_path,
+                        text=True,
+                        stderr=subprocess.DEVNULL
+                    )
+                    
+                    added, modified, deleted = [], [], []
+                    for line in diff_output.splitlines():
+                        if not line.strip():
+                            continue
+                        
+                        # DEVIOUS SHIELD: Split strictly by tabs, as filenames may contain spaces.
+                        parts = line.split('\t')
+                        status = parts[0]
+                        
+                        # Safely strip Git's quotation marks from spaced filenames
+                        def _clean(p): return p.strip('"\n\r')
+                        
+                        if status.startswith('A'):
+                            added.append(_clean(parts[1]))
+                        elif status.startswith('M'):
+                            modified.append(_clean(parts[1]))
+                        elif status.startswith('D'):
+                            deleted.append(_clean(parts[1]))
+                        elif status.startswith('R') or status.startswith('C'):
+                            # Git Outputs: R100 \t "old file.py" \t "new file.py"
+                            deleted.append(_clean(parts[1]))
+                            if len(parts) > 2:
+                                added.append(_clean(parts[2]))
+                    
+                    logging.info(f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted")
+                    scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
+                    
+                except subprocess.CalledProcessError:
+                    logging.warning(f"⚠️ Git diff failed against {baseline_commit}. Falling back to full scan.")
+                    scope.execute_pipeline(final_output)
+            else:
+                logging.warning("⚠️ Rehydration failed. Falling back to full baseline scan.")
+                scope.execute_pipeline(final_output)
         else:
-            os._exit(0)
+            scope.execute_pipeline(final_output)
+
+        # --- THE FIX: NATURAL RETURN FOR WRAPPERS ---
+        if getattr(scope, "policy_failed", False):
+            sys.exit(1)
 
     except Exception as e:
         logging.error(f"Critical failure during execution: {e}", exc_info=True)
-        # --- THE FIX: INSTANT ERROR EXIT ---
-        os._exit(1)
+        sys.exit(1)
 
 
 # This tells Python to run main() if you call the file directly,

@@ -1307,7 +1307,7 @@ def test_detector_empty_pattern_continuations():
     opt.languages["python"]["rules"]["none_rule"] = None
     
     # This should run without accumulating any hits and without crashing
-    counts, _, _, _ = opt.coding_analysis([("python", "code", 0)])
+    counts, _, _, _, _ = opt.coding_analysis([("python", "code", 0)])
     
     assert counts.get("empty_rule_1", 0) == 0, "Empty rule falsely triggered a hit!"
 
@@ -1509,3 +1509,33 @@ def test_detector_zero_branch_massive_state():
     assert result["mitigation_telemetry"].get("amplified_cascading_flux", 0) == 0, (
         "Detector falsely amplified an OOM Bomb in a file with no algorithmic loops!"
     )
+
+# ==============================================================================
+# TEST 46: EXACT LOC MAPPING (Offset to LOC)
+# ==============================================================================
+def test_detector_exact_loc_mapping():
+    """Proves the coding_analysis phase accurately converts regex offsets to line numbers."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    
+    # Inject rules for testing
+    opt_detector.primary_rules["sec_hardcoded_secrets"] = re.compile(r"password")
+    opt_detector.primary_rules["high_risk_execution"] = re.compile(r"eval")
+
+    code = (
+        "def safe_func():\n"               # Line 1
+        "    pass\n"                       # Line 2
+        "\n"                               # Line 3
+        "def bad_func():\n"                # Line 4
+        "    x = 'password'\n"             # Line 5 (sec_hardcoded_secrets)
+        "    eval(x)\n"                    # Line 6 (high_risk_execution)
+    )
+    
+    # Manually run coding analysis
+    segments = [("python", code, 0)]
+    counts, mitigations, spatial_maps, parents, threat_locations = opt_detector.coding_analysis(segments)
+    
+    # Verify the exact line numbers were captured
+    assert "sec_hardcoded_secrets" in threat_locations, "Failed to map threat location!"
+    assert threat_locations["sec_hardcoded_secrets"][0] == 5, f"Expected line 5, got {threat_locations['sec_hardcoded_secrets'][0]}"
+    assert threat_locations["high_risk_execution"][0] == 6, "Failed to map subsequent line threat!"

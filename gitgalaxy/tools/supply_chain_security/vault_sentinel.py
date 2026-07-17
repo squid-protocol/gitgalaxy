@@ -3,6 +3,9 @@
 # GitGalaxy Spoke: Secrets Scanner
 # Purpose: High-speed pre-commit hook to detect hardcoded secrets.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import os

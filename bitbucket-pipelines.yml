@@ -44,8 +44,8 @@ pipelines:
 
           # 3. Dynamic Execution
           - |
-            echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
-            ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
+            ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
             
           # 4. Bitbucket Code Insights Native Integration
           # Automatically translates the SARIF output into inline Pull Request annotations
@@ -87,7 +87,7 @@ pipelines:
                 pip install networkx tiktoken xgboost pandas numpy
               fi
             - |
-              echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+              echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
               ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
             - |
               if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then

@@ -1,0 +1,97 @@
+# GitGalaxy Enterprise Security Scanner
+# Integration: Bitbucket Pipelines
+
+image: python:3.12-slim
+
+clone:
+  depth: full
+
+pipelines:
+  default:
+    - step:
+        name: 'GitGalaxy Zero-Trust Spectral Audit'
+        caches:
+          - pip
+        script:
+          # 1. Configuration Variables
+          - export GG_TOOL="galaxyscope"
+          - export GG_TARGET="."
+          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+          - export GG_VERSION="latest"
+          - export GG_FULL_PRECISION="true"
+          - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+
+          # 2. Dynamic Installation Logic
+          - pip install --upgrade pip
+          - |
+            if [ "$GG_VERSION" = "local" ]; then
+              echo "Dogfooding local GitGalaxy source..."
+              pip install -e .
+            elif [ "$GG_VERSION" = "latest" ]; then
+              echo "Installing latest GitGalaxy from PyPI..."
+              pip install gitgalaxy
+            else
+              echo "Installing GitGalaxy version ${GG_VERSION}..."
+              pip install "gitgalaxy==${GG_VERSION}"
+            fi
+          - |
+            if [ "$GG_FULL_PRECISION" = "true" ]; then
+              echo "Unlocking Full Precision Mode..."
+              pip install networkx tiktoken xgboost pandas numpy
+            else
+              echo "Running in ultra-fast Zero-Dependency Mode."
+            fi
+
+          # 3. Dynamic Execution
+          - |
+            echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+            ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            
+          # 4. Bitbucket Code Insights Native Integration
+          # Automatically translates the SARIF output into inline Pull Request annotations
+          - |
+            if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then
+              echo "Publishing Code Insights..."
+              python templates/bitbucket/bitbucket_insights.py gitgalaxy-results_sarif.json
+            else
+              echo "Code Insights utility not found at templates/bitbucket/bitbucket_insights.py. Skipping annotations."
+            fi
+                    
+        artifacts:
+          - gitgalaxy-results_sarif.json
+          
+  custom:
+    manual-security-scan:
+      - step:
+          name: 'GitGalaxy Zero-Trust Spectral Audit (Manual)'
+          caches:
+            - pip
+          script:
+            - export GG_TOOL="galaxyscope"
+            - export GG_TARGET="."
+            - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+            - export GG_VERSION="latest"
+            - export GG_FULL_PRECISION="true"
+            - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+            - pip install --upgrade pip
+            - |
+              if [ "$GG_VERSION" = "local" ]; then
+                pip install -e .
+              elif [ "$GG_VERSION" = "latest" ]; then
+                pip install gitgalaxy
+              else
+                pip install "gitgalaxy==${GG_VERSION}"
+              fi
+            - |
+              if [ "$GG_FULL_PRECISION" = "true" ]; then
+                pip install networkx tiktoken xgboost pandas numpy
+              fi
+            - |
+              echo "Running: ${GG_TOOL} ${GG_TARGET}${GG_ARGS}"
+              ${GG_TOOL} ${GG_TARGET}${GG_ARGS}
+            - |
+              if [ -f "templates/bitbucket/bitbucket_insights.py" ]; then
+                python templates/bitbucket/bitbucket_insights.py gitgalaxy-results_sarif.json
+              fi
+          artifacts:
+            - gitgalaxy-results_sarif.json

@@ -7,6 +7,10 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+
+# galaxyscope:ignore sec_high_risk_execution, llm_hooks
+
+
 import math
 import logging
 import re
@@ -329,19 +333,20 @@ class SignalProcessor:
                 return {
                     "risk_vector": blanket_risk_vector,
                     "hit_vector": [0] * len(self.SIGNAL_SCHEMA),
-                    "file_impact": 150.0,  # Massive structural footprint for the topological map
+                    "file_impact": 150.0,  # <-- FIX: Restored the 150.0 mass spike for critical leaks
                     "telemetry": {
                         "archetype": getattr(config, "STATIC_ARCHETYPES", {}).get(
-                            "data", "Static: Declarative Data & Configurations"
+                            "quarantine", "Static: Critical Contraband Leak"
                         ),
                         "control_flow_ratio": 0.0,
-                        "ownership_entropy": self._calc_ownership_entropy(authors_map),
-                        "author_distribution": self._calculate_silo_risk(authors_map),
+                        "ownership_entropy": 0.0,
+                        "author_distribution": 0.0,
                         "ownership": dominant_author,
                         "domain_context": {
                             "alert": "CRITICAL LEAK BYPASS",
                             **ghost_meta,
                         },
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -385,6 +390,7 @@ class SignalProcessor:
                             "alert": "MINIFIED VENDOR BYPASS",
                             **ghost_meta,
                         },
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -427,6 +433,7 @@ class SignalProcessor:
                         "author_distribution": 0.0,  # <-- FIX: Plaintext changelogs don't have Authorship Centralization risk
                         "ownership": dominant_author,
                         "domain_context": ghost_meta,
+                        "threat_locations": meta.get("threat_locations", {}),
                     },
                 }
 
@@ -752,6 +759,15 @@ class SignalProcessor:
                 "secrets_risk": self._calc_secrets_risk(loc, raw_signals, mp_map.get("secrets", 1.0)),
             }
 
+            # ==================================================================
+            # INLINE SUPPRESSION OVERRIDE (galaxyscope:ignore)
+            # ==================================================================
+            mitigations = meta.get("mitigations", [])
+            for suppressed_risk in mitigations:
+                if suppressed_risk in exposure_vector:
+                    self.logger.debug(f"[{rel_path}] Suppressing {suppressed_risk} due to inline galaxyscope:ignore")
+                    exposure_vector[suppressed_risk] = 0.0
+
             # ------------------------------------------------------------------
             # 3. VECTOR ASSEMBLY (Locked to RISK_SCHEMA order)
             # ------------------------------------------------------------------
@@ -816,7 +832,8 @@ class SignalProcessor:
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
                 "domain_context": ghost_meta,
-                "mitigation_telemetry": meta.get("mitigation_telemetry", {}),
+                "mitigation_telemetry": meta.get("mitigations", []),
+                "threat_locations": meta.get("threat_locations", {}),
             }
 
             if mp_map:

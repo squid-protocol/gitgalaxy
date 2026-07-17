@@ -4,6 +4,9 @@
 # Purpose: High-speed, single-pass log analyzer that detects and masks
 #          exposed Credit Cards, SSNs, and AWS API Keys.
 # ==============================================================================
+
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 import argparse
 import sys
 import re

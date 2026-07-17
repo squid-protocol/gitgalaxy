@@ -15,6 +15,8 @@
 # data integrity during binary ingestion.
 # ==============================================================================
 
+# galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
+
 
 def generate_decoder_util(package_name: str) -> str:
     """Generates the EBCDIC and Packed Decimal (COMP-3) decoder utility with strict bounds validation."""

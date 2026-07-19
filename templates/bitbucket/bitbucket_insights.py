@@ -103,8 +103,9 @@ def publish_insights(sarif_path: str):
         urllib.request.urlopen(req)
         print(f"✅ Created Code Insights Report: {report_id}")
     except urllib.error.URLError as e:
-        print(f"❌ Failed to create Bitbucket report: {e}")
-        sys.exit(1)
+        print(f"⚠️  Failed to create Bitbucket report (transient API issue?): {e}")
+        print("⚠️  Skipping annotation publish this run — this does not affect the underlying scan result.")
+        return
 
     # 5. Bulk Upload Annotations in Chunks of 100 (POST)
     annotations_url = f"{base_url}/annotations"

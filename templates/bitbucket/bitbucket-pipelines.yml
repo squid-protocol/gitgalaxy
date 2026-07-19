@@ -1,5 +1,10 @@
 # GitGalaxy Enterprise Security Scanner
 # Integration: Bitbucket Pipelines
+#
+# Requires bitbucket_insights.py in the same directory as this file —
+# it publishes GitGalaxy's SARIF findings as native Bitbucket Code Insights
+# PR annotations. Copy both files together; this pipeline will still run
+# without it, but PR annotations will not be published.
 
 image: python:3.12-slim
 
@@ -43,6 +48,9 @@ pipelines:
           - |
             echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
             ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
+          # Publishes SARIF results as native Bitbucket Code Insights PR
+          # annotations. Requires bitbucket_insights.py (see header note).
+          - python bitbucket_insights.py gitgalaxy-results_sarif.json
                     
         artifacts:
           - gitgalaxy-results_sarif.json

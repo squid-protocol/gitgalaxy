@@ -759,7 +759,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "TypeScript 6.0 / ES2026",
             "last_updated": "2026-03-12",
-            "blueprint_version": "v6.3.1",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard modern suffixes, JSX variants, and ambient declaration boundaries.
@@ -3853,7 +3853,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Kotlin 2.3.10 (K2 Compiler / Wasm / Java 25 Support)",
             "last_updated": "2026-03-12",
-            "blueprint_version": "v6.3.1",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard sources, Kotlin script files (heavily used in modern Gradle), and module declarations.
@@ -7554,7 +7554,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Dockerfile (BuildKit)",
             "last_updated": "2026-02-27",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard extensions for container definitions across Docker and Podman ecosystems.
@@ -7797,7 +7797,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "MATLAB R2024b",
             "last_updated": "2026-02-27",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard scripts, functions, and modern Live Scripts (.mlx).
@@ -8217,7 +8217,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Solidity 0.8.20+ (Smart Contracts / Foundry / Hardhat)",
             "last_updated": "2026-04-01",
-            "blueprint_version": "v6.3.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard Solidity contracts and library files.
@@ -8591,7 +8591,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "GNU Make 4.4+",
             "last_updated": "2026-02-28",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard make extensions, definitions, and includes.
@@ -9484,7 +9484,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "R5RS / R6RS / Guile (GnuPG gpgscm)",
             "last_updated": "2026-03-11",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard Scheme, legacy PLT/Chez suffixes, and Racket sources.
@@ -9889,7 +9889,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Tcl 8.6 / SQLite Test Suite",
             "last_updated": "2026-03-11",
-            "blueprint_version": "v6.3.0",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard scripts and Tcl modules.

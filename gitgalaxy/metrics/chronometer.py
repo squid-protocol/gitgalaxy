@@ -26,7 +26,7 @@ from gitgalaxy.standards import gitgalaxy_config as config
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 # GitGalaxy Phase 3: Chronometer (Time-Series Analyzer)
-# Strategy v6.3.0 Protocol: Bulk Survey, Dynamic Windowing & Thread-Safety
+# Strategy Protocol: Bulk Survey, Dynamic Windowing & Thread-Safety
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
@@ -40,7 +40,7 @@ class Chronometer:
     and physical file-system stability, providing raw telemetry to the
     Signal Processor for exposure calculations.
 
-    ARCHITECTURE (v6.3.0):
+    ARCHITECTURE:
     1. Survey-First Logic: Performs a bulk metadata sweep during initialization
        to ensure Pass 2 threading is a zero-I/O memory lookup.
     2. Dynamic Windowing: Calculates a rolling window based on 10% of the project's

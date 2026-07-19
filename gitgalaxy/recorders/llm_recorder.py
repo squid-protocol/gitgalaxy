@@ -25,7 +25,7 @@ from gitgalaxy.standards import analysis_lens as config
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 # GitGalaxy Phase 10: LLM Recorder (The AI Translation Layer)
-# Strategy v6.3.0 Protocol: Token Density, Distribution Topology & Context Graphs
+# Strategy Protocol: Token Density, Distribution Topology & Context Graphs
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks

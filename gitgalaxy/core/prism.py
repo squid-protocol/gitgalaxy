@@ -14,7 +14,7 @@ from gitgalaxy.standards.language_standards import LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
 # GitGalaxy Phase 2: Payload & Surface Splitter (The Prism)
-# Strategy v6.2.0 Protocol: Safe Delimiter Extraction & Format Bypasses
+# Strategy Protocol: Safe Delimiter Extraction & Format Bypasses
 # ==============================================================================
 
 
@@ -56,7 +56,7 @@ class Prism:
     compilable code. To achieve polyglot velocity and prioritize functional intent across
     50+ languages, the Prism utilizes highly bounded, ReDoS-proof regular expressions.
 
-    PIPELINE RULES (v6.2.0):
+    PIPELINE RULES:
     1. Format Bypass: Respects 'undeterminable' files by passing them untouched to prevent pipeline stalls.
     2. Dynamic Regex Matrix: Pre-compiles standard comment rules at runtime based on the JSON configuration.
     3. O(1) String Literal Masking: Temporarily masks string literals to prevent the scanner from

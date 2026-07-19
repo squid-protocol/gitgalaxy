@@ -21,7 +21,7 @@ Here is the structural blueprint of the final output. This template exactly matc
 
 ```json
 {
-  "Audit Protocol": "GitGalaxy v6.3.2-Audit",
+  "Audit Protocol": "GitGalaxy",
   "1. Forensic Trail (Traceability)": {
     "Analysis Context": {
       "Engine Identity": "",

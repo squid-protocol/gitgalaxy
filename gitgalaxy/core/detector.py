@@ -46,7 +46,7 @@ def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
 
 # galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 2.5 & 7.5: Logic Splicer & Topological Mapper
-# Strategy v6.3.0 Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
+# Strategy Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
@@ -94,7 +94,7 @@ class FunctionNode(TypedDict, total=False):
 
 
 class LogicData(TypedDict, total=False):
-    """The standardized output schema for Strategy v6.2.0+ compliance."""
+    """The standardized output schema for Strategy compliance."""
 
     equations: Dict[str, int]
     functions: List[FunctionNode]

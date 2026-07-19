@@ -26,7 +26,7 @@ from gitgalaxy.standards import analysis_lens as config
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 # GitGalaxy Phase 8 & 9: Forensic Audit Recorder
-# Strategy v6.2.0 Protocol: Data Provenance & State Decoding
+# Strategy Protocol: Data Provenance & State Decoding
 # Stage 2.5: Total Feature Parity (Descriptive Descriptors + Performance)
 # ==============================================================================
 
@@ -103,7 +103,7 @@ class AuditRecorder:
         git_audit = session_meta.get("git_audit", {})
         forensic_trail = {
             "Analysis Context": {
-                "Engine Identity": session_meta.get("engine", "GitGalaxy Scope v6.2.0"),
+                "Engine Identity": session_meta.get("engine", "GitGalaxy Scope"),
                 "Zero-Dependency Mode Active": session_meta.get("zero_dependency_mode", False),
                 "Missing Dependencies": session_meta.get("missing_dependencies", {}),
                 "Target Root Name": session_meta.get("target", "Unknown"),
@@ -562,7 +562,7 @@ class AuditRecorder:
             }
 
         mission_audit = {
-            "Audit Protocol": "GitGalaxy v6.3.2-Audit",
+            "Audit Protocol": "GitGalaxy-Audit",
             "1. Forensic Trail (Traceability)": forensic_trail,
             "2. Global Ecosystem Summary": summary,
             "3. Forensic Security & Vulnerability Audit": security_audit,
@@ -587,7 +587,7 @@ def decode_galaxy(input_path, output_path=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="GitGalaxy v6.2.0 Forensic Audit Recorder CLI")
+    parser = argparse.ArgumentParser(description="GitGalaxy Forensic Audit Recorder CLI")
     parser.add_argument("input", help="Path to columnar galaxy.json")
     parser.add_argument("--out", help="Optional output path")
     args = parser.parse_args()

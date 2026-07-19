@@ -1,8 +1,8 @@
 {
-    "Audit Protocol": "GitGalaxy v6.3.2-Audit",
+    "Audit Protocol": "GitGalaxy",
     "1. Forensic Trail (Traceability)": {
         "Analysis Context": {
-            "Engine Identity": "GitGalaxy Scope v6.2.0 (Delta Mode)",
+            "Engine Identity": "GitGalaxy Scope (Delta Mode)",
             "Target Root Name": "language-crucible",
             "Absolute Project Path": "/srv/storage_16tb/projects/gitgalaxy/v6/language-crucible",
             "Analysis ISO Timestamp": "2026-07-07T20:34:35.881518+00:00",

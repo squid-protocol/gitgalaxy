@@ -4,7 +4,7 @@
 ## 0. FORENSIC TRACEABILITY
 | Metadata | Value |
 |---|---|
-| **Engine** | `GitGalaxy Scope v6.2.0 (Delta Mode)` |
+| **Engine** | `GitGalaxy Scope (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
 | **Timestamp** | `2026-07-17T22:27:12.798136+00:00` |
 | **Scan Duration** | `6.34s` |

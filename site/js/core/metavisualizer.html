@@ -6,7 +6,7 @@
     <title>MetaVisualizer | Forensic Galaxy Shell</title>
     <!-- 
         FILE: metavisualizer.html 
-        VERSION: v6.9.8 (Full Spec v1.7 Integration)
+        VERSION: (Full Spec v1.7 Integration)
         DESCRIPTION: High-density forensic visualizer following System Overview v1.7.
         COMPONENTS: 
         - Galactic (Log) vs Linear Toggle.
@@ -100,7 +100,7 @@
             <div class="flex items-center gap-6">
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-sm shadow-lg shadow-blue-500/20">MV</div>
                 <div>
-                    <h1 id="galaxy-name" class="text-xl font-black uppercase tracking-tighter text-white">MetaVisualizer <span class="text-slate-500 font-normal text-sm">v6.9.8</span></h1>
+                    <h1 id="galaxy-name" class="text-xl font-black uppercase tracking-tighter text-white">MetaVisualizer <span class="text-slate-500 font-normal text-sm"></span></h1>
                     <p id="session-meta" class="text-[10px] text-slate-400 font-mono uppercase tracking-widest">Awaiting Local Forensic Stream</p>
                 </div>
                 
@@ -167,7 +167,7 @@
 
     <script type="module">
         /**
-         * v6.9.8 GLOBAL STATE
+         * GLOBAL STATE
          */
         let lastRawData = null;
         let galacticScaleActive = false;
@@ -421,7 +421,7 @@
 
             if (meta.session) {
                 const s = meta.session;
-                document.getElementById('galaxy-name').innerHTML = `${s.target || 'UNNAMED'} <span class="text-blue-500 font-normal">v6.9.10</span>`;
+                document.getElementById('galaxy-name').innerHTML = `${s.target || 'UNNAMED'} <span class="text-blue-500 font-normal"></span>`;
                 document.getElementById('session-meta').innerText = `${(s.timestamp || '').split('T')[0]} | ${s.engine || 'Scope'}`;
             }
             

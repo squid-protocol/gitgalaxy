@@ -21,7 +21,7 @@ from gitgalaxy.standards import analysis_lens
 
 # ==============================================================================
 # GitGalaxy Phase 4: Signal Processor (The Structural Signature Analysis Engine)
-# Strategy v6.2.0 Protocol: Temporal Normalization & Universal Exposure
+# Strategy Protocol: Temporal Normalization & Universal Exposure
 # ==============================================================================
 
 
@@ -32,7 +32,7 @@ class SignalProcessor:
     PURPOSE: Converts raw logic counts and temporal telemetry into "Exposure Vectors"
     and generates high-fidelity forensic reports identifying structural risks.
 
-    ARCHITECTURE (v6.2.0):
+    ARCHITECTURE:
     1. Temporal Consolidation: Math formulas for Churn and Stability now live here.
     2. Two-Pass Normalization: Auto-scales Churn based on the galaxy's global maximum.
     3. Sigmoid Armor: `try/except OverflowError` guarantees survival on extreme file densities.

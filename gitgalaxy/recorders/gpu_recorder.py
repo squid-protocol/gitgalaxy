@@ -26,7 +26,7 @@ from gitgalaxy.standards import gitgalaxy_config
 
 # galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 9: GPU Recorder
-# Strategy v6.2.0 Protocol: Destructive Columnar Pivot & Text Interning
+# Strategy Protocol: Destructive Columnar Pivot & Text Interning
 # Stage 3.3: Destructive RAM Eviction (Final Pipeline Phase)
 # ==============================================================================
 

@@ -159,7 +159,7 @@ def test_rehydrator_poisoned_db(tmp_path):
 def test_rehydrator_legacy_schema_drift(tmp_path):
     """
     DEVIOUS EDGE CASE: The user is rehydrating from an older version of GitGalaxy 
-    (e.g., v6.1.0) before the 'silo_risk' column existed. The dictionary builder 
+    (e.g., before the 'silo_risk' column existed. The dictionary builder 
     must not throw an IndexError.
     """
     db_path = tmp_path / "legacy_master.db"

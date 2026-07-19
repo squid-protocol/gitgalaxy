@@ -19,7 +19,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa:
 
 # ==============================================================================
 # GitGalaxy Phase 1: The Entity Census (Linguistic Classification Engine)
-# Strategy v6.2.0 Protocol: Bayesian Inference & Confidence Hierarchy
+# Strategy Protocol: Bayesian Inference & Confidence Hierarchy
 # ==============================================================================
 
 

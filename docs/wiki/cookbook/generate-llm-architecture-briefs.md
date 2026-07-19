@@ -82,7 +82,7 @@ If you paste this exact text into an LLM like Claude 3.5 Sonnet or GPT-4o, it wi
 ## 0. FORENSIC TRACEABILITY
 | Metadata | Value |
 |---|---|
-| **Engine** | `GitGalaxy Scope v6.2.0 (Delta Mode)` |
+| **Engine** | `GitGalaxy Scope (Delta Mode)` |
 | **Target Path** | `/srv/storage_16tb/projects/gitgalaxy/data/abap-cleaner` |
 | **Scan Duration** | `2.38s` |
 | **Git Branch** | `main` |

@@ -16,7 +16,7 @@ from typing import Dict, Any, Set, Optional, TypedDict, Union, List, Tuple
 
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
-# Strategy: v6.3.1 (Monolith Ceilings, Array Shields & Intent Overrides)
+# Strategy: (Monolith Ceilings, Array Shields & Intent Overrides)
 # Architecture: Path Evaluation -> Intent Resolution -> Content Validation
 # ==============================================================================
 

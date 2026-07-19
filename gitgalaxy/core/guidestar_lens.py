@@ -27,7 +27,7 @@ from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
 # galaxyscope:ignore sec_io, llm_hooks
 # GitGalaxy Phase 0.5: Sector Intelligence (The GuideStar Lens)
-# Strategy: v6.3.0 (Deep Manifest Inspection & Evidence Hierarchy)
+# Strategy: (Deep Manifest Inspection & Evidence Hierarchy)
 # ==============================================================================
 
 # galaxyscope:ignore sec_io, llm_hooks

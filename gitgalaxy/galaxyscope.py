@@ -588,7 +588,7 @@ class Orchestrator:
         self,
         target_input: Union[str, Path],
         config: Dict[str, Any],
-        version: str = "6.2.0",
+        version: str = "latest",
     ):
         self.config = config
         self.version = version

@@ -4,7 +4,7 @@
 >
 > Before the Splicer spends computational energy carving a logic stream, it performs a strict physical viability check. If a file enters the Splicer with a structural confidence score below `0.42`, it triggers the **Singularity Bypass**, safely relegating the file to "Dark Matter" (unparsed mass). Similarly, files explicitly verified as `markdown` or `plaintext` trigger a Prose Deflection, routing them entirely to "Ghost Mass."
 >
-> **The Ecosystem Gravity Override:** In the v6.3.0 Protocol, a critical exception was introduced for highly contested, declarative files—most notably C/C++ header files (`.h`). Pure-macro headers often lack the standard functional logic (braces, loops, branches) required to pass the 0.42 confidence floor naturally, causing vital architectural maps to vanish into Dark Matter.
+> **The Ecosystem Gravity Override:** In the Protocol, a critical exception was introduced for highly contested, declarative files—most notably C/C++ header files (`.h`). Pure-macro headers often lack the standard functional logic (braces, loops, branches) required to pass the 0.42 confidence floor naturally, causing vital architectural maps to vanish into Dark Matter.
 >
 > To solve this, the Splicer now implements an **Ecosystem Gravity Override**. If the upstream Language Lens previously utilized ecosystem mass to safely lock a file into a C-family orbit (`c`, `cpp`, or `objective-c`), the Splicer trusts that macro-level gravity. It artificially boosts the file's parsing confidence to `1.0`, ensuring these critical structural components are fully mapped and integrated into the final spatial cartography.
 
@@ -14,7 +14,7 @@ Strings and text literals are the natural enemies of structural parsers. A stray
 
 To prevent this "Quote Desynchronization," the Splicer utilizes the **Atomic Literal Shield**, an advanced pre-processing engine that securely masks disruptive text *without* altering the physical line counts or character indexing of the original file. This ensures the parsed logic perfectly maps 1:1 with the original source code.
 
-The v6.3.0 Protocol introduces heavily upgraded, language-aware shielding:
+The Protocol introduces heavily upgraded, language-aware shielding:
 
 * **Advanced Atomic Quotes:** The shield processes multi-character sequence markers strictly *before* single quotes. This surgical ordering correctly masks C++ Raw String Literals (e.g., `R"EOF(...)EOF"`) and Python Triple Quotes (`"""` / `'''`) without prematurely triggering on standard double quotes contained within them.
 * **Heredoc Isolation:** For scripting languages (Shell, Bash, Ruby, Perl, Elixir), standard regex is insufficient. The Splicer deploys a line-by-line state machine to isolate complex Heredoc logic (e.g., `<<-EOF`), safely blanking out massive text blocks that frequently contain rogue bash characters or unescaped quotes.
@@ -28,7 +28,7 @@ To maintain absolute mathematical integrity, the GitGalaxy Splicer strictly enfo
 By routing the pre-split streams into distinct analysis engines, GitGalaxy guarantees that structural metrics and human intent are measured independently.
 
 ### 1. Coding Analysis (The 51-Element Schema Guarantee)
-The `coding_analysis` engine is responsible for measuring the raw physical properties of the Active Matter (branches, IO operations, memory manipulations). In the v6.3.0 Protocol, this engine was upgraded to enforce absolute schema rigidity:
+The `coding_analysis` engine is responsible for measuring the raw physical properties of the Active Matter (branches, IO operations, memory manipulations). In the Protocol, this engine was upgraded to enforce absolute schema rigidity:
 * **Anti-Hallucination Binding:** The engine initializes its counting dictionary directly from the `UNIVERSAL_METRICS_SCHEMA`. If a custom language definition attempts to inject an unregistered rule, the Splicer actively ignores it.
 * **Deterministic Output:** This strict bounding guarantees that the resulting metrics dictionary is *exactly* 51 elements long, in the exact same order, every single time. This absolute consistency is vital for preventing schema drift and ensuring downstream risk algorithms (which rely on fixed-length arrays) never crash or misalign.
 * **Indentation Signatures:** Alongside regex matching, the coding analyzer also calculates the physical indentation density (Tabs vs. Spaces) to help downstream models identify the formatting culture of the logic block.
@@ -47,11 +47,11 @@ Even if a file is relegated to Dark Matter (failing the 0.42 structural confiden
 Because programming languages adhere to vastly different structural physics, a one-size-fits-all regex approach is mathematically impossible. To solve this, the `_function_slice` Master Dispatcher analyzes the language's lexical family and dynamically routes the Active Matter into one of five highly specialized extraction algorithms (Integration Modes).
 
 * **Mode A: Label-Based Scan (Legacy Species)** Used for legacy procedural languages like Assembly, AGC, and COBOL, which lack traditional scoping mechanisms. The Splicer uses a greedy, label-based scan (`_slice_by_labels`). It searches for functional start tags or labels and captures the entire block of logic until it encounters the next start tag or a definitive return instruction (e.g., `RET`, `GOBACK`, `END-PERFORM`), successfully isolating the structural satellite.
-* **Mode B: Recursive Scope Analysis (C-Family & Lisp)** The standard algorithm for languages relying on braces `{}` or parentheses `()`. The v6.3.0 Protocol heavily fortifies this brace-tracking engine against syntax desynchronization:
+* **Mode B: Recursive Scope Analysis (C-Family & Lisp)** The standard algorithm for languages relying on braces `{}` or parentheses `()`. The Protocol heavily fortifies this brace-tracking engine against syntax desynchronization:
   * **The Atomic Alternation Shield:** Evaluates double quotes, single quotes, and backticks simultaneously. This prevents complex string manipulation from confusing the scanner and falsely collapsing the closing braces.
   * **The C++ Preprocessor Brace Shield:** C/C++ macros frequently contain raw floating braces (e.g., `#else {`), which historically shattered scope stacks. The Splicer now implements a preprocessor shield that safely blinds the parser to duplicate or floating braces trapped inside dead structural branches (`#elif`, `#else`) and multi-line `#define` macros.
 * **Mode C: Density Stratification (Python & YAML)** Languages that rely on whitespace require a topographical approach. Using `_slice_by_indentation`, the engine identifies a structural igniter (like `def` or `class`) and calculates its base indentation level. It then scans forward, line-by-line, through the code's density. The scope block is naturally terminated the moment the engine encounters a line of active code that drops back to or below the base indentation level.
-* **Mode D: Semantic Handshake Stack (Keyword Scoping)** A major addition in the v6.3.0 Protocol, Mode D (`_slice_by_keywords`) is explicitly designed for non-brace scripting languages like Shell, Ruby, Lua, and Elixir.
+* **Mode D: Semantic Handshake Stack (Keyword Scoping)** A major addition in the Protocol, Mode D (`_slice_by_keywords`) is explicitly designed for non-brace scripting languages like Shell, Ruby, Lua, and Elixir.
   * Powered by the new `SemanticScopeRegistry`, this engine tracks structural depth via text keywords rather than symbols. It identifies specific *openers* (`if`, `def`, `case`) and *closers* (`fi`, `end`, `esac`) to manage the scope stack.
   * It includes specialized heuristics, such as the **Ruby Inline Modifier Guard**, which prevents single-line modifiers (e.g., `return true if x`) from falsely incrementing the depth stack.
 * **Mode E: Terminator Cleaving (Declarative Architectures)** Designed for declarative and query languages like SQL, Erlang, and Prolog (`_slice_by_terminator`). Rather than tracking nested scope, this mode monitors the stream for an **Igniter** keyword (e.g., `SELECT`, `CREATE`, or an Erlang function head) to start orbiting a new logic block. The block remains open until the engine detects the language's specific **Terminator** token (like a semicolon `;` or a period `.`), at which point the "guillotine drops," cleaving the statement into a measurable satellite.
@@ -68,7 +68,7 @@ The `_process_satellite_physics` method analyzes the raw string of the isolated 
   (Highly linear functions branch at steep 90° angles; highly complex functions branch at wide 22.5° angles).
 * **Magnitude (`mag`):** The final physical mass of the block, calculated as: 
   $$\text{Magnitude} = (\text{branches} + 1) \times (\text{args} + 1) + (0.05 \times \text{loc})$$
-* *Note on Arguments:* The v6.3.0 Protocol upgraded the argument counter to recognize space-separated arguments, ensuring languages like Lisp, Scheme, and Shell calculate accurate magnitudes alongside comma-separated C-family languages.
+* *Note on Arguments:* The Protocol upgraded the argument counter to recognize space-separated arguments, ensuring languages like Lisp, Scheme, and Shell calculate accurate magnitudes alongside comma-separated C-family languages.
 
 ### 2. The Naming Shields
 Extracting a function name from raw text is notoriously difficult; naive regex frequently destroys complex C++ signatures or Objective-C methods. To guarantee pristine architectural labeling, GitGalaxy utilizes a gauntlet of **Naming Shields**:
@@ -83,7 +83,7 @@ Finally, the satellite is assigned a *texture* (its functional classification: `
 
 ## 2.3.5.E. The Cartographer: Fractal Fibonacci Positioning
 
-The Cartographer transforms flat file lists into a deterministic 3D star map. By applying procedurally generated patterns to digital architecture, it ensures the visual layout reflects the structural hierarchy and "gravitational" importance of the repository's components. Under the v6.3.0 Protocol, the engine utilizes a collision-aware packing algorithm to create organic, repeatable, and dense volumetric galaxies.
+The Cartographer transforms flat file lists into a deterministic 3D star map. By applying procedurally generated patterns to digital architecture, it ensures the visual layout reflects the structural hierarchy and "gravitational" importance of the repository's components. Under the Protocol, the engine utilizes a collision-aware packing algorithm to create organic, repeatable, and dense volumetric galaxies.
 
 ### 1. Sectorization & Hull Calculation (The Bounding Boxes)
 Before spatial coordinates are assigned, the engine must calculate the physical footprint of every folder (Constellation).

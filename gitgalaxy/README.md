@@ -8,6 +8,23 @@ Welcome to the internal source code for the **GitGalaxy Core Engine**.
 
 This directory contains the central orchestrator—**GalaxyScope**—alongside the core structural mechanics, lexical routing, and mathematical heuristics that power the entire DevSecOps ecosystem. If you are a developer looking to contribute, understand the data pipeline, or run the primary CLI, here is your architectural map.
 
+**Why we built a custom parsing engine:**
+Abstract Syntax Trees (ASTs) are excellent for catching syntax errors, but they require fully compilable code and a dedicated parser per language — both of which break down at the scale and polyglot mess of a real enterprise monolith. LLMs solve the language-coverage problem but introduce their own limits: context windows too small for million-line codebases, and probabilistic output that isn't the same twice.
+
+The **blAST (Bypassing LLMs and ASTs) engine** takes a third path, borrowed from a specific insight in computational biology: BLAST proved that a fast heuristic search — willing to accept a small, bounded margin of error — beats an exhaustive, mathematically perfect one once a database gets large enough. GitGalaxy applies that same tradeoff to source code. Instead of compiling a full parse tree, it scans raw text for **Structural Signatures**: bounded, ReDoS-safe regex patterns that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors — the same way a conserved sequence motif can imply a protein's function without anyone solving its 3D structure.
+
+The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
+
+*(Note: raw structural signatures are just counts. The risk scores GitGalaxy reports are derived metrics — density-normalized against file size and weighted by network centrality — not raw hit counts.)*
+
+Think of GitGalaxy as a highly configurable macro-analyzer for codebase risk. Every assumption the system makes is exposed as one of 300+ tunable variables. You can query active API nodes, isolate supply chain threats, or highlight functions exhibiting extreme cognitive load — all adjusted via custom thresholds to reduce false-positive fatigue. Field-tested on over 1,000 repositories, the engine ships with enterprise-oriented defaults ready for CI/CD integration.
+
+* **Heuristic Structural Scanning:** Bypasses LLMs and rigid ASTs. Reads code as raw text without requiring it to compile.
+* **Deterministic Signal Extraction:** Maps code using a 97-point structural signal schema (I/O intent, state mutation, execution wrappers, security-relevant patterns, and more), rolled up into 19 aggregate risk categories.
+* **Taxonomical Classification:** These structural profiles let us cluster functions, files, and entire repositories into distinct architectural archetypes.
+* **Topological Cartography:** Builds a full dependency graph from imports and dynamic execution markers, with PageRank-style centrality and blast-radius scoring.
+* **No LLM in the Analysis Loop:** The core mapping and risk-scoring engine makes no calls to any language model — output is fully deterministic and reproducible run over run. (Some optional legacy-migration tools, like COBOL-to-Java translation, do use AI to translate isolated business logic; the analysis engine itself does not.)
+
 ### 🗺️ The Developer Map (How the Pipeline Flows)
 
 When you trigger the `galaxyscope` command, the data flows through these physical directories:

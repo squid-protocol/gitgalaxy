@@ -1,131 +1,173 @@
-# GitGalaxy
+<div align="center">
+
+# GitGalaxy 
+
+[Docs](https://squid-protocol.github.io/gitgalaxy/) · [Visualizer](https://gitgalaxy.io/)
 
 [![PyPI version](https://badge.fury.io/py/gitgalaxy.svg)](https://badge.fury.io/py/gitgalaxy)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.09+](https://img.shields.io/badge/python-3.09+-blue.svg)](https://www.python.org/downloads/)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-
-[![Engine](https://img.shields.io/badge/Engine-blAST-8A2BE2.svg)](#)
-[![Velocity](https://img.shields.io/badge/Velocity-100k+_LOC%2Fs-00C957.svg)](#)
+[![Velocity](https://img.shields.io/badge/Velocity-50k+_LOC%2Fs-00C957.svg)](#)
 [![Analysis](https://img.shields.io/badge/Analysis-Static_Analysis-00BFFF.svg)](#)
-[![Threat Hunting](https://img.shields.io/badge/Threat_Hunting-Behavioral-FF4500.svg)](#)
 [![Architecture](https://img.shields.io/badge/Architecture-Zero__Trust-teal.svg)](#)
-[![Coverage](https://img.shields.io/badge/Coverage-50%2B_Languages-00C957.svg)](#)
 
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-brightgreen.svg)](https://pypi.org/project/gitgalaxy/)
 [![Airgap Ready](https://img.shields.io/badge/Security-Airgap_Ready-teal.svg)](#)
-[![Downloads](https://static.pepy.tech/badge/gitgalaxy)](https://pepy.tech/project/gitgalaxy)
 
-### **Whole-Repository Understanding & DevSecOps Topology**
+</div>
 
-Most tools analyze code line-by-line. GitGalaxy maps the entire architectural ecosystem. By tracking the exact flow of information across network dependencies, identifying local folder constraints, and natively recognizing 50+ languages—even mid-file—GitGalaxy provides a deterministic, macro-level view of your software's structural architecture.
+<div align="center">
+
+**1 scan** · **97 structural signals** · **50+ languages** · **0 need for compilation**<br>
+**19 risk exposure scores** · **6 final reports** · **0 dependencies** · `pip install gitgalaxy`
+
+</div>
+
+<div align="center">
+
+Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The graph below is a workflow from one gitgalaxy scan from on our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)   
+<img src="docs/wiki/assets/sankey_v4.3.1.png" alt="GitGalaxy Architecture Pipeline" width="100%">
+
+</div>
+
+<div>
+
+### **Whole-Repository Intelligence with a Unique Security Layer **
+
+Gitgalaxy is a tool to  determistically audit code, fast enough for the CI pipeline. Most code intelligence engines use an AST, like tree-sitter, which is offers an overly granular view of a repos (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats. 
+
+Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass that takes seconds. 
+
+The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
+
+Our unique engine allows for the unique ways to scan for several CWEs families without the need for CVE lists, which is a unique edge for our code intelligence engine. 
+
+</div>
+
+<div>
 
 ### Scanning Apollo-11 with the blAST Engine
 
 ![GitGalaxy CLI Scan](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/apollo11_scan.gif)
 
-**Why we built a custom parsing engine:**
-Standard Abstract Syntax Trees (ASTs) are excellent for finding syntax errors, but they require fully compilable code and struggle to map massive-scale information flow efficiently. LLMs suffer from context window saturation and yield probabilistic, fluctuating answers.
+</div>
 
-The **blAST (Bypassing LLMs and ASTs) engine** solves this by adopting the search philosophy of computational biology. Just as genomic BLAST sequencing scans billions of DNA base pairs to identify protein domains without "executing" the organism, GitGalaxy blAST sequences raw source code to identify **Structural Signatures**. 
+<div>
 
-Instead of mapping gene starts and genetic mutations, the engine deterministically sequences coding intent, execution boundaries, and architectural risk exposures. This enables the engine to build a deterministic 3D knowledge graph of your entire repository in linear O(N) time without ever requiring the code to compile. It instantly calculates the ratio of test boundaries to core logic, maps network blast radiuses, and extracts the vital project structure data that rigid linters ignore. 
+## What GitGalaxy Finds — and What It Doesn't Claim
 
-*(Note: Raw structural signatures are simply data points. True risk exposures in GitGalaxy are calculated metrics derived from these structural alignments combined with topological network gravity).*
+GitGalaxy produces two different kinds of output, and they should be read differently.
 
-Think of GitGalaxy as a highly calibrated macro-analyzer for codebase risk. Every assumption the system makes is abstracted into over 300 tunable variables. You can query active API nodes, isolate supply chain threats, or highlight functions exhibiting extreme cognitive load—all adjusted via custom thresholds to eliminate false-positive fatigue. Field-tested on over 1,000 repositories, the engine comes equipped with enterprise-grade defaults ready for immediate CI/CD deployment.
+**Risk Exposure scores** are a 0–100, density-normalized signal across 19 categories
+(secrets, injection surface, memory corruption, and more), rolled up from function to
+file to folder to repository. A high score means *this deserves attention first* — it
+is a prioritization signal, not a verdict. Two files can carry the same score for
+completely different reasons: a real problem, or a legitimate pattern that looks
+identical on the surface. Encrypted malware and a well-tested cryptography routine
+both produce high entropy. GitGalaxy can't tell you which one it found — only that
+something worth a second look is there.
 
-**Core Repository Mapping Technology**
-* **Heuristic Structural Alignment:** Bypasses LLMs and rigid ASTs. Sequences code in raw text without requiring it to compile.
-* **Deterministic Sequencing:** Maps code using 60+ bounded structural signatures (I/O intents, state mutations, execution wrappers) exactly like sequencing genetic markers.
-* **Taxonomical Classification:** These structural profiles allow us to classify functions, files, classes, and entire repositories into distinct architectural archetypes.
-* **Topological Cartography:** Produces full network mapping via imports and dynamic execution markers.
-* **Zero-Hallucination:** Eliminates LLM architectural hallucinations and context window limits by relying strictly on mathematical constraints.
-* **Polyglot Sequencing:** Scans 50+ languages, 250+ extensions, fully folder-aware. **([How to add a language in 1 minute and 1 prompt](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md))**
+**Findings** are individual, line-level flags: a specific Structural Signature that
+crossed a risk threshold. These are evidence to review, not confirmed vulnerabilities.
+GitGalaxy never executes code, traces runtime dataflow, or verifies exploitability —
+it tells you a pattern exists in the text, at this exact line, and hands you the
+context to judge it yourself.
 
-**Enterprise Scale & Performance Metrics**
-* **Active Pipeline Integration:** Over 11,000 PyPI downloads, driven heavily by automated CI/CD security sweeps and zero-trust DevSecOps workflows.
-* **Production Tested:** Backed by an active early-adopter community on GitHub driving real-world issue resolution, architectural forks, and continuous engine hardening.
-* 100,000 LOC/sec code analysis.
-* 0.07 GB/sec raw log ingestion.
-* Full-system scans in minutes without data sampling.
-* 100% daily system coverage.
+**This is intentional, not a limitation we're hiding.** GitGalaxy is built to err
+toward recall over precision: flag more, and let a human or a deeper tool narrow the
+list, rather than risk staying silent on something real. False positives are the
+expected cost of that trade-off, the same way they are for every static analyzer that
+doesn't execute the code it reads.
 
-**Methodology & Comparative Benchmarks**
-GitGalaxy is backed by an academic-grade thesis detailing the equations powering the blAST engine.
+That also means GitGalaxy is strongest against a specific class of problem —
+**negligence, not adversarial evasion.** A hardcoded key someone forgot to remove, an
+insecure registry, an obviously dangerous `eval()` call — nobody on the other end of
+those is trying to hide from a scanner. A specifically motivated attacker who knows
+how static, signature-based detection works can evade individual signals like entropy
+thresholds without much effort. Treat GitGalaxy as the fast first pass across a
+codebase too large to read by hand — not the last word on whether something is safe.
 
-* **[Optimum Search Strategies Evolve](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/):** AST-free mapping. Outperforms rigid parsers and LLM context windows.
-* **[Languages are getting easier to regex for meaning and intent](https://squid-protocol.github.io/gitgalaxy/03-02-claim-2-explicitness/):** Quantifies linguistic opacity. Assigns mathematical "trust dampeners" to implicit languages.
-* **[All languages have keywords that roughly do the same thing, these can be grouped to make cross-language keyword maps](https://squid-protocol.github.io/gitgalaxy/03-03-claim-3-taxonomy-map/):** Standardizes 50+ languages into a single universal physical framework.
+</div>
+
+### Weakness Classes, Not Just Known CVEs
+
+Most dependency scanners work from a lookup table: they know a vulnerability exists
+because someone found it, filed it, and it now has a CVE number in a feed. That's
+useful, but it's necessarily reactive — a scanner built this way is blind to anything
+that hasn't been discovered and disclosed yet, including straightforward variants of
+known-bad patterns that just look slightly different from the filed instance.
+
+GitGalaxy takes a different approach: instead of matching known instances, it matches
+weakness *classes*. Its findings are tagged by CWE (Common Weakness Enumeration) —
+hardcoded credentials, dynamic code execution, unsafe deserialization — not by CVE ID.
+A structural signature for "dynamic execution of tainted input" catches that pattern
+wherever it appears, with whatever variable names, in whatever specific arrangement —
+not just the one instance someone already filed a report about.
+
+The same philosophy extends to the SBOM layer. Rather than asking "does this package
+version appear in a vulnerability database," GitGalaxy's zero-trust physical audit
+asks "does this package's actual content on disk structurally match what a legitimate
+version should look like" — entropy, structural fingerprint, behavioral anomaly flags.
+That's how a tampered dependency gets caught on day one, before anyone has discovered
+or disclosed anything, because there's no CVE to wait for.
+
+This is a complement to CVE-feed tools (Snyk, Dependabot, OSV-Scanner), not a
+replacement for them — those tools are the right answer for "is this exact known bug
+present." GitGalaxy is the right answer for the wider net: weakness classes and
+physical anomalies that don't require anyone to have found and filed the specific
+instance first.
+
+### Real-World Adoption
+
+<div align="center">
+
+Tracking the total, deduplicated volume of fetches across PyPI, GitHub, and GitLab against our baseline control repositories.
+
+<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/cumulative_downloads.png" alt="GitGalaxy Cumulative Downloads" width="500">
+
+Measured without mirrors. The GitHub/PyPI breakdown lines begin partway through the window because per-source tracking was added after total-fetch tracking; the total line before that point is aggregate across all sources.
+</div>
+
+<div>
+
+## Benchmarks
+* **[50+ Language Test Repo](https://github.com/squid-protocol/language-crucible)** and [artifacts](https://github.com/squid-protocol/language-crucible/tree/main/raw_output)
+* **[Speed Results from 104 Repos](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/)**
 * **[Cross-Language Comparisons of over 1000 repos](https://squid-protocol.github.io/gitgalaxy/03-04-claim-4-comparing-languages/):** Deterministic 1:1 benchmarking of distinct syntax architectures.
 * **[Universal File Archetypes by k-means clustering](https://squid-protocol.github.io/gitgalaxy/03-05-claim-5-file-archetypes/):** ML isolation of files into K-means clusters.
-* **[Mainframe Proven: 100% CI/CD Translation Success Rate](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation):** Flawless architectural translation of 27 distinct legacy COBOL repositories (including IBM CICS benchmark apps) into compiling Java Spring Boot environments.
+* **[Mainframe Proven: 100% CI/CD Translation Success Rate](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation):** 27 out of 27 successful architectural translation of 27 distinct legacy COBOL repositories (including IBM CICS benchmark apps) into compiling Java Spring Boot environments.
 
-**Data Privacy & On-Premise Deployment**
-* 100% air-gapped execution.
-* On-premise deployment with zero IP exfiltration risk.
-* Zero-trust processing model.
+</div>
 
-**Installation & Usage**
+<div>
+
+## Data Privacy & On-Premise Deployment
+* 100% air-gapped execution
+* On-premise deployment
+* Zero-trust processing model
+</div>
+
+<div>
+
+## Installation & Usage
 * Python-based: `pip install gitgalaxy`
 * CLI execution
-* CI/CD Integration: Native **[GitHub Action](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md)** available for zero-trust DevSecOps pipelines.
+* **[How to add a new programming language in 1 prompt](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)**
 * Outputs forensic JSONs (optimized for AI-agent summary reports) and a native SQLite3 database for robust querying and storage.
 
-> **📖 Official Documentation:** Read the full technical specifications, architecture blueprints, and the Taxonomical Equivalence Map at **[squid-protocol.github.io/gitgalaxy](https://squid-protocol.github.io/gitgalaxy/)**.
+### CI/CD Integration
 
----
+Drop the template for your platform straight into your pipeline — each one runs a GitGalaxy scan and can fail the build on risk-threshold or malware-signature breaches.
 
-## Quickstart Guide
+| Platform | Template |
+|---|---|
+| **GitHub Actions** | [`gitgalaxy-pipeline.yml`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/github/gitgalaxy-pipeline.yml) — see the [full integration guide](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md) |
+| **GitLab CI** | [`scan.yml`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/gitlab/scan.yml) |
+| **Bitbucket Pipelines** | [`bitbucket-pipelines.yml`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/bitbucket/bitbucket-pipelines.yml) + [`bitbucket_insights.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/bitbucket/bitbucket_insights.py) (posts findings as Bitbucket Code Insights annotations) |
+| **Azure Pipelines** | [`azure-pipelines.yml`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/azure/azure-pipelines.yml) |
+| **Anything else** (Jenkins, CircleCI, etc.) | [`scan.yml`](https://github.com/squid-protocol/gitgalaxy/blob/main/templates/scan.yml) — generic, shell-invocable template |
 
-### 1. Install
-
-```bash
-pip install gitgalaxy
-```
-
-
-### 2. Scan a Repository
-
-Point the GalaxyScope at any local repository or ZIP archive. The engine runs entirely on your local machine—zero data is transmitted.
-
-```bash
-galaxyscope /path/to/your/local/repo
-```
-
-### 3. GitHub Actions CI/CD Integration
-
-GitGalaxy can be integrated directly into your GitHub Actions pipeline for automated DevSecOps auditing, Zero-Trust SBOM generation, or Pre-Commit firewalls. 
-
-**🚀 [View the Full GitHub Action Integration Guide](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md)**
-
-Check out our comprehensive guide to set up the **Pipeline Architecture** (Parallel Enforcement & Autonomous Reporting). It covers all available inspection tools, AI guardrails, and advanced configuration options like our hyper-sensitive `--paranoid` threat-hunting mode.
-
-*Minimal Example (Running a single inspection tool):*
-```yaml
-name: GitGalaxy Security Audit
-
-on:
-  pull_request:
-    branches: [ "main" ]
-
-jobs:
-  gitgalaxy-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Run GitGalaxy Supply Chain Firewall
-        uses: squid-protocol/gitgalaxy@main
-        with:
-          tool: 'supply-chain-firewall' # View the Integration Guide for the full tool directory
-          target: '.'
-```
-
----
-
-### [GitGalaxy Core Analysis Engine](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/wiki/01-project-overview.md)
-The central blAST engine. It bypasses rigid ASTs using mathematical heuristics to map O(N) multi-dimensional relationships across 50+ languages, managing signal processing, spatial layout, and high-speed SQLite telemetry recording.
+</div>
 
 
 
@@ -137,8 +179,6 @@ GitGalaxy operates on a Decoupled Architecture. While the core engine provides t
 A deterministic, high-fidelity translation pipeline. It converts legacy COBOL into fully compiling, modern Spring Boot architectures, mapping memory exactly and scaffolding JPA entities, REST controllers, and Maven builds before utilizing AI to translate isolated business logic.
 * **Proven Metric:** Achieved a perfect 27/27 Maven compile success rate across a batch test of distinct legacy repos.
 * **Verify for Yourself:** [Inspect the raw outputs of the IBM CICS Application Translation here.](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation/)
-
-![Java Forge & Batch Test](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/java_forge_and_batch_test.gif)
 
 ### [Mainframe Refactoring: COBOL & JCL Optimization](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_cobol/)
 An analytical suite for sanitizing mainframe monoliths. It safely neutralizes legacy lexical traps, extracts dead execution memory, maps topological DAG execution orders, and generates Zero-Trust JCL configurations for modern cloud deployments.

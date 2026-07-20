@@ -1,5 +1,5 @@
 name: 'GitGalaxy Scanner'
-description: 'High-velocity, AST-free DevSecOps scanner for zero-trust CI/CD, SBOMs, secret detection, and supply chain security.'
+description: 'Repo intelligence for humans and AI, without compilation: architecture mapping, risk scoring, and SBOM/SARIF generation for zero-trust CI/CD — SARIF output is ready for upload to security dashboard.'
 branding:
   icon: 'shield'
   color: 'purple'

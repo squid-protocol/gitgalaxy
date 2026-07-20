@@ -1,23 +1,27 @@
 name: GitGalaxy Zero-Trust Pipeline
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 permissions:
   contents: read
 
 jobs:
+  # ============================================================
+  # PRE-GATE — runs on every PR, blocks the merge on failure.
+  # Fast; no heavy ML/graph dependencies installed.
+  # ============================================================
   vault-sentinel:
+    if: github.event_name == 'pull_request'
     name: Vault Sentinel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: vault-sentinel
@@ -25,13 +29,13 @@ jobs:
           version: local
 
   xray-inspector:
+    if: github.event_name == 'pull_request'
     name: X-Ray Inspector
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: xray-inspector
@@ -39,15 +43,74 @@ jobs:
           version: local
 
   supply-chain-firewall:
+    if: github.event_name == 'pull_request'
     name: Supply Chain Firewall
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: supply-chain-firewall
           target: .
           version: local
+
+  # ============================================================
+  # POST-GATE — runs only once code is on main (merge or direct
+  # push). One galaxyscope pass produces all 6 outputs; we route
+  # 3 of them and let the rest live only in the ephemeral runner.
+  # --fail-on-malware stays on here too, as a safety net in case
+  # branch protection is ever bypassed.
+  # ============================================================
+  full-report:
+    if: github.event_name == 'push'
+    name: Full Report (SARIF, SBOM, LLM Brief)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # commits the LLM brief back to docs/
+      security-events: write # uploads SARIF to the Security tab
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy & Full Precision Engines
+        run: |
+          python -m pip install --upgrade pip
+          pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+
+      - name: Run GalaxyScope (single pass — all 6 outputs)
+        env:
+          GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+        run: |
+          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          sarif_file: gitgalaxy-results_sarif.json
+
+      - name: Upload SBOM as Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: gitgalaxy-sbom
+          path: gitgalaxy-results_sbom.json
+
+      - name: Commit LLM Brief to Docs
+        run: |
+          mkdir -p docs
+          mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/gitgalaxy_architecture_brief.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update LLM architectural brief" && git push)

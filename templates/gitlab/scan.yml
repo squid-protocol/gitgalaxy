@@ -1,23 +1,30 @@
 # GitGalaxy Enterprise Security Scanner
 # Integration: GitLab CI/CD Component
+#
+# This is a generic, single-tool component — call it once per tool to build
+# the 4-check Golden Path (vault-sentinel, xray-inspector,
+# supply-chain-firewall, galaxyscope). See github-action-readme.md for the
+# full tool directory. Only 'galaxyscope' accepts the args in the example
+# below (--config, --fail-on-malware, --sarif-only, --output); the three
+# sentinel tools take no flags beyond the target path.
 
 spec:
   inputs:
     tool:
-      description: "The GitGalaxy command to execute."
+      description: "The GitGalaxy command to execute (galaxyscope, vault-sentinel, xray-inspector, or supply-chain-firewall)."
       default: "galaxyscope"
     target:
       description: "The directory or file path to scan."
       default: "."
     args:
-      description: "Additional CLI arguments to pass to the tool."
-      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+      description: "Additional CLI arguments. Only meaningful for 'galaxyscope' — the sentinel tools accept no flags."
+      default: ""
     version:
       description: "The version of GitGalaxy to install from PyPI. Defaults to latest."
       default: "latest"
     full_precision:
-      description: "Opt-in to install heavy physics engines for Blast Radius and ML Threat Inference."
-      default: "true"
+      description: "Opt-in to install heavy physics engines for Blast Radius and ML Threat Inference. Only relevant when tool: galaxyscope."
+      default: "false"
 
 ---
 
@@ -38,7 +45,7 @@ gitgalaxy_scan:
     - export GG_VERSION="$[[ inputs.version ]]"
     - export GG_FULL_PRECISION="$[[ inputs.full_precision ]]"
     - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
-    
+
     - pip install --upgrade pip
     - |
       if [ "$GG_VERSION" = "local" ]; then
@@ -64,5 +71,7 @@ gitgalaxy_scan:
   artifacts:
     when: always
     reports:
+      # Only populated when tool: galaxyscope --sarif-only is used.
+      # Harmless no-op (GitLab just won't find the file) for the sentinel tools.
       sast: gitgalaxy-results_sarif.json
   allow_failure: false

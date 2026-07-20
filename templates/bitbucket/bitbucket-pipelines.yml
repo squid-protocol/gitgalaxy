@@ -13,44 +13,49 @@ clone:
 
 pipelines:
   default:
-    - step:
-        name: 'GitGalaxy Zero-Trust Spectral Audit'
-        caches:
-          - pip
-        script:
-          - export GG_TOOL="galaxyscope"
-          - export GG_TARGET="."
-          - export GG_ARGS="--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
-          - export GG_VERSION="latest"
-          - export GG_FULL_PRECISION="true"
-          - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+    - parallel:
+        - step:
+            name: 'Vault Sentinel'
+            caches:
+              - pip
+            script:
+              - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+              - pip install --upgrade pip
+              - pip install gitgalaxy
+              - vault-sentinel .
 
-          - pip install --upgrade pip
-          - |
-            if [ "$GG_VERSION" = "local" ]; then
-              echo "Dogfooding local GitGalaxy source..."
-              pip install -e .
-            elif [ "$GG_VERSION" = "latest" ]; then
-              echo "Installing latest GitGalaxy from PyPI..."
-              pip install gitgalaxy
-            else
-              echo "Installing GitGalaxy version ${GG_VERSION}..."
-              pip install "gitgalaxy==${GG_VERSION}"
-            fi
-          - |
-            if [ "$GG_FULL_PRECISION" = "true" ]; then
-              echo "Unlocking Full Precision Mode..."
-              pip install networkx tiktoken xgboost pandas numpy
-            else
-              echo "Running in ultra-fast Zero-Dependency Mode."
-            fi
+        - step:
+            name: 'X-Ray Inspector'
+            caches:
+              - pip
+            script:
+              - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+              - pip install --upgrade pip
+              - pip install gitgalaxy
+              - xray-inspector .
 
-          - |
-            echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
-            ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
-          # Publishes SARIF results as native Bitbucket Code Insights PR
-          # annotations. Requires bitbucket_insights.py (see header note).
-          - python bitbucket_insights.py gitgalaxy-results_sarif.json
-                    
-        artifacts:
-          - gitgalaxy-results_sarif.json
+        - step:
+            name: 'Supply Chain Firewall'
+            caches:
+              - pip
+            script:
+              - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+              - pip install --upgrade pip
+              - pip install gitgalaxy
+              - supply-chain-firewall .
+
+        - step:
+            name: 'GalaxyScope Reporting (SARIF + ML Malware Gate)'
+            caches:
+              - pip
+            script:
+              - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
+              - pip install --upgrade pip
+              - pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+              - |
+                galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output gitgalaxy-results.json
+              # Publishes SARIF results as native Bitbucket Code Insights PR
+              # annotations. Requires bitbucket_insights.py (see header note).
+              - python bitbucket_insights.py gitgalaxy-results_sarif.json
+            artifacts:
+              - gitgalaxy-results_sarif.json

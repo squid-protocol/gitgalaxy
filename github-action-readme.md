@@ -4,7 +4,9 @@
 [![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Physics-00BFFF.svg)](#)
 [![Security](https://img.shields.io/badge/Security-Zero--Trust_Enforcement-FF4500.svg)](#)
 
-GitGalaxy is an AST-free, high-velocity heuristic engine for codebase architecture and DevSecOps. Instead of relying on slow static parsers, it scans raw source text for structural signals, without requiring code to compile. This GitHub Action drops our security sentinels, AI-agent guardrails, and architectural cartography tools directly into your CI/CD pipeline, and can automatically generate living architectural documentation.
+Gitgalaxy is a static analysis tool that can assess full repos, comprised of mixes of 50+ different languages and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. 
+
+This GitHub Action drops our security sentinels, AI-agent guardrails, and architectural cartography tools directly into your CI/CD pipeline, and can automatically generate living architectural documentation.
 
 For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-the-blast-paradigm.md) and our [Security Landscape Overview](docs/wiki/04-00-security_landscape.md).
 
@@ -14,6 +16,7 @@ For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-t
 
 For standard PR gating, use the **3-job Zero-Trust Sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `supply-chain-firewall` run in parallel, and any one of them can fail the build.
 
+Rather than pasting the workflow here (which is exactly how our version pins drifted out of sync last time), use the maintained template directly:
 
 **➡️ [`templates/github/gitgalaxy-pipeline.yml`](templates/github/gitgalaxy-pipeline.yml)** — copy this file to `.github/workflows/gitgalaxy-pipeline.yml` in your repo.
 
@@ -65,7 +68,7 @@ This is genuinely optional, and separate for a reason: it's the only job in this
 The `tool` input determines which GitGalaxy program executes. Choose the right tool for your specific pipeline stage:
 
 ### 1. The Orchestrator (Reporting & Observability)
-* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates 19-point risk physics (Cognitive Load, State Flux, Instructional Density, and more), runs ML threat inference, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs). *Does not fail the pipeline; strictly for reporting and cartography.*
+* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates 19-point risk physics (Cognitive Load, State Flux, Instructional Density, and more), runs ML threat inference, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Does not fail the pipeline; strictly for reporting and cartography.*
 
 ### 2. The Sentinels (Zero-Trust Enforcement)
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
@@ -79,7 +82,6 @@ The `tool` input determines which GitGalaxy program executes. Choose the right t
 * **[`dev-agent-firewall`](docs/wiki/02-18-dev-agent-firewall.md)**: Evaluates algorithmic complexity and blast radius to determine if an AI has the context to safely modify the code. Flags "Context Window Black Holes" and enforces Human-in-the-Loop (HITL) mandates for highly volatile infrastructure.
 
 ### 4. Specialized Hunters & Artifacts (Targeted Audits)
-* **[`zero-trust-sbom`](docs/wiki/04-02-sbom-generator.md)**: Generates a universally compliant CycloneDX 1.4 JSON SBOM. Unlike standard tools that blindly trust manifests, this engine physically verifies packages on disk, flagging high-entropy code and spoofed files.
 * **[`api-network-map`](docs/wiki/04-01-full-api-network-map.md)**: Compares physical source-code routing against official OpenAPI/Swagger specs to hunt down undocumented **Shadow APIs** (Security Risks) and **Ghost APIs** (Audit Bloat).
 * **[`pii-leak-hunter`](docs/wiki/04-06-pii-leak-hunter.md)**: A high-velocity streaming binary scanner for massive, single files. Scrubs database dumps or raw production logs for exposed VISA, Mastercard, SSN, and AWS keys, generating a safely masked evidence log.
 
@@ -94,10 +96,8 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 | `tool` | Yes | `galaxyscope` | The specific executable to run (see Tool Directory above). |
 | `target` | Yes | `.` | The directory or specific file path to scan. |
 | `args` | No | `""` | Additional CLI arguments passed directly to the tool. |
-| `version` | No | `latest` | Pin to a specific **PyPI package version** of GitGalaxy (not the Action's own version tag — see [release history](https://pypi.org/project/gitgalaxy/#history) for available versions). |
+| `version` | No | `latest` | Pin to a specific version of GitGalaxy (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases) for available versions). |
 | `full_precision` | No | `false` | Set to `'true'` to install heavy physics engines (`networkx`, `tiktoken`, `xgboost`) for Blast Radius math and ML Threat Inference. |
-
-> **Note:** the `version` input and the `squid-protocol/gitgalaxy@v2.4.0` tag in your `uses:` line are two different version numbers on two different release schedules — one is the PyPI package (currently in the 6.x series), the other is this Action's own release tag. Don't assume they move together.
 
 ### 🛡️ Understanding the `--paranoid` Flag
 
@@ -111,14 +111,15 @@ When passing arguments via `args`, the `--paranoid` flag allows you to control t
 ## 🛠️ Advanced Integration Examples
 
 ### Universal Zero-Trust SBOM Generation
-Generate a physical-verified CycloneDX SBOM to attach to a release.
+Generate a physical-verified CycloneDX SBOM to attach to a release. SBOM generation is native to `galaxyscope` — see the [SBOM generator reference](docs/wiki/04-02-sbom-generator.md).
 
 ```yaml
       - name: Generate Physical SBOM
         uses: squid-protocol/gitgalaxy@v2.4.0
         with:
-          tool: 'zero-trust-sbom'
+          tool: 'galaxyscope'
           target: '.'
+          args: '--sbom-only'
 
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4

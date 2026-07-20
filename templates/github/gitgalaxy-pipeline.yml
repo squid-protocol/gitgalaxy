@@ -35,3 +35,35 @@ jobs:
         with:
           tool: 'supply-chain-firewall'
           target: '.'
+
+  galaxyscope-report:
+    name: GalaxyScope Reporting (SARIF + ML Malware Gate)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required to upload SARIF to the Security tab
+    env:
+      GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install GitGalaxy & Full Precision Engines
+        run: |
+          python -m pip install --upgrade pip
+          pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Execute Zero-Trust Spectral Audit
+        run: |
+          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output gitgalaxy-results.json
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: gitgalaxy-results_sarif.json

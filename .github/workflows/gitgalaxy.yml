@@ -92,7 +92,7 @@ jobs:
         env:
           GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
         run: |
-          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results
+          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
 
       - name: Upload SARIF to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4

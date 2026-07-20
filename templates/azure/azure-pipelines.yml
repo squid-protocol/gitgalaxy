@@ -26,12 +26,12 @@ stages:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.12'
-    - checkout: self
-      fetchDepth: 0
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy
       displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
     - script: vault-sentinel .
       displayName: 'Run Vault Sentinel'
 
@@ -43,12 +43,12 @@ stages:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.12'
-    - checkout: self
-      fetchDepth: 0
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy
       displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
     - script: xray-inspector .
       displayName: 'Run X-Ray Inspector'
 
@@ -60,12 +60,12 @@ stages:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.12'
-    - checkout: self
-      fetchDepth: 0
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy
       displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
     - script: supply-chain-firewall .
       displayName: 'Run Supply Chain Firewall'
 
@@ -83,12 +83,12 @@ stages:
         path: $(PIP_CACHE_DIR)
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
-    - checkout: self
-      fetchDepth: 0
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
+    - checkout: self
+      fetchDepth: 0
     - script: |
         galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json
       displayName: 'Execute Zero-Trust Spectral Audit'

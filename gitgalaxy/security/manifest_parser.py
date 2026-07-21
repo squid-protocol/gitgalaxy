@@ -163,7 +163,7 @@ class ManifestParser:
 
                 # Look for custom registry routing definitions
                 if "index-url" in line or "extra-index-url" in line or "repository" in line:
-                    parts = line.split("=")
+                    parts = line.split("=", 1)
                     if len(parts) == 2:
                         url = parts[1].strip()
 

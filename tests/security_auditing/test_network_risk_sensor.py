@@ -186,3 +186,151 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         assert (
             foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0
         )  # Math is disabled
+
+
+# ==============================================================================
+# MOCK: DUPLICATE FILENAME TOPOLOGY (Regression tests for #261)
+# ==============================================================================
+# Two files share the stem "utils" in different directories — the exact
+# "last file wins" scenario from #261. Resolution must never silently
+# misattribute an edge to the wrong file just because a bare import token
+# happens to collide with another file's name.
+
+DUPLICATE_FILENAME_FILES = [
+    {
+        "path": "/src/service_a/utils.py",
+        "raw_imports": [],
+    },
+    {
+        "path": "/src/service_b/utils.py",
+        "raw_imports": [],
+    },
+    {
+        "path": "/src/service_a/handler.py",
+        # Bare stem import — genuinely ambiguous between the two "utils.py"
+        # files. Must NOT silently resolve to either one.
+        "raw_imports": ["utils"],
+    },
+    {
+        "path": "/src/service_b/router.py",
+        # Path-qualified import — enough context to disambiguate to
+        # service_b/utils.py specifically, even though "utils" alone is
+        # ambiguous.
+        "raw_imports": ["service_b/utils"],
+    },
+]
+
+
+@pytest.fixture
+def duplicate_filename_universe():
+    """Returns a fresh copy of the duplicate-filename mock universe for each test."""
+    return copy.deepcopy(DUPLICATE_FILENAME_FILES)
+
+
+# ==============================================================================
+# TEST 6: DUPLICATE FILENAME — AMBIGUOUS BARE IMPORT IS SKIPPED, NOT GUESSED (#261)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_duplicate_filename_ambiguous_import_skipped(
+    sensor, duplicate_filename_universe
+):
+    """
+    Regression test for #261: when a bare import token ("utils") matches
+    multiple files sharing that stem across directories, the resolver must
+    refuse to guess — not silently wire the edge to whichever file happened
+    to be processed last.
+    """
+    mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
+
+    service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
+    service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")
+
+    assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "Ambiguous 'utils' import was silently misattributed to service_a/utils.py!"
+    )
+    assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "Ambiguous 'utils' import was silently misattributed to service_b/utils.py!"
+    )
+
+
+# ==============================================================================
+# TEST 7: DUPLICATE FILENAME — PATH-QUALIFIED IMPORT DISAMBIGUATES CORRECTLY (#261)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_duplicate_filename_path_qualified_import_resolves(
+    sensor, duplicate_filename_universe
+):
+    """
+    Regression test for #261: when the import token carries enough path
+    context ("service_b/utils"), the resolver must wire the edge to the
+    correct file, not the other file sharing the same bare stem.
+    """
+    mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
+
+    service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
+    service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")
+
+    assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 1, (
+        "Path-qualified 'service_b/utils' import failed to resolve to the correct file!"
+    )
+    assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "Path-qualified 'service_b/utils' import was incorrectly wired to service_a/utils.py!"
+    )
+
+
+# ==============================================================================
+# TEST 8: DUPLICATE FILENAME — FALLBACK (ZERO-DEPENDENCY) MODE (#261)
+# ==============================================================================
+def test_network_duplicate_filename_fallback_mode(sensor, duplicate_filename_universe):
+    """
+    Regression test for #261 in the pure-Python fallback path
+    (_fallback_build_graph): the same ambiguity-safe resolution must apply
+    even when NetworkX isn't installed.
+    """
+    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
+        mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
+
+        service_a_utils = next(
+            f for f in mapped_files if f["path"] == "/src/service_a/utils.py"
+        )
+        service_b_utils = next(
+            f for f in mapped_files if f["path"] == "/src/service_b/utils.py"
+        )
+
+        assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0
+        assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 1
+
+
+# ==============================================================================
+# TEST 9: DUPLICATE FILENAME — TEST COVERAGE MAPPING (#261)
+# ==============================================================================
+def test_coverage_mapping_duplicate_filename_ambiguous(sensor):
+    """
+    Regression test for #261 in extract_test_coverage_mapping: an ambiguous
+    bare import from a test file must not misattribute coverage to the
+    wrong production file sharing the same stem.
+    """
+    files = [
+        {"path": "/src/service_a/utils.py", "raw_imports": []},
+        {"path": "/src/service_b/utils.py", "raw_imports": []},
+        {
+            "path": "/tests/test_utils.py",
+            "raw_imports": ["utils"],  # ambiguous bare stem
+            "functions": [
+                {
+                    "calls_out_to": ["helper_fn"],
+                    "impact": 1.0,
+                    "hit_vector": {"test": 1, "test_skip": 0, "decorators": 0},
+                }
+            ],
+        },
+    ]
+
+    coverage_map = sensor.extract_test_coverage_mapping(files)
+
+    assert "/src/service_a/utils.py" not in coverage_map, (
+        "Ambiguous 'utils' import misattributed test coverage to service_a/utils.py!"
+    )
+    assert "/src/service_b/utils.py" not in coverage_map, (
+        "Ambiguous 'utils' import misattributed test coverage to service_b/utils.py!"
+    )

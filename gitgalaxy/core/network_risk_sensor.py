@@ -63,7 +63,21 @@ class NetworkRiskSensor:
         Resolves an import token to a single file path, refusing to guess when
         genuinely ambiguous rather than silently misattributing an edge.
         """
+        token_as_path = target_token.replace(".", "/").replace("\\", "/")
+
+        # Stage 1: direct key lookup — handles full-path, bare-filename, and
+        # bare-stem tokens that match a stored key exactly.
         candidates = resolution_map.get(target_token)
+
+        # Stage 1b: compound tokens (e.g. "service_b/utils" or "pkg.utils")
+        # are never stored as map keys directly — resolution_map only holds
+        # full paths, bare filenames, and bare stems. Fall back to the
+        # token's final path component so there's something to disambiguate
+        # against in Stage 2.
+        if not candidates:
+            bare_component = token_as_path.rsplit("/", 1)[-1]
+            candidates = resolution_map.get(bare_component)
+
         if not candidates:
             return None
 
@@ -71,12 +85,12 @@ class NetworkRiskSensor:
         if len(candidates) == 1:
             return candidates[0]
 
-        # Multiple files share this name/stem — try to disambiguate using
-        # any path context already present in the token (e.g. "pkg/utils"
-        # or "pkg.utils" rather than a bare "utils").
-        token_as_path = target_token.replace(".", "/")
+        # Stage 2: multiple files share this name/stem — disambiguate using
+        # any path context already present in the token, comparing against
+        # each candidate's path with its extension stripped.
         path_matches = [
-            c for c in candidates if c.replace("\\", "/").endswith(token_as_path)
+            c for c in candidates
+            if str(Path(c).with_suffix("")).replace("\\", "/").endswith(token_as_path)
         ]
         if len(path_matches) == 1:
             return path_matches[0]

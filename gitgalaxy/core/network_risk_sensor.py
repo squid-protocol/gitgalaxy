@@ -4,6 +4,7 @@
 # ==============================================================================
 import logging
 import math
+from collections import defaultdict
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
@@ -31,6 +32,62 @@ class NetworkRiskSensor:
         self.logger = parent_logger.getChild("network_sensor") if parent_logger else logging.getLogger("network_sensor")
         self.RISK_SCHEMA = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
 
+    def _build_resolution_map(self, files: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        """
+        Maps each lookup key (full path, filename, stem) to ALL candidate file
+        paths sharing that key — never silently overwrites on duplicate
+        filenames. Full-path keys are always unambiguous; name/stem keys may
+        resolve to multiple candidates in monorepos with duplicate filenames
+        across directories.
+        """
+        resolution_map: Dict[str, List[str]] = defaultdict(list)
+        for f in files:
+            path = f.get("path", "")
+            if not path:
+                continue
+            name = f.get("name", Path(path).name)
+            stem = Path(path).stem
+
+            resolution_map[path].append(path)
+            if name:
+                resolution_map[name].append(path)
+            if stem:
+                resolution_map[stem].append(path)
+
+        return resolution_map
+
+    def _resolve_target(
+        self, target_token: str, resolution_map: Dict[str, List[str]], curr_path: str
+    ) -> Optional[str]:
+        """
+        Resolves an import token to a single file path, refusing to guess when
+        genuinely ambiguous rather than silently misattributing an edge.
+        """
+        candidates = resolution_map.get(target_token)
+        if not candidates:
+            return None
+
+        candidates = list(dict.fromkeys(candidates))  # de-dupe, preserve order
+        if len(candidates) == 1:
+            return candidates[0]
+
+        # Multiple files share this name/stem — try to disambiguate using
+        # any path context already present in the token (e.g. "pkg/utils"
+        # or "pkg.utils" rather than a bare "utils").
+        token_as_path = target_token.replace(".", "/")
+        path_matches = [
+            c for c in candidates if c.replace("\\", "/").endswith(token_as_path)
+        ]
+        if len(path_matches) == 1:
+            return path_matches[0]
+
+        # Still ambiguous — skip rather than misattribute.
+        self.logger.debug(
+            f"Ambiguous import token '{target_token}' matches {len(candidates)} "
+            f"files {candidates}; skipping edge from '{curr_path}'."
+        )
+        return None
+
     def extract_test_coverage_mapping(self, files: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
         """
         Maps function calls from test files to their imported production targets.
@@ -41,15 +98,7 @@ class NetworkRiskSensor:
         the exact architectural "Dependency Blast Radius" of untested functions.
         """
         coverage_map = {}
-        resolution_map = {}
-
-        # 1. Build resolution map
-        for f in files:
-            path = f.get("path", "")
-            if path:
-                resolution_map[path] = path
-                resolution_map[Path(path).name] = path
-                resolution_map[Path(path).stem] = path
+        resolution_map = self._build_resolution_map(files)
 
         # 2. Identify Test Files and extract their outgoing invocations
         for f in files:
@@ -65,7 +114,7 @@ class NetworkRiskSensor:
             target_paths = set()
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                target_path = resolution_map.get(target_token)
+                target_path = self._resolve_target(target_token, resolution_map, path)
 
                 if target_path and target_path != path:
                     target_paths.add(target_path)
@@ -112,17 +161,9 @@ class NetworkRiskSensor:
         G = nx.DiGraph()
 
         # 1. Build the Resolution Map (Fast Path Lookup)
-        resolution_map = {}
+        resolution_map = self._build_resolution_map(parsed_files)
         for f in parsed_files:
             path = f.get("path", "")
-            name = f.get("name", Path(path).name)
-            stem = Path(path).stem
-            if path:
-                resolution_map[path] = path
-            if name:
-                resolution_map[name] = path
-            if stem:
-                resolution_map[stem] = path
 
             # Extract Max Algorithmic Complexity for the node
             funcs = f.get("functions", [])
@@ -151,15 +192,14 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                if target_token in resolution_map:
-                    target_path = resolution_map[target_token]
-                    if target_path != curr_path:
-                        # Edge weight can be increased if specific entities are highly coupled
-                        weight = 1.5 if entity else 1.0
-                        if G.has_edge(curr_path, target_path):
-                            G[curr_path][target_path]["weight"] += weight
-                        else:
-                            G.add_edge(curr_path, target_path, weight=weight)
+                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                if target_path and target_path != curr_path:
+                    # Edge weight can be increased if specific entities are highly coupled
+                    weight = 1.5 if entity else 1.0
+                    if G.has_edge(curr_path, target_path):
+                        G[curr_path][target_path]["weight"] += weight
+                    else:
+                        G.add_edge(curr_path, target_path, weight=weight)
 
         # =========================================================================
         # 3. NETWORK MATHEMATICS (Dependency Blast Radius & Centrality)
@@ -333,17 +373,7 @@ class NetworkRiskSensor:
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode. Using linear counting for Ecosystem Roles."
         )
 
-        resolution_map = {}
-        for f in parsed_files:
-            p = f.get("path", "")
-            if p:
-                resolution_map[p] = p
-            name = f.get("name", Path(p).name)
-            if name:
-                resolution_map[name] = p
-            stem = Path(p).stem
-            if stem:
-                resolution_map[stem] = p
+        resolution_map = self._build_resolution_map(parsed_files)
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -352,11 +382,10 @@ class NetworkRiskSensor:
             curr_path = f.get("path", "")
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                if target_token in resolution_map:
-                    target_path = resolution_map[target_token]
-                    if target_path != curr_path:
-                        out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
-                        in_degrees[target_path] = in_degrees.get(target_path, 0) + 1
+                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                if target_path and target_path != curr_path:
+                    out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
+                    in_degrees[target_path] = in_degrees.get(target_path, 0) + 1
 
         for f in parsed_files:
             path = f.get("path", "")

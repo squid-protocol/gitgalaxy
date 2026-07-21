@@ -227,12 +227,37 @@ def duplicate_filename_universe():
     return copy.deepcopy(DUPLICATE_FILENAME_FILES)
 
 
+# Isolated universe for the pure-ambiguity test — deliberately excludes
+# router.py's path-qualified import, which legitimately resolves and would
+# otherwise contaminate service_b/utils.py's in_degree count.
+AMBIGUOUS_ONLY_FILES = [
+    {
+        "path": "/src/service_a/utils.py",
+        "raw_imports": [],
+    },
+    {
+        "path": "/src/service_b/utils.py",
+        "raw_imports": [],
+    },
+    {
+        "path": "/src/service_a/handler.py",
+        "raw_imports": ["utils"],  # bare, genuinely ambiguous stem
+    },
+]
+
+
+@pytest.fixture
+def ambiguous_only_universe():
+    """Returns a fresh copy of the pure-ambiguity mock universe for each test."""
+    return copy.deepcopy(AMBIGUOUS_ONLY_FILES)
+
+
 # ==============================================================================
 # TEST 6: DUPLICATE FILENAME — AMBIGUOUS BARE IMPORT IS SKIPPED, NOT GUESSED (#261)
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_duplicate_filename_ambiguous_import_skipped(
-    sensor, duplicate_filename_universe
+    sensor, ambiguous_only_universe
 ):
     """
     Regression test for #261: when a bare import token ("utils") matches
@@ -240,7 +265,7 @@ def test_network_duplicate_filename_ambiguous_import_skipped(
     refuse to guess — not silently wire the edge to whichever file happened
     to be processed last.
     """
-    mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
+    mapped_files, metrics = sensor.build_dependency_graph(ambiguous_only_universe)
 
     service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
     service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")

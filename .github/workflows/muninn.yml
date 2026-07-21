@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Muninn
         # zizmor: ignore[github_action_from_unverified_creator_used]
-        uses: skaldlab/muninn@c3b5b13e4599d1c3f68280d24d64e403a306f542 # v0.3.4
+        uses: skaldlab/muninn@365628a795478e870417bf9e395a0ecc63685442 # v0.3.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-on: info

@@ -283,8 +283,14 @@ class UniversalManifestSlicer:
                     for artifact, version in deps_raw:
                         deps[artifact] = version if version else "latest"
 
-        except Exception:
-            pass
+        except Exception as exc:
+            logging.getLogger("manifest_parser").warning(
+                "Failed to parse manifest '%s' (%s): %s",
+                manifest_path,
+                filename,
+                exc,
+                exc_info=exc,
+            )
 
         return ecosystem, deps
 

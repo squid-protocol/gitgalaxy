@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from unittest.mock import patch
 
 from gitgalaxy.security.dependency_audit_cache import DependencyAuditCache

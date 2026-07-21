@@ -298,17 +298,15 @@ class Prism:
             elif fam_key == "single_line_only" and len(d) >= 1:
                 p = rf"({d[0]}[^\n]*)"
             elif fam_key == "embedded_syntax" and len(d) >= 3:
-                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
-            elif fam_key == "multi_style_dash" and len(d) >= 5:
-                p = rf"({d[1]}.*?{d[2]}|{d[3]}.*?{d[4]}|{d[0]}[^\n]*)"
-            elif fam_key == "multi_style_dash" and len(d) >= 3:  # Fallback
-                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
-            elif fam_key == "embedded_syntax" and len(d) >= 3:
                 # If len is 4, include d[3], otherwise just [0,1,2]
                 if len(d) >= 4:
                     p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*|{d[3]}[^\n]*)"
                 else:
                     p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
+            elif fam_key == "multi_style_dash" and len(d) >= 5:
+                p = rf"({d[1]}.*?{d[2]}|{d[3]}.*?{d[4]}|{d[0]}[^\n]*)"
+            elif fam_key == "multi_style_dash" and len(d) >= 3:  # Fallback
+                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
             elif fam_key == "single_line_only":
                 # =====================================================================
                 # THE FIX: Neutralized the Zero-Width ReDoS Bomb.

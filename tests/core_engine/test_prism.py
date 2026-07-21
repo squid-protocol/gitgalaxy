@@ -264,6 +264,9 @@ def test_prism_regex_matrix_calibration_edge_cases():
     assert "multi_style_dash" in engine_primary.REGEX_MATRIX
     assert re.escape("{-") in engine_primary.REGEX_MATRIX["multi_style_dash"].pattern
     assert "embedded_syntax" in engine_primary.REGEX_MATRIX
+    # Regression for #258: confirms the 4th delimiter ("#") wasn't silently
+    # dropped by the unreachable duplicate elif branch.
+    assert "#" in engine_primary.REGEX_MATRIX["embedded_syntax"].pattern
 
     # 2. Fallback Branches (Partial Delimiter Sets)
     fallback_families = {
@@ -279,6 +282,25 @@ def test_prism_regex_matrix_calibration_edge_cases():
     assert "multi_style_dash" in engine_fallback.REGEX_MATRIX
 
     # We check if the safely escaped version of '
+    
+def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
+    """
+    Regression test for #258: an embedded_syntax family configured with a
+    4th delimiter must actually use it when stripping comments, not silently
+    lose it to an unreachable duplicate elif branch.
+    """
+    prism_engine.languages["configlang"] = {"lexical_family": "embedded_syntax"}
+    prism_engine.lexical_families["embedded_syntax"] = {
+        "delimiters": ["//", "/*", "*/", "#"]
+    }
+    prism_engine.REGEX_MATRIX = prism_engine._compile_regex_matrix()
+
+    content = "value = 1 # this is a hash comment\nother = 2"
+    result = prism_engine.split_streams(content, primary_lang="configlang")
+
+    assert "value = 1" in result["code_stream"]
+    assert "this is a hash comment" in result["comment_stream"]
+    assert "this is a hash comment" not in result["code_stream"]
 
 # ==============================================================================
 # TEST 10: INLINE SUPPRESSION EXTRACTION (Devious Edge Cases)

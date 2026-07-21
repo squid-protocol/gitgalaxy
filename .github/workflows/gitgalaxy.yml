@@ -68,49 +68,57 @@ jobs:
     name: Full Report (SARIF, SBOM, LLM Brief)
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # commits the LLM brief back to docs/
-      security-events: write # uploads SARIF to the Security tab
+      contents: write
+      pull-requests: write   # NEW — required for create-pull-request to open the PR
+      security-events: write
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository          # unchanged
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Setup Python
+      - name: Setup Python                 # unchanged
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install GitGalaxy & Full Precision Engines
+      - name: Install GitGalaxy & Full Precision Engines   # unchanged
         run: |
           python -m pip install --upgrade pip
           pip install gitgalaxy networkx tiktoken xgboost pandas numpy
 
-      - name: Run GalaxyScope (single pass — all 6 outputs)
+      - name: Run GalaxyScope (single pass — all 6 outputs)   # unchanged
         env:
           GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
         run: |
           galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
 
-      - name: Upload SARIF to GitHub Security Tab
+      - name: Upload SARIF to GitHub Security Tab   # unchanged
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
         with:
           sarif_file: gitgalaxy-results_sarif.json
 
-      - name: Upload SBOM as Build Artifact
+      - name: Upload SBOM as Build Artifact   # unchanged
         uses: actions/upload-artifact@v7
         with:
           name: gitgalaxy-sbom
           path: gitgalaxy-results_sbom.json
 
-      - name: Commit LLM Brief to Docs
+      # --- everything below here REPLACES the old "Commit LLM Brief to Docs" step ---
+      - name: Prepare LLM Brief
         run: |
           mkdir -p docs
           mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
 
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/gitgalaxy_architecture_brief.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update LLM architectural brief" && git push)
+      - name: Open PR with Updated LLM Brief
+        uses: squid-protocol/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # forked from peter-evans/create-pull-request v8.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: auto-update LLM architectural brief"
+          title: "docs: auto-update LLM architectural brief"
+          body: "Automated update from the latest GalaxyScope scan on `main`."
+          branch: auto/llm-architecture-brief
+          delete-branch: true
+          add-paths: docs/gitgalaxy_architecture_brief.md

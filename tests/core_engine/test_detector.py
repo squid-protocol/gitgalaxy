@@ -517,6 +517,10 @@ def test_detector_ghost_tether_and_metadata():
     assert "internal docstring tethered" in func["docstring"], (
         "Failed to tether the docstring to the physical function bounds!"
     )
+    # Regression guard for #246
+    assert "return True" not in func["docstring"], (
+        "Docstring extraction ran past the closing delimiter and swallowed code!"
+    )
 
 
 # ==============================================================================
@@ -1363,10 +1367,17 @@ def test_detector_harvest_below_docstrings():
         "    pass\n"
     )
     result = opt.splice(code, "", raw_content=code)
-    
+
     assert len(result["functions"]) == 1
-    assert "docstring below the def" in result["functions"][0]["docstring"], (
+    docstring = result["functions"][0]["docstring"]
+    assert "docstring below the def" in docstring, (
         "Ghost Tether failed to harvest docstrings below the function!"
+    )
+    # Regression guard for #246: the bare closing "'''" was previously
+    # misclassified as an opening marker, letting the scan run past it
+    # and swallow subsequent code into the docstring field.
+    assert "pass" not in docstring, (
+        "Docstring extraction ran past the closing delimiter and swallowed code!"
     )
 
 
@@ -1539,3 +1550,73 @@ def test_detector_exact_loc_mapping():
     assert "sec_hardcoded_secrets" in threat_locations, "Failed to map threat location!"
     assert threat_locations["sec_hardcoded_secrets"][0] == 5, f"Expected line 5, got {threat_locations['sec_hardcoded_secrets'][0]}"
     assert threat_locations["high_risk_execution"][0] == 6, "Failed to map subsequent line threat!"
+
+# ==============================================================================
+# TEST: DOCSTRING EXTRACTION STOPS AT A STAND-ALONE CLOSING """ (#246)
+# ==============================================================================
+def test_detector_docstring_stops_at_standalone_closing_triple_quote():
+    """
+    Regression test for #246: the exact PEP 257 shape from the bug report —
+    opening \"\"\" alone, summary line, closing \"\"\" alone — must not let
+    the scan run past the closing line into subsequent code.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "def foo():\n"
+        '    """\n'
+        "    Summary line.\n"
+        '    """\n'
+        "    return 1\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary line." in docstring
+    assert "return 1" not in docstring, (
+        "Docstring extraction swallowed the function body past the closing delimiter!"
+    )
+
+
+def test_detector_single_line_docstring_still_terminates_correctly():
+    """
+    Regression guard for #246: confirms the len(nxt) > 3 single-line-docstring
+    check still works correctly under the refactored state tracking — a
+    docstring that opens AND closes on the same line must stop immediately
+    and not bleed into the next line.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "def bar():\n"
+        '    """Summary on one line."""\n'
+        "    return 2\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary on one line." in docstring
+    assert "return 2" not in docstring
+
+
+def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
+    """
+    Regression guard for #246's underlying fix: if 'harvest above' (step 1)
+    already populated doc_buffer before the below-docstring scan (step 2)
+    begins, step 2's first line must still be evaluated as a potential
+    OPENING line, not misclassified as a continuation of unrelated content.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "# Architect: Ada Lovelace\n"
+        "def baz():\n"
+        '    """\n'
+        "    Summary line.\n"
+        '    """\n'
+        "    return 3\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary line." in docstring
+    assert "return 3" not in docstring, (
+        "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
+    )

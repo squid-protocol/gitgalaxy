@@ -719,20 +719,32 @@ class StructuralExtractor:
 
         # 2. Harvest Below (Python docstrings, MATLAB help, Ruby =begin)
         if lang_id in ("python", "matlab", "ruby", "elixir"):
+            in_below_doc = False
             for j in range(i + 1, min(len(self.raw_content_lines), i + 10)):
                 nxt = self.raw_content_lines[j].strip()
                 if not nxt:
                     continue
-                if nxt.startswith(('"""', "'''", "%", "#", "=begin")):
-                    doc_buffer.append(nxt)
-                    if len(nxt) > 3 and (nxt.endswith('"""') or nxt.endswith("'''")):
+                if not in_below_doc:
+                    # Only the FIRST non-blank line below the signature is
+                    # checked for whether it opens a docstring/comment block.
+                    # A subsequent line (e.g. a stand-alone closing '"""')
+                    # must never be re-tested against this branch (#246) —
+                    # once we're inside the block, only the elif below
+                    # applies, regardless of what the line itself starts with.
+                    if nxt.startswith(('"""', "'''", "%", "#", "=begin")):
+                        doc_buffer.append(nxt)
+                        in_below_doc = True
+                        # Single-line docstring: opens AND closes on the same
+                        # line (e.g. """Summary."""). len(nxt) > 3 excludes a
+                        # bare 3-char opening marker with nothing else on it.
+                        if len(nxt) > 3 and (nxt.endswith('"""') or nxt.endswith("'''")):
+                            break
+                    else:
                         break
-                elif len(doc_buffer) > 0:
+                else:
                     doc_buffer.append(nxt)
                     if nxt.endswith('"""') or nxt.endswith("'''") or nxt == "=end":
                         break
-                else:
-                    break
 
         return "\n".join(doc_buffer)[:2000]  # Cap at 2000 chars to prevent DB bloat
 

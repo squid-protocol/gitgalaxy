@@ -98,7 +98,7 @@ class IRStateManager:
                 "dead_paras": dead_paras,
                 "orphaned_vars": orphaned_vars,
             }
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             for p in dead_paras:
                 cursor.execute(
@@ -115,24 +115,26 @@ class IRStateManager:
     def get_dead_paras(self, program_id: str) -> set:
         if self.mode == "RAM":
             return self.ram_ir.get(program_id, {}).get("dead_paras", set())
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             cursor.execute(
                 "SELECT entity_name FROM Graveyard WHERE program_id=? AND entity_type='PARAGRAPH'",
                 (program_id,),
             )
             return {row[0] for row in cursor.fetchall()}
+        return set()
 
     def get_orphaned_vars(self, program_id: str) -> set:
         if self.mode == "RAM":
             return self.ram_ir.get(program_id, {}).get("orphaned_vars", set())
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             cursor.execute(
                 "SELECT entity_name FROM Graveyard WHERE program_id=? AND entity_type='VARIABLE'",
                 (program_id,),
             )
             return {row[0] for row in cursor.fetchall()}
+        return set()
 
     def close(self):
         if self.conn:

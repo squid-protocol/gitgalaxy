@@ -282,3 +282,25 @@ def test_main_full_orchestration(tmp_path, capsys):
     assert "Bloat Removed: ~50 Lines" in audit_text, (
         "Failed to aggregate Graveyard Reaper stats!"
     )
+
+# ==============================================================================
+# TEST 8: IRStateManager Unsafe Connection & Fallback Returns
+# ==============================================================================
+def test_ir_state_manager_unsafe_conn_and_fallback(tmp_path):
+    """
+    Proves the IRStateManager safely handles an unexpected None connection 
+    and invalid modes without crashing, returning empty sets as required.
+    """
+    # 1. Test invalid mode (Missing returns fix)
+    invalid_mgr = controller_module.IRStateManager("UNKNOWN_MODE", tmp_path)
+    assert invalid_mgr.get_dead_paras("PGM") == set(), "Failed to return empty set on invalid mode!"
+    assert invalid_mgr.get_orphaned_vars("PGM") == set(), "Failed to return empty set on invalid mode!"
+    
+    # 2. Test SQLITE mode but connection drops/is None (Unsafe connection fix)
+    sql_mgr = controller_module.IRStateManager("SQLITE", tmp_path)
+    sql_mgr.conn = None # Force the connection to drop
+    
+    # Should not raise an AttributeError
+    sql_mgr.record_dead_code("PGM", {"PARA"}, {"VAR"})
+    assert sql_mgr.get_dead_paras("PGM") == set(), "Failed to return empty set on dropped connection!"
+    assert sql_mgr.get_orphaned_vars("PGM") == set(), "Failed to return empty set on dropped connection!"

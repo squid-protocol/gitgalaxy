@@ -595,27 +595,27 @@ class LLMRecorder:
         if debt_idx >= 0:
             high_debt = sorted(
                 [s for s in parsed_files if len(s.get("risk_vector", [])) > debt_idx],
-                key=lambda x: x.get("risk_vector")[debt_idx],
+                key=lambda x: x.get("risk_vector", [])[debt_idx],
                 reverse=True,
             )[:5]
-            if high_debt and high_debt[0].get("risk_vector")[debt_idx] > 0:
+            if high_debt and high_debt[0].get("risk_vector", [])[debt_idx] > 0:
                 lines.append("### Highest Tech Debt (Fragile/Planned)")
                 for s in high_debt:
-                    if s.get("risk_vector")[debt_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[debt_idx]}%** Exposure")
+                    if s.get("risk_vector", [])[debt_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure")
 
         flux_idx = self.RISK_SCHEMA.index("state_flux") if "state_flux" in self.RISK_SCHEMA else -1
         if flux_idx >= 0:
             high_flux = sorted(
                 [s for s in parsed_files if len(s.get("risk_vector", [])) > flux_idx],
-                key=lambda x: x.get("risk_vector")[flux_idx],
+                key=lambda x: x.get("risk_vector", [])[flux_idx],
                 reverse=True,
             )[:5]
-            if high_flux and high_flux[0].get("risk_vector")[flux_idx] > 0:
+            if high_flux and high_flux[0].get("risk_vector", [])[flux_idx] > 0:
                 lines.append("### Highest State Flux (Mutation/Volatility)")
                 for s in high_flux:
-                    if s.get("risk_vector")[flux_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[flux_idx]}%** Exposure")
+                    if s.get("risk_vector", [])[flux_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure")
 
         orphan_idx = (
             self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
@@ -627,15 +627,15 @@ class LLMRecorder:
         if orphan_idx >= 0 and dup_idx >= 0:
             high_slop = sorted(
                 [s for s in parsed_files if len(s.get("hit_vector", [])) > max(orphan_idx, dup_idx)],
-                key=lambda x: x.get("hit_vector")[orphan_idx] + x.get("hit_vector")[dup_idx],
+                key=lambda x: x.get("hit_vector", [])[orphan_idx] + x.get("hit_vector", [])[dup_idx],
                 reverse=True,
             )[:5]
 
-            if high_slop and (high_slop[0].get("hit_vector")[orphan_idx] + high_slop[0].get("hit_vector")[dup_idx]) > 0:
+            if high_slop and (high_slop[0].get("hit_vector", [])[orphan_idx] + high_slop[0].get("hit_vector", [])[dup_idx]) > 0:
                 lines.append("### Highest Design Slop (Dead & Duplicated Logic)")
                 for s in high_slop:
-                    o_hits = s.get("hit_vector")[orphan_idx]
-                    d_hits = s.get("hit_vector")[dup_idx]
+                    o_hits = s.get("hit_vector", [])[orphan_idx]
+                    d_hits = s.get("hit_vector", [])[dup_idx]
                     if o_hits > 0 or d_hits > 0:
                         lines.append(
                             f"- `{s.get('path')}` -> **{o_hits}** Orphaned Functions | **{d_hits}** Duplicates"
@@ -677,9 +677,9 @@ class LLMRecorder:
                     [
                         s
                         for s in parsed_files
-                        if len(s.get("risk_vector", [])) > v_idx and s.get("risk_vector")[v_idx] > 0.0
+                        if len(s.get("risk_vector", [])) > v_idx and s.get("risk_vector", [])[v_idx] > 0.0
                     ],
-                    key=lambda x: x.get("risk_vector")[v_idx],
+                    key=lambda x: x.get("risk_vector", [])[v_idx],
                     reverse=True,
                 )
 
@@ -688,7 +688,7 @@ class LLMRecorder:
                     label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
                     lines.append(f"### {label}")
                     for s in v_files[:5]:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[v_idx]}%** Exposure")
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure")
 
         if not vuln_found:
             lines.append("*No critical vulnerabilities or security lens thresholds breached.*")
@@ -710,9 +710,9 @@ class LLMRecorder:
                 [
                     s
                     for s in parsed_files
-                    if len(s.get("hit_vector", [])) > rce_idx and s.get("hit_vector")[rce_idx] > 0
+                    if len(s.get("hit_vector", [])) > rce_idx and s.get("hit_vector", [])[rce_idx] > 0
                 ],
-                key=lambda x: x.get("hit_vector")[rce_idx],
+                key=lambda x: x.get("hit_vector", [])[rce_idx],
                 reverse=True,
             )
             if rce_files:
@@ -723,14 +723,14 @@ class LLMRecorder:
                 )
                 for s in rce_files[:5]:
                     lines.append(
-                        f"- `{s.get('path')}` -> **{s.get('hit_vector')[rce_idx]}** confirmed execution vectors"
+                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[rce_idx]}** confirmed execution vectors"
                     )
                 lines.append("")
 
         if pi_idx >= 0:
             pi_files = sorted(
-                [s for s in parsed_files if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector")[pi_idx] > 0],
-                key=lambda x: x.get("hit_vector")[pi_idx],
+                [s for s in parsed_files if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector", [])[pi_idx] > 0],
+                key=lambda x: x.get("hit_vector", [])[pi_idx],
                 reverse=True,
             )
             if pi_files:
@@ -740,7 +740,7 @@ class LLMRecorder:
                     "The following files pass raw, untrusted external I/O directly into an LLM context window without sanitization.\n"
                 )
                 for s in pi_files[:5]:
-                    lines.append(f"- `{s.get('path')}` -> **{s.get('hit_vector')[pi_idx]}** exposed injection surfaces")
+                    lines.append(f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[pi_idx]}** exposed injection surfaces")
                 lines.append("")
 
         if not ai_vuln_found:
@@ -1121,9 +1121,9 @@ class LLMRecorder:
                 lines.append(
                     "These files are messy, complex, and modified frequently. They are the primary source of developer friction.\n"
                 )
-                hotspots.sort(key=lambda x: x.get("risk_vector")[churn_idx], reverse=True)
+                hotspots.sort(key=lambda x: x.get("risk_vector", [])[churn_idx], reverse=True)
                 for s in hotspots[:5]:
-                    rv = s.get("risk_vector")
+                    rv = s.get("risk_vector", [])
                     lines.append(
                         f"- `{s.get('path')}` -> Churn: **{rv[churn_idx]}%** | Cog Load: {rv[cog_idx]}% | Debt: {rv[debt_idx]}%"
                     )

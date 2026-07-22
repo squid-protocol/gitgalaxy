@@ -19,6 +19,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Dict, Any
 
 SYSTEM_DDS = {
     "STEPLIB",
@@ -75,7 +76,7 @@ def parse_jcl_intent(filepath: Path) -> dict:
 def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
     """Core logic to calculate architectural bloat and privilege reduction metrics."""
     legacy_jcls = list(original_dir.rglob("*.[jJ][cC][lL]")) + list(original_dir.rglob("*.txt"))
-    legacy_map = {}
+    legacy_map: Dict[str, Any] = {}
 
     # 1. Map Legacy JCLs by Intent (Handling multi-step monoliths)
     for lj in legacy_jcls:

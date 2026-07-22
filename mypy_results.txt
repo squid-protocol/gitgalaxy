@@ -1,0 +1,414 @@
+gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py:19: error: Incompatible default for parameter "ir_state" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py:19: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py:19: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/standards/gitgalaxy_config.py:28: error: Need type annotation for "APPROVED_IMPORTS" (hint: "APPROVED_IMPORTS: list[<type>] = ...")  [var-annotated]
+gitgalaxy/standards/gitgalaxy_config.py:32: error: Need type annotation for "BLACKLISTED_IMPORTS" (hint: "BLACKLISTED_IMPORTS: list[<type>] = ...")  [var-annotated]
+gitgalaxy/standards/gitgalaxy_config.py:43: error: Need type annotation for "DENYLIST_PATTERNS" (hint: "DENYLIST_PATTERNS: list[<type>] = ...")  [var-annotated]
+gitgalaxy/standards/gitgalaxy_config.py:598: error: Need type annotation for "PROJECT_STORIES" (hint: "PROJECT_STORIES: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py:67: error: Need type annotation for "file_anomalies" (hint: "file_anomalies: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py:86: error: Argument 4 to "generate_agent_ticket" has incompatible type "Any | None"; expected "dict[Any, Any]"  [arg-type]
+gitgalaxy/security/security_lens.py:202: error: Need type annotation for "counts" (hint: "counts: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/security/security_lens.py:203: error: Need type annotation for "snippets" (hint: "snippets: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/security/security_lens.py:264: error: Need type annotation for "entropy_snippets" (hint: "entropy_snippets: list[<type>] = ...")  [var-annotated]
+gitgalaxy/security/security_lens.py:287: error: Need type annotation for "taint_snippets" (hint: "taint_snippets: list[<type>] = ...")  [var-annotated]
+gitgalaxy/security/security_lens.py:464: error: Need type annotation for "threats" (hint: "threats: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/security/security_lens.py:473: error: Incompatible types in assignment (expression has type "str", target has type "int")  [assignment]
+gitgalaxy/security/security_lens.py:478: error: Incompatible types in assignment (expression has type "str", target has type "int")  [assignment]
+gitgalaxy/security/security_lens.py:492: error: Incompatible types in assignment (expression has type "str", target has type "int")  [assignment]
+gitgalaxy/core/state_rehydrator.py:43: error: Incompatible return value type (got "None", expected "dict[str, Any]")  [return-value]
+gitgalaxy/core/state_rehydrator.py:64: error: Incompatible return value type (got "None", expected "dict[str, Any]")  [return-value]
+gitgalaxy/core/state_rehydrator.py:122: error: Incompatible return value type (got "None", expected "dict[str, Any]")  [return-value]
+gitgalaxy/tools/network_auditing/full_api_network_map.py:28: error: Library stubs not installed for "yaml"  [import-untyped]
+gitgalaxy/tools/network_auditing/full_api_network_map.py:28: note: Hint: "python3 -m pip install types-PyYAML"
+gitgalaxy/tools/network_auditing/full_api_network_map.py:205: error: Unsupported right operand type for in ("object")  [operator]
+gitgalaxy/tools/network_auditing/full_api_network_map.py:208: error: "object" has no attribute "findall"  [attr-defined]
+gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py:73: error: Need type annotation for "seen_vars" (hint: "seen_vars: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py:75: error: "object" has no attribute "search"  [attr-defined]
+gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py:65: error: Incompatible default for parameter "ignore_vars" (default has type "None", parameter has type "set[Any]")  [assignment]
+gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py:65: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py:65: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py:24: error: Incompatible default for parameter "dead_paras" (default has type "None", parameter has type "set[Any]")  [assignment]
+gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py:24: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py:24: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py:24: error: Incompatible default for parameter "orphaned_vars" (default has type "None", parameter has type "set[Any]")  [assignment]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:62: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:86: error: Incompatible default for parameter "lineage" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:86: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:86: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:57: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:63: error: "object" has no attribute "add"  [attr-defined]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:69: error: "object" has no attribute "add"  [attr-defined]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:78: error: Need type annotation for "legacy_map" (hint: "legacy_map: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:110: error: Value of type "object" is not indexable  [index]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:115: error: Value of type "object" is not indexable  [index]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:118: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:119: error: Value of type "object" is not indexable  [index]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:121: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:123: error: Unsupported target for indexed assignment ("object")  [index]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:126: error: "object" has no attribute "name"  [attr-defined]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:129: error: Unsupported operand types for < ("int" and "object")  [operator]
+gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:131: error: Unsupported left operand type for - ("object")  [operator]
+gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py:90: error: Incompatible return value type (got "None", expected "dict[Any, Any]")  [return-value]
+gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py:97: error: Incompatible return value type (got "None", expected "dict[Any, Any]")  [return-value]
+gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py:169: error: Argument 1 to "append" of "list" has incompatible type "str"; expected "float"  [arg-type]
+gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py:24: error: Incompatible default for parameter "dead_paras" (default has type "None", parameter has type "set[Any]")  [assignment]
+gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py:24: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py:24: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py:35: error: Incompatible return value type (got "None", expected "dict[Any, Any]")  [return-value]
+gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py:40: error: Incompatible return value type (got "None", expected "dict[Any, Any]")  [return-value]
+gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py:44: error: Incompatible default for parameter "alias_map" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py:44: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py:44: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:55: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:56: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:59: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:60: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:66: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:73: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:83: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py:93: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py:61: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py:69: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py:77: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/standards/language_lens.py:91: error: "Collection[object]" has no attribute "items"  [attr-defined]
+gitgalaxy/standards/language_lens.py:99: error: Value of type "object" is not indexable  [index]
+gitgalaxy/standards/language_lens.py:100: error: Value of type "object" is not indexable  [index]
+gitgalaxy/standards/language_lens.py:101: error: Value of type "object" is not indexable  [index]
+gitgalaxy/standards/language_lens.py:102: error: Value of type "object" is not indexable  [index]
+gitgalaxy/standards/language_lens.py:255: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:285: error: Incompatible types in assignment (expression has type "None", variable has type "str")  [assignment]
+gitgalaxy/standards/language_lens.py:289: error: Incompatible types in assignment (expression has type "str | None", variable has type "str")  [assignment]
+gitgalaxy/standards/language_lens.py:292: error: Incompatible types in assignment (expression has type "str | None", variable has type "str")  [assignment]
+gitgalaxy/standards/language_lens.py:303: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:450: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:453: error: Incompatible types in assignment (expression has type "float", variable has type "int")  [assignment]
+gitgalaxy/standards/language_lens.py:468: error: Incompatible types in assignment (expression has type "float", variable has type "int")  [assignment]
+gitgalaxy/standards/language_lens.py:476: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:515: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:518: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:568: error: Need type annotation for "local_tally" (hint: "local_tally: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/standards/language_lens.py:638: error: Argument "key" to "max" has incompatible type overloaded function; expected "Callable[[str], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
+gitgalaxy/standards/language_lens.py:643: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:646: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:779: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:800: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:828: error: Argument "key" to "max" has incompatible type overloaded function; expected "Callable[[Any], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
+gitgalaxy/standards/language_lens.py:915: error: Incompatible types in assignment (expression has type "float", variable has type "int")  [assignment]
+gitgalaxy/standards/language_lens.py:963: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:1035: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/standards/language_lens.py:1094: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/security/manifest_parser.py:41: error: Need type annotation for "resolution_map" (hint: "resolution_map: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/security/manifest_parser.py:312: error: Incompatible default for parameter "repo_root" (default has type "None", parameter has type "Path")  [assignment]
+gitgalaxy/security/manifest_parser.py:312: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/security/manifest_parser.py:312: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/security/manifest_parser.py:340: error: Incompatible return value type (got "None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:346: error: Incompatible return value type (got "None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:351: error: Incompatible return value type (got "Path | None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:369: error: Incompatible return value type (got "Path | None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:378: error: Incompatible return value type (got "None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:388: error: Incompatible return value type (got "None", expected "Path")  [return-value]
+gitgalaxy/security/manifest_parser.py:390: error: Incompatible return value type (got "None", expected "Path")  [return-value]
+gitgalaxy/recorders/sarif_recorder.py:18: error: Incompatible default for parameter "parent_logger" (default has type "None", parameter has type "Logger")  [assignment]
+gitgalaxy/recorders/sarif_recorder.py:18: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/recorders/sarif_recorder.py:18: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/recorders/sarif_recorder.py:60: error: Value of type "Collection[str]" is not indexable  [index]
+gitgalaxy/recorders/gpu_recorder.py:85: error: Incompatible default for parameter "session_meta" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/recorders/gpu_recorder.py:85: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/recorders/gpu_recorder.py:85: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/recorders/gpu_recorder.py:131: error: Need type annotation for "excluded_artifacts"  [var-annotated]
+gitgalaxy/recorders/gpu_recorder.py:155: error: Need type annotation for "inbound_edges"  [var-annotated]
+gitgalaxy/metrics/tensor_scanner.py:28: error: Incompatible default for parameter "parent_logger" (default has type "None", parameter has type "Logger")  [assignment]
+gitgalaxy/metrics/tensor_scanner.py:28: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/metrics/tensor_scanner.py:28: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/metrics/chronometer.py:302: error: Need type annotation for "valid_files_seen" (hint: "valid_files_seen: set[<type>] = ...")  [var-annotated]
+gitgalaxy/metrics/chronometer.py:314: error: Item "None" of "IO[Any] | None" has no attribute "__iter__" (not iterable)  [union-attr]
+gitgalaxy/core/spatial_mapper.py:108: error: Argument "key" to "sort" of "list" has incompatible type "Callable[[dict[str, object]], object]"; expected "Callable[[dict[str, object]], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
+gitgalaxy/core/spatial_mapper.py:108: error: Incompatible return value type (got "object", expected "SupportsDunderLT[Any] | SupportsDunderGT[Any]")  [return-value]
+gitgalaxy/core/spatial_mapper.py:115: error: Need type annotation for "spatial_grid"  [var-annotated]
+gitgalaxy/core/spatial_mapper.py:131: error: Unsupported operand types for + ("float" and "object")  [operator]
+gitgalaxy/core/spatial_mapper.py:165: error: Unsupported operand types for + ("float" and "object")  [operator]
+gitgalaxy/core/spatial_mapper.py:172: error: List item 2 has incompatible type "object"; expected "float"  [list-item]
+gitgalaxy/core/spatial_mapper.py:175: error: Unsupported operand types for * ("object" and "float")  [operator]
+gitgalaxy/core/spatial_mapper.py:191: error: Argument 1 to "_hash_jitter" of "SpatialMapper" has incompatible type "object"; expected "str"  [arg-type]
+gitgalaxy/core/spatial_mapper.py:192: error: Unsupported left operand type for + ("object")  [operator]
+gitgalaxy/core/spatial_mapper.py:193: error: Unsupported left operand type for + ("object")  [operator]
+gitgalaxy/core/spatial_mapper.py:195: error: Value of type "object" is not indexable  [index]
+gitgalaxy/core/spatial_mapper.py:198: error: Need type annotation for "node"  [var-annotated]
+gitgalaxy/core/spatial_mapper.py:198: error: Argument 1 to "enumerate" has incompatible type "object"; expected "Iterable[Never]"  [arg-type]
+gitgalaxy/core/prism.py:100: error: Value of type "object" is not indexable  [index]
+gitgalaxy/core/prism.py:101: error: Value of type "object" is not indexable  [index]
+gitgalaxy/core/prism.py:102: error: Value of type "object" is not indexable  [index]
+gitgalaxy/core/prism.py:103: error: Value of type "object" is not indexable  [index]
+gitgalaxy/core/prism.py:108: error: "Collection[object]" has no attribute "get"  [attr-defined]
+gitgalaxy/core/prism.py:109: error: "Collection[str]" has no attribute "get"  [attr-defined]
+gitgalaxy/core/prism.py:113: error: No overload variant of "compile" matches argument types "Collection[str]", "RegexFlag"  [call-overload]
+gitgalaxy/core/prism.py:113: note: Possible overload variants:
+gitgalaxy/core/prism.py:113: note:     def [AnyStr: (str, bytes)] compile(pattern: AnyStr, flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:113: note:     def [AnyStr: (str, bytes)] compile(pattern: Pattern[AnyStr], flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:114: error: No overload variant of "compile" matches argument types "Collection[str]", "RegexFlag"  [call-overload]
+gitgalaxy/core/prism.py:114: note: Possible overload variants:
+gitgalaxy/core/prism.py:114: note:     def [AnyStr: (str, bytes)] compile(pattern: AnyStr, flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:114: note:     def [AnyStr: (str, bytes)] compile(pattern: Pattern[AnyStr], flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:115: error: No overload variant of "compile" matches argument types "Collection[str]", "RegexFlag"  [call-overload]
+gitgalaxy/core/prism.py:115: note: Possible overload variants:
+gitgalaxy/core/prism.py:115: note:     def [AnyStr: (str, bytes)] compile(pattern: AnyStr, flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:115: note:     def [AnyStr: (str, bytes)] compile(pattern: Pattern[AnyStr], flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:258: error: No overload variant of "sub" matches argument types "Collection[str]", "Callable[[Match[Any]], str]", "str", "RegexFlag"  [call-overload]
+gitgalaxy/core/prism.py:258: note: Possible overload variants:
+gitgalaxy/core/prism.py:258: note:     def sub(pattern: str | Pattern[str], repl: str | Callable[[Match[str]], str], string: str, count: int = ..., flags: int | RegexFlag = ...) -> str
+gitgalaxy/core/prism.py:258: note:     def sub(pattern: bytes | Pattern[bytes], repl: Buffer | Callable[[Match[bytes]], Buffer], string: Buffer, count: int = ..., flags: int | RegexFlag = ...) -> bytes
+gitgalaxy/core/prism.py:516: error: No overload variant of "compile" matches argument types "Collection[str]", "RegexFlag"  [call-overload]
+gitgalaxy/core/prism.py:516: note: Possible overload variants:
+gitgalaxy/core/prism.py:516: note:     def [AnyStr: (str, bytes)] compile(pattern: AnyStr, flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:516: note:     def [AnyStr: (str, bytes)] compile(pattern: Pattern[AnyStr], flags: int | RegexFlag = ...) -> Pattern[AnyStr]
+gitgalaxy/core/prism.py:517: error: Need type annotation for "string_cache" (hint: "string_cache: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/core/network_risk_sensor.py:14: error: Library stubs not installed for "networkx"  [import-untyped]
+gitgalaxy/core/network_risk_sensor.py:15: error: Library stubs not installed for "networkx.algorithms"  [import-untyped]
+gitgalaxy/core/network_risk_sensor.py:15: note: Hint: "python3 -m pip install types-networkx"
+gitgalaxy/core/network_risk_sensor.py:15: note: (or run "mypy --install-types" to install all missing stub packages)
+gitgalaxy/core/network_risk_sensor.py:15: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+gitgalaxy/core/network_risk_sensor.py:114: error: Need type annotation for "coverage_map" (hint: "coverage_map: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/core/guidestar_lens.py:325: error: "Collection[str]" has no attribute "get"  [attr-defined]
+gitgalaxy/core/aperture.py:454: error: Need type annotation for "indent_counts" (hint: "indent_counts: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/recorders/record_keeper.py:486: error: Incompatible types in assignment (expression has type "None", variable has type "float")  [assignment]
+gitgalaxy/recorders/record_keeper.py:501: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:686: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:800: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:841: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/recorders/record_keeper.py:844: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/recorders/record_keeper.py:845: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/recorders/record_keeper.py:847: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:848: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:849: error: "object" has no attribute "append"  [attr-defined]
+gitgalaxy/recorders/record_keeper.py:854: error: No overload variant of "sum" matches argument type "object"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:854: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:854: note:     def sum(Iterable[bool], /, start: int = ...) -> int
+gitgalaxy/recorders/record_keeper.py:854: note:     def [_SupportsSumNoDefaultT: _SupportsSumWithNoDefaultGiven] sum(Iterable[_SupportsSumNoDefaultT], /) -> _SupportsSumNoDefaultT | Literal[0]
+gitgalaxy/recorders/record_keeper.py:854: note:     def [_AddableT1: SupportsAdd[Any, Any], _AddableT2: SupportsAdd[Any, Any]] sum(Iterable[_AddableT1], /, start: _AddableT2) -> _AddableT1 | _AddableT2
+gitgalaxy/recorders/record_keeper.py:854: error: Argument 1 to "len" has incompatible type "object"; expected "Sized"  [arg-type]
+gitgalaxy/recorders/record_keeper.py:855: error: No overload variant of "max" matches argument type "object"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:855: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:855: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any]] max(SupportsRichComparisonT, SupportsRichComparisonT, /, *_args: SupportsRichComparisonT, key: None = ...) -> SupportsRichComparisonT
+gitgalaxy/recorders/record_keeper.py:855: note:     def [_T] max(_T, _T, /, *_args: _T, key: Callable[[_T], SupportsDunderLT[Any] | SupportsDunderGT[Any]]) -> _T
+gitgalaxy/recorders/record_keeper.py:855: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any]] max(Iterable[SupportsRichComparisonT], /, *, key: None = ...) -> SupportsRichComparisonT
+gitgalaxy/recorders/record_keeper.py:855: note:     def [_T] max(Iterable[_T], /, *, key: Callable[[_T], SupportsDunderLT[Any] | SupportsDunderGT[Any]]) -> _T
+gitgalaxy/recorders/record_keeper.py:855: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any], _T] max(Iterable[SupportsRichComparisonT], /, *, key: None = ..., default: _T) -> SupportsRichComparisonT | _T
+gitgalaxy/recorders/record_keeper.py:855: note:     def [_T1, _T2] max(Iterable[_T1], /, *, key: Callable[[_T1], SupportsDunderLT[Any] | SupportsDunderGT[Any]], default: _T2) -> _T1 | _T2
+gitgalaxy/recorders/record_keeper.py:857: error: No overload variant of "sum" matches argument type "object"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:857: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:857: note:     def sum(Iterable[bool], /, start: int = ...) -> int
+gitgalaxy/recorders/record_keeper.py:857: note:     def [_SupportsSumNoDefaultT: _SupportsSumWithNoDefaultGiven] sum(Iterable[_SupportsSumNoDefaultT], /) -> _SupportsSumNoDefaultT | Literal[0]
+gitgalaxy/recorders/record_keeper.py:857: note:     def [_AddableT1: SupportsAdd[Any, Any], _AddableT2: SupportsAdd[Any, Any]] sum(Iterable[_AddableT1], /, start: _AddableT2) -> _AddableT1 | _AddableT2
+gitgalaxy/recorders/record_keeper.py:857: error: Argument 1 to "len" has incompatible type "object"; expected "Sized"  [arg-type]
+gitgalaxy/recorders/record_keeper.py:858: error: No overload variant of "max" matches argument type "object"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:858: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:858: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any]] max(SupportsRichComparisonT, SupportsRichComparisonT, /, *_args: SupportsRichComparisonT, key: None = ...) -> SupportsRichComparisonT
+gitgalaxy/recorders/record_keeper.py:858: note:     def [_T] max(_T, _T, /, *_args: _T, key: Callable[[_T], SupportsDunderLT[Any] | SupportsDunderGT[Any]]) -> _T
+gitgalaxy/recorders/record_keeper.py:858: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any]] max(Iterable[SupportsRichComparisonT], /, *, key: None = ...) -> SupportsRichComparisonT
+gitgalaxy/recorders/record_keeper.py:858: note:     def [_T] max(Iterable[_T], /, *, key: Callable[[_T], SupportsDunderLT[Any] | SupportsDunderGT[Any]]) -> _T
+gitgalaxy/recorders/record_keeper.py:858: note:     def [SupportsRichComparisonT: SupportsDunderLT[Any] | SupportsDunderGT[Any], _T] max(Iterable[SupportsRichComparisonT], /, *, key: None = ..., default: _T) -> SupportsRichComparisonT | _T
+gitgalaxy/recorders/record_keeper.py:858: note:     def [_T1, _T2] max(Iterable[_T1], /, *, key: Callable[[_T1], SupportsDunderLT[Any] | SupportsDunderGT[Any]], default: _T2) -> _T1 | _T2
+gitgalaxy/recorders/record_keeper.py:860: error: No overload variant of "sum" matches argument type "object"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:860: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:860: note:     def sum(Iterable[bool], /, start: int = ...) -> int
+gitgalaxy/recorders/record_keeper.py:860: note:     def [_SupportsSumNoDefaultT: _SupportsSumWithNoDefaultGiven] sum(Iterable[_SupportsSumNoDefaultT], /) -> _SupportsSumNoDefaultT | Literal[0]
+gitgalaxy/recorders/record_keeper.py:860: note:     def [_AddableT1: SupportsAdd[Any, Any], _AddableT2: SupportsAdd[Any, Any]] sum(Iterable[_AddableT1], /, start: _AddableT2) -> _AddableT1 | _AddableT2
+gitgalaxy/recorders/record_keeper.py:860: error: Argument 1 to "len" has incompatible type "object"; expected "Sized"  [arg-type]
+gitgalaxy/recorders/record_keeper.py:872: error: No overload variant of "round" matches argument types "object", "int"  [call-overload]
+gitgalaxy/recorders/record_keeper.py:872: note: Possible overload variants:
+gitgalaxy/recorders/record_keeper.py:872: note:     def [_T] round(number: _SupportsRound1[_T], ndigits: None = ...) -> _T
+gitgalaxy/recorders/record_keeper.py:872: note:     def [_T] round(number: _SupportsRound2[_T], ndigits: SupportsIndex) -> _T
+gitgalaxy/recorders/llm_recorder.py:598: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:601: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:604: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:605: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:611: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:614: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:617: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:618: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:630: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:634: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:637: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:638: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:680: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:682: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:691: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:713: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:715: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:726: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:732: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:733: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:743: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:809: error: Incompatible types in assignment (expression has type "dict[str, Any] | None", variable has type "dict[str, Any]")  [assignment]
+gitgalaxy/recorders/llm_recorder.py:1082: error: List comprehension has incompatible type List[tuple[Any, Any]]; expected List[str]  [misc]
+gitgalaxy/recorders/llm_recorder.py:1087: error: Unpacking a string is disallowed  [str-unpack]
+gitgalaxy/recorders/llm_recorder.py:1124: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:1128: error: Value of type "Any | None" is not indexable  [index]
+gitgalaxy/recorders/llm_recorder.py:1413: error: Argument 1 to "get" of "dict" has incompatible type "Any | None"; expected "str"  [arg-type]
+gitgalaxy/recorders/llm_recorder.py:1434: error: Argument 1 to "Path" has incompatible type "Any | None"; expected "str | PathLike[str]"  [arg-type]
+gitgalaxy/recorders/llm_recorder.py:1488: error: Argument 1 to "get" of "dict" has incompatible type "Any | None"; expected "str"  [arg-type]
+gitgalaxy/metrics/statistical_auditor.py:168: error: Argument "key" to "max" has incompatible type overloaded function; expected "Callable[[str], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
+gitgalaxy/metrics/statistical_auditor.py:199: error: Argument "key" to "max" has incompatible type overloaded function; expected "Callable[[str], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
+gitgalaxy/metrics/signal_processor.py:138: error: Need type annotation for "fingerprint" (hint: "fingerprint: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:325: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:330: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:371: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:373: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:375: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:417: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:419: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:421: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:638: error: Need type annotation for "local_fingerprint" (hint: "local_fingerprint: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:902: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:928: error: Unsupported operand types for + ("object" and "int")  [operator]
+gitgalaxy/metrics/signal_processor.py:933: error: Value of type "object" is not indexable  [index]
+gitgalaxy/metrics/signal_processor.py:933: error: Unsupported target for indexed assignment ("object")  [index]
+gitgalaxy/metrics/signal_processor.py:938: error: No overload variant of "round" matches argument types "object", "int"  [call-overload]
+gitgalaxy/metrics/signal_processor.py:938: note: Possible overload variants:
+gitgalaxy/metrics/signal_processor.py:938: note:     def [_T] round(number: _SupportsRound1[_T], ndigits: None = ...) -> _T
+gitgalaxy/metrics/signal_processor.py:938: note:     def [_T] round(number: _SupportsRound2[_T], ndigits: SupportsIndex) -> _T
+gitgalaxy/metrics/signal_processor.py:940: error: Value of type "Collection[str]" is not indexable  [index]
+gitgalaxy/metrics/signal_processor.py:940: error: Value of type "object" is not indexable  [index]
+gitgalaxy/metrics/signal_processor.py:949: error: Need type annotation for "archetype_counts" (hint: "archetype_counts: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:950: error: Need type annotation for "static_counts" (hint: "static_counts: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:959: error: Need type annotation for "ecosystem_fingerprint"  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:988: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1000: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1000: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1002: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1009: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1009: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1011: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1018: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1018: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1020: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1027: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1027: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1029: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1038: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1038: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1040: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1047: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1047: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1049: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1056: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1056: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1058: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1067: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1067: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1069: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1076: error: Generator has incompatible item type "Any | int"; expected "bool"  [misc]
+gitgalaxy/metrics/signal_processor.py:1076: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1078: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1101: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1105: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1110: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1115: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1120: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1125: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1130: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1135: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1140: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1158: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1163: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1167: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1172: error: "Sequence[str]" has no attribute "append"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1176: error: Incompatible types in assignment (expression has type "dict[str, int]", target has type "Sequence[str]")  [assignment]
+gitgalaxy/metrics/signal_processor.py:1273: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:1515: error: Incompatible default for parameter "functions" (default has type "None", parameter has type "list[dict[str, Any]]")  [assignment]
+gitgalaxy/metrics/signal_processor.py:1515: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/metrics/signal_processor.py:1515: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/metrics/signal_processor.py:1727: error: Incompatible default for parameter "functions" (default has type "None", parameter has type "list[dict[str, Any]]")  [assignment]
+gitgalaxy/metrics/signal_processor.py:1727: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/metrics/signal_processor.py:1727: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/metrics/signal_processor.py:2281: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:2295: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:2296: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:2297: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/metrics/signal_processor.py:2299: error: Need type annotation for "bottlenecks"  [var-annotated]
+gitgalaxy/metrics/signal_processor.py:2388: error: Incompatible types in assignment (expression has type "dict[str, list[dict[str, Any]]]", target has type "list[Any]")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:74: error: Need type annotation for "ram_ir" (hint: "ram_ir: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/cobol_refractor_controller.py:153: error: Incompatible default for parameter "target_var" (default has type "None", parameter has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:153: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/cobol_refractor_controller.py:153: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/cobol_refractor_controller.py:175: error: Incompatible types in assignment (expression has type "int", target has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:188: error: Incompatible types in assignment (expression has type "dict[Any, Any]", target has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:203: error: Incompatible types in assignment (expression has type "dict[Any, Any]", target has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:206: error: Incompatible types in assignment (expression has type "dict[Any, Any]", target has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:208: error: Incompatible types in assignment (expression has type "list[Any]", target has type "str")  [assignment]
+gitgalaxy/cobol_refractor_controller.py:220: error: Need type annotation for "dag_lineage"  [var-annotated]
+gitgalaxy/cobol_refractor_controller.py:223: error: Argument "intent" to "generate_zero_trust_jcl" has incompatible type "str"; expected "dict[Any, Any]"  [arg-type]
+gitgalaxy/cobol_refractor_controller.py:224: error: Argument "lineage" to "generate_zero_trust_jcl" has incompatible type "str | dict[str, set[Any]]"; expected "dict[Any, Any]"  [arg-type]
+gitgalaxy/cobol_refractor_controller.py:240: error: Incompatible types in assignment (expression has type "dict[str, Any]", target has type "str")  [assignment]
+gitgalaxy/recorders/sbom_recorder.py:40: error: Incompatible default for parameter "parent_logger" (default has type "None", parameter has type "Logger")  [assignment]
+gitgalaxy/recorders/sbom_recorder.py:40: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/recorders/sbom_recorder.py:40: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/recorders/sbom_recorder.py:42: error: Incompatible default for parameter "fresh_scan_budget" (default has type "None", parameter has type "int")  [assignment]
+gitgalaxy/recorders/sbom_recorder.py:42: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/recorders/sbom_recorder.py:42: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/core/detector.py:251: error: Incompatible return value type (got "object", expected "dict[Any, Any] | None")  [return-value]
+gitgalaxy/core/detector.py:355: error: "object" has no attribute "get"  [attr-defined]
+gitgalaxy/core/detector.py:356: error: "object" has no attribute "get"  [attr-defined]
+gitgalaxy/core/detector.py:372: error: Need type annotation for "regex_telemetry" (hint: "regex_telemetry: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:438: error: Argument 2 to "coding_analysis" of "StructuralExtractor" has incompatible type "dict[Any, Any] | None"; expected "dict[Any, Any]"  [arg-type]
+gitgalaxy/core/detector.py:450: error: Argument 3 to "_function_slice" of "StructuralExtractor" has incompatible type "dict[Any, Any] | None"; expected "dict[Any, Any]"  [arg-type]
+gitgalaxy/core/detector.py:488: error: Unsupported operand types for <= ("int" and "list[str | Any]")  [operator]
+gitgalaxy/core/detector.py:488: error: Unsupported operand types for <= ("int" and "str")  [operator]
+gitgalaxy/core/detector.py:488: note: Right operand is of type "float | int | list[str | Any] | str | Any"
+gitgalaxy/core/detector.py:488: error: Unsupported operand types for <= ("list[str | Any]" and "int")  [operator]
+gitgalaxy/core/detector.py:488: error: Unsupported operand types for <= ("str" and "int")  [operator]
+gitgalaxy/core/detector.py:488: note: Left operand is of type "float | int | list[str | Any] | str | Any"
+gitgalaxy/core/detector.py:489: error: TypedDict "FunctionNode" has no key "parent_class_name"  [typeddict-unknown-key]
+gitgalaxy/core/detector.py:496: error: Unsupported operand types for / ("int" and "list[str | Any]")  [operator]
+gitgalaxy/core/detector.py:496: error: Unsupported operand types for / ("int" and "str")  [operator]
+gitgalaxy/core/detector.py:496: note: Right operand is of type "float | int | list[str | Any] | str | Any"
+gitgalaxy/core/detector.py:500: error: Unsupported operand types for > ("list[str | Any]" and "int")  [operator]
+gitgalaxy/core/detector.py:500: error: Unsupported operand types for > ("str" and "int")  [operator]
+gitgalaxy/core/detector.py:500: note: Left operand is of type "float | int | list[str | Any] | str | Any"
+gitgalaxy/core/detector.py:546: error: TypedDict "FunctionNode" has no key "usage_status"  [typeddict-unknown-key]
+gitgalaxy/core/detector.py:704: error: Need type annotation for "doc_buffer" (hint: "doc_buffer: list[<type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:759: error: "object" has no attribute "finditer"  [attr-defined]
+gitgalaxy/core/detector.py:867: error: Incompatible default for parameter "regex_telemetry" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/core/detector.py:867: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/core/detector.py:867: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/core/detector.py:895: error: Need type annotation for "spatial_map" (hint: "spatial_map: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:1121: error: Incompatible default for parameter "lang_id" (default has type "None", parameter has type "str")  [assignment]
+gitgalaxy/core/detector.py:1121: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/core/detector.py:1121: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/core/detector.py:1249: error: Incompatible default for parameter "regex_telemetry" (default has type "None", parameter has type "dict[Any, Any]")  [assignment]
+gitgalaxy/core/detector.py:1249: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/core/detector.py:1249: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/core/detector.py:1327: error: Need type annotation for "satellites" (hint: "satellites: list[<type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:1332: error: Item "None" of "Any | None" has no attribute "finditer"  [union-attr]
+gitgalaxy/core/detector.py:1403: error: Need type annotation for "satellites" (hint: "satellites: list[<type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:1534: error: Need type annotation for "satellites" (hint: "satellites: list[<type>] = ...")  [var-annotated]
+gitgalaxy/core/detector.py:1942: error: Incompatible default for parameter "spatial_map" (default has type "None", parameter has type "dict[str, list[int]]")  [assignment]
+gitgalaxy/core/detector.py:1942: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+gitgalaxy/core/detector.py:1942: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+gitgalaxy/core/detector.py:2158: error: Extra keys ("texture", "logic_angle", "magnitude") for TypedDict "FunctionNode"  [typeddict-unknown-key]
+gitgalaxy/core/detector.py:2184: error: Incompatible types (expression has type "int | None", TypedDict item "token_mass" has type "int")  [typeddict-item]
+gitgalaxy/security/security_auditor.py:11: error: Library stubs not installed for "pandas"  [import-untyped]
+gitgalaxy/security/security_auditor.py:11: note: Hint: "python3 -m pip install pandas-stubs"
+gitgalaxy/security/security_auditor.py:19: error: Library stubs not installed for "networkx"  [import-untyped]
+gitgalaxy/galaxyscope.py:82: error: Need type annotation for "_worker_state" (hint: "_worker_state: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/galaxyscope.py:251: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/galaxyscope.py:254: error: Incompatible types in assignment (expression has type "None", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:282: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:291: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:303: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:307: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:316: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:356: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:505: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:540: error: Dict entry 1 has incompatible type "str": "None"; expected "str": "Collection[str]"  [dict-item]
+gitgalaxy/galaxyscope.py:552: error: Incompatible types in assignment (expression has type "float", target has type "Collection[str]")  [assignment]
+gitgalaxy/galaxyscope.py:682: error: Argument "fresh_scan_budget" to "SbomRecorder" has incompatible type "Any | None"; expected "int"  [arg-type]
+gitgalaxy/galaxyscope.py:717: error: Need type annotation for "neighborhood_tracker"  [var-annotated]
+gitgalaxy/galaxyscope.py:872: error: "Collection[str]" has no attribute "keys"  [attr-defined]
+gitgalaxy/galaxyscope.py:918: error: "Collection[str]" has no attribute "index"  [attr-defined]
+gitgalaxy/galaxyscope.py:2193: error: Incompatible types in assignment (expression has type "list[str]", target has type "int")  [assignment]
+gitgalaxy/galaxyscope.py:2196: error: Need type annotation for "composition" (hint: "composition: dict[<type>, <type>] = ...")  [var-annotated]
+gitgalaxy/galaxyscope.py:2214: error: Incompatible types in assignment (expression has type "dict[Any, dict[Any, Any]]", target has type "int")  [assignment]
+gitgalaxy/galaxyscope.py:2542: error: Library stubs not installed for "yaml"  [import-untyped]
+gitgalaxy/galaxyscope.py:2719: error: Cannot find implementation or library stub for module named "gitgalaxy.state_rehydrator"  [import-not-found]
+Found 319 errors in 38 files (checked 63 source files)

@@ -16,7 +16,7 @@
 
 import sqlite3
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 # galaxyscope:ignore sec_high_risk_execution, agentic_rce, logic_bomb
 class StateRehydrator:
@@ -33,7 +33,7 @@ class StateRehydrator:
     def __init__(self, db_path: str):
         self.db_path = Path(db_path)
 
-    def load_latest_state(self, repo_name: str) -> Dict[str, Any]:
+    def load_latest_state(self, repo_name: str) -> Optional[Dict[str, Any]]:
         """
         Pulls the most recent commit state from SQLite and rebuilds the RAM dictionary.
         """
@@ -95,8 +95,8 @@ class StateRehydrator:
                     "lang_id": f["language"],
                     "total_loc": f["total_loc"],
                     "coding_loc": f["coding_loc"],
-                    "file_impact": f["structural_mass"],
-                    "control_flow_ratio": f["control_flow_ratio"],
+                    "file_impact": float(f["structural_mass"]),
+                    "control_flow_ratio": float(f["control_flow_ratio"]),
                     # Initialize empty collections for downstream pipeline requirements
                     "raw_imports": set(),
                     "hit_vector": [],

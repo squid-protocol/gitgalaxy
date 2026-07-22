@@ -79,7 +79,7 @@ logger = logging.getLogger("GalaxyScope")
 # ==============================================================================
 # Top-level functions to bypass Python's Multi-Processing pickling limitations
 
-_worker_state = {}
+_worker_state: Dict[str, Any] = {}
 
 def execution_timeout_failsafe(signum, frame):
     """

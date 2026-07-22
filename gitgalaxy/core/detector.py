@@ -1656,7 +1656,7 @@ class StructuralExtractor:
         self.logger.debug(f"[DIAGNOSTIC] Mode D: Initiating _slice_by_keywords for {lang_id}")
         config = ScopeParsingRegistry.get_config(lang_id)
         if not config:
-            return self._slice_by_braces(code, rules, offset)
+            return self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
 
         flags = re.IGNORECASE if config.get("ignore_case") else 0
         open_pattern = re.compile("|".join(config["openers"]), flags)
@@ -1813,7 +1813,7 @@ class StructuralExtractor:
         """[INTEGRATION MODE E] - Terminator Cleaving (SQL, Erlang, Prolog)."""
         config = ScopeParsingRegistry.get_config(lang_id)
         if not config:
-            return self._slice_by_braces(code, rules, offset)
+            return self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
 
         terminator_pattern = re.compile(config["terminator"])
         igniter_pattern = re.compile(config["igniter"], re.IGNORECASE)

@@ -1620,3 +1620,54 @@ def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
     assert "return 3" not in docstring, (
         "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
     )
+
+# ==============================================================================
+# TEST 47: FALLBACK SIGNATURE ALIGNMENT (_slice_by_braces)
+# ==============================================================================
+@patch.object(StructuralExtractor, "_slice_by_braces")
+def test_detector_fallback_slice_by_braces_arguments(mock_slice_by_braces):
+    """
+    Proves that the fallback paths in _slice_by_keywords and _slice_by_terminator
+    pass the correct number of positional arguments (code, lang_id, rules, offset, spatial_map)
+    to _slice_by_braces to prevent silent structural corruption.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+
+    # 1. Trigger Mode D's Fallback (Pass an unregistered language to force it to fail)
+    opt_detector._slice_by_keywords(
+        code="def test(): pass",
+        lang_id="unregistered_alien_lang",
+        rules={"mock": "rule"},
+        offset=42,
+        spatial_map={"branch": [10, 20]}
+    )
+    
+    # Assert all 5 arguments were passed in the exact correct order
+    mock_slice_by_braces.assert_called_with(
+        "def test(): pass", 
+        "unregistered_alien_lang", 
+        {"mock": "rule"}, 
+        42, 
+        {"branch": [10, 20]}
+    )
+
+    # Reset the mock for the next test
+    mock_slice_by_braces.reset_mock()
+
+    # 2. Trigger Mode E's Fallback
+    opt_detector._slice_by_terminator(
+        code="SELECT * FROM table;",
+        lang_id="unregistered_sql_dialect",
+        rules={"io": "rule"},
+        offset=99,
+        spatial_map={"io": [5]}
+    )
+    
+    # Assert all 5 arguments were passed in the exact correct order
+    mock_slice_by_braces.assert_called_with(
+        "SELECT * FROM table;", 
+        "unregistered_sql_dialect", 
+        {"io": "rule"}, 
+        99, 
+        {"io": [5]}
+    )

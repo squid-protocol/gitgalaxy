@@ -2171,7 +2171,7 @@ class Orchestrator:
         a binary saturation threshold, or a regex timeout, this method captures the diagnostic
         string and appends it to the global anomalies array for the final Audit Recorder payload.
         """
-        summary = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
+        summary: Dict[str, Any] = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
         unparsable_artifacts: List[str] = []
 
         # 1. Maintain the physical error tallies (I/O, Binary, OS)
@@ -2193,7 +2193,7 @@ class Orchestrator:
             summary["unparsable_artifacts"] = unparsable_artifacts
 
         # 2. Build the hierarchical composition_by_extension_and_reason
-        composition = {}
+        composition: Dict[str, Dict[str, int]] = {}
         for unparsable in total_unparsable:
             path = unparsable.get("path", "")
             reason = unparsable.get("reason", "Unknown Reason")

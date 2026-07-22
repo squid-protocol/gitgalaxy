@@ -36,6 +36,7 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
 from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jcls
 from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
+from typing import Optional
 
 # ==============================================================================
 
@@ -150,13 +151,15 @@ class IRStateManager:
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
-def process_payload(filepath: Path, state_manager: IRStateManager, target_var: str = None) -> dict:
+from typing import Dict, Any
+
+def process_payload(filepath: Path, state_manager: IRStateManager, target_var: Optional[str] = None) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline."""
     print(f" ⚙️ Analyzing {filepath.name}...")
     program_id = filepath.stem
 
     # 1. Initialize local file payload
-    ir = {
+    ir: Dict[str, Any] = {
         "metadata": {
             "file_name": filepath.name,
             "path": str(filepath),

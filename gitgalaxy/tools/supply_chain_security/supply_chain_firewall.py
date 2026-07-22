@@ -25,6 +25,7 @@ from pathlib import Path
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.analysis_lens import ThreatPolicy
+from typing import Optional
 
 # Safely import the config, falling back if the user hasn't configured exceptions yet
 try:
@@ -41,7 +42,7 @@ except ImportError:
     BLACKLISTED_IMPORTS = []
 
 
-def run_firewall_audit(parsed_files: list, alias_map: dict = None) -> dict:
+def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> dict:
     """
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).
     Operates exclusively on the pre-tokenized, anomaly-checked RAM graph from Phase 1.

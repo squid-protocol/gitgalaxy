@@ -869,7 +869,7 @@ class StructuralExtractor:
         return unmitigated_count, mitigated_count
 
     def coding_analysis(
-        self, segments: List[Tuple[str, str, int]], regex_telemetry: dict = None
+        self, segments: List[Tuple[str, str, int]], regex_telemetry: Optional[dict] = None
     ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str], Dict[str, List[int]]]:
         counts: Dict[str, int] = {key: 0 for key in self.UNIVERSAL_METRICS_SCHEMA}
 
@@ -1123,7 +1123,7 @@ class StructuralExtractor:
 
 # galaxyscope:ignore sec_high_risk_execution
 
-    def _apply_literal_shield(self, text: str, lang_id: str = None) -> str:
+    def _apply_literal_shield(self, text: str, lang_id: Optional[str] = None) -> str:
         """
         The Smarter Atomic Literal Shield: Handles C++ Raw Strings, Python Triple Quotes,
         and safely isolates Heredocs to prevent Quote Desynchronization.
@@ -1251,7 +1251,7 @@ class StructuralExtractor:
         self,
         segments: List[Tuple[str, str, int]],
         segment_spatial_maps: List[Dict[str, List[int]]],
-        regex_telemetry: dict = None,
+        regex_telemetry: Optional[dict] = None,
     ) -> Tuple[List[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
         all_satellites = []
@@ -1944,7 +1944,7 @@ class StructuralExtractor:
         rules: Dict[str, Any],
         start_idx: int = 0,
         end_idx: int = 0,
-        spatial_map: Dict[str, List[int]] = None,
+        spatial_map: Optional[Dict[str, List[int]]] = None,
     ) -> Tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector

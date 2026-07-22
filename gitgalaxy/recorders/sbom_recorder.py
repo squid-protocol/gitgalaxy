@@ -37,9 +37,9 @@ class SbomRecorder:
     def __init__(
         self,
         version: str = "2.4.0",
-        parent_logger: logging.Logger = None,
+        parent_logger: Optional[logging.Logger] = None,
         dependency_cache=None,
-        fresh_scan_budget: int = None,
+        fresh_scan_budget: Optional[int] = None,
     ):
         self.logger = parent_logger.getChild("sbom_recorder") if parent_logger else logging.getLogger("sbom_recorder")
         self.version = version

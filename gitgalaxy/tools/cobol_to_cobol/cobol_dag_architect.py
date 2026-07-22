@@ -19,9 +19,10 @@ import sys
 import re
 from pathlib import Path
 from collections import defaultdict, deque
+from typing import Optional
 
 
-def extract_lineage(filepath: Path, dead_paras: set = None) -> dict:
+def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> dict:
     """
     Analyzes a COBOL program to map internal variables to external physical files.
     Utilizes shared IR state to mask out unreachable logic and prevent hallucinated dependencies.

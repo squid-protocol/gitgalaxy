@@ -16,7 +16,9 @@
 # ==============================================================================
 
 
-def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: dict = None) -> dict:
+from typing import Optional
+
+def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: Optional[dict] = None) -> dict:
     """Generates a structured JSON task ticket for Java service generation."""
     target_var = slice_json.get("target_var", "UNKNOWN")
     rules = slice_json.get("business_rules", [])

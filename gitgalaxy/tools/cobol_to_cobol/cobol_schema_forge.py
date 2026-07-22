@@ -19,6 +19,7 @@ import sys
 import re
 import json
 from pathlib import Path
+from typing import Optional
 
 
 def parse_cobol_picture(pic_clause: str) -> dict:
@@ -62,7 +63,7 @@ def parse_cobol_picture(pic_clause: str) -> dict:
     return {"sql": "TEXT", "json": "string"}
 
 
-def forge_schemas(filepath: Path, ignore_vars: set = None, corporate_header: str = ""):
+def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_header: str = ""):
     """
     Analyzes a COBOL/Copybook file and generates modern schemas.
     Upgraded to utilize shared IR context to drop unused memory addresses.

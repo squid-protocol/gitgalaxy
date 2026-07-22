@@ -9,7 +9,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Optional, Dict, Tuple
 
 
 class ManifestParser:
@@ -309,7 +309,7 @@ class UniversalManifestSlicer:
         return ecosystem, deps
 
     @staticmethod
-    def locate_physical_package(target_path: Path, pkg_name: str, ecosystem: str, repo_root: Path = None) -> Path:
+    def locate_physical_package(target_path: Path, pkg_name: str, ecosystem: str, repo_root: Optional[Path] = None) -> Path:
         """
         Hunts for the physical location of a package within the project bounds.
 

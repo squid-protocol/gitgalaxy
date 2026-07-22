@@ -82,7 +82,7 @@ class GPURecorder:
         summary: Dict,
         forensic_report: Dict,
         repo_name: str,
-        session_meta: Dict = None,
+        session_meta: Optional[Dict] = None,
         commit_hash: str = "untracked_local",
         branch_name: str = "unknown_branch",
     ) -> Dict:

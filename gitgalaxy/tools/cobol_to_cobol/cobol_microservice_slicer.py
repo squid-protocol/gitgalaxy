@@ -19,9 +19,10 @@ import argparse
 import sys
 import re
 from pathlib import Path
+from typing import Optional
 
 
-def slice_business_logic(filepath: Path, initial_var: str, dead_paras: set = None, orphaned_vars: set = None):
+def slice_business_logic(filepath: Path, initial_var: str, dead_paras: Optional[set] = None, orphaned_vars: Optional[set] = None):
     """
     Recursively tracks a variable and its aliases through the AST.
     Utilizes shared IR context to prevent mapping logic inside unreachable code.

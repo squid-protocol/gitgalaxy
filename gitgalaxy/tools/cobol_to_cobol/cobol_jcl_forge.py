@@ -18,6 +18,7 @@ import sys
 import re
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 
 def analyze_cobol_intent(filepath: Path) -> dict:
@@ -83,7 +84,7 @@ def generate_zero_trust_jcl(
     intent: dict,
     job_name: str,
     account_code: str,
-    lineage: dict = None,
+    lineage: Optional[dict] = None,
     corporate_header: str = "",
 ) -> str:
     """Generates a strict, permission-bounded JCL deployment script."""

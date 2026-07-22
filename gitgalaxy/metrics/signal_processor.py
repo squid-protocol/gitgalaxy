@@ -1512,7 +1512,7 @@ class SignalProcessor:
         fc: float,
         irc: int,
         mp: float,
-        functions: List[Dict[str, Any]] = None,
+        functions: Optional[List[Dict[str, Any]]] = None,
         doc_umbrella: float = 0.0,
         popularity: int = 0,
         silo_exposure: float = 0.0,
@@ -1724,7 +1724,7 @@ class SignalProcessor:
         raw_signals: Dict[str, int],
         irc: int,
         mp: float,
-        functions: List[Dict[str, Any]] = None,
+        functions: Optional[List[Dict[str, Any]]] = None,
     ) -> float:
         """
         RISK: Threads/Async execution + Thread Starvation (O(N) Bombs).

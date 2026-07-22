@@ -15,7 +15,7 @@ import struct
 import math
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Optional, Dict, Any
 
 
 class TensorScanner:
@@ -25,7 +25,7 @@ class TensorScanner:
     and architecture families from binary headers.
     """
 
-    def __init__(self, parent_logger: logging.Logger = None):
+    def __init__(self, parent_logger: Optional[logging.Logger] = None):
         self.logger = parent_logger.getChild("tensor_scanner") if parent_logger else logging.getLogger("tensor_scanner")
 
     def audit_model(self, file_path: str) -> Dict[str, Any]:

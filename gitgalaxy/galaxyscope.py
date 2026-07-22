@@ -635,8 +635,46 @@ class Orchestrator:
         # SARIF Recorder: Exports industry-standard JSON for enterprise security dashboards
         self.sarif_recorder = SarifRecorder(version=self.version, parent_logger=logger)
         # SBOM Recorder: Produces mathematically verified CycloneDX manifests
-        self.sbom_recorder = SbomRecorder(version=self.version, parent_logger=logger)
+        # --- DEPENDENCY AUDIT CACHE WIRING (PR C of the overhaul) ---
+        # The cache only matters on runs where the SBOM audit actually
+        # executes (default runs and --sbom-only). Under other exclusive
+        # modes SbomRecorder is never invoked, so an idle cache handle is
+        # harmless — but we skip even opening it there to avoid touching
+        # the file on runs that will never use it.
+        self.dependency_cache = None
+        _exclusive_no_sbom = (
+            config.get("LLM_ONLY") or config.get("GPU_ONLY") or config.get("AUDIT_ONLY")
+            or config.get("DB_ONLY") or config.get("SARIF_ONLY")
+        ) and not config.get("SBOM_ONLY")
 
+        if not config.get("NO_DEPENDENCY_CACHE") and not _exclusive_no_sbom:
+            from gitgalaxy.security.dependency_audit_cache import DependencyAuditCache
+
+            cache_path = config.get("DEPENDENCY_CACHE_PATH")
+            if not cache_path:
+                cache_path = str(self.root / ".gitgalaxy" / "dependency_cache.db")
+
+            _cache_existed = Path(cache_path).exists()
+            self.dependency_cache = DependencyAuditCache(cache_path, parent_logger=logger)
+            if _cache_existed:
+                logger.info(f"🗂️ Dependency audit cache loaded: {cache_path}")
+            else:
+                logger.warning(
+                    f"🗂️ No dependency audit baseline found — created new cache at {cache_path}. "
+                    "This run verifies dependencies incrementally; coverage accumulates across runs. "
+                    "Use --full-dependency-scan to build a complete baseline in one pass. "
+                    "(Recommend adding .gitgalaxy/ to your .gitignore.)"
+                )
+
+        _budget = None if config.get("FULL_DEPENDENCY_SCAN") else config.get("DEPENDENCY_SCAN_BUDGET", 25)
+
+        self.sbom_recorder = SbomRecorder(
+            version=self.version,
+            parent_logger=logger,
+            dependency_cache=self.dependency_cache,
+            fresh_scan_budget=_budget,
+        )
+        
         # --- NEW: THE SMART THREAT SWITCH (MAIN THREAD) ---
         if self.config.get("PARANOID_MODE", False):
             _active_policy = ThreatPolicy.get_policy("paranoid")
@@ -1135,6 +1173,7 @@ class Orchestrator:
                         summary=summary,
                         session_meta=session_meta,
                         output_path=sbom_output,
+                        manifest_paths=manifest_paths,
                     )
                 except Exception as e:
                     logger.error(
@@ -1159,6 +1198,9 @@ class Orchestrator:
 
                 payload["meta"]["session"] = session_meta
                 self.gpu_recorder.save_minified(payload, gpu_output)
+
+            if self.dependency_cache is not None:
+                self.dependency_cache.close()
 
             logger.info(f"--- PIPELINE_SUCCESS: {files_mapped_count} files mapped in {duration}s ---")
             logger.info(f"--- ENGINE_TELEMETRY: Processed {total_loc:,} lines of code at {loc_per_sec:,} LOC/s ---")
@@ -2435,6 +2477,32 @@ def main():
     parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
     parser.add_argument("--max-systemic-threat", type=float, default=0.0, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
     parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
+
+    # --- DEPENDENCY AUDIT CACHE (incremental SBOM verification) ---
+    parser.add_argument(
+        "--dependency-cache",
+        type=str,
+        metavar="DB_PATH",
+        default=None,
+        help="Path to the persistent dependency-audit hash cache. Defaults to <target>/.gitgalaxy/dependency_cache.db",
+    )
+    parser.add_argument(
+        "--no-dependency-cache",
+        action="store_true",
+        help="Disable the dependency-audit cache entirely (legacy capped-sampling SBOM audit)",
+    )
+    parser.add_argument(
+        "--full-dependency-scan",
+        action="store_true",
+        help="Ignore the per-package fresh-scan budget and verify every dependency file this run",
+    )
+    parser.add_argument(
+        "--dependency-scan-budget",
+        type=int,
+        metavar="N",
+        default=25,
+        help="Max cache-miss files freshly scanned per package per run (default 25; deferred files are disclosed and picked up next run)",
+    )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
@@ -2609,11 +2677,27 @@ def main():
             "FILE_SPEED": args.file_speed,
             "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),
             "SARIF_IGNORED_PATHS": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_PATHS", []),
+            "DEPENDENCY_CACHE_PATH": args.dependency_cache,
+            "NO_DEPENDENCY_CACHE": args.no_dependency_cache,
+            "FULL_DEPENDENCY_SCAN": args.full_dependency_scan,
+            "DEPENDENCY_SCAN_BUDGET": args.dependency_scan_budget,
         }
 
         # ---------------------------------------------------------
         # 4. Ignite the Engine
         # ---------------------------------------------------------
+        
+        # GUARD: --full-dependency-scan is meaningless when the SBOM audit
+        # won't run at all. Warn loudly instead of silently no-opping.
+        _sbomless_exclusive = (
+            args.llm_only or args.gpu_only or args.audit_only or args.db_only or args.sarif_only
+        ) and not args.sbom_only
+        if args.full_dependency_scan and _sbomless_exclusive:
+            logging.warning(
+                "⚠️ --full-dependency-scan has NO EFFECT: the current exclusive mode skips "
+                "SBOM generation entirely. Use --sbom-only or a default full run to audit dependencies."
+            )
+            
         scope = Orchestrator(args.target, full_config)
 
         if args.incremental:

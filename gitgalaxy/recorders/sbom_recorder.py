@@ -14,7 +14,7 @@ import uuid
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.security.security_lens import SecurityLens
@@ -59,6 +59,7 @@ class SbomRecorder:
         summary: Dict[str, Any],
         session_meta: Dict[str, Any],
         output_path: str,
+        manifest_paths: Optional[List[str]] = None,
     ) -> None:
         target_path = Path(session_meta.get("target_directory", "")).resolve()
         
@@ -78,22 +79,30 @@ class SbomRecorder:
         total_verified = 0
 
         # 1. Harvest Manifests Universally
-        manifest_targets = [
-            "package.json",
-            "composer.json",
-            "requirements.txt",
-            "Cargo.toml",
-            "go.mod",
-            "Gemfile",
-            "pom.xml",
-        ]
-        found_manifests = [target_path / m for m in manifest_targets if (target_path / m).exists()]
+        # Primary source: manifest_paths, built once in galaxyscope Phase 10
+        # from the aperture-filtered Phase-0 census (self.stem_map) — the
+        # earliest, most complete, and already vendor-dir-excluded file
+        # inventory in the pipeline. This deliberately avoids re-deriving
+        # manifest locations from parsed_files/repository_graph, which is
+        # several lossy transformations downstream (Phase 6's spectral audit
+        # can drop anomalous-looking files before they ever reach us here).
+        if manifest_paths:
+            manifests_found = [(Path(p), Path(p).parent) for p in manifest_paths]
+        else:
+            # Fallback for direct/standalone callers (e.g. unit tests) that
+            # don't pass the Phase-10 list. Root-only, matching legacy
+            # pre-census behavior.
+            manifests_found = [
+                (target_path / m, target_path)
+                for m in self._MANIFEST_NAMES
+                if (target_path / m).exists()
+            ]
 
-        if not found_manifests:
-            self.logger.warning("SBOM: No supported manifests found in the root directory. Outputting empty BOM.")
+        if not manifests_found:
+            self.logger.warning("SBOM: No supported manifests found. Outputting empty BOM.")
 
         # 2. The Zero-Trust Physical Audit
-        for manifest in found_manifests:
+        for manifest, base_dir in manifests_found:
             ecosystem, packages = slicer.slice_manifest(manifest)
             if not packages:
                 continue
@@ -104,7 +113,7 @@ class SbomRecorder:
                 trust_status = "VERIFIED_SAFE"
                 anomaly_notes = []
 
-                pkg_path = slicer.locate_physical_package(target_path, pkg_name, ecosystem)
+                pkg_path = slicer.locate_physical_package(base_dir, pkg_name, ecosystem)
 
                 coverage = "0/0 files (package not on disk)"
                 if not pkg_path:
@@ -190,12 +199,34 @@ class SbomRecorder:
         except Exception as e:
             self.logger.error(f"SBOM_FAILURE: Could not export CycloneDX payload. {e}", exc_info=True)
     
+    # Filenames that typically execute on import/install — the highest-value
+    # audit targets, since real-world supply-chain payloads overwhelmingly
+    # live in entry points rather than deep utility files.
+    _ENTRY_POINT_STEMS = ("index", "main", "__init__", "app", "setup")
+
     def _iter_candidate_files(self, pkg_path: Path):
-        """Yields every auditable code file in the package, depth-first."""
+        """
+        Yields every auditable code file in the package in RISK-PRIORITY order:
+        entry-point-named files first, then shallower paths before deeper
+        ones, then alphabetical. Under a fresh-scan budget this ensures the
+        highest-impact files receive their first verdict on the earliest
+        possible run, instead of whatever order os.walk happens to return
+        (which an attacker choosing a late-sorting filename could exploit
+        to defer their file's first inspection).
+        """
+        candidates = []
         for root, _, files in os.walk(pkg_path):
             for file in files:
                 if file.endswith((".js", ".py", ".ts", ".php", ".rs")):
-                    yield Path(root) / file
+                    candidates.append(Path(root) / file)
+
+        def _priority(p: Path):
+            stem = p.stem.lower()
+            is_entry = 0 if stem in self._ENTRY_POINT_STEMS else 1
+            depth = len(p.relative_to(pkg_path).parts)
+            return (is_entry, depth, str(p).lower())
+
+        yield from sorted(candidates, key=_priority)
 
     def _scan_single_file(self, file_path: Path, security, detector):
         """Runs the security lens + language detector on one file.
@@ -322,3 +353,10 @@ class SbomRecorder:
             trust_status = "PARTIALLY_VERIFIED"
 
         return trust_status, anomaly_notes, coverage
+    
+    # Manifest filenames recognized across all supported ecosystems.
+    _MANIFEST_NAMES = (
+        "package.json", "composer.json", "requirements.txt",
+        "Cargo.toml", "go.mod", "Gemfile", "pom.xml",
+    )
+

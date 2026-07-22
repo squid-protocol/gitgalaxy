@@ -155,3 +155,108 @@ def test_sbom_no_cache_preserves_legacy_behavior(mock_det, mock_sec, tmp_path):
     props = {p["name"]: p["value"] for p in bom["components"][0]["properties"]}
     assert "5/7" in props["gitgalaxy:audit_coverage"]
     assert "no dependency cache configured" in props["gitgalaxy:audit_coverage"]
+    
+def test_candidate_files_entry_points_first(tmp_path):
+    """Ordering contract: entry-point stems before others, shallow before
+    deep, alphabetical last — regardless of os.walk's natural order."""
+    pkg = tmp_path / "pkg"
+    deep = pkg / "lib" / "internal"
+    deep.mkdir(parents=True)
+    (pkg / "aaa_helper.js").write_text("1")   # sorts first alphabetically
+    (pkg / "index.js").write_text("2")        # entry point — must win anyway
+    (deep / "main.js").write_text("3")        # entry point, but deeper
+    (deep / "zz_util.js").write_text("4")
+
+    recorder = SbomRecorder()
+    ordered = [p.name for p in recorder._iter_candidate_files(pkg)]
+
+    assert ordered == ["index.js", "main.js", "aaa_helper.js", "zz_util.js"], (
+        f"Priority ordering violated: {ordered}"
+    )
+
+
+@patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
+@patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
+def test_budget_spends_on_entry_point_not_alphabetical_first(mock_det, mock_sec, tmp_path):
+    """
+    The attack scenario this PR closes: with budget=1, the fresh scan must go
+    to index.js even though 'aaa_payload.js' sorts earlier alphabetically —
+    a late-named payload can no longer push the entry point out of the
+    first run's budget (and vice versa: naming a payload 'zzz_*' no longer
+    guarantees deferral past entry-point files… it just can't jump the queue).
+    """
+    project = tmp_path / "proj"
+    project.mkdir()
+    (project / "package.json").write_text('{"dependencies": {"lib-a": "1.0"}}')
+    lib = project / "node_modules" / "lib-a"
+    lib.mkdir(parents=True)
+    (lib / "aaa_payload.js").write_text("evil?")
+    (lib / "index.js").write_text("legit")
+
+    mock_sec.return_value.scan_content.return_value = {"counts": {"entropy": 0.0}}
+    mock_det.return_value.inspect.return_value = {"anomaly_flags": []}
+
+    cache = DependencyAuditCache(str(tmp_path / "cache.db"))
+    recorder = SbomRecorder(dependency_cache=cache, fresh_scan_budget=1)
+    recorder.generate_report([], {}, {"target_directory": str(project)}, str(tmp_path / "bom.json"))
+
+    scanned_paths = [str(c.args[0]) for c in mock_det.return_value.inspect.call_args_list]
+    assert len(scanned_paths) == 1
+    assert scanned_paths[0].endswith("index.js"), (
+        f"Budget was spent on {scanned_paths[0]} instead of the entry point!"
+    )
+    cache.close()
+
+@patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
+@patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
+def test_sbom_discovers_nested_monorepo_manifests(mock_det, mock_sec, tmp_path):
+    """Regression: manifests below the repo root (monorepo layout) must be
+    discovered via the pipeline census, and their packages located relative
+    to the manifest's own directory — not the repo root."""
+    import json
+
+    project = tmp_path / "mono"
+    frontend = project / "packages" / "frontend"
+    frontend.mkdir(parents=True)
+    (frontend / "package.json").write_text('{"dependencies": {"lib-a": "1.0"}}')
+    lib = frontend / "node_modules" / "lib-a"
+    lib.mkdir(parents=True)
+    (lib / "index.js").write_text("ok")
+
+    mock_sec.return_value.scan_content.return_value = {"counts": {"entropy": 0.0}}
+    mock_det.return_value.inspect.return_value = {"anomaly_flags": []}
+
+    parsed_files = [{"path": "packages/frontend/package.json"}]
+
+    recorder = SbomRecorder()
+    out = tmp_path / "bom.json"
+    recorder.generate_report(parsed_files, {}, {"target_directory": str(project)}, str(out))
+
+    bom = json.loads(out.read_text())
+    assert len(bom["components"]) == 1
+    props = {p["name"]: p["value"] for p in bom["components"][0]["properties"]}
+    assert props["gitgalaxy:trust_status"] != "UNVERIFIED_MISSING_ON_DISK", (
+        "Package was located via repo root instead of the manifest's own directory!"
+    )
+
+
+def test_sbom_ignores_manifests_inside_vendored_dirs(tmp_path):
+    """A package.json inside node_modules must not be treated as a project
+    manifest. The census (aperture) excludes those dirs, and the root
+    fallback doesn't reach them — this locks that in."""
+    import json
+
+    project = tmp_path / "proj"
+    dep = project / "node_modules" / "some-lib"
+    dep.mkdir(parents=True)
+    (dep / "package.json").write_text('{"dependencies": {"evil-transitive": "6.6.6"}}')
+
+    # Census contains no manifest entries (aperture excluded node_modules)
+    recorder = SbomRecorder()
+    out = tmp_path / "bom.json"
+    recorder.generate_report([], {}, {"target_directory": str(project)}, str(out))
+
+    bom = json.loads(out.read_text())
+    assert bom["components"] == [], (
+        "A dependency's internal manifest was wrongly promoted to project manifest!"
+    )

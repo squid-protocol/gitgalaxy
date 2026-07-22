@@ -1334,64 +1334,64 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertIn("Complete Hardware Memory Failure", str(context.exception))
     
     # ==============================================================================
-# TEST 33: MANIFEST REGISTRY ALIGNMENT (Phase 10)
-# ==============================================================================
-@patch("gitgalaxy.recorders.sbom_recorder.SbomRecorder.generate_report")
-@patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
-@patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
-@patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
-@patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
-def test_phase_10_manifest_paths_includes_all_supported_ecosystems(
-    self, mock_census, mock_extract, mock_resolve, mock_risk, mock_sbom
-):
-    """
-    Regression: GUIDESTAR_CONFIG["MANIFEST_MAP"] (language-intent inference)
-    and SUPPORTED_MANIFEST_FILENAMES (what UniversalManifestSlicer can parse)
-    are two different lists for two different purposes, and have historically
-    drifted -- MANIFEST_MAP never tracked composer.json or requirements.txt.
-    Phase 10 must UNION both when building manifest_paths, or any repo that
-    also contains a MANIFEST_MAP-recognized file (package.json, Makefile,
-    etc.) silently starves SbomRecorder of Python/PHP manifests, even
-    though UniversalManifestSlicer is fully capable of parsing them.
-    """
-    config = self.mock_config.copy()
-    scope = Orchestrator(".", config)
+    # TEST 33: MANIFEST REGISTRY ALIGNMENT (Phase 10)
+    # ==============================================================================
+    @patch("gitgalaxy.recorders.sbom_recorder.SbomRecorder.generate_report")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    def test_phase_10_manifest_paths_includes_all_supported_ecosystems(
+        self, mock_census, mock_extract, mock_resolve, mock_risk, mock_sbom
+    ):
+        """
+        Regression: GUIDESTAR_CONFIG["MANIFEST_MAP"] (language-intent inference)
+        and SUPPORTED_MANIFEST_FILENAMES (what UniversalManifestSlicer can parse)
+        are two different lists for two different purposes, and have historically
+        drifted -- MANIFEST_MAP never tracked composer.json or requirements.txt.
+        Phase 10 must UNION both when building manifest_paths, or any repo that
+        also contains a MANIFEST_MAP-recognized file (package.json, Makefile,
+        etc.) silently starves SbomRecorder of Python/PHP manifests, even
+        though UniversalManifestSlicer is fully capable of parsing them.
+        """
+        config = self.mock_config.copy()
+        scope = Orchestrator(".", config)
 
-    # Simulate a mixed-ecosystem repo: package.json (in MANIFEST_MAP) sits
-    # alongside requirements.txt (NOT in MANIFEST_MAP, only in
-    # SUPPORTED_MANIFEST_FILENAMES) in a different directory.
-    scope.stem_map = {
-        "package.json": "frontend/package.json",
-        "requirements.txt": "backend/requirements.txt",
-    }
-    scope.ram_cache = {}
-    scope.parsed_files = []
-    scope.unparsable_files = []
-    scope.network_sensor = MagicMock()
-    scope.network_sensor.build_dependency_graph.return_value = ([], {})
-    scope.processor = MagicMock()
-    scope.processor.summarize_galaxy_metrics.return_value = {}
-    scope.auditor = MagicMock()
-    scope.auditor.audit.return_value = ([], [])
-    scope.model_auditor = MagicMock()
-    scope.model_auditor.audit_repository.return_value = []
-    scope.gpu_recorder = MagicMock()
+        # Simulate a mixed-ecosystem repo: package.json (in MANIFEST_MAP) sits
+        # alongside requirements.txt (NOT in MANIFEST_MAP, only in
+        # SUPPORTED_MANIFEST_FILENAMES) in a different directory.
+        scope.stem_map = {
+            "package.json": "frontend/package.json",
+            "requirements.txt": "backend/requirements.txt",
+        }
+        scope.ram_cache = {}
+        scope.parsed_files = []
+        scope.unparsable_files = []
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = ([], {})
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {}
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = ([], [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = []
+        scope.gpu_recorder = MagicMock()
 
-    with patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}), \
-         patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}), \
-         patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}):
-        scope.execute_pipeline("fake_output.json")
+        with patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}), \
+            patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}), \
+            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}):
+            scope.execute_pipeline("fake_output.json")
 
-    mock_sbom.assert_called_once()
-    _, sbom_kwargs = mock_sbom.call_args
-    manifest_paths = sbom_kwargs.get("manifest_paths") or []
+        mock_sbom.assert_called_once()
+        _, sbom_kwargs = mock_sbom.call_args
+        manifest_paths = sbom_kwargs.get("manifest_paths") or []
 
-    self.assertTrue(
-        any(p.endswith("requirements.txt") for p in manifest_paths),
-        f"requirements.txt missing from manifest_paths -- MANIFEST_MAP/"
-        f"SUPPORTED_MANIFEST_FILENAMES drifted again! Got: {manifest_paths}",
-    )
-    self.assertTrue(
-        any(p.endswith("package.json") for p in manifest_paths),
-        f"package.json missing from manifest_paths! Got: {manifest_paths}",
-    )
+        self.assertTrue(
+            any(p.endswith("requirements.txt") for p in manifest_paths),
+            f"requirements.txt missing from manifest_paths -- MANIFEST_MAP/"
+            f"SUPPORTED_MANIFEST_FILENAMES drifted again! Got: {manifest_paths}",
+        )
+        self.assertTrue(
+            any(p.endswith("package.json") for p in manifest_paths),
+            f"package.json missing from manifest_paths! Got: {manifest_paths}",
+        )

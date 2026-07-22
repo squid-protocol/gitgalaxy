@@ -26,8 +26,7 @@ from gitgalaxy.standards.language_lens import LanguageDetector
 # UniversalManifestSlicer now lives in the canonical manifest module (PR A of
 # the dependency-audit overhaul). Re-imported here so existing consumers and
 # tests importing it from this module keep working unchanged.
-from gitgalaxy.security.manifest_parser import UniversalManifestSlicer
-
+from gitgalaxy.security.manifest_parser import UniversalManifestSlicer, SUPPORTED_MANIFEST_FILENAMES
 
 class SbomRecorder:
     """
@@ -354,9 +353,8 @@ class SbomRecorder:
 
         return trust_status, anomaly_notes, coverage
     
-    # Manifest filenames recognized across all supported ecosystems.
-    _MANIFEST_NAMES = (
-        "package.json", "composer.json", "requirements.txt",
-        "Cargo.toml", "go.mod", "Gemfile", "pom.xml",
-    )
+    # Single source of truth: manifest_parser.SUPPORTED_MANIFEST_FILENAMES.
+    # Only used by the root-only fallback below when a caller doesn't pass
+    # manifest_paths.
+    _MANIFEST_NAMES = SUPPORTED_MANIFEST_FILENAMES
 

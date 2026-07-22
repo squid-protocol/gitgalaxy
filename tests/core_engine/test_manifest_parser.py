@@ -312,3 +312,28 @@ def test_unsupported_manifest_bypass(parser, tmp_path):
     resolution_map = parser.build_resolution_map([str(random_file)])
     
     assert resolution_map == {}, "Parser hallucinated resolutions from an unsupported file type!"
+
+def test_manifest_parser_scope_is_npm_and_pypi_only(parser, tmp_path):
+    """
+    Documents current scope, not a bug: ManifestParser.build_resolution_map
+    only builds an alias/registry-spoofing map for npm and PyPI-family files.
+    It does NOT recognize composer.json, Cargo.toml, Gemfile, or pom.xml --
+    even though UniversalManifestSlicer (this module's OTHER class, used for
+    the SBOM) parses all of those. Since galaxyscope's Phase 10 now feeds the
+    SAME manifest_paths list to both consumers, these filenames silently
+    no-op here. Locking this in so a future contributor extending
+    SUPPORTED_MANIFEST_FILENAMES doesn't assume ManifestParser gained
+    matching coverage for free.
+    """
+    cargo_file = tmp_path / "Cargo.toml"
+    cargo_file.write_text('[dependencies]\nserde = "1.0"')
+    composer_file = tmp_path / "composer.json"
+    composer_file.write_text(json.dumps({"require": {"monolog/monolog": "npm:evil@1.0"}}))
+
+    resolution_map = parser.build_resolution_map([str(cargo_file), str(composer_file)])
+
+    assert resolution_map == {}, (
+        "ManifestParser started resolving Cargo.toml/composer.json -- if this "
+        "is intentional, great, but SUPPORTED_MANIFEST_FILENAMES coverage "
+        "claims in sbom_recorder/galaxyscope comments should be revisited too."
+    )

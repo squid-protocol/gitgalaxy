@@ -178,6 +178,20 @@ class ManifestParser:
                             resolution_map[f"INSECURE_REGISTRY_{filepath.name}"] = url
 
 
+# NEW:
+# Filenames UniversalManifestSlicer.slice_manifest() below knows how to parse
+# into an actual dependency list. This is the single source of truth for
+# "what is a project dependency manifest" across the codebase -- both
+# SbomRecorder (_MANIFEST_NAMES) and galaxyscope's Phase 10 discovery import
+# this instead of maintaining their own copies. Keep this in sync with the
+# filename checks inside slice_manifest() itself; they must never drift
+# from each other either.
+SUPPORTED_MANIFEST_FILENAMES = (
+    "package.json", "composer.json", "requirements.txt",
+    "Cargo.toml", "go.mod", "Gemfile", "pom.xml",
+)
+
+
 class UniversalManifestSlicer:
     """
     Uses regex and standard parsing to slice dependencies from any ecosystem.

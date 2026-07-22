@@ -858,8 +858,18 @@ class Orchestrator:
             # ==========================================================
             logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
 
+# NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
-            target_manifests = set(GUIDESTAR_CONFIG.get("MANIFEST_MAP", {}).keys())
+            # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
+            # etc. -- files with no parseable dependency list, used only for its own
+            # Bayesian intent inference) with SUPPORTED_MANIFEST_FILENAMES, the
+            # canonical set UniversalManifestSlicer can actually parse. Without this
+            # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
+            # requirements.txt) silently never reach the SBOM whenever any other
+            # manifest is also present in the repo.
+            from gitgalaxy.security.manifest_parser import ManifestParser, SUPPORTED_MANIFEST_FILENAMES
+
+            target_manifests = set(GUIDESTAR_CONFIG.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
             manifest_paths = [
                 str(self.root / rel_path)
                 for rel_path in self.stem_map.values()
@@ -867,8 +877,6 @@ class Orchestrator:
             ]
 
             # 2. Build the global translation map
-            from gitgalaxy.security.manifest_parser import ManifestParser
-
             alias_map = ManifestParser(parent_logger=logger).build_resolution_map(manifest_paths)
 
             ecosystem_audits = {

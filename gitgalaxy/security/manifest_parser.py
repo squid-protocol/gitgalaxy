@@ -309,11 +309,41 @@ class UniversalManifestSlicer:
         return ecosystem, deps
 
     @staticmethod
-    def locate_physical_package(target_path: Path, pkg_name: str, ecosystem: str) -> Path:
-        """Hunts for the physical location of a package within the project bounds."""
+    def locate_physical_package(target_path: Path, pkg_name: str, ecosystem: str, repo_root: Path = None) -> Path:
+        """
+        Hunts for the physical location of a package within the project bounds.
+
+        repo_root (optional): the actual repository root, separate from
+        target_path (the manifest's own directory). When provided, an npm
+        lookup that misses at target_path falls back to walking upward
+        toward repo_root, checking node_modules at each intermediate level --
+        npm/yarn/pnpm workspaces commonly hoist shared dependencies to the
+        workspace root instead of duplicating them into every sub-package's
+        own node_modules. The walk stops at repo_root rather than the
+        filesystem root, so an unrelated node_modules higher up the machine
+        can't produce a false match. Backward compatible: callers that don't
+        pass repo_root get the old, non-hoisting-aware behavior unchanged.
+        """
         if ecosystem == "npm":
             target = target_path / "node_modules" / pkg_name
-            return target if target.exists() else None
+            if target.exists():
+                return target
+
+            # Hoisting fallback: walk upward from the manifest's own
+            # directory toward repo_root, checking node_modules at each
+            # intermediate level, without ever going above repo_root.
+            if repo_root is not None:
+                try:
+                    current = target_path.resolve()
+                    boundary = repo_root.resolve()
+                except OSError:
+                    return None
+                while current != boundary and boundary in current.parents:
+                    current = current.parent
+                    hoisted = current / "node_modules" / pkg_name
+                    if hoisted.exists():
+                        return hoisted
+            return None
 
         elif ecosystem == "packagist":
             # Composer packages are in vendor/vendor-name/package-name

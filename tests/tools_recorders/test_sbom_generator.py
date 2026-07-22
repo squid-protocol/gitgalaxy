@@ -291,3 +291,21 @@ def test_manifest_names_match_slicer_support(tmp_path):
             f"{filename} is in _MANIFEST_NAMES but slice_manifest identified it as "
             f"'{ecosystem}' instead of '{expected_eco}' -- the two are out of sync!"
         )
+
+def test_locate_physical_package_hoisted_dependency(tmp_path):
+    """Regression: npm/yarn/pnpm workspaces hoist shared deps to the
+    workspace root instead of duplicating them per sub-package. Without
+    repo_root, a hoisted dep must still miss (backward compatibility for
+    callers that don't know about workspace roots). With repo_root, it
+    must be found by walking upward -- but never past repo_root."""
+    slicer = UniversalManifestSlicer()
+    frontend = tmp_path / "packages" / "frontend"
+    frontend.mkdir(parents=True)
+    (tmp_path / "node_modules" / "react").mkdir(parents=True)
+
+    assert slicer.locate_physical_package(frontend, "react", "npm") is None, (
+        "Legacy call signature (no repo_root) must stay unaffected."
+    )
+    assert slicer.locate_physical_package(frontend, "react", "npm", repo_root=tmp_path) is not None, (
+        "Hoisted dependency at the workspace root was not found."
+    )

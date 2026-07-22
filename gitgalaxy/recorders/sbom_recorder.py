@@ -112,7 +112,7 @@ class SbomRecorder:
                 trust_status = "VERIFIED_SAFE"
                 anomaly_notes = []
 
-                pkg_path = slicer.locate_physical_package(base_dir, pkg_name, ecosystem)
+                pkg_path = slicer.locate_physical_package(base_dir, pkg_name, ecosystem, repo_root=target_path)
 
                 coverage = "0/0 files (package not on disk)"
                 if not pkg_path:

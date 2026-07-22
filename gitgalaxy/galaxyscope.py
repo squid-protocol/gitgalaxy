@@ -858,6 +858,7 @@ class Orchestrator:
             # ==========================================================
             logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
 
+# NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
             # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
             # etc. -- files with no parseable dependency list, used only for its own

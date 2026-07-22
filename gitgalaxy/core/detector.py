@@ -56,9 +56,12 @@ class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
 
     name: str
+    parent_class_name: str
+    usage_status: int
 
     # Dual-Key mapping to ensure compatibility with all pipeline versions
     semantic_type: str
+    texture: str
     type_id: str
 
     loc: int
@@ -72,12 +75,14 @@ class FunctionNode(TypedDict, total=False):
     args_count: int
 
     control_flow_angle: float
+    logic_angle: float
     angle: float
 
     control_flow_ratio: float
     cf_ratio: float
 
     structural_weight: float
+    magnitude: float
     mag: float
     impact: float
 
@@ -90,7 +95,7 @@ class FunctionNode(TypedDict, total=False):
     docstring: str
     calls_out_to: List[str]
     hit_vector: Dict[str, int]
-    token_mass: int
+    token_mass: Optional[int]
 
 
 class LogicData(TypedDict, total=False):

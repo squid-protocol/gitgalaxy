@@ -654,17 +654,24 @@ class Orchestrator:
             if not cache_path:
                 cache_path = str(self.root / ".gitgalaxy" / "dependency_cache.db")
 
-            _cache_existed = Path(cache_path).exists()
-            self.dependency_cache = DependencyAuditCache(cache_path, parent_logger=logger)
-            if _cache_existed:
-                logger.info(f"🗂️ Dependency audit cache loaded: {cache_path}")
-            else:
+            try:
+                _cache_existed = Path(cache_path).exists()
+                self.dependency_cache = DependencyAuditCache(cache_path, parent_logger=logger)
+                if _cache_existed:
+                    logger.info(f"🗂️ Dependency audit cache loaded: {cache_path}")
+                else:
+                    logger.warning(
+                        f"🗂️ No dependency audit baseline found — created new cache at {cache_path}. "
+                        "This run verifies dependencies incrementally; coverage accumulates across runs. "
+                        "Use --full-dependency-scan to build a complete baseline in one pass. "
+                        "(Recommend adding .gitgalaxy/ to your .gitignore.)"
+                    )
+            except OSError as e:
                 logger.warning(
-                    f"🗂️ No dependency audit baseline found — created new cache at {cache_path}. "
-                    "This run verifies dependencies incrementally; coverage accumulates across runs. "
-                    "Use --full-dependency-scan to build a complete baseline in one pass. "
-                    "(Recommend adding .gitgalaxy/ to your .gitignore.)"
+                    f"🗂️ Could not open dependency audit cache at {cache_path} ({e}). "
+                    "Falling back to legacy capped-sampling SBOM audit for this run."
                 )
+                self.dependency_cache = None
 
         _budget = None if config.get("FULL_DEPENDENCY_SCAN") else config.get("DEPENDENCY_SCAN_BUDGET", 25)
 

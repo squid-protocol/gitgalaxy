@@ -226,11 +226,16 @@ def test_sbom_discovers_nested_monorepo_manifests(mock_det, mock_sec, tmp_path):
     mock_sec.return_value.scan_content.return_value = {"counts": {"entropy": 0.0}}
     mock_det.return_value.inspect.return_value = {"anomaly_flags": []}
 
-    parsed_files = [{"path": "packages/frontend/package.json"}]
+    # This is what galaxyscope's Phase 10 now hands SbomRecorder directly;
+    # generate_report no longer derives manifest locations from parsed_files.
+    manifest_paths = [str(frontend / "package.json")]
 
     recorder = SbomRecorder()
     out = tmp_path / "bom.json"
-    recorder.generate_report(parsed_files, {}, {"target_directory": str(project)}, str(out))
+    recorder.generate_report(
+        [], {}, {"target_directory": str(project)}, str(out),
+        manifest_paths=manifest_paths,
+    )
 
     bom = json.loads(out.read_text())
     assert len(bom["components"]) == 1
@@ -239,11 +244,13 @@ def test_sbom_discovers_nested_monorepo_manifests(mock_det, mock_sec, tmp_path):
         "Package was located via repo root instead of the manifest's own directory!"
     )
 
-
-def test_sbom_ignores_manifests_inside_vendored_dirs(tmp_path):
-    """A package.json inside node_modules must not be treated as a project
-    manifest. The census (aperture) excludes those dirs, and the root
-    fallback doesn't reach them — this locks that in."""
+# ADD these two in its place:
+def test_sbom_root_fallback_does_not_recurse_into_vendored_dirs(tmp_path):
+    """The no-manifest_paths fallback only checks the repo root, so a
+    package.json inside node_modules is never found by it. This is a side
+    effect of the fallback being root-only, not a deliberate vendor-dir
+    filter — guards against someone 'improving' the fallback to recurse
+    (e.g. via os.walk or Path.rglob) without also re-adding an exclusion."""
     import json
 
     project = tmp_path / "proj"
@@ -251,12 +258,48 @@ def test_sbom_ignores_manifests_inside_vendored_dirs(tmp_path):
     dep.mkdir(parents=True)
     (dep / "package.json").write_text('{"dependencies": {"evil-transitive": "6.6.6"}}')
 
-    # Census contains no manifest entries (aperture excluded node_modules)
     recorder = SbomRecorder()
     out = tmp_path / "bom.json"
     recorder.generate_report([], {}, {"target_directory": str(project)}, str(out))
 
     bom = json.loads(out.read_text())
     assert bom["components"] == [], (
-        "A dependency's internal manifest was wrongly promoted to project manifest!"
+        "Root-only fallback found a manifest outside the repo root!"
+    )
+
+
+@patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
+@patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
+def test_sbom_trusts_manifest_paths_without_revalidating_them(mock_det, mock_sec, tmp_path):
+    """SbomRecorder no longer owns vendor-dir exclusion — that guarantee now
+    lives entirely in galaxyscope Phase 10 (stem_map/aperture filtering),
+    upstream of manifest_paths. This locks in that SbomRecorder itself does
+    NOT re-filter: a node_modules-nested manifest handed to it via
+    manifest_paths gets processed like any other manifest. If aperture's
+    own filtering ever regresses, this is not where that would be caught —
+    that guard belongs in a galaxyscope-level test."""
+    import json
+
+    project = tmp_path / "proj"
+    dep = project / "node_modules" / "some-lib"
+    dep.mkdir(parents=True)
+    (dep / "package.json").write_text('{"dependencies": {"evil-transitive": "6.6.6"}}')
+    inner_lib = dep / "node_modules" / "evil-transitive"
+    inner_lib.mkdir(parents=True)
+    (inner_lib / "index.js").write_text("ok")
+
+    mock_sec.return_value.scan_content.return_value = {"counts": {"entropy": 0.0}}
+    mock_det.return_value.inspect.return_value = {"anomaly_flags": []}
+
+    recorder = SbomRecorder()
+    out = tmp_path / "bom.json"
+    recorder.generate_report(
+        [], {}, {"target_directory": str(project)}, str(out),
+        manifest_paths=[str(dep / "package.json")],
+    )
+
+    bom = json.loads(out.read_text())
+    assert len(bom["components"]) == 1, (
+        "SbomRecorder should trust manifest_paths as given -- filtering is "
+        "galaxyscope's job now, not SbomRecorder's."
     )

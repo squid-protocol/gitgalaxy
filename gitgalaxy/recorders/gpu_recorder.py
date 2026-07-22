@@ -93,7 +93,7 @@ class GPURecorder:
         self.logger.info("GPU_RECORDER: Engaging Stage 3.3 Destructive RAM Eviction.")
 
         # The 'Galaxy' array maps 1:1 to the WebGL rendering instance
-        repository_graph = {
+        repository_graph: Dict[str, Any] = {
             "names": [],
             "paths": [],
             "lang_ids": [],

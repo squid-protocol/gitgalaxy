@@ -383,6 +383,8 @@ class SecurityLens:
         counts["prompt_injection"] = prompt_injection_hits
         counts["agentic_rce"] = agentic_rce_hits
         snippets["tainted_injection"] = taint_snippets
+        snippets["prompt_injection"] = [s for s in taint_snippets if "LLM" in s]
+        snippets["agentic_rce"] = [s for s in taint_snippets if "RCE" in s]
 
         return {"counts": counts, "snippets": snippets}
 

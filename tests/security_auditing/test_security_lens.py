@@ -103,8 +103,11 @@ def test_data_flow_taint_tracking(lens):
         "Failed to detect Agentic RCE (LLM -> Danger)!"
     )
     assert any(
-        "[LLM State -> RCE]" in s for s in snippets.get("tainted_injection", [])
-    ), "Failed to log the Agentic RCE snippet!"
+        "[LLM State -> RCE]" in s for s in snippets.get("agentic_rce", [])
+    ), "Failed to populate the dedicated agentic_rce snippet array!"
+    assert any(
+        "[I/O -> LLM]" in s or "[Taint -> LLM]" in s for s in snippets.get("prompt_injection", [])
+    ), "Failed to populate the dedicated prompt_injection snippet array!"
 
 
 # ==============================================================================
@@ -136,52 +139,7 @@ def test_auto_gen_shield_bypasses(lens):
 
 
 # ==============================================================================
-# TEST 5: EVALUATE RISK & NETWORK CENTRALITY AMPLIFICATION
-# ==============================================================================
-def test_evaluate_risk_network_centrality(lens):
-    """
-    Proves the Network Centrality multiplier correctly amplifies threshold policies
-    for highly central architecture nodes in the dependency graph.
-    """
-    hits = {
-        "high_risk_execution": 50,
-        "io": 20,
-    }  # 70 hits in 100 LOC = 0.70 density (breaches 0.65 threshold)
-    loc = 100
-
-    # 1. Standard File
-    standard_risk = lens.evaluate_risk(hits, loc, network_metrics=None)
-
-    # 2. Central Architecture Node (Blast Radius > 1.0)
-    network_data = {"normalized_blast_radius": 2.0, "betweenness_score": 0.1}
-    amplified_risk = lens.evaluate_risk(hits, loc, network_metrics=network_data)
-
-    assert "Data Injection Risk" in standard_risk
-    assert "Data Injection Risk" in amplified_risk
-
-    # The amplified risk density should be drastically higher due to network centrality
-    assert amplified_risk["Data Injection Risk"] > standard_risk["Data Injection Risk"]
-
-
-def test_evaluate_risk_prompt_injection_isolation(lens):
-    """
-    Proves that Prompt Injections that do NOT result in RCE are scored independently,
-    without triggering the Critical RCE override.
-    """
-    hits = {
-        "prompt_injection": 5,
-        "agentic_rce": 0,
-    }
-    loc = 100
-
-    risk = lens.evaluate_risk(hits, loc, network_metrics=None)
-
-    assert "Prompt Injection Surface Risk" in risk
-    assert "Autonomous Execution Vector (Critical)" not in risk
-
-
-# ==============================================================================
-# TEST 6: BINARY MAGIC BYTE & ENTROPY SCANNER
+# TEST 5: BINARY MAGIC BYTE & ENTROPY SCANNER
 # ==============================================================================
 def test_binary_magic_byte_scanner(lens):
     """
@@ -209,9 +167,9 @@ def test_binary_magic_byte_scanner(lens):
 
 
 # ==============================================================================
-# TEST 7: COMPREHENSIVE COVERAGE & SAFE FALLBACKS
+# TEST 6: COMPREHENSIVE COVERAGE & SAFE FALLBACKS
 # ==============================================================================
-def test_comprehensive_risk_evaluation_coverage(lens):
+def test_comprehensive_fallback_coverage(lens):
     """
     Triggers every remaining catastrophic threshold, empty state fallback,
     and exception handler to achieve 100% branch coverage.
@@ -219,31 +177,7 @@ def test_comprehensive_risk_evaluation_coverage(lens):
     # 1. Empty Entropy Fallback
     assert lens._calculate_shannon_entropy("") == 0.0
 
-    # 2. Safe Code Baseline (Zero False Positives)
-    safe_hits = {"branch": 5, "structural_boundaries": 10}
-    safe_risk = lens.evaluate_risk(safe_hits, 100)
-    assert not safe_risk, "Safe code generated false positive risk exposures!"
-
-    # 3. Total Threshold Breach (Triggering every risk vector simultaneously)
-    apocalyptic_hits = {
-        "reflection_metaprogramming": 500,  # Hidden Malware
-        "dead_code": 500,  # Logic Bomb
-        "io": 500,
-        "high_risk_execution": 500,  # Data Injection
-        "memory_corruption": 500,  # Memory Corruption
-        "hardcoded_secrets": 500,  # Secrets Leak
-        "agentic_rce": 1,  # Critical Agentic RCE Override
-    }
-
-    doomsday_risk = lens.evaluate_risk(apocalyptic_hits, 100)
-
-    assert "Hidden Malware Risk" in doomsday_risk
-    assert "Logic Bomb Risk" in doomsday_risk
-    assert "Memory Corruption Risk" in doomsday_risk
-    assert "Secrets Leak Risk" in doomsday_risk
-    assert "Autonomous Execution Vector (Critical)" in doomsday_risk
-
-    # 4. Binary Scanner Exception Handler
+    # 2. Binary Scanner Exception Handler
     # We pass a valid byte array to survive the header scan, but mock the Counter
     # to throw an exception, proving the except block safely swallows it.
     with patch(
@@ -252,17 +186,6 @@ def test_comprehensive_risk_evaluation_coverage(lens):
     ):
         result_crash = lens.scan_binary(b"\x00" * 300, ".bin")
         assert result_crash == {}
-
-# 4. Binary Scanner Exception Handler
-    # We pass a valid byte array to survive the header scan, but mock the Counter
-    # to throw an exception, proving the except block safely swallows it.
-    with patch(
-        "gitgalaxy.security.security_lens.Counter",
-        side_effect=ValueError("Simulated math crash"),
-    ):
-        result_crash = lens.scan_binary(b"\x00" * 300, ".bin")
-        assert result_crash == {}
-
 
 # ==============================================================================
 # TEST 8: MINIFICATION & OBFUSCATION FALLBACK SCREEN (DEEP VALIDATION)

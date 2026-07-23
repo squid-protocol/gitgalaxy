@@ -130,7 +130,7 @@ def auto_discover_swagger(target_dir: Path) -> list:
     }
 
     for filepath in target_dir.rglob("*"):
-        if not filepath.is_file() or filepath.suffix not in [".json", ".yaml", ".yml"]:
+        if not filepath.is_file() or filepath.suffix.lower() not in [".json", ".yaml", ".yml"]:
             continue
 
         # 1. Check filename first (Fast Path)
@@ -202,7 +202,7 @@ def map_physical_codebase(target_dir: Path) -> tuple:
             continue
 
         for framework, config in FRAMEWORK_SIGNATURES.items():
-            if filepath.suffix in config["ext"]:
+            if filepath.suffix.lower() in config["ext"]:
                 try:
                     content = filepath.read_text(encoding="utf-8", errors="ignore")
                     hits = config["regex"].findall(content)

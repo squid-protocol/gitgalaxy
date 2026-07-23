@@ -1,3 +1,4 @@
+import os
 import pytest
 import json
 from unittest.mock import patch
@@ -139,3 +140,54 @@ def test_guidestar_sector_bias(guidestar, tmp_path):
     # /temp/ is not in the biased sectors
     found, lock = guidestar.get_intent_status("temp/cache.log")
     assert found is False
+
+
+# ==============================================================================
+# TEST 5: DOCUMENTATION COVERAGE PRUNES IGNORED DIRECTORIES (ISSUE #256)
+# ==============================================================================
+def test_guidestar_documentation_coverage_prunes_ignored_dirs(tmp_path):
+    """
+    Proves that _calculate_documentation_coverage actually stops os.walk from
+    descending into IGNORED_DIRECTORIES (e.g. node_modules), rather than just
+    filtering the results after a full recursive traversal, and that the
+    match is case-insensitive.
+
+    Before the fix, `continue` only skipped file processing for the current
+    directory -- os.walk still recursed into and enumerated every file under
+    an ignored directory first. This spies on os.walk to assert nothing
+    beneath the ignored directory is ever yielded, which only holds if
+    `dirs[:]` is mutated in place. The config also deliberately mismatches
+    case ("Node_Modules" vs. the on-disk "node_modules") to prove the
+    comparison is lowercased on both sides.
+    """
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "README.md").write_text("x" * 500, encoding="utf-8")
+
+    ignored_dir = tmp_path / "node_modules"
+    nested_dir = ignored_dir / "some-pkg"
+    nested_dir.mkdir(parents=True)
+    (nested_dir / "README.md").write_text("y" * 500, encoding="utf-8")
+
+    lens = GuideStarLens(root_path=tmp_path)
+    # Instance-attribute override (class-attribute patching doesn't survive past
+    # __init__ here, since nothing in __init__ captures _gs_config into self).
+    lens._gs_config = {**MOCK_GUIDESTAR_CONFIG, "IGNORED_DIRECTORIES": {"Node_Modules"}}
+
+    visited_roots = []
+    real_walk = os.walk
+
+    def spy_walk(root, *args, **kwargs):
+        for root_dir, dirs, files in real_walk(root, *args, **kwargs):
+            visited_roots.append(root_dir)
+            yield root_dir, dirs, files
+
+    with patch("gitgalaxy.core.guidestar_lens.os.walk", side_effect=spy_walk):
+        lens._calculate_documentation_coverage()
+
+    # os.walk must never descend into node_modules/some-pkg -- proving dirs
+    # was pruned in place, not just filtered after the fact.
+    assert not any(str(nested_dir) == v for v in visited_roots)
+
+    # The ignored directory's own README must not count toward coverage.
+    assert "node_modules" not in lens.documentation_coverage
+    assert "src" in lens.documentation_coverage

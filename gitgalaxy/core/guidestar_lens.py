@@ -469,10 +469,14 @@ class GuideStarLens:
             "USAGE.md",
         }
 
+        ignored_directories_lower = {d.lower() for d in self._gs_config.get("IGNORED_DIRECTORIES", set())}
+
         for root_dir, dirs, files in os.walk(self.root):
+            dirs[:] = [d for d in dirs if d.lower() not in ignored_directories_lower]
+
             dir_path = Path(root_dir)
 
-            if any(part in self._gs_config.get("IGNORED_DIRECTORIES", set()) for part in dir_path.parts):
+            if any(part.lower() in ignored_directories_lower for part in dir_path.parts):
                 continue
 
             local_shield_footprint = 0

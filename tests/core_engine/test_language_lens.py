@@ -434,3 +434,34 @@ def test_corrupted_intent_vector_survival(isolated_detector):
     # The engine should ignore the garbage metadata and drop down to standard Heuristic Discovery
     assert result["lang_id"] in ["undeterminable", "plaintext", "python"]
     assert "Discovery" in result["source_proof"]
+
+
+# ==============================================================================
+# TEST 18: TIER 4 DENSITY CONFIDENCE CLAMP (ISSUE #257)
+# ==============================================================================
+@patch("gitgalaxy.standards.language_lens.time.time")
+def test_tier_4_density_confidence_is_clamped(mock_time, isolated_detector):
+    """
+    Proves Tier 4's `regex_hits / loc` density score is clamped to 1.0 before
+    being returned as a confidence value.
+
+    Unlike Tier 3 (`confidence = min(top_signal / 50.0, 1.0)`), Tier 4 used to
+    return `top_density` verbatim at every Phase 5 return point. Real files
+    routinely have more than one regex hit per physical line, so density
+    regularly exceeds 1.0 -- this payload deliberately hits "int main" three
+    times per line to drive raw density to ~2x, well past 1.0.
+    """
+    mock_time.side_effect = [float(i) for i in range(50)]
+
+    # 5 comment lines (to establish the standard_block lexical family) + 20
+    # lines with 3 "int main" hits each -> 60 hits over ~26 physical lines,
+    # a raw density of ~2.3 -- unclamped, this would flow straight into
+    # `intensity` in the final result.
+    c_payload = "// C file\n" * 5 + "int main(); int main(); int main();\n" * 20
+
+    result = isolated_detector.inspect("no_extension_file", c_payload)
+
+    assert result["lang_id"] == "c"
+    assert result["intensity"] <= 1.0, (
+        f"Tier 4 confidence must be clamped to <= 1.0, got {result['intensity']}"
+    )

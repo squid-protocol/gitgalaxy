@@ -957,7 +957,7 @@ class LanguageDetector:
                     self.logger.warning(f"Tier 4 [Reconciliation]: TEMPORAL FRICTION ANOMALY on {top_id}...")
                     return "undeterminable", 0.0
 
-                return top_id, top_density
+                return top_id, min(top_density, 1.0)
 
             # 2. Friction Tie-Breaker (If margin is tight, penalize slow regex execution)
             elif density_margin >= self.thresholds.get("TIER_4_OUTLIER_MARGIN", 1.10):
@@ -967,7 +967,7 @@ class LanguageDetector:
                     )
                     return "undeterminable", 0.0
                 self.logger.debug(f"Tier 4 [Reconciliation]: Friction Tie-Breaker utilized for {top_id}.")
-                return top_id, top_density
+                return top_id, min(top_density, 1.0)
 
             # 3. Absolute Ambiguity Resolution
             else:
@@ -976,15 +976,15 @@ class LanguageDetector:
                         self.logger.debug(
                             f"Tier 4 [Reconciliation]: C/C++ Tie broken by Ecosystem Consensus -> {gravity_lang}"
                         )
-                        return gravity_lang, top_density
+                        return gravity_lang, min(top_density, 1.0)
                     # If no consensus exists, default to C as the lowest-level structural base
                     self.logger.debug("Tier 4 [Reconciliation]: C/C++ Tie broken by default architectural base -> c")
-                    return "c", top_density
+                    return "c", min(top_density, 1.0)
 
                 return "undeterminable", 0.0
 
         # 4. Single Candidate Victory
-        return top_id, top_density
+        return top_id, min(top_density, 1.0)
 
     def _forge_result(
         self,

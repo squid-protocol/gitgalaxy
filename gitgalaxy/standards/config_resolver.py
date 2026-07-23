@@ -77,6 +77,7 @@ APERTURE_CONFIG_SPEC: Dict[str, str] = {
     "MAX_LINE_LENGTH": REPLACE,
     "MINIFICATION_SCAN_LIMIT": REPLACE,
     "MAX_FILE_SIZE_MB": REPLACE,
+    "MAX_FILE_SIZE_HARD_MB": REPLACE,
     # BANDS is an internal label taxonomy, not user-overridable -- omitted
     # on purpose so a YAML BANDS key raises ConfigError.
 }

@@ -168,6 +168,18 @@ class ApertureFilter:
             self.logger.info(f"NEURAL SHUNT: Routing {path_obj.name} away from standard regex engines.")
             return False, size_bytes, reason
 
+        # --- Gate 1.2.5: Absolute Mass Ceiling (Zero-I/O Memory Backstop) ---
+        # DEFENSIVE DESIGN: Checked here, before the file is ever opened for
+        # reading, using the os.stat() size already gathered above. This is an
+        # unconditional, Intent-blind physical safety net against truly extreme
+        # artifacts (multi-GB dumps) -- distinct from the *soft* MAX_FILE_SIZE_MB
+        # ceiling in is_in_scope(), which content-based classification and an
+        # Intent Lock can override. Nothing overrides this one.
+        hard_max_mb = self.config.get("MAX_FILE_SIZE_HARD_MB", 250)
+        if size_bytes > (hard_max_mb * 1024 * 1024):
+            reason = f"Blocked (File size exceeds absolute {hard_max_mb}MB safety ceiling)"
+            return False, size_bytes, reason
+
         # --- Gate 1.3: Explicit Extension Firewall ---
         if ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions:
             reason = f"Blocked (Explicitly Denied Extension: '{ext}')"
@@ -228,16 +240,20 @@ class ApertureFilter:
             stats = path_obj.stat()
             result["size_bytes"] = stats.st_size
 
-            # --- Gate 2.1: Mass Saturation Limit ---
-            # DEFENSIVE DESIGN: Uses os.stat to check file size before allocating RAM. 
-            # A hard 10MB limit prevents a single massive log or SQL dump from consuming 
-            # all available RAM and triggering an OOM kill from the OS.
-            max_mb = self.config.get("MAX_FILE_SIZE_MB", 10)
-            if stats.st_size > (max_mb * 1024 * 1024):
+            # --- Gate 2.1: Mass Saturation Limit (Soft Ceiling) ---
+            # DEFENSIVE DESIGN: Above this size, raw byte count alone no longer decides
+            # exclusion -- the content-based classifiers below (binary/minified/monotony/
+            # array shields) are usually a better judge of "is this actual noise" than a
+            # blunt threshold, so an Intent-Locked file (GuideStar-recognized as
+            # important) is allowed through to them. The absolute, Intent-blind backstop
+            # against truly extreme artifacts lives in evaluate_path_integrity (Gate
+            # 1.2.5), checked before any disk read even happens.
+            soft_max_mb = self.config.get("MAX_FILE_SIZE_MB", 50)
+            if stats.st_size > (soft_max_mb * 1024 * 1024) and not active_intent:
                 result.update(
                     {
                         "classification": "oversized_minified",
-                        "reason": f"Blocked (File size exceeds {max_mb}MB limit)",
+                        "reason": f"Blocked (File size exceeds {soft_max_mb}MB limit without Intent Lock)",
                     }
                 )
                 return result

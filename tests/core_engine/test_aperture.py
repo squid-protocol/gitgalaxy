@@ -19,6 +19,7 @@ MOCK_CONFIG = {
     "SECRETS_EXACT": {"id_rsa", ".env"},
     "SECRETS_EXTENSIONS": {".pem", ".key"},
     "MAX_FILE_SIZE_MB": 10,
+    "MAX_FILE_SIZE_HARD_MB": 100,
     "MAX_LINE_LENGTH": 500,
     "IGNORED_DIRECTORIES": {"node_modules", ".git"},
     "IGNORED_EXTENSIONS": {".exe", ".dll"},
@@ -197,7 +198,7 @@ def test_aperture_system_guardrails(filter_engine, tmp_path):
     assert result["is_in_scope"] is False
     assert "Protocol Violation: Missing content buffer" in result["reason"]
 
-    # 3. Size Cap Exceeded (Mocking stat to simulate an 11MB file)
+    # 3. Size Cap Exceeded (Mocking stat to simulate a 15MB file, no Intent Lock)
     big_file = tmp_path / "huge.py"
     big_file.write_text("x")
 
@@ -207,7 +208,53 @@ def test_aperture_system_guardrails(filter_engine, tmp_path):
 
         assert result["is_in_scope"] is False
         assert result["classification"] == "oversized_minified"
-        assert "File size exceeds 10MB limit" in result["reason"]
+        assert "File size exceeds 10MB limit without Intent Lock" in result["reason"]
+
+
+# ==============================================================================
+# TEST 13: TIERED MASS CEILING (SOFT vs. HARD, ISSUE #245-followup)
+# ==============================================================================
+def test_aperture_tiered_mass_ceiling(filter_engine, tmp_path):
+    """
+    Proves the file-size gate is no longer a single flat cutoff:
+      - Below the soft ceiling (MAX_FILE_SIZE_MB): always passes.
+      - Above the soft ceiling but below the hard ceiling: blocked UNLESS the
+        file carries a GuideStar Intent Lock, in which case it's handed to the
+        content-based classifiers instead of being excluded on size alone.
+      - Above the hard ceiling (MAX_FILE_SIZE_HARD_MB): blocked unconditionally,
+        even with an Intent Lock, and rejected at evaluate_path_integrity
+        (zero-I/O, pre-read) rather than is_in_scope.
+    """
+    mid_file = tmp_path / "generated_schema.py"
+    mid_file.write_text("x", encoding="utf-8")
+
+    # 1. Above soft (10MB), below hard (100MB), NO intent -> blocked
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 20 * 1024 * 1024  # 20MB
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=False)
+        assert result["is_in_scope"] is False
+        assert "without Intent Lock" in result["reason"]
+
+    # 2. Above soft (10MB), below hard (100MB), WITH intent -> passes the size
+    #    gate and reaches content classification
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 20 * 1024 * 1024  # 20MB
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=True)
+        assert result["is_in_scope"] is True
+
+    # 3. Above hard ceiling (100MB) -> blocked even WITH intent, and caught by
+    #    the zero-I/O pre-read gate (evaluate_path_integrity), not is_in_scope.
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 150 * 1024 * 1024  # 150MB
+        is_valid, _, reason = filter_engine.evaluate_path_integrity(
+            mid_file, has_intent=True
+        )
+        assert is_valid is False
+        assert "absolute 100MB safety ceiling" in reason
+
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=True)
+        assert result["is_in_scope"] is False
+        assert "safety ceiling" in result["reason"]
 
 
 # ==============================================================================

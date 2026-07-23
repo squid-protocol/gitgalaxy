@@ -346,7 +346,14 @@ APERTURE_CONFIG = {
     # --- 4. Integrity Thresholds ---
     "MAX_LINE_LENGTH": 500,
     "MINIFICATION_SCAN_LIMIT": 50,
+    # Soft ceiling: content-based classifiers (binary/minified/monotony/array
+    # shields) decide whether a file over this size is real signal or noise.
+    # An Intent-Locked file (GuideStar-recognized as important) bypasses it.
     "MAX_FILE_SIZE_MB": 50,
+    # Absolute ceiling: an unconditional, Intent-blind memory-safety backstop
+    # checked before the file is ever opened for reading (see Aperture Gate
+    # 1.0 in evaluate_path_integrity). Nothing bypasses this one.
+    "MAX_FILE_SIZE_HARD_MB": 250,
     "VENDOR_MINIFICATION_PATHS": [
         "/vendor/",
         "/node_modules/",

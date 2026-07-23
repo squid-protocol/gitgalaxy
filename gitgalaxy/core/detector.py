@@ -527,6 +527,7 @@ class StructuralExtractor:
             token_counts = collections.Counter(re.findall(r"\b\w+\b", code_stream))
 
             orphan_count = 0
+            duplicate_count = 0
             func_names = [f.get("name", "") for f in functions]
             func_name_counts = collections.Counter(func_names)
 
@@ -537,6 +538,7 @@ class StructuralExtractor:
                 # Check for Duplicates (Defined multiple times in the same file)
                 if func_name and func_name_counts[func_name] > 1:
                     usage_status = 2  # 2 = Duplicate
+                    duplicate_count += 1
                 elif len(func_name) > 3 and func_name not in {
                     "Unknown_Sat",
                     "Anonymous_Block",
@@ -552,6 +554,8 @@ class StructuralExtractor:
 
             if orphan_count > 0:
                 equations["orphaned_logic"] = orphan_count
+            if duplicate_count > 0:
+                equations["duplicate_logic"] = duplicate_count
 
             # Calculate total file footprint, preferring the unshielded raw text if available
             file_token_mass = get_token_mass(raw_content if raw_content else code_stream)

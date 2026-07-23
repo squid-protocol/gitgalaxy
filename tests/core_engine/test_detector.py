@@ -277,7 +277,8 @@ def test_detector_atomic_literal_shield():
 def test_detector_orphan_and_duplicate_logic():
     """
     Proves the engine accurately identifies uncalled (orphan) functions
-    and duplicated function definitions within a single file.
+    and duplicated function definitions within a single file, and that both
+    counts are aggregated into equations (orphaned_logic / duplicate_logic).
     """
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     code = (
@@ -285,6 +286,12 @@ def test_detector_orphan_and_duplicate_logic():
         "    return True\n"
         "\n"
         "def forgotten_orphan():\n"
+        "    pass\n"
+        "\n"
+        "def repeated_name():\n"
+        "    pass\n"
+        "\n"
+        "def repeated_name():\n"
         "    pass\n"
         "\n"
         "def main_process():\n"
@@ -296,12 +303,24 @@ def test_detector_orphan_and_duplicate_logic():
 
     # active_helper is used, forgotten_orphan is not, main_process is the entry point
     orphans = [f["name"] for f in result["functions"] if f.get("usage_status") == 1]
+    duplicates = [f["name"] for f in result["functions"] if f.get("usage_status") == 2]
 
     assert "forgotten_orphan" in orphans, (
         "Failed to flag the unused function as an orphan!"
     )
     assert "active_helper" not in orphans, (
         "Falsely flagged an active function as an orphan!"
+    )
+    assert duplicates.count("repeated_name") == 2, (
+        "Failed to flag both definitions of the duplicated function name!"
+    )
+
+    # forgotten_orphan and main_process (never called, name > 3 chars) both flag as orphans.
+    assert result["equations"].get("orphaned_logic", 0) == len(orphans), (
+        "orphan_count was not aggregated into equations['orphaned_logic']!"
+    )
+    assert result["equations"].get("duplicate_logic", 0) == 2, (
+        "duplicate_count was not aggregated into equations['duplicate_logic']!"
     )
 
 

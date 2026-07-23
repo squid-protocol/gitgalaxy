@@ -1469,14 +1469,13 @@ class SignalProcessor:
     def _calc_tech_debt(self, loc: int, raw_signals: Dict[str, int], irc: int, mp: float) -> float:
         t = self.risk_tuning.get("tech_debt", {})
         good_debt = raw_signals.get("planned_debt", 0)
-        bad_debt = raw_signals.get("fragile_debt", raw_signals.get("keyword_debt", 0))
-        stubs = raw_signals.get("func_empty", 0)
+        bad_debt = raw_signals.get("fragile_debt", 0)
 
         # --- NEW: UNTRACKED COMPLEXITY (SLOP) ---
         orphans = raw_signals.get("orphaned_logic", 0)
         duplicates = raw_signals.get("duplicate_logic", 0)
 
-        if good_debt == 0 and bad_debt == 0 and stubs == 0 and orphans == 0 and duplicates == 0:
+        if good_debt == 0 and bad_debt == 0 and orphans == 0 and duplicates == 0:
             return 0.0
 
         # Implicit debt carries a heavier baseline penalty because it is invisible to standard linters
@@ -1485,7 +1484,6 @@ class SignalProcessor:
         stress = (
             (good_debt * t.get("good_debt_weight", 1.0))
             + (bad_debt * t.get("bad_debt_weight", 3.0))
-            + (stubs * t.get("stub_weight", 0.5))
             + (irc * t.get("irc_weight", 0.5))
             + slop_stress
         )

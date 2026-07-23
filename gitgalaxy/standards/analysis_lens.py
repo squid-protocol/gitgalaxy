@@ -771,7 +771,6 @@ RISK_EQUATION_TUNING = {
     "tech_debt": {
         "good_debt_weight": 1.0,
         "bad_debt_weight": 3.0,
-        "stub_weight": 0.5,
         "irc_weight": 0.5,
         "threshold": 5.0,
         "sigmoid_slope": 0.5,

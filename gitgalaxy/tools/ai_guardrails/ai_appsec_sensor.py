@@ -30,22 +30,31 @@ class AIAppSecSensor:
         self.logger.info("AI AppSec Sensor: Scanning for Agentic Vulnerabilities...")
 
         for file_data in parsed_files:
-            # Extract the raw structural signatures (assuming they are tallied in 'telemetry')
-            telemetry = file_data.get("telemetry", {})
+            # Extract the raw structural signatures. These are tallied in 'equations'
+            # (raw_signals keyed by SIGNAL_SCHEMA name), not 'telemetry' -- 'telemetry'
+            # only holds derived/computed metrics (network stats, popularity, etc.).
+            equations = file_data.get("equations", {})
 
             # Extract specific architectural signals
-            ai_orchestrator = telemetry.get("ai_orchestrator", 0) > 0
-            llm_api = telemetry.get("llm_api", 0) > 0
-            ai_tools = telemetry.get("ai_tools", 0) > 0
+            ai_orchestrator = equations.get("llm_orchestrator", 0) > 0
+            llm_api = equations.get("llm_api", 0) > 0
+            ai_tools = equations.get("ai_tools", 0) > 0
 
-            arch_api = telemetry.get("arch_api", 0) > 0  # Publicly exposed
-            arch_io = telemetry.get("arch_io", 0) > 0  # Network/Disk I/O
+            arch_api = equations.get("api", 0) > 0  # Publicly exposed
+            arch_io = (equations.get("io", 0) + equations.get("sec_io", 0)) > 0  # Network/Disk I/O
             db_complexity = file_data.get("max_db_complexity", 0)  # Data gravity
 
             # Security Structural Signatures
-            sec_danger = telemetry.get("sec_high_risk_execution", 0) > 0  # eval, exec, subprocess
-            sec_secrets = telemetry.get("sec_secrets", 0) > 0  # Hardcoded keys/env access
-            safety_density = telemetry.get("safety_density", 1.0)  # Defensive programming (try/catch, regex)
+            sec_danger = equations.get("sec_high_risk_execution", 0) > 0  # eval, exec, subprocess
+            sec_secrets = equations.get("sec_hardcoded_secrets", 0) > 0  # Hardcoded keys/env access
+
+            # Defensive programming density (try/catch, guards, regex validation) per LOC.
+            # No existing schema signal captures this ratio directly, so it's derived here
+            # from the raw 'safety' hit count, using the same doc_mult-style scaling
+            # SignalProcessor._calc_cog_load uses to turn sparse per-LOC hit counts into a
+            # meaningful 0-1 density.
+            safe_loc = max(file_data.get("coding_loc", 1), 1)
+            safety_density = min(1.0, (equations.get("safety", 0) * 10.0) / safe_loc)
 
             appsec_report = {
                 "is_rce_funnel": False,

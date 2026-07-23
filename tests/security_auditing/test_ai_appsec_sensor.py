@@ -14,12 +14,12 @@ def test_autonomous_execution_vector_detection():
 
     mock_files = [
         {
-            "telemetry": {
+            "telemetry": {},
+            "equations": {
                 "llm_api": 1,  # AI is present
-                "arch_api": 1,  # Exposed to the public internet
+                "api": 1,  # Exposed to the public internet
                 "sec_high_risk_execution": 1,  # Contains eval() or subprocess execution
-                "safety_density": 0.9,
-            }
+            },
         }
     ]
 
@@ -45,9 +45,11 @@ def test_over_permissioned_agent_detection():
     mock_files = [
         {
             "max_db_complexity": 3,  # Heavy database write access
-            "telemetry": {
+            "coding_loc": 100,
+            "telemetry": {},
+            "equations": {
                 "ai_tools": 1,  # Agentic tool calling enabled
-                "safety_density": 0.2,  # Dangerously low defensive programming
+                "safety": 0,  # Dangerously low defensive programming -> density 0.0
             },
         }
     ]
@@ -75,11 +77,12 @@ def test_exfiltration_vector_detection():
 
     mock_files = [
         {
-            "telemetry": {
+            "telemetry": {},
+            "equations": {
                 "llm_api": 1,  # AI is present
-                "arch_io": 1,  # Can make outbound network requests
-                "sec_secrets": 1,  # Has access to AWS keys/passwords
-            }
+                "io": 1,  # Can make outbound network requests
+                "sec_hardcoded_secrets": 1,  # Has access to AWS keys/passwords
+            },
         }
     ]
 
@@ -108,12 +111,14 @@ def test_safe_baseline():
     mock_files = [
         {
             "max_db_complexity": 0,
-            "telemetry": {
+            "coding_loc": 50,
+            "telemetry": {},
+            "equations": {
                 "llm_api": 1,  # ✅ AI is present
-                "arch_api": 0,  # ✅ Not exposed to the public
+                "api": 0,  # ✅ Not exposed to the public
                 "sec_high_risk_execution": 0,  # ✅ No eval/subprocess
-                "sec_secrets": 0,  # ✅ No secrets exposed
-                "safety_density": 0.95,  # ✅ High defensive try/catch density
+                "sec_hardcoded_secrets": 0,  # ✅ No secrets exposed
+                "safety": 5,  # ✅ High defensive try/catch density (-> density 1.0)
             },
         }
     ]

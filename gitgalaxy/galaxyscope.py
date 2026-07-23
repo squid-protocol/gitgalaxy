@@ -65,7 +65,6 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.analysis_lens import (
-    ThreatPolicy,
     PATH_MODIFIERS,
     ASSET_MASKS,
 )
@@ -141,12 +140,6 @@ def _init_worker(
         if lang_id not in detector_cache:
             detector_cache[lang_id] = OpticalDetector(lang_id, lang_defs, parent_logger=worker_logger)
 
-    # --- NEW: Decide the Rules of Engagement before booting the engines ---
-    if config.get("PARANOID_MODE", False):
-        _active_policy = ThreatPolicy.get_policy("paranoid")
-    else:
-        _active_policy = ThreatPolicy.get_policy("baseline")
-
     _worker_state.update(
         {
             "root": root,
@@ -165,7 +158,7 @@ def _init_worker(
             # --- NEW: Boot the Analysis Engines into worker memory ---
             "chronometer": Chronometer(root, parent_logger=worker_logger),
             "signal": SignalProcessor(aperture_config=config, parent_logger=worker_logger),
-            "security": SecurityLens(policy=_active_policy),
+            "security": SecurityLens(),
             # --------------------------------------------------------
         }
     )
@@ -682,14 +675,8 @@ class Orchestrator:
             fresh_scan_budget=_budget,
         )
         
-        # --- NEW: THE SMART THREAT SWITCH (MAIN THREAD) ---
-        if self.config.get("PARANOID_MODE", False):
-            _active_policy = ThreatPolicy.get_policy("paranoid")
-        else:
-            _active_policy = ThreatPolicy.get_policy("baseline")
-
         # Zero-Trust execution validation
-        self.security_analyzer = SecurityLens(policy=_active_policy)
+        self.security_analyzer = SecurityLens()
 
         # Multi-class XGBoost threat classification model
         self.model_auditor = SecurityAuditor(model_path="gitgalaxy_malware_xgb_multiclass.json", parent_logger=logger)
@@ -2657,12 +2644,9 @@ def main():
 
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
-            _active_policy = ThreatPolicy.get_policy("paranoid")
             logging.getLogger("GalaxyScope").info(
                 "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
             )
-        else:
-            _active_policy = ThreatPolicy.get_policy("baseline")
         # -------------------------------
 
         # ---------------------------------------------------------

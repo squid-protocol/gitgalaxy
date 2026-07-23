@@ -18,7 +18,6 @@ from typing import Dict, List, Any, Optional
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.analysis_lens import ThreatPolicy
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_lens import LanguageDetector
@@ -68,7 +67,7 @@ class SbomRecorder:
 
         self.logger.info(f"SBOM: Engaging Universal Zero-Trust Generation on {target_path.name}...")
 
-        security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
+        security = SecurityLens()
         detector = LanguageDetector(LANGUAGE_DEFINITIONS, LEXICAL_FAMILY_HEURISTICS)
         slicer = UniversalManifestSlicer()
 

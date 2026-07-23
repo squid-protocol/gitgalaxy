@@ -16,7 +16,6 @@ from pathlib import Path
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.analysis_lens import ThreatPolicy
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # Safely import the config, falling back if the user hasn't added exceptions yet
@@ -51,7 +50,7 @@ def main():
 
     # Initialize lightweight filters
     filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
-    security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
+    security = SecurityLens()
 
     # SENSOR OPTIMIZATION: Only evaluate keys and dead-code logic for maximum performance
     security.THREAT_SIGNATURES = {

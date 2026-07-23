@@ -147,13 +147,15 @@ def _init_worker(
             "git_tracked": git_tracked,
             "census": census,
             "filter": ApertureFilter(root, lang_defs, aperture_cfg, parent_logger=worker_logger),
-            "guidestar": GuideStarLens(root, priority_whitelist, parent_logger=worker_logger),
-            "detector": LanguageDetector(lang_defs, lexical_heuristics),
+            "guidestar": GuideStarLens(
+                root, priority_whitelist, parent_logger=worker_logger, guidestar_config=config.get("GUIDESTAR_CONFIG")
+            ),
+            "detector": LanguageDetector(lang_defs, lexical_heuristics, exact_file_match=config.get("EXACT_FILE_MATCH")),
             "prism": Prism(lexical_heuristics, lang_defs, parent_logger=worker_logger),
             "detector_cache": detector_cache,
             "word_tokenizer": re.compile(r"\b\w+\b"),
             # --- NEW: Boot the Analysis Engines into worker memory ---
-            "chronometer": Chronometer(root, parent_logger=worker_logger),
+            "chronometer": Chronometer(root, parent_logger=worker_logger, resolved_config=config),
             "signal": SignalProcessor(aperture_config=config, parent_logger=worker_logger),
             "security": SecurityLens(),
             # --------------------------------------------------------
@@ -596,10 +598,12 @@ class Orchestrator:
         self.filter = ApertureFilter(self.root, lang_defs, aperture_cfg, parent_logger=logger)
 
         # Bayesian prior injector (evaluates intent via Manifests, Readmes, .gitattributes)
-        self.guidestar = GuideStarLens(self.root, priority_whitelist, parent_logger=logger)
+        self.guidestar = GuideStarLens(
+            self.root, priority_whitelist, parent_logger=logger, guidestar_config=config.get("GUIDESTAR_CONFIG")
+        )
 
         # Temporal engine extracting Git volatility, churn velocity, and ownership entropy
-        self.chronometer = Chronometer(self.root, parent_logger=logger)
+        self.chronometer = Chronometer(self.root, parent_logger=logger, resolved_config=config)
         self.spatial_mapper = SpatialMapper(parent_logger=logger)
 
         # The primary heuristic math engine converting raw Structural Signatures to risk exposure vectors
@@ -866,9 +870,9 @@ class Orchestrator:
 
             ecosystem_audits = {
                 "api_mapper": run_api_audit(self.root),
-                "xray": run_xray_audit(self.root),
+                "xray": run_xray_audit(self.root, config=self.config),
                 # 3. Pass the RAM graph and the alias map to the Firewall
-                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map),
+                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map, config=self.config),
             }
 
             # Attach it to the summary payload
@@ -1194,6 +1198,7 @@ class Orchestrator:
                     forensic_report=report,
                     repo_name=self.root.name,
                     session_meta=session_meta,
+                    resolved_config=self.config,
                 )
 
                 payload["meta"]["session"] = session_meta

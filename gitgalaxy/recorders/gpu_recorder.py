@@ -20,7 +20,7 @@ import gc
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from gitgalaxy.standards import analysis_lens
-from gitgalaxy.standards import gitgalaxy_config
+from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
 
@@ -85,6 +85,7 @@ class GPURecorder:
         session_meta: Optional[Dict] = None,
         commit_hash: str = "untracked_local",
         branch_name: str = "unknown_branch",
+        resolved_config=None,
     ) -> Dict:
         """
         Orchestrates the synthesis and implementation of Destructive RAM Eviction.
@@ -361,7 +362,18 @@ class GPURecorder:
         # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
-        project_stories = getattr(gitgalaxy_config, "PROJECT_STORIES", {})
+        # #335: was `from gitgalaxy.standards import gitgalaxy_config`, the
+        # raw unmerged module -- meant no YAML/CLI override (#332) could
+        # ever reach this lookup. Falls back to an unconfigured
+        # resolve_config() only when the caller doesn't already have a
+        # resolved config to hand over (e.g. direct/test use). Uses .get()
+        # rather than getattr() because the caller may hand over either a
+        # ResolvedConfig or Orchestrator's plain full_config dict -- both
+        # support .get(), but getattr() on a plain dict silently always
+        # returns the default, which is exactly the reachability bug this
+        # migration exists to close.
+        config_source = resolved_config if resolved_config is not None else resolve_config()
+        project_stories = config_source.get("PROJECT_STORIES", {})
 
         story_payload = project_stories.get(
             repo_name,

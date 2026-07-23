@@ -24,6 +24,7 @@ from pathlib import Path
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
+from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
 from typing import Optional
 
 # The five behavioral categories this firewall gates on, mapped to their names
@@ -47,30 +48,32 @@ _FIREWALL_RISK_INDEXES = {
 # to SignalProcessor's judgment instead of maintaining a second threshold.
 _FIREWALL_BLOCK_THRESHOLD = 50.0
 
-# Safely import the config, falling back if the user hasn't configured exceptions yet
-try:
-    from gitgalaxy.standards.gitgalaxy_config import (
-        ALLOWLIST_PATHS,
-        STRICT_IMPORT_MODE,
-        APPROVED_IMPORTS,
-        BLACKLISTED_IMPORTS,
-        FIREWALL_NETWORK_WEIGHTING,
-    )
-except ImportError:
-    ALLOWLIST_PATHS = []
-    STRICT_IMPORT_MODE = False
-    APPROVED_IMPORTS = []
-    BLACKLISTED_IMPORTS = []
-    FIREWALL_NETWORK_WEIGHTING = False
-
-
-def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> dict:
+def run_firewall_audit(
+    parsed_files: list,
+    alias_map: Optional[dict] = None,
+    config: Optional[ResolvedConfig] = None,
+) -> dict:
     """
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).
     Operates exclusively on the pre-tokenized, anomaly-checked RAM graph from Phase 1.
+
+    `config` was previously a module-level `gitgalaxy_config.py` import
+    (#332/#335) -- that meant no YAML/CLI override could ever reach this
+    firewall, regardless of what a user put in .galaxyscope.yaml. Defaults
+    to an unconfigured resolve_config() only when the caller doesn't
+    already have a resolved config to hand over (e.g. direct/test use).
     """
     logger = logging.getLogger("GalaxyScope.firewall")
     safe_alias_map = alias_map or {}
+    # .get() rather than attribute access: the caller may hand over either
+    # a ResolvedConfig or Orchestrator's plain full_config dict, and only
+    # .get() works uniformly across both.
+    resolved_config = config if config is not None else resolve_config()
+    allowlist_paths = resolved_config.get("ALLOWLIST_PATHS", [])
+    strict_import_mode = resolved_config.get("STRICT_IMPORT_MODE", False)
+    approved_imports = resolved_config.get("APPROVED_IMPORTS", [])
+    blacklisted_imports = resolved_config.get("BLACKLISTED_IMPORTS", [])
+    firewall_network_weighting = resolved_config.get("FIREWALL_NETWORK_WEIGHTING", False)
 
     imports_whitelisted = 0
     imports_blacklisted = 0
@@ -89,7 +92,7 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
 
     for file_node in parsed_files:
         rel_path_str = file_node.get("path", "unknown")
-        is_whitelisted = any(approved in rel_path_str for approved in ALLOWLIST_PATHS)
+        is_whitelisted = any(approved in rel_path_str for approved in allowlist_paths)
 
         # =====================================================================
         # NEW: CONTEXTUAL ALIAS RESOLUTION
@@ -137,7 +140,7 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
             # where a malicious package masks itself behind a trusted internal alias.
             true_pkg = local_aliases.get(pkg, pkg)
 
-            if true_pkg in BLACKLISTED_IMPORTS:
+            if true_pkg in blacklisted_imports:
                 imports_blacklisted += 1
                 threats_found += 1
                 # The Allowlist Loophole Fix: A blacklisted import is ALWAYS a threat. Never suppress it.
@@ -145,11 +148,11 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
                     logger.critical(f"🚨 [BLACKLISTED IMPORT] Spoofed alias blocked: '{pkg}' -> '{true_pkg}' in: {rel_path_str}")
                 else:
                     logger.critical(f"🚨 [BLACKLISTED IMPORT] Unauthorized package '{pkg}' blocked in: {rel_path_str}")
-            elif true_pkg in APPROVED_IMPORTS:
+            elif true_pkg in approved_imports:
                 imports_whitelisted += 1
             else:
                 imports_unknown += 1
-                if STRICT_IMPORT_MODE and not is_whitelisted:
+                if strict_import_mode and not is_whitelisted:
                     threats_found += 1
                     if true_pkg != pkg:
                         logger.warning(
@@ -199,7 +202,7 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
         # signal than a peripheral file. Only ever amplifies -- a low-centrality file
         # is still judged on its own merits, never given a discount for being obscure.
         network_multiplier = 1.0
-        if FIREWALL_NETWORK_WEIGHTING:
+        if firewall_network_weighting:
             network_metrics = file_node.get("telemetry", {}).get("network_metrics", {})
             blast_radius = network_metrics.get("normalized_blast_radius", 0.0)
             betweenness = network_metrics.get("betweenness_score", 0.0)
@@ -252,7 +255,17 @@ def main():
 
     parser = argparse.ArgumentParser(description="Supply Chain Firewall (RAM-Exclusive Mode)")
     parser.add_argument("target", help="Path to the compiled GalaxyScope RAM graph (e.g., results.json)")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to project-level configuration file (e.g., .galaxyscope.yaml) -- "
+        "same resolver galaxyscope.py uses, so standalone runs honor the same "
+        "STRICT_IMPORT_MODE / BLACKLISTED_IMPORTS / etc. overrides (#335).",
+    )
     args = parser.parse_args()
+
+    resolved_config = resolve_config(yaml_path=args.config)
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():
@@ -319,9 +332,9 @@ def main():
 
     # In standalone CLI mode, we bypass the dynamic manifest parsing for speed,
     # relying purely on strict exact-match dependencies and behavioral structural signatures.
-    results = run_firewall_audit(parsed_files, alias_map={})
+    results = run_firewall_audit(parsed_files, alias_map={}, config=resolved_config)
 
-    mode_str = "Strict (Exclude Blacklist and Unknown)" if STRICT_IMPORT_MODE else "Audit (Allow Whitelist + Unknown)"
+    mode_str = "Strict (Exclude Blacklist and Unknown)" if resolved_config.get("STRICT_IMPORT_MODE") else "Audit (Allow Whitelist + Unknown)"
 
     print("\n" + "=" * 75)
     print(" 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY")

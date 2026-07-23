@@ -1,9 +1,34 @@
-import sys
 import pytest
-import importlib
+import yaml
 from unittest.mock import patch
 
 import gitgalaxy.tools.supply_chain_security.binary_anomaly_detector as xray_module
+from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
+
+
+def _make_config(**overrides):
+    """
+    Builds a ResolvedConfig for direct run_xray_audit() calls (#335): starts
+    from real gitgalaxy_config.py defaults and overlays just the keys a
+    given test cares about, replacing the old
+    monkeypatch.setattr(xray_module, "X", ...) pattern now that the
+    detector reads config off a passed-in object instead of module globals.
+    """
+    values = resolve_config().to_dict()
+    values.update(overrides)
+    return ResolvedConfig(_values=values)
+
+
+def _write_config_yaml(tmp_path, **overrides):
+    """
+    Writes a .galaxyscope.yaml for main()-based tests that need a
+    non-default gitgalaxy_config.py key. Exercises the real --config path
+    end-to-end instead of monkeypatching module-level constants that no
+    longer exist after the direct-import migration.
+    """
+    yaml_path = tmp_path / ".galaxyscope.yaml"
+    yaml_path.write_text(yaml.dump({"galaxyscope": overrides}))
+    return str(yaml_path)
 
 
 # ==============================================================================
@@ -12,11 +37,13 @@ import gitgalaxy.tools.supply_chain_security.binary_anomaly_detector as xray_mod
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.ApertureFilter")
 def test_xray_routing_matrix(
-    mock_aperture_class, mock_security_class, tmp_path, monkeypatch
+    mock_aperture_class, mock_security_class, tmp_path
 ):
-    monkeypatch.setattr(xray_module, "DENYLIST_PATTERNS", ["*.key", "*.pem", "id_rsa*"])
-    monkeypatch.setattr(xray_module, "XRAY_BYPASS_EXTENSIONS", [".gz", ".zip"])
-    monkeypatch.setattr(xray_module, "ALLOWLIST_PATHS", ["approved_keys/"])
+    config = _make_config(
+        DENYLIST_PATTERNS=["*.key", "*.pem", "id_rsa*"],
+        XRAY_BYPASS_EXTENSIONS=[".gz", ".zip"],
+        ALLOWLIST_PATHS=["approved_keys/"],
+    )
 
     mock_aperture = mock_aperture_class.return_value
     mock_aperture._check_ignore_rules.return_value = True
@@ -41,7 +68,7 @@ def test_xray_routing_matrix(
     # File C (Bypass Extension)
     (repo_dir / "compressed.zip").write_text("FAKE_ZIP_DATA", encoding="utf-8")
 
-    result = xray_module.run_xray_audit(repo_dir)
+    result = xray_module.run_xray_audit(repo_dir, config=config)
     assert result["anomalies_found"] == 1, (
         "Path filtering logic failed! Verify Denylist and Allowlist evaluation."
     )
@@ -156,10 +183,10 @@ def test_main_missing_target(capsys):
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.ApertureFilter")
 def test_main_clean_run(
-    mock_aperture_class, mock_security_class, tmp_path, monkeypatch, capsys
+    mock_aperture_class, mock_security_class, tmp_path, capsys
 ):
     """Proves a clean repository successfully logs completion without raising SystemExit."""
-    monkeypatch.setattr(xray_module, "ALLOWLIST_PATHS", ["approved/"])
+    config_path = _write_config_yaml(tmp_path, ALLOWLIST_PATHS=["approved/"])
     mock_aperture = mock_aperture_class.return_value
     mock_aperture._check_ignore_rules.return_value = True
 
@@ -183,7 +210,7 @@ def test_main_clean_run(
     approved_dir.mkdir()
     (approved_dir / "bypassed.key").write_text("bypassed", encoding="utf-8")
 
-    with patch("sys.argv", ["xray", str(repo_dir)]):
+    with patch("sys.argv", ["xray", str(repo_dir), "--config", config_path]):
         xray_module.main()
 
     captured = capsys.readouterr()
@@ -199,10 +226,10 @@ def test_main_clean_run(
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.ApertureFilter")
 def test_main_anomaly_detected(
-    mock_aperture_class, mock_security_class, tmp_path, monkeypatch, capsys
+    mock_aperture_class, mock_security_class, tmp_path, capsys
 ):
     """Proves the CLI detects active anomalies, blocks the commit, and logs the blocking action."""
-    monkeypatch.setattr(xray_module, "DENYLIST_PATTERNS", ["*.forbidden"])
+    config_path = _write_config_yaml(tmp_path, DENYLIST_PATTERNS=["*.forbidden"])
     mock_aperture = mock_aperture_class.return_value
     mock_aperture._check_ignore_rules.return_value = True
 
@@ -220,7 +247,7 @@ def test_main_anomaly_detected(
         else {"counts": {}}
     )
 
-    with patch("sys.argv", ["xray", str(repo_dir)]):
+    with patch("sys.argv", ["xray", str(repo_dir), "--config", config_path]):
         with pytest.raises(SystemExit) as exc_info:
             xray_module.main()
 
@@ -251,32 +278,13 @@ def test_main_file_read_exception(mock_aperture_class, mock_security_class, tmp_
 
 
 # ==============================================================================
-# TEST 9: Module Import Fallback Configuration
+# TEST 9 (removed, #335): the try/except ImportError module-level fallback
+# this test covered no longer exists -- binary_anomaly_detector.py now
+# reads config from resolve_config(), which always has real defaults
+# (gitgalaxy_config.py is a committed file, not an optional install-time
+# artifact). See test_yaml_config_flag_actually_changes_standalone_xray_behavior
+# below for the replacement "gap is closed" proof.
 # ==============================================================================
-def test_xray_import_fallback():
-    """Proves the module gracefully degrades if custom bypass arrays are missing from config."""
-    # Stash the original module
-    original_config = sys.modules.get("gitgalaxy.standards.gitgalaxy_config")
-
-    # Create a mock module that ONLY has APERTURE_CONFIG (simulating a fresh install)
-    mock_config = type(sys)("gitgalaxy.standards.gitgalaxy_config")
-    mock_config.APERTURE_CONFIG = {}
-    sys.modules["gitgalaxy.standards.gitgalaxy_config"] = mock_config
-
-    # Force a reload to trigger the ImportError bypass block
-    importlib.reload(xray_module)
-
-    assert xray_module.ALLOWLIST_PATHS == [], (
-        "Fallback failed to initialize empty Allowlist!"
-    )
-    assert xray_module.DENYLIST_PATTERNS == [], (
-        "Fallback failed to initialize empty Denylist!"
-    )
-
-    # Restore reality
-    if original_config:
-        sys.modules["gitgalaxy.standards.gitgalaxy_config"] = original_config
-    importlib.reload(xray_module)
 
 
 # ==============================================================================
@@ -312,3 +320,48 @@ def test_xray_test_folder_bypass(mock_aperture_class, mock_security_class, tmp_p
     captured = capsys.readouterr()
     assert "[SUCCESS] No obfuscated payloads or binary anomalies detected." in captured.out
     assert "known mock/safe files were bypassed via configuration." in captured.out
+
+
+# ==============================================================================
+# TEST 11: #335 -- .galaxyscope.yaml ACTUALLY REACHES STANDALONE MAIN()
+# ==============================================================================
+@patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.SecurityLens")
+@patch("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector.ApertureFilter")
+def test_yaml_config_flag_actually_changes_standalone_xray_behavior(
+    mock_aperture_class, mock_security_class, tmp_path
+):
+    """
+    Before #335, binary_anomaly_detector.py imported DENYLIST_PATTERNS as a
+    module-level constant at load time -- no YAML file, no --config flag,
+    nothing could ever change what it blocked. This proves the gap is
+    closed: the IDENTICAL file, scanned via the IDENTICAL standalone
+    main() CLI entrypoint, passes clean with no --config and hard-blocks
+    once a .galaxyscope.yaml denylists its exact filename pattern.
+    """
+    mock_aperture = mock_aperture_class.return_value
+    mock_aperture._check_ignore_rules.return_value = True
+    mock_security_class.return_value.scan_binary.return_value = {}
+    mock_security_class.return_value.scan_content.return_value = {"counts": {"entropy": 0, "bitwise_ops": 0}}
+
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    (repo_dir / "asset.blob").write_text("nothing anomalous here", encoding="utf-8")
+
+    # BEFORE: no --config -- DENYLIST_PATTERNS defaults to [], clean pass.
+    with patch("sys.argv", ["xray", str(repo_dir)]):
+        try:
+            xray_module.main()
+        except SystemExit:
+            pytest.fail("Detector blocked a file with no denylist config applied.")
+
+    # AFTER: identical file, identical CLI entrypoint, but a .galaxyscope.yaml
+    # now denylists this exact pattern -- must hard-block via SystemExit(1).
+    config_path = _write_config_yaml(tmp_path, DENYLIST_PATTERNS=["*.blob"])
+    with patch("sys.argv", ["xray", str(repo_dir), "--config", config_path]):
+        with pytest.raises(SystemExit) as exc:
+            xray_module.main()
+        assert exc.value.code == 1, (
+            "YAML DENYLIST_PATTERNS override never reached standalone "
+            "binary_anomaly_detector.py main() -- the #332/#335 "
+            "reachability gap is still open."
+        )

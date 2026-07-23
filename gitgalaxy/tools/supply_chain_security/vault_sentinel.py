@@ -17,19 +17,7 @@ from pathlib import Path
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-# Safely import the config, falling back if the user hasn't added exceptions yet
-try:
-    from gitgalaxy.standards.gitgalaxy_config import (
-        APERTURE_CONFIG,
-        ALLOWLIST_PATHS,
-        DENYLIST_PATTERNS,
-    )
-except ImportError:
-    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
-
-    ALLOWLIST_PATHS = []
-    DENYLIST_PATTERNS = []
+from gitgalaxy.standards.config_resolver import resolve_config
 
 
 def main():
@@ -39,7 +27,22 @@ def main():
 
     parser = argparse.ArgumentParser(description="Secrets Scanner: High-Speed Secrets Scanner")
     parser.add_argument("target", help="Directory or file to scan")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to project-level configuration file (e.g., .galaxyscope.yaml) -- "
+        "same resolver galaxyscope.py uses, so standalone runs honor the same "
+        "ALLOWLIST_PATHS / DENYLIST_PATTERNS / APERTURE_CONFIG overrides (#335).",
+    )
     args = parser.parse_args()
+
+    # #335: was a direct module-level gitgalaxy_config.py import, which meant
+    # no YAML/CLI override (#332) could ever reach this standalone scanner.
+    resolved_config = resolve_config(yaml_path=args.config)
+    allowlist_paths = resolved_config.ALLOWLIST_PATHS
+    denylist_patterns = resolved_config.DENYLIST_PATTERNS
+    aperture_config = resolved_config.APERTURE_CONFIG
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():
@@ -49,7 +52,7 @@ def main():
     print(f"🛡️  Secrets Scanner engaging on {target_path.name}...")
 
     # Initialize lightweight filters
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, aperture_config)
     security = SecurityLens()
 
     # SENSOR OPTIMIZATION: Only evaluate keys and dead-code logic for maximum performance
@@ -84,10 +87,10 @@ def main():
 
             # Create a normalized string for checking against lists
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
-            is_whitelisted = any(approved in rel_path_str for approved in ALLOWLIST_PATHS)
+            is_whitelisted = any(approved in rel_path_str for approved in allowlist_paths)
 
             # 1. DENYLIST ENFORCEMENT (Wildcard Pattern Matching)
-            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in DENYLIST_PATTERNS)
+            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in denylist_patterns)
             if is_forbidden and not is_whitelisted:
                 print(f"[DENYLIST MATCH] Unauthorized file pattern detected: {rel_path_str}")
                 forbidden_blocked += 1
@@ -163,7 +166,8 @@ def main():
     if leaks_found > 0:
         print(f" [BLOCKING ACTION] {leaks_found} unauthorized secrets exposed. Failing pipeline.")
         print(" TIP: If this is a false positive, add the file path to ALLOWLIST_PATHS")
-        print("         inside gitgalaxy/standards/gitgalaxy_config.py")
+        print("         in gitgalaxy/standards/gitgalaxy_config.py, or under 'galaxyscope:'")
+        print("         in a --config .galaxyscope.yaml")
         sys.exit(1)
     else:
         print(" [SUCCESS] No unauthorized secrets detected.")

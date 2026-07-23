@@ -44,13 +44,6 @@ class GuideStarLens:
     This guarantees accurate language detection and bypasses expensive inference checks.
     """
 
-    # Fetch intelligence dictionaries directly from the configuration
-    _gs_config = GUIDESTAR_CONFIG
-
-    MANIFEST_MAP = _gs_config.get("MANIFEST_MAP", {})
-    INTENT_BIASED_SECTORS = set(_gs_config.get("INTENT_BIASED_SECTORS", []))
-    EXEC_PREFIX_MAP = _gs_config.get("EXEC_PREFIX_MAP", {})
-
     # Compiled regex for extracting target headers from README files
     README_TARGET_HEADERS = re.compile(
         r"^#+\s+(Usage|Structure|File|Layout|Getting\s+Started|Installation|Architecture|Scripts|CLI)",
@@ -62,6 +55,7 @@ class GuideStarLens:
         root_path: Union[str, Path],
         priority_whitelist: Optional[List[str]] = None,
         parent_logger: Optional[logging.Logger] = None,
+        guidestar_config: Optional[Dict[str, Any]] = None,
     ):
         """Initializes the Intelligence Engine and calibrates the lock maps."""
         if parent_logger:
@@ -73,6 +67,15 @@ class GuideStarLens:
 
         self.root = Path(root_path).resolve()
         self.whitelist = set(priority_whitelist or [])
+
+        # #335: was a class-level `GUIDESTAR_CONFIG` module import, which
+        # meant no YAML/CLI override (#332) could ever reach this lens.
+        # Falls back to the raw default only when the caller doesn't
+        # already have a resolved config to hand over (e.g. direct/test use).
+        self._gs_config = guidestar_config if guidestar_config is not None else GUIDESTAR_CONFIG
+        self.MANIFEST_MAP = self._gs_config.get("MANIFEST_MAP", {})
+        self.INTENT_BIASED_SECTORS = set(self._gs_config.get("INTENT_BIASED_SECTORS", []))
+        self.EXEC_PREFIX_MAP = self._gs_config.get("EXEC_PREFIX_MAP", {})
 
         # Internal Lock Map: Dict[filename, {lang, confidence, proof}]
         self.intent_locks: Dict[str, Dict[str, Any]] = {}

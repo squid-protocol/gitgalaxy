@@ -23,18 +23,7 @@ MOCK_GUIDESTAR_CONFIG = {
 @pytest.fixture
 def guidestar(tmp_path):
     """Initializes the GuideStar Lens with a mocked configuration."""
-    with patch(
-        "gitgalaxy.core.guidestar_lens.GuideStarLens._gs_config", MOCK_GUIDESTAR_CONFIG
-    ):
-        with patch(
-            "gitgalaxy.core.guidestar_lens.GuideStarLens.MANIFEST_MAP",
-            MOCK_GUIDESTAR_CONFIG["MANIFEST_MAP"],
-        ):
-            with patch(
-                "gitgalaxy.core.guidestar_lens.GuideStarLens.INTENT_BIASED_SECTORS",
-                set(MOCK_GUIDESTAR_CONFIG["INTENT_BIASED_SECTORS"]),
-            ):
-                return GuideStarLens(root_path=tmp_path)
+    return GuideStarLens(root_path=tmp_path, guidestar_config=MOCK_GUIDESTAR_CONFIG)
 
 
 # ==============================================================================
@@ -168,10 +157,10 @@ def test_guidestar_documentation_coverage_prunes_ignored_dirs(tmp_path):
     nested_dir.mkdir(parents=True)
     (nested_dir / "README.md").write_text("y" * 500, encoding="utf-8")
 
-    lens = GuideStarLens(root_path=tmp_path)
-    # Instance-attribute override (class-attribute patching doesn't survive past
-    # __init__ here, since nothing in __init__ captures _gs_config into self).
-    lens._gs_config = {**MOCK_GUIDESTAR_CONFIG, "IGNORED_DIRECTORIES": {"Node_Modules"}}
+    lens = GuideStarLens(
+        root_path=tmp_path,
+        guidestar_config={**MOCK_GUIDESTAR_CONFIG, "IGNORED_DIRECTORIES": {"Node_Modules"}},
+    )
 
     visited_roots = []
     real_walk = os.walk

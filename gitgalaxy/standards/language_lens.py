@@ -67,9 +67,15 @@ class LanguageDetector:
         language_definitions: Dict[str, Any],
         lexical_heuristics: Dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
+        exact_file_match: Optional[Dict[str, str]] = None,
     ):
         self.languages = language_definitions
         self.lexical_heuristics = lexical_heuristics
+        # #335: was a direct module-level EXACT_FILE_MATCH import, which
+        # meant no YAML/CLI override (#332) could ever reach it. Falls back
+        # to the raw default only when the caller doesn't already have a
+        # resolved config to hand over (e.g. direct/test use).
+        self.exact_file_match = exact_file_match if exact_file_match is not None else EXACT_FILE_MATCH
 
         if parent_logger:
             self.logger = parent_logger.getChild("lens")
@@ -214,9 +220,9 @@ class LanguageDetector:
         if not content_sample:
             content_sample = self._capture_raw_signal(file_path)
 
-        if name in EXACT_FILE_MATCH:
+        if name in self.exact_file_match:
             return self._forge_result(
-                lang_id=EXACT_FILE_MATCH[name],
+                lang_id=self.exact_file_match[name],
                 intensity=0.95,
                 tier=2,
                 proof="Single Indicator (Exact Match)",

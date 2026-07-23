@@ -20,7 +20,7 @@ import logging
 import time
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
-from gitgalaxy.standards import gitgalaxy_config as config
+from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
 
@@ -51,7 +51,12 @@ class Chronometer:
        finalization to prevent zombie processes and FD leaks.
     """
 
-    def __init__(self, root_path: Path, parent_logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        root_path: Path,
+        parent_logger: Optional[logging.Logger] = None,
+        resolved_config=None,
+    ):
         """Initializes the Time-Series Analyzer and ignites the Bulk Survey Pass."""
         if parent_logger:
             self.logger = parent_logger.getChild("chronometer")
@@ -63,9 +68,20 @@ class Chronometer:
         self.root = Path(root_path).resolve()
         self.is_git_enabled = False
 
-        # Pull configurations safely
-        self.chrono_config = getattr(config, "CHRONOMETER_CONFIG", {})
-        self.aperture_config = getattr(config, "APERTURE_CONFIG", {})
+        # #335: was `from gitgalaxy.standards import gitgalaxy_config as
+        # config`, the raw unmerged module -- meant no YAML/CLI override
+        # (#332) could ever reach the Chronometer, even the APERTURE_CONFIG
+        # keys galaxyscope.py's main() already merges correctly. Falls back
+        # to an unconfigured resolve_config() only when the caller doesn't
+        # already have a resolved config to hand over (e.g. direct/test
+        # use). Uses .get() rather than getattr() because the caller may
+        # hand over either a ResolvedConfig or Orchestrator's plain
+        # full_config dict -- both support .get(), but getattr() on a
+        # plain dict silently always returns the default, which is exactly
+        # the reachability bug this migration exists to close.
+        config_source = resolved_config if resolved_config is not None else resolve_config()
+        self.chrono_config = config_source.get("CHRONOMETER_CONFIG", {})
+        self.aperture_config = config_source.get("APERTURE_CONFIG", {})
 
         # --- INTERNAL STATE (The Sensor Cache) ---
         self.churn_map: Dict[str, int] = {}

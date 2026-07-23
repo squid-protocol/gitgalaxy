@@ -22,28 +22,13 @@ import os
 import time
 import fnmatch
 from pathlib import Path
+from typing import Optional
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-# Safely import the config, falling back if the user hasn't configured exceptions yet
-try:
-    from gitgalaxy.standards.gitgalaxy_config import (
-        APERTURE_CONFIG,
-        ALLOWLIST_PATHS,
-        DENYLIST_PATTERNS,
-        XRAY_BYPASS_EXTENSIONS,
-        XRAY_BYPASS_PATHS,
-    )
-except ImportError:
-    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
-
-    ALLOWLIST_PATHS = []
-    DENYLIST_PATTERNS = []
-    XRAY_BYPASS_EXTENSIONS = []
-    XRAY_BYPASS_PATHS = []
+from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
 
 
 def main():
@@ -53,7 +38,24 @@ def main():
 
     parser = argparse.ArgumentParser(description="Binary Anomaly Detector: Entropy & Magic Byte Scanner")
     parser.add_argument("target", help="Directory to scan")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to project-level configuration file (e.g., .galaxyscope.yaml) -- "
+        "same resolver galaxyscope.py uses, so standalone runs honor the same "
+        "ALLOWLIST_PATHS / DENYLIST_PATTERNS / XRAY_BYPASS_* overrides (#335).",
+    )
     args = parser.parse_args()
+
+    # #335: was a direct module-level gitgalaxy_config.py import, which meant
+    # no YAML/CLI override (#332) could ever reach this standalone detector.
+    resolved_config = resolve_config(yaml_path=args.config)
+    allowlist_paths = resolved_config.get("ALLOWLIST_PATHS", [])
+    denylist_patterns = resolved_config.get("DENYLIST_PATTERNS", [])
+    xray_bypass_extensions = resolved_config.get("XRAY_BYPASS_EXTENSIONS", [])
+    xray_bypass_paths = resolved_config.get("XRAY_BYPASS_PATHS", [])
+    aperture_config = resolved_config.get("APERTURE_CONFIG", {})
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():
@@ -63,7 +65,7 @@ def main():
     print(f"🔍 Initializing Binary Anomaly Detector on {target_path.name}...")
 
     # Initialize lightweight filters
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, aperture_config)
     security = SecurityLens()
 
     # ==============================================================================
@@ -109,8 +111,8 @@ def main():
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
 
             # Evaluate Global vs. Tool-Specific Bypasses
-            is_global_allow = any(approved in rel_path_str for approved in ALLOWLIST_PATHS)
-            is_xray_bypass = ext in XRAY_BYPASS_EXTENSIONS or any(b in rel_path_str for b in XRAY_BYPASS_PATHS)
+            is_global_allow = any(approved in rel_path_str for approved in allowlist_paths)
+            is_xray_bypass = ext in xray_bypass_extensions or any(b in rel_path_str for b in xray_bypass_paths)
 
             is_whitelisted = is_global_allow or is_xray_bypass
 
@@ -126,7 +128,7 @@ def main():
                 is_whitelisted = True
 
             # 1. DENYLIST ENFORCEMENT
-            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in DENYLIST_PATTERNS)
+            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in denylist_patterns)
             if is_forbidden and not is_whitelisted:
                 print(f"[DENYLIST MATCH] Unauthorized file pattern detected: {rel_path_str}")
                 forbidden_blocked += 1
@@ -234,14 +236,33 @@ def main():
     print("=" * 75 + "\n")
 
 
-def run_xray_audit(target_path: Path) -> dict:
-    """Programmatic entry point for GalaxyScope (orchestrator execution)."""
+def run_xray_audit(target_path: Path, config: Optional[ResolvedConfig] = None) -> dict:
+    """
+    Programmatic entry point for GalaxyScope (orchestrator execution).
+
+    `config` was previously a module-level `gitgalaxy_config.py` import
+    (#332/#335) -- that meant no YAML/CLI override could ever reach this
+    audit, regardless of what a user put in .galaxyscope.yaml. Defaults to
+    an unconfigured resolve_config() only when the caller doesn't already
+    have a resolved config to hand over (e.g. direct/test use).
+    """
     import logging
     # Mute the noisy Aperture Filter init during headless Phase 10 execution
     quiet_logger = logging.getLogger("GalaxyScope.xray")
     quiet_logger.setLevel(logging.WARNING)
-    
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG, parent_logger=quiet_logger)
+
+    # .get() rather than attribute access: the caller may hand over either
+    # a ResolvedConfig or Orchestrator's plain full_config dict, and only
+    # .get() works uniformly across both.
+    resolved_config = config if config is not None else resolve_config()
+    allowlist_paths = resolved_config.get("ALLOWLIST_PATHS", [])
+    denylist_patterns = resolved_config.get("DENYLIST_PATTERNS", [])
+    xray_bypass_extensions = resolved_config.get("XRAY_BYPASS_EXTENSIONS", [])
+    xray_bypass_paths = resolved_config.get("XRAY_BYPASS_PATHS", [])
+
+    filter_engine = ApertureFilter(
+        target_path, LANGUAGE_DEFINITIONS, resolved_config.get("APERTURE_CONFIG", {}), parent_logger=quiet_logger
+    )
     security = SecurityLens()
     security.THREAT_SIGNATURES = {
         "reflection_metaprogramming": security.THREAT_SIGNATURES["reflection_metaprogramming"],
@@ -264,15 +285,15 @@ def run_xray_audit(target_path: Path) -> dict:
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
             
             is_whitelisted = (
-                any(a in rel_path_str for a in ALLOWLIST_PATHS)
-                or file_path.suffix.lower() in XRAY_BYPASS_EXTENSIONS
-                or any(b in rel_path_str for b in XRAY_BYPASS_PATHS)
+                any(a in rel_path_str for a in allowlist_paths)
+                or file_path.suffix.lower() in xray_bypass_extensions
+                or any(b in rel_path_str for b in xray_bypass_paths)
             )
-            
+
             if "/test/" in rel_path_str.lower() or "/tests/" in rel_path_str.lower():
                 is_whitelisted = True
 
-            if any(fnmatch.fnmatch(file, p) for p in DENYLIST_PATTERNS) and not is_whitelisted:
+            if any(fnmatch.fnmatch(file, p) for p in denylist_patterns) and not is_whitelisted:
                 anomalies_found += 1
                 continue
 

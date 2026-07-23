@@ -221,6 +221,25 @@ def test_yaml_file_with_no_galaxyscope_section_degrades_to_defaults(tmp_path):
 
 
 # ==============================================================================
+# PRE-PARSED yaml_data (bypasses yaml_path file read entirely)
+# ==============================================================================
+
+
+def test_yaml_data_is_used_directly_without_reading_yaml_path():
+    resolved = resolve_config(
+        yaml_path="/nonexistent/path/should/not/be/opened.yaml",
+        yaml_data={"STRICT_IMPORT_MODE": True},
+    )
+
+    assert resolved.STRICT_IMPORT_MODE is True
+
+
+def test_yaml_data_unknown_key_still_raises():
+    with pytest.raises(ConfigError, match="NOT_A_REAL_KEY"):
+        resolve_config(yaml_data={"NOT_A_REAL_KEY": True})
+
+
+# ==============================================================================
 # NO-DEFAULT KEYS (SARIF_IGNORED_RULES / SARIF_IGNORED_PATHS)
 # ==============================================================================
 

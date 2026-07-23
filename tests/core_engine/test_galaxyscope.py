@@ -1395,3 +1395,84 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             any(p.endswith("package.json") for p in manifest_paths),
             f"package.json missing from manifest_paths! Got: {manifest_paths}",
         )
+
+    # ==============================================================================
+    # TEST 34: CONFIG RESOLVER WIRING (#333/#334)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_gitgalaxy_config_key_reaches_full_config(self, mock_license, mock_orchestrator):
+        """
+        Before #333/#334, a gitgalaxy_config.py key other than the 4
+        APERTURE_CONFIG sub-keys the old hand-merge covered (e.g.
+        STRICT_IMPORT_MODE, BLACKLISTED_IMPORTS) had no path from
+        .galaxyscope.yaml into the config ignited into the Orchestrator at
+        all -- main() never looked at it. Now that main() calls
+        resolve_config(), those keys must actually show up in full_config.
+        """
+        import sys
+        from gitgalaxy.galaxyscope import main
+
+        yaml_payload = """
+        galaxyscope:
+          STRICT_IMPORT_MODE: true
+          BLACKLISTED_IMPORTS:
+            - evil-pkg
+        """
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write(yaml_payload)
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertTrue(
+                ignited_config.get("STRICT_IMPORT_MODE"),
+                "YAML STRICT_IMPORT_MODE never reached the ignited config!",
+            )
+            self.assertIn(
+                "evil-pkg",
+                ignited_config.get("BLACKLISTED_IMPORTS", []),
+                "YAML BLACKLISTED_IMPORTS never reached the ignited config!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_typo_in_gitgalaxy_config_key_aborts_run(self, mock_license, mock_orchestrator):
+        """
+        #332's hard-error decision: a typo'd gitgalaxy_config.py-style key
+        (e.g. STRICT_IMPORT_MDOE) must abort the run rather than silently
+        matching nothing -- that silent-drop-on-typo behavior is exactly
+        what this whole effort exists to close.
+        """
+        import sys
+        from gitgalaxy.galaxyscope import main
+
+        yaml_payload = """
+        galaxyscope:
+          STRICT_IMPORT_MDOE: true
+        """
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write(yaml_payload)
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                with self.assertRaises(SystemExit):
+                    main()
+
+            mock_orchestrator.assert_not_called()
+        finally:
+            os.remove(temp_yaml_path)

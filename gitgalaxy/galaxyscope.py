@@ -54,12 +54,9 @@ from gitgalaxy.security.security_auditor import SecurityAuditor, ML_AVAILABLE
 from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
 from gitgalaxy.standards.gitgalaxy_config import (
-    APERTURE_CONFIG,
-    PRIORITY_WHITELIST,
     LEXICAL_FAMILY_HEURISTICS,
-    GUIDESTAR_CONFIG,
-    TEST_NAMING_CONVENTIONS,
 )
+from gitgalaxy.standards.config_resolver import resolve_config
 from gitgalaxy.standards.language_standards import (
     LANGUAGE_DEFINITIONS,
     PROJECT_OVERRIDES,
@@ -856,7 +853,8 @@ class Orchestrator:
             # manifest is also present in the repo.
             from gitgalaxy.security.manifest_parser import ManifestParser, SUPPORTED_MANIFEST_FILENAMES
 
-            target_manifests = set(GUIDESTAR_CONFIG.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
+            guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
+            target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
             manifest_paths = [
                 str(self.root / rel_path)
                 for rel_path in self.stem_map.values()
@@ -2579,37 +2577,32 @@ def main():
                 final_output = f"{project_name}_galaxy.json"
 
         # ---------------------------------------------------------
-        # 2. The Domain Dialect Pre-Flight Patch
+        # 2. Config Resolution (#332/#333: gitgalaxy_config.py defaults ->
+        #    .galaxyscope.yaml -> CLI, replacing the old 4-key-only
+        #    APERTURE_CONFIG hand-merge) + the Domain Dialect Pre-Flight
+        #    Patch (PROJECT_OVERRIDES, deliberately kept separate from the
+        #    resolver per #332 -- it also patches LANGUAGE_DEFINITIONS,
+        #    which is outside gitgalaxy_config.py's domain).
         # ---------------------------------------------------------
         base_langs = LANGUAGE_DEFINITIONS
         project_overrides = PROJECT_OVERRIDES
-        base_aperture = APERTURE_CONFIG
+
+        # The pipeline-flag interceptor above already claims any YAML key
+        # that matches an argparse dest (paranoid, fail-on-secrets, ...).
+        # Strip those out before handing the rest to resolve_config(), so a
+        # genuine gitgalaxy_config.py key typo still hard-errors (#332)
+        # instead of colliding with pipeline flags living in the same
+        # `galaxyscope:` YAML section.
+        yaml_section = config_file_data.get('galaxyscope', {}) if isinstance(config_file_data, dict) else {}
+        resolver_yaml_data = {
+            key: val for key, val in yaml_section.items()
+            if not hasattr(args, key.replace('-', '_'))
+        }
+
+        resolved = resolve_config(yaml_data=resolver_yaml_data)
 
         merged_langs = copy.deepcopy(base_langs)
-        merged_aperture = copy.deepcopy(base_aperture)
-
-        if 'galaxyscope' in config_file_data and 'APERTURE_CONFIG' in config_file_data['galaxyscope']:
-            yaml_aperture = config_file_data['galaxyscope']['APERTURE_CONFIG']
-            
-            if 'IGNORED_DIRECTORIES' in yaml_aperture:
-                if "IGNORED_DIRECTORIES" not in merged_aperture:
-                    merged_aperture["IGNORED_DIRECTORIES"] = set()
-                merged_aperture["IGNORED_DIRECTORIES"].update(yaml_aperture['IGNORED_DIRECTORIES'])
-            
-            if 'CONTRABAND_PATTERNS' in yaml_aperture:
-                if "CONTRABAND_PATTERNS" not in merged_aperture:
-                    merged_aperture["CONTRABAND_PATTERNS"] = []
-                merged_aperture["CONTRABAND_PATTERNS"].extend(yaml_aperture['CONTRABAND_PATTERNS'])
-
-            if 'VENDOR_MINIFICATION_PATHS' in yaml_aperture:
-                if "VENDOR_MINIFICATION_PATHS" not in merged_aperture:
-                    merged_aperture["VENDOR_MINIFICATION_PATHS"] = []
-                merged_aperture["VENDOR_MINIFICATION_PATHS"].extend(yaml_aperture['VENDOR_MINIFICATION_PATHS'])
-                
-            if 'SECRETS_EXACT' in yaml_aperture:
-                if "SECRETS_EXACT" not in merged_aperture:
-                    merged_aperture["SECRETS_EXACT"] = set()
-                merged_aperture["SECRETS_EXACT"].update(yaml_aperture['SECRETS_EXACT'])
+        merged_aperture = resolved.APERTURE_CONFIG
 
         if project_name in project_overrides:
             logging.info(f"🌌 DIALECT DETECTED: Injecting Project Overrides for '{project_name}'")
@@ -2655,12 +2648,20 @@ def main():
         # 3. Assemble the Final Configuration
         # ---------------------------------------------------------
         full_config = {
+            # Every gitgalaxy_config.py-backed key resolve_config() knows
+            # about (APERTURE_CONFIG, GUIDESTAR_CONFIG, PRIORITY_WHITELIST,
+            # STRICT_IMPORT_MODE, SARIF_IGNORED_RULES/PATHS, ...) -- see
+            # config_resolver.TOP_LEVEL_SPEC for the full list. This is
+            # what makes those keys reachable by Orchestrator/its workers
+            # at all; the per-file migration to actually *read* them from
+            # here instead of a direct gitgalaxy_config.py import is #335.
+            **resolved.to_dict(),
             "LANGUAGE_DEFINITIONS": merged_langs,
             "LEXICAL_FAMILY_HEURISTICS": LEXICAL_FAMILY_HEURISTICS,
+            # Overrides the resolved.to_dict() copy above with the version
+            # that also has the PROJECT_OVERRIDES dialect shield applied.
             "APERTURE_CONFIG": merged_aperture,
             "PATH_MODIFIERS": PATH_MODIFIERS,
-            "PRIORITY_WHITELIST": PRIORITY_WHITELIST,
-            "TEST_NAMING_CONVENTIONS": TEST_NAMING_CONVENTIONS,
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
             "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
@@ -2676,8 +2677,6 @@ def main():
             "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
-            "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),
-            "SARIF_IGNORED_PATHS": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_PATHS", []),
             "DEPENDENCY_CACHE_PATH": args.dependency_cache,
             "NO_DEPENDENCY_CACHE": args.no_dependency_cache,
             "FULL_DEPENDENCY_SCAN": args.full_dependency_scan,

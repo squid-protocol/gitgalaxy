@@ -255,25 +255,42 @@ def _load_yaml_section(yaml_path: str) -> Dict[str, Any]:
 
 def resolve_config(
     yaml_path: Optional[str] = None,
+    yaml_data: Optional[Dict[str, Any]] = None,
     cli_overrides: Optional[Dict[str, Any]] = None,
 ) -> ResolvedConfig:
     """
     Merge, in the precedence decided in #332:
         gitgalaxy_config.py defaults -> .galaxyscope.yaml -> cli_overrides
 
+    `yaml_data`, if given, is used directly as the already-parsed contents
+    of the `galaxyscope:` section -- `yaml_path` is not re-read in that
+    case. This lets a caller that has already parsed the file for its own
+    purposes (galaxyscope.py's main() does, for the separate pipeline-flag
+    interceptor) hand over a pre-filtered dict instead of paying for a
+    second parse. Pass `yaml_path` alone when there's no reason to
+    pre-parse -- e.g. direct/programmatic callers and this module's own
+    tests.
+
     `cli_overrides` should contain only keys the user actually specified on
     the command line (the tri-state fix from #332/#334 -- omit a key
     entirely rather than passing its argparse default, so this function can
     tell "not specified" from "explicitly set").
 
-    Raises ConfigError for any key in `yaml_path`'s `galaxyscope:` section
-    or in `cli_overrides` that isn't in TOP_LEVEL_SPEC (or, for nested
-    dict-valued keys, isn't in that key's own sub-key spec).
+    Raises ConfigError for any key in the YAML `galaxyscope:` section or in
+    `cli_overrides` that isn't in TOP_LEVEL_SPEC (or, for nested
+    dict-valued keys, isn't in that key's own sub-key spec). Callers whose
+    YAML section may also contain keys with no relation to
+    gitgalaxy_config.py (e.g. galaxyscope.py's pipeline flags like
+    `paranoid`) must filter those out before passing `yaml_data` -- this
+    function has no way to know about them and will treat any key it
+    doesn't recognize as a typo, by design (#332).
     """
     resolved: Dict[str, Any] = {key: _get_default(key) for key in TOP_LEVEL_SPEC}
 
-    if yaml_path:
+    if yaml_data is None and yaml_path:
         yaml_data = _load_yaml_section(yaml_path)
+
+    if yaml_data:
         for key, val in yaml_data.items():
             if key not in TOP_LEVEL_SPEC:
                 raise ConfigError(

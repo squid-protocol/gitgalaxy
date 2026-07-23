@@ -196,6 +196,25 @@ _DENSE_FRAGILE = (
 )
 GLOBAL_FRAGILE_DEBT = re.compile(f"{_SPACED_FRAGILE}|{_DENSE_FRAGILE}", re.I)
 
+
+# --- 3. AI / LLM & ML SDK DETECTION (split by SIGNAL_SCHEMA category) ---
+# Mirrors GLOBAL_PLANNED_DEBT/GLOBAL_FRAGILE_DEBT: compiled once here and
+# referenced identically by every language block that wants it, instead of
+# being hand-pasted per-language (see #322).
+_IMPORT_WRAPPER = r"\b(?:import|require|from)\b.*?(?:{names})\b"
+
+_LLM_API_NAMES = r"openai|anthropic"
+_LLM_ORCHESTRATOR_NAMES = r"langchain|llama_index"
+_LLM_VECTOR_STORE_NAMES = r"chromadb|pinecone"
+_ML_TRADITIONAL_NAMES = r"sklearn"
+_DL_FRAMEWORKS_NAMES = r"tensorflow|torch|keras"
+
+GLOBAL_LLM_API = re.compile(_IMPORT_WRAPPER.format(names=_LLM_API_NAMES))
+GLOBAL_LLM_ORCHESTRATOR = re.compile(_IMPORT_WRAPPER.format(names=_LLM_ORCHESTRATOR_NAMES))
+GLOBAL_LLM_VECTOR_STORE = re.compile(_IMPORT_WRAPPER.format(names=_LLM_VECTOR_STORE_NAMES))
+GLOBAL_ML_TRADITIONAL = re.compile(_IMPORT_WRAPPER.format(names=_ML_TRADITIONAL_NAMES))
+GLOBAL_DL_FRAMEWORKS = re.compile(_IMPORT_WRAPPER.format(names=_DL_FRAMEWORKS_NAMES))
+
 # ------------------------------------------------------------------------------
 # 4. LANGUAGE DEFINITIONS (The Structural Signature Matrix)
 # Consumed by: detector.py, language_lens.py, prism.py
@@ -362,9 +381,8 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 21. comprehensions (Iterators / Comprehensions)
             "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            # Expanded to include LLM orchestration tools for the Agentic Shield
             "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:tensorflow|torch|keras|numpy|pandas|scipy|sklearn|matplotlib|opencv|cv2|langchain|openai|anthropic|llama_index|chromadb|pinecone)\b"
+                r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"
             ),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
@@ -377,6 +395,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:from\s+[a-zA-Z0-9_.]+\s+import\b|import\s+[a-zA-Z0-9_., \t]+|\b__import__\s*\(|\bimportlib\.import_module\s*\()",
@@ -632,9 +656,8 @@ LANGUAGE_DEFINITIONS = {
             "generics": re.compile(r"@template\s+\w+|/\*\*\s*@type\s*(?:\{|<\w+)"),
             # 21. comprehensions (Iterators / Comprehensions)
             "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            # Expanded to include LLM orchestration tools for the Agentic Shield
             "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:tensorflow|torch|keras|numpy|pandas|scipy|sklearn|matplotlib|opencv|cv2|langchain|openai|anthropic|llama_index|chromadb|pinecone)\b"
+                r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"
             ),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
@@ -646,6 +669,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:import|export)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
@@ -916,6 +945,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:import(?:\s+type)?|export(?:\s+type)?)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",

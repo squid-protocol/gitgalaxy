@@ -974,14 +974,15 @@ class SignalProcessor:
             }
 
         # --- NEW: AI TOPOLOGY & LLM INTELLIGENCE ---
+        # ai_tools/ai_memory/ai_logic_loop removed from this list (#323):
+        # they were removed from SIGNAL_SCHEMA entirely -- see
+        # analysis_lens.py for why (behavioral patterns a lexical regex
+        # engine can't detect, unlike the import-identity categories below).
         ai_sensor_keys = [
             "llm_api",
             "llm_orchestrator",
             "llm_vector_store",
             "llm_local_compute",
-            "ai_tools",
-            "ai_memory",
-            "ai_logic_loop",
             "ml_traditional",
             "dl_frameworks",
         ]
@@ -1032,35 +1033,6 @@ class SignalProcessor:
             for f in parsed_files
         )
 
-        # Agentic Sensors
-        ai_tools_total = sum(
-            (
-                f.get("hit_vector", [])[self.SIGNAL_SCHEMA.index("ai_tools")]
-                if "ai_tools" in self.SIGNAL_SCHEMA
-                and len(f.get("hit_vector", [])) > self.SIGNAL_SCHEMA.index("ai_tools")
-                else 0
-            )
-            for f in parsed_files
-        )
-        ai_memory_total = sum(
-            (
-                f.get("hit_vector", [])[self.SIGNAL_SCHEMA.index("ai_memory")]
-                if "ai_memory" in self.SIGNAL_SCHEMA
-                and len(f.get("hit_vector", [])) > self.SIGNAL_SCHEMA.index("ai_memory")
-                else 0
-            )
-            for f in parsed_files
-        )
-        ai_loop_total = sum(
-            (
-                f.get("hit_vector", [])[self.SIGNAL_SCHEMA.index("ai_logic_loop")]
-                if "ai_logic_loop" in self.SIGNAL_SCHEMA
-                and len(f.get("hit_vector", [])) > self.SIGNAL_SCHEMA.index("ai_logic_loop")
-                else 0
-            )
-            for f in parsed_files
-        )
-
         # ML/DL Sensors
         ml_total = sum(
             (
@@ -1087,30 +1059,18 @@ class SignalProcessor:
             + llm_orch_total
             + llm_vector_total
             + llm_local_total
-            + ai_tools_total
-            + ai_memory_total
-            + ai_loop_total
             + ml_total
             + dl_total
         )
 
         if total_ai_mass > 0:
-            # Assess Agentic Autonomy First (Highest Complexity)
-            if ai_loop_total > 0 and ai_tools_total > 0:
-                ai_topology["classification"] = "Autonomous Agentic Fleet (Level 4)"
-                ai_topology["insights"].append(
-                    "High density of bound tools and cyclic reasoning loops (ReAct). Agents possess autonomy to execute code. Critical risk of non-deterministic runtime behavior."
-                )
-                if ai_memory_total == 0:
-                    ai_topology["insights"].append(
-                        "WARNING: High autonomy but low memory density. Agents may suffer from context amnesia between loops."
-                    )
-            elif ai_tools_total > 0:
-                ai_topology["classification"] = "Tool-Augmented LLM (Level 3)"
-                ai_topology["insights"].append(
-                    "LLM is explicitly bound to external functions/tools. High blast radius if prompt injection occurs."
-                )
-            elif llm_local_total > 0:
+            # #323: the "Autonomous Agentic Fleet (Level 4)" / "Tool-Augmented
+            # LLM (Level 3)" branches that used to sit here (keyed off
+            # ai_loop_total/ai_tools_total/ai_memory_total) were removed
+            # along with those signals -- they were never reachable against
+            # real source code (zero producers in language_standards.py),
+            # only against synthetic hand-built hit_vector fixtures.
+            if llm_local_total > 0:
                 ai_topology["classification"] = "Local Sovereignty (Heavy Compute)"
                 ai_topology["insights"].append(
                     "Repository contains local model execution or tensor math. Expect heavy GPU memory allocation."
@@ -1178,9 +1138,6 @@ class SignalProcessor:
                 "Orchestrators": llm_orch_total,
                 "Vector Stores": llm_vector_total,
                 "Local Compute": llm_local_total,
-                "Agent Tools": ai_tools_total,
-                "Agent Memory": ai_memory_total,
-                "Agent Loops": ai_loop_total,
                 "Traditional ML": ml_total,
                 "Deep Learning": dl_total,
             }
@@ -2004,9 +1961,9 @@ class SignalProcessor:
         execution_vectors = (raw_signals.get("sec_high_risk_execution", 0) * 4.0) + (raw_signals.get("sec_safety_bypasses", 0) * 2.0)
 
         # ---> LLM EXECUTION VULNERABILITY (Prompt Injection to Exec) <---
-        if raw_signals.get("sec_high_risk_execution", 0) > 0 and (
-            raw_signals.get("llm_orchestrator", 0) > 0 or raw_signals.get("ai_tools", 0) > 0
-        ):
+        # ai_tools removed from this check (#323) -- it was removed from
+        # SIGNAL_SCHEMA entirely, so raw_signals never carries that key.
+        if raw_signals.get("sec_high_risk_execution", 0) > 0 and raw_signals.get("llm_orchestrator", 0) > 0:
             # If an AI can trigger eval/exec/OS commands, it's a massive vulnerability
             execution_vectors *= 10.0
             input_vectors += 5.0  # Treat the LLM itself as a hostile input vector

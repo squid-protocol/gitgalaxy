@@ -1127,13 +1127,21 @@ RECORDING_SCHEMAS = {
         "regex_execution",
         "time_date_logic",
         # --- NEW: AI & LLM SENSORS ---
+        # ai_tools/ai_memory/ai_logic_loop removed (#323): unlike the other
+        # 6 categories here, which just need "does this file import X" (a
+        # lexical pattern regex can do that), these 3 were trying to detect
+        # BEHAVIOR -- agent tool-calling, agent memory/state management,
+        # autonomous ReAct-style execution loops. No regex-based Structural
+        # Signature engine can reliably tell "this file imports langchain"
+        # apart from "this file implements an autonomous execution loop";
+        # the latter is a semantic/structural pattern, not a lexical one.
+        # They had zero producers anywhere in language_standards.py --
+        # always-zero dead weight, not a functioning (if imperfect)
+        # detector, and permanently unfixable via this engine's approach.
         "llm_api",
         "llm_orchestrator",
         "llm_vector_store",
         "llm_local_compute",
-        "ai_tools",
-        "ai_memory",
-        "ai_logic_loop",
         "ml_traditional",
         "dl_frameworks",
         # --- NEW: ADVANCED ALGORITHMIC SENSORS ---
@@ -1271,9 +1279,6 @@ RECORDING_SCHEMAS = {
         "llm_orchestrator": "AI Orchestration Frameworks",
         "llm_vector_store": "Vector Databases (RAG)",
         "llm_local_compute": "Local Inference & Tensor Math",
-        "ai_tools": "Agentic Tool & Function Calling",
-        "ai_memory": "Agentic State & Memory Management",
-        "ai_logic_loop": "Autonomous Execution Loops (ReAct)",
         "ml_traditional": "Traditional Machine Learning (Stats/Trees)",
         "dl_frameworks": "Deep Learning & Neural Networks",
         "lazy_evaluation": "Lazy Evaluation & Generators (O(1) Memory)",

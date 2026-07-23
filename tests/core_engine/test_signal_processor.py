@@ -393,21 +393,24 @@ def test_signal_processor_memory_exhaustion_spatial(processor):
 # TEST 14: AI TOPOLOGY & NETWORK POSTURE
 # ==============================================================================
 def test_signal_processor_ai_topology(processor):
-    """Proves the aggregator correctly classifies Autonomous Fleets and RAG pipelines."""
-    # Level 4 Agent (Tools + Logic Loops, but NO memory)
-    m1, sig1 = create_synthetic_star(
-        processor,
-        "agent",
-        100,
-        {"ai_logic_loop": 10, "ai_tools": 10, "ai_memory": 0},
-    )
+    """
+    Proves the AI Network Posture insights (PageRank blast radius,
+    Betweenness choke-point) fire for any file that registers nonzero AI
+    mass, using llm_orchestrator as the trigger signal.
 
-    # RAG Pipeline
-    m2, sig2 = create_synthetic_star(
-        processor, "rag", 100, {"llm_api": 10, "llm_vector_store": 10}
-    )
+    #323: this test used to exercise ai_logic_loop/ai_tools/ai_memory
+    ("Autonomous Agentic Fleet (Level 4)" + "context amnesia" insight) --
+    those 3 categories were removed from SIGNAL_SCHEMA entirely (they
+    detect BEHAVIOR, not import identity, which a regex engine can't do;
+    they had zero producers in language_standards.py and were permanently
+    unreachable against real source). RAG Pipeline / Cloud API Wrapper
+    classification coverage lives in
+    test_signal_processor_ai_topology_rag_cloud below; this test now only
+    needs to prove the network-posture insight logic itself still works
+    off a signal that's actually still real.
+    """
+    m1, sig1 = create_synthetic_star(processor, "orchestrator", 100, {"llm_orchestrator": 10})
 
-    # Process files
     tel1 = processor.calculate_risk_vector(m1, sig1)
     m1["telemetry"] = tel1["telemetry"]
     m1["hit_vector"] = tel1["hit_vector"]  # Essential for the AI sensor!
@@ -420,20 +423,14 @@ def test_signal_processor_ai_topology(processor):
         "ecosystem_role": "Core Hub",
     }
 
-    tel2 = processor.calculate_risk_vector(m2, sig2)
-    m2["telemetry"] = tel2["telemetry"]
-    m2["hit_vector"] = tel2["hit_vector"]
-
-    parsed = [m1, m2]
-    summary = processor.summarize_galaxy_metrics(parsed, [])
+    summary = processor.summarize_galaxy_metrics([m1], [])
 
     topology = summary.get("ai_topology", {})
-    assert topology["classification"] == "Autonomous Agentic Fleet (Level 4)", (
-        "Failed to classify Level 4 Agent!"
+    assert topology["classification"] == "Framework-Heavy Orchestration", (
+        "Failed to classify orchestration-heavy repo!"
     )
 
     insights = " ".join(topology["insights"])
-    assert "context amnesia" in insights, "Failed to detect missing Agent Memory!"
     assert "catastrophically across the system" in insights, (
         "Failed to detect high PageRank blast radius!"
     )
@@ -954,11 +951,15 @@ def test_signal_processor_llm_execution_vulnerability(processor):
     )
 
     # 2. Agentic dynamic execution
+    # #323: ai_tools removed here -- it was removed from SIGNAL_SCHEMA
+    # entirely, so it was already inert dead data in this fixture even
+    # before that (calculate_risk_vector never read it directly; only
+    # llm_orchestrator drives the amplification this test verifies).
     m_agent, sig_agent = create_synthetic_star(
         processor,
         "agent_exec",
         100,
-        {"sec_high_risk_execution": 10, "llm_orchestrator": 5, "ai_tools": 5},
+        {"sec_high_risk_execution": 10, "llm_orchestrator": 5},
     )
 
     r_std = processor.calculate_risk_vector(m_std, sig_std)

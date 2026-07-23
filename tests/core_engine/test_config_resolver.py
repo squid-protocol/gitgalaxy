@@ -3,7 +3,6 @@ import pytest
 from gitgalaxy.standards import gitgalaxy_config as defaults
 from gitgalaxy.standards.config_resolver import (
     ConfigError,
-    ResolvedConfig,
     resolve_config,
 )
 

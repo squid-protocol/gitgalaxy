@@ -415,6 +415,7 @@ PRIORITY_WHITELIST = [
 # ------------------------------------------------------------------------------
 # Defines the rules for Bayesian Intent inference used by the GuideStar Lens
 GUIDESTAR_CONFIG = {
+    "IGNORED_DIRECTORIES": APERTURE_CONFIG["IGNORED_DIRECTORIES"],
     "MANIFEST_MAP": {
         "package.json": "javascript",
         "Makefile": "makefile",

@@ -334,3 +334,49 @@ def test_aperture_gitignore_and_contraband(tmp_path):
 
     # Verify standard files pass
     assert engine._check_ignore_rules("src/valid.py") is True
+
+
+# ==============================================================================
+# TEST 12: IGNORED_DIRECTORIES CASE-INSENSITIVITY (ISSUE #255)
+# ==============================================================================
+def test_aperture_ignored_directories_case_insensitive(tmp_path):
+    """
+    Proves that mixed-case IGNORED_DIRECTORIES entries (as gitgalaxy_config.py
+    deliberately ships them -- Pods, Carthage, CVS, Release, Debug, CMakeFiles,
+    TestResults, DerivedData, __MACOSX) still block, even though
+    _check_ignore_rules lowercases the path component before comparing.
+
+    Before the fix, self.ignored_directories stored the raw-case config
+    entries verbatim, so "pods" (lowercased path part) could never equal
+    "Pods" (stored config entry) and iOS/Xcode/CMake vendor directories
+    scanned as if they were source.
+
+    Path/file names below are deliberately chosen to avoid the unrelated
+    infra_path_pattern shield (which independently matches generic words
+    like "build", "lib", "test", "spec") and the dot-prefix shield (which
+    blocks any path segment starting with "."), so each assertion isolates
+    the IGNORED_DIRECTORIES case-matching logic specifically. Verified by
+    temporarily reverting the fix: all 9 assertions below flip to allowed
+    (True) without it.
+    """
+    mixed_case_config = {
+        **MOCK_CONFIG,
+        "IGNORED_DIRECTORIES": {
+            "CVS", "Pods", "Carthage", "Release", "Debug",
+            "CMakeFiles", "TestResults", "DerivedData", "__MACOSX",
+        },
+    }
+    engine = ApertureFilter(tmp_path, MOCK_REGISTRY, mixed_case_config)
+
+    assert engine._check_ignore_rules("Pods/Alamofire/Alamofire.swift") is False
+    assert engine._check_ignore_rules("Carthage/Checkouts/Foo/Foo.swift") is False
+    assert engine._check_ignore_rules("project/CMakeFiles/CMakeCache.txt") is False
+    assert engine._check_ignore_rules("artifacts/Release/app.bin") is False
+    assert engine._check_ignore_rules("artifacts/Debug/app.bin") is False
+    assert engine._check_ignore_rules("TestResults/run1.xml") is False
+    assert engine._check_ignore_rules("DerivedData/x.log") is False
+    assert engine._check_ignore_rules("__MACOSX/file.txt") is False
+    assert engine._check_ignore_rules("CVS/Entries") is False
+
+    # Non-matching source files still pass
+    assert engine._check_ignore_rules("src/valid.py") is True

@@ -2409,8 +2409,10 @@ class Orchestrator:
                 "missing_dependencies": {
                     "networkx": not HAS_NETWORKX,
                     "tiktoken": not HAS_TIKTOKEN,
+                    "xgboost": not ML_AVAILABLE,
+                    "pyyaml": not HAS_PYYAML,
                 },
-                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN),
+                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
             }
 
             self.db_recorder.record_mission(

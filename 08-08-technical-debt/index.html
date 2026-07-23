@@ -8758,12 +8758,6 @@
 <td style="text-align: left;"><strong>The Fracture.</strong> An explicit admission that the current logic is fragile or dangerous.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>func_empty</code></td>
-<td style="text-align: left;">Empty functions <code>{}</code></td>
-<td style="text-align: left;">0.5x</td>
-<td style="text-align: left;"><strong>The Skeleton.</strong> Placeholder logic independent of comments.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>irc</code></td>
 <td style="text-align: left;">Implicit Language Penalty</td>
 <td style="text-align: left;">0.5x</td>
@@ -8784,7 +8778,7 @@
 <p>We calculate the Density of Debt per line of code.</p>
 <p><strong>Step A: Calculate Stress Sum</strong>
 We sum the markers, applying weights to distinguish "Planned Work" (Good Debt) from "Broken Logic" (Bad Debt). We also add the Implicit Risk Correction (<span class="arithmatex">\(Irc\)</span>), dampened by its own weight multiplier (<span class="arithmatex">\(0.5\)</span>).</p>
-<div class="arithmatex">\[Stress = (GoodDebt \times 1.0) + (BadDebt \times 3.0) + (Stubs \times 0.5) + (Irc \times 0.5)\]</div>
+<div class="arithmatex">\[Stress = (GoodDebt \times 1.0) + (BadDebt \times 3.0) + (Irc \times 0.5)\]</div>
 <p><strong>Step B: Calculate Stress Density</strong>
 We normalize against the file size to calculate the stress points per 100 lines. A 1,000-line file with 1 <code>TODO</code> is fine. A 10-line file with 1 <code>HACK</code> is structurally critical.</p>
 <div class="arithmatex">\[Density = \left( \frac{Stress}{\max(LOC, 1)} \right) \times 100.0\]</div>
@@ -8799,15 +8793,13 @@ from typing import Dict</p>
 <p>def _calc_tech_debt(self, loc: int, eq: Dict[str, int], irc: int, mp: float) -&gt; float:
     t = self.risk_tuning.get("tech_debt", {})
     good_debt = eq.get("planned_debt", 0)
-    bad_debt = eq.get("fragile_debt", eq.get("keyword_debt", 0))
-    stubs = eq.get("func_empty", 0)</p>
-<div class="highlight"><pre><span></span><code>if good_debt == 0 and bad_debt == 0 and stubs == 0:
+    bad_debt = eq.get("fragile_debt", 0)</p>
+<div class="highlight"><pre><span></span><code>if good_debt == 0 and bad_debt == 0:
     return 0.0
 
 # Step A: Stress Sum
 stress = (good_debt * t.get(&quot;good_debt_weight&quot;, 1.0)) + \
          (bad_debt * t.get(&quot;bad_debt_weight&quot;, 3.0)) + \
-         (stubs * t.get(&quot;stub_weight&quot;, 0.5)) + \
          (irc * t.get(&quot;irc_weight&quot;, 0.5))
 
 # Step B: Density Calculation

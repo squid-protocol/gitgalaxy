@@ -23,16 +23,6 @@ class SecurityLens:
     """
 
     def __init__(self, policy=None):
-        # ------------------------------------------------------------------
-        # DYNAMIC POLICY INJECTION
-        # ------------------------------------------------------------------
-        self.policy = policy or {
-            "secrets_risk_threshold": 0.001,
-            "hidden_malware_threshold": 0.60,
-            "logic_bomb_threshold": 0.50,
-            "injection_surface_threshold": 0.65,
-            "memory_corruption_threshold": 0.60,
-        }
 
         # DEFENSIVE GUARD: ReDoS Prevention
         # Extracts string literals for entropy scanning. Bounded to 64-1024 chars
@@ -387,73 +377,6 @@ class SecurityLens:
         snippets["agentic_rce"] = [s for s in taint_snippets if "RCE" in s]
 
         return {"counts": counts, "snippets": snippets}
-
-    def evaluate_risk(self, aggregated_hits, total_loc, network_metrics=None):
-        """
-        Evaluates vulnerability risk with Network Centrality awareness.
-        Highly central files (e.g., God Nodes with massive Downstream Exposures) have a
-        drastically lower tolerance for embedded threats, scaling their density multipliers.
-        """
-        loc_safe = total_loc if total_loc > 0 else 1
-        exposures = {}
-
-        # --- 1. NETWORK CENTRALITY & BLAST RADIUS MODIFIER ---
-        network_multiplier = 1.0
-        if network_metrics:
-            pr = network_metrics.get("normalized_blast_radius", 0.0)
-            btw = network_metrics.get("betweenness_score", 0.0)
-            if pr > 1.0:
-                network_multiplier += pr * 0.5
-            if btw > 0.05:
-                network_multiplier += 0.5
-
-        # 1. Hidden Malware Risk
-        malware_hits = (
-            aggregated_hits.get("reflection_metaprogramming", 0)
-            + aggregated_hits.get("bitwise_ops", 0)
-            + aggregated_hits.get("shadow_imports", 0)
-            + aggregated_hits.get("homoglyphs", 0)
-            + aggregated_hits.get("entropy", 0)
-        )
-        malware_density = (malware_hits / loc_safe) * network_multiplier
-        if malware_density >= self.policy["hidden_malware_threshold"]:
-            exposures["Hidden Malware Risk"] = malware_density
-
-        # 2. Logic Bomb / Sabotage Risk
-        sabotage_hits = aggregated_hits.get("dead_code", 0) + (aggregated_hits.get("high_risk_execution", 0) * 1.5)
-        sabotage_density = (sabotage_hits / loc_safe) * network_multiplier
-        if sabotage_density >= self.policy["logic_bomb_threshold"]:
-            exposures["Logic Bomb Risk"] = sabotage_density
-
-        # 3. Data Injection Risk
-        injection_hits = (
-            aggregated_hits.get("io", 0) + aggregated_hits.get("high_risk_execution", 0) + aggregated_hits.get("state_mutation", 0)
-        )
-        injection_density = (injection_hits / loc_safe) * network_multiplier
-        if injection_density >= self.policy["injection_surface_threshold"]:
-            exposures["Data Injection Risk"] = injection_density
-
-        # 4. Memory Corruption Risk
-        memory_hits = aggregated_hits.get("memory_corruption", 0)
-        memory_density = (memory_hits / loc_safe) * network_multiplier
-        if memory_density >= self.policy["memory_corruption_threshold"]:
-            exposures["Memory Corruption Risk"] = memory_density
-
-        # 5. Secrets Risk
-        secrets_hits = aggregated_hits.get("hardcoded_secrets", 0)
-        secrets_density = (secrets_hits / loc_safe) * network_multiplier
-        if secrets_density >= self.policy["secrets_risk_threshold"]:
-            exposures["Secrets Leak Risk"] = secrets_density
-
-        # 6. Advanced Agentic Threats
-        prompt_inj = aggregated_hits.get("prompt_injection", 0)
-        agentic_rce = aggregated_hits.get("agentic_rce", 0)
-        if agentic_rce > 0:
-            exposures["Autonomous Execution Vector (Critical)"] = 100.0
-        elif prompt_inj > 0:
-            exposures["Prompt Injection Surface Risk"] = min((prompt_inj / loc_safe) * network_multiplier * 100.0, 100.0)
-
-        return exposures
 
     def scan_binary(self, raw_bytes: bytes, ext: str) -> dict:
         """

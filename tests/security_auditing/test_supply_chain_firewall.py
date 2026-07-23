@@ -5,6 +5,15 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import gitgalaxy.tools.supply_chain_security.supply_chain_firewall as firewall_module
+from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+
+def _risk_vector(**scores):
+    """Builds a risk_vector fixture, e.g. _risk_vector(obscured_payload=70.0)."""
+    vector = [0.0] * len(SignalProcessor.RISK_SCHEMA)
+    for key, value in scores.items():
+        vector[SignalProcessor.RISK_SCHEMA.index(key)] = value
+    return vector
 
 # ==============================================================================
 # TEST 1: Dependency Graph Import Verification
@@ -131,12 +140,13 @@ def test_strict_mode_enforcement(tmp_path, monkeypatch):
         assert exc.value.code == 1, "Strict import policy enforcement failed to block an unknown package."
 
 # ==============================================================================
-# TEST 5: Behavioral Threat Density Evaluation (Updated Schema)
+# TEST 5: Behavioral Threat Score Evaluation (risk_vector Schema)
 # ==============================================================================
 def test_behavioral_threat_evaluation(tmp_path, monkeypatch):
     """
-    Validates that artifacts exhibiting high-density threat indicators
-    (calculated during Phase 1) trigger a firewall block.
+    Validates that a file whose Phase 3 risk_vector score for a gated category
+    is at/above the firewall's block threshold (50.0, SignalProcessor's own
+    sigmoid midpoint) triggers a firewall block.
     """
     monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
     monkeypatch.setattr(firewall_module, "BLACKLISTED_IMPORTS", [])
@@ -147,7 +157,7 @@ def test_behavioral_threat_evaluation(tmp_path, monkeypatch):
                 "Files": {
                     "logic.js": {
                         "raw_imports": [],
-                        "equations": {"sec_homoglyphs": 500, "sec_high_risk_execution": 50},
+                        "risk_vector": _risk_vector(obscured_payload=70.0),
                         "coding_loc": 50,
                     }
                 }
@@ -163,29 +173,35 @@ def test_behavioral_threat_evaluation(tmp_path, monkeypatch):
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as exc:
             firewall_module.main()
-        assert exc.value.code == 1, "Behavioral threat density evaluation failed to trigger pipeline failure."
+        assert exc.value.code == 1, "Behavioral threat score evaluation failed to trigger pipeline failure."
 
 # ==============================================================================
 # TEST 6: Build-Time Execution Multiplier (Static Sandbox)
 # ==============================================================================
 def test_build_time_execution_multiplier(monkeypatch):
     """
-    Ensures that critical build files (like setup.py) have their risk equations
-    artificially multiplied to make them hyper-sensitive to anomalous logic.
+    Ensures that critical build files (like setup.py) have their already-computed
+    risk_vector score scaled by the 10x build-time multiplier post-hoc, making
+    them hyper-sensitive to anomalous logic that a normal file would not block on.
+
+    injection_surface=8.0 is chosen deliberately: below the 50.0 block threshold
+    on its own (8.0 < 50.0), but 8.0 * 10.0 = 80.0 clears it. This is a real
+    numeric re-verification of the post-hoc-scalar design (scaling the sigmoid
+    OUTPUT), not a mechanical port of the old pre-sigmoid density multiplier.
     """
     monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
-    
+
     mock_ram_graph = [
         {
             "path": "setup.py",
             "raw_imports": [],
-            "equations": {"sec_high_risk_execution": 20},
+            "risk_vector": _risk_vector(injection_surface=8.0),
             "coding_loc": 1000,
         },
         {
             "path": "standard_app.py",
             "raw_imports": [],
-            "equations": {"sec_high_risk_execution": 20},
+            "risk_vector": _risk_vector(injection_surface=8.0),
             "coding_loc": 1000,
         }
     ]
@@ -283,10 +299,19 @@ def test_firewall_allowlist_loophole_guard(monkeypatch):
 
 
 # ==============================================================================
-# TEST 11: ISSUE #156 - THE 'SEC_' PREFIX STRIPPING BUG
+# TEST 11: LOGIC BOMB RISK CATEGORY EVALUATION
 # ==============================================================================
 def test_behavioral_threat_evaluation_strips_prefix(tmp_path, monkeypatch):
-    """Proves the firewall correctly strips the 'sec_' prefix from Phase 1 equations."""
+    """
+    Proves the firewall correctly blocks on the 'logic_bomb' risk_vector category.
+
+    Historically this test guarded a bug where the firewall's clone-and-strip of
+    the 'sec_' prefix from Phase 1 equations silently dropped keys. That whole
+    translation step is gone now -- the firewall reads risk_vector[idx] directly,
+    keyed off SignalProcessor.RISK_SCHEMA, with no prefix involved. Kept as a
+    distinct regression test (separate risk category from TEST 5) rather than
+    deleted, since it's still real coverage of the schema-index lookup.
+    """
     monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
 
     mock_ram_graph = {
@@ -295,7 +320,7 @@ def test_behavioral_threat_evaluation_strips_prefix(tmp_path, monkeypatch):
                 "Files": {
                     "logic.js": {
                         "raw_imports": [],
-                        "equations": {"sec_logic_bomb": 100, "sec_high_risk_execution": 50},
+                        "risk_vector": _risk_vector(logic_bomb=65.0),
                         "coding_loc": 50,
                     }
                 }
@@ -305,7 +330,7 @@ def test_behavioral_threat_evaluation_strips_prefix(tmp_path, monkeypatch):
 
     graph_file = tmp_path / "results.json"
     graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
-    
+
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
         with pytest.raises(SystemExit):
             firewall_module.main()
@@ -414,10 +439,20 @@ def test_directory_group_schema_parsing(tmp_path, monkeypatch, capsys):
     assert "Files Evaluated      : 2" in captured.out
 
 # ==============================================================================
-# TEST 15: ISSUE #160 - DENSITY DILUTION BUG
+# TEST 15: BUILD-TIME MULTIPLIER ON A SMALL BUILD SCRIPT (END-TO-END)
 # ==============================================================================
 def test_density_dilution_fix_for_build_scripts(tmp_path, monkeypatch):
-    """Proves that small build scripts are NOT diluted by +150 LOC padding."""
+    """
+    Proves a small build-time script still blocks via main()'s full JSON-loading
+    path, not just via run_firewall_audit() directly (TEST 6 covers that unit).
+
+    Historically this guarded against LOC-padding diluting a small file's raw
+    hit density. LOC-based dilution is now internal to SignalProcessor's own
+    sigmoid scoring (out of the firewall's scope) -- the firewall-level concern
+    that remains is that build_time_multiplier still amplifies a below-threshold
+    score (secrets_risk=7.0, below 50.0) past the block threshold (7.0 * 10.0 =
+    70.0) for a recognized build-time filename, even at tiny file sizes.
+    """
     monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
 
     mock_ram_graph = {
@@ -426,8 +461,8 @@ def test_density_dilution_fix_for_build_scripts(tmp_path, monkeypatch):
                 "Files": {
                     "postinstall.js": {
                         "raw_imports": [],
-                        "equations": {"sec_high_risk_execution": 10},
-                        "coding_loc": 5, 
+                        "risk_vector": _risk_vector(secrets_risk=7.0),
+                        "coding_loc": 5,
                     }
                 }
             }
@@ -436,7 +471,7 @@ def test_density_dilution_fix_for_build_scripts(tmp_path, monkeypatch):
 
     graph_file = tmp_path / "results.json"
     graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
-    
+
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
         with pytest.raises(SystemExit):
             firewall_module.main()
@@ -454,7 +489,7 @@ def test_memory_corruption_detection(tmp_path, monkeypatch):
                 "Files": {
                     "payload.c": {
                         "raw_imports": [],
-                        "equations": {"sec_memory_corruption": 500},
+                        "risk_vector": _risk_vector(memory_corruption=80.0),
                         "coding_loc": 50,
                     }
                 }
@@ -464,7 +499,7 @@ def test_memory_corruption_detection(tmp_path, monkeypatch):
 
     graph_file = tmp_path / "results.json"
     graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
-    
+
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
         with pytest.raises(SystemExit):
             firewall_module.main()

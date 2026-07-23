@@ -23,9 +23,29 @@ import logging
 from pathlib import Path
 
 # Import exclusively from the GitGalaxy Hub
-from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.analysis_lens import ThreatPolicy
+from gitgalaxy.metrics.signal_processor import SignalProcessor
 from typing import Optional
+
+# The five behavioral categories this firewall gates on, mapped to their names
+# in SignalProcessor.RISK_SCHEMA -- Phase 3 computes these once; the firewall
+# reads them back instead of recomputing risk from raw hit counts.
+_FIREWALL_RISK_MAP = {
+    "Hidden Malware Risk": "obscured_payload",
+    "Data Injection Risk": "injection_surface",
+    "Secrets Leak Risk": "secrets_risk",
+    "Logic Bomb Risk": "logic_bomb",
+    "Memory Corruption Risk": "memory_corruption",
+}
+_FIREWALL_RISK_INDEXES = {
+    label: SignalProcessor.RISK_SCHEMA.index(key)
+    for label, key in _FIREWALL_RISK_MAP.items()
+    if key in SignalProcessor.RISK_SCHEMA
+}
+
+# risk_vector entries are 0-100 sigmoid outputs from SignalProcessor; 50.0 is
+# the sigmoid's own midpoint, so using it as the block cutoff defers entirely
+# to SignalProcessor's judgment instead of maintaining a second threshold.
+_FIREWALL_BLOCK_THRESHOLD = 50.0
 
 # Safely import the config, falling back if the user hasn't configured exceptions yet
 try:
@@ -47,7 +67,6 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).
     Operates exclusively on the pre-tokenized, anomaly-checked RAM graph from Phase 1.
     """
-    security = SecurityLens(policy=ThreatPolicy.get_policy("paranoid"))
     logger = logging.getLogger("GalaxyScope.firewall")
     safe_alias_map = alias_map or {}
 
@@ -156,21 +175,11 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
         if "/test/" in safe_path or "/tests/" in safe_path or "test_" in Path(safe_path).name or "_test" in Path(safe_path).name:
             continue
 
-        # Extract the raw structural signatures calculated natively by the Structural Signature Analysis Engine in Phase 1
-        equations = file_node.get("equations", {})
-        loc = file_node.get("coding_loc", 1)
-
-        # Clone the dictionary and strip the 'sec_' prefix for the security evaluator
-        local_counts = {}
-        for k, v in equations.items():
-            clean_key = k[4:] if k.startswith("sec_") else k
-            local_counts[clean_key] = v
-
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):
-        # Configuration scripts (like setup.py or package.json) are executed by CI/CD 
+        # Configuration scripts (like setup.py or package.json) are executed by CI/CD
         # runners at build time. RCE here compromises the host before the app even runs.
-        # We apply an artificial density multiplier to manifest triggers so any I/O or 
-        # Danger signatures instantly trigger a blocking action from the firewall.
+        # We amplify SignalProcessor's already-computed risk scores for these files so
+        # any I/O or Danger signal instantly trips the firewall's block threshold.
         build_time_multiplier = 1.0
         filename = Path(rel_path_str).name
         if filename in [
@@ -182,29 +191,27 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
         ]:
             build_time_multiplier = 10.0
 
-        if build_time_multiplier > 1.0:
-            for k in local_counts:
-                if isinstance(local_counts[k], (int, float)):
-                    local_counts[k] = int(local_counts[k] * build_time_multiplier)
+        # Read the risk scores SignalProcessor already computed for this file back in
+        # Phase 3, rather than recomputing risk from raw hit counts (single source of truth).
+        risk_vector = file_node.get("risk_vector", [])
+        exposures = {}
+        for risk_label, schema_idx in _FIREWALL_RISK_INDEXES.items():
+            if schema_idx >= len(risk_vector):
+                continue
+            raw_score = risk_vector[schema_idx]
+            if not isinstance(raw_score, (int, float)) or raw_score <= 0.0:
+                continue
+            scaled_score = min(raw_score * build_time_multiplier, 100.0)
+            if scaled_score >= _FIREWALL_BLOCK_THRESHOLD:
+                exposures[risk_label] = scaled_score
 
-        # Evaluate risk using Phase 1 network topography context (e.g., Downstream Exposure)
-        network_metrics = file_node.get("dependency_network", {})
-        exposures = security.evaluate_risk(local_counts, loc, network_metrics)
-
-        if (
-            "Hidden Malware Risk" in exposures
-            or "Data Injection Risk" in exposures
-            or "Secrets Leak Risk" in exposures
-            or "Logic Bomb Risk" in exposures
-            or "Memory Corruption Risk" in exposures
-        ):
+        if exposures:
             if is_whitelisted:
                 threats_allowed += 1
             else:
-                logger.warning(f"🚨 [THREAT DETECTED] Density Threshold Breached in: {rel_path_str}")
-                for risk, density in exposures.items():
-                    capped_density = min(density * 100.0, 100.0)
-                    logger.warning(f"   -> {risk}: {capped_density:.1f}%")
+                logger.warning(f"🚨 [THREAT DETECTED] Risk Threshold Breached in: {rel_path_str}")
+                for risk, score in exposures.items():
+                    logger.warning(f"   -> {risk}: {score:.1f}%")
                 threats_found += 1
 
     return {

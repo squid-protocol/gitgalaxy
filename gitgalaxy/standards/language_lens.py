@@ -508,7 +508,7 @@ class LanguageDetector:
                 else:
                     if ext in self.COLLISION_FREQUENCIES:
                         best_lang = spectral_id
-                        best_conf = max(spec_intensity + 0.10, 0.92)
+                        best_conf = min(max(spec_intensity + 0.10, 0.92), 1.0)
                         lock_tier = 4
                         source_proof = f"Collision Resolved ({ext} -> {spectral_id})"
                     elif lock_tier == 4:

@@ -465,3 +465,30 @@ def test_tier_4_density_confidence_is_clamped(mock_time, isolated_detector):
     assert result["intensity"] <= 1.0, (
         f"Tier 4 confidence must be clamped to <= 1.0, got {result['intensity']}"
     )
+
+
+# ==============================================================================
+# TEST 19: COLLISION-RESOLVED CONFIDENCE CLAMP (ISSUE #315)
+# ==============================================================================
+def test_collision_resolved_confidence_is_clamped(isolated_detector):
+    """
+    Proves the Tier-3 collision-resolution branch clamps
+    `spec_intensity + 0.10` to 1.0 before it becomes the final confidence.
+
+    ".h" is a COLLISION_FREQUENCIES extension shared by cpp/c/objective-c, so
+    Tier 1 refuses to lock it (undeterminable) and it falls through to the
+    lexical scan. This payload repeats "int main()" enough times on a single
+    short line to saturate `_tier_3_lexical_scan`'s score at exactly 1.0 --
+    unclamped, `max(1.0 + 0.10, 0.92)` would return 1.10.
+    """
+    content = "int main(); " * 6
+
+    result = isolated_detector.inspect(
+        file_path="test_collision_xyz.h", content_sample=content, ext_tally={}
+    )
+
+    assert result["lang_id"] == "c"
+    assert "Collision Resolved" in result["source_proof"]
+    assert result["intensity"] <= 1.0, (
+        f"Collision-resolved confidence must be clamped to <= 1.0, got {result['intensity']}"
+    )

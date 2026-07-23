@@ -347,6 +347,7 @@ class SignalProcessor:
                             **ghost_meta,
                         },
                         "threat_locations": meta.get("threat_locations", {}),
+                        "raw_churn_freq": raw_churn_freq,
                     },
                 }
 
@@ -434,6 +435,7 @@ class SignalProcessor:
                         "ownership": dominant_author,
                         "domain_context": ghost_meta,
                         "threat_locations": meta.get("threat_locations", {}),
+                        "raw_churn_freq": raw_churn_freq,
                     },
                 }
 

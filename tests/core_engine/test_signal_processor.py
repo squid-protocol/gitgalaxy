@@ -353,6 +353,53 @@ def test_signal_processor_doc_and_secrets_bypass(processor):
     )
 
 
+def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor):
+    """
+    Regression test for #245: documentation and critical-leak overrides must
+    report raw_churn_freq in their telemetry, otherwise the Pass 2 global
+    normalization pass (_normalize_temporal_metrics) reads back the default
+    0.0 and silently zeroes out the churn score these branches just computed.
+    """
+    churn_idx = processor.RISK_SCHEMA.index("churn")
+    hot_temporal = {
+        "is_git_tracked": True,
+        "mtime": 100,
+        "repo_min_time": 0,
+        "repo_max_time": 110,
+        "commit_count": 500,
+    }
+
+    meta_doc, sig_doc = create_synthetic_star(processor, "readme", 500, {"branch": 500})
+    meta_doc["lang_id"] = "markdown"
+    meta_doc["temporal_telemetry"] = hot_temporal
+
+    meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
+    meta_sec["metadata"] = {"aperture_reason": "CRITICAL LEAK"}
+    meta_sec["temporal_telemetry"] = hot_temporal
+
+    for meta, sig in ((meta_doc, sig_doc), (meta_sec, sig_sec)):
+        res = processor.calculate_risk_vector(meta, sig)
+        meta["telemetry"] = res["telemetry"]
+        meta["risk_vector"] = res["risk_vector"]
+        meta["file_impact"] = res["file_impact"]
+        assert meta["risk_vector"][churn_idx] > 0.0, (
+            "Override branch failed to compute an initial churn score!"
+        )
+        assert "raw_churn_freq" in meta["telemetry"], (
+            "Override branch must publish raw_churn_freq so Pass 2 "
+            "normalization doesn't clobber it back to 0.0!"
+        )
+
+    processor.summarize_galaxy_metrics([meta_doc, meta_sec], [])
+
+    assert meta_doc["risk_vector"][churn_idx] > 0.0, (
+        "Documentation file's churn was silently zeroed by global normalization!"
+    )
+    assert meta_sec["risk_vector"][churn_idx] > 0.0, (
+        "Critical-secret-leak file's churn was silently zeroed by global normalization!"
+    )
+
+
 # ==============================================================================
 # TEST 13: SPATIALLY VERIFIED MEMORY EXHAUSTION (Cascading Flux)
 # ==============================================================================

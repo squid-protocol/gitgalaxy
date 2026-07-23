@@ -1760,7 +1760,7 @@ class SignalProcessor:
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
         slope = tuning.get("sigmoid_slope", 0.4)
 
-        return self._sigmoid(density, threshold, slope) * 100.0 * mp
+        return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 
     def _calc_state_flux(self, loc: int, raw_signals: Dict[str, int], irc: int, mp: float) -> float:
         """
@@ -1786,7 +1786,7 @@ class SignalProcessor:
         threshold = tuning.get("threshold_base", 15.0)
         slope = tuning.get("sigmoid_slope", 0.2)
 
-        return self._sigmoid(density, threshold, slope) * 100.0 * mp
+        return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 
     def _calc_spec_alignment(self, raw_signals: Dict[str, int], mp: float) -> float:
         entities = max(raw_signals.get("func_start", 0) + raw_signals.get("class_start", 0), 1)

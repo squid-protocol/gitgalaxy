@@ -2455,13 +2455,27 @@ def main():
     # Required for safe execution limits with the multiprocessing pool on Windows
     multiprocessing.freeze_support()
 
+    # #247: every flag below that can ALSO be set via .galaxyscope.yaml's
+    # `galaxyscope:` section defaults to None here, not a real "off" value
+    # (False / 0.0 / a real int). argparse can't tell "flag not passed"
+    # apart from "flag explicitly passed with a value that happens to look
+    # like a default" -- an explicit `--max-risk-exposure 0.0` and simply
+    # never passing the flag both used to produce args.max_risk_exposure ==
+    # 0.0, so a YAML file setting the same key would silently clobber an
+    # explicit CLI opt-out. None is a value none of these flags can ever
+    # legitimately have from real parsing, so it's a safe "unset" sentinel.
+    # _ARG_REAL_DEFAULTS (below, applied right after the YAML merge) is
+    # where the actual default value gets substituted back in -- once, in
+    # one place -- so every downstream reader of args.*/full_config still
+    # sees a concrete value exactly as before.
     parser = argparse.ArgumentParser(description="GitGalaxy GalaxyScope v2")
     parser.add_argument("target", help="Path to repo or ZIP")
     parser.add_argument("--output", default=None, help="Optional output filename override")
-    parser.add_argument("--debug", action="store_true", help="Turn on verbose Analytical logging")
+    parser.add_argument("--debug", action="store_true", default=None, help="Turn on verbose Analytical logging")
     parser.add_argument(
         "--paranoid",
         action="store_true",
+        default=None,
         help="Lower security thresholds to flag more potential threats.",
     )
 
@@ -2469,20 +2483,21 @@ def main():
     parser.add_argument(
         "--shadow-patch-detected",
         action="store_true",
+        default=None,
         help="Indicates the payload hash mutated without a version bump.",
     )
 
     # --- EXCLUSIVE RECORDER FLAGS ---
-    parser.add_argument("--llm-only", action="store_true", help="Run ONLY the LLM recorder")
-    parser.add_argument("--gpu-only", action="store_true", help="Run ONLY the GPU recorder")
-    parser.add_argument("--audit-only", action="store_true", help="Run ONLY the Audit recorder")
-    parser.add_argument("--db-only", action="store_true", help="Run ONLY the native SQLite recorder")
-    parser.add_argument("--sarif-only", action="store_true", help="Run ONLY the SARIF exporter")
-    parser.add_argument("--sbom-only", action="store_true", help="Run ONLY the CycloneDX SBOM generator")
-    parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
-    parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
-    parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
-    parser.add_argument("--max-systemic-threat", type=float, default=0.0, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
+    parser.add_argument("--llm-only", action="store_true", default=None, help="Run ONLY the LLM recorder")
+    parser.add_argument("--gpu-only", action="store_true", default=None, help="Run ONLY the GPU recorder")
+    parser.add_argument("--audit-only", action="store_true", default=None, help="Run ONLY the Audit recorder")
+    parser.add_argument("--db-only", action="store_true", default=None, help="Run ONLY the native SQLite recorder")
+    parser.add_argument("--sarif-only", action="store_true", default=None, help="Run ONLY the SARIF exporter")
+    parser.add_argument("--sbom-only", action="store_true", default=None, help="Run ONLY the CycloneDX SBOM generator")
+    parser.add_argument("--fail-on-secrets", action="store_true", default=None, help="CI/CD Gate: Fail build if hardcoded secrets are detected")
+    parser.add_argument("--fail-on-malware", action="store_true", default=None, help="CI/CD Gate: Fail build if ML threat inference flags malware")
+    parser.add_argument("--max-risk-exposure", type=float, default=None, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
+    parser.add_argument("--max-systemic-threat", type=float, default=None, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
     parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
 
     # --- DEPENDENCY AUDIT CACHE (incremental SBOM verification) ---
@@ -2496,35 +2511,61 @@ def main():
     parser.add_argument(
         "--no-dependency-cache",
         action="store_true",
+        default=None,
         help="Disable the dependency-audit cache entirely (legacy capped-sampling SBOM audit)",
     )
     parser.add_argument(
         "--full-dependency-scan",
         action="store_true",
+        default=None,
         help="Ignore the per-package fresh-scan budget and verify every dependency file this run",
     )
     parser.add_argument(
         "--dependency-scan-budget",
         type=int,
         metavar="N",
-        default=25,
+        default=None,
         help="Max cache-miss files freshly scanned per package per run (default 25; deferred files are disclosed and picked up next run)",
     )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
         action="store_true",
+        default=None,
         help="Profile regex and file processing speeds (capped at 5000 files)",
     )
     parser.add_argument(
         "--file-speed",
         action="store_true",
+        default=None,
         help="Profile the macro lifecycle phases of file processing",
     )
 
-    args = parser.parse_args()
+    # The real default for each flag above once the YAML merge runs and it's
+    # still unset -- kept as one table so adding a new overridable flag means
+    # adding one line here, not re-deriving the sentinel-collision fix.
+    _ARG_REAL_DEFAULTS = {
+        "debug": False,
+        "paranoid": False,
+        "shadow_patch_detected": False,
+        "llm_only": False,
+        "gpu_only": False,
+        "audit_only": False,
+        "db_only": False,
+        "sarif_only": False,
+        "sbom_only": False,
+        "fail_on_secrets": False,
+        "fail_on_malware": False,
+        "max_risk_exposure": 0.0,
+        "max_systemic_threat": 0.0,
+        "no_dependency_cache": False,
+        "full_dependency_scan": False,
+        "dependency_scan_budget": 25,
+        "splicing_speed": False,
+        "file_speed": False,
+    }
 
-    log_level = logging.DEBUG if args.debug else logging.INFO
+    args = parser.parse_args()
 
     # ---------------------------------------------------------
     # YAML Configuration File Interceptor
@@ -2538,13 +2579,30 @@ def main():
             logging.info(f"⚙️ Loaded repository configuration from {args.config}")
         except Exception as e:
             logging.error(f"Failed to load config file {args.config}: {e}")
-    
-    # Map YAML configurations directly to argparse attributes if not overridden via CLI
+
+    # Map YAML configurations directly to argparse attributes if not overridden via CLI.
+    # #247: `is None` -- not a truthy/falsy check -- because None is the only
+    # value that means "the CLI didn't set this" now that every affected flag
+    # above defaults to None instead of a real off-value.
     if 'galaxyscope' in config_file_data:
         for key, val in config_file_data['galaxyscope'].items():
             arg_key = key.replace('-', '_')
-            if hasattr(args, arg_key) and getattr(args, arg_key) in (None, False, 0.0, ""):
+            if hasattr(args, arg_key) and getattr(args, arg_key) is None:
                 setattr(args, arg_key, val)
+
+    # Neither the CLI nor the YAML file set these -- fall back to each
+    # flag's real default now, in one place, so every downstream reader of
+    # args.*/full_config sees a concrete value exactly as before #247.
+    for arg_key, real_default in _ARG_REAL_DEFAULTS.items():
+        if getattr(args, arg_key, None) is None:
+            setattr(args, arg_key, real_default)
+
+    # Computed after the YAML merge + real-default resolution above (not
+    # before, as previously) so a .galaxyscope.yaml `debug: true` with no
+    # --debug on the CLI actually takes effect instead of being silently
+    # ignored because log_level had already been fixed before the YAML
+    # value was ever applied to args.debug.
+    log_level = logging.DEBUG if args.debug else logging.INFO
 
     logging.basicConfig(
         level=log_level,

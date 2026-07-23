@@ -283,6 +283,127 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             os.remove(temp_yaml_path)
 
     # ==============================================================================
+    # TEST 7b: #247 -- EXPLICIT FALSY-LOOKING CLI VALUE SURVIVES A YAML OVERRIDE
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_explicit_cli_sentinel_value_not_clobbered_by_yaml(self, mock_license, mock_orchestrator):
+        """
+        The exact reproduction steps from #247: a .galaxyscope.yaml sets
+        max-risk-exposure: 25.0, and the CLI explicitly passes
+        --max-risk-exposure 0.0 (a real, intentional "disable this gate"
+        value, not "I forgot to set it"). Before the #247 fix, argparse
+        could not tell "flag not passed" apart from "flag passed with a
+        value that happens to equal the old truthy/falsy sentinel", so the
+        YAML value silently won. The explicit CLI value must win instead.
+        """
+        import sys
+        import tempfile
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  max-risk-exposure: 25.0\n")
+
+        test_args = [
+            "galaxyscope",
+            ".",
+            "--config", temp_yaml_path,
+            "--max-risk-exposure", "0.0",
+        ]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertEqual(
+                ignited_config["MAX_RISK_EXPOSURE"], 0.0,
+                "YAML silently overwrote an explicit CLI value that looked like a default -- #247 regression!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    # ==============================================================================
+    # TEST 7c: #247 -- A FLAG WITH A TRUTHY DEFAULT IS NOW REACHABLE FROM YAML AT ALL
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_can_set_flag_with_previously_truthy_default(self, mock_license, mock_orchestrator):
+        """
+        --dependency-scan-budget defaulted to 25 (truthy) before #247's fix,
+        which meant the OLD interceptor's `in (None, False, 0.0, "")` check
+        could NEVER match it -- YAML could never set this flag even when
+        the CLI never touched it at all. Proves the flip side of the same
+        bug is also fixed: a real default no longer permanently blocks a
+        YAML override.
+        """
+        import sys
+        import tempfile
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  dependency-scan-budget: 5\n")
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertEqual(
+                ignited_config["DEPENDENCY_SCAN_BUDGET"], 5,
+                "YAML failed to reach a flag whose CLI default used to be truthy!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    # ==============================================================================
+    # TEST 7d: #247 -- YAML `debug: true` ACTUALLY TAKES EFFECT
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_debug_flag_actually_sets_log_level(self, mock_license, mock_orchestrator):
+        """
+        log_level used to be computed from args.debug BEFORE the YAML merge
+        ran, so a .galaxyscope.yaml `debug: true` with no --debug on the
+        CLI was silently a no-op -- log_level had already been fixed to
+        INFO by the time the YAML value was applied to args.debug. Fixed by
+        computing log_level after the YAML merge + real-default resolution.
+        """
+        import sys
+        import tempfile
+        import logging
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  debug: true\n")
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            self.assertEqual(
+                logging.getLogger().getEffectiveLevel(), logging.DEBUG,
+                "YAML debug: true failed to actually raise the log level -- #247 ordering regression!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+            logging.getLogger().setLevel(logging.INFO)
+
+    # ==============================================================================
     # TEST 8: THE TYPOSQUATTING DOPPELGÄNGER (Supply Chain Radar)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.logger")

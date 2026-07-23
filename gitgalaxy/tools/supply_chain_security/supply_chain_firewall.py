@@ -54,12 +54,14 @@ try:
         STRICT_IMPORT_MODE,
         APPROVED_IMPORTS,
         BLACKLISTED_IMPORTS,
+        FIREWALL_NETWORK_WEIGHTING,
     )
 except ImportError:
     ALLOWLIST_PATHS = []
     STRICT_IMPORT_MODE = False
     APPROVED_IMPORTS = []
     BLACKLISTED_IMPORTS = []
+    FIREWALL_NETWORK_WEIGHTING = False
 
 
 def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> dict:
@@ -191,6 +193,21 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
         ]:
             build_time_multiplier = 10.0
 
+        # DEFENSIVE DESIGN (NETWORK-CENTRALITY MULTIPLIER, opt-in):
+        # A highly central "hub" file (large Downstream Exposure / Blast Radius from
+        # Phase 4's network topology) gets less tolerance for the same embedded threat
+        # signal than a peripheral file. Only ever amplifies -- a low-centrality file
+        # is still judged on its own merits, never given a discount for being obscure.
+        network_multiplier = 1.0
+        if FIREWALL_NETWORK_WEIGHTING:
+            network_metrics = file_node.get("telemetry", {}).get("network_metrics", {})
+            blast_radius = network_metrics.get("normalized_blast_radius", 0.0)
+            betweenness = network_metrics.get("betweenness_score", 0.0)
+            if blast_radius > 1.0:
+                network_multiplier += blast_radius * 0.5
+            if betweenness > 0.05:
+                network_multiplier += 0.5
+
         # Read the risk scores SignalProcessor already computed for this file back in
         # Phase 3, rather than recomputing risk from raw hit counts (single source of truth).
         risk_vector = file_node.get("risk_vector", [])
@@ -201,7 +218,7 @@ def run_firewall_audit(parsed_files: list, alias_map: Optional[dict] = None) -> 
             raw_score = risk_vector[schema_idx]
             if not isinstance(raw_score, (int, float)) or raw_score <= 0.0:
                 continue
-            scaled_score = min(raw_score * build_time_multiplier, 100.0)
+            scaled_score = min(raw_score * build_time_multiplier * network_multiplier, 100.0)
             if scaled_score >= _FIREWALL_BLOCK_THRESHOLD:
                 exposures[risk_label] = scaled_score
 

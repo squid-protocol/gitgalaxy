@@ -33,6 +33,17 @@ BLACKLISTED_IMPORTS = [
     # Known compromised, malicious, or troll packages
 ]
 
+# ------------------------------------------------------------------
+# NETWORK-CENTRALITY RISK WEIGHTING (Supply Chain Firewall)
+# When True, a file's Downstream Exposure / Blast Radius (Phase 4 network
+# topology) amplifies its behavioral risk score before the firewall's block
+# threshold is applied -- a highly central "hub" file gets less tolerance
+# for the same embedded threat signal than a peripheral one.
+# Off by default: this previously never actually ran in production (it was
+# reading a key nothing ever wrote), so it ships opt-in rather than
+# silently changing what existing pipelines block on.
+# ------------------------------------------------------------------
+FIREWALL_NETWORK_WEIGHTING = False
 
 # ------------------------------------------------------------------
 # GLOBAL DENYLIST

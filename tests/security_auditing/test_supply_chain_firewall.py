@@ -503,3 +503,107 @@ def test_memory_corruption_detection(tmp_path, monkeypatch):
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
         with pytest.raises(SystemExit):
             firewall_module.main()
+
+# ==============================================================================
+# TEST 17: NETWORK-CENTRALITY WEIGHTING IS OFF BY DEFAULT
+# ==============================================================================
+def test_network_weighting_disabled_by_default():
+    """
+    Proves FIREWALL_NETWORK_WEIGHTING defaults to False, so a file with an
+    enormous blast radius but a below-threshold raw score does NOT block.
+    This is the regression guard for the opt-in rollout decision: existing
+    pipelines must see unchanged behavior until they explicitly flip the flag.
+    """
+    assert firewall_module.FIREWALL_NETWORK_WEIGHTING is False, (
+        "FIREWALL_NETWORK_WEIGHTING must default to False -- this feature was "
+        "previously inert in production and ships opt-in, not silently live."
+    )
+
+    mock_ram_graph = [
+        {
+            "path": "hub.py",
+            "raw_imports": [],
+            # 40.0 alone is well under the 50.0 block threshold.
+            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": 9.0, "betweenness_score": 0.5}},
+            "coding_loc": 50,
+        }
+    ]
+
+    result = firewall_module.run_firewall_audit(mock_ram_graph)
+    assert result["threats_found"] == 0, "Network weighting fired despite being disabled by default."
+
+# ==============================================================================
+# TEST 18: NETWORK-CENTRALITY WEIGHTING AMPLIFIES HUB FILES (OPT-IN)
+# ==============================================================================
+def test_network_weighting_amplifies_high_centrality_hub(monkeypatch):
+    """
+    With FIREWALL_NETWORK_WEIGHTING enabled, a highly central "hub" file
+    (normalized_blast_radius=3.0 > 1.0) gets its risk score amplified enough
+    to cross the block threshold, while a peripheral file with the identical
+    raw score (normalized_blast_radius=0.5 <= 1.0) does not.
+
+    logic_bomb=40.0 alone stays under 50.0. The hub's multiplier is
+    1.0 + (3.0 * 0.5) = 2.5, so 40.0 * 2.5 = 100.0 (capped) clears it. This is
+    the "only-amplify" design: a low-centrality file is never given a
+    discount, it just isn't boosted.
+    """
+    monkeypatch.setattr(firewall_module, "FIREWALL_NETWORK_WEIGHTING", True)
+    monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
+
+    mock_ram_graph = [
+        {
+            "path": "hub.py",
+            "raw_imports": [],
+            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": 3.0, "betweenness_score": 0.0}},
+            "coding_loc": 50,
+        },
+        {
+            "path": "leaf.py",
+            "raw_imports": [],
+            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.0}},
+            "coding_loc": 50,
+        },
+    ]
+
+    result = firewall_module.run_firewall_audit(mock_ram_graph)
+    assert result["threats_found"] == 1, "Hub-file amplification failed to isolate the high-centrality file."
+
+# ==============================================================================
+# TEST 19: NETWORK-CENTRALITY WEIGHTING - BETWEENNESS BONUS (OPT-IN)
+# ==============================================================================
+def test_network_weighting_betweenness_bonus(monkeypatch):
+    """
+    With FIREWALL_NETWORK_WEIGHTING enabled, a file that sits on many shortest
+    paths between other files (betweenness_score=0.1 > 0.05) gets a flat +0.5
+    multiplier bonus even when its blast radius alone (0.5 <= 1.0) would not
+    have amplified it.
+
+    logic_bomb=40.0 alone stays under 50.0. Multiplier here is 1.0 + 0.5 = 1.5,
+    so 40.0 * 1.5 = 60.0 clears the threshold. The identical file without the
+    high betweenness score stays unblocked.
+    """
+    monkeypatch.setattr(firewall_module, "FIREWALL_NETWORK_WEIGHTING", True)
+    monkeypatch.setattr(firewall_module, "STRICT_IMPORT_MODE", False)
+
+    mock_ram_graph = [
+        {
+            "path": "bridge.py",
+            "raw_imports": [],
+            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.1}},
+            "coding_loc": 50,
+        },
+        {
+            "path": "isolated.py",
+            "raw_imports": [],
+            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.0}},
+            "coding_loc": 50,
+        },
+    ]
+
+    result = firewall_module.run_firewall_audit(mock_ram_graph)
+    assert result["threats_found"] == 1, "Betweenness bonus failed to isolate the high-betweenness bridge file."

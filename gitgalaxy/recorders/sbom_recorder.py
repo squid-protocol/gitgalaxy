@@ -215,7 +215,7 @@ class SbomRecorder:
         candidates = []
         for root, _, files in os.walk(pkg_path):
             for file in files:
-                if file.endswith((".js", ".py", ".ts", ".php", ".rs")):
+                if file.lower().endswith((".js", ".py", ".ts", ".php", ".rs")):
                     candidates.append(Path(root) / file)
 
         def _priority(p: Path):
@@ -264,7 +264,7 @@ class SbomRecorder:
         for root, _, files in os.walk(pkg_path):
             scanned_in_dir = 0
             for file in files:
-                if not file.endswith((".js", ".py", ".ts", ".php", ".rs")):
+                if not file.lower().endswith((".js", ".py", ".ts", ".php", ".rs")):
                     continue
                 total_candidates += 1
                 if scanned_in_dir >= 5:

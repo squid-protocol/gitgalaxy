@@ -973,16 +973,12 @@ class StructuralExtractor:
             # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
-            # 0a. The Exfiltration Distance Check
-            if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
-                # Measures the physical call-path distance between the memory read and the socket
-                unmitigated, confirmed_exfiltration = self._correlate_signals(
-                    targets=spatial_map["memory_scraping"],
-                    dampeners=spatial_map["exfiltration_camouflage"],
-                    max_distance=200,  # If they happen within 200 chars of each other, it's a confirmed attack
-                )
-                counts["memory_scraping"] += confirmed_exfiltration * 100  # Massive penalty multiplier
-                mitigations["amplified_leaks"] += confirmed_exfiltration
+            # 0a. The Exfiltration Distance Check has been RELOCATED (#102) to
+            # apply_amplifier_correlations() in gitgalaxy.core.spatial_correlation,
+            # called from _function_slice() -- it was the one correlate() pair
+            # #346/#348 missed when they enumerated and migrated the other six,
+            # so it kept running flat/unscoped after everything else had moved
+            # to same-function scoping.
 
             # 0b. The RCE Funnel Amplifier
             if "rce_funnel" in spatial_map:

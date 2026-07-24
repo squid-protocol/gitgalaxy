@@ -198,8 +198,9 @@ def apply_amplifier_correlations(
     mitigations: Dict[str, int],
 ) -> None:
     """
-    Runs the two remaining in-segment amplifier-pair correlations (#348) scoped
-    to real function boundaries, for consistency with apply_dampener_correlations().
+    Runs the three remaining in-segment amplifier-pair correlations (#348, #102)
+    scoped to real function boundaries, for consistency with
+    apply_dampener_correlations().
 
     Unlike a wrong-scope dampener, a wrong-scope amplifier only costs one extra
     review item (a false positive) -- an accepted tradeoff for this project, not
@@ -209,6 +210,20 @@ def apply_amplifier_correlations(
 
     Mutates `counts`/`mitigations` in place, matching apply_dampener_correlations().
     """
+    # 0. The Exfiltration Distance Check (memory read -> outbound socket).
+    # The one correlate() pair #346/#348 missed when they enumerated and
+    # migrated the other six -- it kept running flat/unscoped in
+    # coding_analysis() until #102 closed out the last "sporadic" gap.
+    if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
+        _, confirmed_exfiltration = correlate_scoped(
+            targets=spatial_map["memory_scraping"],
+            dampeners=spatial_map["exfiltration_camouflage"],
+            satellite_ranges=satellite_ranges,
+            max_distance=200,  # If they happen within 200 chars of each other, it's a confirmed attack
+        )
+        counts["memory_scraping"] += confirmed_exfiltration * 100  # Massive penalty multiplier
+        mitigations["amplified_leaks"] += confirmed_exfiltration
+
     # 1. Taint Tracking (RCE Weaponization)
     if "high_risk_execution" in spatial_map and "io" in spatial_map:
         _, corroborated_rce = correlate_scoped(

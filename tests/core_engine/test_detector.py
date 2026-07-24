@@ -130,6 +130,35 @@ def test_detector_spatial_appsec_correlation():
     )
 
 
+def test_detector_exfiltration_check_does_not_cross_function_boundaries():
+    """
+    Regression test for #102: the Exfiltration Distance Check was the one
+    correlate() pair #346/#348 missed when they scoped the other six to real
+    function boundaries -- it kept running flat/unscoped in coding_analysis()
+    until now. A memory read in one function and a socket send in a
+    DIFFERENT, unrelated function must not correlate just because they're
+    within the old flat 200-char radius.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void reads_memory() {\n"
+        "    memcpy(buffer, secret_key, 100);\n"
+        "}\n"
+        "\n"
+        "void sends_elsewhere() {\n"
+        "    send(socket, other_buffer, 100, 0);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    assert result["equations"]["memory_scraping"] == 1, (
+        "A socket send in a DIFFERENT function must not amplify this memory read -- "
+        "cross-function exfiltration correlation regressed!"
+    )
+    assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
+
+
 def test_detector_silencer_region():
     """
     Proves the Spatial Map correctly neutralizes danger signals if a safety wrapper

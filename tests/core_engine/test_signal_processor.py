@@ -345,7 +345,7 @@ def test_signal_processor_doc_and_secrets_bypass(processor):
 
     # 2. Test Critical Secrets Leak
     meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
-    meta_sec["metadata"] = {"aperture_reason": "CRITICAL LEAK"}
+    meta_sec["metadata"] = {"reason": "CRITICAL LEAK"}  # #374: real key is "reason", not "aperture_reason"
 
     res_sec = processor.calculate_risk_vector(meta_sec, sig_sec)
     assert 100.0 in res_sec["risk_vector"], (
@@ -374,7 +374,7 @@ def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor
     meta_doc["temporal_telemetry"] = hot_temporal
 
     meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
-    meta_sec["metadata"] = {"aperture_reason": "CRITICAL LEAK"}
+    meta_sec["metadata"] = {"reason": "CRITICAL LEAK"}  # #374: real key is "reason", not "aperture_reason"
     meta_sec["temporal_telemetry"] = hot_temporal
 
     for meta, sig in ((meta_doc, sig_doc), (meta_sec, sig_sec)):
@@ -1400,7 +1400,7 @@ def test_signal_processor_critical_leak_bypass(processor):
     """Proves that critical leaks bypass standard physics and max out secrets risk."""
     m_leak, sig_leak = create_synthetic_star(processor, "aws_key", 10, {})
     m_leak["path"] = "config/production.pem"
-    m_leak["metadata"] = {"aperture_reason": "CRITICAL LEAK DETECTED"}
+    m_leak["metadata"] = {"reason": "CRITICAL LEAK DETECTED"}  # #374: real key is "reason", not "aperture_reason"
 
     r_leak = processor.calculate_risk_vector(m_leak, sig_leak)
 
@@ -1414,6 +1414,27 @@ def test_signal_processor_critical_leak_bypass(processor):
     )
     assert r_leak["telemetry"]["domain_context"]["alert"] == "CRITICAL LEAK BYPASS", (
         "Bypass alert missing from telemetry!"
+    )
+
+
+def test_signal_processor_critical_leak_via_reason_text_alone(processor):
+    """
+    Regression test for #374 (#325's own pre-documented instance #3): isolates
+    the THIRD is_critical_leak path -- "CRITICAL LEAK" in the reason text --
+    from the other two (extension/exact-filename match), which the test above
+    already covers via a .pem path. This file has neither a secrets extension
+    nor an exact secrets filename, so it can ONLY trigger via
+    ghost_meta.get("reason", ""), proving that mechanism works in isolation
+    now that it reads the key aperture.py actually writes.
+    """
+    m_leak, sig_leak = create_synthetic_star(processor, "config_loader", 10, {})
+    m_leak["metadata"] = {"reason": "CRITICAL LEAK (Exposed Secret: 'config_loader.py')"}
+
+    r_leak = processor.calculate_risk_vector(m_leak, sig_leak)
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert r_leak["risk_vector"][idx_sec] == 100.0, (
+        "The reason-text-only critical leak path failed to fire!"
     )
 
 

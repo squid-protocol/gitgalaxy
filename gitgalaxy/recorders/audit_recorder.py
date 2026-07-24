@@ -458,7 +458,10 @@ class AuditRecorder:
                 quarantined_files.append(
                     {
                         "Path": path,
-                        "Diagnostic": f"CRITICAL LEAK (Exposed Secret/Key): {domain_ctx.get('aperture_reason', 'Manual Bypass')}",
+                        # #374: signal_processor.py builds this domain_context via
+                        # {"alert": "CRITICAL LEAK BYPASS", **ghost_meta} -- ghost_meta
+                        # never had an "aperture_reason" key, only "reason" (aperture.py).
+                        "Diagnostic": f"CRITICAL LEAK (Exposed Secret/Key): {domain_ctx.get('reason', 'Manual Bypass')}",
                     }
                 )
 

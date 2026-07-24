@@ -302,7 +302,10 @@ class SignalProcessor:
             aperture_cfg = getattr(config, "APERTURE_CONFIG", {})
             secrets_exts = aperture_cfg.get("SECRETS_EXTENSIONS", set())
             secrets_exact = aperture_cfg.get("SECRETS_EXACT", set())
-            aperture_reason = ghost_meta.get("aperture_reason", "")
+            # #374: aperture.py always writes the key "reason" (e.g. "CRITICAL
+            # LEAK (Exposed Secret: '...')" for the exact case this override
+            # exists for), never "aperture_reason" -- confirmed via aperture.py:151.
+            aperture_reason = ghost_meta.get("reason", "") or ""
 
             is_critical_leak = "CRITICAL LEAK" in aperture_reason or ext in secrets_exts or filename in secrets_exact
 

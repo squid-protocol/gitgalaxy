@@ -11,11 +11,26 @@ later without updating the consumer -- was found six independent times by
 hand (see #325); this is the "automate the manual diff" half of that issue.
 
 USAGE
-    python tests/dead_key_audit.py
+    python tests/dead_key_audit.py          # full report, exits 1 if anything
+                                             # un-allowlisted is found -- use
+                                             # this to re-tune ALLOWLIST or to
+                                             # refresh the baseline below.
+    python tests/dead_key_audit.py --ci      # baseline-gated regression check
+                                             # (see BASELINE below) -- this is
+                                             # what CI runs.
 
-This is a standalone report script, not a pytest test: it is deliberately
-NOT wired into CI yet (that is #325's separate sub-task 3). Run it by hand
-and read the report.
+BASELINE (#325 sub-task 3)
+This repo had 15 confirmed-real, not-yet-fixed instances of this pattern the
+day this check was wired into CI (see dead_key_audit_baseline.json). Hard
+failing on those immediately would block every unrelated PR until all 15
+were fixed first, so `--ci` mode is a REGRESSION gate, not a zero-tolerance
+one: it fails only on keys not already in the baseline. Fixing a baselined
+key doesn't fail the build either -- shrinking the baseline is a deliberate,
+reviewable edit you make yourself (matching #330's "deliberate, reviewable
+updates instead of silent overwrite" philosophy for golden_master.json),
+not something this script does automatically. `--ci` prints anything it
+notices has already been fixed as an FYI, so the baseline doesn't silently
+go stale, but it does not fail the build over it.
 
 SCOPE & LIMITATIONS (read before treating a hit as a confirmed bug)
 This is a purely syntactic, whole-repo string-literal cross-reference. It
@@ -34,13 +49,16 @@ External-schema keys (parsed YAML/JSON config, third-party API responses,
 lockfile fields, etc.) are real reads with no producer *in this repo* by
 design -- those go in ALLOWLIST below, with a comment saying why.
 """
+import argparse
 import ast
+import json
 import sys
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Set, Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOTS = [REPO_ROOT / "gitgalaxy"]
+BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 
 # ==============================================================================
 # ALLOWLIST -- tuned from a real run against this repo, not guessed in
@@ -272,13 +290,15 @@ def find_dead_keys() -> Dict[str, List[KeyUsage]]:
     return dead
 
 
-def main() -> int:
-    dead = find_dead_keys()
-    if not dead:
-        print("Dead Key Auditor: no un-allowlisted read-without-write keys found.")
-        return 0
+def load_baseline() -> Dict[str, str]:
+    """Returns {key: reason} for every already-known, not-yet-fixed lead."""
+    if not BASELINE_PATH.exists():
+        return {}
+    with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    print(f"Dead Key Auditor: {len(dead)} key(s) read but never written anywhere in gitgalaxy/:\n")
+
+def _print_dead_keys(dead: Dict[str, List[KeyUsage]]) -> None:
     for key in sorted(dead, key=lambda k: (-len(dead[k]), k)):
         usages = dead[key]
         print(f'  "{key}"  ({len(usages)} read site(s))')
@@ -288,11 +308,67 @@ def main() -> int:
             print(f"      ... and {len(usages) - 5} more")
         print()
 
+
+def run_full_report() -> int:
+    dead = find_dead_keys()
+    if not dead:
+        print("Dead Key Auditor: no un-allowlisted read-without-write keys found.")
+        return 0
+
+    print(f"Dead Key Auditor: {len(dead)} key(s) read but never written anywhere in gitgalaxy/:\n")
+    _print_dead_keys(dead)
     print(
         "Each hit above is a LEAD, not a confirmed bug -- see the module docstring's "
         "\"SCOPE & LIMITATIONS\" section before filing an issue."
     )
     return 1
+
+
+def run_ci_check() -> int:
+    """
+    Baseline-gated regression check (#325 sub-task 3): fails only on keys
+    NOT already in dead_key_audit_baseline.json. See the module docstring's
+    BASELINE section for why this isn't a zero-tolerance check.
+    """
+    dead = find_dead_keys()
+    baseline = load_baseline()
+
+    new_keys = {key: usages for key, usages in dead.items() if key not in baseline}
+    resolved_keys = sorted(set(baseline) - set(dead))
+
+    if resolved_keys:
+        print("Dead Key Auditor: FYI -- these baselined keys are no longer flagged (fixed, or now allowlisted).")
+        print("Consider removing them from dead_key_audit_baseline.json in this PR:\n")
+        for key in resolved_keys:
+            print(f'  "{key}"  -- {baseline[key]}')
+        print()
+
+    if not new_keys:
+        print(f"Dead Key Auditor: no NEW read-without-write keys beyond the {len(baseline)}-key baseline.")
+        return 0
+
+    print(f"Dead Key Auditor: {len(new_keys)} NEW key(s) read but never written anywhere in gitgalaxy/:\n")
+    _print_dead_keys(new_keys)
+    print(
+        "Each hit above is a LEAD, not a confirmed bug -- see the module docstring's "
+        "\"SCOPE & LIMITATIONS\" section. From here:\n"
+        "  - Confirmed false positive (walker limitation)? Add it to ALLOWLIST with a reason.\n"
+        "  - Confirmed real instance of #325's pattern, not fixing it in this PR? Add it to\n"
+        "    dead_key_audit_baseline.json with a reason, and consider filing an issue.\n"
+        "  - Otherwise, fix the actual read/write mismatch."
+    )
+    return 1
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--ci",
+        action="store_true",
+        help="Baseline-gated regression check (what CI runs) instead of the full report.",
+    )
+    args = parser.parse_args()
+    return run_ci_check() if args.ci else run_full_report()
 
 
 if __name__ == "__main__":

@@ -102,3 +102,6 @@ tests/telemetry_out/
 
 # Force tracking of the Golden Master despite global *.json ignore
 !tests/golden_master_audit.json*.vsix
+
+# Force tracking of the Dead Key Auditor baseline (#325) despite global *.json ignore
+!tests/dead_key_audit_baseline.json

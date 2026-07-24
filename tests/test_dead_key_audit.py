@@ -1,6 +1,8 @@
 import ast
+import json
 
-from dead_key_audit import KeyVisitor, find_dead_keys, ALLOWLIST
+import dead_key_audit
+from dead_key_audit import KeyVisitor, find_dead_keys, ALLOWLIST, run_ci_check
 
 
 def _visit(source: str) -> KeyVisitor:
@@ -108,3 +110,59 @@ def test_find_dead_keys_respects_the_allowlist(tmp_path, monkeypatch):
 
 def _write_scan_root(tmp_path, filename: str, source: str) -> None:
     (tmp_path / filename).write_text(source, encoding="utf-8")
+
+
+def _write_baseline(tmp_path, monkeypatch, baseline: dict) -> None:
+    baseline_path = tmp_path / "baseline.json"
+    baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
+    monkeypatch.setattr(dead_key_audit, "BASELINE_PATH", baseline_path)
+
+
+# ==============================================================================
+# TEST 5: run_ci_check() -- baseline-gated regression check (#325 sub-task 3)
+# ==============================================================================
+def test_ci_check_passes_when_findings_exactly_match_baseline(tmp_path, monkeypatch):
+    _write_scan_root(tmp_path, "mod.py", "x.get('known_lead')\n")
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
+    _write_baseline(tmp_path, monkeypatch, {"known_lead": "already tracked"})
+
+    assert run_ci_check() == 0
+
+
+def test_ci_check_fails_on_a_key_not_in_the_baseline(tmp_path, monkeypatch, capsys):
+    _write_scan_root(tmp_path, "mod.py", "x.get('brand_new_lead')\n")
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
+    _write_baseline(tmp_path, monkeypatch, {})
+
+    assert run_ci_check() == 1
+    assert "brand_new_lead" in capsys.readouterr().out
+
+
+def test_ci_check_does_not_fail_when_a_baselined_key_gets_fixed(tmp_path, monkeypatch, capsys):
+    """Fixing a baselined key must not fail the build -- only regressions should."""
+    _write_scan_root(tmp_path, "mod.py", "pass\n")  # the old read is gone
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
+    _write_baseline(tmp_path, monkeypatch, {"now_fixed_key": "used to be a lead"})
+
+    assert run_ci_check() == 0
+    assert "now_fixed_key" in capsys.readouterr().out  # still surfaced as an FYI
+
+
+def test_ci_check_with_no_baseline_file_treats_everything_as_new(tmp_path, monkeypatch):
+    _write_scan_root(tmp_path, "mod.py", "x.get('some_key')\n")
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
+    monkeypatch.setattr(dead_key_audit, "BASELINE_PATH", tmp_path / "does_not_exist.json")
+
+    assert run_ci_check() == 1
+
+
+# ==============================================================================
+# TEST 6: the real baseline file matches what a fresh scan actually finds
+# ==============================================================================
+def test_real_repo_baseline_has_no_new_regressions():
+    """
+    Guards against the baseline file itself silently drifting out of sync with
+    gitgalaxy/ -- this is the one test in this file that scans the real repo,
+    not a synthetic fixture, mirroring exactly what `--ci` does.
+    """
+    assert run_ci_check() == 0

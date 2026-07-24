@@ -93,7 +93,7 @@ pycparser==3.0
 pydeps==3.0.2
 pyflakes==3.4.0
 Pygments==2.20.0
-pymdown-extensions==10.21.3
+pymdown-extensions==11.0.1
 pynndescent==0.6.0
 pypandoc==1.17
 pyparsing==3.3.2

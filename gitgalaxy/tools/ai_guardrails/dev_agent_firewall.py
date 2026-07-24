@@ -102,7 +102,13 @@ class DevAgentFirewall:
 
             # 4. Cascading State Flux (Silent Mutation Risk)
             in_degree = network_metrics.get("in_degree", 0)
-            has_tests = file_data.get("telemetry", {}).get("has_tests", False)
+            # #373: telemetry["has_tests"] never had a producer, so this dampener
+            # could never be satisfied by real coverage. test_coverage_map
+            # (galaxyscope.py, network_risk_sensor.py's outbound-call mapping
+            # from test files to production functions) is a real, already-
+            # computed signal for exactly this -- a non-empty map means at
+            # least one function in this file is actually exercised by a test.
+            has_tests = bool(file_data.get("test_coverage_map", {}))
 
             if state_flux > 50 and in_degree > 5 and not has_tests:
                 guardrails["silent_mutation_risk"] = True

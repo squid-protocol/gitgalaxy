@@ -189,8 +189,8 @@ def test_silent_mutation_risk_detection(firewall):
     mock_files = [
         {
             "risk_vector": [10.0, 55.0, 20.0],  # ☢️ Index 1 is state_flux (> 50)
+            "test_coverage_map": {},  # ☢️ Zero test coverage (#373: real signal, not telemetry["has_tests"])
             "telemetry": {
-                "has_tests": False,                   # ☢️ Zero test coverage
                 "network_metrics": {"in_degree": 6},  # ☢️ > 5 dependencies rely on this
             }
         }
@@ -201,6 +201,33 @@ def test_silent_mutation_risk_detection(firewall):
 
     assert guardrails.get("silent_mutation_risk") is True, "Failed to detect Silent Mutation Risk!"
     assert any("Cascading State Flux" in warning for warning in guardrails["warnings"])
+
+
+def test_silent_mutation_risk_dampened_by_real_test_coverage(firewall):
+    """
+    Regression test for #373: the Silent Mutation Risk dampener used to read
+    telemetry["has_tests"], a key nothing ever produced -- meaning real test
+    coverage could never suppress this guardrail. Proves a non-empty
+    test_coverage_map (at least one function genuinely exercised by a test)
+    now correctly dampens it, even with the same high-flux/high-in-degree
+    conditions as the test above.
+    """
+    mock_files = [
+        {
+            "risk_vector": [10.0, 55.0, 20.0],
+            "test_coverage_map": {"process_payment": [{"impact": 5.0}]},  # Real coverage
+            "telemetry": {
+                "network_metrics": {"in_degree": 6},
+            }
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails.get("silent_mutation_risk") is False, (
+        "Real test coverage must dampen the Silent Mutation Risk guardrail!"
+    )
 
 
 # ==============================================================================
@@ -217,9 +244,9 @@ def test_safe_agentic_baseline(firewall):
             "max_big_o": 1,
             "risk_vector": [10, 5, 0],  # ✅ Low risk debt
             "hit_vector": [0, 0],       # ✅ No dynamic execution
+            "test_coverage_map": {"handler": [{"impact": 1.0}]},  # ✅ Real test coverage
             "telemetry": {
                 "doc_density": 0.85,
-                "has_tests": True,
                 "network_metrics": {
                     "normalized_blast_radius": 0.5,
                     "in_degree": 1,
@@ -276,9 +303,8 @@ def test_survives_short_vectors(firewall):
             # Schema says state_flux is at index 1, but we only pass index 0
             "risk_vector": [99.0], 
             # Schema says metaprogramming is at index 1, but we only pass index 0
-            "hit_vector": [5],     
+            "hit_vector": [5],
             "telemetry": {
-                "has_tests": False,
                 "network_metrics": {"in_degree": 10},
                 "doc_density": 0.1
             }

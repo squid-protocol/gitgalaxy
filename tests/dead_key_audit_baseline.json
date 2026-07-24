@@ -1,6 +1,5 @@
 {
   "aperture_reason": "signal_processor.py, audit_recorder.py; #325's own pre-documented instance #3 -- real key is 'reason'",
-  "has_tests": "dev_agent_firewall.py's Silent Mutation Risk dampener can never be satisfied by real test coverage; nothing writes telemetry['has_tests']",
   "TYPOSQUAT_WHITELIST": "read from APERTURE_CONFIG, which has no such key; the typosquat whitelist is always empty",
   "typosquat_hits": "galaxyscope.py computes and logs this count but never attaches it to summary/ecosystem_audits; record_keeper.py's column is always the fallback 0",
   "disqualifiers": "language_lens.py's toxic-contributor penalty is fully dead; zero of the 57 language definitions set this key (vs. 'discriminators', set 57 times)",

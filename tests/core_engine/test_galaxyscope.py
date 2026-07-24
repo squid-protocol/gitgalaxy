@@ -1001,6 +1001,45 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertNotIn("ai_guardrails", sanitized_file["telemetry"], "Failed to purge SARIF ignored rule!")
 
     # ==============================================================================
+    # TEST 14.5: THE REPO Z-SCORE BACKFILL (#371)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.RecordKeeper")
+    @patch("gitgalaxy.galaxyscope.SarifRecorder")
+    def test_repo_z_score_backfilled_into_per_file_telemetry(self, mock_sarif, mock_db, mock_calc, mock_res, mock_ext, mock_cen):
+        """
+        Regression test for #371: repo_z_score is only knowable once the
+        repo-wide summary is computed, but record_keeper.py/llm_recorder.py
+        read it per-file off telemetry -- before this fix, nothing ever
+        threaded the repo-wide value back down, so it was always the 0.0
+        fallback. Proves the real summarize_galaxy_metrics() output survives
+        into every file's telemetry.
+        """
+        config = self.mock_config.copy()
+        config["SARIF_ONLY"] = True  # Bypass the destructive GPU Recorder
+
+        scope = Orchestrator(".", config)
+        scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
+
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = (scope.parsed_files, {})
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = (scope.parsed_files, [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = scope.parsed_files
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {
+            "repo_macro_species": {"z_score": 3.7},
+        }
+
+        scope.execute_pipeline("fake.json")
+
+        self.assertEqual(scope.parsed_files[0]["telemetry"]["repo_z_score"], 3.7)
+
+    # ==============================================================================
     # TEST 15: THE GIT-LESS VOID (Fallback OS Walk)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.subprocess.check_output")

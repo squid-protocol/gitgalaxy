@@ -1176,7 +1176,10 @@ class LLMRecorder:
                         )
                 lines.append("")
 
-            hoc = sys_bots.get("house_of_cards", [])
+            # #370: the real bottleneck-detector key is "fragile_dependency_chain"
+            # (signal_processor.py) -- "house_of_cards" was never a real key, just
+            # this section's own display name mistakenly used as the lookup too.
+            hoc = sys_bots.get("fragile_dependency_chain", [])
             if hoc and hoc[0]["score"] > 0:
                 lines.append("### 🃏 House of Cards (Closeness * Error Risk)")
                 lines.append(

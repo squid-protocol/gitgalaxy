@@ -717,6 +717,152 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         )
 
     # ==============================================================================
+    # TEST 13.6: THE FORGOTTEN LEDGER (security_lens positions survive, #348)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_folds_security_lens_positions_into_threat_locations(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #348: security_lens.py computes line positions for
+        signals like db_hooks that detector.py has no rule of its own to ever
+        produce -- before this fix, that position data was discarded the moment
+        scan_content() returned, leaving nothing in threat_locations for a
+        post-hoc tool (outside detector.py entirely) to correlate db_hooks
+        against. This drives a mocked security_lens contribution through the
+        real worker path and asserts its positions survive into
+        result["data"]["threat_locations"], prefixed exactly like its counts.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "cursor.execute(query)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"db_hooks": 1},
+            "snippets": {},
+            "positions": {"db_hooks": [1]},
+        }
+
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {"python": {"extensions": [".py"], "rules": {}}}
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["threat_locations"].get("sec_db_hooks"),
+            [1],
+            "security_lens.py's db_hooks line positions must survive into the shared "
+            "threat_locations ledger, not be silently discarded after scan_content() returns.",
+        )
+
+    # ==============================================================================
+    # TEST 13.7: THE ACTIVE HEMORRHAGE, RELOCATED (#348)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_amplifies_active_hemorrhage_post_hoc(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #348: "The Active Hemorrhage" (a hardcoded secret
+        correlated with a nearby logging/print sink) used to live in
+        detector.py, but its target key ("sec_hardcoded_secrets") never
+        existed there -- see test_detector.py's
+        test_detector_active_hemorrhage_leak_no_longer_lives_in_detector.
+        This drives the real post-hoc replacement: a mocked security_lens
+        secret-position finding, correlated against a REAL detector.py
+        "debug_prints" hit (from actual regex parsing) on the same line,
+        via the shared threat_locations ledger.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "print(password)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports a hardcoded secret on line 1.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"hardcoded_secrets": 1},
+            "snippets": {},
+            "positions": {"hardcoded_secrets": [1]},
+        }
+
+        # Real rule so detector.py's OWN parsing produces a genuine "debug_prints"
+        # threat_locations entry on the same line -- this is the sink half of the
+        # correlation, and it must come from real detector.py output, not a mock.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {"debug_prints": re.compile(r"\bprint\b")},
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["equations"].get("sec_hardcoded_secrets", 0),
+            51,
+            "Active Hemorrhage amplification regressed: 1 raw hit + (1 corroborated * 50) = 51",
+        )
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_leaks", 0), 1)
+
+    # ==============================================================================
     # TEST 14: THE MEMORY HOLE (SARIF Sanitization & Inline Suppressions)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")

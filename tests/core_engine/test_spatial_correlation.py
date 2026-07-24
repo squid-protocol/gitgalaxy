@@ -3,6 +3,7 @@ from gitgalaxy.core.spatial_correlation import (
     correlate_scoped,
     filter_positions_in_range,
     apply_dampener_correlations,
+    correlate_against_ledger,
 )
 
 
@@ -202,3 +203,56 @@ def test_apply_dampener_correlations_no_satellites_matches_pre_scoping_behavior(
     assert mitigations["mitigated_danger"] == 1
     assert counts["memory_alloc"] == 0, "Flat fallback should still mitigate a nearby leak"
     assert mitigations["mitigated_memory_allocs"] == 1
+
+
+# ==============================================================================
+# TEST 5: correlate_against_ledger (post-hoc, line-indexed, #348)
+# ==============================================================================
+def test_correlate_against_ledger_scopes_by_function_line_range():
+    """
+    Reflection/metaprogramming on line 50 of function A (lines 1-60) must not
+    be considered "documented" just because a doc comment sits on line 5 of a
+    totally different function.
+    """
+    threat_locations = {"reflection_metaprogramming": [50], "doc": [5]}
+    functions = [
+        {"name": "documented_helper", "start_line": 1, "end_line": 10},
+        {"name": "undocumented_reflector", "start_line": 40, "end_line": 60},
+    ]
+
+    unmit, mit = correlate_against_ledger(
+        threat_locations, functions, "reflection_metaprogramming", "doc", max_distance=10
+    )
+    assert unmit == 1, "Metaprogramming in a different, undocumented function must be flagged"
+    assert mit == 0
+
+
+def test_correlate_against_ledger_same_function_is_documented():
+    """Reflection/metaprogramming with a doc comment in the SAME function is not flagged."""
+    threat_locations = {"reflection_metaprogramming": [45], "doc": [40]}
+    functions = [{"name": "documented_reflector", "start_line": 40, "end_line": 60}]
+
+    unmit, mit = correlate_against_ledger(
+        threat_locations, functions, "reflection_metaprogramming", "doc", max_distance=10
+    )
+    assert unmit == 0
+    assert mit == 1
+
+
+def test_correlate_against_ledger_missing_keys_are_empty():
+    """Absent signal keys behave like empty lists, not a KeyError."""
+    unmit, mit = correlate_against_ledger({}, [], "reflection_metaprogramming", "doc")
+    assert (unmit, mit) == (0, 0)
+
+
+def test_correlate_against_ledger_corroboration_style_reads_mitigated():
+    """
+    The #105 shape (amplifier/corroboration, not a dampener): an API route and
+    a DB hook in the SAME function is the corroborated, deterministic signal --
+    read from the "mitigated" side of the same return contract.
+    """
+    threat_locations = {"api": [12], "db_hooks": [15]}
+    functions = [{"name": "user_route", "start_line": 10, "end_line": 20}]
+
+    _, corroborated = correlate_against_ledger(threat_locations, functions, "api", "db_hooks", max_distance=10)
+    assert corroborated == 1, "API route and DB hook in the same function should corroborate"

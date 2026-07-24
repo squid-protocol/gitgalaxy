@@ -24,6 +24,7 @@ from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
     apply_dampener_correlations,
+    apply_amplifier_correlations,
 )
 
 HAS_TIKTOKEN = False
@@ -991,64 +992,23 @@ class StructuralExtractor:
 
 # galaxyscope:ignore sec_high_risk_execution
 
-            # 1. Taint Tracking (RCE Weaponization)
-            # NOTE (#344): must key off the unprefixed "high_risk_execution"/"io" --
-            # these are detector.py's own rule hits, populated in THIS spatial_map.
-            # The "sec_" prefix belongs to the Passive Security Lens Observer family
-            # (analysis_lens.py's SIGNAL_SCHEMA), which security_lens.py only writes
-            # in galaxyscope.py's Phase 5.5, strictly after coding_analysis() returns
-            # -- those keys can never appear in this function's own spatial_map.
-            if "high_risk_execution" in spatial_map and "io" in spatial_map:
-                io_hits = sorted(spatial_map["io"])
-                _, corroborated_rce = self._correlate_signals(
-                    targets=spatial_map["high_risk_execution"],
-                    dampeners=io_hits,
-                    max_distance=250,
-                )
-                counts["sec_tainted_injection"] += corroborated_rce
-                mitigations["amplified_rce"] += corroborated_rce
-
-            # 2. The Silencer Region (True Safety), 3. The Race Condition Radar, and
-            # 5. The Memory Leak / UAF Tracker have all been RELOCATED (#346 phase 1)
-            # to _apply_dampener_correlations(), called from _function_slice() once
-            # real satellite/function boundaries exist. All three are dampener pairs
-            # -- a wrong-scope mitigation there silently suppresses real risk (a false
-            # negative), which the flat character-radius check here couldn't prevent.
-            # See _apply_dampener_correlations()'s docstring for the exact scoping
-            # rules and the module-level fallback that keeps this fully non-regressing
-            # for code outside any detected function.
-
-            # 4. The Active Hemorrhage
-            # NOTE (#344): unlike block 1, there is no unprefixed sibling to fall back
-            # to here -- "hardcoded_secrets" (unprefixed) is not a SIGNAL_SCHEMA member
-            # at all (only "sec_hardcoded_secrets", the Passive Security Lens Observer
-            # name, is registered), so detector.py has no rule of its own that could
-            # ever populate this spatial_map under either name. This block genuinely
-            # needs security_lens.py's data, which doesn't exist until galaxyscope.py's
-            # Phase 5.5, strictly after this function returns -- it can't be fixed with
-            # a key-name correction the way block 1 was. Left as still-dead pending the
-            # correlate-after-both-phases work in #346; do not "fix" this to a bare
-            # "hardcoded_secrets" check, that key will never be populated either.
-            if "sec_hardcoded_secrets" in spatial_map and ("telemetry" in spatial_map or "debug_prints" in spatial_map):
-                sinks = sorted(spatial_map.get("telemetry", []) + spatial_map.get("debug_prints", []))
-                _, active_leaks = self._correlate_signals(
-                    targets=spatial_map["sec_hardcoded_secrets"],
-                    dampeners=sinks,
-                    max_distance=150,
-                )
-                counts["sec_hardcoded_secrets"] += active_leaks * 50
-                mitigations["amplified_leaks"] += active_leaks
-
-            # 6. The OOM Bomb (Cascading State Flux)
-            if "state_mutation" in spatial_map and "branch" in spatial_map:
-                # Assuming 'branch' captures while/for loops
-                _, cascading_flux = self._correlate_signals(
-                    targets=spatial_map["state_mutation"],
-                    dampeners=spatial_map["branch"],
-                    max_distance=150,  # If state is mutated near heavy branching
-                )
-                counts["state_mutation"] += cascading_flux * 2  # Double the raw signal
-                mitigations["amplified_cascading_flux"] = mitigations.get("amplified_cascading_flux", 0) + cascading_flux
+            # 1. Taint Tracking (RCE Weaponization), 2. The Silencer Region,
+            # 3. The Race Condition Radar, 5. The Memory Leak / UAF Tracker, and
+            # 6. The OOM Bomb have all been RELOCATED (#346 phase 1, #348 phase 2)
+            # to apply_dampener_correlations()/apply_amplifier_correlations() in
+            # gitgalaxy.core.spatial_correlation, called from _function_slice()
+            # once real satellite/function boundaries exist -- coding_analysis()
+            # runs before those boundaries are computed, so none of these six
+            # pairs ever had real scope available to them here.
+            #
+            # 4. The Active Hemorrhage is NOT relocated to that same in-detector
+            # correlation step: its target key ("sec_hardcoded_secrets") is the
+            # Passive Security Lens Observer name, only ever populated by
+            # security_lens.py in galaxyscope.py's Phase 5.5 -- strictly after
+            # this function (and _function_slice()) have both already returned.
+            # It is instead reimplemented as a genuine post-hoc correlation in
+            # galaxyscope.py, against the persisted threat_locations ledger, via
+            # spatial_correlation.correlate_against_ledger() (#348).
 
             # Capture indentation signatures
             counts["indent_tabs"] += len(re.findall(r"^\t+(?=\S)", seg_code, flags=re.MULTILINE))
@@ -1289,7 +1249,7 @@ class StructuralExtractor:
                 key = f"{lang_id}::Cartography_{mode_name}"
                 regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (time.perf_counter() - t_mode_start)
 
-            # --- SATELLITE-SCOPED DAMPENER CORRELATION (#346 phase 1) ---
+            # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
             # Runs for every segment unconditionally, using THIS segment's own
             # satellite ranges. Deliberately placed before the MAX_SATELLITES
             # truncation below: that cap only bounds stored function metadata,
@@ -1299,6 +1259,7 @@ class StructuralExtractor:
                 (sat["start_idx"], sat["end_idx"]) for sat in sats if "start_idx" in sat and "end_idx" in sat
             )
             apply_dampener_correlations(spatial_map, sat_ranges, counts, mitigations)
+            apply_amplifier_correlations(spatial_map, sat_ranges, counts, mitigations)
 
             if len(all_satellites) < self.MAX_SATELLITES:
                 all_satellites.extend(sats)

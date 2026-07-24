@@ -1033,13 +1033,25 @@ def test_detector_explicit_type_override():
 
 
 # ==============================================================================
-# TEST 23: APPSEC ACTIVE HEMORRHAGE SENSOR
+# TEST 23: APPSEC ACTIVE HEMORRHAGE SENSOR (RELOCATED, #348)
 # ==============================================================================
-def test_detector_active_hemorrhage_leak():
-    """Proves the AppSec sensor detects secrets being passed to outbound logging/print streams."""
+def test_detector_active_hemorrhage_leak_no_longer_lives_in_detector():
+    """
+    "The Active Hemorrhage" (secrets correlated with a logging/print sink) has
+    moved out of detector.py entirely (#348): its target key,
+    "sec_hardcoded_secrets", is the Passive Security Lens Observer name, only
+    ever populated by security_lens.py in galaxyscope.py's Phase 5.5 -- data
+    that structurally cannot exist yet at the point detector.py's
+    coding_analysis() runs. The real, working amplification now lives in
+    galaxyscope.py's post-hoc correlation step; see
+    test_galaxyscope.py::test_worker_amplifies_active_hemorrhage_post_hoc.
+
+    This test only proves detector.py itself no longer touches this key at
+    all -- injecting a fake "sec_hardcoded_secrets" rule directly (as the old
+    version of this test did) now just produces a raw, unamplified count.
+    """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    
-    # Inject rules for the hemorrhage sensor
+
     opt_detector.primary_rules["sec_hardcoded_secrets"] = re.compile(r"password")
     opt_detector.primary_rules["telemetry"] = re.compile(r"console\.log|printf")
 
@@ -1049,16 +1061,14 @@ def test_detector_active_hemorrhage_leak():
         "    printf(password);                // Trigger: telemetry (sink)\n"
         "}\n"
     )
-    
+
     result = opt_detector.splice(code, "")
-    
-    # A single private_info hit is multiplied by 50 when correlated with a telemetry sink
-    assert result["equations"].get("sec_hardcoded_secrets", 0) >= 50, (
-        "AppSec Sensor failed to amplify the Active Hemorrhage penalty!"
+
+    assert result["equations"].get("sec_hardcoded_secrets", 0) == 2, (
+        "detector.py should report only the raw, unamplified hit count (2x 'password') -- "
+        "amplification is no longer computed here at all"
     )
-    assert result["mitigation_telemetry"].get("amplified_leaks", 0) >= 1, (
-        "Failed to log the active hemorrhage telemetry!"
-    )
+    assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
 
 # ==============================================================================
 # TEST 24: HARVEST ABOVE (GHOST TETHER) & CLASS LINEAGE

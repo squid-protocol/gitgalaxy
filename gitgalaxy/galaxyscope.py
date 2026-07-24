@@ -34,6 +34,7 @@ from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.standards.language_lens import LanguageDetector
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.spatial_mapper import SpatialMapper
+from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.metrics.chronometer import Chronometer
 from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -433,6 +434,58 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
 
                 # Pass the snippets into the payload
                 logic_data["threat_snippets"] = sec_results["snippets"]
+
+                # Fold security_lens.py's own line positions into the same shared,
+                # persisted ledger detector.py's rules already populate (#348).
+                # security_lens.py tracks a handful of signals (e.g. db_hooks) that
+                # have no detector.py-side equivalent at all -- without this, that
+                # position data was computed (for security_lens's own internal
+                # taint check) and then simply discarded, leaving post-hoc tools
+                # outside detector.py (dev_agent_firewall.py, ai_appsec_sensor.py,
+                # #105's future db_hooks correlation) with nothing to correlate
+                # against for these signals.
+                logic_data.setdefault("threat_locations", {})
+                for pos_key, line_numbers in sec_results.get("positions", {}).items():
+                    mapped_key = f"sec_{pos_key}"
+                    logic_data["threat_locations"].setdefault(mapped_key, []).extend(line_numbers)
+
+                # --- The Active Hemorrhage, reimplemented post-hoc (#348) ---
+                # This correlation (secrets near a logging/print sink) used to live
+                # in detector.py's coding_analysis(), but its target key,
+                # "sec_hardcoded_secrets", is the Passive Security Lens Observer
+                # name -- only ever populated by security_lens.py, right above, in
+                # THIS phase. It could never run inside detector.py; it needed to
+                # move here, where that data (and detector.py's own "telemetry"/
+                # "debug_prints" threat_locations) finally coexist.
+                threat_locs = logic_data["threat_locations"]
+                sinks_present = "telemetry" in threat_locs or "debug_prints" in threat_locs
+                if "sec_hardcoded_secrets" in threat_locs and sinks_present:
+                    # correlate_against_ledger() takes one sink key; fold telemetry
+                    # and debug_prints into one synthetic entry in a throwaway copy
+                    # of the ledger, matching detector.py's original "telemetry OR
+                    # debug_prints" sink definition.
+                    ledger_for_query = dict(threat_locs)
+                    ledger_for_query["_active_hemorrhage_sinks"] = sorted(
+                        threat_locs.get("telemetry", []) + threat_locs.get("debug_prints", [])
+                    )
+                    # 5 lines, not detector.py's original 150 CHARS -- this ledger is
+                    # line-indexed, not char-offset-indexed, so the radius has to be
+                    # re-expressed in the new unit rather than reused as a raw number.
+                    _, active_leaks = correlate_against_ledger(
+                        ledger_for_query,
+                        logic_data.get("functions", []),
+                        "sec_hardcoded_secrets",
+                        "_active_hemorrhage_sinks",
+                        max_distance=5,
+                    )
+                    if active_leaks:
+                        logic_data["equations"]["sec_hardcoded_secrets"] = (
+                            logic_data["equations"].get("sec_hardcoded_secrets", 0) + active_leaks * 50
+                        )
+                        logic_data.setdefault("mitigation_telemetry", {})
+                        logic_data["mitigation_telemetry"]["amplified_leaks"] = (
+                            logic_data["mitigation_telemetry"].get("amplified_leaks", 0) + active_leaks
+                        )
 
             if is_file_profiling:
                 phase_times["5.5_Security_Lens"] = time.perf_counter() - t_security

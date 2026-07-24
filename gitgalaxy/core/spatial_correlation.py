@@ -156,11 +156,9 @@ def apply_dampener_correlations(
         counts["high_risk_execution"] -= mitigated_danger
         mitigations["mitigated_danger"] += mitigated_danger
 
-    # 3. The Race Condition Radar. Only the dampener half (sync_locks
-    # mitigating state_mutation) is scoped here -- the amplifier half
-    # (concurrency near state_mutation) is a lower-urgency false-positive
-    # risk, not the false-negative class this phase targets, and is left on
-    # the flat radius pending #348.
+    # 3. The Race Condition Radar (both halves now scoped, #348: the sync_locks
+    # dampener check first, then the concurrency amplifier check only against
+    # the SAME-scoped state_mutation hits that survived it).
     if "concurrency" in spatial_map and "state_mutation" in spatial_map:
         unmitigated_flux, _ = correlate_scoped(
             targets=spatial_map["state_mutation"],
@@ -169,9 +167,10 @@ def apply_dampener_correlations(
             max_distance=300,
         )
         if unmitigated_flux > 0:
-            _, race_conditions = correlate_signals(
+            _, race_conditions = correlate_scoped(
                 targets=spatial_map["concurrency"],
                 dampeners=spatial_map["state_mutation"],
+                satellite_ranges=satellite_ranges,
                 max_distance=150,
             )
             counts["concurrency"] += race_conditions * 5
@@ -190,3 +189,84 @@ def apply_dampener_correlations(
 
         counts["memory_alloc"] = unmitigated_allocs
         mitigations["mitigated_memory_allocs"] += mitigated
+
+
+def apply_amplifier_correlations(
+    spatial_map: Dict[str, List[int]],
+    satellite_ranges: List[Tuple[int, int]],
+    counts: Dict[str, int],
+    mitigations: Dict[str, int],
+) -> None:
+    """
+    Runs the two remaining in-segment amplifier-pair correlations (#348) scoped
+    to real function boundaries, for consistency with apply_dampener_correlations().
+
+    Unlike a wrong-scope dampener, a wrong-scope amplifier only costs one extra
+    review item (a false positive) -- an accepted tradeoff for this project, not
+    the false-negative risk phase 1 targeted. These are migrated here mainly so
+    every correlate() call in the pipeline shares the same scoping semantics,
+    not because the flat radius was actively harmful the way the dampeners were.
+
+    Mutates `counts`/`mitigations` in place, matching apply_dampener_correlations().
+    """
+    # 1. Taint Tracking (RCE Weaponization)
+    if "high_risk_execution" in spatial_map and "io" in spatial_map:
+        _, corroborated_rce = correlate_scoped(
+            targets=spatial_map["high_risk_execution"],
+            dampeners=sorted(spatial_map["io"]),
+            satellite_ranges=satellite_ranges,
+            max_distance=250,
+        )
+        counts["sec_tainted_injection"] += corroborated_rce
+        mitigations["amplified_rce"] += corroborated_rce
+
+    # 6. The OOM Bomb (Cascading State Flux)
+    if "state_mutation" in spatial_map and "branch" in spatial_map:
+        _, cascading_flux = correlate_scoped(
+            targets=spatial_map["state_mutation"],
+            dampeners=spatial_map["branch"],
+            satellite_ranges=satellite_ranges,
+            max_distance=150,  # If state is mutated near heavy branching
+        )
+        counts["state_mutation"] += cascading_flux * 2  # Double the raw signal
+        mitigations["amplified_cascading_flux"] = mitigations.get("amplified_cascading_flux", 0) + cascading_flux
+
+
+def correlate_against_ledger(
+    threat_locations: Dict[str, List[int]],
+    functions: List[Dict[str, int]],
+    source_key: str,
+    sink_key: str,
+    max_distance: int = 10,
+) -> Tuple[int, int]:
+    """
+    Correlates two named signals from a POST-HOC pipeline stage -- outside
+    detector.py entirely, e.g. dev_agent_firewall.py or ai_appsec_sensor.py,
+    both of which run over fully-assembled parsed_files after coding_analysis()'s
+    transient spatial_map is long gone (#346/#348).
+
+    Reads only what already survives to that stage: file_data["threat_locations"]
+    (rule_name -> [line_numbers], persisted for every rule detector.py runs) and
+    file_data["functions"] (satellites, each carrying file-global start_line/
+    end_line). No new field or schema change is required on either -- this is a
+    query-time join, not a persisted association, which also means it can never
+    go stale relative to whichever satellites _function_slice() last computed.
+
+    `max_distance` here is in LINES, not characters -- these two lists are
+    line-indexed, not char-offset-indexed, unlike correlate_scoped().
+
+    Returns (unmitigated_count, mitigated_count), same contract as
+    correlate_scoped(): a dampener-style caller (e.g. "is metaprogramming
+    undocumented") wants the unmitigated count; a corroboration/amplifier-style
+    caller (e.g. "is this API route near a DB call") wants the mitigated count.
+    """
+    sources = sorted(threat_locations.get(source_key, []))
+    sinks = sorted(threat_locations.get(sink_key, []))
+
+    satellite_ranges = sorted(
+        (f["start_line"], f["end_line"] + 1)  # end_line is inclusive; correlate_scoped wants an exclusive upper bound
+        for f in functions
+        if "start_line" in f and "end_line" in f
+    )
+
+    return correlate_scoped(sources, sinks, satellite_ranges, max_distance)

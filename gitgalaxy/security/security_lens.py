@@ -11,6 +11,7 @@ import re
 import math
 import bisect
 from collections import Counter, defaultdict
+from typing import Dict, List
 
 
 class SecurityLens:
@@ -218,6 +219,13 @@ class SecurityLens:
         # PERFORMANCE OPTIMIZATION: O(1) Offset Map for Taint Analysis
         # Only tracks lines where an actual threat signature triggered, skipping blank space.
         threat_lines = defaultdict(set)
+        # Line positions for the four signals below, keyed the same way
+        # detector.py's own threat_locations are (rule_name -> [1-indexed line
+        # numbers]) -- exposed via scan_content()'s return so galaxyscope.py can
+        # fold them into the shared, persisted ledger (#348). Previously this
+        # position data was computed (via threat_lines above) but only ever
+        # used internally for this function's own taint check, then discarded.
+        positions: Dict[str, List[int]] = defaultdict(list)
         if not is_auto_gen:
             line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
 
@@ -245,9 +253,11 @@ class SecurityLens:
                             "high_risk_execution",
                             "llm_hooks",
                             "db_hooks",
+                            "hardcoded_secrets",
                         }:
                             line_idx = bisect.bisect_right(line_starts, match.start()) - 1
                             threat_lines[line_idx].add(key)
+                            positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0
@@ -376,7 +386,7 @@ class SecurityLens:
         snippets["prompt_injection"] = [s for s in taint_snippets if "LLM" in s]
         snippets["agentic_rce"] = [s for s in taint_snippets if "RCE" in s]
 
-        return {"counts": counts, "snippets": snippets}
+        return {"counts": counts, "snippets": snippets, "positions": dict(positions)}
 
     def scan_binary(self, raw_bytes: bytes, ext: str) -> dict:
         """

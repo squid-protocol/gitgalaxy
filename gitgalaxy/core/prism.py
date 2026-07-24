@@ -535,7 +535,11 @@ class Prism:
         Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala).
         Hardened with active string-masking to prevent logic erosion.
         """
-        delims = self.lexical_families.get("recursive_c_style", {}).get("delimiters", ["//", "/*", "*/"])
+        # #386 follow-up: was "recursive_c_style" -- missed in the original
+        # rename pass. Currently harmless by coincidence (the fallback default
+        # below matches "recursive_block"'s real delimiters exactly today),
+        # but was silently ignoring the real config, not reading it.
+        delims = self.lexical_families.get("recursive_block", {}).get("delimiters", ["//", "/*", "*/"])
         if len(delims) < 3:
             return text, []
 

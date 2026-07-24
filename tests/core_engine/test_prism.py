@@ -130,6 +130,25 @@ def test_prism_nested_block_peeling(prism_engine):
     assert "Inner comment" in docs
 
 
+def test_prism_nested_block_peeling_reads_the_real_lexical_families_key(prism_engine):
+    """
+    Regression test for a #386 follow-up: _strip_nested_comments() looked up
+    self.lexical_families.get("recursive_c_style", ...) -- the OLD dead name,
+    missed in the original rename pass -- and only "worked" because its
+    hardcoded fallback default (["//", "/*", "*/"]) happened to coincidentally
+    match "recursive_block"'s real delimiters. Using non-default delimiters
+    here proves the lookup key itself is correct, not just the fallback.
+    """
+    prism_engine.lexical_families["recursive_block"] = {"delimiters": ["##", "<<", ">>"]}
+
+    content = "fn main() {\n    << Outer << Inner >> Back to outer >>\n    do_work();\n}"
+    result = prism_engine.split_streams(content, primary_lang="rust")
+
+    assert "do_work();" in result["code_stream"]
+    assert "Outer" not in result["code_stream"]
+    assert "Inner" in result["comment_stream"]
+
+
 # ==============================================================================
 # TEST 4: POSITIONAL ANCHORS
 # ==============================================================================

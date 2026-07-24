@@ -1,12 +1,12 @@
 import ast
 import json
 
-from dead_key_audit import KeyVisitor, find_dead_keys, ALLOWLIST, run_ci_check
+import dead_key_audit
 
 
-def _visit(source: str) -> KeyVisitor:
+def _visit(source: str) -> "dead_key_audit.KeyVisitor":
     tree = ast.parse(source)
-    visitor = KeyVisitor("synthetic.py")
+    visitor = dead_key_audit.KeyVisitor("synthetic.py")
     visitor.visit(tree)
     return visitor
 
@@ -74,17 +74,17 @@ def test_fstring_with_no_leading_literal_yields_no_prefix():
 # ==============================================================================
 def test_find_dead_keys_flags_read_without_any_write(tmp_path, monkeypatch):
     _write_scan_root(tmp_path, "mod.py", "x.get('orphan_key')\n")
-    monkeypatch.setattr("dead_key_audit.SCAN_ROOTS", [tmp_path])
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
 
-    dead = find_dead_keys()
+    dead = dead_key_audit.find_dead_keys()
     assert "orphan_key" in dead
 
 
 def test_find_dead_keys_does_not_flag_a_read_with_a_matching_write(tmp_path, monkeypatch):
     _write_scan_root(tmp_path, "mod.py", "x.get('k')\nx['k'] = 1\n")
-    monkeypatch.setattr("dead_key_audit.SCAN_ROOTS", [tmp_path])
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
 
-    dead = find_dead_keys()
+    dead = dead_key_audit.find_dead_keys()
     assert "k" not in dead
 
 
@@ -92,18 +92,18 @@ def test_find_dead_keys_honors_prefix_writes_across_files(tmp_path, monkeypatch)
     """A read of "sec_foo" must be covered by a DIFFERENT file's f"sec_{...}" write."""
     _write_scan_root(tmp_path, "producer.py", 'k = "foo"\nx[f"sec_{k}"] = 1\n')
     _write_scan_root(tmp_path, "consumer.py", "y.get('sec_foo')\n")
-    monkeypatch.setattr("dead_key_audit.SCAN_ROOTS", [tmp_path])
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
 
-    dead = find_dead_keys()
+    dead = dead_key_audit.find_dead_keys()
     assert "sec_foo" not in dead
 
 
 def test_find_dead_keys_respects_the_allowlist(tmp_path, monkeypatch):
-    allowlisted_key = next(iter(ALLOWLIST))
+    allowlisted_key = next(iter(dead_key_audit.ALLOWLIST))
     _write_scan_root(tmp_path, "mod.py", f"x.get('{allowlisted_key}')\n")
-    monkeypatch.setattr("dead_key_audit.SCAN_ROOTS", [tmp_path])
+    monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
 
-    dead = find_dead_keys()
+    dead = dead_key_audit.find_dead_keys()
     assert allowlisted_key not in dead
 
 
@@ -125,7 +125,7 @@ def test_ci_check_passes_when_findings_exactly_match_baseline(tmp_path, monkeypa
     monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
     _write_baseline(tmp_path, monkeypatch, {"known_lead": "already tracked"})
 
-    assert run_ci_check() == 0
+    assert dead_key_audit.run_ci_check() == 0
 
 
 def test_ci_check_fails_on_a_key_not_in_the_baseline(tmp_path, monkeypatch, capsys):
@@ -133,7 +133,7 @@ def test_ci_check_fails_on_a_key_not_in_the_baseline(tmp_path, monkeypatch, caps
     monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
     _write_baseline(tmp_path, monkeypatch, {})
 
-    assert run_ci_check() == 1
+    assert dead_key_audit.run_ci_check() == 1
     assert "brand_new_lead" in capsys.readouterr().out
 
 
@@ -143,7 +143,7 @@ def test_ci_check_does_not_fail_when_a_baselined_key_gets_fixed(tmp_path, monkey
     monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
     _write_baseline(tmp_path, monkeypatch, {"now_fixed_key": "used to be a lead"})
 
-    assert run_ci_check() == 0
+    assert dead_key_audit.run_ci_check() == 0
     assert "now_fixed_key" in capsys.readouterr().out  # still surfaced as an FYI
 
 
@@ -152,7 +152,7 @@ def test_ci_check_with_no_baseline_file_treats_everything_as_new(tmp_path, monke
     monkeypatch.setattr(dead_key_audit, "SCAN_ROOTS", [tmp_path])
     monkeypatch.setattr(dead_key_audit, "BASELINE_PATH", tmp_path / "does_not_exist.json")
 
-    assert run_ci_check() == 1
+    assert dead_key_audit.run_ci_check() == 1
 
 
 # ==============================================================================
@@ -164,4 +164,4 @@ def test_real_repo_baseline_has_no_new_regressions():
     gitgalaxy/ -- this is the one test in this file that scans the real repo,
     not a synthetic fixture, mirroring exactly what `--ci` does.
     """
-    assert run_ci_check() == 0
+    assert dead_key_audit.run_ci_check() == 0

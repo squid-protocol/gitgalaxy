@@ -166,6 +166,13 @@ def test_network_algorithmic_bottleneck(sensor, parsed_files_universe):
         heavy_calc["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is True
     )
 
+    # 3. #372: max_big_o itself must be copied onto the file dict, not just used
+    # internally to compute is_algorithmic_bottleneck -- dev_agent_firewall.py
+    # reads file_data.get("max_big_o") directly, a different object than this
+    # function's own G.nodes[path].
+    assert foundation["max_big_o"] == 1
+    assert heavy_calc["max_big_o"] == 4
+
 
 # ==============================================================================
 # TEST 5: ZERO-DEPENDENCY FALLBACK
@@ -186,6 +193,14 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         assert (
             foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0
         )  # Math is disabled
+
+        # #372: max_big_o computation is pure Python (off "functions"), so it
+        # must still work in Zero-Dependency Mode, not just the networkx path.
+        heavy_calc = next(
+            f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py"
+        )
+        assert foundation["max_big_o"] == 1
+        assert heavy_calc["max_big_o"] == 4
 
 
 # ==============================================================================

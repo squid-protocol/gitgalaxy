@@ -42,6 +42,40 @@ def test_black_hole_detection(firewall):
 
 
 # ==============================================================================
+# TEST 1.5: THE BLACK HOLE, END TO END (#372 -- the real pipeline, not a mock)
+# ==============================================================================
+def test_black_hole_detection_from_real_network_risk_sensor_output(firewall):
+    """
+    Regression test for #372: dev_agent_firewall.py read file_data["max_big_o"]
+    directly, but the only real producer set it as a networkx graph node
+    attribute (network_risk_sensor.py) that was never copied back onto the
+    file dict -- so this check could never fire on real data, only on a
+    hand-mocked "max_big_o" like the test above. Drives a REAL
+    NetworkRiskSensor.build_dependency_graph() output into the REAL firewall.
+    """
+    from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
+
+    parsed_files = [
+        {
+            "path": "src/math/heavy_calc.py",
+            "raw_imports": [],
+            "risk_vector": [],
+            "token_mass": 8500,  # Exceeds 8k limit
+            "functions": [{"big_o_depth": 4, "is_recursive": True}],  # O(N^4)
+            "telemetry": {},
+        }
+    ]
+
+    mapped_files, _ = NetworkRiskSensor().build_dependency_graph(parsed_files)
+    result = firewall.evaluate_ecosystem(mapped_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["is_agentic_black_hole"] is True, (
+        "max_big_o from the real network sensor output must reach the firewall!"
+    )
+
+
+# ==============================================================================
 # TEST 2: The HITL Mandate (Blast Radius + Risk Debt)
 # ==============================================================================
 def test_hitl_mandate_detection(firewall):

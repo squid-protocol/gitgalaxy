@@ -293,6 +293,14 @@ class NetworkRiskSensor:
             if "telemetry" not in f:
                 f["telemetry"] = {}
 
+            # #372: max_big_o was already read from the graph node (above) to
+            # compute is_algorithmic_bottleneck, but never copied back onto the
+            # file dict itself -- dev_agent_firewall.py's Agentic Black Hole
+            # check reads file_data.get("max_big_o") directly (a different
+            # object than this function's own G.nodes[path]), so it was always
+            # falling back to 1 and could never trigger on real complexity.
+            f["max_big_o"] = max_big_o
+
             f["telemetry"]["network_metrics"] = {
                 "pagerank_score": round(pr_score, 6),
                 "normalized_blast_radius": round(pr_normalized, 3),
@@ -434,6 +442,13 @@ class NetworkRiskSensor:
                 "is_algorithmic_bottleneck": False,
             }
             f["telemetry"]["popularity"] = in_d
+
+            # #372: computing max_big_o doesn't actually need networkx (it's
+            # pure Python off "functions"), so Zero-Dependency Mode shouldn't
+            # leave dev_agent_firewall.py's Agentic Black Hole check any more
+            # broken here than in the main path.
+            funcs = f.get("functions", [])
+            f["max_big_o"] = max([func.get("big_o_depth", 1) for func in funcs]) if funcs else 1
 
         macro_metrics = {
             "modularity": 0.0,

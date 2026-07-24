@@ -1,7 +1,6 @@
 import ast
 import json
 
-import dead_key_audit
 from dead_key_audit import KeyVisitor, find_dead_keys, ALLOWLIST, run_ci_check
 
 

@@ -55,7 +55,10 @@ def mock_pipeline_state():
                 }
             },
             "is_ml_threat": True,
-            "glassworm_flag": True,  # Maps to obfuscation_flag
+            "equations": {
+                "sec_hardcoded_secrets": 1,  # Maps to has_credentials, #367
+                "sec_extension_mismatch": 1,  # Maps to binary_anomaly, #368
+            },
             "risk_vector": [80.0, 60.0],  # debt, cog_load
             "hit_vector": [2, 5, 1],  # danger, io, prompt_injection
             "classes": [
@@ -197,7 +200,19 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     assert file_row["ai_threat_class"] == "Botnet / DDoS"
     assert file_row["ai_threat_score"] == 95.5
     assert file_row["agentic_isolation_risk"] == 1
-    assert file_row["obfuscation_flag"] == 1
+    # #366: is_malware reads file_data["is_ml_threat"] (security_auditor.py's
+    # real output key), not the never-produced "is_malware".
+    assert file_row["is_malware"] == 1
+    # #367: has_credentials reads equations["sec_hardcoded_secrets"], not the
+    # never-produced "has_credentials".
+    assert file_row["has_credentials"] == 1
+    # #368: binary_anomaly reads equations["sec_extension_mismatch"], not the
+    # never-produced "binary_anomaly".
+    assert file_row["binary_anomaly"] == 1
+    # #369: no GlassWorm-style detector exists anywhere in the codebase --
+    # obfuscation_flag is now honestly hardcoded to 0 rather than reading a
+    # key nothing ever produced.
+    assert file_row["obfuscation_flag"] == 0
     assert file_row["ecosystem_role"] == "Core Hub"
     assert file_row["state_danger"] == 2  # The hit_vector value for danger
 

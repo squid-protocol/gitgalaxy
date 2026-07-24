@@ -474,10 +474,36 @@ class RecordKeeper:
             except ValueError:
                 ai_score = 0.0
 
-            is_malware = 1 if file_data.get("is_malware", False) else 0
-            has_creds = 1 if file_data.get("has_credentials", False) else 0
-            bin_anomaly = 1 if file_data.get("binary_anomaly", False) else 0
-            obfuscation_flag = 1 if file_data.get("glassworm_flag", False) else 0
+            # #366: security_auditor.py's real output key is "is_ml_threat", not
+            # "is_malware" -- a near-miss rename that left this column always 0.
+            is_malware = 1 if file_data.get("is_ml_threat", False) else 0
+            # #367: no producer ever set file_data["has_credentials"]; the engine's
+            # real hardcoded-secrets signal is equations["sec_hardcoded_secrets"]
+            # (security_lens.py, correlated in galaxyscope.py's Active Hemorrhage
+            # step, #348).
+            has_creds = 1 if file_data.get("equations", {}).get("sec_hardcoded_secrets", 0) > 0 else 0
+            # #368: no producer ever set file_data["binary_anomaly"]. The Binary
+            # Analysis Sensor (galaxyscope.py) does exist and does run
+            # SecurityLens.scan_binary() on suspicious binaries, but its findings
+            # flow into the same generic equations["sec_*"] keys regular text
+            # scanning uses -- there's no dedicated boolean. Of those,
+            # "sec_extension_mismatch" (magic bytes don't match the claimed
+            # extension) is the most direct match for "binary anomaly" specifically;
+            # sec_high_risk_execution/sec_reflection_metaprogramming from a binary
+            # scan represent distinct threat categories already surfaced elsewhere
+            # and would double-count if folded in here too.
+            bin_anomaly = 1 if file_data.get("equations", {}).get("sec_extension_mismatch", 0) > 0 else 0
+            # #369: unlike is_malware/has_credentials/binary_anomaly, there is no
+            # existing signal anywhere in gitgalaxy/ this column could alias --
+            # "GlassWorm" implies a self-propagating supply-chain worm detector
+            # that was never actually built (confirmed: no producer, and no
+            # worm/propagation-pattern detection exists anywhere in the codebase
+            # to wire up). Building one is a real detector effort, not a
+            # dead-key fix. Keeping the SQLite column (for schema/query
+            # compatibility) but hardcoding it to 0 so this is an honest,
+            # explicit "not implemented yet" rather than a read that silently
+            # never resolves.
+            obfuscation_flag = 0
 
             # --- NETWORK TOPOLOGY EXTRACTION ---
             net_mets = tel.get("network_metrics", {})

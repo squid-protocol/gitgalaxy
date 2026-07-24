@@ -976,6 +976,12 @@ class Orchestrator:
 
             # Attach it to the summary payload
             summary["ecosystem_audits"] = ecosystem_audits
+
+            # #376: computed back in Phase 2 (_resolve_dependency_graph), where
+            # summary doesn't exist yet -- stashed on self and folded in here.
+            # record_keeper.py's real read is summary["typosquat_hits"] directly
+            # (top level, not nested under ecosystem_audits).
+            summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
             
             # ==========================================================
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
@@ -1861,6 +1867,13 @@ class Orchestrator:
         if typosquat_hits > 0:
             logger.warning(f"Intercepted {typosquat_hits} typosquatting attempts via repository baseline analysis.")
 
+        # #376: this count was previously only ever logged, never attached to
+        # summary/ecosystem_audits -- record_keeper.py's typosquat_hits column
+        # was always the fallback 0. summary doesn't exist yet at this point in
+        # the pipeline (this runs in Phase 2, summary isn't built until Phase 8),
+        # so stash it on self and fold it in once summary is assembled.
+        self.typosquat_hits = typosquat_hits
+
         # Evict memory before Pass 2
         for rel_path, meta in self.ram_cache.items():
             if "popularity_hits" in meta:
@@ -2506,6 +2519,10 @@ class Orchestrator:
             repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
             for file_data in (repository_graph or []):
                 file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
+
+            # #376: see the identical backfill in the main pipeline above.
+            summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
+
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,

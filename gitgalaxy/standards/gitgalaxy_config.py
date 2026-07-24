@@ -152,6 +152,12 @@ APERTURE_CONFIG = {
         "auth.json",
         "shadow",
     },
+    # --- 0.5. TYPOSQUAT WHITELIST (#375) ---
+    # Import/module tokens galaxyscope.py's typosquat radar (PASS_1.5) must
+    # never flag, even if they're a Levenshtein neighbor of a heavily-used
+    # anchor import. Empty by default -- populate with known-legitimate,
+    # structurally-similar-looking package names specific to your ecosystem.
+    "TYPOSQUAT_WHITELIST": set(),
     # --- 1. The Global Blocklist ---
     "IGNORED_DIRECTORIES": {
         # 1. Version Control Ghosts

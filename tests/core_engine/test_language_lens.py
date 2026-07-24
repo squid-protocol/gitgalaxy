@@ -309,6 +309,42 @@ def test_local_ecosystem_consensus_and_toxic_pruning(mock_iterdir, isolated_dete
 
 
 # ==============================================================================
+# TEST 11.5: MATLAB vs OBJECTIVE-C .m COLLISION (#377)
+# ==============================================================================
+def test_matlab_objective_c_m_collision_resolved_by_real_disqualifiers():
+    """
+    Regression test for #377: the real LANGUAGE_DEFINITIONS's own comments
+    ("Critical for resolving the massive .m collision with Objective-C" /
+    "The ultimate defense against MATLAB") describe exactly this scenario, but
+    zero of the 57 language definitions ever populated a "disqualifiers" list
+    -- the toxic-collapse mechanism test_local_ecosystem_consensus_and_toxic_pruning
+    proves above was fully wired, but had no real data anywhere to act on.
+    Uses the REAL LanguageDetector against the REAL LANGUAGE_DEFINITIONS (not
+    the isolated mock fixture) so this only passes if the live data is correct.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+
+    # A repo with heavy Xcode/Objective-C ecosystem presence (Podfile, .storyboard)
+    # alongside the ambiguous .m files -- MATLAB's own disqualifiers should
+    # collapse its score to 0, leaving Objective-C to win.
+    global_tally = {
+        ".m": 5,
+        ".storyboard": 3,
+        "podfile": 1,
+    }
+
+    lang, _ = detector._evaluate_ecosystem_gravity(
+        "src/nonexistent_dir_for_this_test/AppDelegate.m", ".m", global_tally
+    )
+
+    assert lang == "objective-c", (
+        "Strong Objective-C ecosystem anchors must disqualify the MATLAB candidate for a contested .m file!"
+    )
+
+
+# ==============================================================================
 # TEST 12: Legacy Focus Gateway
 # ==============================================================================
 def test_legacy_focus_gateway(isolated_detector):

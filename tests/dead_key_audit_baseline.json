@@ -1,6 +1,3 @@
 {
-  "TYPOSQUAT_WHITELIST": "read from APERTURE_CONFIG, which has no such key; the typosquat whitelist is always empty",
-  "typosquat_hits": "galaxyscope.py computes and logs this count but never attaches it to summary/ecosystem_audits; record_keeper.py's column is always the fallback 0",
-  "disqualifiers": "language_lens.py's toxic-contributor penalty is fully dead; zero of the 57 language definitions set this key (vs. 'discriminators', set 57 times)",
-  "mechanical_families": "prism.py; not chased down to a confirmed verdict -- open lead"
+  "mechanical_families": "prism.py's comment-family dispatch never matches the real taxonomy at all -- escalated from an 'open lead' to #386 (critical: comment/code separation is broken for all 58 languages), fix pending in a separate branch"
 }

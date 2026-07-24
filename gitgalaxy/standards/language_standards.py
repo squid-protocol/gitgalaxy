@@ -7841,6 +7841,11 @@ LANGUAGE_DEFINITIONS = {
         "exact_matches": [],
         # ECOSYSTEM ANCHORS & DISAMBIGUATION: Critical for resolving the massive .m collision with Objective-C. Binary workspace and figure files act as absolute anchors.
         "discriminators": [".m", ".mat", ".fig", ".mlx", "project.prj"],
+        # #377: this is exactly the "massive .m collision with Objective-C" the
+        # comment above already calls out -- heavy presence of Objective-C's OWN
+        # ecosystem anchors (its own "discriminators", below) elsewhere in the
+        # repo is direct evidence AGAINST an ambiguous .m file being MATLAB.
+        "disqualifiers": [".mm", "project.pbxproj", ".storyboard", ".xib", ".xcworkspace", "Podfile", "Cartfile"],
         # Instantly claims any .m file that uses MATLAB's unique comment character (%)
         # or the MATLAB function declaration syntax. Defeats Objective-C gravity theft.
         # Instantly claims any .m file via a definitive MATLAB section break (%%)
@@ -8433,6 +8438,10 @@ LANGUAGE_DEFINITIONS = {
             "Podfile",
             "Cartfile",
         ],
+        # #377: the symmetric counterpart to matlab's disqualifiers above -- heavy
+        # presence of MATLAB's own ecosystem anchors elsewhere in the repo is
+        # direct evidence AGAINST an ambiguous .m file being Objective-C.
+        "disqualifiers": [".mat", ".fig", ".mlx", "project.prj"],
         # EXECUTION SIGNATURES: Compiled natively via LLVM/Clang; no shebangs exist.
         "shebangs": [],
         "internal_discriminator": re.compile(

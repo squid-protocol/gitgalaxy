@@ -436,6 +436,44 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertIn("TYPOSQUATTING", hacked_node["metadata"]["alert"])
 
     # ==============================================================================
+    # TEST 8.5: THE TYPOSQUAT WHITELIST (#375)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_typosquatting_radar_respects_whitelist(self, mock_logger):
+        """
+        Regression test for #375: APERTURE_CONFIG had no "TYPOSQUAT_WHITELIST"
+        key at all, so galaxyscope.py's own whitelist shield
+        (`if orphan_imp in whitelist: continue`) could never suppress anything.
+        Same setup as the doppelganger test above, but "requasts" is now an
+        explicitly whitelisted, known-legitimate import name -- it must NOT
+        be flagged.
+        """
+        from gitgalaxy.standards import gitgalaxy_config
+
+        scope = Orchestrator(".", self.mock_config)
+
+        scope.ram_cache = {
+            "src/app.py": {"raw_imports": {"requests"}},
+            "src/api.py": {"raw_imports": {"requests"}},
+            "src/db.py": {"raw_imports": {"requests"}},
+            "src/legit.py": {"raw_imports": {"requasts"}},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        original_whitelist = gitgalaxy_config.APERTURE_CONFIG.get("TYPOSQUAT_WHITELIST")
+        gitgalaxy_config.APERTURE_CONFIG["TYPOSQUAT_WHITELIST"] = {"requasts"}
+        try:
+            scope._resolve_dependency_graph()
+        finally:
+            gitgalaxy_config.APERTURE_CONFIG["TYPOSQUAT_WHITELIST"] = original_whitelist
+
+        legit_node = scope.ram_cache["src/legit.py"]
+        self.assertNotIn(
+            "sec_homoglyphs", legit_node.get("equations", {}),
+            "A whitelisted import must not be flagged as typosquatting!",
+        )
+
+    # ==============================================================================
     # TEST 9: INCREMENTAL DELTA SHIFT (State Rehydration)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
@@ -1038,6 +1076,53 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope.execute_pipeline("fake.json")
 
         self.assertEqual(scope.parsed_files[0]["telemetry"]["repo_z_score"], 3.7)
+
+    # ==============================================================================
+    # TEST 14.6: THE TYPOSQUAT HITS BACKFILL (#376)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.RecordKeeper")
+    @patch("gitgalaxy.galaxyscope.SarifRecorder")
+    def test_typosquat_hits_folded_into_summary(self, mock_sarif, mock_db, mock_calc, mock_res, mock_ext, mock_cen):
+        """
+        Regression test for #376: _resolve_dependency_graph() (Phase 2) computes
+        and logs a real typosquat_hits count, but summary doesn't exist yet at
+        that point in the pipeline -- nothing ever attached the count to it, so
+        record_keeper.py's typosquat_hits column was always the fallback 0.
+        _resolve_dependency_graph() is mocked here (as in the sibling #371 test
+        above), so this test sets scope.typosquat_hits directly to simulate what
+        a real typosquatting hit would have stashed on the instance, and proves
+        it survives into summary once Phase 10 assembles it.
+        """
+        config = self.mock_config.copy()
+        config["DB_ONLY"] = True  # Only the SQLite recorder needs to run for this test
+
+        scope = Orchestrator(".", config)
+        scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
+        scope.typosquat_hits = 3  # Simulates a real hit from _resolve_dependency_graph()
+
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = (scope.parsed_files, {})
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = (scope.parsed_files, [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = scope.parsed_files
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {}
+
+        captured_summary = {}
+
+        def _capture_record_mission(*args, **kwargs):
+            captured_summary.update(kwargs.get("summary", {}))
+
+        mock_db.return_value.record_mission.side_effect = _capture_record_mission
+
+        scope.execute_pipeline("fake.json")
+
+        self.assertEqual(captured_summary.get("typosquat_hits"), 3)
 
     # ==============================================================================
     # TEST 15: THE GIT-LESS VOID (Fallback OS Walk)

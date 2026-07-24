@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -636,6 +637,84 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
         self.assertEqual(result["data"]["lang_id"], "python", "Worker failed to assign language ID!")
         self.assertEqual(result["data"]["equations"]["sec_high_risk_execution"], 1, "Worker dropped security equations!")
+
+    # ==============================================================================
+    # TEST 13.5: THE DOUBLE CORROBORATION (Additive sec_ Merge, #344)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_merges_sec_tainted_injection_additively(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #344: detector.py's own in-segment proximity check
+        (block 1, "Taint Tracking") and security_lens.py's independent variable-echo
+        check both contribute to the same "sec_tainted_injection" signal. Before the
+        fix, galaxyscope.py's Phase 5.5 merge used a plain assignment, so whichever
+        of the two ran second silently discarded the other's finding entirely.
+        This drives a real detector.py contribution (via a genuine
+        high_risk_execution/io proximity hit) together with a mocked
+        security_lens.py contribution, and asserts the final count is their SUM,
+        not just security_lens.py's value alone.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "eval(input())"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports its own variable-echo-based hit.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {"counts": {"tainted_injection": 3}, "snippets": {}}
+
+        # Real per-language rules so detector.py's own block 1 correlation fires for
+        # real: "eval(" is high_risk_execution, "input(" is io, well within the
+        # 250-char proximity radius -- this should corroborate to exactly 1 hit.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {
+                    "high_risk_execution": re.compile(r"\beval\b"),
+                    "io_ops": re.compile(r"\binput\b"),
+                },
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["equations"]["sec_tainted_injection"],
+            4,
+            "Additive merge regressed: detector.py's own corroboration (1) and "
+            "security_lens.py's independent finding (3) must both survive (1 + 3 = 4), "
+            "not just whichever system ran last.",
+        )
 
     # ==============================================================================
     # TEST 14: THE MEMORY HOLE (SARIF Sanitization & Inline Suppressions)

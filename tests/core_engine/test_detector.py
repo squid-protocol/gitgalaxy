@@ -42,10 +42,9 @@ MOCK_LANG_DEFS = {
             ),
             "memory_scraping": re.compile(r"\b(memcpy|VirtualRead)\b"),
             "exfiltration_camouflage": re.compile(r"\b(send|socket)\b"),
-            "high_risk_execution": re.compile(r"\b(strcpy|gets)\b"),
+            "high_risk_execution": re.compile(r"\b(strcpy|gets|system)\b"),
             "safety": re.compile(r"\b(strncpy|fgets)\b"),
-            "sec_high_risk_execution": re.compile(r"system"),
-            "sec_io": re.compile(r"request_get"),
+            "io": re.compile(r"request_get"),
             "concurrency": re.compile(r"std::thread"),
             "state_mutation": re.compile(r"shared_state"),
             "sync_locks": re.compile(r"mutex_lock"),
@@ -590,7 +589,7 @@ def test_detector_advanced_appsec_sensors():
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    # 1. RCE Weaponization: sec_danger spatially overlapping with sec_io
+    # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
     assert eqs.get("sec_tainted_injection", 0) >= 1, (
         "Failed to spatially correlate Tainted RCE Injection!"
     )

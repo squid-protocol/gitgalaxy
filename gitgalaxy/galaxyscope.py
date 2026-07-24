@@ -422,8 +422,14 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
                 # Handle the new nested dictionary
                 sec_results = security.scan_content(content_buffer, filter_res.get("total_loc", 0))
 
+                # Additive, not an overwrite (#344): detector.py's own coding_analysis()
+                # can independently corroborate some of these same "sec_" keys (e.g.
+                # sec_tainted_injection, sec_hardcoded_secrets) via its in-segment
+                # spatial correlation. A plain assignment here would silently discard
+                # that contribution the moment security_lens's own scan ran second.
                 for sec_key, hit_count in sec_results["counts"].items():
-                    logic_data["equations"][f"sec_{sec_key}"] = hit_count
+                    mapped_key = f"sec_{sec_key}"
+                    logic_data["equations"][mapped_key] = logic_data["equations"].get(mapped_key, 0) + hit_count
 
                 # Pass the snippets into the payload
                 logic_data["threat_snippets"] = sec_results["snippets"]

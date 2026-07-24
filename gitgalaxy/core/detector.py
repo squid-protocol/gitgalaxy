@@ -1002,10 +1002,16 @@ class StructuralExtractor:
 # galaxyscope:ignore sec_high_risk_execution
 
             # 1. Taint Tracking (RCE Weaponization)
-            if "sec_high_risk_execution" in spatial_map and ("sec_io" in spatial_map or "io" in spatial_map):
-                io_hits = sorted(spatial_map.get("sec_io", []) + spatial_map.get("io", []))
+            # NOTE (#344): must key off the unprefixed "high_risk_execution"/"io" --
+            # these are detector.py's own rule hits, populated in THIS spatial_map.
+            # The "sec_" prefix belongs to the Passive Security Lens Observer family
+            # (analysis_lens.py's SIGNAL_SCHEMA), which security_lens.py only writes
+            # in galaxyscope.py's Phase 5.5, strictly after coding_analysis() returns
+            # -- those keys can never appear in this function's own spatial_map.
+            if "high_risk_execution" in spatial_map and "io" in spatial_map:
+                io_hits = sorted(spatial_map["io"])
                 _, corroborated_rce = self._correlate_signals(
-                    targets=spatial_map["sec_high_risk_execution"],
+                    targets=spatial_map["high_risk_execution"],
                     dampeners=io_hits,
                     max_distance=250,
                 )
@@ -1039,6 +1045,16 @@ class StructuralExtractor:
                     mitigations["amplified_race_conditions"] += race_conditions
 
             # 4. The Active Hemorrhage
+            # NOTE (#344): unlike block 1, there is no unprefixed sibling to fall back
+            # to here -- "hardcoded_secrets" (unprefixed) is not a SIGNAL_SCHEMA member
+            # at all (only "sec_hardcoded_secrets", the Passive Security Lens Observer
+            # name, is registered), so detector.py has no rule of its own that could
+            # ever populate this spatial_map under either name. This block genuinely
+            # needs security_lens.py's data, which doesn't exist until galaxyscope.py's
+            # Phase 5.5, strictly after this function returns -- it can't be fixed with
+            # a key-name correction the way block 1 was. Left as still-dead pending the
+            # correlate-after-both-phases work in #346; do not "fix" this to a bare
+            # "hardcoded_secrets" check, that key will never be populated either.
             if "sec_hardcoded_secrets" in spatial_map and ("telemetry" in spatial_map or "debug_prints" in spatial_map):
                 sinks = sorted(spatial_map.get("telemetry", []) + spatial_map.get("debug_prints", []))
                 _, active_leaks = self._correlate_signals(

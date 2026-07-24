@@ -17,6 +17,7 @@ import logging
 from typing import List, Dict, Any
 
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 
 class DevAgentFirewall:
     """
@@ -30,13 +31,11 @@ class DevAgentFirewall:
         self.logger.info("Executing Autonomous Agent Firewall & Token Density Validation...")
 
         risk_schema = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
-        signal_schema = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
         for file_data in parsed_files:
             token_mass = file_data.get("token_mass", 0)
             network_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
             risk_vector = file_data.get("risk_vector", [])  # Assuming standard 0-100 risk scores
-            hit_vector = file_data.get("hit_vector", [])
 
             # Extract relevant structural metrics, safely handling None values from Zero-Dependency Mode
             pagerank = network_metrics.get("normalized_blast_radius") or 0.0
@@ -55,10 +54,6 @@ class DevAgentFirewall:
             if "state_flux" in risk_schema and len(risk_vector) > risk_schema.index("state_flux"):
                 state_flux = risk_vector[risk_schema.index("state_flux")]
 
-            meta_count = 0
-            if "reflection_metaprogramming" in signal_schema and len(hit_vector) > signal_schema.index("reflection_metaprogramming"):
-                meta_count = hit_vector[signal_schema.index("reflection_metaprogramming")]
-
             # 1. Context Window Exhaustion (Agentic Black Hole)
             # If a file exceeds token limits AND has severe algorithmic complexity, the AI will lose context.
             if token_mass is not None and token_mass > 8000 and max_big_o >= 3:
@@ -74,14 +69,35 @@ class DevAgentFirewall:
                     "WARNING [HITL Mandate]: High Downstream Exposure combined with severe risk debt. Human-in-the-Loop required for structural modifications."
                 )
 
-            # 3. Metaprogramming Hallucination Risk
-            meta_heavy = meta_count > 2
-            doc_density = file_data.get("telemetry", {}).get("doc_density", 1.0)
-
-            if meta_heavy and doc_density < 0.2:
+            # 3. Metaprogramming Hallucination Risk (#106)
+            # Replaces the old global-average check (file-wide doc_density vs.
+            # file-wide metaprogramming count), which was fully dead code -- no
+            # producer ever wrote telemetry["doc_density"] (#345) -- and, even
+            # if it had, a global average has two documented blind spots: it
+            # misses undocumented metaprogramming buried in an otherwise
+            # well-documented file, and it false-positives on well-documented
+            # metaprogramming just because the REST of the file is sparse.
+            #
+            # correlate_against_ledger() (#348) proves proximity directly: a
+            # "reflection_metaprogramming" hit is only flagged if no "doc" hit
+            # falls within max_distance=10 lines AND the same function/satellite
+            # -- reusing #106's own anticipated fixture value, matching
+            # test_spatial_correlation.py's existing correlate_against_ledger
+            # coverage for this exact signal pair.
+            undocumented_metaprogramming, _ = correlate_against_ledger(
+                file_data.get("threat_locations", {}),
+                file_data.get("functions", []),
+                "reflection_metaprogramming",
+                "doc",
+                max_distance=10,
+            )
+            if undocumented_metaprogramming > 0:
+                guardrails["undocumented_metaprogramming"] = undocumented_metaprogramming
                 guardrails["hallucination_zone"] = True
                 guardrails["warnings"].append(
-                    "DANGER [Hallucination Risk]: Dynamic metaprogramming detected combined with severe Documentation Risk Exposure (< 20% density). Autonomous agents are highly likely to hallucinate missing methods."
+                    f"DANGER [Hallucination Risk]: {undocumented_metaprogramming} undocumented metaprogramming "
+                    "construct(s) found with no surrounding documentation in the same function. Autonomous "
+                    "agents are highly likely to hallucinate missing methods."
                 )
 
             # 4. Cascading State Flux (Silent Mutation Risk)

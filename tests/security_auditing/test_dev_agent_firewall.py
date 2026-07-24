@@ -68,19 +68,19 @@ def test_hitl_mandate_detection(firewall):
 
 
 # ==============================================================================
-# TEST 3: The Hallucination Zone (Schema Drift Fix)
+# TEST 3: The Hallucination Zone (#106 -- spatially verified, not global-average)
 # ==============================================================================
 def test_hallucination_zone_detection(firewall):
     """
-    Proves that high dynamic execution (pulled from hit_vector) and poor documentation
-    triggers the Hallucination Zone warning.
+    Proves that a "reflection_metaprogramming" hit with no nearby "doc" hit --
+    in the SAME function -- triggers the Hallucination Zone warning, via the
+    persisted threat_locations ledger and correlate_against_ledger() (#348),
+    not the old dead doc_density global average (#345).
     """
     mock_files = [
         {
-            "hit_vector": [0, 3],  # ☢️ Index 1 is reflection_metaprogramming (> 2 triggers)
-            "telemetry": {
-                "doc_density": 0.15,  # ☢️ < 0.20 density
-            }
+            "threat_locations": {"reflection_metaprogramming": [50]},
+            "functions": [{"start_line": 40, "end_line": 60}],
         }
     ]
 
@@ -88,7 +88,60 @@ def test_hallucination_zone_detection(firewall):
     guardrails = result[0]["telemetry"]["ai_guardrails"]
 
     assert guardrails["hallucination_zone"] is True, "Failed to detect the Hallucination Zone!"
+    assert guardrails["undocumented_metaprogramming"] == 1
     assert any("Hallucination Risk" in warning for warning in guardrails["warnings"])
+
+
+def test_hallucination_zone_spares_locally_documented_metaprogramming(firewall):
+    """
+    #106's second documented blind spot: metaprogramming that IS documented
+    right where it lives must NOT be flagged, even though this is exactly the
+    shape the old dead doc_density check would have gotten wrong if it had
+    ever fired (a low file-wide average could still block a well-documented
+    function).
+    """
+    mock_files = [
+        {
+            "threat_locations": {
+                "reflection_metaprogramming": [45],
+                "doc": [40],
+            },
+            "functions": [{"start_line": 40, "end_line": 60}],
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["hallucination_zone"] is False
+    assert "undocumented_metaprogramming" not in guardrails
+
+
+def test_hallucination_zone_ignores_documentation_in_a_different_function(firewall):
+    """
+    #106's first documented blind spot: a doc comment concentrated in one
+    function (e.g. a class docstring near the top) must not paper over
+    undocumented metaprogramming in a totally different function -- this is
+    exactly the false negative the old GLOBAL doc_density average produced.
+    """
+    mock_files = [
+        {
+            "threat_locations": {
+                "reflection_metaprogramming": [50],
+                "doc": [5],
+            },
+            "functions": [
+                {"start_line": 1, "end_line": 10},
+                {"start_line": 40, "end_line": 60},
+            ],
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["hallucination_zone"] is True
+    assert guardrails["undocumented_metaprogramming"] == 1
 
 
 # ==============================================================================

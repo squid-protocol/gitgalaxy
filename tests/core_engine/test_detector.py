@@ -609,6 +609,61 @@ def test_detector_advanced_appsec_sensors():
 
 
 # ==============================================================================
+# TEST 47: SATELLITE-SCOPED DAMPENER CORRELATION (#346 phase 1)
+# ==============================================================================
+def test_detector_dampeners_do_not_cross_function_boundaries():
+    """
+    Regression test for #346 phase 1: a safety/cleanup call in one function
+    must not silently cancel a danger/leak signal in a DIFFERENT function,
+    even though both are well within the old flat 500-char correlation
+    radius. Before this fix, the two functions below (under 150 total
+    characters apart) would have had their risk fully cancelled out.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void dangerous_one() {\n"
+        "    strcpy(buf, input);\n"
+        "}\n"
+        "\n"
+        "void safe_two() {\n"
+        "    strncpy(buf2, input2, 10);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    eqs = result["equations"]
+    mits = result["mitigation_telemetry"]
+
+    assert eqs.get("high_risk_execution", 0) == 1, (
+        "A safety call in a DIFFERENT function must not mitigate this danger signal -- "
+        "cross-function dampening regressed!"
+    )
+    assert mits.get("mitigated_danger", 0) == 0, (
+        "mitigated_danger should be 0: the only safety call is in an unrelated function"
+    )
+
+
+def test_detector_dampeners_still_apply_within_same_function():
+    """The same safety/cleanup call, when it's genuinely inside the SAME function, still mitigates."""
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void guarded() {\n"
+        "    strcpy(buf, input);\n"
+        "    strncpy(buf2, input2, 10);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    eqs = result["equations"]
+    mits = result["mitigation_telemetry"]
+
+    assert eqs.get("high_risk_execution", 0) == 0, (
+        "Same-function safety call should still mitigate this danger signal"
+    )
+    assert mits.get("mitigated_danger", 0) == 1
+
+
+# ==============================================================================
 # TEST 12: CATASTROPHIC FALLBACKS (HARDWARE GUILLOTINES)
 # ==============================================================================
 def test_detector_catastrophic_fallbacks():

@@ -21,6 +21,10 @@ import time
 import bisect
 from typing import Dict, List, Any, TypedDict, Optional, Tuple
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.core.spatial_correlation import (
+    correlate_signals as _correlate_signals_impl,
+    apply_dampener_correlations,
+)
 
 HAS_TIKTOKEN = False
 try:
@@ -88,6 +92,8 @@ class FunctionNode(TypedDict, total=False):
 
     start_line: int
     end_line: int
+    start_idx: int
+    end_idx: int
 
     big_o_depth: int
     is_recursive: bool
@@ -452,6 +458,8 @@ class StructuralExtractor:
             functions, sum_fxn_impact = self._function_slice(
                 segments,
                 segment_spatial_maps,
+                equations,
+                mitigation_telemetry,
                 regex_telemetry if profile_regex else None,
             )
 
@@ -847,30 +855,12 @@ class StructuralExtractor:
         """
         Sweeps two sorted lists of indices to find how many targets are within
         'max_distance' of a dampener. Runs in O(N) linear time.
+
+        Extracted to gitgalaxy.core.spatial_correlation (#346) so the same
+        primitive is reusable outside this class; kept here as a thin
+        delegating wrapper for backward compatibility with existing callers.
         """
-        if not targets:
-            return 0, 0
-        if not dampeners:
-            return len(targets), 0
-
-        unmitigated_count = 0
-        mitigated_count = 0
-
-        damp_idx = 0
-        damp_len = len(dampeners)
-
-        for t_pos in targets:
-            # Move the dampener pointer forward until it is somewhat near the target
-            while damp_idx < damp_len and dampeners[damp_idx] < (t_pos - max_distance):
-                damp_idx += 1
-
-            # Check if the closest dampener is within the blast radius
-            if damp_idx < damp_len and abs(dampeners[damp_idx] - t_pos) <= max_distance:
-                mitigated_count += 1
-            else:
-                unmitigated_count += 1
-
-        return unmitigated_count, mitigated_count
+        return _correlate_signals_impl(targets, dampeners, max_distance)
 
     def coding_analysis(
         self, segments: List[Tuple[str, str, int]], regex_telemetry: Optional[dict] = None
@@ -1018,31 +1008,15 @@ class StructuralExtractor:
                 counts["sec_tainted_injection"] += corroborated_rce
                 mitigations["amplified_rce"] += corroborated_rce
 
-            # 2. The Silencer Region (True Safety)
-            if "high_risk_execution" in spatial_map and "safety" in spatial_map:
-                unmitigated_danger, mitigated_danger = self._correlate_signals(
-                    targets=spatial_map["high_risk_execution"],
-                    dampeners=spatial_map["safety"],
-                    max_distance=500,
-                )
-                counts["high_risk_execution"] -= mitigated_danger
-                mitigations["mitigated_danger"] += mitigated_danger
-
-            # 3. The Race Condition Radar
-            if "concurrency" in spatial_map and "state_mutation" in spatial_map:
-                unmitigated_flux, _ = self._correlate_signals(
-                    targets=spatial_map["state_mutation"],
-                    dampeners=spatial_map.get("sync_locks", []),
-                    max_distance=300,
-                )
-                if unmitigated_flux > 0:
-                    _, race_conditions = self._correlate_signals(
-                        targets=spatial_map["concurrency"],
-                        dampeners=spatial_map["state_mutation"],
-                        max_distance=150,
-                    )
-                    counts["concurrency"] += race_conditions * 5
-                    mitigations["amplified_race_conditions"] += race_conditions
+            # 2. The Silencer Region (True Safety), 3. The Race Condition Radar, and
+            # 5. The Memory Leak / UAF Tracker have all been RELOCATED (#346 phase 1)
+            # to _apply_dampener_correlations(), called from _function_slice() once
+            # real satellite/function boundaries exist. All three are dampener pairs
+            # -- a wrong-scope mitigation there silently suppresses real risk (a false
+            # negative), which the flat character-radius check here couldn't prevent.
+            # See _apply_dampener_correlations()'s docstring for the exact scoping
+            # rules and the module-level fallback that keeps this fully non-regressing
+            # for code outside any detected function.
 
             # 4. The Active Hemorrhage
             # NOTE (#344): unlike block 1, there is no unprefixed sibling to fall back
@@ -1064,19 +1038,6 @@ class StructuralExtractor:
                 )
                 counts["sec_hardcoded_secrets"] += active_leaks * 50
                 mitigations["amplified_leaks"] += active_leaks
-
-            # 5. The Memory Leak / UAF Tracker
-            if "memory_alloc" in spatial_map:
-                unmitigated_allocs, _ = self._correlate_signals(
-                    targets=spatial_map["memory_alloc"],
-                    dampeners=spatial_map.get("cleanup", []),
-                    max_distance=800,
-                )
-                original_allocs = len(spatial_map["memory_alloc"])
-                mitigated = original_allocs - unmitigated_allocs
-
-                counts["memory_alloc"] = unmitigated_allocs
-                mitigations["mitigated_memory_allocs"] += mitigated
 
             # 6. The OOM Bomb (Cascading State Flux)
             if "state_mutation" in spatial_map and "branch" in spatial_map:
@@ -1271,6 +1232,8 @@ class StructuralExtractor:
         self,
         segments: List[Tuple[str, str, int]],
         segment_spatial_maps: List[Dict[str, List[int]]],
+        counts: Dict[str, int],
+        mitigations: Dict[str, int],
         regex_telemetry: Optional[dict] = None,
     ) -> Tuple[List[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
@@ -1286,6 +1249,8 @@ class StructuralExtractor:
 
             t_mode_start = time.perf_counter()
             mode_name = "Unknown"
+            sats: List[FunctionNode] = []
+            impact = 0.0
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -1296,39 +1261,50 @@ class StructuralExtractor:
             else:
                 # Fallback to standard structural heuristics (Modes A, B, C)
                 func_start = rules.get("func_start")
-                if not func_start:
-                    continue
-
-                # Routed via formal Lexical Family taxonomy
-                if lang_id in (
-                    "assembly",
-                    "agc_assembly",
-                    "cobol",
-                    "fortran",
-                ) or family in ("column_sensitive"):
-                    mode_name = "Mode_A_Labels"
-                    sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
-                elif family in ("single_line_only", "multi_style_dash") or lang_id in (
-                    "python",
-                    "yaml",
-                ):
-                    mode_name = "Mode_C_Indentation"
-                    sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
-                else:
-                    mode_name = "Mode_B_Braces"
-                    sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map, family=family)
+                if func_start:
+                    # Routed via formal Lexical Family taxonomy
+                    if lang_id in (
+                        "assembly",
+                        "agc_assembly",
+                        "cobol",
+                        "fortran",
+                    ) or family in ("column_sensitive"):
+                        mode_name = "Mode_A_Labels"
+                        sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
+                    elif family in ("single_line_only", "multi_style_dash") or lang_id in (
+                        "python",
+                        "yaml",
+                    ):
+                        mode_name = "Mode_C_Indentation"
+                        sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
+                    else:
+                        mode_name = "Mode_B_Braces"
+                        sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map, family=family)
+                # else: no func_start rule for this language at all -- sats stays [],
+                # and the dampener correlation below falls back to flat behavior for
+                # this segment (see apply_dampener_correlations()).
 
             # Record the telemetry if profiling is active
             if regex_telemetry is not None and mode_name != "Unknown":
                 key = f"{lang_id}::Cartography_{mode_name}"
                 regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (time.perf_counter() - t_mode_start)
 
-            all_satellites.extend(sats)
-            global_impact += impact
+            # --- SATELLITE-SCOPED DAMPENER CORRELATION (#346 phase 1) ---
+            # Runs for every segment unconditionally, using THIS segment's own
+            # satellite ranges. Deliberately placed before the MAX_SATELLITES
+            # truncation below: that cap only bounds stored function metadata,
+            # it must never silently disable risk correlation for the rest of
+            # an unusually large file.
+            sat_ranges = sorted(
+                (sat["start_idx"], sat["end_idx"]) for sat in sats if "start_idx" in sat and "end_idx" in sat
+            )
+            apply_dampener_correlations(spatial_map, sat_ranges, counts, mitigations)
 
-            if len(all_satellites) >= self.MAX_SATELLITES:
-                all_satellites = all_satellites[: self.MAX_SATELLITES]
-                break
+            if len(all_satellites) < self.MAX_SATELLITES:
+                all_satellites.extend(sats)
+                if len(all_satellites) > self.MAX_SATELLITES:
+                    all_satellites = all_satellites[: self.MAX_SATELLITES]
+            global_impact += impact
 
         all_satellites.sort(key=lambda x: x.get("mag", 0), reverse=True)
         return all_satellites, global_impact
@@ -2203,6 +2179,8 @@ class StructuralExtractor:
             "impact": round(magnitude, 1),
             "start_line": start_line,
             "end_line": end_line,
+            "start_idx": start_idx,
+            "end_idx": end_idx,
             "hit_vector": hit_vector,
             "keyword_density": round(keyword_density, 3),
             "coding_loc": coding_loc,

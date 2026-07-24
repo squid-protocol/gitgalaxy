@@ -38,7 +38,6 @@ class AIAppSecSensor:
             # Extract specific architectural signals
             ai_orchestrator = equations.get("llm_orchestrator", 0) > 0
             llm_api = equations.get("llm_api", 0) > 0
-            ai_tools = equations.get("ai_tools", 0) > 0
 
             arch_api = equations.get("api", 0) > 0  # Publicly exposed
             arch_io = (equations.get("io", 0) + equations.get("sec_io", 0)) > 0  # Network/Disk I/O
@@ -72,8 +71,23 @@ class AIAppSecSensor:
                 )
 
             # 2. Over-Permissioned Agent Binding (Autonomous Escalation)
-            # AI Agent Tools + State Mutation (DB or Disk) + Low Defensive Safety
-            if ai_tools and (db_complexity >= 2 or arch_io) and safety_density < 0.5:
+            # Agent Orchestration Framework + State Mutation (DB or Disk) + Low Defensive Safety
+            #
+            # #365/#323: this used to gate on "ai_tools", a SIGNAL_SCHEMA category
+            # removed in #323 because agent tool-CALLING is behavior, not library
+            # identity -- a regex-based structural signature engine can't reliably
+            # detect it, so the category was deliberately dropped rather than left
+            # as a permanent false negative. That silently broke this rule (it
+            # could never fire again) until #365 found it via #325's dead key audit.
+            #
+            # ai_orchestrator (langchain/llama_index imports) is the closest thing
+            # this engine CAN honestly detect: those are specifically the frameworks
+            # whose entire purpose is binding an LLM to tools/actions, so "this file
+            # imports an agent orchestration framework" is a reasonable, lexically-
+            # detectable proxy for "this file has agentic tool-binding capability" --
+            # library-identity detection, exactly the kind of signal #323 said this
+            # engine is good at, not the behavioral one it isn't.
+            if ai_orchestrator and (db_complexity >= 2 or arch_io) and safety_density < 0.5:
                 appsec_report["over_permissioned_agent"] = True
                 appsec_report["critical_warnings"].append(
                     "CRITICAL [Over-Permissioned Agent]: AI is bound to tools with raw Database/IO write access and < 50% safety density. High risk of autonomous data corruption."

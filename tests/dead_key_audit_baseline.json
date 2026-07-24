@@ -11,6 +11,5 @@
   "TYPOSQUAT_WHITELIST": "read from APERTURE_CONFIG, which has no such key; the typosquat whitelist is always empty",
   "typosquat_hits": "galaxyscope.py computes and logs this count but never attaches it to summary/ecosystem_audits; record_keeper.py's column is always the fallback 0",
   "disqualifiers": "language_lens.py's toxic-contributor penalty is fully dead; zero of the 57 language definitions set this key (vs. 'discriminators', set 57 times)",
-  "ai_tools": "already documented dead per #323 (removed from SIGNAL_SCHEMA); ai_appsec_sensor.py still reads it",
   "mechanical_families": "prism.py; not chased down to a confirmed verdict -- open lead"
 }

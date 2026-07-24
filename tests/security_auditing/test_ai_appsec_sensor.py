@@ -37,8 +37,12 @@ def test_autonomous_execution_vector_detection():
 # ==============================================================================
 def test_over_permissioned_agent_detection():
     """
-    Proves that an AI agent given autonomous tools, write-access to complex
-    databases, and low defensive programming density triggers the Over-Permissioned Agent alert.
+    Proves that an agent orchestration framework (langchain/llama_index --
+    #365/#323: the closest lexically-detectable proxy for agentic tool-binding
+    this engine has, since "ai_tools" was removed from SIGNAL_SCHEMA in #323
+    as fundamentally undetectable via regex), combined with write-access to
+    complex databases and low defensive programming density, triggers the
+    Over-Permissioned Agent alert.
     """
     sensor = AIAppSecSensor()
 
@@ -48,7 +52,7 @@ def test_over_permissioned_agent_detection():
             "coding_loc": 100,
             "telemetry": {},
             "equations": {
-                "ai_tools": 1,  # Agentic tool calling enabled
+                "llm_orchestrator": 1,  # langchain/llama_index present -> agentic tool-binding
                 "safety": 0,  # Dangerously low defensive programming -> density 0.0
             },
         }
@@ -62,6 +66,38 @@ def test_over_permissioned_agent_detection():
     )
     assert any(
         "Over-Permissioned Agent" in warning for warning in appsec_report["critical_warnings"]
+    )
+
+
+# ==============================================================================
+# TEST 2.1: THE DEAD KEY REGRESSION GUARD (#365)
+# ==============================================================================
+def test_over_permissioned_agent_no_longer_reads_dead_ai_tools_key():
+    """
+    Regression guard for #365: a mocked "ai_tools" equation -- the removed
+    SIGNAL_SCHEMA key this rule used to (uselessly) gate on -- must NOT
+    trigger the Over-Permissioned Agent alert on its own. Only a real,
+    still-live signal (llm_orchestrator) should be able to.
+    """
+    sensor = AIAppSecSensor()
+
+    mock_files = [
+        {
+            "max_db_complexity": 3,
+            "coding_loc": 100,
+            "telemetry": {},
+            "equations": {
+                "ai_tools": 1,  # dead key -- must be inert
+                "safety": 0,
+            },
+        }
+    ]
+
+    result = sensor.hunt_threats(mock_files)
+    appsec_report = result[0]["telemetry"]["ai_appsec"]
+
+    assert appsec_report["over_permissioned_agent"] is False, (
+        "The dead 'ai_tools' key must not be able to trigger this rule!"
     )
 
 

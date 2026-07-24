@@ -1,3 +1,1 @@
-{
-  "mechanical_families": "prism.py's comment-family dispatch never matches the real taxonomy at all -- escalated from an 'open lead' to #386 (critical: comment/code separation is broken for all 58 languages), fix pending in a separate branch"
-}
+{}

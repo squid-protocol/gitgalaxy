@@ -11,23 +11,33 @@ from gitgalaxy.core.prism import Prism
 # We mock the language and comment definitions so the tests run deterministically
 # regardless of what is inside your actual language_standards.py file.
 
+# #386: these used to be a fictional taxonomy ("mechanical_families",
+# "c_style_comment", "single_line_only", "recursive_c_style",
+# "column_sensitive") that never matched the real config
+# (gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS uses "lexical_families",
+# and real per-language "lexical_family" values are standard_block/
+# line_exclusive/recursive_block/positional_anchored/block_exclusive/
+# non_lexical) -- every test in this file passed anyway, because they never
+# exercised the real config, which is exactly how prism.py's total failure
+# to strip comments for any language went undetected. Renamed to match
+# reality so this class of drift can't silently recur.
 MOCK_COMMENT_DEFS = {
-    "mechanical_families": {
-        "c_style_comment": {"delimiters": ["//", "/*", "*/"]},
-        "single_line_only": {"delimiters": ["#"]},
-        "recursive_c_style": {"delimiters": ["//", "/*", "*/"]},
-        "column_sensitive": {"delimiters": []},
+    "lexical_families": {
+        "standard_block": {"delimiters": ["//", "/*", "*/"]},
+        "line_exclusive": {"delimiters": ["#"]},
+        "recursive_block": {"delimiters": ["//", "/*", "*/"]},
+        "positional_anchored": {"delimiters": []},
     }
 }
 
 MOCK_LANG_DEFS = {
-    "c": {"lexical_family": "c_style_comment"},
-    "python": {"lexical_family": "single_line_only"},
-    "rust": {"lexical_family": "recursive_c_style"},
-    "cobol": {"lexical_family": "column_sensitive"},
+    "c": {"lexical_family": "standard_block"},
+    "python": {"lexical_family": "line_exclusive"},
+    "rust": {"lexical_family": "recursive_block"},
+    "cobol": {"lexical_family": "positional_anchored"},
     "markdown": {"lexical_family": "prose"},
     "html": {"lexical_family": "xml"},
-    "php": {"lexical_family": "c_style_comment"},
+    "php": {"lexical_family": "standard_block"},
 }
 
 
@@ -193,7 +203,7 @@ def test_prism_format_and_xml_bypass(prism_engine):
 # ==============================================================================
 def test_prism_php_string_extraction(prism_engine):
     """Proves PHP Heredoc and large strings are stripped to the documentation stream."""
-    prism_engine.languages["php"] = {"lexical_family": "c_style_comment"}
+    prism_engine.languages["php"] = {"lexical_family": "standard_block"}
     prism_engine.PHP_HEREDOC_PATTERN = re.compile(r"<<<EOT[\s\S]*?EOT;", re.M)
     prism_engine.PHP_MULTILINE_STRING = re.compile(r"'(?:\\'|[^'])*'", re.M)
 
@@ -249,18 +259,18 @@ def test_prism_regex_matrix_calibration_edge_cases():
 
     # 1. Primary Branches (Full Delimiter Sets)
     primary_families = {
-        "single_line_only": {"delimiters": ["#", "<#", "#>"]},
+        "line_exclusive": {"delimiters": ["#", "<#", "#>"]},
         "multi_style_dash": {"delimiters": ["--", html_open, html_close, "{-", "-}"]},
         "embedded_syntax": {"delimiters": ["//", "/*", "*/", "#"]},
         "empty_delim": {"delimiters": []},
     }
 
     engine_primary = Prism(
-        comment_definitions={"mechanical_families": primary_families},
+        comment_definitions={"lexical_families": primary_families},
         language_definitions={},
     )
 
-    assert "single_line_only" in engine_primary.REGEX_MATRIX
+    assert "line_exclusive" in engine_primary.REGEX_MATRIX
     assert "multi_style_dash" in engine_primary.REGEX_MATRIX
     assert re.escape("{-") in engine_primary.REGEX_MATRIX["multi_style_dash"].pattern
     assert "embedded_syntax" in engine_primary.REGEX_MATRIX
@@ -275,7 +285,7 @@ def test_prism_regex_matrix_calibration_edge_cases():
     }
 
     engine_fallback = Prism(
-        comment_definitions={"mechanical_families": fallback_families},
+        comment_definitions={"lexical_families": fallback_families},
         language_definitions={},
     )
 
@@ -301,6 +311,52 @@ def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
     assert "value = 1" in result["code_stream"]
     assert "this is a hash comment" in result["comment_stream"]
     assert "this is a hash comment" not in result["code_stream"]
+
+# ==============================================================================
+# TEST 9.5: THE REAL CONFIG, NOT THE MOCK (#386)
+# ==============================================================================
+def test_prism_strips_comments_against_the_real_config():
+    """
+    Regression test for #386: every other test in this file drives Prism
+    through MOCK_COMMENT_DEFS/MOCK_LANG_DEFS, which used to be a fictional,
+    internally-consistent taxonomy that never matched the real
+    gitgalaxy_config.py/language_standards.py config -- meaning NONE of them
+    would have caught prism.py's total failure to strip comments for any of
+    the 58 real languages. This test wires up the REAL config instead, and
+    proves comment stripping actually works for one language per real family
+    (standard_block, line_exclusive, recursive_block, positional_anchored).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    # standard_block (C)
+    result = real_prism.split_streams(
+        "// a comment\nint main() {\n    /* block */\n    return 0;\n}\n", "c"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # line_exclusive (Python)
+    result = real_prism.split_streams("x = 1  # a comment\ny = 2\n", "python")
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # recursive_block (Rust)
+    result = real_prism.split_streams(
+        "fn main() {\n    // a comment\n}\n", "rust"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # positional_anchored (COBOL)
+    result = real_prism.split_streams(
+        "       IDENTIFICATION DIVISION.\n      * a comment\n", "cobol"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
 
 # ==============================================================================
 # TEST 10: INLINE SUPPRESSION EXTRACTION (Devious Edge Cases)

@@ -80,7 +80,16 @@ class Prism:
             self.logger = logging.getLogger("prism")
             self.logger.setLevel(logging.INFO)
 
-        self.lexical_families = comment_definitions.get("mechanical_families", {})
+        # #386: was "mechanical_families", a key nothing ever wrote (see #378's
+        # dead key audit finding) -- the real key in LEXICAL_FAMILY_HEURISTICS
+        # (gitgalaxy_config.py) is "lexical_families". This alone was only half
+        # the bug: the family NAMES used below and in _compile_regex_matrix()
+        # also didn't match the real per-language "lexical_family" values
+        # (standard_block/line_exclusive/recursive_block/positional_anchored),
+        # so comment stripping never actually ran for ANY language even before
+        # this fix -- see the family-name renames below and in
+        # _compile_regex_matrix().
+        self.lexical_families = comment_definitions.get("lexical_families", {})
         self.languages = language_definitions
 
         self.logger.debug("Initializing Prism and warming up regex matrix...")
@@ -177,7 +186,9 @@ class Prism:
                 )
 
             for lang_id, segment_text in segments:
-                family = self.languages.get(lang_id, {}).get("lexical_family", "c_style_comment")
+                # #386: default fallback renamed to match the real taxonomy
+                # ("standard_block" is what "c_style_comment" always meant here).
+                family = self.languages.get(lang_id, {}).get("lexical_family", "standard_block")
                 self.logger.debug(f"Scanning segment [{lang_id}] using syntax family '{family}'...")
 
                 # Strip comments from the segment
@@ -231,18 +242,24 @@ class Prism:
             lits.extend(php_lits)
 
         # 2. SPECIALIZED LEXICAL FAMILY ROUTING
-        if family == "recursive_c_style":
+        # #386: these three used to check "recursive_c_style"/"column_sensitive"/
+        # "single_line_only" -- names that never matched any real per-language
+        # "lexical_family" value (the real taxonomy is standard_block/
+        # line_exclusive/recursive_block/positional_anchored/block_exclusive/
+        # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
+        # stripper below, ever actually ran for any language.
+        if family == "recursive_block":
             code, nested_lits = self._strip_nested_comments(text)
             lits.extend(nested_lits)
             return code, "\n".join(lits)
 
-        if family == "column_sensitive":
+        if family == "positional_anchored":
             code, pos_lits = self._strip_positional_comments(text)
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)
 
-        if family == "single_line_only":
+        if family == "line_exclusive":
             code, single_lits = self._strip_single_line_comments(text)
             if single_lits:
                 lits.extend(single_lits.splitlines())
@@ -280,8 +297,22 @@ class Prism:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
         matrix = {}
 
+        # #386: fam_key now matches the real per-language "lexical_family"
+        # values. "recursive_block"/"positional_anchored" are excluded here
+        # because _strip_segment_comments() already special-cases and fully
+        # handles them above, before this matrix is ever consulted.
+        #
+        # KNOWN LIMITATION (tracked, not fixed here): "standard_block"'s real
+        # delimiter list has 9 entries (C-style //, /* */; SQL/Lua-style --,
+        # --[[, ]]; Haskell-style {-, -}; and a trailing #), but the pattern
+        # below only uses the first 3 (d[0..2], i.e. // and /* */). Languages
+        # in this family that don't use C-style delimiters at all (sqlite,
+        # lua, haskell, powershell, perl) still won't get comments stripped
+        # after this fix -- same as before, not a regression, just incomplete
+        # coverage for those five. The ~24 C-style languages in this family
+        # (c, cpp, java, javascript, go, etc.) are fully fixed.
         for fam_key, data in self.lexical_families.items():
-            if fam_key in ("recursive_c_style", "column_sensitive"):
+            if fam_key in ("recursive_block", "positional_anchored"):
                 continue
 
             delims = data.get("delimiters", [])
@@ -293,9 +324,9 @@ class Prism:
             p = ""
 
             # Dynamically build regex based on family type and safe bounds checks
-            if fam_key == "c_style_comment" and len(d) >= 3:
+            if fam_key == "standard_block" and len(d) >= 3:
                 p = rf"({d[0]}[^\n]*|{d[1]}.*?{d[2]})"
-            elif fam_key == "single_line_only" and len(d) >= 1:
+            elif fam_key == "line_exclusive" and len(d) >= 1:
                 p = rf"({d[0]}[^\n]*)"
             elif fam_key == "embedded_syntax" and len(d) >= 3:
                 # If len is 4, include d[3], otherwise just [0,1,2]
@@ -307,7 +338,7 @@ class Prism:
                 p = rf"({d[1]}.*?{d[2]}|{d[3]}.*?{d[4]}|{d[0]}[^\n]*)"
             elif fam_key == "multi_style_dash" and len(d) >= 3:  # Fallback
                 p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
-            elif fam_key == "single_line_only":
+            elif fam_key == "line_exclusive":
                 # =====================================================================
                 # THE FIX: Neutralized the Zero-Width ReDoS Bomb.
                 #
@@ -345,7 +376,7 @@ class Prism:
                     full_pattern = f"{self.LITERAL_MASK_PATTERN}|{p}"
 
                     flags = re.S | re.M
-                    if fam_key == "single_line_only":
+                    if fam_key == "line_exclusive":
                         flags |= re.IGNORECASE
 
                     matrix[fam_key] = re.compile(full_pattern, flags)

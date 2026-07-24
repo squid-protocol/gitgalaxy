@@ -1988,11 +1988,25 @@ class SignalProcessor:
         if taint_confirmed > 0:
             injection_mass += taint_confirmed * 500.0  # Massive gravity spike
 
+        # ---> CONFIRMED DB INJECTION FUNNEL (#105) <---
+        # A public API route spatially proven (via correlate_against_ledger,
+        # same function, #348's persisted ledger) to directly invoke a raw DB
+        # sink is just as deterministic as sec_tainted_injection above, not a
+        # flat probabilistic guess -- same gravity spike, same dampener bypass.
+        sql_injection_confirmed = raw_signals.get("sec_amplified_sql_injection", 0)
+        if sql_injection_confirmed > 0:
+            injection_mass += sql_injection_confirmed * 500.0
+
         if injection_mass == 0:
             return 0.0
 
         explicit_threats = raw_signals.get("sec_high_risk_execution", 0) + raw_signals.get("sec_io", 0)
-        if explicit_threats == 0 and taint_confirmed == 0 and not getattr(self, "is_paranoid", False):
+        if (
+            explicit_threats == 0
+            and taint_confirmed == 0
+            and sql_injection_confirmed == 0
+            and not getattr(self, "is_paranoid", False)
+        ):
             injection_mass *= 0.10
 
         # Fetch tuning parameters

@@ -487,6 +487,37 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
                             logic_data["mitigation_telemetry"].get("amplified_leaks", 0) + active_leaks
                         )
 
+                # --- The DB Injection Funnel (#105) ---
+                # A public API route ("api", detector.py-side) that directly
+                # invokes a raw DB sink ("sec_db_hooks", security_lens.py-side,
+                # folded into threat_locs above) within the SAME function is a
+                # deterministically proven injection funnel -- reuses the exact
+                # ledger/primitive #348 built for post-hoc correlation instead
+                # of #105's original flat-radius proposal. correlate_against_
+                # ledger()'s same-function scoping does the real precision
+                # work here; max_distance=5 mirrors the Active Hemorrhage's own
+                # char->line conversion just above (150 chars -> 5 lines,
+                # applied here to #105's originally-proposed 100-char radius)
+                # and exists only to guard against sprawling functions.
+                if "api" in threat_locs and "sec_db_hooks" in threat_locs:
+                    _, amplified_sql_injection = correlate_against_ledger(
+                        threat_locs,
+                        logic_data.get("functions", []),
+                        "api",
+                        "sec_db_hooks",
+                        max_distance=5,
+                    )
+                    if amplified_sql_injection:
+                        logic_data["equations"]["sec_amplified_sql_injection"] = (
+                            logic_data["equations"].get("sec_amplified_sql_injection", 0)
+                            + amplified_sql_injection
+                        )
+                        logic_data.setdefault("mitigation_telemetry", {})
+                        logic_data["mitigation_telemetry"]["amplified_sql_injection"] = (
+                            logic_data["mitigation_telemetry"].get("amplified_sql_injection", 0)
+                            + amplified_sql_injection
+                        )
+
             if is_file_profiling:
                 phase_times["5.5_Security_Lens"] = time.perf_counter() - t_security
             # ----------------------------------------------------

@@ -624,6 +624,36 @@ def test_signal_processor_security_lenses(processor):
 
 
 # ==============================================================================
+# TEST 16.1: THE DB INJECTION FUNNEL (#105)
+# ==============================================================================
+def test_signal_processor_db_injection_funnel(processor):
+    """
+    sec_amplified_sql_injection (galaxyscope.py's post-hoc correlation of a
+    public API route against a raw DB sink via correlate_against_ledger(),
+    #105) must spike Injection Surface Exposure exactly like the deterministic
+    sec_tainted_injection signal does, even with no other io/exec signals
+    present -- it is proof of a real funnel, not a probabilistic guess.
+    """
+    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
+
+    m_bare, sig_bare = create_synthetic_star(processor, "bare", 100, {})
+    m_funnel, sig_funnel = create_synthetic_star(
+        processor, "funnel", 100, {"sec_amplified_sql_injection": 1}
+    )
+
+    r_bare = processor.calculate_risk_vector(m_bare, sig_bare)
+    r_funnel = processor.calculate_risk_vector(m_funnel, sig_funnel)
+
+    assert r_bare["risk_vector"][idx_inj] == 0.0, (
+        "A file with zero signals should have zero injection surface exposure!"
+    )
+    assert r_funnel["risk_vector"][idx_inj] > 10.0, (
+        "A confirmed DB injection funnel must spike Injection Surface Exposure "
+        "even without a separate sec_high_risk_execution/sec_io signal!"
+    )
+
+
+# ==============================================================================
 # TEST 17: STRUCTURAL METRICS (Graveyard & Spec Match)
 # ==============================================================================
 def test_signal_processor_structural_metrics(processor):

@@ -863,6 +863,77 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_leaks", 0), 1)
 
     # ==============================================================================
+    # TEST 13.8: THE DB INJECTION FUNNEL (#105)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_amplifies_db_injection_funnel_post_hoc(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #105: a public API route ("api", a real
+        detector.py-side hit) that directly invokes a raw DB sink
+        ("sec_db_hooks", a mocked security_lens.py-side finding, folded into
+        the shared threat_locations ledger by #348) must deterministically
+        register as amplified_sql_injection via correlate_against_ledger(),
+        exactly like the Active Hemorrhage's post-hoc reimplementation above.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "app_route(x)\ncursor.execute(query)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 2, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports a raw DB sink on line 2.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"db_hooks": 1},
+            "snippets": {},
+            "positions": {"db_hooks": [2]},
+        }
+
+        # Real rule so detector.py's OWN parsing produces a genuine "api"
+        # threat_locations entry on line 1 -- this is the source half of the
+        # correlation, and it must come from real detector.py output, not a mock.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {"api": re.compile(r"app_route")},
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(result["data"]["equations"].get("sec_amplified_sql_injection", 0), 1)
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_sql_injection", 0), 1)
+
+    # ==============================================================================
     # TEST 14: THE MEMORY HOLE (SARIF Sanitization & Inline Suppressions)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")

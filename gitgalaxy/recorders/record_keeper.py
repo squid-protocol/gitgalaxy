@@ -420,10 +420,10 @@ class RecordKeeper:
             import_count = len(file_data.get("raw_imports", []))
             dependency_density = import_count / float(logic_loc_denom)
 
-            ai_threat_conf_str = tel.get("domain_context", {}).get(
-                "AI Threat Confidence",
-                tel.get("domain_context", {}).get("AI Threat Score", "0.0%"),
-            )
+            # #364: security_auditor.py writes "AI Threat Score" -- "AI Threat
+            # Confidence" was never a real producer key here, just a dead primary
+            # lookup that always fell through to this same fallback anyway.
+            ai_threat_conf_str = tel.get("domain_context", {}).get("AI Threat Score", "0.0%")
             ai_threat = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
             ai_threat_class = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
             encapsulation_ratio = float(tel.get("encapsulation_ratio", 1.0))

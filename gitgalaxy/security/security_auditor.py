@@ -183,7 +183,14 @@ class SecurityAuditor:
                 if is_threat:
                     threat_name = self.CLASS_NAMES.get(predicted_class, "Unknown Threat")
                     artifact["telemetry"]["domain_context"]["AI Threat Class"] = threat_name
-                    artifact["telemetry"]["domain_context"]["AI Threat Confidence"] = f"{ml_score}%"
+                    # #364: every consumer except sarif_recorder.py reads "AI Threat
+                    # Score" (audit_recorder.py, gpu_recorder.py, llm_recorder.py,
+                    # record_keeper.py, and audit_recorder.py's own internal
+                    # "AI Threat Score" -> "AI Threat Confidence" copy-through all
+                    # already expect this name) -- this used to write "AI Threat
+                    # Confidence" instead, a near-miss rename that left every one of
+                    # those reads permanently falling back to their 0.0%/"0.0%" default.
+                    artifact["telemetry"]["domain_context"]["AI Threat Score"] = f"{ml_score}%"
                     artifact["is_ml_threat"] = True
                     threats_found += 1
                     self.logger.debug(f"🚨 AI THREAT DETECTED: {artifact.get('path')} ({threat_name} | {ml_score}%)")

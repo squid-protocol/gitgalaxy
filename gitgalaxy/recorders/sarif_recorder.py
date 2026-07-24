@@ -69,7 +69,11 @@ class SarifRecorder:
             # If zero_dependency_mode is true, this will naturally be false and omit safely
             if node.get("is_ml_threat", False):
                 ai_class = telemetry.get("domain_context", {}).get("AI Threat Class", "Unknown Threat")
-                confidence = telemetry.get("domain_context", {}).get("AI Threat Confidence", "0%")
+                # #364: security_auditor.py writes "AI Threat Score", not "AI Threat
+                # Confidence" -- this was the one consumer that had drifted onto the
+                # wrong (unused) name, while every other recorder already expected
+                # "AI Threat Score".
+                confidence = telemetry.get("domain_context", {}).get("AI Threat Score", "0%")
                 
                 results_list.append({
                     "ruleId": f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}",

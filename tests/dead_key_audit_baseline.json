@@ -1,5 +1,4 @@
 {
-  "AI Threat Score": "6 read sites across every recorder; real producer key is 'AI Threat Confidence' (security_auditor.py) -- near-miss rename",
   "aperture_reason": "signal_processor.py, audit_recorder.py; #325's own pre-documented instance #3 -- real key is 'reason'",
   "repo_z_score": "record_keeper.py/llm_recorder.py read it flat off per-file telemetry; real value is nested at summary['repo_macro_species']['z_score'] and never threaded down",
   "max_big_o": "dev_agent_firewall.py reads it off file_data directly; only producer sets it as a networkx graph node attribute (network_risk_sensor.py), never copied back",

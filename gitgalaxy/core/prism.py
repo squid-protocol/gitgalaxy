@@ -7,9 +7,10 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
 import logging
-from typing import Dict, List, Optional, Tuple, Any, TypedDict
+import re
+from typing import Any, Optional, TypedDict
+
 from gitgalaxy.standards.language_standards import LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
@@ -34,7 +35,7 @@ class PrismResult(TypedDict):
     comment_stream: str
     coding_loc: int
     doc_loc: int
-    mitigations: List[str]
+    mitigations: list[str]
 
 
 class PrismError(Exception):
@@ -66,8 +67,8 @@ class Prism:
 
     def __init__(
         self,
-        comment_definitions: Dict[str, Any],
-        language_definitions: Dict[str, Any],
+        comment_definitions: dict[str, Any],
+        language_definitions: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
     ):
         """Initializes the Prism and pre-compiles the regex matrix."""
@@ -99,7 +100,7 @@ class Prism:
         self.LITERAL_MASK_PATTERN = PRISM_CONFIG.get("SHIELD_PATTERN", "")
 
         # --- TIER 2: REGEX PRE-COMPILATION ---
-        self.REGEX_MATRIX: Dict[str, re.Pattern] = self._compile_regex_matrix()
+        self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
 
         # Phase 6.1 Handshake Registry (Synchronized securely via Language Standards)
         self.EMBEDDED_TRIGGERS = []
@@ -172,8 +173,8 @@ class Prism:
         header, body = self._guard_metadata_signal(content)
 
         # 2. STATE INITIALIZATION
-        code_parts: List[str] = []
-        comment_parts: List[str] = []
+        code_parts: list[str] = []
+        comment_parts: list[str] = []
 
         try:
             # 3. THE SLIDING LOOP (Phase 6)
@@ -229,7 +230,7 @@ class Prism:
             )
             raise PrismError(f"Prism failure: {e}")
 
-    def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> Tuple[str, str]:
+    def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> tuple[str, str]:
         """Surgically strips documentation using an ordered, additive pipeline."""
         lits = []
 
@@ -293,7 +294,7 @@ class Prism:
 
         return code, "\n".join(lits)
 
-    def _compile_regex_matrix(self) -> Dict[str, re.Pattern]:
+    def _compile_regex_matrix(self) -> dict[str, re.Pattern]:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
         matrix = {}
 
@@ -386,7 +387,7 @@ class Prism:
 
         return matrix
 
-    def _strip_python_docstrings(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_python_docstrings(self, text: str) -> tuple[str, list[str]]:
         """Extracts triple-quoted strings as documentation."""
         docs = []
 
@@ -399,7 +400,7 @@ class Prism:
         clean = re.sub(r'(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')', callback, text)
         return clean, docs
 
-    def _strip_php_string_mass(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_php_string_mass(self, text: str) -> tuple[str, list[str]]:
         """Surgically extracts PHP Heredoc and multi-line strings to prevent structural hallucinations."""
         lits = []
 
@@ -417,7 +418,7 @@ class Prism:
 
         return text, lits
 
-    def _partition_embedded_languages(self, content: str, primary_id: str) -> List[Tuple[str, str]]:
+    def _partition_embedded_languages(self, content: str, primary_id: str) -> list[tuple[str, str]]:
         """Splits content into language segments based on embedded language triggers."""
         segments = []
         last_idx = 0
@@ -530,7 +531,7 @@ class Prism:
         self.logger.warning(f"Scanner Scope Guard: Failed to find balanced '{opener}{closer}'. Forcing closure.")
         return limit
 
-    def _strip_nested_comments(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_nested_comments(self, text: str) -> tuple[str, list[str]]:
         """
         Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala).
         Hardened with active string-masking to prevent logic erosion.
@@ -549,7 +550,7 @@ class Prism:
         # 1. Protect Strings via Safe Masking
         # Masking prevents the `.rfind` mathematical loop from tearing apart string literals
         shield = re.compile(self.LITERAL_MASK_PATTERN, re.S | re.M)
-        string_cache: Dict[str, str] = {}
+        string_cache: dict[str, str] = {}
 
         def _shield_replacer(m: re.Match) -> str:
             if m.group(1):
@@ -607,7 +608,7 @@ class Prism:
         # 4. Final Logic Unmasking
         return unmask(protected_code), lits
 
-    def _strip_positional_comments(self, text: str) -> Tuple[str, str]:
+    def _strip_positional_comments(self, text: str) -> tuple[str, str]:
         """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran)."""
         code, lits = [], []
 
@@ -633,7 +634,7 @@ class Prism:
 
         return "\n".join(code), "\n".join(lits)
 
-    def _guard_metadata_signal(self, content: str) -> Tuple[str, str]:
+    def _guard_metadata_signal(self, content: str) -> tuple[str, str]:
         """Protects shebangs and preprocessor headers from the stripping engine."""
         lines = content.split("\n", 1)
         if not lines:
@@ -646,7 +647,7 @@ class Prism:
 
         return "", content
 
-    def _strip_single_line_comments(self, text: str) -> Tuple[str, str]:
+    def _strip_single_line_comments(self, text: str) -> tuple[str, str]:
         """Generic single-line comment stripper (for '#' or ';' or '--')."""
         lines = text.splitlines()
         code, comments = [], []

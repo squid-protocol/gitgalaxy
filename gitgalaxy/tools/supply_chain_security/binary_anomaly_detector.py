@@ -2,33 +2,33 @@
 # ==============================================================================
 # GitGalaxy Tool: Binary Anomaly Detector
 #
-# PURPOSE: 
-# Performs high-speed triage of binary anomalies, magic byte mismatches, and 
+# PURPOSE:
+# Performs high-speed triage of binary anomalies, magic byte mismatches, and
 # obfuscated payloads within the CI/CD pipeline.
 #
 # ARCHITECTURAL DECISION:
-# Traditional SAST tools struggle with binaries, either ignoring them completely 
-# (allowing steganography/hidden malware) or attempting to parse them, causing 
-# pipeline timeouts. This module acts as a lightweight heuristic gatekeeper, 
-# relying on mathematical entropy and header verification to detect malicious 
+# Traditional SAST tools struggle with binaries, either ignoring them completely
+# (allowing steganography/hidden malware) or attempting to parse them, causing
+# pipeline timeouts. This module acts as a lightweight heuristic gatekeeper,
+# relying on mathematical entropy and header verification to detect malicious
 # packing without requiring deep binary execution.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
-import os
-import time
 import fnmatch
+import os
+import sys
+import time
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
 def main():
@@ -70,8 +70,8 @@ def main():
 
     # ==============================================================================
     # DEFENSIVE DESIGN (SENSOR OPTIMIZATION):
-    # Restrict the Security Lens to entropy and bitwise operations. By disabling 
-    # the heavy AST and regex processors used for source code, we minimize CPU 
+    # Restrict the Security Lens to entropy and bitwise operations. By disabling
+    # the heavy AST and regex processors used for source code, we minimize CPU
     # overhead and prevent Catastrophic Backtracking on dense binary data.
     # ==============================================================================
     security.THREAT_SIGNATURES = {
@@ -93,8 +93,8 @@ def main():
         rel_root = str(Path(root).relative_to(target_path))
 
         # ARCHITECTURAL DECISION (ROOT TRAVERSAL PRUNING):
-        # We evaluate top-level directories against ignore rules and modify the `dirs` 
-        # list in-place. This prevents the OS from walking down massive ignored trees 
+        # We evaluate top-level directories against ignore rules and modify the `dirs`
+        # list in-place. This prevents the OS from walking down massive ignored trees
         # (like `node_modules` or `.git`), saving massive I/O overhead.
         if rel_root == ".":
             dirs[:] = [d for d in dirs if filter_engine._check_ignore_rules(d)]
@@ -117,8 +117,8 @@ def main():
             is_whitelisted = is_global_allow or is_xray_bypass
 
             # FALSE POSITIVE MITIGATION (TEST DIRECTORIES):
-            # Unit tests frequently generate high-entropy mock data (e.g., mock 
-            # cryptographic keys, dummy hashes). We whitelist these paths to prevent 
+            # Unit tests frequently generate high-entropy mock data (e.g., mock
+            # cryptographic keys, dummy hashes). We whitelist these paths to prevent
             # pipeline friction, assuming test directories are not deployed to production.
             if (
                 "/test/" in rel_path_str.lower()
@@ -136,7 +136,7 @@ def main():
                 continue
 
             # NOTE: We intentionally bypass `evaluate_path_integrity` here.
-            # This specific detector must scan actual binaries (.png, .zip, .dll), 
+            # This specific detector must scan actual binaries (.png, .zip, .dll),
             # which standard Aperture filtering drops.
             files_to_deep_scan.append((file_path, rel_path_str, ext, is_whitelisted))
 
@@ -153,8 +153,8 @@ def main():
     for file_path, rel_path_str, ext, is_whitelisted in files_to_deep_scan:
         try:
             # DEFENSIVE DESIGN (MEMORY SHIELD):
-            # Read only the first 8KB of the file. This is sufficient to capture 
-            # magic bytes, execution headers, and enough string data for an accurate 
+            # Read only the first 8KB of the file. This is sufficient to capture
+            # magic bytes, execution headers, and enough string data for an accurate
             # entropy calculation, completely preventing Out-Of-Memory (OOM) crashes on huge files.
             with open(file_path, "rb") as f:
                 head_bytes = f.read(8192)
@@ -166,7 +166,7 @@ def main():
             binary_threats = security.scan_binary(head_bytes, ext)
 
             # EXPECTED HEADER EXCEPTION:
-            # Shell scripts naturally contain the '#!/bin/' header. We clear this 
+            # Shell scripts naturally contain the '#!/bin/' header. We clear this
             # specific threat if the extension matches a known script format.
             if binary_threats:
                 threat_msg = binary_threats.get("threat_snippet", "")
@@ -236,7 +236,7 @@ def main():
     print("=" * 75 + "\n")
 
 
-def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dict[str, Any]]] = None) -> dict:
+def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, dict[str, Any]]] = None) -> dict:
     """
     Programmatic entry point for GalaxyScope (orchestrator execution).
 
@@ -247,6 +247,7 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dic
     have a resolved config to hand over (e.g. direct/test use).
     """
     import logging
+
     # Mute the noisy Aperture Filter init during headless Phase 10 execution
     quiet_logger = logging.getLogger("GalaxyScope.xray")
     quiet_logger.setLevel(logging.WARNING)
@@ -270,7 +271,7 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dic
     }
 
     anomalies_found = 0
-    
+
     # Minimal silent scan for headless execution
     for root, dirs, files in os.walk(target_path):
         rel_root = str(Path(root).relative_to(target_path))
@@ -283,7 +284,7 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dic
         for file in files:
             file_path = Path(root) / file
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
-            
+
             is_whitelisted = (
                 any(a in rel_path_str for a in allowlist_paths)
                 or file_path.suffix.lower() in xray_bypass_extensions
@@ -301,7 +302,7 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dic
                 with open(file_path, "rb") as f:
                     head_bytes = f.read(8192)
                 ext = file_path.suffix.lower()
-                
+
                 # Check Binary Headers
                 bt = security.scan_binary(head_bytes, ext)
                 if bt and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", "")):

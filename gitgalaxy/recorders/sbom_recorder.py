@@ -8,24 +8,25 @@
 
 # galaxyscope:ignore sec_high_risk_execution, ai_guardrails, sec_io
 
-import os
 import json
-import uuid
 import logging
+import os
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-
-# Import exclusively from the GitGalaxy Hub
-from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
-from gitgalaxy.standards.language_lens import LanguageDetector
+from typing import Any, Optional
 
 # UniversalManifestSlicer now lives in the canonical manifest module (PR A of
 # the dependency-audit overhaul). Re-imported here so existing consumers and
 # tests importing it from this module keep working unchanged.
-from gitgalaxy.security.manifest_parser import UniversalManifestSlicer, SUPPORTED_MANIFEST_FILENAMES
+from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_FILENAMES, UniversalManifestSlicer
+
+# Import exclusively from the GitGalaxy Hub
+from gitgalaxy.security.security_lens import SecurityLens
+from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+from gitgalaxy.standards.language_lens import LanguageDetector
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
 
 class SbomRecorder:
     """
@@ -53,14 +54,14 @@ class SbomRecorder:
 
     def generate_report(
         self,
-        parsed_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session_meta: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
         output_path: str,
-        manifest_paths: Optional[List[str]] = None,
+        manifest_paths: Optional[list[str]] = None,
     ) -> None:
         target_path = Path(session_meta.get("target_directory", "")).resolve()
-        
+
         if not target_path.exists():
             self.logger.error(f"SBOM_FAILURE: Target directory {target_path} does not exist.")
             return
@@ -91,9 +92,7 @@ class SbomRecorder:
             # don't pass the Phase-10 list. Root-only, matching legacy
             # pre-census behavior.
             manifests_found = [
-                (target_path / m, target_path)
-                for m in self._MANIFEST_NAMES
-                if (target_path / m).exists()
+                (target_path / m, target_path) for m in self._MANIFEST_NAMES if (target_path / m).exists()
             ]
 
         if not manifests_found:
@@ -105,7 +104,9 @@ class SbomRecorder:
             if not packages:
                 continue
 
-            self.logger.debug(f"SBOM: Auditing {len(packages)} {ecosystem.upper()} dependencies from {manifest.name}...")
+            self.logger.debug(
+                f"SBOM: Auditing {len(packages)} {ecosystem.upper()} dependencies from {manifest.name}..."
+            )
 
             for pkg_name, pkg_version in packages.items():
                 trust_status = "VERIFIED_SAFE"
@@ -118,16 +119,14 @@ class SbomRecorder:
                     trust_status = "UNVERIFIED_MISSING_ON_DISK"
                     anomaly_notes.append("Package declared in manifest but not found locally.")
                     total_missing += 1
-                    
+
                 else:
                     if self.dependency_cache is not None:
                         trust_status, anomaly_notes, coverage = self._audit_with_cache(
                             pkg_path, pkg_name, ecosystem, security, detector
                         )
                     else:
-                        trust_status, anomaly_notes, coverage = self._audit_capped_sample(
-                            pkg_path, security, detector
-                        )
+                        trust_status, anomaly_notes, coverage = self._audit_capped_sample(pkg_path, security, detector)
 
                     if trust_status == "SPOOF_DETECTED":
                         total_anomalies += 1
@@ -171,12 +170,7 @@ class SbomRecorder:
                     }
                 ],
                 "component": {"type": "application", "name": target_path.name},
-                "properties": [
-                    {
-                        "name": "gitgalaxy:zero_dependency_mode",
-                        "value": str(is_zero_dep).lower()
-                    }
-                ]
+                "properties": [{"name": "gitgalaxy:zero_dependency_mode", "value": str(is_zero_dep).lower()}],
             },
             "components": components,
         }
@@ -189,14 +183,14 @@ class SbomRecorder:
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(bom, f, indent=4)
 
-            self.logger.info(
-                f"SBOM_SEALED: {len(components)} dependencies mapped -> {Path(output_path).resolve()}"
-            )
+            self.logger.info(f"SBOM_SEALED: {len(components)} dependencies mapped -> {Path(output_path).resolve()}")
             if total_anomalies > 0:
-                self.logger.warning(f"SBOM_ALERT: {total_anomalies} dependencies failed physical structural verification.")
+                self.logger.warning(
+                    f"SBOM_ALERT: {total_anomalies} dependencies failed physical structural verification."
+                )
         except Exception as e:
             self.logger.error(f"SBOM_FAILURE: Could not export CycloneDX payload. {e}", exc_info=True)
-    
+
     # Filenames that typically execute on import/install — the highest-value
     # audit targets, since real-world supply-chain payloads overwhelmingly
     # live in entry points rather than deep utility files.
@@ -230,7 +224,7 @@ class SbomRecorder:
         """Runs the security lens + language detector on one file.
         Returns (is_spoof, notes) or None if the file was unreadable."""
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 content = f.read(8192)
         except Exception as e:
             self.logger.debug(f"Skipped unreadable file during physical audit ({file_path}): {e}")
@@ -331,9 +325,7 @@ class SbomRecorder:
                 trust_status = "SPOOF_DETECTED"
                 anomaly_notes.extend(notes)
 
-            self.dependency_cache.record(
-                ecosystem, pkg_name, relpath, content_hash, file_status, " | ".join(notes)
-            )
+            self.dependency_cache.record(ecosystem, pkg_name, relpath, content_hash, file_status, " | ".join(notes))
             fresh_scans += 1
 
         verified = cached_hits + fresh_scans
@@ -351,9 +343,8 @@ class SbomRecorder:
             trust_status = "PARTIALLY_VERIFIED"
 
         return trust_status, anomaly_notes, coverage
-    
+
     # Single source of truth: manifest_parser.SUPPORTED_MANIFEST_FILENAMES.
     # Only used by the root-only fallback below when a caller doesn't pass
     # manifest_paths.
     _MANIFEST_NAMES = SUPPORTED_MANIFEST_FILENAMES
-

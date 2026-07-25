@@ -3,15 +3,15 @@
 # GitGalaxy Tool: Java Spring Test Generator
 #
 # PURPOSE:
-# Auto-generates JUnit 5 and Spring Boot integration tests to mathematically 
+# Auto-generates JUnit 5 and Spring Boot integration tests to mathematically
 # prove the translated architecture compiles, boots, and routes correctly.
 #
 # ARCHITECTURAL DECISION:
-# AI agents are notoriously unreliable at configuring Spring's ApplicationContext 
-# or properly mocking external dependencies. By statically generating the `@SpringBootTest` 
-# and `@WebMvcTest` suites *before* the AI touches the business logic, we establish 
-# a strict Test-Driven Development (TDD) boundary. The agent is forced to write code 
-# that satisfies the rigid architectural contract, immediately exposing hallucinated 
+# AI agents are notoriously unreliable at configuring Spring's ApplicationContext
+# or properly mocking external dependencies. By statically generating the `@SpringBootTest`
+# and `@WebMvcTest` suites *before* the AI touches the business logic, we establish
+# a strict Test-Driven Development (TDD) boundary. The agent is forced to write code
+# that satisfies the rigid architectural contract, immediately exposing hallucinated
 # dependencies or broken Dependency Injection (DI) chains during CI/CD compilation.
 # ==============================================================================
 
@@ -19,8 +19,8 @@
 
 
 import argparse
-import sys
 import json
+import sys
 from pathlib import Path
 
 

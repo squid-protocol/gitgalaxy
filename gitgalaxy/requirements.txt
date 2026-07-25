@@ -22,7 +22,6 @@ docopt==0.6.2
 docutils==0.23
 executing==2.2.1
 fastjsonschema==2.21.2
-flake8==7.3.0
 Flask==3.1.3
 fonttools==4.62.1
 ghp-import==2.1.0
@@ -52,7 +51,6 @@ markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 matplotlib==3.10.8
 matplotlib-inline==0.2.2
-mccabe==0.7.0
 mdurl==0.1.2
 mergedeep==1.3.4
 mistune==3.3.4
@@ -88,10 +86,8 @@ prompt_toolkit==3.0.52
 ptyprocess==0.7.0
 pure_eval==0.2.3
 pyan3==2.6.2
-pycodestyle==2.14.0
 pycparser==3.0
 pydeps==3.0.2
-pyflakes==3.4.0
 Pygments==2.20.0
 pymdown-extensions==11.0.1
 pynndescent==0.6.0
@@ -108,6 +104,7 @@ pyzmq==27.1.0
 readme_renderer==44.0
 referencing==0.37.0
 regex==2026.4.4
+ruff==0.16.0
 requests==2.33.0
 requests-toolbelt==1.0.0
 rfc3986==2.0.0

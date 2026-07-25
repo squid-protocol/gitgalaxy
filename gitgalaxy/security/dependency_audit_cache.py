@@ -20,7 +20,7 @@ import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 
 class DependencyAuditCache:
@@ -80,7 +80,9 @@ class DependencyAuditCache:
         except OSError:
             return None
 
-    def lookup(self, ecosystem: str, package_name: str, file_relpath: str, content_hash: str) -> Optional[Dict[str, str]]:
+    def lookup(
+        self, ecosystem: str, package_name: str, file_relpath: str, content_hash: str
+    ) -> Optional[dict[str, str]]:
         """Returns the cached verdict for these exact bytes, or None on miss."""
         row = self._conn.execute(
             """

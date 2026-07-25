@@ -7,11 +7,11 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
-import math
 import bisect
+import math
+import re
 from collections import Counter, defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 
 class SecurityLens:
@@ -190,21 +190,21 @@ class SecurityLens:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
         """
-        counts: Dict[str, int] = {}
-        snippets: Dict[str, List[str]] = {}
+        counts: dict[str, int] = {}
+        snippets: dict[str, list[str]] = {}
 
         safe_lines = [line.strip() for line in content.splitlines() if len(line) < 250]
         safe_content = "\n".join(safe_lines)
 
         # ---> MINIFICATION & OBFUSCATION FALLBACK SCREEN <---
-        # If the 250-character anti-ReDoS shield stripped out more than 90% of the file, 
-        # it is minified. We perform a blazing fast O(N) literal string search on the 
+        # If the 250-character anti-ReDoS shield stripped out more than 90% of the file,
+        # it is minified. We perform a blazing fast O(N) literal string search on the
         # raw buffer to catch blatant execution hooks without triggering regex timeouts.
         if len(safe_content) < (len(content) * 0.1):
             fast_screen = {
                 "high_risk_execution": ["eval(", "setTimeout(", "child_process", "shell_exec("],
                 "io": ["XMLHttpRequest", "fetch(", "http.request"],
-                "safety_bypasses": ["NODE_TLS_REJECT_UNAUTHORIZED", "disable_functions"]
+                "safety_bypasses": ["NODE_TLS_REJECT_UNAUTHORIZED", "disable_functions"],
             }
             for key, literals in fast_screen.items():
                 for lit in literals:
@@ -225,43 +225,43 @@ class SecurityLens:
         # fold them into the shared, persisted ledger (#348). Previously this
         # position data was computed (via threat_lines above) but only ever
         # used internally for this function's own taint check, then discarded.
-        positions: Dict[str, List[int]] = defaultdict(list)
+        positions: dict[str, list[int]] = defaultdict(list)
         if not is_auto_gen:
             line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
 
         for key, regex in self.THREAT_SIGNATURES.items():
-                if is_auto_gen and key == "homoglyphs":
-                    counts.setdefault(key, 0)
-                    snippets.setdefault(key, [])
-                    continue
-
-                # Ensure we add to the fallback screen hits rather than overwriting them.
-                # (Applying the safe_content patch here to ensure ReDoS armor remains intact).
-                new_hits = regex.findall(safe_content)
-                counts[key] = counts.get(key, 0) + len(new_hits)
+            if is_auto_gen and key == "homoglyphs":
+                counts.setdefault(key, 0)
                 snippets.setdefault(key, [])
+                continue
 
-                if len(new_hits) > 0:
-                    for match in regex.finditer(safe_content):
-                        snip = match.group(0).strip()
-                        if len(snippets[key]) < 3 and snip not in snippets[key]:
-                            snippets[key].append(snip)
+            # Ensure we add to the fallback screen hits rather than overwriting them.
+            # (Applying the safe_content patch here to ensure ReDoS armor remains intact).
+            new_hits = regex.findall(safe_content)
+            counts[key] = counts.get(key, 0) + len(new_hits)
+            snippets.setdefault(key, [])
 
-                        # Map the exact line indexes of critical threats for the Taint Tracker
-                        if not is_auto_gen and key in {
-                            "io",
-                            "high_risk_execution",
-                            "llm_hooks",
-                            "db_hooks",
-                            "hardcoded_secrets",
-                        }:
-                            line_idx = bisect.bisect_right(line_starts, match.start()) - 1
-                            threat_lines[line_idx].add(key)
-                            positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
+            if len(new_hits) > 0:
+                for match in regex.finditer(safe_content):
+                    snip = match.group(0).strip()
+                    if len(snippets[key]) < 3 and snip not in snippets[key]:
+                        snippets[key].append(snip)
+
+                    # Map the exact line indexes of critical threats for the Taint Tracker
+                    if not is_auto_gen and key in {
+                        "io",
+                        "high_risk_execution",
+                        "llm_hooks",
+                        "db_hooks",
+                        "hardcoded_secrets",
+                    }:
+                        line_idx = bisect.bisect_right(line_starts, match.start()) - 1
+                        threat_lines[line_idx].add(key)
+                        positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0
-        entropy_snippets: List[str] = []
+        entropy_snippets: list[str] = []
 
         if is_auto_gen:
             counts["entropy"] = 0
@@ -284,7 +284,7 @@ class SecurityLens:
         taint_hits = 0
         prompt_injection_hits = 0
         agentic_rce_hits = 0
-        taint_snippets: List[str] = []
+        taint_snippets: list[str] = []
 
         has_global_io = counts.get("io", 0) > 0
         has_global_danger = counts.get("high_risk_execution", 0) > 0
@@ -347,7 +347,7 @@ class SecurityLens:
                         assign_op = None
                     else:
                         assign_op = ":=" if ":=" in line else "=" if "=" in line else None
-                        
+
                     if assign_op:
                         lhs = line.split(assign_op)[0]
                         possible_vars = re.findall(r"\b[a-zA-Z_]\w*\b", lhs)
@@ -394,7 +394,7 @@ class SecurityLens:
         Validates compiled chunks against expected magic bytes and scans for
         embedded execution headers or extreme cryptographic entropy indicating packed malware.
         """
-        threats: Dict[str, Any] = {}
+        threats: dict[str, Any] = {}
 
         if not raw_bytes:
             return threats

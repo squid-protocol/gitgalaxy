@@ -17,7 +17,7 @@ security exceptions and the lightweight ingestion rules used to filter
 out noise before the heavy static analysis engines are loaded into memory.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 # ------------------------------------------------------------------
 # ZERO-TRUST IMPORT CONTROL (Supply Chain Firewall)
@@ -27,11 +27,11 @@ from typing import Any, Dict, List
 # False = Audit Mode (Allow unknown packages, but block BLACKLISTED_IMPORTS)
 STRICT_IMPORT_MODE = False
 
-APPROVED_IMPORTS: List[str] = [
+APPROVED_IMPORTS: list[str] = [
     # Examples (Add your approved dependencies here)
 ]
 
-BLACKLISTED_IMPORTS: List[str] = [
+BLACKLISTED_IMPORTS: list[str] = [
     # Known compromised, malicious, or troll packages
 ]
 
@@ -53,7 +53,7 @@ FIREWALL_NETWORK_WEIGHTING = False
 # If a file matches these patterns, scanners will instantly block the commit.
 # Supports standard Unix wildcards (* for everything, ? for single char).
 # ------------------------------------------------------------------
-DENYLIST_PATTERNS: List[str] = [
+DENYLIST_PATTERNS: list[str] = [
     # "internal_*",         # Blocks internal_notes.txt, internal_architecture.md
     # "*.kdbx",             # Blocks all KeePass password databases
     # "*_backup.sql",       # Blocks database dumps ending in _backup.sql
@@ -429,7 +429,7 @@ PRIORITY_WHITELIST = [
 # Consumed by: guidestar_lens.py
 # ------------------------------------------------------------------------------
 # Defines the rules for Bayesian Intent inference used by the GuideStar Lens
-GUIDESTAR_CONFIG: Dict[str, Any] = {
+GUIDESTAR_CONFIG: dict[str, Any] = {
     "IGNORED_DIRECTORIES": APERTURE_CONFIG["IGNORED_DIRECTORIES"],
     "MANIFEST_MAP": {
         "package.json": "javascript",
@@ -577,8 +577,6 @@ ORCHESTRATOR_RULES = {
         # C/C++ Stdlib (Often imported without extensions in modern C++):
         "stdio",
         "stdlib",
-        "string",
-        "math",
         "vector",
         "map",
         "iostream",
@@ -622,7 +620,7 @@ STATIC_ARCHETYPES = {
 # 9. PROJECT STORIES (Project Context Injection)
 # Consumed by: gpu_recorder.py
 # ------------------------------------------------------------------------------
-PROJECT_STORIES: Dict[str, Any] = {
+PROJECT_STORIES: dict[str, Any] = {
     # You can add your repository-specific context and UI story payloads here later.
 }
 

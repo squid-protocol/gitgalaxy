@@ -13,30 +13,31 @@
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 import argparse
-import sys
 import json
 import sqlite3
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
+
+from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
+from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
+from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jcls
 
 # Import the core logic functions directly
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import (
     analyze_cobol_intent,
     generate_zero_trust_jcl,
 )
-from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
-from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
-from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
+from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
 from gitgalaxy.tools.cobol_to_cobol.cobol_microservice_slicer import (
     slice_business_logic,
 )
+from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
     scan_system_limits,
 )
-from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
-from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jcls
-from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
-from typing import Any, Dict, Optional
 
 # ==============================================================================
 
@@ -72,7 +73,7 @@ class IRStateManager:
 
     def __init__(self, mode: str, db_path: Path):
         self.mode = mode
-        self.ram_ir: Dict[str, Dict[str, Any]] = {}
+        self.ram_ir: dict[str, dict[str, Any]] = {}
         self.conn = None
 
         if self.mode == "SQLITE":
@@ -157,7 +158,7 @@ def process_payload(filepath: Path, state_manager: IRStateManager, target_var: O
     program_id = filepath.stem
 
     # 1. Initialize local file payload
-    ir: Dict[str, Any] = {
+    ir: dict[str, Any] = {
         "metadata": {
             "file_name": filepath.name,
             "path": str(filepath),

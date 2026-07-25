@@ -1,0 +1,40 @@
+name: Ruff Audit
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore: ["docs/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  ruff-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # Pinned (unlike mypy-audit.yml's unpinned `pip install mypy`): ruff ships
+      # new lint rules and rule-set changes far more frequently than mypy does,
+      # so an unpinned version could silently add new baseline findings on a PR
+      # that touched no lint-relevant code. Bump deliberately, alongside a
+      # baseline regeneration, not as a side effect of a routine CI run.
+      - name: Install ruff and GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.16.0 PyYAML
+          pip install -e .
+
+      - name: Run baseline-gated lint regression check + zero-tolerance format check (#469)
+        run: python tests/ruff_audit.py --ci

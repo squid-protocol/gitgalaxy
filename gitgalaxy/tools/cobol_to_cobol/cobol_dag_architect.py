@@ -3,22 +3,22 @@
 # GitGalaxy Tool: Data Lineage DAG Architect
 #
 # PURPOSE:
-# Parses COBOL structural intent to map INPUT/OUTPUT data flows and calculates 
+# Parses COBOL structural intent to map INPUT/OUTPUT data flows and calculates
 # the deterministic topological execution order.
 #
 # ARCHITECTURAL DECISION:
-# In legacy mainframe environments, execution order is manually dictated by JCL. 
-# During cloud modernization, we must programmatically derive this order to 
-# generate modern orchestration pipelines (e.g., Spring Batch, Airflow). By 
-# statically analyzing SELECT/ASSIGN clauses and OPEN statements, we build a 
-# Directed Acyclic Graph (DAG) of data dependencies, ensuring programs execute 
+# In legacy mainframe environments, execution order is manually dictated by JCL.
+# During cloud modernization, we must programmatically derive this order to
+# generate modern orchestration pipelines (e.g., Spring Batch, Airflow). By
+# statically analyzing SELECT/ASSIGN clauses and OPEN statements, we build a
+# Directed Acyclic Graph (DAG) of data dependencies, ensuring programs execute
 # in the exact order required by their physical dataset inputs and outputs.
 # ==============================================================================
 import argparse
-import sys
 import re
-from pathlib import Path
+import sys
 from collections import defaultdict, deque
+from pathlib import Path
 from typing import Optional
 
 
@@ -53,10 +53,10 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
 
     # ==========================================================================
     # DEFENSIVE DESIGN (UNREACHABLE LOGIC MASKING):
-    # COBOL programs often contain legacy, unreachable paragraphs. If we allow 
-    # the regex engine to scan these abandoned blocks, it will extract 'OPEN' 
-    # statements for files that are never actually utilized at runtime, creating 
-    # false dependencies. We mask out known dead paragraphs with spaces to 
+    # COBOL programs often contain legacy, unreachable paragraphs. If we allow
+    # the regex engine to scan these abandoned blocks, it will extract 'OPEN'
+    # statements for files that are never actually utilized at runtime, creating
+    # false dependencies. We mask out known dead paragraphs with spaces to
     # preserve the exact logic topology without triggering regex false positives.
     # ==========================================================================
     if "PROCEDURE DIVISION" in content:
@@ -101,8 +101,8 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
 
     # ==========================================================================
     # ARCHITECTURAL ANOMALY DETECTION (DYNAMIC CALLS):
-    # A standard CALL followed by string quotes is a static, deterministic 
-    # dependency. A CALL utilizing a variable is dynamic, making the 
+    # A standard CALL followed by string quotes is a static, deterministic
+    # dependency. A CALL utilizing a variable is dynamic, making the
     # compilation-time DAG incomplete. We flag these for architectural review.
     # ==========================================================================
     dynamic_calls = set()

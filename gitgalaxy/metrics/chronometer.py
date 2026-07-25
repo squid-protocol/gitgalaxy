@@ -14,12 +14,13 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
+import logging
 import os
 import subprocess
-import logging
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Set, Tuple
+from typing import Any, Optional
+
 from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
@@ -84,9 +85,9 @@ class Chronometer:
         self.aperture_config = config_source.get("APERTURE_CONFIG", {})
 
         # --- INTERNAL STATE (The Sensor Cache) ---
-        self.churn_map: Dict[str, int] = {}
-        self.mtime_map: Dict[str, float] = {}
-        self.author_map: Dict[str, Dict[str, int]] = {}
+        self.churn_map: dict[str, int] = {}
+        self.mtime_map: dict[str, float] = {}
+        self.author_map: dict[str, dict[str, int]] = {}
 
         # Signal 1: Global Temporal Boundaries
         self.repo_min_time = time.time()
@@ -120,8 +121,8 @@ class Chronometer:
             self._survey_filesystem_mtimes()
 
             # ---> NEW: THE TEMPORAL COLLAPSE SANITY CHECK <---
-            # If the OS walk returns a timeline spanning less than 5 minutes (300 seconds), 
-            # we are likely inside a shallow-clone CI/CD environment where every file 
+            # If the OS walk returns a timeline spanning less than 5 minutes (300 seconds),
+            # we are likely inside a shallow-clone CI/CD environment where every file
             # was just stamped with the exact same download time.
             delta = self.repo_max_time - self.repo_min_time
             if delta < 300.0:
@@ -216,7 +217,7 @@ class Chronometer:
 
         if ignore_file.exists():
             try:
-                with open(ignore_file, "r", encoding="utf-8") as f:
+                with open(ignore_file, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         # Skip comments and empty lines
@@ -299,13 +300,13 @@ class Chronometer:
 
     def _stream_git_log(
         self,
-        cmd: List[str],
+        cmd: list[str],
         ignored_hashes: set,
         tracked_files: set,
         required_files: int,
         timeout_limit: float,
         start_time: float,
-    ) -> Tuple[int, bool]:
+    ) -> tuple[int, bool]:
         """Executes Git log via Popen stream, halting dynamically based on coverage or time."""
         processed_lines = 0
         process = None
@@ -315,7 +316,7 @@ class Chronometer:
         reached_target = False
 
         # Local tracker to ensure we only count files that currently exist
-        valid_files_seen: Set[str] = set()
+        valid_files_seen: set[str] = set()
 
         try:
             process = subprocess.Popen(
@@ -415,7 +416,7 @@ class Chronometer:
                 except (OSError, ValueError):
                     continue
 
-    def get_file_history_metrics(self, rel_path: str) -> Dict[str, Any]:
+    def get_file_history_metrics(self, rel_path: str) -> dict[str, Any]:
         """
         ========================================================================
         DEFENSIVE ARCHITECTURE: Zero-I/O Thread Safety

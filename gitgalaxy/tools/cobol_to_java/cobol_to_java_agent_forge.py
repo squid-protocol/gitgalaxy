@@ -3,20 +3,21 @@
 # GitGalaxy Tool: Java Agent Task Generator
 #
 # PURPOSE:
-# Packages isolated COBOL logic slices into strict, highly constrained JSON 
+# Packages isolated COBOL logic slices into strict, highly constrained JSON
 # task tickets for autonomous LLM agents to translate into Java.
 #
 # ARCHITECTURAL DECISION:
-# Autonomous agents are highly susceptible to "hallucinating" external system 
-# calls or modifying core business logic when given an entire legacy file at once. 
-# By pre-slicing the business rules via static analysis and injecting unresolved 
-# dependencies as strict constraints, we force the LLM to generate pure, 
-# side-effect-free @Service classes that rely on Spring's Dependency Injection (DI) 
+# Autonomous agents are highly susceptible to "hallucinating" external system
+# calls or modifying core business logic when given an entire legacy file at once.
+# By pre-slicing the business rules via static analysis and injecting unresolved
+# dependencies as strict constraints, we force the LLM to generate pure,
+# side-effect-free @Service classes that rely on Spring's Dependency Injection (DI)
 # for external integration.
 # ==============================================================================
 
 
 from typing import Optional
+
 
 def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: Optional[dict] = None) -> dict:
     """Generates a structured JSON task ticket for Java service generation."""

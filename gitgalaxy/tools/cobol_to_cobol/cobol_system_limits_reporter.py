@@ -3,32 +3,32 @@
 # GitGalaxy Tool: Architectural Anomaly Detector
 #
 # PURPOSE:
-# Static Analysis sensor to detect structural anomalies, dynamic routing, 
+# Static Analysis sensor to detect structural anomalies, dynamic routing,
 # and legacy execution patterns that compromise deterministic mathematical mapping.
 #
 # ARCHITECTURAL DECISION:
-# Modern cloud architectures rely on deterministic, traceable data flows (DAGs). 
-# Certain legacy COBOL commands physically mutate the execution stack at runtime 
-# (e.g., dynamically rewriting the target of a GO TO). These anomalies make it 
-# mathematically impossible for standard parsers to guarantee an accurate 
-# translation. This sensor acts as an architectural safety net, aggressively 
-# flagging these files so they can be securely evaluated by an AI agent or a 
+# Modern cloud architectures rely on deterministic, traceable data flows (DAGs).
+# Certain legacy COBOL commands physically mutate the execution stack at runtime
+# (e.g., dynamically rewriting the target of a GO TO). These anomalies make it
+# mathematically impossible for standard parsers to guarantee an accurate
+# translation. This sensor acts as an architectural safety net, aggressively
+# flagging these files so they can be securely evaluated by an AI agent or a
 # human architect.
 # ==============================================================================
 import argparse
-import sys
 import re
+import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 # ==============================================================================
 # DEFENSIVE DESIGN (STRUCTURAL ANOMALY SIGNATURES):
 # These rules strictly target legacy commands that compromise static analysis.
 # For example, 'EXEC CICS HANDLE CONDITION' operates as an asynchronous interrupt,
-# meaning execution can violently jump outside the defined AST flow at any given 
+# meaning execution can violently jump outside the defined AST flow at any given
 # millisecond, rendering static data lineage maps untrustworthy.
 # ==============================================================================
-SYSTEM_LIMIT_RULES: Dict[str, Dict[str, Any]] = {
+SYSTEM_LIMIT_RULES: dict[str, dict[str, Any]] = {
     "ALTER_STATEMENT": {
         "regex": re.compile(
             r"\bALTER\s+[A-Z0-9\-]+\s+TO\s+(?:PROCEED\s+TO\s+)?[A-Z0-9\-]+\b",
@@ -58,7 +58,7 @@ def scan_system_limits(filepath: Path) -> list:
     anomalies = []
     try:
         # Open file with error handling for legacy encodings
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
     except Exception as e:
         return [f"[{filepath.name}] ERROR: Failed to read file - {e}"]

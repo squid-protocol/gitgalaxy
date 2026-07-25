@@ -9,13 +9,13 @@
 # network sockets.
 #
 # ARCHITECTURAL DECISION:
-# AI agents with unconstrained execution boundaries represent a critical 
-# security risk. By analyzing the structural topology of the codebase, this 
-# sensor deterministically identifies Autonomous Execution Vectors and 
+# AI agents with unconstrained execution boundaries represent a critical
+# security risk. By analyzing the structural topology of the codebase, this
+# sensor deterministically identifies Autonomous Execution Vectors and
 # Over-Permissioned Agents before they reach production.
 # ==============================================================================
 import logging
-from typing import List, Dict, Any
+from typing import Any
 
 
 class AIAppSecSensor:
@@ -26,7 +26,7 @@ class AIAppSecSensor:
     def __init__(self, parent_logger=None):
         self.logger = parent_logger.getChild("appsec_sensor") if parent_logger else logging.getLogger("appsec_sensor")
 
-    def hunt_threats(self, parsed_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def hunt_threats(self, parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
         self.logger.info("AI AppSec Sensor: Scanning for Agentic Vulnerabilities...")
 
         for file_data in parsed_files:
@@ -55,7 +55,7 @@ class AIAppSecSensor:
             safe_loc = max(file_data.get("coding_loc", 1), 1)
             safety_density = min(1.0, (equations.get("safety", 0) * 10.0) / safe_loc)
 
-            appsec_report: Dict[str, Any] = {
+            appsec_report: dict[str, Any] = {
                 "is_rce_funnel": False,
                 "over_permissioned_agent": False,
                 "agentic_exfiltration_risk": False,

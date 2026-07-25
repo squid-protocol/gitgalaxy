@@ -3,21 +3,21 @@
 # GitGalaxy Tool: Cloud Schema Generator
 #
 # PURPOSE:
-# Translates legacy COBOL byte-maps (PIC / COMP-3) into modern PostgreSQL DDL 
+# Translates legacy COBOL byte-maps (PIC / COMP-3) into modern PostgreSQL DDL
 # and JSON schemas.
 #
 # ARCHITECTURAL DECISION:
-# Mainframe data structures are defined by absolute byte boundaries and packed 
-# decimal (COMP-3) storage. Cloud databases operate on dynamic types (VARCHAR, 
-# DECIMAL, BIGINT). This generator maps the legacy PIC clauses to their exact 
-# modern equivalents. By utilizing the IR state from the Deprecated Trails 
-# Analyzer, it actively drops abandoned memory declarations, ensuring the new 
+# Mainframe data structures are defined by absolute byte boundaries and packed
+# decimal (COMP-3) storage. Cloud databases operate on dynamic types (VARCHAR,
+# DECIMAL, BIGINT). This generator maps the legacy PIC clauses to their exact
+# modern equivalents. By utilizing the IR state from the Deprecated Trails
+# Analyzer, it actively drops abandoned memory declarations, ensuring the new
 # cloud schemas are free of legacy bloat.
 # ==============================================================================
 import argparse
-import sys
-import re
 import json
+import re
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -117,7 +117,7 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
 
         # ======================================================================
         # DEFENSIVE DESIGN (DEPRECATED TRAILS EXCLUSION):
-        # Instantly drop the variable if the Deprecated Trails Analyzer proved 
+        # Instantly drop the variable if the Deprecated Trails Analyzer proved
         # it is dead memory, preventing cloud database bloat.
         # ======================================================================
         if name in ignore_vars:

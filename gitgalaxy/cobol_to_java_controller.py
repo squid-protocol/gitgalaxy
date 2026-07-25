@@ -6,17 +6,17 @@
 #
 # PURPOSE:
 # Orchestrates the Cloud Modernization Pathway. Ingests the JSON Intermediate
-# Representation (IR) from the isolated staging environment and generates a 
+# Representation (IR) from the isolated staging environment and generates a
 # Spring Boot microservice scaffolding ready for an autonomous agent to complete.
 # Includes Corporate Header injection, CI/CD Audit Reporting, and Maven Build generation.
 #
 # ARCHITECTURAL DECISION:
-# Autonomous AI agents struggle to generate entire enterprise architectures from 
-# scratch without hallucinating external dependencies or breaking Dependency 
-# Injection (DI) chains. This controller deterministically generates the 100% 
-# compilable boilerplate (POM, YML, JPA Entities, REST Controllers, and Mock 
-# Services) based on the strict COBOL structural extraction. It delegates ONLY 
-# the internal business logic to the AI agent, ensuring architectural integrity 
+# Autonomous AI agents struggle to generate entire enterprise architectures from
+# scratch without hallucinating external dependencies or breaking Dependency
+# Injection (DI) chains. This controller deterministically generates the 100%
+# compilable boilerplate (POM, YML, JPA Entities, REST Controllers, and Mock
+# Services) based on the strict COBOL structural extraction. It delegates ONLY
+# the internal business logic to the AI agent, ensuring architectural integrity
 # and guaranteed compilability out-of-the-box.
 # ==============================================================================
 
@@ -25,31 +25,32 @@
 # galaxyscope:ignore sec_io
 
 import argparse
-import sys
 import json
 import shutil
+import sys
 from pathlib import Path
 
-# Current Imports
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
-    generate_java_entity,
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import (
+    generate_java_agent_ticket,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge import (
     generate_rest_controller,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import (
-    generate_java_agent_ticket,
-)
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
-    generate_pom_xml,
     generate_application_yml,
     generate_main_class,
+    generate_pom_xml,
+)
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
+    generate_decoder_util,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
-    generate_decoder_util,
+
+# Current Imports
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
+    generate_java_entity,
 )
 
 

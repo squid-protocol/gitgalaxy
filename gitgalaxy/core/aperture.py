@@ -7,12 +7,12 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 # ==============================================================================
-import os
-import logging
 import fnmatch
+import logging
+import os
 import re
 from pathlib import Path
-from typing import Dict, Any, Set, Optional, TypedDict, Union, List, Tuple
+from typing import Any, Optional, TypedDict, Union
 
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
@@ -63,8 +63,8 @@ class ApertureFilter:
     def __init__(
         self,
         root_dir: Union[str, Path],
-        language_definitions: Dict[str, Any],
-        aperture_config: Dict[str, Any],
+        language_definitions: dict[str, Any],
+        aperture_config: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
     ):
         # --- TELEMETRY SYNC ---
@@ -103,14 +103,14 @@ class ApertureFilter:
         )
 
         # --- STATE CACHE & DYNAMIC STATE ---
-        self._intent_cache: Set[str] = set()
-        self.dynamic_ignore_dirs: Set[str] = set()
+        self._intent_cache: set[str] = set()
+        self.dynamic_ignore_dirs: set[str] = set()
 
         self.logger.debug(f"Initializing Aperture Filter for project: '{self.root.name}'...")
 
         # Optimized Lookup Construction
-        self.whitelisted_extensions: Set[str] = set()
-        self.exact_match_files: Set[str] = set()
+        self.whitelisted_extensions: set[str] = set()
+        self.exact_match_files: set[str] = set()
 
         for lang_id, data in self.registry.items():
             self.whitelisted_extensions.update(data.get("extensions", []))
@@ -120,14 +120,14 @@ class ApertureFilter:
 
         self.logger.info(f"Aperture Filter Online | Tracking {len(self.whitelisted_extensions)} valid extensions.")
 
-    def evaluate_path_integrity(self, file_path: Union[str, Path], has_intent: bool = False) -> Tuple[bool, int, str]:
+    def evaluate_path_integrity(self, file_path: Union[str, Path], has_intent: bool = False) -> tuple[bool, int, str]:
         """
         [GATE 1: Perimeter Gating (Zero-I/O Path Evaluation)]
         Performs high-speed path analysis to build the initial File Census.
 
         DEFENSIVE DESIGN: We determine if a file is physically valid based on OS metadata
-        *before* any disk I/O (file opening/reading) occurs. All operations here are fast 
-        string matching to prevent unnecessary disk reads and drastically reduce Memory/CPU 
+        *before* any disk I/O (file opening/reading) occurs. All operations here are fast
+        string matching to prevent unnecessary disk reads and drastically reduce Memory/CPU
         overhead on large monolithic repositories.
         """
         path_obj = Path(file_path)
@@ -294,11 +294,11 @@ class ApertureFilter:
             return result
 
         except Exception as e:
-            self.logger.error(f"Filter Collision on '{relative_path}': {str(e)}")
-            result["reason"] = f"Internal Exception: {str(e)}"
+            self.logger.error(f"Filter Collision on '{relative_path}': {e!s}")
+            result["reason"] = f"Internal Exception: {e!s}"
             return result
 
-    def _check_artifact_integrity(self, content: str, rel_path: str, has_intent: bool = False) -> Dict[str, Any]:
+    def _check_artifact_integrity(self, content: str, rel_path: str, has_intent: bool = False) -> dict[str, Any]:
         """
         Deep-scans the content buffer for corruption, binary data, arrays,
         or documentation generator signatures.
@@ -312,11 +312,11 @@ class ApertureFilter:
 
         # ==============================================================================
         # Gate 3: Raw Buffer Gating (C-Backed String Operations)
-        # DEFENSIVE DESIGN: Allocating a massive array of strings via splitlines() is an 
-        # O(N) memory operation that will crash the worker if the file is a 50MB compiled binary. 
+        # DEFENSIVE DESIGN: Allocating a massive array of strings via splitlines() is an
+        # O(N) memory operation that will crash the worker if the file is a 50MB compiled binary.
         # We delay line splitting and use highly optimized C-backed string methods first.
         # ==============================================================================
-        
+
         # Fast line count estimation using C-backed count
         loc = content.count("\n") + 1
         report["loc"] = loc
@@ -350,7 +350,7 @@ class ApertureFilter:
         low_path = rel_path.lower()
 
         # --- Gate 3.3: Static Asset Bloat Deflector ---
-        # DEFENSIVE DESIGN: Static Assets contain zero executable payload. If they exceed 
+        # DEFENSIVE DESIGN: Static Assets contain zero executable payload. If they exceed
         # a few thousand lines, they are data dumps, not configuration files.
         if low_path.endswith((".yml", ".yaml", ".json", ".xml", ".svg", ".sql", ".csv", ".tsv")):
             if loc > 2500:
@@ -401,7 +401,7 @@ class ApertureFilter:
         # ==============================================================================
         # Gate 4: Header & Signature Gating (Shallow Regex)
         # DEFENSIVE DESIGN: The file has survived the binary and mass structural checks.
-        # It is now safe to allocate memory for the line array. We slice the file into 
+        # It is now safe to allocate memory for the line array. We slice the file into
         # lines, but limit expensive regex operations to the first 100 lines (the header).
         # ==============================================================================
         lines_list = content.splitlines()
@@ -457,17 +457,17 @@ class ApertureFilter:
         # ==============================================================================
         # Gate 5: Deep Structural Gating (Python Iteration)
         # DEFENSIVE DESIGN: This calculates indentation frequencies to detect highly repetitive,
-        # machine-generated code. Because it requires a Python `for` loop and string stripping, 
+        # machine-generated code. Because it requires a Python `for` loop and string stripping,
         # it is the most computationally expensive check and sits at the absolute bottom of the funnel.
         # ==============================================================================
-        
+
         # --- Gate 5.1: Lexical Monotony Sensor ---
         if loc > 2000 and not has_intent and not low_path.endswith((".cpy", ".cbl", ".cob")):
             sample_lines = lines_list[:500]
             meaningful_lines = [l for l in sample_lines if l.strip()]
 
             if len(meaningful_lines) > 100:
-                indent_counts: Dict[int, int] = {}
+                indent_counts: dict[int, int] = {}
                 for l in meaningful_lines:
                     indent = len(l) - len(l.lstrip())
                     indent_counts[indent] = indent_counts.get(indent, 0) + 1
@@ -532,7 +532,7 @@ class ApertureFilter:
 
         return True
 
-    def _load_gitignore_patterns(self) -> List[str]:
+    def _load_gitignore_patterns(self) -> list[str]:
         """Reads local .gitignore files to identify un-tracked noise."""
         patterns = []
         ignore_file = self.root / ".gitignore"

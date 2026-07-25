@@ -14,10 +14,10 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 
-import statistics
 import logging
-from typing import List, Dict, Any, Tuple, Optional
 import math
+import statistics
+from typing import Any, Optional
 
 # ==============================================================================
 
@@ -46,7 +46,7 @@ class StatisticalAuditor:
     def __init__(
         self,
         parent_logger: Optional[logging.Logger] = None,
-        lang_defs: Optional[Dict[str, Any]] = None,
+        lang_defs: Optional[dict[str, Any]] = None,
     ):
         """Initializes the statistical auditor and synchronizes telemetry."""
 
@@ -98,7 +98,7 @@ class StatisticalAuditor:
             "inline_asm",
         ]
 
-    def audit(self, parsed_files: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    def audit(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Executes statistical gating to identify data-dumps and structural outliers."""
         import os  # Required for extension splitting in Consensus Engine
 
@@ -138,8 +138,8 @@ class StatisticalAuditor:
 
         # 2. Build the Ecosystem Consensus Map
         # Structure: { ".ext": { "lang1": count, "lang2": count } }
-        consensus_map: Dict[str, Dict[str, int]] = {}
-        global_lang_counts: Dict[str, int] = {}
+        consensus_map: dict[str, dict[str, int]] = {}
+        global_lang_counts: dict[str, int] = {}
 
         for artifact in confident_artifacts:
             ext = os.path.splitext(artifact.get("path", ""))[1].lower()
@@ -224,7 +224,7 @@ class StatisticalAuditor:
             )
         # =================================================================
 
-        by_lang: Dict[str, List[Dict[str, Any]]] = {}
+        by_lang: dict[str, list[dict[str, Any]]] = {}
 
         # 4. Group artifacts by linguistic species for localized statistics
         for artifact in confident_artifacts:
@@ -459,7 +459,7 @@ class StatisticalAuditor:
         )
         return verified_files, unparsable_files
 
-    def _is_highly_blended(self, artifact: Dict[str, Any]) -> bool:
+    def _is_highly_blended(self, artifact: dict[str, Any]) -> bool:
         """Determines if a file is a Polyglot where the primary language is < 80% of the mass."""
         lang_mix = artifact.get("lang_mix", [])
         if not lang_mix:
@@ -473,7 +473,7 @@ class StatisticalAuditor:
 
         return True  # Primary language wasn't even in the mix (Extreme anomaly)
 
-    def _is_dead_code(self, artifact: Dict[str, Any]) -> bool:
+    def _is_dead_code(self, artifact: dict[str, Any]) -> bool:
         """Determines if an artifact is predominantly dead code or comments."""
         try:
             doc_loc = artifact.get("doc_loc", 0)
@@ -495,7 +495,7 @@ class StatisticalAuditor:
 
         return False
 
-    def _format_for_exclusion(self, artifact: Dict[str, Any], reason: str) -> Dict[str, Any]:
+    def _format_for_exclusion(self, artifact: dict[str, Any], reason: str) -> dict[str, Any]:
         """
         Formats an audited artifact to match the Orchestrator's Exclusion Queue schema.
         This ensures structural inertia and prevents the JSON archive from bloating.
@@ -513,7 +513,7 @@ class StatisticalAuditor:
             "identity_source_proof": telemetry.get("identity_source_proof", artifact.get("source_proof", "Discovery")),
         }
 
-    def _is_threat(self, artifact: Dict[str, Any]) -> bool:
+    def _is_threat(self, artifact: dict[str, Any]) -> bool:
         """
         Determines if an artifact contains active security threat signatures.
         Used by the Quarantine Guard to prevent obfuscated malware from

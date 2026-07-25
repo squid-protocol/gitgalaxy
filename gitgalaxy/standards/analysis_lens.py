@@ -11,7 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
-from typing import Dict, List, TypedDict
+from typing import TypedDict
 
 """
 analysis_lens.py
@@ -1050,12 +1050,12 @@ class RecordingSchemas(TypedDict):
     # Without this TypedDict, the dict's mixed list/dict values widen to
     # Collection[str], which has no .index() -- the single largest source
     # of mypy fan-out errors repo-wide (#431).
-    RISK_SCHEMA: List[str]
-    SIGNAL_SCHEMA: List[str]
-    SAT_SCHEMA: List[str]
-    GPU_TEXTURE_LOOKUPS: List[str]
-    FRIENDLY_MAP: Dict[str, str]
-    EXPOSURE_LABELS: Dict[str, str]
+    RISK_SCHEMA: list[str]
+    SIGNAL_SCHEMA: list[str]
+    SAT_SCHEMA: list[str]
+    GPU_TEXTURE_LOOKUPS: list[str]
+    FRIENDLY_MAP: dict[str, str]
+    EXPOSURE_LABELS: dict[str, str]
 
 
 RECORDING_SCHEMAS: RecordingSchemas = {

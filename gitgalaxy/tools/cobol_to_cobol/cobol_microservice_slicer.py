@@ -7,22 +7,24 @@
 # Utilizes in-memory IR state (RAM) to bypass unreachable logic blocks.
 #
 # ARCHITECTURAL DECISION:
-# Legacy COBOL programs are typically monolithic, making it difficult to 
-# extract specific business rules for microservice decomposition. This 
-# extractor performs data flow taint-tracking starting from a target 
-# variable, mapping its aliases through MOVE, ADD, and COMPUTE statements. 
-# By integrating with the Deprecated Trails Analyzer's IR state, it 
-# guarantees that extracted logic only comes from mathematically reachable 
+# Legacy COBOL programs are typically monolithic, making it difficult to
+# extract specific business rules for microservice decomposition. This
+# extractor performs data flow taint-tracking starting from a target
+# variable, mapping its aliases through MOVE, ADD, and COMPUTE statements.
+# By integrating with the Deprecated Trails Analyzer's IR state, it
+# guarantees that extracted logic only comes from mathematically reachable
 # execution paths, eliminating false-positive business rules.
 # ==============================================================================
 import argparse
-import sys
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 
-def slice_business_logic(filepath: Path, initial_var: str, dead_paras: Optional[set] = None, orphaned_vars: Optional[set] = None):
+def slice_business_logic(
+    filepath: Path, initial_var: str, dead_paras: Optional[set] = None, orphaned_vars: Optional[set] = None
+):
     """
     Recursively tracks a variable and its aliases through the AST.
     Utilizes shared IR context to prevent mapping logic inside unreachable code.
@@ -36,8 +38,8 @@ def slice_business_logic(filepath: Path, initial_var: str, dead_paras: Optional[
 
     # ==========================================================================
     # DEFENSIVE DESIGN (UNUSED MEMORY ABORT):
-    # If the target variable is already known to be dead memory from the 
-    # Deprecated Trails Analyzer, we can abort the slice immediately. It has 
+    # If the target variable is already known to be dead memory from the
+    # Deprecated Trails Analyzer, we can abort the slice immediately. It has
     # no active business logic associated with it.
     # ==========================================================================
     if initial_var in orphaned_vars:

@@ -11,7 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
-from typing import Any, Dict, List, Set, TypedDict
+from typing import Any, TypedDict
 
 """
 language_standards.py
@@ -31,11 +31,11 @@ class LensConfig(TypedDict):
     # "pair" is None for two of the three current entries and a tuple for
     # the third, and nothing here needs to type-check their contents,
     # only LENS_CONFIG's own top-level shape.
-    COLLISION_FREQUENCIES: Set[str]
-    PROSE_ANCHORS: Set[str]
-    DISQUALIFIERS: Dict[str, str]
-    HANDSHAKE_REGISTRY: List[Dict[str, Any]]
-    THRESHOLDS: Dict[str, float]
+    COLLISION_FREQUENCIES: set[str]
+    PROSE_ANCHORS: set[str]
+    DISQUALIFIERS: dict[str, str]
+    HANDSHAKE_REGISTRY: list[dict[str, Any]]
+    THRESHOLDS: dict[str, float]
 
 
 # ------------------------------------------------------------------------------
@@ -137,6 +137,7 @@ LENS_CONFIG: LensConfig = {
     },
 }
 
+
 class PrismConfigSchema(TypedDict):
     # Same widening problem as LensConfig above: the mixed str/set/dict
     # values were collapsing to Collection[str] under mypy, breaking every
@@ -145,8 +146,8 @@ class PrismConfigSchema(TypedDict):
     PYTHON_DOC_PATTERN: str
     PHP_HEREDOC_PATTERN: str
     PHP_MULTILINE_STRING: str
-    POSITIONAL_ANCHORS: Set[str]
-    THRESHOLDS: Dict[str, int]
+    POSITIONAL_ANCHORS: set[str]
+    THRESHOLDS: dict[str, int]
 
 
 # ------------------------------------------------------------------------------
@@ -410,9 +411,7 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 21. comprehensions (Iterators / Comprehensions)
             "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"
-            ),
+            "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
             ),
@@ -451,7 +450,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -604,7 +603,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 3. linear (Sequential Boundaries)
             # Structural declaration boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
-            "structural_boundaries": re.compile(r"\b(let|var|import|export|return|class|extends|super|await|delete)\b|=>"),
+            "structural_boundaries": re.compile(
+                r"\b(let|var|import|export|return|class|extends|super|await|delete)\b|=>"
+            ),
             # 4. func_start (Executable Logic Anchors)
             # Uses positive lookaheads (?=) to stop the match exactly at the identifier name.
             # Captures standard functions, namespace assignments (foo.bar = function),
@@ -685,9 +686,7 @@ LANGUAGE_DEFINITIONS = {
             "generics": re.compile(r"@template\s+\w+|/\*\*\s*@type\s*(?:\{|<\w+)"),
             # 21. comprehensions (Iterators / Comprehensions)
             "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"
-            ),
+            "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
             ),
@@ -742,7 +741,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -1022,7 +1021,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -1274,7 +1273,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -1502,10 +1501,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Null-forgiving operator, dynamic, and unsafe bypasses.
-            "safety_bypasses": re.compile(r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"),
+            "safety_bypasses": re.compile(
+                r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"
+            ),
             # 8. danger (High-Risk Execution / System Calls)
             # Extreme tech debt/vulnerabilities. EXCLUDES TODO (debt) and Console (print).
-            "high_risk_execution": re.compile(r"\b(Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit|goto)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit|goto)\b"
+            ),
             # 9. io (I/O & Network Boundaries)
             "io": re.compile(
                 r"\b(File|Directory|Stream|HttpClient|Path|SqlConnection|SqlCommand|DbContext|DbSet|HttpRequest|HttpResponse)\b\.|\[Table\("
@@ -1578,7 +1581,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (The Blazor/Razor Horizon)
             "ssr_boundaries": re.compile(
@@ -1802,7 +1805,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Gofmt mandates tabs; finding spaces at start signals structural friction.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -2005,7 +2008,9 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(ndarray::|nalgebra::|num::|f32|f64|std::simd)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Metaprogramming and memory transmutation.
-            "reflection_metaprogramming": re.compile(r"\b(macro_rules!|std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"),
+            "reflection_metaprogramming": re.compile(
+                r"\b(macro_rules!|std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"
+            ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"\b(?:pub[ \t]+)?use\s+[^;]+;", re.M),
             "_dependency_capture": re.compile(
@@ -2042,7 +2047,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -2332,7 +2337,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|render_template|Inja::|ctemplate::)\b"),
@@ -2525,7 +2530,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Dangerous legacy functions and raw void manipulation.
-            "safety_bypasses": re.compile(r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"),
+            "safety_bypasses": re.compile(
+                r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"
+            ),
             # 8. danger (High-Risk Execution / System Calls)
             # Process killers and context switches. EXCLUDES prints (Phase 5).
             "high_risk_execution": re.compile(r"\b(system|popen|execl|execv|fork|longjmp|setjmp)\b"),
@@ -2606,7 +2613,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|khttp_parse|MHD_start_daemon|facil\.io)\b"),
@@ -2638,7 +2645,7 @@ LANGUAGE_DEFINITIONS = {
             "explicit_casts": re.compile(
                 # =====================================================================
                 # [ROADMAP: NESTED OPTIONAL SPACES (ReDoS TRAP)]
-                # FIX 2: `\s*[*]*\s*` is highly vulnerable to ReDoS if the payload 
+                # FIX 2: `\s*[*]*\s*` is highly vulnerable to ReDoS if the payload
                 # is spaced asterisks like `(int * * *)`. Flattened to strictly linear
                 # `[ \t\n]*(?:\*[ \t\n]*)*` to prevent any overlapping whitespace matching.
                 # =====================================================================
@@ -2861,7 +2868,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -3096,7 +3103,7 @@ LANGUAGE_DEFINITIONS = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Structural formatting violating norms. Handled natively by the GitGalaxy Signal Processor.
             "tabs_vs_spaces": None,
             "ssr_boundaries": re.compile(
@@ -3360,7 +3367,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"#\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Legacy CGI shell environments.
@@ -3621,7 +3628,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -3837,7 +3844,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -4077,7 +4084,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -4232,7 +4239,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 8. danger (High-Risk Execution / System Calls)
             # Destructive schema actions and system bypasses.
-            "high_risk_execution": re.compile(r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE|\.shell|\.system|\.exit|\.quit)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE|\.shell|\.system|\.exit|\.quit)\b"
+            ),
             # 9. io (I/O & Network Boundaries)
             "io": re.compile(
                 r"\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|ATTACH\s+DATABASE|DETACH\s+DATABASE|\.import|\.output|\.dump|\.read|readfile|writefile)\b",
@@ -4321,7 +4330,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"--\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -4573,7 +4582,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Back-end template engine hydration.
@@ -4804,7 +4813,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -5123,7 +5132,7 @@ LANGUAGE_DEFINITIONS = {
             # Audit tags establishing traceability of intent back to physics papers or architectural specifications.
             # CRITICAL: Removed (?i) to enforce strict uppercase [SPEC-XYZ] tags and prevent prose collisions.
             "spec_exposure": re.compile(r"\[\s*(?:SPEC\s*-\s*\d+|AUDIT-[A-Z0-9_-]+)\s*\]"),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Identifies Tab indentation. In Legacy Fortran 77, columns strictly dictate syntax (1-5 label, 6 continuation, 7+ code).
             # Using tabs violates strict standard constraints, establishing heavy tech debt/formatter civil wars.
             "tabs_vs_spaces": None,
@@ -5367,7 +5376,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|rfc)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -5596,7 +5605,7 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(GSOP|LUMINARY|COMANCHE|COLOSSUS|SUNDISK|SUNBURST|PCR\s*\d+|PCN\s*\d+|SPEC\s*-\s*\d+|#\s*REF:)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -5680,7 +5689,9 @@ LANGUAGE_DEFINITIONS = {
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
             "args": re.compile(r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?\([^)]*\)"),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
-            "structural_boundaries": re.compile(r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"),
+            "structural_boundaries": re.compile(
+                r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"
+            ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (named functions).
             "func_start": re.compile(
                 # =====================================================================
@@ -5709,7 +5720,9 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(rawget|rawset|rawlen|debug\.[a-zA-Z0-9_]+|collectgarbage|_G|_ENV|getfenv|setfenv)\b"
             ),
             # 8. danger: High-Risk Execution. Dynamic evaluation and OS-level execution hooks.
-            "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"
+            ),
             # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
             "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.close|io\.input|io\.output|io\.popen|os\.getenv)\b"),
             # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
@@ -6168,7 +6181,9 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(unsafePerformIO|unsafeCoerce|error|undefined|fromJust|head|tail|init|last|throw|unsafeFixIO)\b"
             ),
             # danger: High-Risk Execution. Forceful aborts and Debug-trace leaks in production.
-            "high_risk_execution": re.compile(r"\b(die|exitWith|exitFailure|Debug\.Trace|trace|traceShow|traceIO|traceM)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(die|exitWith|exitFailure|Debug\.Trace|trace|traceShow|traceIO|traceM)\b"
+            ),
             # io: I/O & Network Boundaries. IO Monad and hardware interactions.
             "io": re.compile(
                 r"\b(IO|readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
@@ -6251,7 +6266,9 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs)
             "debug_prints": re.compile(r"\b(putStr|putStrLn|print|putChar)\b"),
             # # # 40. explicit_casts (Explicit Type Casting) "Trust Me" Tax.
-            "explicit_casts": re.compile(r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"),
+            "explicit_casts": re.compile(
+                r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"
+            ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
             "panics_and_aborts": re.compile(r"\b(throw|throwIO|panic|error)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
@@ -6267,9 +6284,7 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(hClose|close|free|bracket|finally|onException)\b"),
             # 47. encapsulation (Encapsulation / Access Modifiers)
-            "encapsulation": re.compile(
-                r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*\s*\([^)]*\)\s*where", re.M
-            ),
+            "encapsulation": re.compile(r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*\s*\([^)]*\)\s*where", re.M),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(subscribe|onEvent|addEventListener|watch)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.
@@ -6432,7 +6447,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Lightweight web servers (Microdot, Picoweb).
@@ -7456,7 +7471,9 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(Option|Some|None|Try|Success|Failure|Either|Left|Right|sealed|require|assert|assume)\b|\|\s*Null\b"
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing type safety (asInstanceOf, .get).
-            "safety_bypasses": re.compile(r"\b(null|asInstanceOf|isInstanceOf|\.get\b(?!Class)|@unchecked|Any|AnyRef)\b"),
+            "safety_bypasses": re.compile(
+                r"\b(null|asInstanceOf|isInstanceOf|\.get\b(?!Class)|@unchecked|Any|AnyRef)\b"
+            ),
             # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
             "high_risk_execution": re.compile(r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime\.exec)\b"),
             # 9. io: I/O & Network Boundaries. Filesystem, Network, and Http Clients (Includes CERN triggers).
@@ -7584,7 +7601,9 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
             "debug_prints": re.compile(r"\b(println|print|Console\.println)\b"),
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
-            "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
+            "explicit_casts": re.compile(
+                r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"
+            ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
             "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
@@ -7663,7 +7682,9 @@ LANGUAGE_DEFINITIONS = {
             # 3. linear (Sequential Boundaries)
             # Structural boundaries defining straight-line execution and environment contexts.
             # CRITICAL GUARDRAIL: EXCLUDES `FROM` and `RUN`/`CMD` to maintain geometric stability.
-            "structural_boundaries": re.compile(r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b", re.M | re.I),
+            "structural_boundaries": re.compile(
+                r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b", re.M | re.I
+            ),
             # 4. func_start (Executable Logic Anchors)
             # CRITICAL GUARDRAIL: Anchors logic blocks. ONLY executable logic blocks.
             # In Docker, `RUN`, `CMD`, and `ENTRYPOINT` execute logic, generating discrete intermediate image layers.
@@ -7780,7 +7801,7 @@ LANGUAGE_DEFINITIONS = {
                 r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit|CVE-\d{4}-\d+)[^\]]*\]",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Dockerfiles strictly use spaces for formatting continuations. Tabs indicate formatter disruption.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -8774,7 +8795,9 @@ LANGUAGE_DEFINITIONS = {
             # Launching explicit calculation boundaries outside the Make environment natively.
             "scientific": re.compile(r"\b(?:bc|expr|awk)\b|\$\(shell[ \t]+expr[ \t]+"),
             # Extremely dense meta-programming manipulations drastically raising cognitive load during debugging.
-            "reflection_metaprogramming": re.compile(r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"),
+            "reflection_metaprogramming": re.compile(
+                r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"
+            ),
             # Linking isolated segments of the graph execution via modular file resolution.
             "import": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
             "_dependency_capture": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
@@ -9326,7 +9349,9 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(if|else|switch|case|for|while|do)\b|\|"),
             "args": re.compile(r"\$\d+|\$\$"),
-            "structural_boundaries": re.compile(r"\b(return|goto|break|continue|%token|%type|%left|%right|%nonassoc)\b"),
+            "structural_boundaries": re.compile(
+                r"\b(return|goto|break|continue|%token|%type|%left|%right|%nonassoc)\b"
+            ),
             # Executable Logic Anchor: Anchors specifically onto Grammar Rules
             # Matches "rule_name :" or "rule_name:" at the start of a line
             "func_start": re.compile(r"^[ \t]*([a-zA-Z_]\w*)(?=[ \t]*:)", re.M),
@@ -9451,7 +9476,9 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"\b(?:AC_SUBST|AC_DEFINE|AC_PROVIDE|m4_provide)\b"),
             # 11. flux (State Mutation)
             # Stack-based macro overriding and list appending.
-            "state_mutation": re.compile(r"\b(?:pushdef|popdef|m4_pushdef|m4_popdef|m4_append|m4_append_uniq|m4_combine)\b"),
+            "state_mutation": re.compile(
+                r"\b(?:pushdef|popdef|m4_pushdef|m4_popdef|m4_append|m4_append_uniq|m4_combine)\b"
+            ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out macro definitions.
             "dead_code": re.compile(r"^[ \t]*dnl[ \t]+(?:m4_define|define|AC_DEFUN|ifelse|AS_IF)\b", re.M),
@@ -9501,7 +9528,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -10030,7 +10057,9 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"^[ \t]*(?:package[ \t]+provide|namespace[ \t]+export)\b", re.M),
             # 11. flux (State Mutation)
             # Variable state mutations.
-            "state_mutation": re.compile(r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[a-zA-Z0-9_:]+"),
+            "state_mutation": re.compile(
+                r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[a-zA-Z0-9_:]+"
+            ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented out structural code.
             "dead_code": re.compile(r"^[ \t]*#[ \t]*(?:proc|set|if|while|foreach|return)\b", re.M),
@@ -10067,7 +10096,9 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(?:expr|math::)\b|\b(?:sin|cos|tan|sqrt|exp|log|pow)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # High Cognitive Load: Intercepting variables, tracking execution, and runtime aliasing.
-            "reflection_metaprogramming": re.compile(r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"),
+            "reflection_metaprogramming": re.compile(
+                r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"
+            ),
             # 24. import (Dependency Inclusions)
             # Package and module loading.
             "import": re.compile(r"^[ \t]*(?:package[ \t]+require|source|load)\b", re.M),
@@ -10082,7 +10113,7 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Tcl standardizes on spaces. Tabs indicate formatter friction.
             "tabs_vs_spaces": None,
             "ssr_boundaries": None,
@@ -10252,7 +10283,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -10431,26 +10462,21 @@ LANGUAGE_DEFINITIONS = {
             "_inline_comment": None,
             "_block_start": None,
             "_block_end": None,
-            
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
             "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
             "args": None,
-            
             # Structural boundaries (Any line starting with // and a command)
-            "structural_boundaries": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]+\s+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I),
-            
+            "structural_boundaries": re.compile(
+                r"^[ \t]*//[A-Za-z0-9_#$@]+\s+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
+            ),
             # Functions (EXEC steps)
             "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+EXEC\b", re.M | re.I),
-            
             # Classes/Entities (JOB cards)
             "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+JOB\b", re.M | re.I),
-            
             # Danger (Execution of arbitrary programs)
             "high_risk_execution": re.compile(r"\bPGM=[A-Za-z0-9_#$@]+\b", re.I),
-            
             # I/O (Data Set Names and Sysouts)
             "io": re.compile(r"\b(DSN|DSNAME|SYSOUT|SYSPRINT|DISP=)\b", re.I),
-            
             # JCL doesn't have traditional code equivalents for these, keep them null to prevent crashes
             "safety": None,
             "api": None,

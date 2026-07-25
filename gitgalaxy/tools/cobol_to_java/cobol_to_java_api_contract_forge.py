@@ -7,18 +7,17 @@
 # auto-wires the corresponding @Service layer via constructor injection.
 #
 # ARCHITECTURAL DECISION:
-# In an AI-assisted modernization pipeline, allowing an LLM to generate the 
-# REST API entry points often leads to hallucinated routing and broken Dependency 
-# Injection (DI) chains. This module deterministically generates the `@RestController` 
-# layer directly from the COBOL static analysis. It establishes a rigid API contract 
-# and auto-wires the `@Service` layer, forcing the AI agent to focus exclusively 
+# In an AI-assisted modernization pipeline, allowing an LLM to generate the
+# REST API entry points often leads to hallucinated routing and broken Dependency
+# Injection (DI) chains. This module deterministically generates the `@RestController`
+# layer directly from the COBOL static analysis. It establishes a rigid API contract
+# and auto-wires the `@Service` layer, forcing the AI agent to focus exclusively
 # on internal business logic without altering the external system boundaries.
 # ==============================================================================
 import argparse
-import sys
 import json
+import sys
 from pathlib import Path
-from typing import Dict
 
 
 def generate_rest_controller(ir_state: dict, package_name: str) -> str:
@@ -65,13 +64,13 @@ def generate_rest_controller(ir_state: dict, package_name: str) -> str:
         params = []
         # ======================================================================
         # DEFENSIVE DESIGN (SPRING VARIABLE COLLISION PREVENTION):
-        # Legacy COBOL programs can assign multiple internal files to the same 
-        # external physical DD name. If mapped directly to Java, this causes 
+        # Legacy COBOL programs can assign multiple internal files to the same
+        # external physical DD name. If mapped directly to Java, this causes
         # duplicate variable names in the method signature, breaking compilation.
-        # We track `seen_vars` and dynamically append numerical suffixes to 
+        # We track `seen_vars` and dynamically append numerical suffixes to
         # ensure perfectly compiling Spring `@RequestParam` annotations.
         # ======================================================================
-        seen_vars: Dict[str, int] = {}
+        seen_vars: dict[str, int] = {}
 
         for file_req in files_requested:
             dd_name_raw = file_req.get("dd_name", "UNKNOWN").lower()

@@ -3,26 +3,24 @@
 # GitGalaxy Tool: Autonomous Agent Task Generator
 #
 # PURPOSE:
-# Converts Architectural Anomalies and legacy structural dependencies into 
-# highly constrained, structured JSON task tickets designed for automated 
+# Converts Architectural Anomalies and legacy structural dependencies into
+# highly constrained, structured JSON task tickets designed for automated
 # LLM agent dispatchers.
 #
 # ARCHITECTURAL DECISION:
-# Providing an autonomous AI agent with raw, unconstrained legacy code often 
-# leads to Context Window Exhaustion and severe hallucinations (e.g., hallucinating 
-# missing copybooks or external dependencies). By structuring the remediation 
-# tasks into strict JSON tickets with pre-resolved data lineage (inputs/outputs) 
-# and explicitly identified anomalies, we mathematically bound the agent's scope, 
+# Providing an autonomous AI agent with raw, unconstrained legacy code often
+# leads to Context Window Exhaustion and severe hallucinations (e.g., hallucinating
+# missing copybooks or external dependencies). By structuring the remediation
+# tasks into strict JSON tickets with pre-resolved data lineage (inputs/outputs)
+# and explicitly identified anomalies, we mathematically bound the agent's scope,
 # ensuring deterministic and safe code modifications.
 # ==============================================================================
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 
-def generate_agent_ticket(
-    file_name: str, source_file: Path, anomalies: list, ir_state: Optional[dict]
-) -> dict:
+def generate_agent_ticket(file_name: str, source_file: Path, anomalies: list, ir_state: Optional[dict]) -> dict:
     """Generates a structured JSON task ticket for an autonomous agent."""
 
     # Extract Dependency Graph lineage to provide the agent with strict I/O context
@@ -67,7 +65,7 @@ def forge_agent_jobs(staging_dir: Path, source_dir: Path, architectural_anomalie
     ir_dir = staging_dir / "04_ir_state_dumps"
 
     # Group anomalies by their target file
-    file_anomalies: Dict[str, List[str]] = {}
+    file_anomalies: dict[str, list[str]] = {}
     for anomaly in architectural_anomalies:
         if anomaly.startswith("[") and "]" in anomaly:
             file_name = anomaly[1 : anomaly.index("]")]

@@ -6,7 +6,8 @@ import logging
 import math
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import Any, Optional
+
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
 HAS_NETWORKX = False
@@ -32,7 +33,7 @@ class NetworkRiskSensor:
         self.logger = parent_logger.getChild("network_sensor") if parent_logger else logging.getLogger("network_sensor")
         self.RISK_SCHEMA = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
 
-    def _build_resolution_map(self, files: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
         Maps each lookup key (full path, filename, stem) to ALL candidate file
         paths sharing that key — never silently overwrites on duplicate
@@ -40,7 +41,7 @@ class NetworkRiskSensor:
         resolve to multiple candidates in monorepos with duplicate filenames
         across directories.
         """
-        resolution_map: Dict[str, List[str]] = defaultdict(list)
+        resolution_map: dict[str, list[str]] = defaultdict(list)
         for f in files:
             path = f.get("path", "")
             if not path:
@@ -56,9 +57,7 @@ class NetworkRiskSensor:
 
         return resolution_map
 
-    def _resolve_target(
-        self, target_token: str, resolution_map: Dict[str, List[str]], curr_path: str
-    ) -> Optional[str]:
+    def _resolve_target(self, target_token: str, resolution_map: dict[str, list[str]], curr_path: str) -> Optional[str]:
         """
         Resolves an import token to a single file path, refusing to guess when
         genuinely ambiguous rather than silently misattributing an edge.
@@ -89,8 +88,7 @@ class NetworkRiskSensor:
         # any path context already present in the token, comparing against
         # each candidate's path with its extension stripped.
         path_matches = [
-            c for c in candidates
-            if str(Path(c).with_suffix("")).replace("\\", "/").endswith(token_as_path)
+            c for c in candidates if str(Path(c).with_suffix("")).replace("\\", "/").endswith(token_as_path)
         ]
         if len(path_matches) == 1:
             return path_matches[0]
@@ -102,7 +100,7 @@ class NetworkRiskSensor:
         )
         return None
 
-    def extract_test_coverage_mapping(self, files: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    def extract_test_coverage_mapping(self, files: list[dict[str, Any]]) -> dict[str, dict[str, list[dict[str, Any]]]]:
         """
         Maps function calls from test files to their imported production targets.
         Returns a dictionary mapping: production_file_path -> { production_function_name: [test_function_data] }
@@ -111,7 +109,7 @@ class NetworkRiskSensor:
         By mapping outbound AST calls from tests to production targets, we can calculate
         the exact architectural "Dependency Blast Radius" of untested functions.
         """
-        coverage_map: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+        coverage_map: dict[str, dict[str, list[dict[str, Any]]]] = {}
         resolution_map = self._build_resolution_map(files)
 
         # 2. Identify Test Files and extract their outgoing invocations
@@ -162,7 +160,7 @@ class NetworkRiskSensor:
 
         return coverage_map
 
-    def build_dependency_graph(self, parsed_files: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
         Modifies the 'telemetry' dictionary of each file in place.
@@ -235,15 +233,15 @@ class NetworkRiskSensor:
             # Closeness Centrality has no built-in sampling. Hard bypass at 1500 nodes.
             if len(G.nodes()) > 1500:
                 self.logger.debug("Graph too massive for exact Closeness Centrality. Bypassing.")
-                closeness = {n: 0.0 for n in G.nodes()}
+                closeness = dict.fromkeys(G.nodes(), 0.0)
             else:
                 closeness = nx.closeness_centrality(G)
 
         except Exception as e:
             self.logger.warning(f"Network math failed to converge, defaulting to 0: {e}")
-            pagerank = {n: 0.0 for n in G.nodes()}
-            betweenness = {n: 0.0 for n in G.nodes()}
-            closeness = {n: 0.0 for n in G.nodes()}
+            pagerank = dict.fromkeys(G.nodes(), 0.0)
+            betweenness = dict.fromkeys(G.nodes(), 0.0)
+            closeness = dict.fromkeys(G.nodes(), 0.0)
 
         in_degrees = dict(G.in_degree())
         out_degrees = dict(G.out_degree())
@@ -357,6 +355,7 @@ class NetworkRiskSensor:
                 # B. Assortativity (Resiliency)
                 try:
                     import warnings
+
                     with warnings.catch_warnings():
                         warnings.simplefilter("ignore", category=RuntimeWarning)
                         assort = nx.degree_assortativity_coefficient(G)
@@ -396,7 +395,7 @@ class NetworkRiskSensor:
         self.logger.info("Network Risk Sensor: Vector Mathematics & Graph Topology Complete.")
         return parsed_files, macro_metrics
 
-    def _fallback_build_graph(self, parsed_files: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode. Using linear counting for Ecosystem Roles."
         )

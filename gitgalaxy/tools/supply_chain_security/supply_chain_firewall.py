@@ -2,30 +2,30 @@
 # ==============================================================================
 # GitGalaxy Tool: Supply Chain Firewall
 #
-# PURPOSE: 
+# PURPOSE:
 # Zero-Trust Dependency Verification and Behavioral Policy Enforcement.
 #
 # ARCHITECTURAL DECISION:
-# Operating as a RAM-Exclusive Logic Gate, this firewall consumes the Phase 1 
-# Dependency Graph. By completely divesting from redundant O(N) disk parsing, 
-# it achieves near-instant policy enforcement. It mitigates Namespace Hijacking 
-# and Dependency Confusion attacks by comparing raw codebase imports against 
-# resolved manifest aliases, while enforcing dynamic risk thresholds based on 
+# Operating as a RAM-Exclusive Logic Gate, this firewall consumes the Phase 1
+# Dependency Graph. By completely divesting from redundant O(N) disk parsing,
+# it achieves near-instant policy enforcement. It mitigates Namespace Hijacking
+# and Dependency Confusion attacks by comparing raw codebase imports against
+# resolved manifest aliases, while enforcing dynamic risk thresholds based on
 # build-time execution contexts and network topography.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
 import json
 import logging
+import sys
 from pathlib import Path
+from typing import Any, Optional, Union
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
-from typing import Any, Dict, Optional, Union
 
 # The five behavioral categories this firewall gates on, mapped to their names
 # in SignalProcessor.RISK_SCHEMA -- Phase 3 computes these once; the firewall
@@ -48,10 +48,11 @@ _FIREWALL_RISK_INDEXES = {
 # to SignalProcessor's judgment instead of maintaining a second threshold.
 _FIREWALL_BLOCK_THRESHOLD = 50.0
 
+
 def run_firewall_audit(
     parsed_files: list,
     alias_map: Optional[dict] = None,
-    config: Optional[Union[ResolvedConfig, Dict[str, Any]]] = None,
+    config: Optional[Union[ResolvedConfig, dict[str, Any]]] = None,
 ) -> dict:
     """
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).
@@ -100,16 +101,16 @@ def run_firewall_audit(
         # =====================================================================
         local_aliases = {}
         current_dir = Path(rel_path_str).parent
-        
+
         while current_dir:
             dir_key = str(current_dir).replace("\\", "/")
             if dir_key in safe_alias_map:
                 local_aliases = safe_alias_map[dir_key]
                 break
-                
+
             if str(current_dir) == ".":
                 break
-                
+
             current_dir = current_dir.parent
 
         # =====================================================================
@@ -120,14 +121,14 @@ def run_firewall_audit(
             raw_pkg = imp[0] if isinstance(imp, (tuple, list)) else imp
 
             # DEFENSIVE DESIGN (RELATIVE PATH SHIELD):
-            # Ignore native internal routing (e.g., './utils') to focus strictly 
+            # Ignore native internal routing (e.g., './utils') to focus strictly
             # on external supply chain dependencies.
             if raw_pkg.startswith("."):
                 continue
 
             # DEFENSIVE DESIGN (DEEP-PATH TRUNCATOR):
             # Attackers often hide malicious payloads deep inside nested sub-modules.
-            # Normalizing paths (e.g., 'lodash/nested/file' -> 'lodash') ensures 
+            # Normalizing paths (e.g., 'lodash/nested/file' -> 'lodash') ensures
             # policy rules evaluate the authoritative root package.
             if raw_pkg.startswith("@"):
                 parts = raw_pkg.split("/")
@@ -136,7 +137,7 @@ def run_firewall_audit(
                 pkg = raw_pkg.split("/")[0]
 
             # DEFENSIVE DESIGN (IDENTITY TRANSLATION SHIELD):
-            # Dereference manifest aliases to catch Dependency Confusion attacks 
+            # Dereference manifest aliases to catch Dependency Confusion attacks
             # where a malicious package masks itself behind a trusted internal alias.
             true_pkg = local_aliases.get(pkg, pkg)
 
@@ -145,7 +146,9 @@ def run_firewall_audit(
                 threats_found += 1
                 # The Allowlist Loophole Fix: A blacklisted import is ALWAYS a threat. Never suppress it.
                 if true_pkg != pkg:
-                    logger.critical(f"🚨 [BLACKLISTED IMPORT] Spoofed alias blocked: '{pkg}' -> '{true_pkg}' in: {rel_path_str}")
+                    logger.critical(
+                        f"🚨 [BLACKLISTED IMPORT] Spoofed alias blocked: '{pkg}' -> '{true_pkg}' in: {rel_path_str}"
+                    )
                 else:
                     logger.critical(f"🚨 [BLACKLISTED IMPORT] Unauthorized package '{pkg}' blocked in: {rel_path_str}")
             elif true_pkg in approved_imports:
@@ -169,15 +172,32 @@ def run_firewall_audit(
         # Shield inert static assets (SVGs, Templates, XMLs) from executing behavioral heuristics
         safe_path_lower = rel_path_str.lower()
         ext = Path(rel_path_str).suffix.lower()
-        
+
         # .d.ts files are TypeScript declarations. They contain no executable logic.
-        if ext in {".svg", ".xml", ".jelly", ".html", ".css", ".md", ".json", ".yaml", ".yml", ".txt", ".properties"} or safe_path_lower.endswith(".d.ts"):
+        if ext in {
+            ".svg",
+            ".xml",
+            ".jelly",
+            ".html",
+            ".css",
+            ".md",
+            ".json",
+            ".yaml",
+            ".yml",
+            ".txt",
+            ".properties",
+        } or safe_path_lower.endswith(".d.ts"):
             continue
 
-        # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data, 
+        # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data,
         # and contain high-entropy strings which trigger massive false positives in behavioral heuristics.
         safe_path = rel_path_str.lower()
-        if "/test/" in safe_path or "/tests/" in safe_path or "test_" in Path(safe_path).name or "_test" in Path(safe_path).name:
+        if (
+            "/test/" in safe_path
+            or "/tests/" in safe_path
+            or "test_" in Path(safe_path).name
+            or "_test" in Path(safe_path).name
+        ):
             continue
 
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):
@@ -281,43 +301,43 @@ def main():
             print("   -> Directory detected. Orchestrating GalaxyScope RAM graph generation...")
             import subprocess
             import tempfile
-            
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Run the orchestrator to generate the JSON graph in a temp directory
                 target_out_file = str(Path(tmpdir) / "firewall_temp.json")
                 result = subprocess.run(
                     ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", target_out_file],
                     capture_output=True,
-                    text=True
+                    text=True,
                 )
-                
+
                 if result.returncode != 0:
                     print(f"❌ GalaxyScope execution failed:\n{result.stderr}")
                     sys.exit(1)
-                
+
                 # Dynamically locate the generated audit file to avoid naming convention bugs
                 tmp_path = Path(tmpdir)
                 audit_files = list(tmp_path.glob("*_audit.json"))
-                
+
                 if not audit_files:
                     print("❌ GalaxyScope did not produce an audit JSON in the temp directory.")
                     print("\n--- 🕵️ ENGINE TELEMETRY & CRASH LOGS ---")
                     print(result.stderr)
                     print("------------------------------------------\n")
                     sys.exit(1)
-                    
-                with open(audit_files[0], "r", encoding="utf-8") as f:
+
+                with open(audit_files[0], encoding="utf-8") as f:
                     data = json.load(f)
                     # Extract files from the structured audit directory groups
                     parsed_files = []
                     groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
                     for folder_data in groups.values():
                         for path, file_info in folder_data.get("Files", {}).items():
-                            file_info["path"] = path # Ensure path remains attached
+                            file_info["path"] = path  # Ensure path remains attached
                             parsed_files.append(file_info)
         else:
             # Standard file-based load
-            with open(target_path, "r", encoding="utf-8") as f:
+            with open(target_path, encoding="utf-8") as f:
                 data = json.load(f)
                 parsed_files = []
                 groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
@@ -325,7 +345,7 @@ def main():
                     for path, file_info in folder_data.get("Files", {}).items():
                         file_info["path"] = path
                         parsed_files.append(file_info)
-                
+
     except Exception as e:
         print(f"❌ Failed to parse RAM graph: {e}")
         sys.exit(1)
@@ -334,7 +354,11 @@ def main():
     # relying purely on strict exact-match dependencies and behavioral structural signatures.
     results = run_firewall_audit(parsed_files, alias_map={}, config=resolved_config)
 
-    mode_str = "Strict (Exclude Blacklist and Unknown)" if resolved_config.get("STRICT_IMPORT_MODE") else "Audit (Allow Whitelist + Unknown)"
+    mode_str = (
+        "Strict (Exclude Blacklist and Unknown)"
+        if resolved_config.get("STRICT_IMPORT_MODE")
+        else "Audit (Allow Whitelist + Unknown)"
+    )
 
     print("\n" + "=" * 75)
     print(" 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY")

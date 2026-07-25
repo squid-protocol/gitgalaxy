@@ -10,61 +10,60 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io, safety_bypasses
 
+import concurrent.futures
+import importlib.util
 import logging
+import multiprocessing
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
 import time
 import zipfile
-import tempfile
-import shutil
-import sys
-import re
-import os
-import subprocess
-import importlib.util
-import multiprocessing
-import concurrent.futures
-from pathlib import Path
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Union, Set, DefaultDict
 from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional, Union
 
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX
-from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
+from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
-from gitgalaxy.standards.language_lens import LanguageDetector
+from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
-from gitgalaxy.core.spatial_mapper import SpatialMapper
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
-from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
+from gitgalaxy.core.spatial_mapper import SpatialMapper
 from gitgalaxy.metrics.chronometer import Chronometer
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.metrics.statistical_auditor import StatisticalAuditor
-from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
-from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
-from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
-    run_firewall_audit,
-)
-from gitgalaxy.recorders.gpu_recorder import GPURecorder
 from gitgalaxy.recorders.audit_recorder import AuditRecorder
+from gitgalaxy.recorders.gpu_recorder import GPURecorder
 from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 from gitgalaxy.recorders.sarif_recorder import SarifRecorder
 from gitgalaxy.recorders.sbom_recorder import SbomRecorder
+from gitgalaxy.security.security_auditor import ML_AVAILABLE, SecurityAuditor
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.security.security_auditor import SecurityAuditor, ML_AVAILABLE
-from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
-from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
+from gitgalaxy.standards.analysis_lens import (
+    ASSET_MASKS,
+    PATH_MODIFIERS,
+)
+from gitgalaxy.standards.config_resolver import resolve_config
 from gitgalaxy.standards.gitgalaxy_config import (
     LEXICAL_FAMILY_HEURISTICS,
 )
-from gitgalaxy.standards.config_resolver import resolve_config
+from gitgalaxy.standards.language_lens import LanguageDetector
 from gitgalaxy.standards.language_standards import (
     LANGUAGE_DEFINITIONS,
     PROJECT_OVERRIDES,
 )
-from gitgalaxy.standards.analysis_lens import (
-    PATH_MODIFIERS,
-    ASSET_MASKS,
+from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
+from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
+from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
+from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
+from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
+    run_firewall_audit,
 )
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
@@ -76,7 +75,8 @@ logger = logging.getLogger("GalaxyScope")
 # ==============================================================================
 # Top-level functions to bypass Python's Multi-Processing pickling limitations
 
-_worker_state: Dict[str, Any] = {}
+_worker_state: dict[str, Any] = {}
+
 
 def execution_timeout_failsafe(signum, frame):
     """
@@ -91,20 +91,20 @@ def execution_timeout_failsafe(signum, frame):
 
 def _init_worker(
     root_str: str,
-    config: Dict[str, Any],
-    ext_tally: Dict[str, int],
+    config: dict[str, Any],
+    ext_tally: dict[str, int],
     log_level: int,
-    git_tracked: Set[str],
-    census: Set[str],
+    git_tracked: set[str],
+    census: set[str],
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
-    
+
     ARCHITECTURAL DECISION (ISOLATED WORKER MEMORY):
     Python's Global Interpreter Lock (GIL) prevents true multi-threading for CPU-bound tasks.
     To map a massive repository at extreme velocity, GitGalaxy spawns entirely separate OS
-    processes. This boot-loader instantiates the heavy regex matrices entirely within the 
-    child's isolated RAM. This prevents the OS from attempting to pickle/serialize massive 
+    processes. This boot-loader instantiates the heavy regex matrices entirely within the
+    child's isolated RAM. This prevents the OS from attempting to pickle/serialize massive
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
@@ -128,7 +128,7 @@ def _init_worker(
 
     # 2. Warm up active project languages based on extensions found in Pass 0.
     active_langs = set()
-    for ext in ext_tally.keys():
+    for ext in ext_tally:
         for l_id, l_cfg in lang_defs.items():
             if ext in l_cfg.get("extensions", []):
                 active_langs.add(l_id)
@@ -151,7 +151,9 @@ def _init_worker(
             "guidestar": GuideStarLens(
                 root, priority_whitelist, parent_logger=worker_logger, guidestar_config=config.get("GUIDESTAR_CONFIG")
             ),
-            "detector": LanguageDetector(lang_defs, lexical_heuristics, exact_file_match=config.get("EXACT_FILE_MATCH")),
+            "detector": LanguageDetector(
+                lang_defs, lexical_heuristics, exact_file_match=config.get("EXACT_FILE_MATCH")
+            ),
             "prism": Prism(lexical_heuristics, lang_defs, parent_logger=worker_logger),
             "detector_cache": detector_cache,
             "word_tokenizer": re.compile(r"\b\w+\b"),
@@ -166,7 +168,7 @@ def _init_worker(
     _worker_state["guidestar"].scan_project_config()
 
 
-def _process_file_worker(rel_path: str) -> Dict[str, Any]:
+def _process_file_worker(rel_path: str) -> dict[str, Any]:
     """Processes a single file path using the worker's cached hardware modules."""
 
     # ---> START THE CLOCK FOR THE MICRO-PROFILER <---
@@ -206,7 +208,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
     # str/float/None/dict values into this same dict -- left un-annotated,
     # mypy infers the type from this literal's initial 4 keys and then flags
     # every later value of a different shape as an incompatible assignment.
-    observation: Dict[str, Any] = {
+    observation: dict[str, Any] = {
         "rel_path": rel_path,
         "status": "filtered",
         "reason": "Aperture block",
@@ -292,7 +294,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
         # Phase 2: Disk I/O
         t_io = time.perf_counter()
         try:
-            with open(full_path_str, "r", encoding="utf-8", errors="ignore") as f:
+            with open(full_path_str, encoding="utf-8", errors="ignore") as f:
                 content_buffer = f.read()
         except FileNotFoundError:
             # Fast, zero-overhead disk failure routing.
@@ -301,7 +303,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             observation["processing_time"] = time.time() - t_start
             return observation
         except Exception as e:
-            observation["reason"] = f"I/O Error: {str(e)}"
+            observation["reason"] = f"I/O Error: {e!s}"
             observation["processing_time"] = time.time() - t_start
             return observation
         if is_file_profiling:
@@ -514,8 +516,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
                     )
                     if amplified_sql_injection:
                         logic_data["equations"]["sec_amplified_sql_injection"] = (
-                            logic_data["equations"].get("sec_amplified_sql_injection", 0)
-                            + amplified_sql_injection
+                            logic_data["equations"].get("sec_amplified_sql_injection", 0) + amplified_sql_injection
                         )
                         logic_data.setdefault("mitigation_telemetry", {})
                         logic_data["mitigation_telemetry"]["amplified_sql_injection"] = (
@@ -610,9 +611,9 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             "prior_lock": has_prior,
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
-            "mitigations": refraction.get("mitigations", []), # <--- THE FIX: Route the suppressions
+            "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": list(raw_imports),
-            "named_tokens": list(named_tokens),  
+            "named_tokens": list(named_tokens),
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -632,7 +633,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
 
     except Exception as e:
         observation["status"] = "anomaly"
-        observation["reason"] = f"Hardware failure: {str(e)}"
+        observation["reason"] = f"Hardware failure: {e!s}"
 
     # ---> RECORD THE FINAL TIME <---
     total_time = time.time() - t_start
@@ -674,7 +675,7 @@ class Orchestrator:
     def __init__(
         self,
         target_input: Union[str, Path],
-        config: Dict[str, Any],
+        config: dict[str, Any],
         version: str = "latest",
     ):
         self.config = config
@@ -732,8 +733,11 @@ class Orchestrator:
         # the file on runs that will never use it.
         self.dependency_cache = None
         _exclusive_no_sbom = (
-            config.get("LLM_ONLY") or config.get("GPU_ONLY") or config.get("AUDIT_ONLY")
-            or config.get("DB_ONLY") or config.get("SARIF_ONLY")
+            config.get("LLM_ONLY")
+            or config.get("GPU_ONLY")
+            or config.get("AUDIT_ONLY")
+            or config.get("DB_ONLY")
+            or config.get("SARIF_ONLY")
         ) and not config.get("SBOM_ONLY")
 
         if not config.get("NO_DEPENDENCY_CACHE") and not _exclusive_no_sbom:
@@ -770,7 +774,7 @@ class Orchestrator:
             dependency_cache=self.dependency_cache,
             fresh_scan_budget=_budget,
         )
-        
+
         # Zero-Trust execution validation
         self.security_analyzer = SecurityLens()
 
@@ -782,22 +786,22 @@ class Orchestrator:
         # GLOBAL STATE ARRAYS
         # Shared memory constructs used to aggregate worker output and manage state
         # ==============================================================================
-        self.census: Set[str] = set()
-        self.stem_map: Dict[str, str] = {}
-        self.ram_cache: Dict[str, Dict[str, Any]] = {}
-        self.parsed_files: List[Dict[str, Any]] = []
-        self.unparsable_files: List[Dict[str, Any]] = []
-        self.anomalies: List[Dict[str, str]] = []
-        self.popularity_scores: Dict[str, int] = {}
-        self.ext_tally: Dict[str, int] = {}
-        self.git_tracked_files: Set[str] = set()
+        self.census: set[str] = set()
+        self.stem_map: dict[str, str] = {}
+        self.ram_cache: dict[str, dict[str, Any]] = {}
+        self.parsed_files: list[dict[str, Any]] = []
+        self.unparsable_files: list[dict[str, Any]] = []
+        self.anomalies: list[dict[str, str]] = []
+        self.popularity_scores: dict[str, int] = {}
+        self.ext_tally: dict[str, int] = {}
+        self.git_tracked_files: set[str] = set()
 
         # ---> NEW: NEIGHBORHOOD MICRO-MASS QUOTA STATE <---
         # Prevents high-density utility directories (like icons/ or config blocks)
         # from overloading localized physical mass calculations.
         self.MICRO_MASS_BYTES = 50
         self.MICRO_MASS_GRACE_LIMIT = 15
-        self.neighborhood_tracker: DefaultDict[str, int] = defaultdict(int)
+        self.neighborhood_tracker: defaultdict[str, int] = defaultdict(int)
 
         self.splicing_telemetry = {
             "top_slowest": [],
@@ -927,7 +931,7 @@ class Orchestrator:
             # off telemetry -- thread it down now that it exists, or every file's
             # column/report field stays permanently the 0.0 fallback.
             repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
-            for file_data in (repository_graph or []):
+            for file_data in repository_graph or []:
                 file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
 
             report = self.processor.generate_forensic_report(repository_graph)
@@ -950,7 +954,7 @@ class Orchestrator:
             # ==========================================================
             logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
 
-# NEW:
+            # NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
             # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
             # etc. -- files with no parseable dependency list, used only for its own
@@ -959,7 +963,7 @@ class Orchestrator:
             # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
             # requirements.txt) silently never reach the SBOM whenever any other
             # manifest is also present in the repo.
-            from gitgalaxy.security.manifest_parser import ManifestParser, SUPPORTED_MANIFEST_FILENAMES
+            from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_FILENAMES, ManifestParser
 
             guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
             target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
@@ -987,30 +991,30 @@ class Orchestrator:
             # record_keeper.py's real read is summary["typosquat_hits"] directly
             # (top level, not nested under ecosystem_audits).
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
-            
+
             # ==========================================================
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
             # ==========================================================
             self.policy_failed = False
             max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
-            
+
             if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_systemic_threat > 0.0:
                 logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
-                
+
                 from gitgalaxy.metrics.signal_processor import SignalProcessor
-                
-                for file_data in (repository_graph or []):
+
+                for file_data in repository_graph or []:
                     # 1. Absolute Security Floor (Secrets)
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
-                        
+
                         # Extract mitigations safely
                         mitigs = file_data.get("mitigations", [])
                         if isinstance(mitigs, dict):
                             mitigs = list(mitigs.keys())
                         elif not isinstance(mitigs, list):
                             mitigs = []
-                            
+
                         if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
                             # Check Risk Vector
                             if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
@@ -1018,92 +1022,103 @@ class Orchestrator:
                                 rv = file_data.get("risk_vector", [])
                                 if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
                                     has_secrets = True
-                            
+
                             # THE FIX: Bulletproof Truthiness Check
                             ts = file_data.get("telemetry", {}).get("threat_snippets", {})
                             if isinstance(ts, dict):
                                 if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
                                     has_secrets = True
-                                
+
                             # Check Domain Context
                             ctx = file_data.get("telemetry", {}).get("domain_context", {})
                             if isinstance(ctx, dict):
                                 warning_msg = ctx.get("warning", "")
                                 if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
                                     has_secrets = True
-                                
+
                         if has_secrets:
-                            logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")
+                            logger.critical(
+                                f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
+                            )
                             self.policy_failed = True
 
                     # 2. XGBoost Malware Floor
                     if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
-                        ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                        logger.critical(f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}")
+                        ai_class = (
+                            file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                        )
+                        logger.critical(
+                            f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
+                        )
                         self.policy_failed = True
-                        
+
                     # 3. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
                     if max_systemic_threat > 0.0:
                         risk_vec = file_data.get("risk_vector", [])
-                        cumulative_risk = sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
-                        
+                        cumulative_risk = (
+                            sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
+                        )
+
                         net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
                         blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
-                        
+
                         systemic_threat = cumulative_risk * blast_radius
-                        
+
                         if systemic_threat >= max_systemic_threat:
-                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}")
+                            logger.critical(
+                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}"
+                            )
                             self.policy_failed = True
 
             # ==========================================================
             # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts & Config Exclusions)
             # ==========================================================
             logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
-            
+
             ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
             ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
-            
-            for file_data in (repository_graph or []):
+
+            for file_data in repository_graph or []:
                 # Ensure cross-platform slash normalization
                 file_path = file_data.get("path", "").replace("\\", "/")
                 path_excluded = any(p in file_path for p in ignored_paths)
-                
+
                 if path_excluded:
                     file_data["equations"] = {}
                     file_data["is_ml_threat"] = False
-                    
+
                     if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
                         file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
-                        
+
                     if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
                         file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
-                        
+
                     if "telemetry" in file_data:
                         file_data["telemetry"] = {
                             "popularity": file_data["telemetry"].get("popularity", 0),
-                            "ownership": file_data["telemetry"].get("ownership", "Unknown")
+                            "ownership": file_data["telemetry"].get("ownership", "Unknown"),
                         }
-                    
+
                     if "metadata" in file_data:
                         file_data["metadata"] = {}
-                        
+
                     continue
-                
+
                 mitigs = file_data.get("mitigations", [])
                 if isinstance(mitigs, dict):
                     mitigs = list(mitigs.keys())
                 elif not isinstance(mitigs, list):
                     mitigs = []
-                
+
                 ts = file_data.get("telemetry", {}).get("threat_snippets", {})
                 eqs = file_data.get("equations", {})
-                
+
                 if isinstance(ts, dict) and isinstance(eqs, dict):
                     keys_to_delete_ts = [
-                        k for k in ts.keys() 
-                        if k in mitigs 
-                        or f"sec_{k}" in mitigs 
+                        k
+                        for k in ts.keys()
+                        if k in mitigs
+                        or f"sec_{k}" in mitigs
                         or k.replace("sec_", "") in mitigs
                         or k in ignored_rules
                         or f"sec_{k}" in ignored_rules
@@ -1111,7 +1126,8 @@ class Orchestrator:
                         or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
                     ]
                     keys_to_delete_eqs = [
-                        k for k in eqs.keys()
+                        k
+                        for k in eqs.keys()
                         if k in mitigs
                         or k.replace("sec_", "") in mitigs
                         or k in ignored_rules
@@ -1119,11 +1135,11 @@ class Orchestrator:
                         or f"GG-SAST-{k.upper()}" in ignored_rules
                         or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
                     ]
-                    
+
                     for k in keys_to_delete_ts:
                         if k in ts:
                             del ts[k]
-                            
+
                     for k in keys_to_delete_eqs:
                         if k in eqs:
                             del eqs[k]
@@ -1135,10 +1151,15 @@ class Orchestrator:
                 if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
                     if "ai_guardrails" in file_data.get("telemetry", {}):
                         del file_data["telemetry"]["ai_guardrails"]
-                        
+
                 if file_data.get("is_ml_threat"):
-                    ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                    if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
+                    ai_class = (
+                        file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                    )
+                    if (
+                        f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules
+                        or "ml_threat" in mitigs
+                    ):
                         file_data["is_ml_threat"] = False
 
             # ==========================================================
@@ -1349,7 +1370,7 @@ class Orchestrator:
             print("=" * 75 + "\n")
 
         except Exception as e:
-            logger.critical(f"FATAL_SYSTEM_COLLAPSE: {str(e)}", exc_info=True)
+            logger.critical(f"FATAL_SYSTEM_COLLAPSE: {e!s}", exc_info=True)
             raise
         finally:
             self.cleanup()
@@ -1476,7 +1497,7 @@ class Orchestrator:
         Dispatches the physical file paths to the isolated worker pool (bypassing the GIL).
         As the workers complete their high-speed regex extraction, this method consumes the
         futures dynamically to prevent O(N^2) polling wait states. It catches structural
-        saturations (ReDoS), logs processing telemetry, and aggregates the extracted 
+        saturations (ReDoS), logs processing telemetry, and aggregates the extracted
         Structural Signatures into the global RAM cache.
         """
         total_files = len(self.stem_map)
@@ -1583,7 +1604,7 @@ class Orchestrator:
 
                     except Exception as e:
                         logger.error(f"WORKER_CRASH on {rel_path}: {e}")
-                        self._record_anomaly(rel_path, f"Fatal Worker Crash: {str(e)}")
+                        self._record_anomaly(rel_path, f"Fatal Worker Crash: {e!s}")
 
             except concurrent.futures.TimeoutError:
                 logger.error("\n" + "=" * 75)
@@ -1645,7 +1666,7 @@ class Orchestrator:
         """
         logger.info("PASS_1.5: Resolving import graphs via O(1) Pre-computed Suffix Hash Maps...")
 
-        self.popularity_scores = {rel_path: 0 for rel_path in self.stem_map.values()}
+        self.popularity_scores = dict.fromkeys(self.stem_map.values(), 0)
         repo_file_paths = set(self.stem_map.values())
 
         # --- O(1) SUFFIX MAP ---
@@ -1779,10 +1800,7 @@ class Orchestrator:
                     guess_stem = Path(clean_path).stem.lower()
                     if guess_stem in stem_to_paths and guess_stem not in stop_stems and len(guess_stem) >= 3:
                         for target_path in stem_to_paths[guess_stem]:
-                            if clean_path in target_path or guess_stem == clean_path:
-                                self.popularity_scores[target_path] += 1
-                                matched_internal = True
-                            elif "/" not in clean_path:
+                            if clean_path in target_path or guess_stem == clean_path or "/" not in clean_path:
                                 self.popularity_scores[target_path] += 1
                                 matched_internal = True
 
@@ -2265,12 +2283,14 @@ class Orchestrator:
                 self.temp_dir = tempfile.mkdtemp(prefix="refraction_")
                 with zipfile.ZipFile(input_path, "r") as zip_ref:
                     # DEVIOUS SHIELD: Zip Bomb Protection (Max 5GB expansion)
-                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024 
+                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024
                     total_uncompressed_size = sum(file_info.file_size for file_info in zip_ref.infolist())
-                    
+
                     if total_uncompressed_size > MAX_SAFE_BYTES:
-                        raise ValueError(f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes.")
-                        
+                        raise ValueError(
+                            f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes."
+                        )
+
                     zip_ref.extractall(self.temp_dir)
                 return Path(self.temp_dir).resolve()
             except Exception as e:
@@ -2299,7 +2319,7 @@ class Orchestrator:
         logger.debug(f"ANOMALY: {name} | {message}")
         self.anomalies.append({"star": name, "diagnostic": message})
 
-    def _summarize_anomalies(self, total_unparsable: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _summarize_anomalies(self, total_unparsable: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Bridges isolated worker failures back to the main thread's forensic ledger.
 
@@ -2307,8 +2327,8 @@ class Orchestrator:
         a binary saturation threshold, or a regex timeout, this method captures the diagnostic
         string and appends it to the global anomalies array for the final Audit Recorder payload.
         """
-        summary: Dict[str, Any] = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
-        unparsable_artifacts: List[str] = []
+        summary: dict[str, Any] = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
+        unparsable_artifacts: list[str] = []
 
         # 1. Maintain the physical error tallies (I/O, Binary, OS)
         for a in self.anomalies:
@@ -2329,7 +2349,7 @@ class Orchestrator:
             summary["unparsable_artifacts"] = unparsable_artifacts
 
         # 2. Build the hierarchical composition_by_extension_and_reason
-        composition: Dict[str, Dict[str, int]] = {}
+        composition: dict[str, dict[str, int]] = {}
         for unparsable in total_unparsable:
             path = unparsable.get("path", "")
             reason = unparsable.get("reason", "Unknown Reason")
@@ -2423,7 +2443,7 @@ class Orchestrator:
 
         print("=" * 75 + "\n")
 
-    def _get_git_audit(self) -> Dict[str, str]:
+    def _get_git_audit(self) -> dict[str, str]:
         """
         Extracts forensic Git metadata (Commit SHA, Branch, Remote URL, Date) via subprocess.
 
@@ -2480,10 +2500,10 @@ class Orchestrator:
 
     def execute_incremental_scan(
         self,
-        ram_cache: Dict[str, Any],
-        added: List[str],
-        modified: List[str],
-        deleted: List[str],
+        ram_cache: dict[str, Any],
+        added: list[str],
+        modified: list[str],
+        deleted: list[str],
         db_output_path: str,
     ):
         """
@@ -2551,7 +2571,7 @@ class Orchestrator:
 
             # #371: see the identical backfill in the main pipeline above.
             repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
-            for file_data in (repository_graph or []):
+            for file_data in repository_graph or []:
                 file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
 
             # #376: see the identical backfill in the main pipeline above.
@@ -2586,7 +2606,7 @@ class Orchestrator:
             )
 
         except Exception as e:
-            logger.critical(f"FATAL_DELTA_COLLAPSE: {str(e)}", exc_info=True)
+            logger.critical(f"FATAL_DELTA_COLLAPSE: {e!s}", exc_info=True)
             raise
         finally:
             self.cleanup()
@@ -2604,7 +2624,6 @@ def main():
 
     import argparse
     import copy
-    import os  # <-- Added for the hard memory eviction
     from pathlib import Path
 
     # Required for safe execution limits with the multiprocessing pool on Windows
@@ -2649,11 +2668,33 @@ def main():
     parser.add_argument("--db-only", action="store_true", default=None, help="Run ONLY the native SQLite recorder")
     parser.add_argument("--sarif-only", action="store_true", default=None, help="Run ONLY the SARIF exporter")
     parser.add_argument("--sbom-only", action="store_true", default=None, help="Run ONLY the CycloneDX SBOM generator")
-    parser.add_argument("--fail-on-secrets", action="store_true", default=None, help="CI/CD Gate: Fail build if hardcoded secrets are detected")
-    parser.add_argument("--fail-on-malware", action="store_true", default=None, help="CI/CD Gate: Fail build if ML threat inference flags malware")
-    parser.add_argument("--max-risk-exposure", type=float, default=None, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
-    parser.add_argument("--max-systemic-threat", type=float, default=None, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
-    parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
+    parser.add_argument(
+        "--fail-on-secrets",
+        action="store_true",
+        default=None,
+        help="CI/CD Gate: Fail build if hardcoded secrets are detected",
+    )
+    parser.add_argument(
+        "--fail-on-malware",
+        action="store_true",
+        default=None,
+        help="CI/CD Gate: Fail build if ML threat inference flags malware",
+    )
+    parser.add_argument(
+        "--max-risk-exposure",
+        type=float,
+        default=None,
+        help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)",
+    )
+    parser.add_argument(
+        "--max-systemic-threat",
+        type=float,
+        default=None,
+        help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)",
+    )
+    parser.add_argument(
+        "--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning"
+    )
 
     # --- DEPENDENCY AUDIT CACHE (incremental SBOM verification) ---
     parser.add_argument(
@@ -2728,8 +2769,9 @@ def main():
     config_file_data = {}
     if args.config and HAS_PYYAML:
         import yaml
+
         try:
-            with open(args.config, 'r') as f:
+            with open(args.config) as f:
                 config_file_data = yaml.safe_load(f) or {}
             logging.info(f"⚙️ Loaded repository configuration from {args.config}")
         except Exception as e:
@@ -2739,9 +2781,9 @@ def main():
     # #247: `is None` -- not a truthy/falsy check -- because None is the only
     # value that means "the CLI didn't set this" now that every affected flag
     # above defaults to None instead of a real off-value.
-    if 'galaxyscope' in config_file_data:
-        for key, val in config_file_data['galaxyscope'].items():
-            arg_key = key.replace('-', '_')
+    if "galaxyscope" in config_file_data:
+        for key, val in config_file_data["galaxyscope"].items():
+            arg_key = key.replace("-", "_")
             if hasattr(args, arg_key) and getattr(args, arg_key) is None:
                 setattr(args, arg_key, val)
 
@@ -2762,7 +2804,7 @@ def main():
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-        stream=sys.stderr, # <--- THE FIX: Route logs to stderr so CI/CD catches them
+        stream=sys.stderr,  # <--- THE FIX: Route logs to stderr so CI/CD catches them
         force=True,
     )
 
@@ -2811,11 +2853,8 @@ def main():
         # genuine gitgalaxy_config.py key typo still hard-errors (#332)
         # instead of colliding with pipeline flags living in the same
         # `galaxyscope:` YAML section.
-        yaml_section = config_file_data.get('galaxyscope', {}) if isinstance(config_file_data, dict) else {}
-        resolver_yaml_data = {
-            key: val for key, val in yaml_section.items()
-            if not hasattr(args, key.replace('-', '_'))
-        }
+        yaml_section = config_file_data.get("galaxyscope", {}) if isinstance(config_file_data, dict) else {}
+        resolver_yaml_data = {key: val for key, val in yaml_section.items() if not hasattr(args, key.replace("-", "_"))}
 
         resolved = resolve_config(yaml_data=resolver_yaml_data)
 
@@ -2904,7 +2943,7 @@ def main():
         # ---------------------------------------------------------
         # 4. Ignite the Engine
         # ---------------------------------------------------------
-        
+
         # GUARD: --full-dependency-scan is meaningless when the SBOM audit
         # won't run at all. Warn loudly instead of silently no-opping.
         _sbomless_exclusive = (
@@ -2915,13 +2954,14 @@ def main():
                 "⚠️ --full-dependency-scan has NO EFFECT: the current exclusive mode skips "
                 "SBOM generation entirely. Use --sbom-only or a default full run to audit dependencies."
             )
-            
+
         scope = Orchestrator(args.target, full_config)
 
         if args.incremental:
             from gitgalaxy.state_rehydrator import StateRehydrator
+
             logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
-            
+
             db_out_path = str(Path(final_output).with_name(f"{Path(final_output).stem}_master.db"))
             rehydrator = StateRehydrator(args.incremental)
             baseline_state = rehydrator.load_latest_state(project_name)
@@ -2929,43 +2969,47 @@ def main():
             if baseline_state:
                 baseline_commit = baseline_state["commit_hash"]
                 ram_cache = baseline_state["ram_cache"]
-                
+
                 try:
                     import subprocess
+
                     diff_output = subprocess.check_output(
                         ["git", "diff", "--name-status", baseline_commit],
                         cwd=target_path,
                         text=True,
-                        stderr=subprocess.DEVNULL
+                        stderr=subprocess.DEVNULL,
                     )
-                    
+
                     added, modified, deleted = [], [], []
                     for line in diff_output.splitlines():
                         if not line.strip():
                             continue
-                        
+
                         # DEVIOUS SHIELD: Split strictly by tabs, as filenames may contain spaces.
-                        parts = line.split('\t')
+                        parts = line.split("\t")
                         status = parts[0]
-                        
+
                         # Safely strip Git's quotation marks from spaced filenames
-                        def _clean(p): return p.strip('"\n\r')
-                        
-                        if status.startswith('A'):
+                        def _clean(p):
+                            return p.strip('"\n\r')
+
+                        if status.startswith("A"):
                             added.append(_clean(parts[1]))
-                        elif status.startswith('M'):
+                        elif status.startswith("M"):
                             modified.append(_clean(parts[1]))
-                        elif status.startswith('D'):
+                        elif status.startswith("D"):
                             deleted.append(_clean(parts[1]))
-                        elif status.startswith('R') or status.startswith('C'):
+                        elif status.startswith("R") or status.startswith("C"):
                             # Git Outputs: R100 \t "old file.py" \t "new file.py"
                             deleted.append(_clean(parts[1]))
                             if len(parts) > 2:
                                 added.append(_clean(parts[2]))
-                    
-                    logging.info(f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted")
+
+                    logging.info(
+                        f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted"
+                    )
                     scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
-                    
+
                 except subprocess.CalledProcessError:
                     logging.warning(f"⚠️ Git diff failed against {baseline_commit}. Falling back to full scan.")
                     scope.execute_pipeline(final_output)

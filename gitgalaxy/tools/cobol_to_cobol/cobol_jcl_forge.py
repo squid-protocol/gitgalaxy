@@ -3,27 +3,27 @@
 # GitGalaxy Tool: Zero-Trust JCL Generator
 #
 # PURPOSE:
-# Generates deterministic Job Control Language (JCL) scripts directly from 
+# Generates deterministic Job Control Language (JCL) scripts directly from
 # extracted COBOL structural intent.
 #
 # ARCHITECTURAL DECISION:
-# Modernizing mainframe workloads requires mapping legacy file assignments 
-# (SELECT/ASSIGN) to modern cloud infrastructure. This generator enforces 
-# a Zero-Trust data allocation model by strictly matching the JCL definitions 
-# to the mathematically verified I/O intent extracted during static analysis, 
+# Modernizing mainframe workloads requires mapping legacy file assignments
+# (SELECT/ASSIGN) to modern cloud infrastructure. This generator enforces
+# a Zero-Trust data allocation model by strictly matching the JCL definitions
+# to the mathematically verified I/O intent extracted during static analysis,
 # preventing over-permissioned datasets.
 # ==============================================================================
 import argparse
-import sys
 import re
-from pathlib import Path
+import sys
 from datetime import datetime
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Optional
 
 
 def analyze_cobol_intent(filepath: Path) -> dict:
     """Extracts execution intent and data boundaries from legacy source code."""
-    intent: Dict[str, Any] = {
+    intent: dict[str, Any] = {
         "program_id": "UNKNOWN",
         "files_requested": [],
         "is_cics": False,

@@ -7,14 +7,15 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import math
 import hashlib
 import logging
-from typing import Dict, List, Any, Optional
+import math
+from typing import Any, Optional
 
 # ------------------------------------------------------------------------------
 # SPATIAL MAPPER (Phase 7.5: Spatial Positioning Engine)
 # ------------------------------------------------------------------------------
+
 
 class SpatialMapper:
     """
@@ -26,7 +27,7 @@ class SpatialMapper:
     DEFENSIVE ARCHITECTURE (Angular Spatial Hashing):
     Standard layout engines crash on O(N^2) collision detection loops when placing thousands
     of nodes. This mapper neutralizes that bottleneck by bucketing the map into 360 angular degrees.
-    A placement ray only checks the exact degree it points at (and its immediate neighbors), 
+    A placement ray only checks the exact degree it points at (and its immediate neighbors),
     securing O(1) collision avoidance. This guarantees extreme velocity even on massive enterprise monoliths.
     """
 
@@ -64,7 +65,7 @@ class SpatialMapper:
     def _hash_jitter(self, seed: str, amplitude: float) -> float:
         """
         Applies a deterministic pseudo-random jitter based on a filename hash.
-        This ensures that running the analysis multiple times on the same codebase 
+        This ensures that running the analysis multiple times on the same codebase
         generates the exact same geometry every time, providing visual stability across audits.
         """
         if not seed:
@@ -74,7 +75,7 @@ class SpatialMapper:
         normalized = (h / 0xFFFFFFFF) * 2.0 - 1.0
         return normalized * amplitude
 
-    def map_repository(self, parsed_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def map_repository(self, parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Injects 3D coordinates using a Ray-Casting Dynamic Mask.
         Ensures ecosystem graphs wrap cleanly around previous turns of the spiral by measuring
@@ -86,7 +87,7 @@ class SpatialMapper:
         self.logger.info(f"Spatial Mapper: Executing Ray-Casting Dynamic Mask packing for {len(parsed_files)} nodes...")
 
         # 1. Sectorization (Directory Grouping)
-        sectors: Dict[str, List[Dict[str, Any]]] = {}
+        sectors: dict[str, list[dict[str, Any]]] = {}
         for file_node in parsed_files:
             path_str = file_node.get("path", file_node.get("filename", ""))
             parts = [p for p in path_str.replace("\\", "/").split("/") if p]
@@ -97,7 +98,7 @@ class SpatialMapper:
             sectors[sector_name].append(file_node)
 
         # 2. Hull Calculation
-        sector_stats: List[Dict[str, Any]] = []
+        sector_stats: list[dict[str, Any]] = []
         for name, items in sectors.items():
             items.sort(key=self._get_magnitude, reverse=True)
             central_node_magnitude = self._get_magnitude(items[0])
@@ -112,7 +113,7 @@ class SpatialMapper:
 
         # --- THE FIX: ANGULAR SPATIAL HASHING ---
         NUM_BINS = 360
-        spatial_grid: List[List[int]] = [[] for _ in range(NUM_BINS)]
+        spatial_grid: list[list[int]] = [[] for _ in range(NUM_BINS)]
 
         # Put the origin exclusion zone into all buckets
         for b in range(NUM_BINS):
@@ -226,7 +227,7 @@ class SpatialMapper:
 
         return parsed_files
 
-    def _get_magnitude(self, node: Dict[str, Any]) -> float:
+    def _get_magnitude(self, node: dict[str, Any]) -> float:
         """Safely extracts structural magnitude regardless of which JSON version the pipeline is using."""
         if "forensics" in node:
             return float(node["forensics"].get("structural_mass", 0.0))

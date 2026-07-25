@@ -7,15 +7,18 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
-import math
-import time
 import logging
+import math
+import re
+import time
 from pathlib import Path
-from typing import Tuple, Optional, Dict, List, Any, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
+
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH
-from gitgalaxy.standards.language_standards import LENS_CONFIG
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: F401
+from gitgalaxy.standards.language_standards import (
+    LANGUAGE_DEFINITIONS,  # noqa: F401
+    LENS_CONFIG,
+)
 
 # ==============================================================================
 # GitGalaxy Phase 1: The Entity Census (Linguistic Classification Engine)
@@ -31,12 +34,12 @@ class DetectorResult(TypedDict):
     family: Optional[str]
     lock_tier: Union[int, float]
     source_proof: str
-    candidates: List[str]
+    candidates: list[str]
     path: str
-    lang_mix: List[Dict[str, Any]]
+    lang_mix: list[dict[str, Any]]
     loc: int
     size_bytes: int
-    anomaly_flags: List[str]  # Security RAM Cache for conflicting identity indicators
+    anomaly_flags: list[str]  # Security RAM Cache for conflicting identity indicators
 
 
 class FocusingError(Exception):
@@ -64,10 +67,10 @@ class LanguageDetector:
 
     def __init__(
         self,
-        language_definitions: Dict[str, Any],
-        lexical_heuristics: Dict[str, Any],
+        language_definitions: dict[str, Any],
+        lexical_heuristics: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
-        exact_file_match: Optional[Dict[str, str]] = None,
+        exact_file_match: Optional[dict[str, str]] = None,
     ):
         self.languages = language_definitions
         self.lexical_heuristics = lexical_heuristics
@@ -84,8 +87,8 @@ class LanguageDetector:
             self.logger = logging.getLogger("lens")
             self.logger.setLevel(logging.INFO)
 
-        self.extension_map: Dict[str, str] = {}
-        self.anchor_map: Dict[str, str] = {}
+        self.extension_map: dict[str, str] = {}
+        self.anchor_map: dict[str, str] = {}
 
         # --- BAYESIAN TUNING CONSTANTS (Dynamic Fetch) ---
         self.thresholds = LENS_CONFIG.get("THRESHOLDS", {})
@@ -137,7 +140,7 @@ class LanguageDetector:
 
     def focus(
         self, file_path: Union[str, Path], content_sample: str = "", **kwargs
-    ) -> Tuple[str, float, Optional[str]]:
+    ) -> tuple[str, float, Optional[str]]:
         """Legacy Support Gateway for systems expecting the older Tuple return format."""
         result = self.inspect(file_path, content_sample, **kwargs)
         if result["intensity"] < 0.25:
@@ -153,8 +156,8 @@ class LanguageDetector:
         content_sample: str = "",
         has_intent: bool = False,
         intent_lang: str = "",
-        intent_vector: Optional[Dict[str, Any]] = None,
-        ext_tally: Optional[Dict[str, int]] = None,
+        intent_vector: Optional[dict[str, Any]] = None,
+        ext_tally: Optional[dict[str, int]] = None,
         **kwargs,
     ) -> DetectorResult:
         """Primary classification orchestrator combining metadata, context, and lexical analysis."""
@@ -556,8 +559,8 @@ class LanguageDetector:
         return self._forge_result(best_lang, best_conf, lock_tier, source_proof, result, content_sample)
 
     def _evaluate_ecosystem_gravity(
-        self, file_path: Union[str, Path], ext: str, global_tally: Dict[str, int]
-    ) -> Tuple[Optional[str], float]:
+        self, file_path: Union[str, Path], ext: str, global_tally: dict[str, int]
+    ) -> tuple[Optional[str], float]:
         """
         Resolves identical extension collisions (e.g., .h) by surveying the surrounding
         directory neighborhood for dominating implementation languages (C vs C++ vs Obj-C).
@@ -572,7 +575,7 @@ class LanguageDetector:
             return None, 0.0
 
         # 2. GATHER LOCAL FOLDER CENSUS
-        local_tally: Dict[str, int] = {}
+        local_tally: dict[str, int] = {}
         try:
             parent_dir = Path(file_path).parent
             for child in parent_dir.iterdir():
@@ -714,7 +717,7 @@ class LanguageDetector:
         ext: str,
         claimed_lang: str = "undeterminable",
         gravity_lang: Optional[str] = None,
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """
         The Strict Boundary Scanner.
         Evaluates the specific structural syntax of a file to verify a claimed extension.
@@ -803,7 +806,7 @@ class LanguageDetector:
         coding_loc: int,
         ext: str = "",
         gravity_lang: Optional[str] = None,
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """
         Heuristic Discovery for unknown or extensionless files.
         Prioritizes graceful failure over blind guessing by enforcing a strict 1.5x margin
@@ -1037,10 +1040,10 @@ class LanguageDetector:
         analyzer at massive log dumps or multi-gigabyte auto-generated monoliths.
         """
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 return f.read(1024 * 50)
-        except (PermissionError, FileNotFoundError, IOError, OSError) as e:
-            self.logger.error(f"Hardware/IO failure reading '{file_path}': {str(e)}")
+        except (PermissionError, FileNotFoundError, OSError) as e:
+            self.logger.error(f"Hardware/IO failure reading '{file_path}': {e!s}")
             raise FocusingError(f"Failed to focus lens on {file_path}") from e
 
     def _find_balanced_end(self, text: str, start_pos: int, opener: str, closer: str) -> int:
@@ -1079,7 +1082,7 @@ class LanguageDetector:
 
         return limit
 
-    def _detect_hybrids(self, content: str, primary_id: str) -> List[Dict[str, Any]]:
+    def _detect_hybrids(self, content: str, primary_id: str) -> list[dict[str, Any]]:
         """Identifies secondary logic streams (like HTML inside PHP files) via syntax handshakes."""
         total_len = len(content)
         if total_len == 0:

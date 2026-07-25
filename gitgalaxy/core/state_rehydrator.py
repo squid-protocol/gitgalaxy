@@ -16,7 +16,8 @@
 
 import sqlite3
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Optional
+
 
 # galaxyscope:ignore sec_high_risk_execution, agentic_rce, logic_bomb
 class StateRehydrator:
@@ -33,7 +34,7 @@ class StateRehydrator:
     def __init__(self, db_path: str):
         self.db_path = Path(db_path)
 
-    def load_latest_state(self, repo_name: str) -> Optional[Dict[str, Any]]:
+    def load_latest_state(self, repo_name: str) -> Optional[dict[str, Any]]:
         """
         Pulls the most recent commit state from SQLite and rebuilds the RAM dictionary.
         """
@@ -120,19 +121,21 @@ class StateRehydrator:
         except sqlite3.Error as e:
             print(f"⚠️ Database corruption or read error at {self.db_path}: {e}")
             return None
-    
+
     # ==============================================================================
+
 
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 # TEST 6: DICTIONARY OVERRIDE TYPE SPOOFING
 # ==============================================================================
 
+
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 def test_rehydrator_dictionary_type_spoofing(tmp_path):
     """
-    DEVIOUS EDGE CASE: An attacker (or corrupted DB) places a String into a column 
-    that the RAM cache strictly expects to be a Float. When the Signal Processor 
-    attempts to execute metrics math on this dictionary override, it will crash. 
+    DEVIOUS EDGE CASE: An attacker (or corrupted DB) places a String into a column
+    that the RAM cache strictly expects to be a Float. When the Signal Processor
+    attempts to execute metrics math on this dictionary override, it will crash.
     The Rehydrator MUST enforce strict type casting.
     """
     db_path = tmp_path / "spoofed_master.db"
@@ -150,7 +153,7 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
     """)
 
     cursor.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_1', 1600000000)")
-    
+
     # MALICIOUS INJECTION: Injecting a String 'HACKED' into the Float columns
     cursor.execute("""
         INSERT INTO file_data VALUES (
@@ -163,9 +166,9 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
 
     rehydrator = StateRehydrator(str(db_path))
     result = rehydrator.load_latest_state("test_repo")
-    
+
     ram = result["ram_cache"]["src/hacked.py"]
-    
+
     # If the rehydrator didn't cast to float(), this will be a string and crash the downstream math!
     assert isinstance(ram["file_impact"], float), "State Rehydrator failed to sanitize dictionary overrides!"
     assert isinstance(ram["control_flow_ratio"], float), "State Rehydrator allowed a string into a float field!"

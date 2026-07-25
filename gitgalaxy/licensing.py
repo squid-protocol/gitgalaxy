@@ -7,11 +7,11 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 # ==============================================================================
+import datetime
+import hashlib
 import os
 import sys
 import time
-import datetime
-import hashlib
 
 # ==============================================================================
 # ASYMMETRIC PUBLIC KEY (Zero-Dependency RSA)
@@ -47,7 +47,7 @@ def _validate_offline_key(license_key: str) -> str:
 
         # 1. RECONSTRUCT PAYLOAD & HASH
         # We recreate the exact string the minter signed, then hash it.
-        payload = f"{tier}-{customer}-{exp_date_str}".encode("utf-8")
+        payload = f"{tier}-{customer}-{exp_date_str}".encode()
         payload_hash = hashlib.sha256(payload).digest()
 
         # Convert the raw bytes of the SHA-256 hash into a Python integer
@@ -90,7 +90,7 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
     env_path = os.path.join(os.getcwd(), ".env")
     if os.path.exists(env_path):
         try:
-            with open(env_path, "r", encoding="utf-8") as f:
+            with open(env_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     # Ignore comments and empty lines, ensure it's a key=value pair

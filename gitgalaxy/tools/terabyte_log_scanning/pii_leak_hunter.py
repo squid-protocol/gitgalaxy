@@ -8,8 +8,8 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
 import re
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -147,7 +147,7 @@ Masked evidence logs are safely written to disk without exposing the full PII.
     print(f"🛡️  Masking enabled. Writing redacted evidence to: {results_path.name}")
 
     ts_pattern = re.compile(rb"(\d{4}-\d{2}-\d{2}[T\s]\d{2}|\b[A-Z][a-z]{2}\s+\d{1,2}\s\d{2})")
-    histograms = {kw: defaultdict(int) for kw in PII_PATTERNS.keys()}
+    histograms = {kw: defaultdict(int) for kw in PII_PATTERNS}
 
     start_time = time.time()
 
@@ -175,7 +175,7 @@ Masked evidence logs are safely written to disk without exposing the full PII.
                             ts_match.group(1).decode("utf-8", errors="ignore") + ":00" if ts_match else "Unknown Time"
                         )
                         histograms[pii_type][bucket] += 1
-    except IOError as e:
+    except OSError as e:
         print(f"\n[FATAL ERROR] I/O failure during streaming: {e}")
         sys.exit(1)
 
@@ -184,7 +184,7 @@ Masked evidence logs are safely written to disk without exposing the full PII.
     # -------------------------------------------------------------------------
     # 4. REPORTING & DASHBOARDS
     # -------------------------------------------------------------------------
-    for kw in PII_PATTERNS.keys():
+    for kw in PII_PATTERNS:
         draw_ascii_histogram(histograms[kw], kw)
 
     total_counts = {kw: sum(buckets.values()) for kw, buckets in histograms.items()}

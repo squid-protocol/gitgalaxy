@@ -14,12 +14,13 @@
 
 # galaxyscope:ignore ai_guardrails, sec_db_hooks
 
-import sqlite3
 import json
 import logging
+import sqlite3
 import statistics
 from pathlib import Path
-from typing import List, Dict, Optional, TypedDict
+from typing import Optional, TypedDict
+
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
 
@@ -34,9 +35,9 @@ class FolderStats(TypedDict):
     total_functions: int
     total_classes: int
     total_mass: float
-    cog_loads: List[float]
-    tech_debts: List[float]
-    churns: List[float]
+    cog_loads: list[float]
+    tech_debts: list[float]
+    churns: list[float]
 
 
 class RecordKeeper:
@@ -142,10 +143,10 @@ class RecordKeeper:
 
     def record_mission(
         self,
-        parsed_files: List[Dict],
-        unparsable_files: List[Dict],
-        summary: Dict,
-        session_meta: Dict,
+        parsed_files: list[dict],
+        unparsable_files: list[dict],
+        summary: dict,
+        session_meta: dict,
         output_path: str,
     ):
         """Builds the formal relational SQLite database directly from pipeline RAM state."""
@@ -523,7 +524,7 @@ class RecordKeeper:
 
             # --- NETWORK TOPOLOGY EXTRACTION ---
             net_mets = tel.get("network_metrics", {})
-            
+
             if session_meta.get("zero_dependency_mode"):
                 ai_score = None
                 pagerank_score = None
@@ -833,12 +834,12 @@ class RecordKeeper:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_db_hooks
+        # galaxyscope:ignore sec_db_hooks
         # 5. FOLDER-LEVEL ROLLUP (MATERIALIZED PATH AGGREGATION)
         # ==============================================================================
 
-# galaxyscope:ignore sec_db_hooks
-        folder_stats: Dict[str, FolderStats] = {}
+        # galaxyscope:ignore sec_db_hooks
+        folder_stats: dict[str, FolderStats] = {}
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
 
         for file_data in parsed_files:

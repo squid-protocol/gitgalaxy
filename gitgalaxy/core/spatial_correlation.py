@@ -22,11 +22,13 @@ occurred close together (optionally: within the same function). See the
 V2.5.0 epic (#102) discussion for why "taint tracker" overclaims what this
 does versus security_lens.py's actual variable-identity echo check.
 """
+
 import bisect
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional
 
 
-def correlate_signals(targets: List[int], dampeners: List[int], max_distance: int = 500) -> Tuple[int, int]:
+def correlate_signals(targets: list[int], dampeners: list[int], max_distance: int = 500) -> tuple[int, int]:
     """
     Sweeps two sorted lists of indices to find how many targets are within
     'max_distance' of a dampener. Runs in O(N) linear time.
@@ -56,7 +58,7 @@ def correlate_signals(targets: List[int], dampeners: List[int], max_distance: in
     return unmitigated_count, mitigated_count
 
 
-def filter_positions_in_range(positions: Sequence[int], start: int, end: int) -> List[int]:
+def filter_positions_in_range(positions: Sequence[int], start: int, end: int) -> list[int]:
     """
     Returns the subset of a SORTED position list falling within [start, end).
     Same O(log N) bisect approach _calculate_block_metrics already uses to
@@ -69,11 +71,11 @@ def filter_positions_in_range(positions: Sequence[int], start: int, end: int) ->
 
 
 def correlate_scoped(
-    targets: List[int],
-    dampeners: List[int],
-    satellite_ranges: Optional[List[Tuple[int, int]]],
+    targets: list[int],
+    dampeners: list[int],
+    satellite_ranges: Optional[list[tuple[int, int]]],
     max_distance: int = 500,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Same contract as correlate_signals (returns unmitigated_count,
     mitigated_count) but requires a target and its dampener to additionally
@@ -96,8 +98,8 @@ def correlate_scoped(
         return correlate_signals(targets, dampeners, max_distance)
 
     starts = [r[0] for r in satellite_ranges]
-    covered_targets: Dict[int, List[int]] = {}
-    uncovered_targets: List[int] = []
+    covered_targets: dict[int, list[int]] = {}
+    uncovered_targets: list[int] = []
 
     for pos in targets:
         idx = bisect.bisect_right(starts, pos) - 1
@@ -125,10 +127,10 @@ def correlate_scoped(
 
 
 def apply_dampener_correlations(
-    spatial_map: Dict[str, List[int]],
-    satellite_ranges: List[Tuple[int, int]],
-    counts: Dict[str, int],
-    mitigations: Dict[str, int],
+    spatial_map: dict[str, list[int]],
+    satellite_ranges: list[tuple[int, int]],
+    counts: dict[str, int],
+    mitigations: dict[str, int],
 ) -> None:
     """
     Runs the three dampener-pair correlations (#346 phase 1) scoped to real
@@ -192,10 +194,10 @@ def apply_dampener_correlations(
 
 
 def apply_amplifier_correlations(
-    spatial_map: Dict[str, List[int]],
-    satellite_ranges: List[Tuple[int, int]],
-    counts: Dict[str, int],
-    mitigations: Dict[str, int],
+    spatial_map: dict[str, list[int]],
+    satellite_ranges: list[tuple[int, int]],
+    counts: dict[str, int],
+    mitigations: dict[str, int],
 ) -> None:
     """
     Runs the three remaining in-segment amplifier-pair correlations (#348, #102)
@@ -248,12 +250,12 @@ def apply_amplifier_correlations(
 
 
 def correlate_against_ledger(
-    threat_locations: Dict[str, List[int]],
-    functions: List[Dict[str, int]],
+    threat_locations: dict[str, list[int]],
+    functions: list[dict[str, int]],
     source_key: str,
     sink_key: str,
     max_distance: int = 10,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Correlates two named signals from a POST-HOC pipeline stage -- outside
     detector.py entirely, e.g. dev_agent_firewall.py or ai_appsec_sensor.py,

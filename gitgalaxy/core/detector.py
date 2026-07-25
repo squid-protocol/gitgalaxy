@@ -14,18 +14,21 @@
 
 # galaxyscope:ignore sec_high_risk_execution
 
-import re
-import math
-import logging
-import time
 import bisect
-from typing import Dict, List, Any, TypedDict, Optional, Tuple, cast
-from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+import logging
+import math
+import re
+import time
+from typing import Any, Optional, TypedDict, cast
+
+from gitgalaxy.core.spatial_correlation import (
+    apply_amplifier_correlations,
+    apply_dampener_correlations,
+)
 from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
-    apply_dampener_correlations,
-    apply_amplifier_correlations,
 )
+from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
 HAS_TIKTOKEN = False
 try:
@@ -61,7 +64,7 @@ class ClassInfo(TypedDict):
     """A regex-extracted class/struct/interface/trait/enum, with its linked methods' physics."""
 
     name: str
-    inheritance: List[str]
+    inheritance: list[str]
     method_count: int
     state_entanglement: float
     lcom_score: float
@@ -119,21 +122,21 @@ class FunctionNode(TypedDict, total=False):
     is_recursive: bool
     db_complexity: int
     docstring: str
-    calls_out_to: List[str]
-    hit_vector: Dict[str, int]
+    calls_out_to: list[str]
+    hit_vector: dict[str, int]
     token_mass: Optional[int]
 
 
 class LogicData(TypedDict, total=False):
     """The standardized output schema for Strategy compliance."""
 
-    equations: Dict[str, int]
-    functions: List[FunctionNode]
+    equations: dict[str, int]
+    functions: list[FunctionNode]
     logic_density: float
     total_functional_impact: float
     total_control_flow_ratio: float
     raw_imports: list
-    metadata: Dict[str, str]
+    metadata: dict[str, str]
     token_mass: int
     financial_read_cost: float
 
@@ -175,7 +178,7 @@ class ScopeParsingRegistry:
         "vba": "vb",
     }
 
-    DEFINITIONS: Dict[str, Dict[str, Any]] = {
+    DEFINITIONS: dict[str, dict[str, Any]] = {
         # ==========================================
         # 🔴 INTEGRATION MODE D: The Handshake Stack
         # ==========================================
@@ -317,7 +320,7 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
-    HANDSHAKE_REGISTRY: List[Dict[str, Any]] = [
+    HANDSHAKE_REGISTRY: list[dict[str, Any]] = [
         {
             "trigger": re.compile(r"<script", re.I),
             "end": re.compile(r"</script>", re.I),
@@ -341,7 +344,7 @@ class StructuralExtractor:
     def __init__(
         self,
         lang_id: str,
-        language_definitions: Dict[str, Any],
+        language_definitions: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
     ):
         if parent_logger:
@@ -358,10 +361,10 @@ class StructuralExtractor:
         # massive nested literal instead of this constructor's declared
         # Dict[str, Any] param -- which doesn't support the plain .get()
         # calls this class relies on throughout.
-        self.languages: Dict[str, Any] = language_definitions
+        self.languages: dict[str, Any] = language_definitions
 
-        lang_config: Dict[str, Any] = self.languages.get(self.primary_lang_id, {})
-        self.primary_rules: Dict[str, Any] = lang_config.get("rules", {})
+        lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+        self.primary_rules: dict[str, Any] = lang_config.get("rules", {})
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
 
         self.assembly_returns = re.compile(
@@ -394,10 +397,10 @@ class StructuralExtractor:
                 # reveal_type that .get() on it then returns `object`, not
                 # Any. The cast forces it back to the declared type instead
                 # of fighting that narrowing.
-                self.languages = cast(Dict[str, Any], LANGUAGE_DEFINITIONS)
+                self.languages = cast(dict[str, Any], LANGUAGE_DEFINITIONS)
                 # renamed (not reusing lang_config): mypy rejects
                 # re-annotating the same name twice in one scope.
-                healed_lang_config: Dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+                healed_lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
                 self.primary_rules = healed_lang_config.get("rules", {})
                 self.primary_family = healed_lang_config.get("lexical_family", "c_style_comment")
 
@@ -412,10 +415,10 @@ class StructuralExtractor:
         confidence: float = 1.0,
         profile_regex: bool = False,
         raw_content: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Executes the structural regex pass over refracted code streams."""
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
-        regex_telemetry: Dict[str, float] = {}
+        regex_telemetry: dict[str, float] = {}
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -480,8 +483,8 @@ class StructuralExtractor:
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
 
-            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = self.coding_analysis(
-                segments, regex_telemetry if profile_regex else None
+            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = (
+                self.coding_analysis(segments, regex_telemetry if profile_regex else None)
             )
 
             if extracted_parents:
@@ -499,7 +502,7 @@ class StructuralExtractor:
             )
 
             # ---> NEW: FAST CLASS EXTRACTOR & FUNCTION LINKAGE <---
-            classes: List[_ClassInfoWithBounds] = []
+            classes: list[_ClassInfoWithBounds] = []
             # Upgraded regex to catch standard OOP entities across polyglot languages
             class_pattern = re.compile(
                 r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
@@ -637,7 +640,7 @@ class StructuralExtractor:
                 "metadata": ghost_meta,
             }
 
-    def _decode_comment_stream(self, comment_stream: str) -> Dict[str, str]:
+    def _decode_comment_stream(self, comment_stream: str) -> dict[str, str]:
         meta = {"ownership": "Unknown Architect"}
         if not comment_stream:
             return meta
@@ -753,16 +756,18 @@ class StructuralExtractor:
         if i < 0 or i >= len(self.raw_content_lines):
             return ""
 
-        doc_buffer: List[str] = []
+        doc_buffer: list[str] = []
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
             if not prev:
                 continue
-            if prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")):
-                doc_buffer.insert(0, prev)
-            elif prev.endswith("*/") or prev.endswith("#>"):
+            if (
+                prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
+                or prev.endswith("*/")
+                or prev.endswith("#>")
+            ):
                 doc_buffer.insert(0, prev)
             elif prev.startswith("@") or prev.startswith("["):  # Step over decorators safely
                 continue
@@ -800,7 +805,7 @@ class StructuralExtractor:
 
         return "\n".join(doc_buffer)[:2000]  # Cap at 2000 chars to prevent DB bloat
 
-    def _partition_segments(self, content: str, primary_id: str) -> List[Tuple[str, str, int]]:
+    def _partition_segments(self, content: str, primary_id: str) -> list[tuple[str, str, int]]:
         """Splits content into language segments based on handshake triggers."""
         segments = []
         last_idx = 0
@@ -886,7 +891,7 @@ class StructuralExtractor:
 
         return limit
 
-    def _correlate_signals(self, targets: List[int], dampeners: List[int], max_distance: int = 500) -> Tuple[int, int]:
+    def _correlate_signals(self, targets: list[int], dampeners: list[int], max_distance: int = 500) -> tuple[int, int]:
         """
         Sweeps two sorted lists of indices to find how many targets are within
         'max_distance' of a dampener. Runs in O(N) linear time.
@@ -898,9 +903,9 @@ class StructuralExtractor:
         return _correlate_signals_impl(targets, dampeners, max_distance)
 
     def coding_analysis(
-        self, segments: List[Tuple[str, str, int]], regex_telemetry: Optional[dict] = None
-    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str], Dict[str, List[int]]]:
-        counts: Dict[str, int] = {key: 0 for key in self.UNIVERSAL_METRICS_SCHEMA}
+        self, segments: list[tuple[str, str, int]], regex_telemetry: Optional[dict] = None
+    ) -> tuple[dict[str, int], dict[str, int], list[dict[str, list[int]]], list[str], dict[str, list[int]]]:
+        counts: dict[str, int] = dict.fromkeys(self.UNIVERSAL_METRICS_SCHEMA, 0)
 
         # --- THE FIX: INJECT APPSEC SENSORS ---
         # Force the new Phase 4 sensors into the schema so the LogicSplicer doesn't ignore them
@@ -908,7 +913,7 @@ class StructuralExtractor:
             if appsec_key not in counts:
                 counts[appsec_key] = 0
 
-        mitigations: Dict[str, int] = {
+        mitigations: dict[str, int] = {
             "mitigated_danger": 0,
             "mitigated_memory_allocs": 0,
             "amplified_rce": 0,
@@ -917,7 +922,7 @@ class StructuralExtractor:
         }
         segment_spatial_maps = []
         extracted_parents = []
-        threat_locations: Dict[str, List[int]] = {}
+        threat_locations: dict[str, list[int]] = {}
 
         for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
@@ -926,7 +931,7 @@ class StructuralExtractor:
             seg_len = len(seg_code)
 
             # ---> NEW: Spatial Map for this segment <---
-            spatial_map: Dict[str, List[int]] = {}
+            spatial_map: dict[str, list[int]] = {}
 
             for rule_name, pattern in rules.items():
                 if rule_name.startswith("_"):
@@ -955,7 +960,7 @@ class StructuralExtractor:
                     if hasattr(pattern, "finditer"):
                         matches = list(pattern.finditer(seg_code))
                         hit_indices = [m.start() for m in matches]
-                        
+
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
                             line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
@@ -970,7 +975,7 @@ class StructuralExtractor:
                     else:
                         matches = list(re.finditer(str(pattern), seg_code))
                         hit_indices = [m.start() for m in matches]
-                        
+
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
                             line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
@@ -1002,11 +1007,11 @@ class StructuralExtractor:
 
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+            # galaxyscope:ignore sec_high_risk_execution
             # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+            # galaxyscope:ignore sec_high_risk_execution
             # 0a. The Exfiltration Distance Check has been RELOCATED (#102) to
             # apply_amplifier_correlations() in gitgalaxy.core.spatial_correlation,
             # called from _function_slice() -- it was the one correlate() pair
@@ -1020,7 +1025,7 @@ class StructuralExtractor:
                 counts["rce_funnel"] += len(spatial_map["rce_funnel"]) * 50
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+            # galaxyscope:ignore sec_high_risk_execution
 
             # 1. Taint Tracking (RCE Weaponization), 2. The Silencer Region,
             # 3. The Race Condition Radar, 5. The Memory Leak / UAF Tracker, and
@@ -1047,7 +1052,7 @@ class StructuralExtractor:
 
         return counts, mitigations, segment_spatial_maps, extracted_parents, threat_locations
 
-    def comment_analysis(self, comment_stream: str, lang_id: str, counts: Dict[str, int]) -> Dict[str, int]:
+    def comment_analysis(self, comment_stream: str, lang_id: str, counts: dict[str, int]) -> dict[str, int]:
         """
         Analyzes the comment stream for developer intent, technical debt, and traceability.
         Kept strictly separated from active coding analysis to maintain Separation of Concerns.
@@ -1088,11 +1093,11 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # PRE-PROCESSING HELPERS
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _apply_literal_shield(self, text: str, lang_id: Optional[str] = None) -> str:
         """
@@ -1212,22 +1217,22 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # THE MASTER DISPATCHER
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _function_slice(
         self,
-        segments: List[Tuple[str, str, int]],
-        segment_spatial_maps: List[Dict[str, List[int]]],
-        counts: Dict[str, int],
-        mitigations: Dict[str, int],
+        segments: list[tuple[str, str, int]],
+        segment_spatial_maps: list[dict[str, list[int]]],
+        counts: dict[str, int],
+        mitigations: dict[str, int],
         regex_telemetry: Optional[dict] = None,
-    ) -> Tuple[List[FunctionNode], float]:
+    ) -> tuple[list[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
-        all_satellites: List[FunctionNode] = []
+        all_satellites: list[FunctionNode] = []
         global_impact = 0.0
 
         for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
@@ -1239,7 +1244,7 @@ class StructuralExtractor:
 
             t_mode_start = time.perf_counter()
             mode_name = "Unknown"
-            sats: List[FunctionNode] = []
+            sats: list[FunctionNode] = []
             impact = 0.0
 
             if integration_mode == "mode_d":
@@ -1302,21 +1307,21 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # INTEGRATION MODES (Slicers)
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
         self,
         code: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE A] - Greedy Label-Based Scan (Assembly, COBOL)."""
-        satellites: List[FunctionNode] = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1389,13 +1394,13 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
+        spatial_map: dict[str, list[int]],
         family: str = "c_style_comment",
-    ) -> Tuple[List[FunctionNode], float]:
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
-        satellites: List[FunctionNode] = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1521,12 +1526,12 @@ class StructuralExtractor:
     def _slice_by_indentation(
         self,
         code: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE C] - Density Stratification (Python, YAML)."""
-        satellites: List[FunctionNode] = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1643,10 +1648,10 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE D] - Semantic Handshake Stack (Shell, Ruby, Lua)."""
         self.logger.debug(f"[DIAGNOSTIC] Mode D: Initiating _slice_by_keywords for {lang_id}")
         config = ScopeParsingRegistry.get_config(lang_id)
@@ -1801,10 +1806,10 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE E] - Terminator Cleaving (SQL, Erlang, Prolog)."""
         config = ScopeParsingRegistry.get_config(lang_id)
         if not config:
@@ -1918,11 +1923,11 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # SHARED FUNCTIONAL METRICS ENGINE
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _calculate_block_metrics(
         self,
@@ -1931,11 +1936,11 @@ class StructuralExtractor:
         loc: int,
         start_line: int,
         end_line: int,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         start_idx: int = 0,
         end_idx: int = 0,
-        spatial_map: Optional[Dict[str, List[int]]] = None,
-    ) -> Tuple[FunctionNode, float]:
+        spatial_map: Optional[dict[str, list[int]]] = None,
+    ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
         for an extracted functional block.
@@ -2251,7 +2256,7 @@ class StructuralExtractor:
 
         return words[-1] if words else "Unknown_Block"
 
-    def _classify_function(self, name: str, block: str, rules: Dict[str, Any]) -> str:
+    def _classify_function(self, name: str, block: str, rules: dict[str, Any]) -> str:
         tag_match = re.search(r"[\@](?:type|gal_type)[:\s]+(\w+)", block, re.IGNORECASE)
         if tag_match:
             return tag_match.group(1).lower()

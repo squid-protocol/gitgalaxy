@@ -9,7 +9,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Optional, Dict, Tuple
+from typing import Optional
 
 
 class ManifestParser:
@@ -38,7 +38,7 @@ class ManifestParser:
         dictionary, namespaced by directory to prevent monorepo alias clobbering.
         """
         # Change to a nested structure: map[directory_path][package_alias]
-        resolution_map: Dict[str, Dict[str, str]] = {}
+        resolution_map: dict[str, dict[str, str]] = {}
 
         for path_str in manifest_paths:
             manifest_path = Path(path_str)
@@ -47,7 +47,7 @@ class ManifestParser:
 
             filename = manifest_path.name.lower()
             dir_key = str(manifest_path.parent).replace("\\", "/")
-            
+
             # Initialize the namespace if it doesn't exist
             if dir_key not in resolution_map:
                 resolution_map[dir_key] = {}
@@ -74,7 +74,7 @@ class ManifestParser:
         Parses active NPM dependencies. Normalizes NPM aliases to their upstream package names
         and flags Direct URI resolutions that bypass Subresource Integrity (SRI) checks.
         """
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             data = json.load(f)
 
         deps = data.get("dependencies", {})
@@ -106,7 +106,7 @@ class ManifestParser:
         Extracts absolute resolution URLs from package-lock.json v2/v3.
         Neutralizes Namespace Hijacking by verifying internal packages point to the correct registry.
         """
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             data = json.load(f)
 
         packages = data.get("packages", {})
@@ -130,7 +130,7 @@ class ManifestParser:
         """
         Extracts direct Python packages and flags absolute VCS/URI references.
         """
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -157,7 +157,7 @@ class ManifestParser:
         Audits Python configuration files (pip.conf, .pypirc) for Dependency Confusion vulnerabilities
         caused by insecure protocol routing or untrusted secondary index URLs.
         """
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith(("#", ";")):
@@ -187,8 +187,13 @@ class ManifestParser:
 # filename checks inside slice_manifest() itself; they must never drift
 # from each other either.
 SUPPORTED_MANIFEST_FILENAMES = (
-    "package.json", "composer.json", "requirements.txt",
-    "Cargo.toml", "go.mod", "Gemfile", "pom.xml",
+    "package.json",
+    "composer.json",
+    "requirements.txt",
+    "Cargo.toml",
+    "go.mod",
+    "Gemfile",
+    "pom.xml",
 )
 
 
@@ -205,7 +210,7 @@ class UniversalManifestSlicer:
     """
 
     @staticmethod
-    def slice_manifest(manifest_path: Path) -> Tuple[str, Dict[str, str]]:
+    def slice_manifest(manifest_path: Path) -> tuple[str, dict[str, str]]:
         filename = manifest_path.name
         deps = {}
         ecosystem = "unknown"
@@ -213,14 +218,14 @@ class UniversalManifestSlicer:
         try:
             if filename == "package.json":
                 ecosystem = "npm"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     data = json.load(f)
                     deps.update(data.get("dependencies", {}))
                     deps.update(data.get("devDependencies", {}))
 
             elif filename == "composer.json":
                 ecosystem = "packagist"  # PHP Composer
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     data = json.load(f)
                     deps.update(data.get("require", {}))
                     deps.update(data.get("require-dev", {}))
@@ -229,7 +234,7 @@ class UniversalManifestSlicer:
 
             elif filename == "requirements.txt":
                 ecosystem = "pypi"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if line and not line.startswith("#"):
@@ -240,7 +245,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Cargo.toml":
                 ecosystem = "cargo"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     content = f.read()
                     # Universal regex to grab [dependencies] blocks
                     dep_blocks = re.findall(r"\[(?:dev-)?dependencies\](.*?)(\n\[|$)", content, re.DOTALL)
@@ -253,7 +258,7 @@ class UniversalManifestSlicer:
 
             elif filename == "go.mod":
                 ecosystem = "golang"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     in_require_block = False
                     for line in f:
                         line = line.strip()
@@ -274,7 +279,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Gemfile":
                 ecosystem = "rubygems"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         # Extract: gem 'nokogiri', '~> 1.11'
@@ -286,7 +291,7 @@ class UniversalManifestSlicer:
 
             elif filename == "pom.xml":
                 ecosystem = "maven"
-                with open(manifest_path, "r", encoding="utf-8") as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     content = f.read()
                     # Extract artifactId and version from XML blocks
                     deps_raw = re.findall(

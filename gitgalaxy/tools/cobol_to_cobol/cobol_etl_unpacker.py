@@ -3,30 +3,30 @@
 # GitGalaxy Tool: ETL EBCDIC Unpacker
 #
 # PURPOSE:
-# Translates binary EBCDIC mainframe datasets into modern UTF-8 CSVs, decoding 
+# Translates binary EBCDIC mainframe datasets into modern UTF-8 CSVs, decoding
 # legacy COMP-3 (Packed Decimal) formats dynamically at runtime.
 #
 # ARCHITECTURAL DECISION:
-# Mainframe data migrations typically require expensive, licensed third-party 
-# tooling to extract datasets from EBCDIC layouts. By leveraging the JSON 
-# schemas generated from our COBOL copybook extraction, this utility bridges the 
-# gap natively in Python. It calculates precise byte offsets to decode Zoned 
-# Decimals and un-packs COMP-3 nibbles directly into floating-point numerics 
+# Mainframe data migrations typically require expensive, licensed third-party
+# tooling to extract datasets from EBCDIC layouts. By leveraging the JSON
+# schemas generated from our COBOL copybook extraction, this utility bridges the
+# gap natively in Python. It calculates precise byte offsets to decode Zoned
+# Decimals and un-packs COMP-3 nibbles directly into floating-point numerics
 # for seamless ingestion into modern data lakes.
 # ==============================================================================
 import argparse
-import sys
-import json
 import csv
+import json
 import math
 import re
+import sys
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 
 def calculate_byte_layout(schema_json: dict) -> list:
     """
-    Parses the GitGalaxy JSON Schema to calculate the physical byte footprint 
+    Parses the GitGalaxy JSON Schema to calculate the physical byte footprint
     of each legacy field, determining exact binary extraction boundaries.
     """
     layout = []
@@ -66,8 +66,8 @@ def calculate_byte_layout(schema_json: dict) -> list:
 
             # ==================================================================
             # COMP-3 PHYSICAL COMPRESSION:
-            # Packed decimal stores two digits per byte, plus one half-byte 
-            # (nibble) for the sign at the end. The physical byte length is 
+            # Packed decimal stores two digits per byte, plus one half-byte
+            # (nibble) for the sign at the end. The physical byte length is
             # calculated as (digits + 1 for sign) / 2, rounded up to the whole byte.
             # ==================================================================
         physical_bytes = math.ceil((length + 1) / 2) if is_comp3 else length
@@ -143,7 +143,7 @@ def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_file
             if len(record_bytes) < record_length:
                 break
 
-            row_data: List[Any] = []
+            row_data: list[Any] = []
             cursor = 0
 
             for field in layout:

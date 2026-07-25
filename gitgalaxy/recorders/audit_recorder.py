@@ -14,12 +14,13 @@
 
 # galaxyscope:ignore sec_high_risk_execution
 
-import json
 import argparse
+import json
 import os
 import re
 from pathlib import Path
 from typing import Any
+
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -167,7 +168,7 @@ class AuditRecorder:
                     telemetry["control_flow_ratio"] = 0.0
                 if not file_data.get("file_impact"):
                     file_data["file_impact"] = round(max(file_data.get("total_loc", 1) / 50.0, 1.0), 2)
-                
+
                 # THE FIX: Explicitly pop the risk vector if it exists so text files are ALWAYS marked UNSCANNED
                 if "risk_vector" in file_data:
                     file_data.pop("risk_vector")
@@ -200,7 +201,7 @@ class AuditRecorder:
             # --- EXPOSURE FORMATTER ---
             exposures_dict = {}
             raw_risk = file_data.get("risk_vector")
-            
+
             # THE FIX: Enforce strict data provenance. If missing, label it explicitly.
             if not raw_risk:
                 for label in risk_labels:
@@ -225,11 +226,11 @@ class AuditRecorder:
             folder_archetype_counts[d_name][arch] = folder_archetype_counts[d_name].get(arch, 0) + 1
 
             mitigation_data = telemetry.get("mitigation_telemetry", {})
-            
+
             # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
             if isinstance(mitigation_data, list):
-                mitigation_data = {m: 1 for m in mitigation_data}
-                
+                mitigation_data = dict.fromkeys(mitigation_data, 1)
+
             formatted_mitigations = {
                 key.replace("_", " ").title(): f"{val} instances" for key, val in mitigation_data.items() if val > 0
             }
@@ -424,12 +425,12 @@ class AuditRecorder:
 
         raw_threat_hits = {
             "_description": "Total occurrences of explicit vulnerability regex signatures across all analyzed artifacts.",
-            **{label: 0 for label in sec_hit_mapping.values()},
+            **dict.fromkeys(sec_hit_mapping.values(), 0),
         }
 
         # Safe index lookups mapping formal schema names back to array indices
-        risk_indices = {k: self.RISK_SCHEMA.index(k) for k in sec_risk_mapping.keys() if k in self.RISK_SCHEMA}
-        hit_indices = {k: self.HIT_SCHEMA.index(k) for k in sec_hit_mapping.keys() if k in self.HIT_SCHEMA}
+        risk_indices = {k: self.RISK_SCHEMA.index(k) for k in sec_risk_mapping if k in self.RISK_SCHEMA}
+        hit_indices = {k: self.HIT_SCHEMA.index(k) for k in sec_hit_mapping if k in self.HIT_SCHEMA}
 
         # Sweep the files for security anomalies
         for file_data in parsed_files:
@@ -510,7 +511,7 @@ class AuditRecorder:
 
         # Tiered Status Routing (ML acts as the supreme authority)
         is_zero_dep = session_meta.get("zero_dependency_mode", False)
-        
+
         if ml_threat_files:
             audit_status = "ML_CONFIRMED_THREAT_DETECTED"
         elif quarantined_files or has_malware or has_secrets or malicious_hits_total > 0:

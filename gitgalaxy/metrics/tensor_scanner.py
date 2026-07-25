@@ -11,11 +11,11 @@
 
 
 import json
-import struct
-import math
 import logging
+import math
+import struct
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Optional
 
 
 class TensorScanner:
@@ -28,7 +28,7 @@ class TensorScanner:
     def __init__(self, parent_logger: Optional[logging.Logger] = None):
         self.logger = parent_logger.getChild("tensor_scanner") if parent_logger else logging.getLogger("tensor_scanner")
 
-    def audit_model(self, file_path: str) -> Dict[str, Any]:
+    def audit_model(self, file_path: str) -> dict[str, Any]:
         """Routes the binary to the correct header parser."""
         ext = Path(file_path).suffix.lower()
 
@@ -51,7 +51,7 @@ class TensorScanner:
                 "quantization": "Error",
             }
 
-    def _parse_safetensors(self, file_path: str) -> Dict[str, Any]:
+    def _parse_safetensors(self, file_path: str) -> dict[str, Any]:
         """
         Safetensors format:
         [8 bytes (uint64 little-endian) = N] -> [N bytes of JSON metadata] -> [Binary Tensor Data]
@@ -103,7 +103,7 @@ class TensorScanner:
                 "raw_param_count": total_params,
             }
 
-    def _parse_gguf(self, file_path: str) -> Dict[str, Any]:
+    def _parse_gguf(self, file_path: str) -> dict[str, Any]:
         """
         GGUF format:
         [4 bytes Magic 'GGUF'] -> [uint32 Version] -> [uint64 Tensor Count] -> [uint64 KV Count] -> [KV Pairs]

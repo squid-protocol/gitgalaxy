@@ -3,20 +3,20 @@
 # GitGalaxy Tool: Pipeline Validation Harness
 #
 # PURPOSE:
-# Stress-tests the entire Cloud Modernization Pathway (Structural Extraction -> 
-# Spring Boot Scaffolding -> Maven Compilation) across 'n' legacy repositories. 
+# Stress-tests the entire Cloud Modernization Pathway (Structural Extraction ->
+# Spring Boot Scaffolding -> Maven Compilation) across 'n' legacy repositories.
 # Captures granular debugging logs for CI/CD auditing.
 #
 # ARCHITECTURAL DECISION:
-# In enterprise migrations, translating thousands of COBOL programs introduces 
-# compounding points of failure. This harness isolates each translation phase, 
-# enforcing strict dependency bounds and execution timeouts to guarantee 
+# In enterprise migrations, translating thousands of COBOL programs introduces
+# compounding points of failure. This harness isolates each translation phase,
+# enforcing strict dependency bounds and execution timeouts to guarantee
 # deterministic batch validation without pipeline stalling.
 # ==============================================================================
 import argparse
+import os
 import subprocess
 import time
-import os
 from pathlib import Path
 
 
@@ -25,8 +25,8 @@ def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
 
     # ==========================================================================
     # DEFENSIVE DESIGN (ENVIRONMENT PARITY):
-    # Compiling generated code across different developer machines or CI/CD runners 
-    # invites "it works on my machine" failures. We clone the environment and 
+    # Compiling generated code across different developer machines or CI/CD runners
+    # invites "it works on my machine" failures. We clone the environment and
     # forcefully inject a specific JDK path to guarantee deterministic compilation.
     # ==========================================================================
     custom_env = os.environ.copy()
@@ -39,7 +39,7 @@ def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
             env=custom_env,
             capture_output=True,
             text=True,
-            # DEFENSIVE DESIGN: 5-minute timeout per command to prevent zombie 
+            # DEFENSIVE DESIGN: 5-minute timeout per command to prevent zombie
             # processes from hanging the entire batch run if a regex loops infinitely.
             timeout=300,
         )
@@ -82,7 +82,7 @@ def main():
     summary = {
         "passed": 0,
         "failed_refractor": 0,  # Preserved dictionary key
-        "failed_java_forge": 0, # Preserved dictionary key
+        "failed_java_forge": 0,  # Preserved dictionary key
         "failed_maven": 0,
     }
 

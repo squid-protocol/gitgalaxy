@@ -39,7 +39,7 @@ from __future__ import annotations
 import copy
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from gitgalaxy.standards import gitgalaxy_config as _defaults
 
@@ -67,7 +67,7 @@ class ConfigError(ValueError):
 REPLACE = "replace"
 EXTEND = "extend"
 
-APERTURE_CONFIG_SPEC: Dict[str, str] = {
+APERTURE_CONFIG_SPEC: dict[str, str] = {
     "SECRETS_EXTENSIONS": EXTEND,
     "SECRETS_EXACT": EXTEND,
     "IGNORED_DIRECTORIES": EXTEND,
@@ -82,7 +82,7 @@ APERTURE_CONFIG_SPEC: Dict[str, str] = {
     # on purpose so a YAML BANDS key raises ConfigError.
 }
 
-GUIDESTAR_CONFIG_SPEC: Dict[str, str] = {
+GUIDESTAR_CONFIG_SPEC: dict[str, str] = {
     "MANIFEST_MAP": EXTEND,
     "INTENT_BIASED_SECTORS": EXTEND,
     "EXEC_PREFIX_MAP": EXTEND,
@@ -98,7 +98,7 @@ GUIDESTAR_CONFIG_SPEC: Dict[str, str] = {
 # LEXICAL_FAMILY_HEURISTICS is intentionally omitted -- it's a fixed
 # heuristic table, not a user-facing policy knob, and nothing has ever
 # asked to override it.
-TOP_LEVEL_SPEC: Dict[str, Any] = {
+TOP_LEVEL_SPEC: dict[str, Any] = {
     "STRICT_IMPORT_MODE": REPLACE,
     "APPROVED_IMPORTS": EXTEND,
     "BLACKLISTED_IMPORTS": EXTEND,
@@ -152,7 +152,7 @@ class ResolvedConfig:
     pattern galaxyscope.py's main() builds today.
     """
 
-    _values: Dict[str, Any] = field(default_factory=dict)
+    _values: dict[str, Any] = field(default_factory=dict)
 
     def __getattr__(self, name: str) -> Any:
         # Only called when normal attribute lookup fails, i.e. never for
@@ -171,7 +171,7 @@ class ResolvedConfig:
     def __contains__(self, name: str) -> bool:
         return name in self._values
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return copy.deepcopy(self._values)
 
 
@@ -180,8 +180,7 @@ def _get_default(key: str) -> Any:
         return {} if isinstance(TOP_LEVEL_SPEC[key], dict) else []
     if not hasattr(_defaults, key):
         raise ConfigError(
-            f"config_resolver.TOP_LEVEL_SPEC references '{key}', but "
-            f"gitgalaxy_config.py defines no such constant."
+            f"config_resolver.TOP_LEVEL_SPEC references '{key}', but gitgalaxy_config.py defines no such constant."
         )
     return copy.deepcopy(getattr(_defaults, key))
 
@@ -205,21 +204,14 @@ def _merge_collection(base: Any, override: Any) -> Any:
 def _merge_value(base: Any, override: Any, spec: Any, *, path: str) -> Any:
     if isinstance(spec, dict):
         if not isinstance(override, dict):
-            raise ConfigError(
-                f"'{path}' must be a mapping in .galaxyscope.yaml, got "
-                f"{type(override).__name__}."
-            )
+            raise ConfigError(f"'{path}' must be a mapping in .galaxyscope.yaml, got {type(override).__name__}.")
         merged = copy.deepcopy(base) if isinstance(base, dict) else {}
         for sub_key, sub_val in override.items():
             if sub_key not in spec:
                 raise ConfigError(
-                    f"Unrecognized key '{sub_key}' under '{path}' in "
-                    f".galaxyscope.yaml. Known keys: {sorted(spec)}"
+                    f"Unrecognized key '{sub_key}' under '{path}' in .galaxyscope.yaml. Known keys: {sorted(spec)}"
                 )
-            merged[sub_key] = (
-                sub_val if spec[sub_key] == REPLACE
-                else _merge_collection(merged.get(sub_key), sub_val)
-            )
+            merged[sub_key] = sub_val if spec[sub_key] == REPLACE else _merge_collection(merged.get(sub_key), sub_val)
         return merged
 
     if spec == REPLACE:
@@ -227,7 +219,7 @@ def _merge_value(base: Any, override: Any, spec: Any, *, path: str) -> Any:
     return _merge_collection(base, override)
 
 
-def _load_yaml_section(yaml_path: str) -> Dict[str, Any]:
+def _load_yaml_section(yaml_path: str) -> dict[str, Any]:
     """
     Returns the `galaxyscope:` section of the YAML file, or {} if the file
     is missing, unreadable, or contains malformed YAML syntax -- that class
@@ -244,7 +236,7 @@ def _load_yaml_section(yaml_path: str) -> Dict[str, Any]:
         return {}
 
     try:
-        with open(yaml_path, "r") as f:
+        with open(yaml_path) as f:
             data = yaml.safe_load(f) or {}
     except Exception as exc:
         logger.error("Failed to load config file %s: %s", yaml_path, exc)
@@ -256,8 +248,8 @@ def _load_yaml_section(yaml_path: str) -> Dict[str, Any]:
 
 def resolve_config(
     yaml_path: Optional[str] = None,
-    yaml_data: Optional[Dict[str, Any]] = None,
-    cli_overrides: Optional[Dict[str, Any]] = None,
+    yaml_data: Optional[dict[str, Any]] = None,
+    cli_overrides: Optional[dict[str, Any]] = None,
 ) -> ResolvedConfig:
     """
     Merge, in the precedence decided in #332:
@@ -286,7 +278,7 @@ def resolve_config(
     function has no way to know about them and will treat any key it
     doesn't recognize as a typo, by design (#332).
     """
-    resolved: Dict[str, Any] = {key: _get_default(key) for key in TOP_LEVEL_SPEC}
+    resolved: dict[str, Any] = {key: _get_default(key) for key in TOP_LEVEL_SPEC}
 
     if yaml_data is None and yaml_path:
         yaml_data = _load_yaml_section(yaml_path)
@@ -299,16 +291,13 @@ def resolve_config(
                     f"'galaxyscope:' section. Known keys: "
                     f"{sorted(TOP_LEVEL_SPEC)}"
                 )
-            resolved[key] = _merge_value(
-                resolved[key], val, TOP_LEVEL_SPEC[key], path=key
-            )
+            resolved[key] = _merge_value(resolved[key], val, TOP_LEVEL_SPEC[key], path=key)
 
     if cli_overrides:
         for key, val in cli_overrides.items():
             if key not in CLI_OVERRIDABLE_KEYS:
                 raise ConfigError(
-                    f"'{key}' is not a CLI-overridable config key. Known "
-                    f"CLI keys: {sorted(CLI_OVERRIDABLE_KEYS)}"
+                    f"'{key}' is not a CLI-overridable config key. Known CLI keys: {sorted(CLI_OVERRIDABLE_KEYS)}"
                 )
             resolved[key] = val
 

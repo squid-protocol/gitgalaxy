@@ -91,18 +91,46 @@ exclude = [
 # This tells it to expect tags like "v2.0.5" instead of just "2.0.5"
 tag_regex = '^v?(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
 
-[tool.black]
-line-length = 120
-
 [tool.ruff]
 # Ignore legacy/messy fixture code so it doesn't pollute linting results
 exclude = [
     "tests/fixtures/*",
 ]
 line-length = 120
+target-version = "py39"
 
 [tool.ruff.lint]
-extend-ignore = ["E741"]
+# Deliberately scoped, not `ALL` -- see #469 for the measured rationale behind
+# each inclusion/exclusion. In short: BLE/TRY were excluded because they
+# overwhelmingly flag this codebase's *deliberate* `except Exception:`
+# fault-isolation pattern (continue processing other files if one throws),
+# not real bugs; D/T20/G were excluded as noisy style debates with no clear
+# right answer for a prose-docstring, CLI-heavy, f-string-logging codebase;
+# ANN was excluded as redundant with the mypy epic (#429).
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "B",        # flake8-bugbear (real bug patterns)
+    "C4",       # flake8-comprehensions
+    "SIM",      # flake8-simplify
+    "I",        # isort (import sorting)
+    "ARG",      # flake8-unused-arguments
+    "UP",       # pyupgrade
+    "S",        # flake8-bandit (security -- dogfooding, since this project IS a security scanner)
+    "PERF",     # perflint
+    "DTZ",      # flake8-datetimez (naive datetime bugs)
+    "A",        # flake8-builtins
+    "RSE",      # flake8-raise
+    "RUF",      # ruff-specific rules
+]
+# E741 (ambiguous short variable names like `l`, `I`) is a long-accepted
+# convention in this codebase's math-heavy code (spatial_mapper.py, etc.).
+# E501 (line-too-long) was already explicitly ignored in the old .flake8
+# config -- `ruff format` wraps what it safely can; what's left is mostly
+# long regex patterns, URLs, and prose strings that don't benefit from
+# forced wrapping, and it would otherwise be ~66% of the entire baseline,
+# drowning out the other 27 rule families' genuinely diverse findings.
+extend-ignore = ["E741", "E501"]
 
 [tool.pytest.ini_options]
 testpaths = [

@@ -3,19 +3,19 @@
 # GitGalaxy Tool: Deprecated Trails Analyzer
 #
 # PURPOSE:
-# Static Analysis of COBOL structural signatures to isolate unused memory 
+# Static Analysis of COBOL structural signatures to isolate unused memory
 # declarations and mathematically unreachable execution logic.
 #
 # ARCHITECTURAL DECISION:
-# Legacy COBOL architectures frequently suffer from "code rot" where memory 
-# addresses (Data Division) and execution blocks (Procedure Division) are 
-# abandoned but never removed by cautious developers. This analyzer prevents 
-# migrating this dead weight to the cloud by statically mapping actual execution 
+# Legacy COBOL architectures frequently suffer from "code rot" where memory
+# addresses (Data Division) and execution blocks (Procedure Division) are
+# abandoned but never removed by cautious developers. This analyzer prevents
+# migrating this dead weight to the cloud by statically mapping actual execution
 # usage against declarations, shedding unnecessary state flux and cognitive load.
 # ==============================================================================
 import argparse
-import sys
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -28,12 +28,12 @@ def resolve_copybooks(content: str, source_path: Path) -> str:
     # ==========================================================================
     # DEFENSIVE DESIGN (INLINE COPYBOOK EXPANSION):
     # A COBOL program's data declarations are often hidden inside external copybooks.
-    # Scanning the source file alone would result in massive false-positives for 
-    # undeclared variables. We recursively expand and inline copybooks directly 
-    # into the memory buffer before analysis to ensure mathematically accurate 
+    # Scanning the source file alone would result in massive false-positives for
+    # undeclared variables. We recursively expand and inline copybooks directly
+    # into the memory buffer before analysis to ensure mathematically accurate
     # dependency tracking.
     # ==========================================================================
-    
+
     # Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==.
     copy_pattern = re.compile(
         r'^[ \t]*COPY\s+[\'"]?([A-Z0-9_\-]+)[\'"]?(?:\s+REPLACING\s+(.+?))?\.',
@@ -51,8 +51,8 @@ def resolve_copybooks(content: str, source_path: Path) -> str:
 
                 # ==============================================================
                 # DEFENSIVE DESIGN (DYNAMIC ALIASING):
-                # COBOL's 'REPLACING' clause allows dynamic text substitution at 
-                # compile time. We must simulate this substitution in our in-memory 
+                # COBOL's 'REPLACING' clause allows dynamic text substitution at
+                # compile time. We must simulate this substitution in our in-memory
                 # buffer to prevent missing usage references for aliased variables.
                 # ==============================================================
                 if replacing_clause:

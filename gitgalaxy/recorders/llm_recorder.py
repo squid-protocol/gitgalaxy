@@ -14,11 +14,12 @@
 
 # galaxyscope:ignore sec_high_risk_execution, ai_guardrails, sec_db_hooks
 
-import sqlite3
 import logging
+import sqlite3
 import statistics
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Optional
+
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -56,7 +57,7 @@ class LLMRecorder:
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         self.SIGNAL_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
 
-    def _parse_threat_score(self, artifact: Dict) -> Tuple[float, str]:
+    def _parse_threat_score(self, artifact: dict) -> tuple[float, str]:
         """Safely extracts and converts the AI threat score string to a float."""
         score_str = artifact.get("telemetry", {}).get("domain_context", {}).get("AI Threat Score", "0.0%")
         try:
@@ -66,12 +67,12 @@ class LLMRecorder:
 
     def generate_artifacts(
         self,
-        parsed_files: List[Dict[str, Any]],
-        unparsable_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session_meta: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        unparsable_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
         output_dir: str,
-        forensic_report: Optional[Dict[str, Any]] = None,
+        forensic_report: Optional[dict[str, Any]] = None,
     ):
         """Generates the dual-output AI artifacts: Markdown and SQLite."""
         if forensic_report is None:
@@ -143,11 +144,11 @@ class LLMRecorder:
 
     def _build_markdown(
         self,
-        parsed_files: List[Dict[str, Any]],
-        unparsable_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session_meta: Dict[str, Any],
-        forensic_report: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        unparsable_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
+        forensic_report: dict[str, Any],
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")
@@ -617,12 +618,8 @@ class LLMRecorder:
                     if s.get("risk_vector", [])[flux_idx] > 0:
                         lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure")
 
-        orphan_idx = (
-            self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
-        )
-        dup_idx = (
-            self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
-        )
+        orphan_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
+        dup_idx = self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
 
         if orphan_idx >= 0 and dup_idx >= 0:
             high_slop = sorted(
@@ -631,7 +628,10 @@ class LLMRecorder:
                 reverse=True,
             )[:5]
 
-            if high_slop and (high_slop[0].get("hit_vector", [])[orphan_idx] + high_slop[0].get("hit_vector", [])[dup_idx]) > 0:
+            if (
+                high_slop
+                and (high_slop[0].get("hit_vector", [])[orphan_idx] + high_slop[0].get("hit_vector", [])[dup_idx]) > 0
+            ):
                 lines.append("### Highest Design Slop (Dead & Duplicated Logic)")
                 for s in high_slop:
                     o_hits = s.get("hit_vector", [])[orphan_idx]
@@ -729,7 +729,11 @@ class LLMRecorder:
 
         if pi_idx >= 0:
             pi_files = sorted(
-                [s for s in parsed_files if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector", [])[pi_idx] > 0],
+                [
+                    s
+                    for s in parsed_files
+                    if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector", [])[pi_idx] > 0
+                ],
                 key=lambda x: x.get("hit_vector", [])[pi_idx],
                 reverse=True,
             )
@@ -740,7 +744,9 @@ class LLMRecorder:
                     "The following files pass raw, untrusted external I/O directly into an LLM context window without sanitization.\n"
                 )
                 for s in pi_files[:5]:
-                    lines.append(f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[pi_idx]}** exposed injection surfaces")
+                    lines.append(
+                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[pi_idx]}** exposed injection surfaces"
+                    )
                 lines.append("")
 
         if not ai_vuln_found:
@@ -789,11 +795,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 11. CUMULATIVE RISK HITLIST ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)")
         lines.append(
             "> Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.\n"
@@ -851,11 +857,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files) ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files)")
         lines.append(
             "> *Note: 'Magnitude' represents the file's total Structural Magnitude and impact within the system. It is independent of its Risk Profile. High magnitude implies high structural importance and centralization.*\n"
@@ -949,11 +955,11 @@ class LLMRecorder:
                         lines.append(f"    * *Intent:* {clean_doc}")
 
             mitigations = tel.get("mitigation_telemetry", {})
-            
+
             # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
             if isinstance(mitigations, list):
-                mitigations = {m: 1 for m in mitigations}
-                
+                mitigations = dict.fromkeys(mitigations, 1)
+
             active_mitigations = {k: v for k, v in mitigations.items() if v > 0}
             if active_mitigations:
                 lines.append("**Contextual Mitigations & Amplifications:**")
@@ -991,11 +997,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
         lines.append(
             "> **AI CONTEXT:** Pay close attention to 'Anti-Pattern' files. These files blend in globally (Low Global Drift), but heavily violate the standard conventions of their native programming language (High Local Drift). 'Mixed-Responsibility' files sit perfectly between two global archetypes (Delta <= 0.9 IQR), indicating a violation of the Single Responsibility Principle.\n"
@@ -1094,11 +1100,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.5 STRATEGIC REFACTORING TARGETS ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)")
         lines.append(
             "> **AI CONTEXT:** Use these intersections to recommend pragmatic next steps. Risk is exponentially worse when combined with high churn (frequent edits) or high authorship centralization (single points of failure).\n"
@@ -1151,11 +1157,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Physics) ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         sys_bots = forensic_report.get("systemic_bottlenecks", {})
         if any(v and v[0]["score"] > 0 for v in sys_bots.values()):
             lines.append("## 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)")
@@ -1207,11 +1213,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 14. SYSTEM PROMPT: HOW TO RESPOND ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## AI SYSTEM INSTRUCTIONS (OUTPUT FORMAT)")
         lines.append(
             "> **CRITICAL TONE DIRECTIVE:** Act as a Principal Staff Engineer. Use grounded, professional software engineering terminology (e.g., coupling, cohesion, technical debt, single responsibility). DO NOT use sci-fi, dramatic, or sensational jargon (e.g., 'Trojan', 'violently violates', 'parasitic', 'chimeric'). Be objective, practical, and direct."
@@ -1240,11 +1246,11 @@ class LLMRecorder:
 
     def _generate_sqlite_graph(
         self,
-        parsed_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session: dict[str, Any],
         db_path: Path,
-        inbound_map: Dict[str, List[str]],
+        inbound_map: dict[str, list[str]],
     ):
         """Creates a relational database for advanced SQL-based AI analysis."""
         try:

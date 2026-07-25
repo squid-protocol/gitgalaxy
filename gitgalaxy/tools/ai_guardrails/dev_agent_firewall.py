@@ -3,21 +3,22 @@
 # GitGalaxy Tool: Autonomous Agent Firewall
 #
 # PURPOSE:
-# Evaluates the structural and topological constraints of the codebase to 
+# Evaluates the structural and topological constraints of the codebase to
 # determine the safety boundaries for autonomous AI agents (e.g., Claude, Cursor).
 #
 # ARCHITECTURAL DECISION:
-# Autonomous coding agents excel in isolated, pure-function environments but 
+# Autonomous coding agents excel in isolated, pure-function environments but
 # struggle with highly coupled, poorly documented, or dynamically generated logic.
-# This firewall establishes Zero-Trust guardrails to prevent AI agents from 
-# executing unchecked modifications in volatile sectors, mitigating the risk 
+# This firewall establishes Zero-Trust guardrails to prevent AI agents from
+# executing unchecked modifications in volatile sectors, mitigating the risk
 # of cascading failures, context window exhaustion, and silent state mutations.
 # ==============================================================================
 import logging
-from typing import List, Dict, Any
+from typing import Any
 
-from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
+from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
 
 class DevAgentFirewall:
     """
@@ -27,7 +28,7 @@ class DevAgentFirewall:
     def __init__(self, parent_logger=None):
         self.logger = parent_logger.getChild("guardrails") if parent_logger else logging.getLogger("guardrails")
 
-    def evaluate_ecosystem(self, parsed_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def evaluate_ecosystem(self, parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
         self.logger.info("Executing Autonomous Agent Firewall & Token Density Validation...")
 
         risk_schema = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
@@ -41,7 +42,7 @@ class DevAgentFirewall:
             pagerank = network_metrics.get("normalized_blast_radius") or 0.0
             max_big_o = file_data.get("max_big_o") or 1
 
-            guardrails: Dict[str, Any] = {
+            guardrails: dict[str, Any] = {
                 "is_agentic_black_hole": False,
                 "requires_hitl": False,  # Human-in-the-Loop
                 "hallucination_zone": False,

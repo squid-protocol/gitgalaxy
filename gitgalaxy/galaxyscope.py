@@ -1616,6 +1616,23 @@ class Orchestrator:
         # scheduling.
         self.ram_cache = dict(sorted(self.ram_cache.items()))
 
+        # unparsable_files is appended to from the same as_completed() loop
+        # (the "parser_bypass" branch above) as well as from the earlier
+        # sequential filesystem walk, so it's a mix of stable and
+        # nondeterministic ordering. Sorting it here, once both sources have
+        # finished contributing, makes the "Unparsable Artifacts" report
+        # order deterministic the same way ram_cache now is. This was missed
+        # in the original ordering fix -- two back-to-back runs on the same
+        # machine happened to interleave identically and masked it, but a
+        # genuinely different machine (e.g. a CI runner) did not.
+        self.unparsable_files.sort(key=lambda entry: entry["path"])
+
+        # Same nondeterminism, same fix: _record_anomaly() is called both from
+        # the sequential Phase 0 walk and from this parallel loop, and
+        # _summarize_anomalies() later turns iteration order directly into
+        # the "unparsable_artifacts" list order.
+        self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
+
     def _resolve_dependency_graph(self):
         """
         Pass 1.5: Optimized relational token aggregation & Fuzzy Suffix Matching.

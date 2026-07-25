@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-25T01:35:06.768712+00:00",
-            "Total Scan Duration": "24.2 seconds"
+            "Analysis ISO Timestamp": "2026-07-25T02:26:33.047793+00:00",
+            "Total Scan Duration": "24.95 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -151,6 +151,9 @@
                 ".mat": {
                     "Blocked (Unsupported Extension: '.mat')": 1
                 },
+                ".m": {
+                    "Blocked (Machine-Generated Source Code Signature: 73 LOC)": 1
+                },
                 ".cf": {
                     "Blocked (Unsupported Extension: '.cf')": 1
                 },
@@ -169,20 +172,17 @@
                 ".i": {
                     "Blocked (Unsupported Extension: '.i')": 1
                 },
-                ".podspec": {
-                    "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
-                },
-                ".csv": {
-                    "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
-                },
-                ".m": {
-                    "Blocked (Machine-Generated Source Code Signature: 73 LOC)": 1
-                },
                 ".ss": {
                     "Blocked (Lexical Monotony: High structural repetition detected in 10586 LOC)": 1
                 },
                 ".bash": {
                     "Blocked (Machine-Generated Source Code Signature: 3531 LOC)": 1
+                },
+                ".podspec": {
+                    "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+                },
+                ".csv": {
+                    "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
                 },
                 ".tsv": {
                     "Blocked (Saturation: Line 1 exceeds 500 chars)": 1
@@ -6253,10 +6253,26 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "c/cpython/configure",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)",
+            "Size": "971338 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "c/micropython/LICENSE",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
             "Size": "3389 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "c/sqlite/parse.y",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2161 LOC)",
+            "Size": "76434 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -6501,10 +6517,26 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/46af0962ab5afeb5ce6740d4d91652e69206fc991fd5328c1a94d364ad00e457/json",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+            "Size": "1414 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/46af0962ab5afeb5ce6740d4d91652e69206fc991fd5328c1a94d364ad00e457/layer.tar",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
             "Size": "9216 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158/json",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+            "Size": "557 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -6545,6 +6577,14 @@
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
             "Size": "10240 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/xattr/json",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+            "Size": "1443 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -6805,6 +6845,14 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "objective-c/worldwideweb/WorldWideWeb_main.m",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 73 LOC)",
+            "Size": "2192 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "perl/bugzilla/LICENSE",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -6973,6 +7021,14 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "python/fastapi/tests/test_sub_callbacks.py",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Saturation: Line 96 exceeds 500 chars)",
+            "Size": "14598 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "python/fastapi/uv.lock",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (Unsupported Extension: '.lock')",
@@ -6993,6 +7049,14 @@
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (Unsupported Extension: '.rst')",
             "Size": "9874 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "python/numpy/generate_umath.py",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1695 LOC)",
+            "Size": "55081 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -7045,10 +7109,42 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "rust/tokio/tokio_udp.rs",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)",
+            "Size": "88127 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "rust/wasmtime/wasmtime_ir_instructions.rs",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1541 LOC)",
+            "Size": "54752 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "scala/kafka/LICENSE",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
             "Size": "11358 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "scheme/racket/syntax.ss",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10586 LOC)",
+            "Size": "486498 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "shell/brew/brew_completion.bash",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 3531 LOC)",
+            "Size": "58169 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -7101,6 +7197,14 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "tabular/tsv_genomics/gwas_sample.tsv",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+            "Size": "8022 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "tcl/sqlite/all.test",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -7149,6 +7253,14 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "tcl/sqlite/fuzzcheck.c",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2744 LOC)",
+            "Size": "87981 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "tcl/sqlite/rtreefuzz001.test",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -7161,6 +7273,14 @@
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
             "Size": "8702 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "tcl/sqlite/testrunner.tcl",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+            "Size": "56482 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -7181,6 +7301,14 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "typescript/assemblyscript/builtins.ts",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)",
+            "Size": "420717 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "typescript/fp-ts/LICENSE",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -7193,6 +7321,46 @@
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
             "Size": "11601 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "typescript/typescript_compiler/LICENSE.txt",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 56 LOC)",
+            "Size": "9197 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "typescript/typescript_compiler/checker.ts",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",
+            "Size": "3151774 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "typescript/typescript_compiler/emitter.ts",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)",
+            "Size": "273338 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "typescript/typescript_compiler/parser.ts",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)",
+            "Size": "539685 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "typescript/typescript_compiler/types.ts",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)",
+            "Size": "487846 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },
@@ -7277,190 +7445,6 @@
             "Discovery Proof": "Radar Scan"
         },
         {
-            "Path": "zig/zls/config_gen.zig",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
-            "Size": "43593 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "zig/zls/mach/LICENSE",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
-            "Size": "751 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "c/cpython/configure",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)",
-            "Size": "971338 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "c/sqlite/parse.y",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2161 LOC)",
-            "Size": "76434 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/46af0962ab5afeb5ce6740d4d91652e69206fc991fd5328c1a94d364ad00e457/json",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
-            "Size": "1414 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158/json",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
-            "Size": "557 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/xattr/json",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
-            "Size": "1443 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "objective-c/worldwideweb/WorldWideWeb_main.m",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 73 LOC)",
-            "Size": "2192 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "python/fastapi/tests/test_sub_callbacks.py",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Saturation: Line 96 exceeds 500 chars)",
-            "Size": "14598 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "python/numpy/generate_umath.py",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1695 LOC)",
-            "Size": "55081 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "rust/tokio/tokio_udp.rs",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)",
-            "Size": "88127 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "rust/wasmtime/wasmtime_ir_instructions.rs",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1541 LOC)",
-            "Size": "54752 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "scheme/racket/syntax.ss",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10586 LOC)",
-            "Size": "486498 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "shell/brew/brew_completion.bash",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 3531 LOC)",
-            "Size": "58169 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "tabular/tsv_genomics/gwas_sample.tsv",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
-            "Size": "8022 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "tcl/sqlite/fuzzcheck.c",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2744 LOC)",
-            "Size": "87981 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "tcl/sqlite/testrunner.tcl",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Unsupported Format (.undeterminable)",
-            "Size": "56482 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/assemblyscript/builtins.ts",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)",
-            "Size": "420717 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/typescript_compiler/LICENSE.txt",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 56 LOC)",
-            "Size": "9197 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/typescript_compiler/checker.ts",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",
-            "Size": "3151774 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/typescript_compiler/emitter.ts",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)",
-            "Size": "273338 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/typescript_compiler/parser.ts",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)",
-            "Size": "539685 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
-            "Path": "typescript/typescript_compiler/types.ts",
-            "Forensic Category": "Excluded Artifact",
-            "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)",
-            "Size": "487846 bytes",
-            "Identity Confidence": "0.0%",
-            "Discovery Proof": "Radar Scan"
-        },
-        {
             "Path": "zig/tigerbeetle/download.ps1",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Unsupported Format (.undeterminable)",
@@ -7485,10 +7469,26 @@
             "Discovery Proof": "Radar Scan"
         },
         {
+            "Path": "zig/zls/config_gen.zig",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+            "Size": "43593 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
             "Path": "zig/zls/langref.html.in",
             "Forensic Category": "Excluded Artifact",
             "Diagnostic Reason": "Blocked (Saturation: Line 9 exceeds 500 chars)",
             "Size": "351215 bytes",
+            "Identity Confidence": "0.0%",
+            "Discovery Proof": "Radar Scan"
+        },
+        {
+            "Path": "zig/zls/mach/LICENSE",
+            "Forensic Category": "Excluded Artifact",
+            "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+            "Size": "751 bytes",
             "Identity Confidence": "0.0%",
             "Discovery Proof": "Radar Scan"
         },

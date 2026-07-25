@@ -255,9 +255,9 @@ class LanguageDetector:
                     content_sample,
                 )
 
-            target_id = "markdown" if ext in {".md", ".mdx"} else "plaintext"
+            prose_target_id = "markdown" if ext in {".md", ".mdx"} else "plaintext"
             return self._forge_result(
-                target_id,
+                prose_target_id,
                 self.thresholds.get("PROSE_CONFIDENCE", 0.95),
                 1,
                 f"Prose Extension ({ext})",
@@ -288,7 +288,7 @@ class LanguageDetector:
                     for anchor in self.PROSE_ANCHORS
                 )
 
-        target_id = None
+        target_id: Optional[str] = None
         anchor_proof = f"Metadata Anchor ({name})"
 
         if name in self.anchor_map:
@@ -378,7 +378,8 @@ class LanguageDetector:
         # =========================================================================
         best_lang = "undeterminable"
         best_conf = 0.10
-        lock_tier = 4
+        # float, not int: sub-tiers like 1.5/1.7 are intentional (see Tier 1.5/1.7 below).
+        lock_tier: float = 4
         source_proof = "Heuristic Discovery"
 
         # TIER 0: ABSOLUTE CONSENSUS
@@ -571,7 +572,7 @@ class LanguageDetector:
             return None, 0.0
 
         # 2. GATHER LOCAL FOLDER CENSUS
-        local_tally = {}
+        local_tally: Dict[str, int] = {}
         try:
             parent_dir = Path(file_path).parent
             for child in parent_dir.iterdir():
@@ -641,7 +642,12 @@ class LanguageDetector:
             if total_gravity == 0:
                 continue  # Inconclusive. Fall back to the Global tally loop.
 
-            top_lid = max(scores, key=scores.get)
+            # lambda, not scores.get -- dict.get is overloaded (1-arg vs
+            # 2-arg-with-default), which mypy can't resolve when passed
+            # bare as max()'s key function. Every key here is already a
+            # member of scores (we're iterating its own keys), so a direct
+            # __getitem__ lookup needs no default anyway.
+            top_lid = max(scores, key=lambda lid: scores[lid])
             dominance = scores[top_lid] / total_gravity
 
             if ext == ".h" and set(scores.keys()).issubset({"c", "cpp", "objective-c"}):
@@ -831,7 +837,10 @@ class LanguageDetector:
                 "positional_anchored": content.count("*>") + content.count("!"),
             }
 
-        winning_family = max(family_scores, key=family_scores.get, default=None)
+        # lambda, not family_scores.get -- same overload-resolution issue as
+        # the max() call above. key is only ever invoked on elements from
+        # family_scores itself, so a direct lookup is safe even with default=None.
+        winning_family = max(family_scores, key=lambda fam: family_scores[fam], default=None)
 
         # Fail gracefully if no comments/structure exist to establish a lexical family
         if not winning_family or family_scores.get(winning_family, 0) == 0:
@@ -872,7 +881,7 @@ class LanguageDetector:
         friction_scores = {}
 
         for lid in surviving_candidates:
-            regex_hits = 0
+            regex_hits: float = 0  # float: the abap handicap below multiplies by 0.7
             rules = self.languages.get(lid, {}).get("rules", {})
             t_start = time.time()
 
@@ -996,7 +1005,7 @@ class LanguageDetector:
         self,
         lang_id: str,
         intensity: float,
-        tier: int,
+        tier: float,
         proof: str,
         base: DetectorResult,
         content_sample: str = "",
@@ -1037,9 +1046,15 @@ class LanguageDetector:
     def _find_balanced_end(self, text: str, start_pos: int, opener: str, closer: str) -> int:
         depth = 0
         in_string: Optional[str] = None
-        limit = min(
-            start_pos + self.thresholds.get("HANDSHAKE_LOOKAHEAD_LIMIT", 50000),
-            len(text),
+        # int(): self.thresholds is Dict[str, float] (THRESHOLDS mixes float
+        # confidence values with integer limits like this one) -- range()
+        # below needs an actual int, and a character-position limit was
+        # always meant to be a whole number anyway.
+        limit = int(
+            min(
+                start_pos + self.thresholds.get("HANDSHAKE_LOOKAHEAD_LIMIT", 50000),
+                len(text),
+            )
         )
 
         for i in range(start_pos, limit):

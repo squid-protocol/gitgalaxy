@@ -11,21 +11,38 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
+from typing import Any, Dict, List, Set, TypedDict
 
 """
 language_standards.py
 Phase 2 & 3: The Lexical Registry & Syntax Dictionaries.
 
-This file contains the compiled regular expressions, mechanical delimiters, 
-and language-specific rules used to physically slice, parse, and identify 
+This file contains the compiled regular expressions, mechanical delimiters,
+and language-specific rules used to physically slice, parse, and identify
 source code across the repository.
 """
+
+
+class LensConfig(TypedDict):
+    # LENS_CONFIG's mixed set/dict/list values were widening to
+    # Collection[object] under mypy, so every .get()/.items() call on it
+    # throughout language_lens.py errored (#431). HANDSHAKE_REGISTRY's
+    # inner dicts stay Dict[str, Any] rather than their own TypedDict --
+    # "pair" is None for two of the three current entries and a tuple for
+    # the third, and nothing here needs to type-check their contents,
+    # only LENS_CONFIG's own top-level shape.
+    COLLISION_FREQUENCIES: Set[str]
+    PROSE_ANCHORS: Set[str]
+    DISQUALIFIERS: Dict[str, str]
+    HANDSHAKE_REGISTRY: List[Dict[str, Any]]
+    THRESHOLDS: Dict[str, float]
+
 
 # ------------------------------------------------------------------------------
 # 1. STRUCTURAL SIGNATURE CONFIGURATION (Language Identification & Disambiguation)
 # Consumed by: language_lens.py
 # ------------------------------------------------------------------------------
-LENS_CONFIG = {
+LENS_CONFIG: LensConfig = {
     "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m"},
     "PROSE_ANCHORS": {
         "README",

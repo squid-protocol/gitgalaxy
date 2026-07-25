@@ -29,6 +29,7 @@ htmlcov/
 
 # LOGS & DATABASES
 *.log
+log.txt
 gitgalaxy_dropped_orders.log
 *.sqlite3
 *.sqlite3-journal

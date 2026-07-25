@@ -38,7 +38,7 @@ class ManifestParser:
         dictionary, namespaced by directory to prevent monorepo alias clobbering.
         """
         # Change to a nested structure: map[directory_path][package_alias]
-        resolution_map = {}
+        resolution_map: Dict[str, Dict[str, str]] = {}
 
         for path_str in manifest_paths:
             manifest_path = Path(path_str)
@@ -309,7 +309,9 @@ class UniversalManifestSlicer:
         return ecosystem, deps
 
     @staticmethod
-    def locate_physical_package(target_path: Path, pkg_name: str, ecosystem: str, repo_root: Optional[Path] = None) -> Path:
+    def locate_physical_package(
+        target_path: Path, pkg_name: str, ecosystem: str, repo_root: Optional[Path] = None
+    ) -> Optional[Path]:
         """
         Hunts for the physical location of a package within the project bounds.
 

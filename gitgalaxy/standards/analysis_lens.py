@@ -11,6 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
+from typing import Dict, List, TypedDict
 
 """
 analysis_lens.py
@@ -1043,7 +1044,21 @@ LANGUAGE_SECURITY_PROFILES = {
 # 7. RECORDING SCHEMAS & UI MAPPINGS
 # Consumed by: gpu_recorder.py, audit_recorder.py, llm_recorder.py, detector.py
 # ------------------------------------------------------------------------------
-RECORDING_SCHEMAS = {
+class RecordingSchemas(TypedDict):
+    # RISK_SCHEMA/SIGNAL_SCHEMA/etc. are read with .index() throughout the
+    # codebase (galaxyscope.py, signal_processor.py, record_keeper.py, ...).
+    # Without this TypedDict, the dict's mixed list/dict values widen to
+    # Collection[str], which has no .index() -- the single largest source
+    # of mypy fan-out errors repo-wide (#431).
+    RISK_SCHEMA: List[str]
+    SIGNAL_SCHEMA: List[str]
+    SAT_SCHEMA: List[str]
+    GPU_TEXTURE_LOOKUPS: List[str]
+    FRIENDLY_MAP: Dict[str, str]
+    EXPOSURE_LABELS: Dict[str, str]
+
+
+RECORDING_SCHEMAS: RecordingSchemas = {
     "RISK_SCHEMA": [
         "cognitive_load",
         "safety_score",

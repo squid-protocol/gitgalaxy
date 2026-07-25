@@ -63,9 +63,19 @@ jobs:
   # 3 of them and let the rest live only in the ephemeral runner.
   # --fail-on-malware stays on here too, as a safety net in case
   # branch protection is ever bypassed.
+  #
+  # The LLM brief embeds a Timestamp/Scan Duration/Git Commit in its own
+  # content (llm_recorder.py), so it always differs from the last commit
+  # even with zero real code changes -- and merging the bot's own PR is
+  # itself a push to main. Without the second half of this condition, that
+  # is a genuine infinite loop: this confirmed live on 2026-07-25, landing
+  # 13 junk commits in ~13 minutes before being caught and disabled. Skip
+  # regenerating when the triggering push IS the bot's own previous merge.
   # ============================================================
   full-report:
-    if: github.event_name == 'push'
+    if: |
+      github.event_name == 'push' &&
+      !startsWith(github.event.head_commit.message, 'docs: auto-update LLM architectural brief')
     name: Full Report (SARIF, SBOM, LLM Brief)
     runs-on: ubuntu-latest
     permissions:

@@ -467,7 +467,7 @@ class ApertureFilter:
             meaningful_lines = [l for l in sample_lines if l.strip()]
 
             if len(meaningful_lines) > 100:
-                indent_counts = {}
+                indent_counts: Dict[int, int] = {}
                 for l in meaningful_lines:
                     indent = len(l) - len(l.lstrip())
                     indent_counts[indent] = indent_counts.get(indent, 0) + 1

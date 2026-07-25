@@ -21,6 +21,7 @@ import csv
 import math
 import re
 from pathlib import Path
+from typing import Any, List
 
 
 def calculate_byte_layout(schema_json: dict) -> list:
@@ -142,7 +143,7 @@ def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_file
             if len(record_bytes) < record_length:
                 break
 
-            row_data = []
+            row_data: List[Any] = []
             cursor = 0
 
             for field in layout:

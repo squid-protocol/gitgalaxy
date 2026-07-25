@@ -111,7 +111,7 @@ class NetworkRiskSensor:
         By mapping outbound AST calls from tests to production targets, we can calculate
         the exact architectural "Dependency Blast Radius" of untested functions.
         """
-        coverage_map = {}
+        coverage_map: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
         resolution_map = self._build_resolution_map(files)
 
         # 2. Identify Test Files and extract their outgoing invocations

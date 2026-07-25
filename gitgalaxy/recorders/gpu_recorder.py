@@ -129,7 +129,7 @@ class GPURecorder:
         }
 
         # The 'Singularity' array maps 1:1 to Excluded Artifacts
-        excluded_artifacts = {
+        excluded_artifacts: Dict[str, List[Any]] = {
             "paths": [],
             "exts": [],
             "reasons": [],
@@ -153,7 +153,7 @@ class GPURecorder:
                 resolution_map[stem] = idx
 
         # Pre-allocate the "Imported By" (inbound dependency) array for all files
-        inbound_edges = [[] for _ in range(len(parsed_files))]
+        inbound_edges: List[List[int]] = [[] for _ in range(len(parsed_files))]
 
         # ==============================================================================
 

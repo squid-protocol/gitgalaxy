@@ -17,6 +17,7 @@ import argparse
 import sys
 import re
 from pathlib import Path
+from typing import Optional
 
 
 def resolve_copybooks(content: str, source_path: Path) -> str:
@@ -82,7 +83,7 @@ def resolve_copybooks(content: str, source_path: Path) -> str:
     return safe_content
 
 
-def x_ray_dead_code(filepath: Path) -> dict:
+def x_ray_dead_code(filepath: Path) -> Optional[dict]:
     """Parses a fully-expanded COBOL file to find mathematically unreachable logic and memory."""
     try:
         raw_content = filepath.read_text(encoding="utf-8", errors="ignore").upper()

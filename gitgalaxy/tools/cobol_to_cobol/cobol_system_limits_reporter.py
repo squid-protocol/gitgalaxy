@@ -19,6 +19,7 @@ import argparse
 import sys
 import re
 from pathlib import Path
+from typing import Any, Dict
 
 # ==============================================================================
 # DEFENSIVE DESIGN (STRUCTURAL ANOMALY SIGNATURES):
@@ -27,7 +28,7 @@ from pathlib import Path
 # meaning execution can violently jump outside the defined AST flow at any given 
 # millisecond, rendering static data lineage maps untrustworthy.
 # ==============================================================================
-SYSTEM_LIMIT_RULES = {
+SYSTEM_LIMIT_RULES: Dict[str, Dict[str, Any]] = {
     "ALTER_STATEMENT": {
         "regex": re.compile(
             r"\bALTER\s+[A-Z0-9\-]+\s+TO\s+(?:PROCEED\s+TO\s+)?[A-Z0-9\-]+\b",

@@ -23,6 +23,7 @@ import re
 import json
 from pathlib import Path
 from collections import defaultdict
+from typing import Any, Dict
 
 try:
     import yaml
@@ -32,7 +33,7 @@ except ImportError:
 # ==============================================================================
 # 1. ROUTER STRUCTURAL SIGNATURES (EXPANDED FRAMEWORK REGEX PATTERNS)
 # ==============================================================================
-FRAMEWORK_SIGNATURES = {
+FRAMEWORK_SIGNATURES: Dict[str, Dict[str, Any]] = {
     "Python (FastAPI/Flask/Django)": {
         "ext": [".py"],
         "regex": re.compile(

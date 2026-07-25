@@ -18,12 +18,12 @@ import sys
 import re
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 
 
 def analyze_cobol_intent(filepath: Path) -> dict:
     """Extracts execution intent and data boundaries from legacy source code."""
-    intent = {
+    intent: Dict[str, Any] = {
         "program_id": "UNKNOWN",
         "files_requested": [],
         "is_cics": False,

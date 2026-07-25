@@ -33,7 +33,7 @@ class SarifRecorder:
         missing_deps = session_meta.get("missing_dependencies", {})
 
         # 2. Build the foundational SARIF Schema
-        sarif_payload = {
+        sarif_payload: Dict[str, Any] = {
             "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
             "version": "2.1.0",
             "runs": [

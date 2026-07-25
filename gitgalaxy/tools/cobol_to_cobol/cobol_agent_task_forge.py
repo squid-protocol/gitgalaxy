@@ -17,9 +17,12 @@
 # ==============================================================================
 import json
 from pathlib import Path
+from typing import Dict, List, Optional
 
 
-def generate_agent_ticket(file_name: str, source_file: Path, anomalies: list, ir_state: dict) -> dict:
+def generate_agent_ticket(
+    file_name: str, source_file: Path, anomalies: list, ir_state: Optional[dict]
+) -> dict:
     """Generates a structured JSON task ticket for an autonomous agent."""
 
     # Extract Dependency Graph lineage to provide the agent with strict I/O context
@@ -64,7 +67,7 @@ def forge_agent_jobs(staging_dir: Path, source_dir: Path, architectural_anomalie
     ir_dir = staging_dir / "04_ir_state_dumps"
 
     # Group anomalies by their target file
-    file_anomalies = {}
+    file_anomalies: Dict[str, List[str]] = {}
     for anomaly in architectural_anomalies:
         if anomaly.startswith("[") and "]" in anomaly:
             file_name = anomaly[1 : anomaly.index("]")]

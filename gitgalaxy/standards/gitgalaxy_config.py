@@ -429,7 +429,7 @@ PRIORITY_WHITELIST = [
 # Consumed by: guidestar_lens.py
 # ------------------------------------------------------------------------------
 # Defines the rules for Bayesian Intent inference used by the GuideStar Lens
-GUIDESTAR_CONFIG = {
+GUIDESTAR_CONFIG: Dict[str, Any] = {
     "IGNORED_DIRECTORIES": APERTURE_CONFIG["IGNORED_DIRECTORIES"],
     "MANIFEST_MAP": {
         "package.json": "javascript",

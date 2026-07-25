@@ -165,7 +165,7 @@ class StatisticalAuditor:
 
                 if total_for_ext > 0:
                     # Find the dominant language for this extension in THIS repository
-                    winner_lang = max(lang_counts, key=lang_counts.get)
+                    winner_lang = max(lang_counts, key=lambda k: lang_counts[k])
                     winner_count = lang_counts[winner_lang]
 
                     # If the winner claims >= 80% of the confident files, it is the Ecosystem Truth.
@@ -196,7 +196,7 @@ class StatisticalAuditor:
 
                 # If there is ANY C-family presence in the confident core, give the header to the dominant one.
                 if sum(c_counts.values()) > 0:
-                    winner_lang = max(c_counts, key=c_counts.get)
+                    winner_lang = max(c_counts, key=lambda k: c_counts[k])
                     artifact["lang_id"] = winner_lang
 
                     if "telemetry" not in artifact:

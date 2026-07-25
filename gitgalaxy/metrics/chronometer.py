@@ -19,7 +19,7 @@ import subprocess
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List, Set, Tuple
 from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
@@ -315,7 +315,7 @@ class Chronometer:
         reached_target = False
 
         # Local tracker to ensure we only count files that currently exist
-        valid_files_seen = set()
+        valid_files_seen: Set[str] = set()
 
         try:
             process = subprocess.Popen(
@@ -326,6 +326,7 @@ class Chronometer:
                 text=True,
                 bufsize=1,
             )
+            assert process.stdout is not None  # guaranteed by stdout=subprocess.PIPE above
 
             for line in process.stdout:
                 # [TIMEOUT GUARD] Enforce the hard compute timeout

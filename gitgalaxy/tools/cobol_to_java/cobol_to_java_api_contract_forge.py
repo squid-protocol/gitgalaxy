@@ -18,6 +18,7 @@ import argparse
 import sys
 import json
 from pathlib import Path
+from typing import Dict
 
 
 def generate_rest_controller(ir_state: dict, package_name: str) -> str:
@@ -70,7 +71,7 @@ def generate_rest_controller(ir_state: dict, package_name: str) -> str:
         # We track `seen_vars` and dynamically append numerical suffixes to 
         # ensure perfectly compiling Spring `@RequestParam` annotations.
         # ======================================================================
-        seen_vars = {}  
+        seen_vars: Dict[str, int] = {}
 
         for file_req in files_requested:
             dd_name_raw = file_req.get("dd_name", "UNKNOWN").lower()

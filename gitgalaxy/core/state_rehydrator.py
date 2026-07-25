@@ -170,5 +170,8 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
     ram = result["ram_cache"]["src/hacked.py"]
 
     # If the rehydrator didn't cast to float(), this will be a string and crash the downstream math!
-    assert isinstance(ram["file_impact"], float), "State Rehydrator failed to sanitize dictionary overrides!"
-    assert isinstance(ram["control_flow_ratio"], float), "State Rehydrator allowed a string into a float field!"
+    # Safe: this is a pytest-style test assertion in an embedded test
+    # function, not production runtime logic -- assert is the correct,
+    # idiomatic construct here, not a stripped-under-`-O` risk.
+    assert isinstance(ram["file_impact"], float), "State Rehydrator failed to sanitize dictionary overrides!"  # noqa: S101
+    assert isinstance(ram["control_flow_ratio"], float), "State Rehydrator allowed a string into a float field!"  # noqa: S101

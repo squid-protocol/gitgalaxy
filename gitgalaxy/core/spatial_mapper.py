@@ -70,7 +70,9 @@ class SpatialMapper:
         """
         if not seed:
             return 0.0
-        h = int(hashlib.md5(seed.encode("utf-8")).hexdigest()[:8], 16)
+        # usedforsecurity=False: this is deterministic visual jitter, not a
+        # security-relevant hash -- MD5's speed is exactly what's wanted here.
+        h = int(hashlib.md5(seed.encode("utf-8"), usedforsecurity=False).hexdigest()[:8], 16)
         # Map 0-0xffffffff to a normalized range of -1.0 to 1.0
         normalized = (h / 0xFFFFFFFF) * 2.0 - 1.0
         return normalized * amplitude

@@ -305,8 +305,11 @@ def main():
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Run the orchestrator to generate the JSON graph in a temp directory
                 target_out_file = str(Path(tmpdir) / "firewall_temp.json")
-                result = subprocess.run(
-                    ["python", "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", target_out_file],
+                # sys.executable, not a bare "python" PATH lookup -- guarantees
+                # the exact same interpreter/venv GitGalaxy itself is running
+                # under, not whatever "python" happens to resolve to (#472).
+                result = subprocess.run(  # noqa: S603 -- args are fixed strings + a Path, no untrusted input
+                    [sys.executable, "-m", "gitgalaxy.galaxyscope", str(target_path), "--output", target_out_file],
                     capture_output=True,
                     text=True,
                 )

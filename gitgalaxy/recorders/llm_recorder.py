@@ -1429,19 +1429,24 @@ class LLMRecorder:
                 repo_z = tel.get("repo_z_score", 0.0)
                 parent_entity = tel.get("domain_context", {}).get("parent_entity", "")
 
+                # Safe: the only f-string interpolation here is self.RISK_SCHEMA,
+                # an internal hardcoded class constant (column names), not user
+                # input -- SQLite has no parameterized syntax for column
+                # names/DDL, only values. Every actual row value below goes
+                # through a `?` placeholder (noqa is on the closing `"""` below).
                 cursor.execute(
                     f"""
                     INSERT INTO artifacts (
-                        path, filename, parent_entity, directory_group, language, lock_tier, 
+                        path, filename, parent_entity, directory_group, language, lock_tier,
                         total_loc, coding_loc, doc_loc, file_impact,
                         control_flow_ratio, author_distribution, ownership_entropy,
-                        raw_churn_freq, cog_raw, ownership, popularity, 
+                        raw_churn_freq, cog_raw, ownership, popularity,
                         archetype, global_drift, local_archetype, local_drift,
                         ecosystem_baseline, repo_z_score, max_algorithmic_complexity, max_db_complexity,
                         {", ".join(self.RISK_SCHEMA)}
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
-                """,
+                """,  # noqa: S608
                     (
                         p,
                         Path(p).name,

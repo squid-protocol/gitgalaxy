@@ -16,6 +16,7 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -31,6 +32,10 @@ from gitgalaxy.standards.config_resolver import resolve_config
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
+
+# S607 hardening: resolve once to an absolute path, same rationale as
+# galaxyscope.py's identical _GIT_BIN constant.
+_GIT_BIN = shutil.which("git") or "git"
 
 
 class Chronometer:
@@ -105,7 +110,7 @@ class Chronometer:
         # Step A: Git Binary Verification
         if (self.root / ".git").exists():
             try:
-                subprocess.run(["git", "--version"], capture_output=True, check=True)
+                subprocess.run([_GIT_BIN, "--version"], capture_output=True, check=True)  # noqa: S603
                 self.is_git_enabled = True
                 self.logger.debug("Git binary verified. Commencing Deep Boundary Survey.")
             except (subprocess.CalledProcessError, FileNotFoundError):
@@ -148,8 +153,8 @@ class Chronometer:
         if self.is_git_enabled:
             try:
                 # Get Most Recent Commit (Max Time)
-                res_max = subprocess.run(
-                    ["git", "log", "-1", "--format=%ct"],
+                res_max = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "log", "-1", "--format=%ct"],
                     cwd=self.root,
                     capture_output=True,
                     text=True,
@@ -159,8 +164,8 @@ class Chronometer:
                     self.repo_max_time = float(res_max.stdout.strip())
 
                 # Get First Commit (Min Time)
-                res_min = subprocess.run(
-                    ["git", "rev-list", "--max-parents=0", "HEAD"],
+                res_min = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "rev-list", "--max-parents=0", "HEAD"],
                     cwd=self.root,
                     capture_output=True,
                     text=True,
@@ -168,8 +173,9 @@ class Chronometer:
                 )
                 first_commits = res_min.stdout.strip().split("\n")
                 if first_commits and first_commits[0]:
-                    res_min_time = subprocess.run(
-                        ["git", "log", "-1", "--format=%ct", first_commits[0]],
+                    # first_commits[0] is git's own prior stdout (git rev-list), not external input.
+                    res_min_time = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute
+                        [_GIT_BIN, "log", "-1", "--format=%ct", first_commits[0]],
                         cwd=self.root,
                         capture_output=True,
                         text=True,
@@ -238,8 +244,8 @@ class Chronometer:
 
         # 1. Establish the Denominator (Total Tracked Files)
         try:
-            res = subprocess.run(
-                ["git", "ls-files"],
+            res = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "ls-files"],
                 cwd=self.root,
                 capture_output=True,
                 text=True,
@@ -269,7 +275,7 @@ class Chronometer:
         # 3. The Command: Limit Git to the last year of commits.
         # This generates massive churn spikes without getting bogged down in decade-old bedrock.
         cmd = [
-            "git",
+            _GIT_BIN,
             "log",
             "--since=1.year",
             "--name-only",
@@ -319,7 +325,7 @@ class Chronometer:
         valid_files_seen: set[str] = set()
 
         try:
-            process = subprocess.Popen(
+            process = subprocess.Popen(  # noqa: S603 -- cmd is built above from _GIT_BIN + fixed args, no external input
                 cmd,
                 cwd=self.root,
                 stdout=subprocess.PIPE,
@@ -327,7 +333,9 @@ class Chronometer:
                 text=True,
                 bufsize=1,
             )
-            assert process.stdout is not None  # guaranteed by stdout=subprocess.PIPE above
+            # Safe: type-narrowing for mypy, not a runtime security gate --
+            # stdout=subprocess.PIPE above guarantees this is never None.
+            assert process.stdout is not None  # noqa: S101
 
             for line in process.stdout:
                 # [TIMEOUT GUARD] Enforce the hard compute timeout

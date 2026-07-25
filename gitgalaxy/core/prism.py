@@ -228,7 +228,7 @@ class Prism:
                 f"Catastrophic structural failure during structural scan: {e}",
                 exc_info=True,
             )
-            raise PrismError(f"Prism failure: {e}")
+            raise PrismError(f"Prism failure: {e}") from e
 
     def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> tuple[str, str]:
         """Surgically strips documentation using an ordered, additive pipeline."""

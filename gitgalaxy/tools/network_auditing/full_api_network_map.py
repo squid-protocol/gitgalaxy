@@ -181,7 +181,7 @@ def parse_official_swagger(swagger_path: Path) -> set:
                 approved_apis.add(normalize_endpoint(method, api_path))
     except Exception as e:
         # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
-        raise RuntimeError(f"Error parsing Swagger file {swagger_path.name}: {e}")
+        raise RuntimeError(f"Error parsing Swagger file {swagger_path.name}: {e}") from e
 
     return approved_apis
 

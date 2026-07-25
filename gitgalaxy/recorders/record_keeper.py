@@ -635,6 +635,11 @@ class RecordKeeper:
 
             placeholders = ",".join(["?"] * len(row_data))
 
+            # Safe: f-string interpolation is limited to self.RISK_SCHEMA/
+            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP, internal hardcoded class
+            # constants (column names), not user input -- SQLite has no
+            # parameterized syntax for column names. Every actual row value
+            # goes through `placeholders`/`?` (noqa is on the closing `"""` below).
             cursor.execute(
                 f"""
                 INSERT INTO file_data (
@@ -654,7 +659,7 @@ class RecordKeeper:
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
                 ) VALUES ({placeholders})
-            """,
+            """,  # noqa: S608
                 row_data,
             )
 
@@ -716,12 +721,14 @@ class RecordKeeper:
         # PERFORMANCE OPTIMIZATION: Execute all accumulated functions in a single transaction loop
         if all_func_rows:
             func_placeholders = ",".join(["?"] * len(all_func_rows[0]))
+            # Safe: same as above -- self.SHORT_KEY_MAP/SIGNAL_SCHEMA are
+            # internal constants, row values go through func_placeholders/`?`.
             cursor.executemany(
                 f"""
-                INSERT INTO function_data 
+                INSERT INTO function_data
                 (file_id, parent_class_id, func_name, complexity, loc, args, usage_status, keyword_density, func_archetype, func_z_score, big_o_depth, is_recursive, db_complexity, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
                 VALUES ({func_placeholders})
-            """,
+            """,  # noqa: S608
                 all_func_rows,
             )
 
@@ -807,7 +814,7 @@ class RecordKeeper:
                 {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
                 file_composition
             ) VALUES ({repo_placeholders})
-        """,
+        """,  # noqa: S608 -- SHORT_KEY_MAP/SIGNAL_SCHEMA are internal constants, values go through repo_placeholders/`?`
             repo_row_data,
         )
 

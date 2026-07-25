@@ -15,9 +15,18 @@
 # ==============================================================================
 import argparse
 import os
+import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
+
+# S607/S603 hardening (#472): sys.executable for "python" (guarantees the
+# same interpreter/venv this harness itself runs under), shutil.which for
+# "mvn" (resolves once to an absolute path rather than a PATH lookup per
+# call). Command lists are all hardcoded below, never built from
+# untrusted/external input.
+_MVN_BIN = shutil.which("mvn") or "mvn"
 
 
 def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
@@ -33,7 +42,9 @@ def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
     custom_env["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
 
     try:
-        result = subprocess.run(
+        # Safe: `command` always comes from this file's own hardcoded cmd1/cmd2/cmd3
+        # lists (sys.executable/_MVN_BIN + fixed args), never external/untrusted input.
+        result = subprocess.run(  # noqa: S603
             command,
             cwd=cwd,
             env=custom_env,
@@ -95,7 +106,7 @@ def main():
             repo_error_log = reports_dir / f"{repo.name}_error_{timestamp}.log"
 
             # STEP 1: Structural Extraction
-            cmd1 = ["python", str(v6_dir / "cobol_refractor_controller.py"), repo.name]
+            cmd1 = [sys.executable, str(v6_dir / "cobol_refractor_controller.py"), repo.name]
             success1, out1, err1 = run_command(cmd1, cwd=corpus_path)
             if not success1:
                 print("❌ FAILED (Structural Extraction Phase)")
@@ -117,7 +128,7 @@ def main():
 
             # STEP 2: Spring Boot Scaffolding
             cmd2 = [
-                "python",
+                sys.executable,
                 str(v6_dir / "cobol_to_java_controller.py"),
                 clean_room.name,
             ]
@@ -141,7 +152,7 @@ def main():
             java_dir = java_dirs[0]
 
             # STEP 3: Maven Compilation
-            cmd3 = ["mvn", "clean", "compile"]
+            cmd3 = [_MVN_BIN, "clean", "compile"]
             success3, out3, err3 = run_command(cmd3, cwd=java_dir)
             if not success3:
                 print("❌ FAILED (Maven Compilation)")

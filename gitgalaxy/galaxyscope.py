@@ -68,6 +68,13 @@ from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
 
+# S607 hardening: resolve once to an absolute path rather than relying on
+# PATH lookup at every subprocess.check_output(["git", ...]) call below.
+# Falls back to the bare name if git genuinely isn't installed -- the
+# existing FileNotFoundError/CalledProcessError handling at each call site
+# already covers that case unchanged.
+_GIT_BIN = shutil.which("git") or "git"
+
 logger = logging.getLogger("GalaxyScope")
 
 # ==============================================================================
@@ -1378,8 +1385,8 @@ class Orchestrator:
     def _build_file_census(self):
         """Phase 0: Building the Census via Git Authority with Fallback."""
         try:
-            raw_output = subprocess.check_output(
-                ["git", "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
+            raw_output = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, args are fixed strings
+                [_GIT_BIN, "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
             )
             git_paths = raw_output.splitlines()
             self.git_tracked_files = set(git_paths)
@@ -1606,7 +1613,7 @@ class Orchestrator:
                         logger.error(f"WORKER_CRASH on {rel_path}: {e}")
                         self._record_anomaly(rel_path, f"Fatal Worker Crash: {e!s}")
 
-            except concurrent.futures.TimeoutError:
+            except concurrent.futures.TimeoutError as e:
                 logger.error("\n" + "=" * 75)
                 logger.error(" SYSTEM HALT: Worker Thread Starvation")
                 logger.error(" All CPU workers have exceeded the 60.0s execution limit.")
@@ -1631,7 +1638,7 @@ class Orchestrator:
                 logger.warning("Aborting synthesis to unfreeze the terminal. Please check the Anti-ReDoS shields.")
 
                 executor.shutdown(wait=False, cancel_futures=True)
-                raise TimeoutError("Mission aborted due to worker starvation (ReDoS or IPC Deadlock).")
+                raise TimeoutError("Mission aborted due to worker starvation (ReDoS or IPC Deadlock).") from e
 
         # as_completed() yields in whatever order workers happen to finish,
         # so every downstream consumer that iterates ram_cache (folder
@@ -2295,7 +2302,7 @@ class Orchestrator:
                 return Path(self.temp_dir).resolve()
             except Exception as e:
                 self.cleanup()
-                raise InaccessibleArtifactError(f"Extraction failure: {e}")
+                raise InaccessibleArtifactError(f"Extraction failure: {e}") from e
 
         return input_path.resolve(strict=True)
 
@@ -2459,16 +2466,16 @@ class Orchestrator:
         }
         try:
             # 1. Commit Hash
-            audit["commit_hash"] = subprocess.check_output(
-                ["git", "rev-parse", "HEAD"],
+            audit["commit_hash"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "rev-parse", "HEAD"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
             ).strip()
 
             # 2. Branch Name
-            audit["branch"] = subprocess.check_output(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            audit["branch"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "rev-parse", "--abbrev-ref", "HEAD"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
@@ -2476,8 +2483,8 @@ class Orchestrator:
 
             # 3. Remote URL (The true identity of the repo)
             try:
-                audit["remote_url"] = subprocess.check_output(
-                    ["git", "config", "--get", "remote.origin.url"],
+                audit["remote_url"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "config", "--get", "remote.origin.url"],
                     cwd=self.root,
                     text=True,
                     stderr=subprocess.DEVNULL,
@@ -2486,8 +2493,8 @@ class Orchestrator:
                 audit["remote_url"] = "Local Only (No Remote)"
 
             # 4. Last Commit Date (When the repo was last updated/pulled)
-            audit["latest_commit_date"] = subprocess.check_output(
-                ["git", "log", "-1", "--format=%cd", "--date=iso-strict"],
+            audit["latest_commit_date"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved, fixed args
+                [_GIT_BIN, "log", "-1", "--format=%cd", "--date=iso-strict"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
@@ -2973,8 +2980,11 @@ def main():
                 try:
                     import subprocess
 
-                    diff_output = subprocess.check_output(
-                        ["git", "diff", "--name-status", baseline_commit],
+                    # Safe: _GIT_BIN resolved absolute; baseline_commit is our own
+                    # previously-saved commit hash (StateRehydrator), passed as a single argv
+                    # element (no shell=True), not interpolated into a shell string.
+                    diff_output = subprocess.check_output(  # noqa: S603
+                        [_GIT_BIN, "diff", "--name-status", baseline_commit],
                         cwd=target_path,
                         text=True,
                         stderr=subprocess.DEVNULL,

@@ -55,7 +55,7 @@ class AIAppSecSensor:
             safe_loc = max(file_data.get("coding_loc", 1), 1)
             safety_density = min(1.0, (equations.get("safety", 0) * 10.0) / safe_loc)
 
-            appsec_report = {
+            appsec_report: Dict[str, Any] = {
                 "is_rce_funnel": False,
                 "over_permissioned_agent": False,
                 "agentic_exfiltration_risk": False,

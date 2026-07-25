@@ -100,7 +100,7 @@ def main():
                 continue  # Skip deep scanning
 
             # 2. Tier 0 Path Scan (Catches .pem, id_rsa, .env immediately without I/O)
-            is_valid, size, reason = filter_engine.evaluate_path_integrity(file_path)
+            is_valid, _size, reason = filter_engine.evaluate_path_integrity(file_path)
 
             if reason and "CRITICAL LEAK" in reason:
                 if is_whitelisted:
@@ -129,7 +129,7 @@ def main():
             with open(file_path, encoding="utf-8", errors="ignore") as f:
                 content = f.read()
 
-            sec_results = security.scan_content(content, len(content.splitlines()))
+            sec_results = security.scan_content(content)
 
             if sec_results["counts"].get("hardcoded_secrets", 0) > 0:
                 if is_whitelisted:

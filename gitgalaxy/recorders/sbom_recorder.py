@@ -54,8 +54,8 @@ class SbomRecorder:
 
     def generate_report(
         self,
-        parsed_files: list[dict[str, Any]],
-        summary: dict[str, Any],
+        parsed_files: list[dict[str, Any]],  # noqa: ARG002 -- shared generate_report() call shape across recorders (galaxyscope.py Phase 12); SBOM re-derives its manifest from manifest_paths, not repository_graph (see rationale below)
+        summary: dict[str, Any],  # noqa: ARG002 -- shared generate_report() call shape across recorders; SBOM derives everything from session_meta and its own fresh scan
         session_meta: dict[str, Any],
         output_path: str,
         manifest_paths: Optional[list[str]] = None,
@@ -233,7 +233,7 @@ class SbomRecorder:
         notes = []
         is_spoof = False
 
-        sec_results = security.scan_content(content, 100)
+        sec_results = security.scan_content(content)
         if sec_results["counts"].get("entropy", 0) > 0:
             is_spoof = True
             notes.append(f"High Entropy (>4.8) in {file_path.name}")

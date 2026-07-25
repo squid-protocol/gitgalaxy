@@ -61,9 +61,8 @@ def mock_pipeline_state():
     ]
 
     summary = {"unparsable_files": {}}
-    forensic_report = {}
-    
-    return artifacts, excluded_artifacts, summary, forensic_report
+
+    return artifacts, excluded_artifacts, summary
 
 
 # ==============================================================================
@@ -75,7 +74,7 @@ def test_destructive_ram_eviction(recorder, mock_pipeline_state):
     Ensures the GPU Recorder physically destroys the input arrays via .pop()
     to free memory, preventing OOM crashes on massive enterprise repositories.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
     # Verify they actually have data before we start
     assert len(artifacts) == 2
@@ -85,7 +84,6 @@ def test_destructive_ram_eviction(recorder, mock_pipeline_state):
         parsed_files=artifacts,
         unparsable_files=excluded,
         summary=summary,
-        forensic_report=forensic,
         repo_name="test_repo",
     )
 
@@ -106,9 +104,9 @@ def test_string_interning_compression(recorder, mock_pipeline_state):
     Proves that repetitive strings (like languages and authors) are correctly 
     interned into O(1) integer IDs to compress the final JSON payload.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
-    result = recorder.record_mission(artifacts, excluded, summary, forensic, "test")
+    result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
     lookups = result["meta"]["schemas"]["lookups"]
 
@@ -130,9 +128,9 @@ def test_dependency_edge_mapping(recorder, mock_pipeline_state):
     Proves that inbound and outbound edges are perfectly mapped, 
     accounting for the reverse-index processing caused by the .pop() loop.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
-    result = recorder.record_mission(artifacts, excluded, summary, forensic, "test")
+    result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
 
     # WebGL requires:
@@ -157,9 +155,9 @@ def test_ai_threat_score_quantization(recorder, mock_pipeline_state):
     Proves that XGBoost AI Threat Scores are safely stripped of their percentage 
     signs and quantized into integer arrays for WebGL processing.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
-    result = recorder.record_mission(artifacts, excluded, summary, forensic, "test")
+    result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
 
     # models.py (Idx 0) had "10.0%" -> Quantized to 10000
@@ -178,9 +176,9 @@ def test_function_csr_flattening(recorder, mock_pipeline_state):
     `satellite_data_flat` array (groups of 10 data points), and that 
     `satellite_offsets` accurately tracks the boundaries for the WebGL shader.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
-    result = recorder.record_mission(artifacts, excluded, summary, forensic, "test")
+    result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
 
     # models.py (Idx 0) has 0 functions.
@@ -205,13 +203,13 @@ def test_unscanned_risk_vector_fallback(recorder, mock_pipeline_state):
     Zero-Dependency mode) default to -1.0 (quantized to -10) rather than 0.0.
     This prevents the WebGL engine from fabricating a 'Safe' visual state.
     """
-    artifacts, excluded, summary, forensic = mock_pipeline_state
+    artifacts, excluded, summary = mock_pipeline_state
 
     # Explicitly ensure the mock artifacts have NO risk vector
     for artifact in artifacts:
         artifact.pop("risk_vector", None)
 
-    result = recorder.record_mission(artifacts, excluded, summary, forensic, "test")
+    result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
 
     # Since both files lack a risk vector, EVERY entry in the flattened risk 

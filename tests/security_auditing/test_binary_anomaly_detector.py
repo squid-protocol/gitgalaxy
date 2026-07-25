@@ -101,7 +101,7 @@ def test_xray_deep_scan_threats(mock_aperture_class, mock_security_class, tmp_pa
             }
         return {}
 
-    def mock_scan_content(content, limit):
+    def mock_scan_content(content):
         if "MZ" in content:
             return {"counts": {"entropy": 6.8, "bitwise_ops": 2}}
         return {"counts": {"entropy": 1.2, "bitwise_ops": 0}}
@@ -194,7 +194,7 @@ def test_main_clean_run(
     mock_security.scan_binary.return_value = {}
 
     # We must trigger an anomaly in the bypassed file so the engine logs it as 'allowed'
-    def mock_scan_content(content, limit):
+    def mock_scan_content(content):
         if "bypassed" in content:
             return {"counts": {"entropy": 6.0, "bitwise_ops": 0}}
         return {"counts": {"entropy": 0, "bitwise_ops": 0}}
@@ -241,7 +241,7 @@ def test_main_anomaly_detected(
 
     mock_security = mock_security_class.return_value
     mock_security.scan_binary.return_value = {}
-    mock_security.scan_content.side_effect = lambda content, limit: (
+    mock_security.scan_content.side_effect = lambda content: (
         {"counts": {"entropy": 5.0, "bitwise_ops": 1}}
         if "HIGH ENTROPY" in content
         else {"counts": {}}

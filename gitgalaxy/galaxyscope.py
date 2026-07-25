@@ -85,7 +85,7 @@ logger = logging.getLogger("GalaxyScope")
 _worker_state: dict[str, Any] = {}
 
 
-def execution_timeout_failsafe(signum, frame):
+def execution_timeout_failsafe(_signum, _frame):
     """
     Hardware-level OS interrupt for Catastrophic Backtracking (ReDoS) protection.
 
@@ -435,7 +435,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
             if not is_inert:
                 # Handle the new nested dictionary
-                sec_results = security.scan_content(content_buffer, filter_res.get("total_loc", 0))
+                sec_results = security.scan_content(content_buffer)
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
@@ -1333,7 +1333,6 @@ class Orchestrator:
                     parsed_files=repository_graph,
                     unparsable_files=total_unparsable,
                     summary=summary,
-                    forensic_report=report,
                     repo_name=self.root.name,
                     session_meta=session_meta,
                     resolved_config=self.config,
@@ -1931,7 +1930,7 @@ class Orchestrator:
         self.typosquat_hits = typosquat_hits
 
         # Evict memory before Pass 2
-        for rel_path, meta in self.ram_cache.items():
+        for meta in self.ram_cache.values():
             if "popularity_hits" in meta:
                 del meta["popularity_hits"]
 

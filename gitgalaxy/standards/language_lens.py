@@ -158,7 +158,7 @@ class LanguageDetector:
         intent_lang: str = "",
         intent_vector: Optional[dict[str, Any]] = None,
         ext_tally: Optional[dict[str, int]] = None,
-        **kwargs,
+        **kwargs,  # noqa: ARG002 -- absorbs caller-side extra kwargs (e.g. galaxyscope.py's census=) so focus()'s legacy passthrough and forward-compatible callers don't hit a TypeError
     ) -> DetectorResult:
         """Primary classification orchestrator combining metadata, context, and lexical analysis."""
 
@@ -770,6 +770,12 @@ class LanguageDetector:
 
             # Apply Ecosystem Consensus Boost
             if lid == gravity_lang:
+                raw_score *= 1.25
+
+            # Claimed Language Boost: reinforces the tentative ID already
+            # established by extension-tier classification, mirroring the
+            # gravity_lang consensus treatment above.
+            if lid == claimed_lang:
                 raw_score *= 1.25
 
             # Comment Delimiter Bonus

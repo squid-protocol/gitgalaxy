@@ -112,7 +112,7 @@ class ApertureFilter:
         self.whitelisted_extensions: set[str] = set()
         self.exact_match_files: set[str] = set()
 
-        for lang_id, data in self.registry.items():
+        for data in self.registry.values():
             self.whitelisted_extensions.update(data.get("extensions", []))
             self.exact_match_files.update(data.get("exact_matches", []))
 
@@ -259,7 +259,7 @@ class ApertureFilter:
                 return result
 
             # --- Gate 1 & 2 Execution: PATH VALIDATION ---
-            is_valid, size_bytes, reason = self.evaluate_path_integrity(path_obj, has_intent=active_intent)
+            is_valid, _size_bytes, reason = self.evaluate_path_integrity(path_obj, has_intent=active_intent)
 
             if not is_valid:
                 result.update({"classification": "generated_noise", "reason": reason})

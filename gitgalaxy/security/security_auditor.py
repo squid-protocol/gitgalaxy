@@ -5,6 +5,7 @@
 import logging
 from collections import deque
 from pathlib import Path
+from typing import ClassVar
 
 try:
     import numpy as np
@@ -36,7 +37,7 @@ class SecurityAuditor:
     """
 
     # The taxonomy map for the Multiclass engine
-    CLASS_NAMES = {
+    CLASS_NAMES: ClassVar[dict[int, str]] = {
         0: "Safe Code",
         1: "Botnet / DDoS",
         2: "Stealer / Trojan",

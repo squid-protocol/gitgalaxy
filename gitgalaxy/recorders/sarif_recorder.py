@@ -23,7 +23,7 @@ class SarifRecorder:
     def generate_report(
         self,
         parsed_files: list[dict[str, Any]],
-        summary: dict[str, Any],
+        summary: dict[str, Any],  # noqa: ARG002 -- shared generate_report() call shape across recorders (galaxyscope.py Phase 12); SARIF derives everything from session_meta
         session_meta: dict[str, Any],
         output_path: str,
     ) -> None:

@@ -11,7 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
-from typing import TypedDict
+from typing import ClassVar, TypedDict
 
 """
 analysis_lens.py
@@ -35,7 +35,7 @@ AI_THREAT_THRESHOLD = 90.0
 class ThreatPolicy:
     """Defines the threshold at which a structural anomaly becomes a critical threat."""
 
-    PROFILES = {
+    PROFILES: ClassVar[dict[str, dict[str, float]]] = {
         # The Baseline: For standard, internal development where some low-level logic is expected.
         "baseline": {
             "secrets_risk_threshold": 0.001,  # 0.1% density

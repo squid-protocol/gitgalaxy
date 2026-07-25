@@ -26,7 +26,7 @@ class SecurityLens:
     augmented by Network Centrality metrics.
     """
 
-    def __init__(self, policy=None):
+    def __init__(self):
 
         # DEFENSIVE GUARD: ReDoS Prevention
         # Extracts string literals for entropy scanning. Bounded to 64-1024 chars
@@ -189,7 +189,7 @@ class SecurityLens:
         sum_c_log_c = sum(c * math.log2(c) for c in frequencies.values())
         return math.log2(length) - (sum_c_log_c / length)
 
-    def scan_content(self, content: str, loc: int) -> dict:
+    def scan_content(self, content: str) -> dict:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
         """

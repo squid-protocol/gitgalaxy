@@ -181,7 +181,7 @@ def main():
 
             # 2. String Entropy Analysis (Encrypted/Packed Payloads)
             content = head_bytes.decode("utf-8", errors="ignore")
-            sec_results = security.scan_content(content, 100)
+            sec_results = security.scan_content(content)
 
             if sec_results["counts"].get("entropy", 0) > 0:
                 has_anomaly = True
@@ -313,7 +313,7 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, dic
 
                 # Check String Entropy
                 content = head_bytes.decode("utf-8", errors="ignore")
-                sr = security.scan_content(content, 100)
+                sr = security.scan_content(content)
                 if (
                     sr["counts"].get("entropy", 0) > 0 or sr["counts"].get("bitwise_ops", 0) > 0
                 ) and not is_whitelisted:

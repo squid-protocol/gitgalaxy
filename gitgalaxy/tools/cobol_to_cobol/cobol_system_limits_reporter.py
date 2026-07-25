@@ -72,7 +72,7 @@ def scan_system_limits(filepath: Path) -> list:
         if not clean_line:
             continue
 
-        for rule_name, rule_data in SYSTEM_LIMIT_RULES.items():
+        for rule_data in SYSTEM_LIMIT_RULES.values():
             if rule_data["regex"].search(clean_line):
                 # Format: [FILE : Line XXXX] SEVERITY LIMIT - Description
                 warning = f"[{filepath.name} : Line {line_num:04d}] {rule_data['severity']} LIMIT - {rule_data['description']}"

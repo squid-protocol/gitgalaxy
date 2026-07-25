@@ -649,7 +649,7 @@ class LLMRecorder:
                 "> **CRITICAL THREATS DETECTED.** The following files possess the structural signatures of known vulnerabilities.\n"
             )
             cutoff = max(10, int(len(ml_threats) * 0.10))
-            for i, (s, val, string_val) in enumerate(ml_threats[:cutoff]):
+            for i, (s, _val, string_val) in enumerate(ml_threats[:cutoff]):
                 lines.append(f"{i + 1}. **`{s.get('path')}`** -> AI Confidence: **{string_val}**")
         else:
             lines.append("*No files met the threshold for malicious structural signatures.*")
@@ -1078,7 +1078,7 @@ class LLMRecorder:
                     p = s.get("path", "UNK")
                     l = s.get("lang_id", "UNK").upper()
                     m = s.get("file_impact", 0.0)
-                    sec_a, sec_d = drift["secondary"]
+                    sec_a, _sec_d = drift["secondary"]
 
                     lines.append(
                         f"- `{p}` ({l}) | Magnitude: {m} | Delta: **{round(drift['delta'], 3)} IQR** | Secondary Pull: `{sec_a}`"

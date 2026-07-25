@@ -81,11 +81,8 @@ class GPURecorder:
         parsed_files: list[dict],
         unparsable_files: list[dict],
         summary: dict,
-        forensic_report: dict,
         repo_name: str,
         session_meta: Optional[dict] = None,
-        commit_hash: str = "untracked_local",
-        branch_name: str = "unknown_branch",
         resolved_config=None,
     ) -> dict:
         """

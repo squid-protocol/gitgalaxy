@@ -688,7 +688,6 @@ class SignalProcessor:
 
             test_score = self._calc_verification(
                 loc,
-                rel_path,
                 meta.get("is_protected", False),
                 raw_signals,
                 ot,
@@ -1541,7 +1540,6 @@ class SignalProcessor:
     def _calc_verification(
         self,
         loc: int,
-        rel_path: str,
         is_protected: bool,
         raw_signals: dict[str, int],
         ot: float,
@@ -1727,7 +1725,7 @@ class SignalProcessor:
         if net_concurrency == 0:
             return 0.0
 
-        density = ((net_concurrency * starvation_multiplier) / max(loc + loc_padding, 1)) * 100.0
+        density = (((net_concurrency * starvation_multiplier) + irc) / max(loc + loc_padding, 1)) * 100.0
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
         slope = tuning.get("sigmoid_slope", 0.4)
@@ -1753,7 +1751,7 @@ class SignalProcessor:
         if net_volatility == 0:
             return 0.0
 
-        density = (net_volatility / max(loc + loc_padding, 1)) * 100.0
+        density = ((net_volatility + irc) / max(loc + loc_padding, 1)) * 100.0
 
         threshold = tuning.get("threshold_base", 15.0)
         slope = tuning.get("sigmoid_slope", 0.2)

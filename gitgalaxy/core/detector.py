@@ -19,7 +19,7 @@ import logging
 import math
 import re
 import time
-from typing import Any, Optional, TypedDict, cast
+from typing import Any, ClassVar, Optional, TypedDict, cast
 
 from gitgalaxy.core.spatial_correlation import (
     apply_amplifier_correlations,
@@ -41,7 +41,7 @@ except ImportError:
     pass
 
 
-def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
+def get_token_mass(text: str) -> Optional[int]:
     """Calculates context window footprint. Returns None if tiktoken is missing to prevent dataset poisoning."""
     if not text:
         return 0
@@ -165,7 +165,7 @@ class ScopeParsingRegistry:
     """
 
     # Internal aliases to route variations to their base optical physics
-    _ALIASES = {
+    _ALIASES: ClassVar[dict[str, str]] = {
         "bash": "shell",
         "sh": "shell",
         "zsh": "shell",
@@ -178,7 +178,7 @@ class ScopeParsingRegistry:
         "vba": "vb",
     }
 
-    DEFINITIONS: dict[str, dict[str, Any]] = {
+    DEFINITIONS: ClassVar[dict[str, dict[str, Any]]] = {
         # ==========================================
         # 🔴 INTEGRATION MODE D: The Handshake Stack
         # ==========================================
@@ -320,7 +320,7 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
-    HANDSHAKE_REGISTRY: list[dict[str, Any]] = [
+    HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = [
         {
             "trigger": re.compile(r"<script", re.I),
             "end": re.compile(r"</script>", re.I),
@@ -1274,7 +1274,7 @@ class StructuralExtractor:
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
                     else:
                         mode_name = "Mode_B_Braces"
-                        sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map, family=family)
+                        sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
                 # else: no func_start rule for this language at all -- sats stays [],
                 # and the dampener correlation below falls back to flat behavior for
                 # this segment (see apply_dampener_correlations()).
@@ -1397,7 +1397,6 @@ class StructuralExtractor:
         rules: dict[str, Any],
         offset: int,
         spatial_map: dict[str, list[int]],
-        family: str = "c_style_comment",
     ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
         satellites: list[FunctionNode] = []
@@ -1693,7 +1692,7 @@ class StructuralExtractor:
         lang_key = ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
 
         # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
-        for idx, (orig_line, safe_line) in enumerate(zip(original_lines, safe_lines)):
+        for orig_line, safe_line in zip(original_lines, safe_lines):
             opens = len(open_pattern.findall(safe_line))
             closes = len(close_pattern.findall(safe_line))
 

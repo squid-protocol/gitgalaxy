@@ -1,0 +1,49 @@
+name: Golden Master Change Guard
+
+# Non-blocking (#330): flags any PR that modifies a golden-crucible fixture
+# so it's never invisible in a large diff, without stopping legitimate
+# intentional updates. Updates should come from
+# tests/tools/update_golden_master.py and be explained in the PR
+# description -- see CONTRIBUTING.md.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - v6-dev
+
+permissions:
+  contents: read
+
+jobs:
+  flag-golden-master-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check for golden master fixture changes
+        run: |
+          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- \
+            tests/golden_master_audit.json tests/golden_master_zero_dep_audit.json)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No golden master fixture changes in this PR."
+            exit 0
+          fi
+
+          {
+            echo "## ⚠️ This PR modifies a golden-crucible fixture"
+            echo ""
+            echo "Files changed:"
+            echo '```'
+            echo "$CHANGED"
+            echo '```'
+            echo ""
+            echo "These files should only ever change via \`tests/tools/update_golden_master.py\`,"
+            echo "and the PR description should explain *why* GitGalaxy's output was expected to"
+            echo "change. Reviewers: confirm the description covers this before approving."
+          } >> "$GITHUB_STEP_SUMMARY"

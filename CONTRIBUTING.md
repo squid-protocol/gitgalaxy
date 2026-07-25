@@ -49,6 +49,20 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 
 ---
 
+## 🔒 Updating the Golden Crucible Baseline
+
+`tests/golden_master_audit.json` and `tests/golden_master_zero_dep_audit.json` are the accepted-good snapshots that every PR's output is diffed against (see the `crucible-audit` check). A failing diff means GitGalaxy's output changed -- that's either a bug you should fix, or an intentional improvement whose new baseline needs to be deliberately re-blessed.
+
+**Never** hand-copy fresh output over these files. Always use:
+
+```
+python tests/tools/update_golden_master.py
+```
+
+It shows you exactly what's about to change before writing anything, and requires explicit confirmation. If your PR touches either fixture, **explain why in the PR description** (e.g. "improved the Rust parser, now correctly detects async trait bounds") -- a CI check flags any PR that modifies these files so it's never invisible in a large diff.
+
+---
+
 ## 🐛 Reporting Discrepancies
 
 If the GalaxyScope CLI misidentifies a repository's structure or fails to parse a specific file phenotype, please use our **[Parsing Discrepancy Form](https://github.com/squid-protocol/gitgalaxy/issues/new/choose)**. 

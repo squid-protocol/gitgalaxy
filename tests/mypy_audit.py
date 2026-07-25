@@ -17,6 +17,14 @@ USAGE
                                          # (see BASELINE below) -- this is
                                          # what CI runs.
 
+IMPORTANT: regenerate the baseline in the SAME environment mypy-audit.yml
+uses -- `pip install mypy PyYAML && pip install -e .`, nothing else.
+Confirmed the hard way (PR #436): regenerating it in a "full-precision"
+env (networkx/tiktoken/pandas/xgboost also installed) silently changed
+mypy's resolution for at least one line (galaxyscope.py's `importlib.util`
+usage stopped erroring), producing a baseline that passed locally but
+failed in CI's leaner environment.
+
 BASELINE
 This repo had 235 pre-existing mypy errors across 31 files the day this
 check was wired into CI (see mypy_audit_baseline.json, and #429/#431-#433

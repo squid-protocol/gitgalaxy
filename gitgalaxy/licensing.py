@@ -98,7 +98,7 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
                         key, val = line.split("=", 1)
                         # Only inject if it's not already set in the system environment
                         os.environ.setdefault(key.strip(), val.strip().strip("\"'"))
-        except Exception:
+        except Exception:  # noqa: S110 -- deliberately silent, see comment below
             pass  # Fail gracefully if the .env file is locked by OS permissions
     # -----------------------------------
 

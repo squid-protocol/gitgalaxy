@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-25T02:26:33.047793+00:00",
-            "Total Scan Duration": "24.95 seconds"
+            "Analysis ISO Timestamp": "2026-07-25T20:55:51.515268+00:00",
+            "Total Scan Duration": "25.9 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -4112,11 +4112,11 @@
             }
         },
         "network_macro": {
-            "modularity": 0.0,
-            "assortativity": 0.0,
-            "cyclic_density": 0.0,
-            "avg_path_length": 0.0,
-            "articulation_points": 0
+            "modularity": null,
+            "assortativity": null,
+            "cyclic_density": null,
+            "avg_path_length": null,
+            "articulation_points": null
         },
         "ecosystem_audits": {
             "api_mapper": {

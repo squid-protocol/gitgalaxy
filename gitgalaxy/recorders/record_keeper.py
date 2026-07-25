@@ -749,11 +749,16 @@ class RecordKeeper:
             net_avg_path_length = None
             net_articulation_points = None
         else:
-            net_modularity = net_macro.get("modularity", 0.0)
-            net_assortativity = net_macro.get("assortativity", 0.0)
-            net_cyclic_density = net_macro.get("cyclic_density", 0.0)
-            net_avg_path_length = net_macro.get("avg_path_length", 0.0)
-            net_articulation_points = net_macro.get("articulation_points", 0)
+            # #473: no `, 0.0` fallback -- network_risk_sensor.py's producer
+            # now always sets these keys to either a real value or an explicit
+            # None (computation failed or was skipped for scale), never
+            # leaves them absent. Defaulting a missing key to 0.0 here would
+            # silently turn that honest None back into a fake "measured zero".
+            net_modularity = net_macro.get("modularity")
+            net_assortativity = net_macro.get("assortativity")
+            net_cyclic_density = net_macro.get("cyclic_density")
+            net_avg_path_length = net_macro.get("avg_path_length")
+            net_articulation_points = net_macro.get("articulation_points")
 
         repo_row_data = (
             [

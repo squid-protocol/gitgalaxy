@@ -1276,19 +1276,23 @@ class LLMRecorder:
                     ),
                     ("ecosystem_baseline", macro_info.get("name", "Unclassified")),
                     ("repo_z_score", str(macro_info.get("z_score", 0.0))),
-                    ("network_modularity", str(net_macro.get("modularity", 0.0))),
-                    ("network_assortativity", str(net_macro.get("assortativity", 0.0))),
+                    # #473: no `, 0.0` fallback -- see record_keeper.py's identical
+                    # fix for why. An absent key here (network_macro not computed
+                    # at all) still renders "None" via str(), same as an explicit
+                    # None value would -- consistent either way.
+                    ("network_modularity", str(net_macro.get("modularity"))),
+                    ("network_assortativity", str(net_macro.get("assortativity"))),
                     (
                         "network_cyclic_density",
-                        str(net_macro.get("cyclic_density", 0.0)),
+                        str(net_macro.get("cyclic_density")),
                     ),
                     (
                         "network_avg_path_length",
-                        str(net_macro.get("avg_path_length", 0.0)),
+                        str(net_macro.get("avg_path_length")),
                     ),
                     (
                         "network_articulation_points",
-                        str(net_macro.get("articulation_points", 0)),
+                        str(net_macro.get("articulation_points")),
                     ),
                 ],
             )

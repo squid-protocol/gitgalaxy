@@ -8,10 +8,13 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 import bisect
+import logging
 import math
 import re
 from collections import Counter, defaultdict
 from typing import Any
+
+logger = logging.getLogger("security_lens")
 
 
 class SecurityLens:
@@ -423,7 +426,7 @@ class SecurityLens:
                 if entropy > 7.95:
                     threats["sec_reflection_metaprogramming"] = 1
                     threats["threat_snippet"] = f"Extreme binary entropy detected: {entropy:.2f}"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Binary entropy check failed, skipping this signal: {e}")
 
         return threats

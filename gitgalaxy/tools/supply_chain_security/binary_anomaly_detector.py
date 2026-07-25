@@ -32,6 +32,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
 def main():
+    import logging
+
     from gitgalaxy.licensing import enforce_licensing_guard
 
     enforce_licensing_guard("Binary Anomaly Detector")
@@ -199,8 +201,8 @@ def main():
                         print(f"   -> {msg}")
                     anomalies_found += 1
 
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger("binary_anomaly_detector").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()
     time_delta = end_time - start_time
@@ -316,8 +318,10 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, dic
                     sr["counts"].get("entropy", 0) > 0 or sr["counts"].get("bitwise_ops", 0) > 0
                 ) and not is_whitelisted:
                     anomalies_found += 1
-            except Exception:
-                pass
+            except Exception as e:
+                # Deliberately NOT quiet_logger (WARNING-only, muted above for
+                # ApertureFilter's init noise) -- that would silently drop this too.
+                logging.getLogger("binary_anomaly_detector").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     return {"anomalies_found": anomalies_found}
 

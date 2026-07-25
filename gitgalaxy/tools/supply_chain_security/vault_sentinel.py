@@ -21,6 +21,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
 def main():
+    import logging
+
     from gitgalaxy.licensing import enforce_licensing_guard
 
     enforce_licensing_guard("Secrets Scanner")
@@ -140,8 +142,8 @@ def main():
                         # Never log any portion of a detected secret snippet.
                         print("   -> ********[REDACTED]********")
                     leaks_found += 1
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger("vault_sentinel").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()
     time_delta = end_time - start_time

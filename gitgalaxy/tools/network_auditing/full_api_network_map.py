@@ -19,6 +19,7 @@
 
 import argparse
 import json
+import logging
 import re
 import sys
 from collections import defaultdict
@@ -155,8 +156,8 @@ def auto_discover_swagger(target_dir: Path) -> list:
                     head,
                 ):
                     candidates.add(filepath)
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger("full_api_network_map").debug(f"Failed to probe candidate spec '{filepath}': {e}")
 
     return list(candidates)
 
@@ -213,8 +214,8 @@ def map_physical_codebase(target_dir: Path) -> tuple:
                     for method, api_path in hits:
                         endpoint = normalize_endpoint(method, api_path)
                         physical_apis[endpoint].append(filepath.name)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logging.getLogger("full_api_network_map").debug(f"Failed to scan '{filepath}' for {framework}: {e}")
 
     return physical_apis, frameworks_detected
 

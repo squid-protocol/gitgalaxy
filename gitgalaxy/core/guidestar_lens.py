@@ -278,8 +278,8 @@ class GuideStarLens:
                         self._inject_intent_lock(
                             f, "javascript", 0.85, f"Manifest Script (package.json:scripts:{name})"
                         )
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse manifest '{path}': {e}")
 
     def _parse_makefile(self, path: Path):
         """Parses Makefiles to find source variables and targets."""
@@ -300,8 +300,8 @@ class GuideStarLens:
                 for t in targets:
                     if t not in ("all", "clean", "test", "install"):
                         self._inject_intent_lock(t, "unknown", 0.70, "Makefile Target")
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse Makefile '{path}': {e}")
 
     def _parse_toml_style_manifest(self, path: Path, lang: str):
         """Simple regex-based TOML parser for script/entry points."""
@@ -315,8 +315,8 @@ class GuideStarLens:
                 for m in matches:
                     if "/" in m or "." in m:
                         self._inject_intent_lock(m, lang, 0.95, f"Manifest Roadmap ({path.name})")
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse TOML-style manifest '{path}': {e}")
 
     def _extract_execution_triggers(self, text: str):
         """Finds extensionless files used in command-line examples and infers exact language."""

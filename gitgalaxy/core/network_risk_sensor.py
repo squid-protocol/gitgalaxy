@@ -321,12 +321,21 @@ class NetworkRiskSensor:
         # =========================================================================
         # 6. MACRO-ECOSYSTEM TOPOLOGY (Repo-Level Health & Resilience)
         # =========================================================================
-        macro_metrics = {
-            "modularity": 0.0,
-            "assortativity": 0.0,
-            "cyclic_density": 0.0,
-            "avg_path_length": 0.0,
-            "articulation_points": 0,
+        # #473: these default to None, not 0.0/0 -- same "explicitly missing,
+        # not a specific observation" convention record_keeper.py already uses
+        # for zero_dependency_mode's pagerank/ai_score/etc (see #429's mypy
+        # session 3). A 0.0 modularity is a real, meaningful score (no
+        # community structure); collapsing "computation failed or was
+        # skipped" into that same value made a silent failure indistinguishable
+        # from a genuine measurement. Consumers (record_keeper.py,
+        # llm_recorder.py) must not paper over None with their own 0.0
+        # fallback, or this fix is undone one hop downstream.
+        macro_metrics: dict[str, Optional[float]] = {
+            "modularity": None,
+            "assortativity": None,
+            "cyclic_density": None,
+            "avg_path_length": None,
+            "articulation_points": None,
         }
 
         if len(G) > 0:
@@ -336,8 +345,7 @@ class NetworkRiskSensor:
                 # A. Modularity (Spaghetti vs Microservice)
                 try:
                     if len(U) > 5000:
-                        self.logger.debug("Graph too massive for Modularity. Bypassing.")
-                        macro_metrics["modularity"] = 0.0
+                        self.logger.debug("Graph too massive for Modularity. Leaving unset (None).")
                     else:
                         # Attempt Louvain (blazing fast), fallback to Greedy (slow)
                         # seed is fixed so repeated scans of an unchanged repo
@@ -349,8 +357,8 @@ class NetworkRiskSensor:
                             communities = community.greedy_modularity_communities(U)
 
                         macro_metrics["modularity"] = round(community.modularity(U, communities), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Modularity computation failed, leaving unset (None): {e}")
 
                 # B. Assortativity (Resiliency)
                 try:
@@ -360,34 +368,33 @@ class NetworkRiskSensor:
                         warnings.simplefilter("ignore", category=RuntimeWarning)
                         assort = nx.degree_assortativity_coefficient(G)
                     macro_metrics["assortativity"] = round(assort, 4) if not math.isnan(assort) else 0.0
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Assortativity computation failed, leaving unset (None): {e}")
 
                 # C. Cyclic Density (Circular Dependencies / Dependency Loops)
                 try:
                     sccs = list(nx.strongly_connected_components(G))
                     nodes_in_cycles = sum(len(c) for c in sccs if len(c) > 1)
                     macro_metrics["cyclic_density"] = round(nodes_in_cycles / len(G), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Cyclic density computation failed, leaving unset (None): {e}")
 
                 # D. Average Shortest Path (Coupling Distance)
                 try:
                     if len(U) > 5000:
-                        self.logger.debug("Graph too massive for Avg Path Length. Bypassing.")
-                        macro_metrics["avg_path_length"] = 0.0
+                        self.logger.debug("Graph too massive for Avg Path Length. Leaving unset (None).")
                     else:
                         largest_cc = max(nx.connected_components(U), key=len)
                         subgraph = U.subgraph(largest_cc)
                         macro_metrics["avg_path_length"] = round(nx.average_shortest_path_length(subgraph), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Avg shortest path computation failed, leaving unset (None): {e}")
 
                 # E. Articulation Points (Fragmentation Risk)
                 try:
                     macro_metrics["articulation_points"] = len(list(nx.articulation_points(U)))
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Articulation points computation failed, leaving unset (None): {e}")
 
             except Exception as e:
                 self.logger.warning(f"Macro network math failed: {e}")
@@ -455,11 +462,14 @@ class NetworkRiskSensor:
             funcs = f.get("functions", [])
             f["max_big_o"] = max([func.get("big_o_depth", 1) for func in funcs]) if funcs else 1
 
-        macro_metrics = {
-            "modularity": 0.0,
-            "assortativity": 0.0,
-            "cyclic_density": 0.0,
-            "avg_path_length": 0.0,
-            "articulation_points": 0,
+        # #473: None, not 0.0/0 -- zero-dependency mode means these were never
+        # attempted at all (networkx isn't installed), not measured as zero.
+        # Same convention as the real-computation path above.
+        macro_metrics: dict[str, Optional[float]] = {
+            "modularity": None,
+            "assortativity": None,
+            "cyclic_density": None,
+            "avg_path_length": None,
+            "articulation_points": None,
         }
         return parsed_files, macro_metrics

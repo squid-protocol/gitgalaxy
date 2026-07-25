@@ -654,8 +654,8 @@ class StructuralExtractor:
                     ownership_val = (
                         m_owner.group(m_owner.lastindex).strip() if m_owner.lastindex else m_owner.group(0).strip()
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.debug(f"Ownership regex extraction failed, leaving 'Unknown Architect': {e}")
 
         if ownership_val:
             raw_ownership = re.sub(r"<[^>]+>", "", ownership_val).strip()
@@ -733,8 +733,8 @@ class StructuralExtractor:
                         )
                         if purpose_text:
                             fallback_buffer.append(purpose_text)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Purpose-line regex extraction failed, skipping this line: {e}")
                 continue
 
         final_purpose = purpose_buffer if purpose_buffer else fallback_buffer
@@ -2046,8 +2046,8 @@ class StructuralExtractor:
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.debug(f"Argument-count regex extraction failed, leaving args_count 0: {e}")
 
         texture_str = self._classify_function(name, block, rules)
 

@@ -16,6 +16,7 @@
 # ==============================================================================
 import argparse
 import json
+import logging
 import re
 import sys
 from pathlib import Path
@@ -68,8 +69,8 @@ def parse_jcl_intent(filepath: Path) -> dict:
                     dd_name = dd_match.group(1).upper()
                     if dd_name not in SYSTEM_DDS:
                         metrics["data_definitions"].add(dd_name)
-    except Exception:
-        pass
+    except Exception as e:
+        logging.getLogger("cobol_jcl_auditor").debug(f"Failed to parse JCL file '{filepath}': {e}")
     return metrics
 
 

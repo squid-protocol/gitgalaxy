@@ -582,8 +582,8 @@ class LanguageDetector:
                 if child.is_file():
                     local_tally[child.suffix.lower()] = local_tally.get(child.suffix.lower(), 0) + 1
                     local_tally[child.name.lower()] = local_tally.get(child.name.lower(), 0) + 1
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"Local folder census failed for '{file_path}': {e}")
 
         # 3. TWO-PASS PHYSICS (Local Neighborhood -> Global Repository)
         for scope_name, tally in [("Local", local_tally), ("Global", global_tally)]:
@@ -765,8 +765,8 @@ class LanguageDetector:
                     if c > content_len:
                         c = 0  # Prevents runaway overlaps
                     raw_score += c * 10.0
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Rule regex evaluation failed for '{lid}', skipping this rule: {e}")
 
             # Apply Ecosystem Consensus Boost
             if lid == gravity_lang:
@@ -911,8 +911,8 @@ class LanguageDetector:
                         hits = 0
 
                     regex_hits += hits
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Rule regex evaluation failed for '{lid}', skipping this rule: {e}")
 
             # ---> HEURISTIC BOOST: C/C++ Macro Execution <---
             family_key = self.languages.get(lid, {}).get("lexical_family")

@@ -3,6 +3,7 @@ name: GitGalaxy Zero-Trust Pipeline
 on:
   pull_request:
     branches: [main]
+    paths-ignore: ["docs/**"]
   push:
     branches: [main]
 
@@ -113,6 +114,7 @@ jobs:
           mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
 
       - name: Open PR with Updated LLM Brief
+        id: llm-brief-pr
         uses: squid-protocol/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # forked from peter-evans/create-pull-request v8.0.0
         with:
           token: ${{ secrets.AUTOMATION_PAT }}
@@ -122,3 +124,14 @@ jobs:
           branch: auto/llm-architecture-brief
           delete-branch: true
           add-paths: docs/gitgalaxy_architecture_brief.md
+
+      # Nothing gates this PR (branch protection requires 0 reviews/checks),
+      # so without this it just sits mergeable-but-unmerged until a human
+      # notices. Auto-merge lets GitHub merge it itself once whatever checks
+      # do run finish, instead of requiring a manual click every time.
+      - name: Enable auto-merge for the LLM Brief PR
+        if: steps.llm-brief-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          gh pr merge --squash --auto "${{ steps.llm-brief-pr.outputs.pull-request-number }}" --repo ${{ github.repository }}

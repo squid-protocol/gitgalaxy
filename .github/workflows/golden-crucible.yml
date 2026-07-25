@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - v6-dev
+    paths-ignore: ["docs/**"]
 
 jobs:
   crucible-audit:

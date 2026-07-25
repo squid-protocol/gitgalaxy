@@ -3,6 +3,7 @@ name: GitGalaxy Smoke Tests
 on:
   pull_request:
     branches: [main]
+    paths-ignore: ["docs/**"]
 
 permissions:
   contents: read

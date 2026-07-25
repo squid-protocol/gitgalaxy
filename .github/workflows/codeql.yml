@@ -3,6 +3,7 @@ name: "CodeQL Security Scan"
 on:
   pull_request:
     branches: [main]
+    paths-ignore: ["docs/**"]
   schedule:
     - cron: '0 12 * * 1'
 

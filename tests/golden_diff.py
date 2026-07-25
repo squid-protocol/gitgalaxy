@@ -22,11 +22,20 @@ def load_and_sanitize(filepath: str) -> Dict[str, Any]:
         context = data["1. Forensic Trail (Traceability)"].get("Analysis Context", {})
         context.pop("Analysis ISO Timestamp", None)
         context.pop("Total Scan Duration", None)
-        
+        # Absolute path is machine/runner-specific (e.g. /home/joe/... locally
+        # vs /home/runner/work/... in CI) -- never structurally meaningful.
+        context.pop("Absolute Project Path", None)
+
         git_footprint = data["1. Forensic Trail (Traceability)"].get("Source Control Footprint (Immutable Anchor)", {})
         git_footprint.pop("Commit Hash (SHA-1)", None)
         git_footprint.pop("Last Code Integration Date", None)
-        
+        # Remote URL formatting depends on the clone method (HTTPS clones
+        # append .git, some don't), and a `--branch <tag> --depth 1` clone
+        # lands in detached HEAD ("HEAD") instead of the tag's branch name.
+        # Neither reflects anything about the analyzed repository's structure.
+        git_footprint.pop("Remote Origin URL", None)
+        git_footprint.pop("Active Branch", None)
+
     return data
 
 def _normalize_floats(data: Any) -> Any:

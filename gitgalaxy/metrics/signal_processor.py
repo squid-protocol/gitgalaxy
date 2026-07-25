@@ -15,7 +15,16 @@ import math
 import logging
 import re
 import statistics
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, TypedDict
+
+
+class DirectoryGroupData(TypedDict):
+    # Without this, the int/float/List[float] mix in the literal below
+    # widens to "object" under mypy, breaking the += and indexed-assignment
+    # operations that follow.
+    count: int
+    mass: float
+    risks: List[float]
 from gitgalaxy.standards import analysis_lens as config
 from gitgalaxy.standards import analysis_lens
 
@@ -135,7 +144,7 @@ class SignalProcessor:
         Dynamically calculates the Euclidean Distance for any provided K-Means dictionary.
         Returns: Best Match Name, Minimum Distance (Drift), Full Feature Fingerprint.
         """
-        fingerprint = {}
+        fingerprint: Dict[str, float] = {}
         best_match = "Unknown Archetype"
         min_dist = float("inf")
 
@@ -640,7 +649,7 @@ class SignalProcessor:
             # B) LOCAL MICRO-SPECIES
             local_archetype = None
             local_drift = 0.0
-            local_fingerprint = {}
+            local_fingerprint: Dict[str, float] = {}
 
             lang_brain = self.LANGUAGE_INFERENCE_MODELS.get(lang_id.lower())
             if lang_brain:
@@ -920,7 +929,7 @@ class SignalProcessor:
         )
 
         # --- NEW: Directory Group Aggregation Logic ---
-        directory_group_data = {}
+        directory_group_data: Dict[str, DirectoryGroupData] = {}
         for f in parsed_files:
             d_name = f.get("directory_group", "__monolith__")
             if d_name not in directory_group_data:
@@ -951,8 +960,8 @@ class SignalProcessor:
 
         # --- NEW: Ecosystem Fingerprint (Archetype Ratios) ---
         # --- NEW: Ecosystem Fingerprint (Archetype Ratios & Counts) ---
-        archetype_counts = {}
-        static_counts = {}
+        archetype_counts: Dict[str, int] = {}
+        static_counts: Dict[str, int] = {}
 
         for f in parsed_files:
             arch = f.get("telemetry", {}).get("archetype", "Unknown")
@@ -961,7 +970,7 @@ class SignalProcessor:
             else:
                 archetype_counts[arch] = archetype_counts.get(arch, 0) + 1
 
-        ecosystem_fingerprint = {"ml_clusters": {}, "static_mass": {}}
+        ecosystem_fingerprint: Dict[str, Dict[str, Any]] = {"ml_clusters": {}, "static_mass": {}}
         if len(parsed_files) > 0:
             ecosystem_fingerprint["ml_clusters"] = {
                 name: {
@@ -1057,7 +1066,11 @@ class SignalProcessor:
             )
             for f in parsed_files
         )
-        ai_topology = {"classification": "Non-AI / Traditional", "insights": []}
+        # Dict[str, Any]: mixing a str ("classification"), a List[str]
+        # ("insights"), and later a Dict[str, float] ("signal_mass") in one
+        # literal otherwise widens to Sequence[str] under mypy -- the common
+        # structural ancestor of str and List[str] -- which has no .append().
+        ai_topology: Dict[str, Any] = {"classification": "Non-AI / Traditional", "insights": []}
 
         total_ai_mass = (
             llm_api_total
@@ -2270,7 +2283,7 @@ class SignalProcessor:
         err_idx = self.RISK_SCHEMA.index("safety_score") if "safety_score" in self.RISK_SCHEMA else -1
         doc_idx = self.RISK_SCHEMA.index("documentation") if "documentation" in self.RISK_SCHEMA else -1
 
-        bottlenecks = {
+        bottlenecks: Dict[str, List[Dict[str, Any]]] = {
             "cascading_state_mutation": [],
             "fragile_dependency_chain": [],
             "undocumented_critical_path": [],
@@ -2331,8 +2344,12 @@ class SignalProcessor:
         bottlenecks["fragile_dependency_chain"].sort(key=lambda x: x["score"], reverse=True)
         bottlenecks["undocumented_critical_path"].sort(key=lambda x: x["score"], reverse=True)
 
-        # 4. Generate rankings using ONLY the masked `active_files` list
-        report = {
+        # 4. Generate rankings using ONLY the masked `active_files` list. Dict[str,
+        # Any]: this literal's sibling values (file_impact, function_impact,
+        # systemic_bottlenecks, ...) are different nested shapes, and mypy's
+        # per-key inference on a plain dict literal doesn't keep them distinct
+        # the way a TypedDict would -- not worth one for a report this wide.
+        report: Dict[str, Any] = {
             "exposures": {},
             "file_impact": self._rank_list(active_files, key_path=["file_impact"]),
             "function_impact": self._generate_function_rankings(active_files),

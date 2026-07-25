@@ -125,13 +125,22 @@ jobs:
           delete-branch: true
           add-paths: docs/gitgalaxy_architecture_brief.md
 
-      # Nothing gates this PR (branch protection requires 0 reviews/checks),
-      # so without this it just sits mergeable-but-unmerged until a human
-      # notices. Auto-merge lets GitHub merge it itself once whatever checks
-      # do run finish, instead of requiring a manual click every time.
-      - name: Enable auto-merge for the LLM Brief PR
+      # Nothing gates this PR today (branch protection requires 0
+      # reviews/checks), so without this it just sits mergeable-but-unmerged
+      # until a human notices. `gh pr merge --auto` alone is unreliable here:
+      # GitHub's enablePullRequestAutoMerge mutation *rejects* PRs that are
+      # already in "clean" (immediately mergeable) status with "Pull request
+      # is in clean status" -- and given 0 required checks, a fresh PR here
+      # reaches clean almost instantly, so whether --auto lands before or
+      # after that happens is a race (confirmed: PR #409 hit the rejection).
+      # Try a direct merge first (the expected path today); only fall back
+      # to --auto if that's rejected because something is still genuinely
+      # pending -- which is exactly the case --auto is for.
+      - name: Merge the LLM Brief PR
         if: steps.llm-brief-pr.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: |
-          gh pr merge --squash --auto "${{ steps.llm-brief-pr.outputs.pull-request-number }}" --repo ${{ github.repository }}
+          PR="${{ steps.llm-brief-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

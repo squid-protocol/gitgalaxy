@@ -41,7 +41,7 @@ class DevAgentFirewall:
             pagerank = network_metrics.get("normalized_blast_radius") or 0.0
             max_big_o = file_data.get("max_big_o") or 1
 
-            guardrails = {
+            guardrails: Dict[str, Any] = {
                 "is_agentic_black_hole": False,
                 "requires_hitl": False,  # Human-in-the-Loop
                 "hallucination_zone": False,

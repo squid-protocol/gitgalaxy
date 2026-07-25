@@ -110,5 +110,7 @@ testpaths = [
 ]
 markers = [
     "smoke: quick core engine tests for CI/CD pipelines",
+    "golden_crucible: opt-in end-to-end regression test against the language-crucible corpus; needs a local checkout. Run explicitly via `pytest -m golden_crucible`.",
 ]
+addopts = "-m 'not golden_crucible'"
 norecursedirs = ["tests/fixtures"]

@@ -12,11 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - mode: full-precision
-            golden_master: tests/golden_master_audit.json
-          - mode: zero-dependency
-            golden_master: tests/golden_master_zero_dep_audit.json
+        mode: [full-precision, zero-dependency]
 
     steps:
       - name: Checkout GitGalaxy PR
@@ -42,32 +38,21 @@ jobs:
             echo "Deliberately skipping networkx/tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
           fi
           pip install -e .
+          pip install pytest
 
       - name: Fetch Golden Test Repo (Language Crucible)
         run: |
           echo "Cloning Language Crucible repository (pinned to v1.0)..."
           git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
-      - name: Execute Resilience Engine
-        env:
-          GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      - name: Run Golden Crucible Test (${{ matrix.mode }})
         run: |
-          echo "Initiating GitGalaxy Golden Test Sequence (${{ matrix.mode }})..."
-          mkdir -p telemetry_out
-
-          # Scan only the structural corpus (language-crucible/data), not the
-          # repo's own tools/, raw_output/, or docs -- those are repo
-          # housekeeping, not part of the golden-master comparison surface.
-          timeout 180s galaxyscope ./language-crucible/data --output ./telemetry_out/ --file-speed --splicing-speed
-
-      - name: Compare Against Golden Master
-        run: |
-          python3 gitgalaxy/tests/golden_diff.py "gitgalaxy/${{ matrix.golden_master }}" ./telemetry_out/data_galaxy_audit.json
+          cd gitgalaxy
+          # tests/test_golden_crucible.py detects zero-dependency mode itself
+          # from whichever engines this leg installed above, and picks the
+          # matching golden master fixture automatically.
+          pytest -m golden_crucible tests/test_golden_crucible.py -v
 
       - name: Debug File System (Tree)
         if: always()  # This ensures the tree prints even if the previous step fails
-        run: |
-          echo "=== ROOT DIRECTORY TREE ==="
-          tree -L 2
-          echo "=== TELEMETRY OUT CONTENTS ==="
-          ls -lh telemetry_out/
+        run: tree -L 2

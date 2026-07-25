@@ -11,7 +11,7 @@ import re
 import math
 import bisect
 from collections import Counter, defaultdict
-from typing import Dict, List
+from typing import Any, Dict, List
 
 
 class SecurityLens:
@@ -190,8 +190,8 @@ class SecurityLens:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
         """
-        counts = {}
-        snippets = {}
+        counts: Dict[str, int] = {}
+        snippets: Dict[str, List[str]] = {}
 
         safe_lines = [line.strip() for line in content.splitlines() if len(line) < 250]
         safe_content = "\n".join(safe_lines)
@@ -261,7 +261,7 @@ class SecurityLens:
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0
-        entropy_snippets = []
+        entropy_snippets: List[str] = []
 
         if is_auto_gen:
             counts["entropy"] = 0
@@ -284,7 +284,7 @@ class SecurityLens:
         taint_hits = 0
         prompt_injection_hits = 0
         agentic_rce_hits = 0
-        taint_snippets = []
+        taint_snippets: List[str] = []
 
         has_global_io = counts.get("io", 0) > 0
         has_global_danger = counts.get("high_risk_execution", 0) > 0
@@ -394,7 +394,7 @@ class SecurityLens:
         Validates compiled chunks against expected magic bytes and scans for
         embedded execution headers or extreme cryptographic entropy indicating packed malware.
         """
-        threats = {}
+        threats: Dict[str, Any] = {}
 
         if not raw_bytes:
             return threats

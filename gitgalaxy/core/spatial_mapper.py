@@ -153,12 +153,12 @@ class SpatialMapper:
                 for idx in candidates:
                     px, pz, pr = placed_nodes[idx]
 
-                    b = -2 * (px * cos_th + pz * sin_th)
+                    qb = -2 * (px * cos_th + pz * sin_th)
                     c = (px**2 + pz**2) - (pr * self.MACRO_STEP_FACTOR) ** 2
-                    disc = b**2 - 4 * c
+                    disc = qb**2 - 4 * c
 
                     if disc >= 0:
-                        r2 = (-b + math.sqrt(disc)) / 2.0
+                        r2 = (-qb + math.sqrt(disc)) / 2.0
                         if r2 > max_r_intersect:
                             max_r_intersect = r2
 

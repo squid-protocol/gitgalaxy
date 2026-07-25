@@ -17,6 +17,8 @@ security exceptions and the lightweight ingestion rules used to filter
 out noise before the heavy static analysis engines are loaded into memory.
 """
 
+from typing import Any, Dict, List
+
 # ------------------------------------------------------------------
 # ZERO-TRUST IMPORT CONTROL (Supply Chain Firewall)
 # Defines allowed and banned external dependencies (NPM, PyPI, Composer)
@@ -25,11 +27,11 @@ out noise before the heavy static analysis engines are loaded into memory.
 # False = Audit Mode (Allow unknown packages, but block BLACKLISTED_IMPORTS)
 STRICT_IMPORT_MODE = False
 
-APPROVED_IMPORTS = [
+APPROVED_IMPORTS: List[str] = [
     # Examples (Add your approved dependencies here)
 ]
 
-BLACKLISTED_IMPORTS = [
+BLACKLISTED_IMPORTS: List[str] = [
     # Known compromised, malicious, or troll packages
 ]
 
@@ -51,7 +53,7 @@ FIREWALL_NETWORK_WEIGHTING = False
 # If a file matches these patterns, scanners will instantly block the commit.
 # Supports standard Unix wildcards (* for everything, ? for single char).
 # ------------------------------------------------------------------
-DENYLIST_PATTERNS = [
+DENYLIST_PATTERNS: List[str] = [
     # "internal_*",         # Blocks internal_notes.txt, internal_architecture.md
     # "*.kdbx",             # Blocks all KeePass password databases
     # "*_backup.sql",       # Blocks database dumps ending in _backup.sql
@@ -620,7 +622,7 @@ STATIC_ARCHETYPES = {
 # 9. PROJECT STORIES (Project Context Injection)
 # Consumed by: gpu_recorder.py
 # ------------------------------------------------------------------------------
-PROJECT_STORIES = {
+PROJECT_STORIES: Dict[str, Any] = {
     # You can add your repository-specific context and UI story payloads here later.
 }
 

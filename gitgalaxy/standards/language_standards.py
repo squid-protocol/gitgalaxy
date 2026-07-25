@@ -137,11 +137,23 @@ LENS_CONFIG: LensConfig = {
     },
 }
 
+class PrismConfigSchema(TypedDict):
+    # Same widening problem as LensConfig above: the mixed str/set/dict
+    # values were collapsing to Collection[str] under mypy, breaking every
+    # .get()/re.compile() call on PRISM_CONFIG throughout prism.py.
+    SHIELD_PATTERN: str
+    PYTHON_DOC_PATTERN: str
+    PHP_HEREDOC_PATTERN: str
+    PHP_MULTILINE_STRING: str
+    POSITIONAL_ANCHORS: Set[str]
+    THRESHOLDS: Dict[str, int]
+
+
 # ------------------------------------------------------------------------------
 # 2. PRISM CONFIGURATION (Structural Refraction & String Shielding)
 # Consumed by: prism.py
 # ------------------------------------------------------------------------------
-PRISM_CONFIG = {
+PRISM_CONFIG: PrismConfigSchema = {
     "SHIELD_PATTERN": r'((?<!\\)"(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\])*\'|(?<!\\)`(?:\\.|[^`\\])*`)',
     "PYTHON_DOC_PATTERN": r'(?m)^\s*(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')',
     "PHP_HEREDOC_PATTERN": r'<<<[ \t]*([\'"]?)([a-zA-Z_]\w*)\1[ \t]*\r?\n[\s\S]*?\n[ \t]*\2;?',

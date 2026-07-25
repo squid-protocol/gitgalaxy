@@ -493,7 +493,7 @@ class Prism:
         """Balanced scoping implementation for paired-bracket embedded segments."""
         depth = 0
         in_string: Optional[str] = None
-        limit = min(start_pos + self.EMBEDDED_LOOKAHEAD_LIMIT, len(text))
+        limit = int(min(start_pos + self.EMBEDDED_LOOKAHEAD_LIMIT, len(text)))
 
         i = start_pos
         while i < limit:
@@ -549,7 +549,7 @@ class Prism:
         # 1. Protect Strings via Safe Masking
         # Masking prevents the `.rfind` mathematical loop from tearing apart string literals
         shield = re.compile(self.LITERAL_MASK_PATTERN, re.S | re.M)
-        string_cache = {}
+        string_cache: Dict[str, str] = {}
 
         def _shield_replacer(m: re.Match) -> str:
             if m.group(1):

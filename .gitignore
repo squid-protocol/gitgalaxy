@@ -60,6 +60,9 @@ data/
 museum/
 museum_2/
 *.json
+# ...except committed regression-check baselines, e.g. dead_key_audit_baseline.json
+# and mypy_audit_baseline.json -- these are source, not generated output.
+!tests/*_baseline.json
 *_llm.md
 venvs/
 

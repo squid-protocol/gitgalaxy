@@ -19,7 +19,7 @@ import math
 import logging
 import time
 import bisect
-from typing import Dict, List, Any, TypedDict, Optional, Tuple
+from typing import Dict, List, Any, TypedDict, Optional, Tuple, cast
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
@@ -55,6 +55,25 @@ def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
+
+
+class ClassInfo(TypedDict):
+    """A regex-extracted class/struct/interface/trait/enum, with its linked methods' physics."""
+
+    name: str
+    inheritance: List[str]
+    method_count: int
+    state_entanglement: float
+    lcom_score: float
+
+
+class _ClassInfoWithBounds(ClassInfo, total=False):
+    # _start_line/_end_line are spatial scratch state, deleted once function
+    # linkage is done (see "Erase the temporary spatial boundaries" below) --
+    # split into a total=False subclass so those two `del`s stay valid: mypy
+    # rejects deleting a key from a `total=True` TypedDict.
+    _start_line: int
+    _end_line: int
 
 
 class FunctionNode(TypedDict, total=False):
@@ -156,7 +175,7 @@ class ScopeParsingRegistry:
         "vba": "vb",
     }
 
-    DEFINITIONS = {
+    DEFINITIONS: Dict[str, Dict[str, Any]] = {
         # ==========================================
         # 🔴 INTEGRATION MODE D: The Handshake Stack
         # ==========================================
@@ -298,7 +317,7 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
-    HANDSHAKE_REGISTRY = [
+    HANDSHAKE_REGISTRY: List[Dict[str, Any]] = [
         {
             "trigger": re.compile(r"<script", re.I),
             "end": re.compile(r"</script>", re.I),
@@ -333,10 +352,16 @@ class StructuralExtractor:
             self.logger.setLevel(logging.INFO)
 
         self.primary_lang_id = lang_id.lower() if lang_id else "unknown"
-        self.languages = language_definitions
+        # Pinned explicitly: LANGUAGE_DEFINITIONS (assigned to this same
+        # attribute below, in the AUTO-HEAL branch) has no module-level
+        # annotation, so mypy infers its instance-attribute type from that
+        # massive nested literal instead of this constructor's declared
+        # Dict[str, Any] param -- which doesn't support the plain .get()
+        # calls this class relies on throughout.
+        self.languages: Dict[str, Any] = language_definitions
 
-        lang_config = self.languages.get(self.primary_lang_id, {})
-        self.primary_rules = lang_config.get("rules", {})
+        lang_config: Dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+        self.primary_rules: Dict[str, Any] = lang_config.get("rules", {})
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
 
         self.assembly_returns = re.compile(
@@ -361,11 +386,20 @@ class StructuralExtractor:
             try:
                 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-                # Apply the healed definitions to the instance state
-                self.languages = LANGUAGE_DEFINITIONS
-                lang_config = self.languages.get(self.primary_lang_id, {})
-                self.primary_rules = lang_config.get("rules", {})
-                self.primary_family = lang_config.get("lexical_family", "c_style_comment")
+                # Apply the healed definitions to the instance state. cast():
+                # despite self.languages being pinned to Dict[str, Any] above,
+                # reassigning it from LANGUAGE_DEFINITIONS here re-narrows it
+                # to LANGUAGE_DEFINITIONS' own (unannotated, wide) inferred
+                # type for the rest of this branch -- confirmed via
+                # reveal_type that .get() on it then returns `object`, not
+                # Any. The cast forces it back to the declared type instead
+                # of fighting that narrowing.
+                self.languages = cast(Dict[str, Any], LANGUAGE_DEFINITIONS)
+                # renamed (not reusing lang_config): mypy rejects
+                # re-annotating the same name twice in one scope.
+                healed_lang_config: Dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+                self.primary_rules = healed_lang_config.get("rules", {})
+                self.primary_family = healed_lang_config.get("lexical_family", "c_style_comment")
 
                 self.logger.warning(f"[AUTO-HEAL] Re-injected LANGUAGE_DEFINITIONS for '{self.primary_lang_id}'")
             except ImportError:
@@ -381,7 +415,7 @@ class StructuralExtractor:
     ) -> Dict[str, Any]:
         """Executes the structural regex pass over refracted code streams."""
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
-        regex_telemetry = {}
+        regex_telemetry: Dict[str, float] = {}
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -465,7 +499,7 @@ class StructuralExtractor:
             )
 
             # ---> NEW: FAST CLASS EXTRACTOR & FUNCTION LINKAGE <---
-            classes = []
+            classes: List[_ClassInfoWithBounds] = []
             # Upgraded regex to catch standard OOP entities across polyglot languages
             class_pattern = re.compile(
                 r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
@@ -719,7 +753,7 @@ class StructuralExtractor:
         if i < 0 or i >= len(self.raw_content_lines):
             return ""
 
-        doc_buffer = []
+        doc_buffer: List[str] = []
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
@@ -892,7 +926,7 @@ class StructuralExtractor:
             seg_len = len(seg_code)
 
             # ---> NEW: Spatial Map for this segment <---
-            spatial_map = {}
+            spatial_map: Dict[str, List[int]] = {}
 
             for rule_name, pattern in rules.items():
                 if rule_name.startswith("_"):
@@ -1193,7 +1227,7 @@ class StructuralExtractor:
         regex_telemetry: Optional[dict] = None,
     ) -> Tuple[List[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
-        all_satellites = []
+        all_satellites: List[FunctionNode] = []
         global_impact = 0.0
 
         for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
@@ -1282,12 +1316,15 @@ class StructuralExtractor:
         spatial_map: Dict[str, List[int]],
     ) -> Tuple[List[FunctionNode], float]:
         """[INTEGRATION MODE A] - Greedy Label-Based Scan (Assembly, COBOL)."""
-        satellites = []
+        satellites: List[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
         try:
-            matches = list(func_start.finditer(code))
+            # If func_start is None (key missing from rules), .finditer()
+            # raises AttributeError, which the except below already handles --
+            # mypy just can't see that the try/except is the actual guard here.
+            matches = list(func_start.finditer(code))  # type: ignore[union-attr]
         except Exception:
             return [], 0.0
 
@@ -1358,7 +1395,7 @@ class StructuralExtractor:
         family: str = "c_style_comment",
     ) -> Tuple[List[FunctionNode], float]:
         """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
-        satellites = []
+        satellites: List[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1489,7 +1526,7 @@ class StructuralExtractor:
         spatial_map: Dict[str, List[int]],
     ) -> Tuple[List[FunctionNode], float]:
         """[INTEGRATION MODE C] - Density Stratification (Python, YAML)."""
-        satellites = []
+        satellites: List[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1926,13 +1963,16 @@ class StructuralExtractor:
             # Fallback for untested manual calls
             branch_pattern = rules.get("branch")
             linear_pattern = rules.get("structural_boundaries")
+            # Both .findall() calls below are guarded by hasattr(), which
+            # mypy doesn't narrow None away for the way it would isinstance()
+            # -- hence the type: ignore[union-attr] markers on each.
             branch_hits = (
-                len(branch_pattern.findall(block))
+                len(branch_pattern.findall(block))  # type: ignore[union-attr]
                 if hasattr(branch_pattern, "findall")
                 else (len(re.findall(str(branch_pattern), block)) if branch_pattern else 0)
             )
             linear_hits = (
-                len(linear_pattern.findall(block))
+                len(linear_pattern.findall(block))  # type: ignore[union-attr]
                 if hasattr(linear_pattern, "findall")
                 else (len(re.findall(str(linear_pattern), block)) if linear_pattern else 0)
             )

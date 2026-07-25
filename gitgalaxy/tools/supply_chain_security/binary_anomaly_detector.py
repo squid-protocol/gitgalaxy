@@ -22,7 +22,7 @@ import os
 import time
 import fnmatch
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional, Union
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
@@ -236,7 +236,7 @@ def main():
     print("=" * 75 + "\n")
 
 
-def run_xray_audit(target_path: Path, config: Optional[ResolvedConfig] = None) -> dict:
+def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, Dict[str, Any]]] = None) -> dict:
     """
     Programmatic entry point for GalaxyScope (orchestrator execution).
 

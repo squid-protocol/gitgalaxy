@@ -19,12 +19,12 @@ import sys
 import re
 import os
 import subprocess
-import importlib
+import importlib.util
 import multiprocessing
 import concurrent.futures
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Union, Set
+from typing import Dict, List, Any, Optional, Union, Set, DefaultDict
 from collections import defaultdict
 
 from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX
@@ -201,7 +201,12 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
     # -----------------------------------------------------------
 
     has_prior, intent_vector = guidestar.get_intent_status(full_path_str)
-    observation = {
+    # Annotated explicitly (matching this function's own Dict[str, Any] return
+    # type) because the different early-return branches below assign a mix of
+    # str/float/None/dict values into this same dict -- left un-annotated,
+    # mypy infers the type from this literal's initial 4 keys and then flags
+    # every later value of a different shape as an incompatible assignment.
+    observation: Dict[str, Any] = {
         "rel_path": rel_path,
         "status": "filtered",
         "reason": "Aperture block",
@@ -792,7 +797,7 @@ class Orchestrator:
         # from overloading localized physical mass calculations.
         self.MICRO_MASS_BYTES = 50
         self.MICRO_MASS_GRACE_LIMIT = 15
-        self.neighborhood_tracker = defaultdict(int)
+        self.neighborhood_tracker: DefaultDict[str, int] = defaultdict(int)
 
         self.splicing_telemetry = {
             "top_slowest": [],

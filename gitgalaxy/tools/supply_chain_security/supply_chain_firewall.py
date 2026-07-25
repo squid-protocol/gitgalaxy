@@ -25,7 +25,7 @@ from pathlib import Path
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
-from typing import Optional
+from typing import Any, Dict, Optional, Union
 
 # The five behavioral categories this firewall gates on, mapped to their names
 # in SignalProcessor.RISK_SCHEMA -- Phase 3 computes these once; the firewall
@@ -51,7 +51,7 @@ _FIREWALL_BLOCK_THRESHOLD = 50.0
 def run_firewall_audit(
     parsed_files: list,
     alias_map: Optional[dict] = None,
-    config: Optional[ResolvedConfig] = None,
+    config: Optional[Union[ResolvedConfig, Dict[str, Any]]] = None,
 ) -> dict:
     """
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).

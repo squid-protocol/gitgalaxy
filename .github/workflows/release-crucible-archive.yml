@@ -96,7 +96,6 @@ jobs:
         with:
           token: ${{ secrets.AUTOMATION_PAT }}
           path: language-crucible-write
-          repository: squid-protocol/language-crucible
           commit-message: "chore: archive ${{ env.RELEASE_TAG }} crucible baseline"
           title: "chore: archive ${{ env.RELEASE_TAG }} crucible baseline"
           body: |

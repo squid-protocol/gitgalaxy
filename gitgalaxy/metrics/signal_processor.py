@@ -1725,7 +1725,8 @@ class SignalProcessor:
         if net_concurrency == 0:
             return 0.0
 
-        density = (((net_concurrency * starvation_multiplier) + irc) / max(loc + loc_padding, 1)) * 100.0
+        density = ((net_concurrency * starvation_multiplier) / max(loc + loc_padding, 1)) * 100.0
+        density += irc * tuning.get("irc_mult", 0.1)
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
         slope = tuning.get("sigmoid_slope", 0.4)
@@ -1751,7 +1752,8 @@ class SignalProcessor:
         if net_volatility == 0:
             return 0.0
 
-        density = ((net_volatility + irc) / max(loc + loc_padding, 1)) * 100.0
+        density = (net_volatility / max(loc + loc_padding, 1)) * 100.0
+        density += irc * tuning.get("irc_mult", 0.15)
 
         threshold = tuning.get("threshold_base", 15.0)
         slope = tuning.get("sigmoid_slope", 0.2)

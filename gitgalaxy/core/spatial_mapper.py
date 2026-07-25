@@ -97,7 +97,7 @@ class SpatialMapper:
             sectors[sector_name].append(file_node)
 
         # 2. Hull Calculation
-        sector_stats = []
+        sector_stats: List[Dict[str, Any]] = []
         for name, items in sectors.items():
             items.sort(key=self._get_magnitude, reverse=True)
             central_node_magnitude = self._get_magnitude(items[0])
@@ -112,7 +112,7 @@ class SpatialMapper:
 
         # --- THE FIX: ANGULAR SPATIAL HASHING ---
         NUM_BINS = 360
-        spatial_grid = [[] for _ in range(NUM_BINS)]
+        spatial_grid: List[List[int]] = [[] for _ in range(NUM_BINS)]
 
         # Put the origin exclusion zone into all buckets
         for b in range(NUM_BINS):

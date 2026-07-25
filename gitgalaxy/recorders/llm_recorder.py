@@ -806,17 +806,17 @@ class LLMRecorder:
             for rank, cr in enumerate(cumulative_risks[:10], 1):
                 p = cr.get("path")
                 c_val = cr.get("value")
-                s = file_map.get(p)
+                matched_file = file_map.get(p)
 
-                if not s:
+                if not matched_file:
                     lines.append(f"### {rank}. `{p}` -> Cumulative Risk: **{c_val}**")
                     continue
 
-                l = s.get("lang_id", "UNK").upper()
-                m = s.get("file_impact", 0.0)
-                loc = s.get("total_loc", 0)
-                tel = s.get("telemetry", {})
-                rv = s.get("risk_vector", [])
+                l = matched_file.get("lang_id", "UNK").upper()
+                m = matched_file.get("file_impact", 0.0)
+                loc = matched_file.get("total_loc", 0)
+                tel = matched_file.get("telemetry", {})
+                rv = matched_file.get("risk_vector", [])
 
                 lines.append(f"### {rank}. `{p}` ({l}) -> Cumulative Risk: **{c_val}**")
                 arch = tel.get("archetype", "Unknown Archetype")
@@ -836,7 +836,7 @@ class LLMRecorder:
                 lines.append(f"- **Primary Risk Drivers:** {', '.join(top_file_risks) if top_file_risks else 'None'}")
 
                 sats = sorted(
-                    s.get("functions", []),
+                    matched_file.get("functions", []),
                     key=lambda x: x.get("impact", 0),
                     reverse=True,
                 )[:3]
@@ -1078,13 +1078,13 @@ class LLMRecorder:
                         f"- `{p}` ({l}) | Magnitude: {m} | Delta: **{round(drift['delta'], 3)} IQR** | Secondary Pull: `{sec_a}`"
                     )
 
-                    struct_hits = [
+                    struct_signal_hits = [
                         (self.SIGNAL_SCHEMA[i], val)
                         for i, val in enumerate(s.get("hit_vector", []))
                         if val > 0 and i < len(self.SIGNAL_SCHEMA)
                     ]
-                    struct_hits.sort(key=lambda x: x[1], reverse=True)
-                    top_hits = ", ".join([f"{k}: {v}" for k, v in struct_hits[:4]])
+                    struct_signal_hits.sort(key=lambda x: x[1], reverse=True)
+                    top_hits = ", ".join([f"{k}: {v}" for k, v in struct_signal_hits[:4]])
 
                     lines.append(f"  * Top Architectural Signatures: {top_hits if top_hits else 'None'}")
                 lines.append("")
@@ -1408,7 +1408,7 @@ class LLMRecorder:
             import json
 
             for file_data in parsed_files:
-                p = file_data.get("path")
+                p = file_data.get("path", "")
                 c_name = file_data.get("directory_group", "__monolith__")
                 tel = file_data.get("telemetry", {})
 

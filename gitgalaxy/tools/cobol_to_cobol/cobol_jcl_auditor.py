@@ -45,7 +45,7 @@ SYSTEM_PGMS = {
 
 def parse_jcl_intent(filepath: Path) -> dict:
     """Parses a JCL file to extract its raw execution and dataset allocation intent."""
-    metrics = {"lines_of_code": 0, "exec_pgms": set(), "data_definitions": set()}
+    metrics: Dict[str, Any] = {"lines_of_code": 0, "exec_pgms": set(), "data_definitions": set()}
     pgm_pattern = re.compile(r"EXEC\s+(?:PGM=)?([A-Z0-9@#$\-]+)", re.IGNORECASE)
     dd_pattern = re.compile(r"^//([A-Z0-9@#$\-]+)\s+DD\s+", re.IGNORECASE)
 
@@ -90,7 +90,7 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
 
     # 2. Compare against Generated (Zero-Trust) JCLs
     generated_files = list(generated_dir.glob("*.jcl"))
-    report = {
+    report: Dict[str, Any] = {
         "audited": 0,
         "original_loc": 0,
         "forged_loc": 0,  # Maintained key for downstream DB compatibility

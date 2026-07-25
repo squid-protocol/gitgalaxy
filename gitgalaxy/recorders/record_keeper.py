@@ -19,8 +19,24 @@ import json
 import logging
 import statistics
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TypedDict
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
+
+class FolderStats(TypedDict):
+    """Accumulator shape for the folder-level rollup below -- without this,
+    the mixed int/float/list values collapse to "object" under mypy, which
+    then can't type-check the sum()/max()/append() calls that consume it."""
+
+    file_count: int
+    total_loc: int
+    total_coding_loc: int
+    total_functions: int
+    total_classes: int
+    total_mass: float
+    cog_loads: List[float]
+    tech_debts: List[float]
+    churns: List[float]
 
 
 class RecordKeeper:
@@ -470,7 +486,7 @@ class RecordKeeper:
                 tel.get("domain_context", {}).get("AI Threat Score", 0.0),
             )
             try:
-                ai_score = float(str(raw_ai_score).replace("%", ""))
+                ai_score: Optional[float] = float(str(raw_ai_score).replace("%", ""))
             except ValueError:
                 ai_score = 0.0
 
@@ -822,7 +838,7 @@ class RecordKeeper:
         # ==============================================================================
 
 # galaxyscope:ignore sec_db_hooks
-        folder_stats = {}
+        folder_stats: Dict[str, FolderStats] = {}
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
 
         for file_data in parsed_files:

@@ -1607,6 +1607,15 @@ class Orchestrator:
                 executor.shutdown(wait=False, cancel_futures=True)
                 raise TimeoutError("Mission aborted due to worker starvation (ReDoS or IPC Deadlock).")
 
+        # as_completed() yields in whatever order workers happen to finish,
+        # so every downstream consumer that iterates ram_cache (folder
+        # dominant-language tallies, parsed_files construction, spatial
+        # positioning, etc.) inherited that nondeterministic order. Re-key
+        # into a stable, path-sorted dict once here so the entire rest of
+        # the pipeline sees a deterministic sequence regardless of thread
+        # scheduling.
+        self.ram_cache = dict(sorted(self.ram_cache.items()))
+
     def _resolve_dependency_graph(self):
         """
         Pass 1.5: Optimized relational token aggregation & Fuzzy Suffix Matching.
@@ -1906,8 +1915,11 @@ class Orchestrator:
         folder_dominant_langs = {}
         for folder, tallies in folder_tallies.items():
             if tallies:
-                # The language with the most files wins the neighborhood
-                folder_dominant_langs[folder] = max(tallies, key=tallies.get)
+                # The language with the most files wins the neighborhood. Ties
+                # (equal file counts) break alphabetically by language name --
+                # explicit and deterministic, rather than relying on whichever
+                # key plain max() happens to see first.
+                folder_dominant_langs[folder] = max(tallies.items(), key=lambda kv: (kv[1], kv[0]))[0]
 
         # --- NEW: CALCULATE THE GLOBAL TEST UMBRELLA ---
         total_loc = 0

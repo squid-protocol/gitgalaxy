@@ -33,17 +33,19 @@ jobs:
 
       - name: Fetch Golden Test Repo (Language Crucible)
         run: |
-          echo "Cloning Language Crucible repository..."
-          git clone https://github.com/squid-protocol/language-crucible.git language-crucible
+          echo "Cloning Language Crucible repository (pinned to v1.0)..."
+          git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
       - name: Execute Resilience Engine
         env:
           GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
         run: |
           echo "Initiating GitGalaxy Golden Test Sequence..."
           mkdir -p telemetry_out
-          
-          # language-crucible is in the runner's root directory
-          timeout 180s galaxyscope ./language-crucible --output ./telemetry_out/ --file-speed --splicing-speed
+
+          # Scan only the structural corpus (language-crucible/data), not the
+          # repo's own tools/, raw_output/, or docs -- those are repo
+          # housekeeping, not part of the golden-master comparison surface.
+          timeout 180s galaxyscope ./language-crucible/data --output ./telemetry_out/ --file-speed --splicing-speed
       
       - name: Debug File System (Tree)
         if: always()  # This ensures the tree prints even if the previous step fails

@@ -490,8 +490,15 @@ class AuditRecorder:
         has_malware = vuln_exposures["Hidden Malware Risk Exposure"]["Artifacts Flagged"] > 0
         has_secrets = vuln_exposures["Secrets Risk Exposure"]["Artifacts Flagged"] > 0
 
+        # Explicit tie-break by Path so equal-confidence files (very common at
+        # 100.0%) land in a deterministic order instead of whatever order the
+        # parallel worker pool happened to finish them in.
+        quarantined_files.sort(key=lambda x: x["Path"])
+        for exposure in vuln_exposures.values():
+            exposure["Critical Files"].sort(key=lambda x: x["Path"])
+
         # Sort and map the ML (XGBoost) hit list descending by confidence
-        ml_threat_files.sort(key=lambda x: x["AI_Confidence"], reverse=True)
+        ml_threat_files.sort(key=lambda x: (-x["AI_Confidence"], x["Path"]))
         top_ml_threats = [
             {
                 "Path": threat["Path"],

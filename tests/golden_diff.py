@@ -2,7 +2,15 @@
 import json
 import sys
 import hashlib
+import math
 from typing import Any, Dict
+
+# Parallel file processing means per-language/per-repo float sums (e.g.
+# "impact") land in a different accumulation order each run, producing
+# sub-cent noise like 16694.93 vs 16694.930000000004. Real drift is much
+# larger than this, so a tight tolerance still catches genuine regressions.
+FLOAT_REL_TOL = 1e-6
+FLOAT_ABS_TOL = 1e-6
 
 def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     """Loads JSON and strips volatile execution metadata."""
@@ -21,16 +29,32 @@ def load_and_sanitize(filepath: str) -> Dict[str, Any]:
         
     return data
 
+def _normalize_floats(data: Any) -> Any:
+    """Rounds floats to FLOAT_ABS_TOL's precision so summation-order noise
+    doesn't change the deterministic hash between two structurally-identical runs."""
+    if isinstance(data, float):
+        return round(data, 6)
+    if isinstance(data, dict):
+        return {k: _normalize_floats(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [_normalize_floats(v) for v in data]
+    return data
+
 def generate_deterministic_hash(data: Dict[str, Any]) -> str:
     """Creates a stable MD5 hash of a dictionary regardless of key insertion order."""
     # sort_keys=True guarantees the JSON string is always structurally identical
-    sanitized_string = json.dumps(data, sort_keys=True, separators=(',', ':'))
+    normalized = _normalize_floats(data)
+    sanitized_string = json.dumps(normalized, sort_keys=True, separators=(',', ':'))
     return hashlib.md5(sanitized_string.encode('utf-8')).hexdigest()
+
+def _is_real_number(value: Any) -> bool:
+    # bool is a subclass of int in Python -- True/False must still compare exactly.
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 def deep_compare(expected: Any, actual: Any, path: str = "") -> list:
     """Recursive diffing engine. Only runs if hashes mismatch."""
     differences = []
-    
+
     if isinstance(expected, dict) and isinstance(actual, dict):
         all_keys = set(expected.keys()).union(set(actual.keys()))
         for key in all_keys:
@@ -40,9 +64,12 @@ def deep_compare(expected: Any, actual: Any, path: str = "") -> list:
                 differences.append(f"➖ MISSING KEY: {path}/{key}")
             else:
                 differences.extend(deep_compare(expected[key], actual[key], f"{path}/{key}"))
+    elif _is_real_number(expected) and _is_real_number(actual):
+        if not math.isclose(expected, actual, rel_tol=FLOAT_REL_TOL, abs_tol=FLOAT_ABS_TOL):
+            differences.append(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}")
     elif expected != actual:
         differences.append(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}")
-        
+
     return differences
 
 if __name__ == "__main__":
@@ -90,3 +117,6 @@ if __name__ == "__main__":
             
         print("\nIf this change is intentional (e.g., you improved a parser), update the Golden Master.")
         sys.exit(1)
+
+    print("\n✅ STAGE 2 PASS: Hash differed but no differences exceeded tolerance (float summation-order noise only).")
+    sys.exit(0)

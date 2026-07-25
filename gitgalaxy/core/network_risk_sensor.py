@@ -226,8 +226,11 @@ class NetworkRiskSensor:
             pagerank = nx.pagerank(G, weight="weight")
 
             # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
+            # seed is fixed because k triggers *approximate* betweenness via random
+            # node sampling -- unseeded, two scans of an unchanged repo can pick a
+            # completely different sample and report different bottleneck files.
             k_val = min(len(G.nodes()), 100) if len(G.nodes()) > 500 else None
-            betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight")
+            betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight", seed=42 if k_val is not None else None)
 
             # Closeness Centrality has no built-in sampling. Hard bypass at 1500 nodes.
             if len(G.nodes()) > 1500:
@@ -339,8 +342,11 @@ class NetworkRiskSensor:
                         macro_metrics["modularity"] = 0.0
                     else:
                         # Attempt Louvain (blazing fast), fallback to Greedy (slow)
+                        # seed is fixed so repeated scans of an unchanged repo
+                        # report the same modularity and Critical Files list
+                        # instead of a different randomized partition each run.
                         try:
-                            communities = community.louvain_communities(U)
+                            communities = community.louvain_communities(U, seed=42)
                         except AttributeError:
                             communities = community.greedy_modularity_communities(U)
 

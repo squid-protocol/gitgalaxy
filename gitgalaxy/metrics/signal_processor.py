@@ -1353,6 +1353,12 @@ class SignalProcessor:
                     ]
                 ]
             ) / safe_loc + (irc / safe_loc)
+            # A provably empty tiny file (<=2 LOC, zero signal in every
+            # category) gets a true zero rather than the small-file floor
+            # below -- there's no statistical-noise argument for treating a
+            # near-blank stub as risky.
+            if safe_loc <= 2 and total_density == 0:
+                return 0.0, total_density
             return 5.0, total_density
 
         branches = raw_signals.get("branch", 0)
@@ -1381,9 +1387,6 @@ class SignalProcessor:
             gini_multiplier = 1.0 + (func_gini * 0.5)
 
         total_density = (clamped_branch + clamped_flux + heavy_logic + (irc / safe_loc)) * gini_multiplier
-
-        if safe_loc <= 2 and total_density == 0:
-            return 0.0, total_density
 
         try:
             raw_score = 100.0 / (

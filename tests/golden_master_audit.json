@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-25T23:40:01.449990+00:00",
-            "Total Scan Duration": "24.17 seconds"
+            "Analysis ISO Timestamp": "2026-07-26T04:19:26.092520+00:00",
+            "Total Scan Duration": "24.06 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -196,7 +196,7 @@
             }
         },
         "health": {
-            "avg_cognitive_load": 23.428,
+            "avg_cognitive_load": 23.423,
             "avg_safety_score": 23.768,
             "avg_tech_debt": 25.409,
             "avg_documentation": 28.823
@@ -3564,7 +3564,7 @@
                 "file_count": 11,
                 "total_mass": 2252.98,
                 "avg_exposures": {
-                    "cognitive_load": 40.29,
+                    "cognitive_load": 39.84,
                     "safety_score": 25.17,
                     "tech_debt": 27.99,
                     "verification": 23.38,
@@ -5258,6 +5258,11 @@
                 ],
                 "lowest": [
                     {
+                        "name": "fuzz.rs",
+                        "path": "rust/tokio/fuzz.rs",
+                        "value": 0.0
+                    },
+                    {
                         "name": "serde_core_macros.rs",
                         "path": "rust/serde/serde_core_macros.rs",
                         "value": 0.0
@@ -5265,11 +5270,6 @@
                     {
                         "name": "HyperText.h",
                         "path": "objective-c/worldwideweb/HyperText.h",
-                        "value": 0.0
-                    },
-                    {
-                        "name": "flake.nix",
-                        "path": "nix/ghostty/flake.nix",
                         "value": 0.0
                     }
                 ]
@@ -212766,7 +212766,7 @@
                 "file_cluster_13": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "40.29%",
+                "Cognitive Load Exposure": "39.84%",
                 "Error & Exception Exposure": "25.17%",
                 "Tech Debt Exposure": "27.99%",
                 "Testing Exposure": "23.38%",
@@ -213875,7 +213875,7 @@
                         "Raw Cognitive Density": 0.0
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "5.0%",
+                        "Cognitive Load Exposure": "0.0%",
                         "Error & Exception Exposure": "0.0%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "0.15%",

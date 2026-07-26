@@ -115,6 +115,43 @@ def test_signal_processor_apocalypse_breaches(processor):
 
 
 # ==============================================================================
+# TEST 2b: THE PROVABLY-EMPTY TINY FILE (True Zero, Not the Small-File Floor)
+# ==============================================================================
+def test_signal_processor_empty_tiny_file_scores_true_zero(processor):
+    """
+    Proves a provably empty <=2 LOC file (e.g. a near-blank __init__.py) gets
+    a true 0.0 Cognitive Load, not the small-file 5.0 floor _calc_cog_load
+    applies to files under 15 LOC. Regression guard for a bug where this
+    exact carve-out existed in the code but was unreachable -- an earlier
+    `if safe_loc < 15` branch always returned first, so a 1-2 line file with
+    zero signals was still forced to 5.0.
+    """
+    meta, sig = create_synthetic_star(processor, "blank_init", 2)
+    meta["lang_id"] = "rust"  # tier1 (irc=0) -- tier2/3 languages carry a nonzero
+    # irc floor that keeps total_density above 0 even with no raw signals, so this
+    # carve-out can only ever fire for tier1 languages. See _get_tier().
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert res["risk_vector"][idx_cog] == 0.0, (
+        "Provably empty tiny file should score a true 0.0, not the small-file floor!"
+    )
+
+
+def test_signal_processor_small_file_floor_still_applies(processor):
+    """
+    Proves the small-file 5.0 floor is untouched for files under 15 LOC that
+    DO have some signal -- only the provably-empty <=2 LOC case should get
+    the true-zero carve-out.
+    """
+    meta, sig = create_synthetic_star(processor, "small_but_real", 10, {"branch": 3})
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert res["risk_vector"][idx_cog] == 5.0, "Small file with real signal should still hit the 5.0 floor!"
+
+
+# ==============================================================================
 # TEST 3: ZERO-DIVISION & EMPTY STATE FALLBACKS
 # ==============================================================================
 def test_signal_processor_zero_division_shields(processor):

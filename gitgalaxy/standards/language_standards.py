@@ -7741,8 +7741,11 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc: Structured Documentation. Scaladoc documentation (/**) and annotations.
             "doc": re.compile(r"/\*\*|@param|@return|@tparam|@throws|@see|@note"),
             # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
+            # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b could never fire. Never matched.
             "test": re.compile(
-                r"\b(test\s*\(|it\s+should|assertEquals|assertThrows|AnyFunSuite|WordSpec|munit|weaver)\b|\b(?:must|expect|assert)\s*[\(\{]"
+                r"\b(?:it\s+should|assertEquals|assertThrows|AnyFunSuite|WordSpec|munit|weaver)\b"
+                r"|\btest\s*\(|\b(?:must|expect|assert)\s*[\(\{]"
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Effect systems and Actor paradigms (ZIO, Cats Effect, Akka).
@@ -7799,8 +7802,14 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 25. ownership: Authorship indicators.
+            # BUG FIX: the Scaladoc `@author` tag was grouped with
+            # `Created by`/`Maintainer`/`Copyright`, all of which require a
+            # literal `:` -- but Scaladoc's actual convention (matching
+            # Javadoc, and how java's own ownership rule already handles
+            # it) is `@author Jane Doe`, with no colon at all. The colon
+            # requirement meant the real Scaladoc tag never matched.
             "ownership": re.compile(
-                r"(?:@author|Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
+                r"@author\s+([^\n]+)|(?:Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
                 re.I,
             ),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -7816,8 +7825,11 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Play Framework and twirl template endpoints.
+            # BUG FIX: `Ok\(`/`BadRequest\(` both end on `(` (non-word), so
+            # the shared trailing \b could never fire. Neither of Play's
+            # two most common Result constructors ever matched.
             "ssr_boundaries": re.compile(
-                r"\b(Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.[a-zA-Z_]\w*|Ok\(|BadRequest\()\b"
+                r"\b(?:Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.[a-zA-Z_]\w*)\b|\bOk\(|\bBadRequest\("
             ),
             # 32. events: Pub/Sub Network. Stream processing and event bus signatures.
             "events": re.compile(r"\b(Source|Flow|Sink|fs2\.Stream|ZStream|EventBus|system\.eventStream|Observable)\b"),
@@ -7834,10 +7846,28 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(inline\s+def|transparent\s+inline|macro|scala\.quoted|Expr|Type|Quotes)\b|\$\{.*?\}|\'\{"
             ),
             # 35. pointers: Memory Map. Scala Native C-Interop pointers.
-            "pointers": re.compile(r"\b(Ptr\[[^\]]+\]|scala\.scalanative\.unsafe|!ptr|ptr\.|CFuncPtr|CStruct\d+)\b"),
+            # BUG FIX: `Ptr\[[^\]]+\]` ends on the closing `]` (non-word),
+            # so the shared trailing \b could never fire -- unlike
+            # `decode\[` elsewhere (bounded only by the opening `[`, always
+            # followed by a word-char type name), this alternative matches
+            # through the CLOSING bracket, and whatever follows a type
+            # declaration (` = `, `;`, a newline) is never a word
+            # character. Never matched. Also bounded the previously
+            # unbounded `[^\]]+` to `{1,200}`. (`!ptr` is left as-is: it's
+            # harmlessly masked by `ptr\.` matching the same text via its
+            # own valid boundary, since `!` immediately preceding `ptr` is
+            # a valid non-word-to-word transition.)
+            "pointers": re.compile(
+                r"\bPtr\[[^\]]{1,200}\]|\b(?:scala\.scalanative\.unsafe|!ptr|ptr\.|CFuncPtr|CStruct\d+)\b"
+            ),
             # 36. memory_alloc: Manual Memory Management. Heap and Native allocations.
+            # BUG FIX: `zone[ \t]*\{` ends on `{` and `alloc\[[^\]]+\]` ends
+            # on the closing `]` -- both non-word, so the shared trailing
+            # \b could never fire for either. Neither ever matched. Also
+            # bounded the previously unbounded `[^\]]+` to `{1,200}`.
             "memory_alloc": re.compile(
-                r"\b(Zone|zone[ \t]*\{|alloc\[[^\]]+\]|malloc|calloc|free|scala\.scalanative\.libc\.stdlib)\b"
+                r"\b(?:Zone|malloc|calloc|free|scala\.scalanative\.libc\.stdlib)\b"
+                r"|zone[ \t]*\{|alloc\[[^\]]{1,200}\]"
             ),
             # 37. inline_asm: Bare Metal.
             "inline_asm": None,
@@ -7867,7 +7897,10 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Encapsulation / Access Modifiers)
             "encapsulation": re.compile(r"\b(private|protected)\b|private\[[^\]]+\]"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(on\(|addEventListener|subscribe|watch|useEffect|listen)\b"),
+            # BUG FIX: `on\(` ends on `(` (non-word), so the shared
+            # trailing \b could never fire -- never true for the common
+            # real call shape `on('event', ...)`, where a quote follows.
+            "listeners": re.compile(r"\bon\(|\b(?:addEventListener|subscribe|watch|useEffect|listen)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(ignore|pending|skip|xit|xdescribe)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Scala Specifics) ---
@@ -7875,10 +7908,16 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(io\.circe|decode\[|asJson|Json\.parse|Json\.toJson|upickle\.default)\b"
             ),
             "regex_execution": re.compile(r'"[^"]+"\.r\b|\bRegex\s*\(|\.(findAllIn|findFirstIn|replaceAllIn)\b'),
+            # BUG FIX: `Duration\s*\(` ends on `(` (non-word), so the
+            # shared trailing \b only fired for the non-empty-argument form
+            # (`Duration(5, SECONDS)`, where a digit follows the paren),
+            # not the empty-argument form (`Duration()`).
             "time_date_logic": re.compile(
-                r"\b(Duration\s*\(|FiniteDuration|System\.currentTimeMillis|LocalDate\.now)\b"
+                r"\b(?:FiniteDuration|System\.currentTimeMillis|LocalDate\.now)\b|\bDuration\s*\("
             ),
-            "ipc_rpc_bridges": re.compile(r"\b(ActorSystem|ActorRef|sys\.process\._|Process\s*\(|Future\.apply)\b"),
+            # BUG FIX: `Process\s*\(` ends on `(` -- same bug. Never
+            # matched the common `Process("cmd")` form (a quote follows).
+            "ipc_rpc_bridges": re.compile(r"\b(?:ActorSystem|ActorRef|sys\.process\._|Future\.apply)\b|\bProcess\s*\("),
         },
     },
     "dockerfile": {

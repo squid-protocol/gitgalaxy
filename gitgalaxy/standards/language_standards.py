@@ -3873,8 +3873,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
+            # BUG FIX: `try\?`/`as\?` both end on `?` (non-word), so the
+            # shared trailing \b could never fire -- whatever follows
+            # these operators (a space, then the expression) is never a
+            # word character. Neither of Swift's two most common
+            # error-softening operators ever matched.
             "safety": re.compile(
-                r"\b(guard\s+let|if\s+let|guard\s+var|if\s+var|try\?|as\?|catch|is|Sendable|Result|assert|precondition|Mutex)\b|@MainActor|\?\?"
+                r"\b(?:guard\s+let|if\s+let|guard\s+var|if\s+var|catch|is|Sendable|Result|assert|precondition|Mutex)\b"
+                r"|try\?|as\?|@MainActor|\?\?"
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Unsafe pointers and linter bypasses. EXCLUDES forced unwraps (moved to friction).
@@ -3885,8 +3891,12 @@ LANGUAGE_DEFINITIONS = {
             # Fatal traps and process killers. EXCLUDES TODO (debt) and print (print_hits).
             "high_risk_execution": re.compile(r"\b(fatalError|preconditionFailure|assertionFailure|abort|exit)\b"),
             # 9. io (I/O & Network Boundaries)
+            # BUG FIX: `Data\(contentsOf:`/`write\(to:` both end on `:`
+            # (non-word), so the shared trailing \b could never fire.
+            # Neither ever matched.
             "io": re.compile(
-                r"\b(URLSession|FileManager|FileHandle|Data\(contentsOf:|write\(to:|UserDefaults|CoreData|SwiftData|NWConnection)\b"
+                r"\b(?:URLSession|FileManager|FileHandle|UserDefaults|CoreData|SwiftData|NWConnection)\b"
+                r"|Data\(contentsOf:|write\(to:"
             ),
             # 10. api (Public Surface Area)
             # Exposed surface area. Explicit visibility and Objective-C bridges.
@@ -4035,7 +4045,12 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\.onAppear\(|\.onChange\(|\.sink\(|addObserver|subscribe"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(XCTSkip|mock\(|stub\(|fake\(|double\()\b"),
+            # BUG FIX: `mock\(`/`stub\(`/`fake\(`/`double\(` all end on `(`
+            # (non-word), so the shared trailing \b only fired when a word
+            # char immediately followed the paren -- true for most
+            # single-argument calls, but never for the zero-argument form
+            # (`double()`), where `)` follows instead.
+            "test_skip": re.compile(r"\bXCTSkip\b|\bmock\(|\bstub\(|\bfake\(|\bdouble\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Swift Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(JSONDecoder|JSONEncoder|PropertyListSerialization|NSKeyedUnarchiver|XMLParser)\b"

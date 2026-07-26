@@ -4249,8 +4249,13 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(ApplicationCall|call\.respond|call\.respondText|call\.respondHtml|ServerResponse|ModelAndView)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: required a literal `(`, but Kotlin's idiomatic
+            # SAM-conversion trailing-lambda form (`flow.collect { value ->
+            # ... }`, omitting the parens entirely) is the dominant
+            # real-world style for Flow collectors -- more common than the
+            # parenthesized form. Widened to accept either `(` or `{`.
             "events": re.compile(
-                r"\.(?:collect|collectLatest|observe|subscribe|onNext)\(|\b(LiveData|Observer|Observable|FlowCollector)\b"
+                r"\.(?:collect|collectLatest|observe|subscribe|onNext)\s*[\(\{]|\b(LiveData|Observer|Observable|FlowCollector)\b"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
             "dependency_injection": re.compile(
@@ -4291,7 +4296,12 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Access Modifiers / Encapsulation)
             "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\.(?:collect|observe|subscribe|on[A-Z]\w*|set[A-Z]\w*Listener)\("),
+            # BUG FIX: required a literal `(`, but the idiomatic Kotlin
+            # SAM-conversion trailing-lambda form (`button.setOnClickListener
+            # { ... }`, omitting the parens entirely) is the dominant
+            # real-world style for Android/Compose listeners. Widened to
+            # accept either `(` or `{`.
+            "listeners": re.compile(r"\.(?:collect|observe|subscribe|on[A-Z]\w*|set[A-Z]\w*Listener)\s*[\(\{]"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mockk|spyK|fake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Kotlin Specifics) ---
@@ -4312,7 +4322,14 @@ LANGUAGE_DEFINITIONS = {
             "time_date_logic": re.compile(
                 r"\b(Clock\.System\.now|Instant\.now|System\.currentTimeMillis|Duration\.minutes|LocalDate)\b"
             ),
-            "ipc_rpc_bridges": re.compile(r"\b(Intent\(|BroadcastReceiver|HttpClient\(|ProcessBuilder|bindService)\b"),
+            # BUG FIX: `Intent\(`/`HttpClient\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- true for the common
+            # `Intent(this, Foo::class.java)` form, but never for the
+            # zero-argument form (`HttpClient()`), where `)` follows.
+            "ipc_rpc_bridges": re.compile(
+                r"\b(?:BroadcastReceiver|ProcessBuilder|bindService)\b|\bIntent\(|\bHttpClient\("
+            ),
         },
     },
     "sqlite": {

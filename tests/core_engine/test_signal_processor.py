@@ -1128,9 +1128,19 @@ def test_signal_processor_crypto_professionalism_shield(processor):
 # TEST 31: LLM API SECRETS LEAK
 # ==============================================================================
 def test_signal_processor_llm_api_secrets(processor):
-    """Proves that hardcoded secrets mixed with LLM APIs trigger a massive careless amplifier."""
+    """
+    Proves that hardcoded secrets mixed with LLM APIs trigger a massive
+    careless amplifier in _calc_secrets_risk.
+
+    Regression test: this test previously built both fixtures but never
+    called calculate_risk_vector or asserted anything on either -- a
+    complete no-op that always passed regardless of whether the LLM
+    amplifier (or _calc_secrets_risk at all) worked. Ruff's F841/RUF059
+    would have caught the resulting unused variables, but tests/ is out
+    of scope for the ruff baseline, so it went unnoticed.
+    """
     # 1. Standard secret leak (Requires sec_heat_triggers to bypass the 2.0 clamp)
-    _unused_m_std, sig_std = create_synthetic_star(
+    m_std, sig_std = create_synthetic_star(
         processor,
         "std_leak",
         500,
@@ -1138,12 +1148,73 @@ def test_signal_processor_llm_api_secrets(processor):
     )
 
     # 2. Careless LLM API secret leak (Calling APIs without using global variables)
-    m_llm, _unused_sig_llm = create_synthetic_star(
+    m_llm, sig_llm = create_synthetic_star(
         processor,
         "llm_leak",
         500,
         {"sec_hardcoded_secrets": 1, "llm_api": 5, "globals": 0, "sec_reflection_metaprogramming": 1},
     )
+
+    r_std = processor.calculate_risk_vector(m_std, sig_std)
+    r_llm = processor.calculate_risk_vector(m_llm, sig_llm)
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+
+    assert r_llm["risk_vector"][idx_sec] > r_std["risk_vector"][idx_sec], (
+        "Careless LLM API secret leak (no globals) should score higher than a standard leak, "
+        "via the 3x careless_amplifiers spike -- it didn't!"
+    )
+    assert r_std["risk_vector"][idx_sec] > 0.0, "A genuine hardcoded-secret signal should never score exactly 0."
+
+
+def test_signal_processor_secrets_risk_zero_when_no_hardcoded_signal(processor):
+    """base_leak == 0 must short-circuit to a flat 0.0, never entering the amplifier math."""
+    meta, sig = create_synthetic_star(processor, "clean_file", 500, {"llm_api": 5, "globals": 0})
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] == 0.0
+
+
+def test_signal_processor_secrets_risk_clamped_without_reflection_signal(processor):
+    """
+    Outside paranoid mode, with zero sec_reflection_metaprogramming signal,
+    careless_amplifiers is clamped to a maximum of 2.0 -- proves the clamp
+    branch itself (as opposed to the LLM-amplifier test above, which
+    deliberately supplies reflection signal to bypass this exact clamp).
+    """
+    meta, sig = create_synthetic_star(
+        processor, "clamped_leak", 500, {"sec_hardcoded_secrets": 1, "globals": 1, "debug_prints": 50}
+    )
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    # A huge debug_prints count would blow the amplifier way past 2.0 if
+    # unclamped; the score should still land in a sane, non-maxed-out range.
+    assert 0.0 < result["risk_vector"][idx_sec] < 100.0
+
+
+def test_signal_processor_secrets_risk_paranoid_mode_skips_clamp(processor):
+    """In paranoid mode, the 2.0 clamp never applies regardless of reflection signal."""
+    meta, sig = create_synthetic_star(
+        processor, "paranoid_leak", 500, {"sec_hardcoded_secrets": 1, "globals": 1, "debug_prints": 50}
+    )
+    processor.is_paranoid = True
+    try:
+        result = processor.calculate_risk_vector(meta, sig)
+    finally:
+        processor.is_paranoid = False
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] > 0.0
+
+
+def test_signal_processor_secrets_risk_low_score_floors_to_zero(processor):
+    """A raw score under 5.0 is explicitly floored to 0.0, not left as noisy near-zero signal."""
+    # A single hardcoded-secret hit in an enormous file produces a tiny
+    # density, and thus a tiny sigmoid score -- exactly the < 5.0 floor case.
+    meta, sig = create_synthetic_star(processor, "diluted_leak", 50000, {"sec_hardcoded_secrets": 1})
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] == 0.0, "A sub-5.0 raw score should floor to exactly 0.0, not a noisy near-zero value."
 
 
 # ==============================================================================

@@ -473,7 +473,10 @@ class LLMRecorder:
         )[:5]
         lines.append("### Top 5 Structural Pillars (Highest 'Imported By' / Blast Radius)")
         lines.append(
-            "These files act as core load-bearing infrastructure. Changes here carry a high risk of cascading breaks.\n"
+            "These are the most interconnected files relative to the rest of this repository. On a repo with dense "
+            "internal coupling, that means core load-bearing infrastructure -- changes carry real cascading-break "
+            "risk. On a repo with a flatter internal architecture, the gap between #1 and #5 may be small, and this "
+            "list is a weaker signal accordingly; compare the connection counts below before treating it as a verdict.\n"
         )
         for rank, file_data in enumerate(pillars, 1):
             name = file_data.get("name", "Unknown")

@@ -3,7 +3,7 @@ import re
 from unittest.mock import patch
 
 # Adjust this import to match your project structure
-from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.prism import Prism, PrismError
 
 # ==============================================================================
 # MOCK MATRIX CALIBRATION
@@ -72,6 +72,33 @@ def test_prism_prose_bypass(prism_engine):
     assert result["comment_stream"] == content
     assert result["coding_loc"] == 0
     assert result["doc_loc"] == 3
+
+
+def test_prism_empty_content_short_circuits(prism_engine):
+    """An empty content buffer must return the zeroed-out result shape directly, skipping all regex work."""
+    result = prism_engine.split_streams("", primary_lang="python")
+    assert result == {
+        "code_stream": "",
+        "comment_stream": "",
+        "coding_loc": 0,
+        "doc_loc": 0,
+        "mitigations": [],
+    }
+
+
+def test_prism_catastrophic_failure_wraps_in_prism_error(prism_engine):
+    """
+    Stress test: if something inside the scan raises unexpectedly (not one
+    of the specific, already-handled cases), split_streams must wrap it in a
+    PrismError with the original exception chained -- never let a raw,
+    unrelated exception type escape to the caller.
+    """
+    with patch.object(prism_engine, "_strip_segment_comments", side_effect=RuntimeError("simulated engine failure")):
+        with pytest.raises(PrismError) as exc_info:
+            prism_engine.split_streams("some code", primary_lang="python")
+
+    assert "simulated engine failure" in str(exc_info.value)
+    assert isinstance(exc_info.value.__cause__, RuntimeError)
 
 
 def test_prism_metadata_guard(prism_engine):

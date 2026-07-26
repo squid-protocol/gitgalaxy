@@ -1,6 +1,6 @@
 <div align="center">
 
-# GitGalaxy 
+# GitGalaxy
 
 [Docs](https://squid-protocol.github.io/gitgalaxy/) · [Visualizer](https://gitgalaxy.io/)
 
@@ -25,22 +25,22 @@
 
 <div align="center">
 
-Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The graph below is a workflow from one gitgalaxy scan from on our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)   
+Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, map out the architecture, and surface risk exposures alongside prioritized refactoring targets — hotspots, bus-factor risk, and load-bearing files — so you know where to focus first. The graph below is a workflow from one gitgalaxy scan from on our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)
 <img src="docs/wiki/assets/sankey_v4.3.1.png" alt="GitGalaxy Architecture Pipeline" width="100%">
 
 </div>
 
 <div>
 
-### **Whole-Repository Intelligence with a Unique Security Layer **
+### **Whole-Repository Intelligence with a Security Layer**
 
-Gitgalaxy is a tool to  determistically audit code, fast enough for the CI pipeline. Most code intelligence engines use an AST, like tree-sitter, which is offers an overly granular view of a repos (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats. 
+Gitgalaxy is a tool to deterministically audit code, fast enough for the CI pipeline. Most code intelligence engines use an AST, like tree-sitter, which offers an overly granular view of a repo (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats.
 
-Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass that takes seconds. 
+Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass that takes seconds.
 
 The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
 
-Our unique engine allows for the unique ways to scan for several CWEs families without the need for CVE lists, which is a unique edge for our code intelligence engine. 
+Crossing that structural graph against git history also surfaces two specific, prioritized refactoring signals: **bus-factor risk** (load-bearing files owned almost entirely by one contributor) and **refactoring hotspots** (files that are simultaneously high-churn, high-complexity, and high-debt — the standard signal for where refactoring effort actually pays off). Both are named, file-level targets, not just a score.
 
 </div>
 
@@ -135,7 +135,7 @@ Measured without mirrors. The GitHub/PyPI breakdown lines begin partway through 
 * **[Speed Results from 104 Repos](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/)**
 * **[Cross-Language Comparisons of over 1000 repos](https://squid-protocol.github.io/gitgalaxy/03-04-claim-4-comparing-languages/):** Deterministic 1:1 benchmarking of distinct syntax architectures.
 * **[Universal File Archetypes by k-means clustering](https://squid-protocol.github.io/gitgalaxy/03-05-claim-5-file-archetypes/):** ML isolation of files into K-means clusters.
-* **[Mainframe Proven: 100% CI/CD Translation Success Rate](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation):** 27 out of 27 successful architectural translation of 27 distinct legacy COBOL repositories (including IBM CICS benchmark apps) into compiling Java Spring Boot environments.
+* **[Mainframe Migration: 27/27 Compile Success Across Legacy COBOL Repos](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation):** 27 distinct legacy COBOL repositories (including IBM CICS benchmark apps) translated into compiling Java Spring Boot environments.
 
 </div>
 
@@ -177,19 +177,19 @@ GitGalaxy operates on a Decoupled Architecture. While the core engine provides t
 
 ### [Automated Legacy Migration: COBOL to Java Spring Boot](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/)
 A deterministic, high-fidelity translation pipeline. It converts legacy COBOL into fully compiling, modern Spring Boot architectures, mapping memory exactly and scaffolding JPA entities, REST controllers, and Maven builds before utilizing AI to translate isolated business logic.
-* **Proven Metric:** Achieved a perfect 27/27 Maven compile success rate across a batch test of distinct legacy repos.
+* **Benchmark:** Achieved a 27/27 Maven compile success rate across a batch test of distinct legacy repos. Compiling is a necessary but not sufficient signal of a correct translation — it confirms the generated code builds, not that the business logic is semantically equivalent to the original; a business logic review is still required.
 * **Verify for Yourself:** [Inspect the raw outputs of the IBM CICS Application Translation here.](https://github.com/squid-protocol/gitgalaxy/tree/main/examples/ibm_cics_translation/)
 
 ### [Mainframe Refactoring: COBOL & JCL Optimization](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_cobol/)
 An analytical suite for sanitizing mainframe monoliths. It safely neutralizes legacy lexical traps, extracts dead execution memory, maps topological DAG execution orders, and generates Zero-Trust JCL configurations for modern cloud deployments.
-* **Proven Metric:** The dead-code extraction engine removed over 6,700 lines of dead execution blocks and orphaned variables from the standard IBM CICS benchmark app in seconds.
+* **Benchmark:** The dead-code extraction engine removed over 6,700 lines of dead execution blocks and orphaned variables from the standard IBM CICS benchmark app in seconds.
 
 ### [Software Supply Chain Security & Pre-Commit Firewalls](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/supply_chain_security/)
 Extreme-velocity pre-commit firewalls. Instead of trusting manifest files, it scans physical internals to block steganography, byte-level XOR decryption loops, homoglyph typosquatting, and exposed cryptographic vaults before they ever enter your CI/CD pipeline. **[Deploy directly via our GitHub Action](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md).**
 
 ### [Zero-Trust SBOM Generation & Dependency Auditing](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/compliance/)
 A Zero-Trust Software Bill of Materials (SBOM) generator. It refuses to blindly trust `package.json` or `requirements.txt` files, instead locating the physical dependencies on disk, mathematically verifying their entropy and linguistic identity, and generating strict CycloneDX 1.4 JSON reports.
-* **Proven Metric:** Successfully mapped and mathematically verified the physical internals of 170 unique Go modules inside the local Kubernetes repository.
+* **Benchmark:** Successfully mapped and mathematically verified the physical internals of 170 unique Go modules inside the local Kubernetes repository.
 
 ### [API Security & Shadow API Detection](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/network_auditing/)
 A deterministic mapping tool that hunts undocumented vulnerabilities. It uses structural regex to find active physical routing logic (Express, Spring Boot, FastAPI) and applies set theory against official OpenAPI/Swagger documentation to isolate critical Shadow APIs and outdated Ghost APIs.
@@ -224,7 +224,7 @@ Your code never leaves your machine. GitGalaxy performs 100% of its scanning and
 
 Copyright (c) 2026 Joe Esquibel
 
-GitGalaxy is distributed under the **PolyForm Noncommercial License 1.0.0**. 
+GitGalaxy is distributed under the **PolyForm Noncommercial License 1.0.0**.
 
 ### 🎓 Community Free Tier (Academic, Research, & Hobbyist)
 We are deeply committed to the open-source and academic communities. If you are using GitGalaxy for personal projects, academic research, or non-commercial development, the engine is 100% free to use.

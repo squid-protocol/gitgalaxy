@@ -17,6 +17,9 @@ import re
 import statistics
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.standards import analysis_lens
+from gitgalaxy.standards import analysis_lens as config
+
 
 class DirectoryGroupData(TypedDict):
     # Without this, the int/float/List[float] mix in the literal below
@@ -26,9 +29,6 @@ class DirectoryGroupData(TypedDict):
     mass: float
     risks: list[float]
 
-
-from gitgalaxy.standards import analysis_lens
-from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
 # GitGalaxy Phase 4: Signal Processor (The Structural Signature Analysis Engine)

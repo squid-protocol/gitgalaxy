@@ -372,7 +372,7 @@ class LLMRecorder:
             )
         else:
             lines.append(
-                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."
+                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."  # noqa: RUF001
             )
         lines.append("")
 

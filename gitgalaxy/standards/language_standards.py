@@ -5896,7 +5896,7 @@ LANGUAGE_DEFINITIONS = {
         # EXECUTION SIGNATURES: Interpreters found on Line 1.
         "shebangs": ["perl", "perl5", "perl6"],
         # UPGRADED: Maps to Family 6 (Polyglot)
-        # Rationale: Perl’s interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
+        # Rationale: Perl's interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
         "lexical_family": "standard_block",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---

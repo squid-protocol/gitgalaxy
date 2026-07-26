@@ -383,6 +383,15 @@ def test_aperture_gitignore_and_contraband(tmp_path):
     assert engine._check_ignore_rules("src/valid.py") is True
 
 
+def test_aperture_gitignore_survives_unreadable_file(tmp_path):
+    """A .gitignore that can't be opened (e.g. a directory, not a file) must not crash init."""
+    ignore_file = tmp_path / ".gitignore"
+    ignore_file.mkdir()
+
+    engine = ApertureFilter(tmp_path, MOCK_REGISTRY, MOCK_CONFIG)  # Must not raise.
+    assert engine._check_ignore_rules("src/valid.py") is True
+
+
 # ==============================================================================
 # TEST 12: IGNORED_DIRECTORIES CASE-INSENSITIVITY (ISSUE #255)
 # ==============================================================================

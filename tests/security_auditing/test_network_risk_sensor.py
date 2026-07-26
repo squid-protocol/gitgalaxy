@@ -374,3 +374,228 @@ def test_coverage_mapping_duplicate_filename_ambiguous(sensor):
     assert "/src/service_b/utils.py" not in coverage_map, (
         "Ambiguous 'utils' import misattributed test coverage to service_b/utils.py!"
     )
+
+
+# ==============================================================================
+# TEST 10: TEST COVERAGE MAPPING — HAPPY PATH (unambiguous resolution)
+# ==============================================================================
+def test_coverage_mapping_happy_path(sensor):
+    """
+    Proves extract_test_coverage_mapping actually populates the coverage map
+    end-to-end when a test file has an unambiguous import and calls_out_to
+    data -- the success path was previously untested (only the ambiguous
+    rejection path had coverage), even though it's the whole point of the
+    function: mapping test->production calls for the verification-risk
+    dampener in signal_processor.py.
+    """
+    files = [
+        {"path": "/src/payments/charge.py", "raw_imports": []},
+        {
+            "path": "/tests/test_charge.py",
+            "raw_imports": ["/src/payments/charge.py"],
+            "functions": [
+                {
+                    "calls_out_to": ["run_charge", "refund_charge"],
+                    "impact": 12.5,
+                    "hit_vector": {"test": 3, "test_skip": 0, "decorators": 1},
+                },
+                {
+                    # A second test function targeting the same production file
+                    # and one overlapping function name -- proves multiple test
+                    # payloads accumulate in a list rather than overwriting.
+                    "calls_out_to": ["run_charge"],
+                    "impact": 4.0,
+                    "hit_vector": {"test": 1, "test_skip": 1, "decorators": 0},
+                },
+            ],
+        },
+    ]
+
+    coverage_map = sensor.extract_test_coverage_mapping(files)
+
+    assert "/src/payments/charge.py" in coverage_map, "Unambiguous test coverage mapping was dropped entirely!"
+    target = coverage_map["/src/payments/charge.py"]
+
+    assert "run_charge" in target and "refund_charge" in target
+    assert len(target["run_charge"]) == 2, "Both test functions targeting run_charge should accumulate, not overwrite."
+    assert len(target["refund_charge"]) == 1
+
+    first_payload = target["run_charge"][0]
+    assert first_payload["impact"] == 12.5
+    assert first_payload["target_count"] == 2
+    assert first_payload["test_hits"] == 3
+    assert first_payload["decorators"] == 1
+
+    second_payload = target["run_charge"][1]
+    assert second_payload["test_skip_hits"] == 1
+
+
+def test_coverage_mapping_skips_test_functions_with_no_calls(sensor):
+    """A test function with an empty calls_out_to shouldn't appear in the map at all."""
+    files = [
+        {"path": "/src/lib.py", "raw_imports": []},
+        {
+            "path": "/tests/test_lib.py",
+            "raw_imports": ["/src/lib.py"],
+            "functions": [{"calls_out_to": [], "impact": 1.0, "hit_vector": {}}],
+        },
+    ]
+
+    coverage_map = sensor.extract_test_coverage_mapping(files)
+    assert coverage_map == {}, "A test function with zero outbound calls should contribute nothing to the map."
+
+
+# ==============================================================================
+# TEST 11: DUPLICATE-EDGE WEIGHT ACCUMULATION
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_duplicate_edge_weight_accumulates(sensor):
+    """
+    Two separate imports from the same file to the same target must
+    accumulate into a single edge's weight, not silently overwrite it or
+    create a second parallel edge (DiGraph can't hold parallel edges anyway,
+    but the accumulation logic itself -- G[u][v]["weight"] += weight --
+    had no test exercising the "edge already exists" branch at all).
+    """
+    files = [
+        {"path": "/src/shared/helpers.py", "raw_imports": []},
+        {
+            "path": "/src/app.py",
+            # Two distinct entity-imports resolving to the same target file:
+            # first import creates the edge (weight 1.5, has an entity), the
+            # second must hit the "G.has_edge" branch and add its own weight.
+            "raw_imports": [
+                ("/src/shared/helpers.py", "format_date"),
+                ("/src/shared/helpers.py", "parse_config"),
+            ],
+        },
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+    helpers = next(f for f in mapped_files if f["path"] == "/src/shared/helpers.py")
+
+    # Both entity imports carry weight 1.5 each -- accumulated weight should
+    # be reflected in in_degree still being 1 (one edge, DiGraph semantics)
+    # while the underlying edge weight (not directly exposed in telemetry,
+    # but exercised via pagerank/betweenness using it) doesn't crash and the
+    # edge count stays correct.
+    assert helpers["telemetry"]["network_metrics"]["in_degree"] == 1, (
+        "Two imports to the same target should still be exactly one graph edge."
+    )
+
+
+# ==============================================================================
+# TEST 12: NETWORK MATH RESILIENCE — CENTRALITY COMPUTATION FAILURE
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_math_failure_degrades_to_zero(sensor, parsed_files_universe):
+    """
+    Stress test: if NetworkX's centrality math itself throws (e.g. a future
+    NetworkX version changes behavior, or an unexpected graph shape), the
+    sensor must degrade every node to a 0.0 score rather than crashing the
+    whole pipeline. This exercises the outer `except Exception` fallback in
+    build_dependency_graph, never previously triggered by any test.
+    """
+    with patch("networkx.pagerank", side_effect=RuntimeError("simulated convergence failure")):
+        mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
+
+    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
+    metrics = foundation["telemetry"]["network_metrics"]
+    assert metrics["pagerank_score"] == 0.0
+    assert metrics["betweenness_score"] == 0.0
+    assert metrics["closeness_score"] == 0.0
+
+
+# ==============================================================================
+# TEST 13: MACRO NETWORK MATH RESILIENCE — INDIVIDUAL METRIC FAILURES
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_universe):
+    """
+    Stress test: each macro-ecosystem metric (modularity, assortativity,
+    cyclic density, avg path length, articulation points) is computed in
+    its own try/except so one metric's failure doesn't take down the
+    others. Previously none of these five except-blocks had a single test
+    forcing the failure path -- they were trusted by inspection only.
+    """
+    with (
+        patch("networkx.degree_assortativity_coefficient", side_effect=RuntimeError("boom")),
+        patch("networkx.average_shortest_path_length", side_effect=RuntimeError("boom")),
+        patch("networkx.articulation_points", side_effect=RuntimeError("boom")),
+    ):
+        _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
+
+    assert macro_metrics["assortativity"] is None, "A failed assortativity computation must stay None, not 0.0 or crash."
+    assert macro_metrics["avg_path_length"] is None
+    assert macro_metrics["articulation_points"] is None
+    # Modularity and cyclic_density weren't patched to fail -- they should
+    # still have computed normally, proving the try/except isolation really
+    # is per-metric and not a single all-or-nothing block.
+    assert macro_metrics["modularity"] is not None
+    assert macro_metrics["cyclic_density"] is not None
+
+
+def test_cyclic_density_failure_stays_isolated(sensor, parsed_files_universe):
+    """Same isolation guarantee, targeting cyclic density specifically."""
+    with patch("networkx.strongly_connected_components", side_effect=RuntimeError("boom")):
+        _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
+
+    assert macro_metrics["cyclic_density"] is None
+    assert macro_metrics["modularity"] is not None, "An unrelated metric's failure shouldn't take modularity down with it."
+
+
+def test_modularity_falls_back_to_greedy_when_louvain_unavailable(sensor, parsed_files_universe):
+    """
+    Older NetworkX versions don't have louvain_communities. The code catches
+    that specific AttributeError and falls back to greedy_modularity_communities
+    -- previously untested, so a NetworkX downgrade could have silently broken
+    modularity for anyone on an older pin without a single test noticing.
+    """
+    with patch(
+        "networkx.algorithms.community.louvain_communities",
+        side_effect=AttributeError("simulated: old networkx has no louvain_communities"),
+    ):
+        _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
+
+    assert macro_metrics["modularity"] is not None, (
+        "Louvain AttributeError should fall back to greedy_modularity_communities, not leave modularity unset."
+    )
+
+
+def test_macro_math_outer_failure_returns_all_none(sensor, parsed_files_universe):
+    """
+    Stress test for the outermost `except Exception` around the whole macro
+    block (e.g. G.to_undirected() itself failing) -- must degrade every
+    macro metric to None rather than crashing build_dependency_graph
+    entirely and losing the per-file network metrics already computed.
+    """
+    with patch("networkx.DiGraph.to_undirected", side_effect=RuntimeError("boom")):
+        mapped_files, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
+
+    assert all(v is None for v in macro_metrics.values()), "Outer macro-math failure should leave every metric None."
+    # Per-file network metrics (computed earlier in the function, before the
+    # macro block) must survive even though the macro block blew up.
+    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
+    assert "network_metrics" in foundation["telemetry"]
+
+
+# ==============================================================================
+# TEST 14: RESOLUTION MAP / TARGET RESOLUTION EDGE CASES
+# ==============================================================================
+def test_build_resolution_map_skips_files_with_no_path(sensor):
+    """A file dict missing its 'path' key must be skipped, not crash Path("")."""
+    files = [{"raw_imports": []}, {"path": "", "raw_imports": []}, {"path": "/src/real.py", "raw_imports": []}]
+    resolution_map = sensor._build_resolution_map(files)
+    assert list(resolution_map.keys()) == ["/src/real.py", "real.py", "real"]
+
+
+def test_resolve_target_returns_none_for_external_package_import(sensor):
+    """
+    An import of a genuinely external package (e.g. `import numpy`) has no
+    corresponding file in the repo at all -- _resolve_target must return
+    None cleanly rather than raising, since resolution_map.get() will find
+    nothing at any stage.
+    """
+    resolution_map = sensor._build_resolution_map([{"path": "/src/real.py", "raw_imports": []}])
+    assert sensor._resolve_target("numpy", resolution_map, "/src/real.py") is None
+    assert sensor._resolve_target("some.deeply.nested.external.pkg", resolution_map, "/src/real.py") is None

@@ -194,9 +194,53 @@ def test_rehydrator_legacy_schema_drift(tmp_path):
     try:
         # If this throws an IndexError, the Rehydrator isn't resilient to schema drift!
         rehydrator.load_latest_state("test_repo")
-        
-        # Depending on how we implemented the fix in state_rehydrator.py, it should 
-        # either succeed with a default value, or we need to update state_rehydrator.py 
+
+        # Depending on how we implemented the fix in state_rehydrator.py, it should
+        # either succeed with a default value, or we need to update state_rehydrator.py
         # to use `f.keys()` to safely check if the column exists.
     except IndexError:
         pytest.fail("The StateRehydrator threw an IndexError on legacy database schemas!")
+
+
+# ==============================================================================
+# TEST 6: DICTIONARY OVERRIDE TYPE SPOOFING
+# ==============================================================================
+def test_rehydrator_dictionary_type_spoofing(tmp_path):
+    """
+    DEVIOUS EDGE CASE: An attacker (or corrupted DB) places a String into a column
+    that the RAM cache strictly expects to be a Float. When the Signal Processor
+    attempts to execute metrics math on this dictionary override, it will crash.
+    The Rehydrator must catch the resulting ValueError/TypeError and fall back to
+    a cold start (None) rather than propagating the crash -- the same way it
+    already handles a corrupted/poisoned SQLite file.
+    """
+    db_path = tmp_path / "spoofed_master.db"
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE TABLE repo_data (repo_name TEXT, commit_hash TEXT, commit_date INTEGER)")
+    cursor.execute("""
+        CREATE TABLE file_data (
+            repo_name TEXT, commit_hash TEXT, file_path TEXT, language TEXT,
+            total_loc INTEGER, coding_loc INTEGER, structural_mass REAL,
+            control_flow_ratio REAL, popularity INTEGER, author TEXT,
+            ai_threat_score REAL, silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
+        )
+    """)
+
+    cursor.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_1', 1600000000)")
+
+    # MALICIOUS INJECTION: Injecting a String 'HACKED' into the Float columns
+    cursor.execute("""
+        INSERT INTO file_data VALUES (
+            'test_repo', 'hash_1', 'src/hacked.py', 'python',
+            150, 100, 'HACKED_MASS', 'HACKED_CFR', 12, 'Attacker', 'HACKED_THREAT', 12.5, 4, 2
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+    rehydrator = StateRehydrator(str(db_path))
+    result = rehydrator.load_latest_state("test_repo")
+
+    assert result is None, "Failed to reject a type-spoofed database gracefully -- crashed instead of falling back to a cold start!"

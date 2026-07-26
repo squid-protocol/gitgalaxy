@@ -824,6 +824,43 @@ def test_spatial_mapper_ray_casting_collision_avoidance(spatial_mapper):
     )
 
 
+def test_spatial_mapper_uses_parent_logger_when_provided():
+    """Proves the mapper attaches as a child of a supplied parent logger instead of
+    creating its own root-level logger."""
+    parent = logging.getLogger("gitgalaxy_parent_test")
+    parent.setLevel(logging.DEBUG)
+
+    mapper = SpatialMapper(parent_logger=parent)
+
+    assert mapper.logger.name == "gitgalaxy_parent_test.spatial_mapper"
+    assert mapper.logger.level == logging.DEBUG
+
+
+def test_spatial_mapper_supermassive_sector_registers_in_all_bins(spatial_mapper):
+    """
+    Proves the spatial-hash registration handles a sector so massive that its
+    effective placement radius (post MACRO_STEP_FACTOR) envelops the origin --
+    i.e. eff_pr >= dist_to_center for the very first sector placed. This forces
+    the "register in every angular bin" branch (as opposed to the normal
+    angular-arc calculation), which no other test exercises: every other fixture
+    uses a handful of files, never enough for one sector's hull_radius to blow
+    past its own distance-to-center.
+    """
+    # A single sector with enough sibling files that its hull radius
+    # (footprint + sqrt(n) * MICRO_SPACING) overtakes CORE_EXCLUSION_RADIUS by
+    # more than the MACRO_STEP_FACTOR margin requires.
+    files = [{"path": f"monolith/file_{i}.py", "file_impact": 10.0} for i in range(700)]
+
+    mapped = spatial_mapper.map_repository(files)
+
+    # No crash, and every node still got real coordinates -- the actual
+    # behavior under test is line coverage of the all-bins registration branch,
+    # which has no externally observable side effect beyond "didn't crash and
+    # kept placing nodes correctly."
+    assert len(mapped) == 700
+    assert all("pos_x" in f and "pos_z" in f for f in mapped)
+
+
 # ==============================================================================
 # TEST 13: THE PROSE & SINGULARITY BYPASS
 # ==============================================================================
@@ -1214,6 +1251,75 @@ def test_detector_metadata_block_parsing():
     assert "line 1" in meta.get("purpose", ""), "Failed to read block metadata!"
     assert "line 2" in meta.get("purpose", ""), "Failed to continue reading block metadata!"
     assert "ignored" not in meta.get("purpose", ""), "Failed to stop at the boundary marker!"
+
+
+def test_detector_metadata_block_terminates_on_trailing_blank_line():
+    """
+    A blank line AFTER block text has started ends the block (break), with
+    no boundary marker needed at all -- distinct from the leading-blank-line
+    case below, which must be skipped rather than ending the block early.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = re.compile(r"^Purpose:")
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose:\n# Real purpose text.\n#\n# Some other ignored comment.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    assert "Real purpose text" in meta.get("purpose", "")
+    assert "ignored" not in meta.get("purpose", ""), "A trailing blank line should end the block, not just the boundary marker!"
+
+
+def test_detector_metadata_block_skips_leading_blank_lines():
+    """A blank line BEFORE any block text has appeared is skipped, not treated as end-of-block."""
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = re.compile(r"^Purpose:")
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose:\n#\n# Real purpose text, after a leading blank line.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    assert "Real purpose text" in meta.get("purpose", ""), (
+        "A leading blank line inside the block should be skipped, not end the block before any text was captured!"
+    )
+
+
+def test_detector_metadata_single_line_purpose_continuation():
+    """
+    Single-line `Purpose: ...` metadata (not a block) continues accumulating
+    unrelated-looking comment lines into a fallback buffer until a blank
+    line, a boundary marker, or a block-purpose marker ends it.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    # _meta_purpose_block is deliberately cleared: MOCK_LANG_DEFS is a shared
+    # module-level dict and primary_rules is a reference into it, not a copy
+    # -- an earlier test in this file sets _meta_purpose_block, which would
+    # otherwise leak in here and hijack "Purpose:" into the block branch
+    # instead of the single-line branch this test targets.
+    opt_detector.primary_rules["_meta_purpose_block"] = None
+    opt_detector.primary_rules["_meta_boundary"] = re.compile(r"^\-\-\-")
+
+    comment_stream = "# Purpose: Does the thing.\n# And continues here.\n# ---\n# Not part of it.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    purpose = meta.get("purpose", "")
+    assert "Does the thing" in purpose
+    assert "continues here" in purpose, "Single-line purpose continuation lines should accumulate!"
+    assert "Not part of it" not in purpose, "Continuation should stop at the boundary marker!"
+
+
+def test_detector_metadata_single_line_purpose_terminates_on_blank_line():
+    """Same single-line continuation, but terminated by a blank line instead of a boundary."""
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = None  # see comment above
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose: Does the thing.\n#\n# Not part of it.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    purpose = meta.get("purpose", "")
+    assert "Does the thing" in purpose
+    assert "Not part of it" not in purpose, "A blank line should terminate single-line purpose continuation!"
 
 
 # ==============================================================================

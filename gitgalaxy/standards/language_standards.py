@@ -5852,11 +5852,42 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. Defensive constructs (strict, warnings, safe exceptions).
+            # BUG FIX: `eval[ \t]*\{` was inside the shared \b(...)\b wrapper.
+            # It ends on the literal `{` (non-word), so the trailing \b only
+            # matched when a word character immediately followed the brace
+            # (e.g. `eval{risky()}`) -- the far more common idiomatic style
+            # with a space after `{` (`eval { risky(); }`) has a non-word
+            # char (the space) right after the brace, so the boundary could
+            # never fire and the whole safe-eval-block form silently never
+            # matched. Also widened `[ \t]*` to `[ \t\n]*` to match perl's own
+            # vertical func_start shield -- a vertically-placed opening brace
+            # (`eval\n{`) is valid, if less common, style.
             "safety": re.compile(
-                r"\b(use\s+strict|use\s+warnings|use\s+v5\.\d+|croak|confess|try|catch|finally|eval[ \t]*\{|defer|isa|DOES)\b|->isa\b|->DOES\b"
+                r"\b(?:use\s+strict|use\s+warnings|use\s+v5\.\d+|croak|confess|try|catch|finally|defer|isa|DOES)\b"
+                r"|\beval[ \t\n]*\{|->isa\b|->DOES\b"
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing safety (no strict, string eval).
-            "safety_bypasses": re.compile(r'\b(no\s+strict|no\s+warnings|eval\s*["\']|eval\s+(?!\w|{)|goto\s+\&)\b'),
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # `eval\s+(?!\w|{)` and `goto\s+\&` both end on a non-word
+            # character by construction (the negative lookahead guarantees
+            # the char after the trailing whitespace isn't \w, and `&` is
+            # never a word char) -- so the shared trailing \b, which needs a
+            # non-word/word transition, could never be satisfied. This
+            # silently dropped the two most common dangerous idioms:
+            # `eval $code;` / `eval($code);` (string-eval on a variable, not
+            # a literal) and `goto &$sub;` (dynamic dispatch). Each
+            # alternative now carries only the boundary that makes sense for
+            # its own shape. Also added a dedicated `eval\s*\(` alternative
+            # so the equally common no-space function-call form
+            # `eval($code)` is caught alongside `eval $code` -- naively
+            # widening the existing `eval\s+(?!\w|{)` to `eval\s*(?!\w|{)`
+            # doesn't work here, since `\s*` can backtrack to zero-width and
+            # let the lookahead be satisfied by the whitespace character
+            # itself, re-admitting the safe `eval q{1}` / `eval { ... }`
+            # bareword and block forms this guard exists to exclude.
+            "safety_bypasses": re.compile(
+                r'\b(?:no\s+strict|no\s+warnings)\b|\beval\s*["\']|\beval\s*\(|\beval\s+(?!\w|{)|\bgoto\s+&'
+            ),
             # 8. danger: High-Risk Execution. Process killers and raw shell execution.
             "high_risk_execution": re.compile(r"\b(system|exec|exit|qx|CORE::dump)\b|`[^`]+`"),
             # 9. io: I/O & Network Boundaries. Disk, Network, DBI, and standard handles.
@@ -5895,8 +5926,16 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. Anonymous subroutines.
             "closures": re.compile(r"\bsub\s*(?:\([^)]*\))?[ \t]*\{"),
             # 18. globals: Global / Shared State. Magic variables and system globals.
+            # BUG FIX: `$$`, `$@`, `$!`, and `$?` were inside the shared
+            # trailing \b group. Each ends on a symbolic, non-word character,
+            # so the trailing \b (needed for the word-ending alternatives,
+            # to stop `$a` from matching inside `$abc`) could only fire when
+            # a word char immediately followed -- never true for how these
+            # 4 special vars are actually written (`$$;`, `if ($@)`, `warn
+            # $!;`, `$? >> 8`). All 4 of the most common Perl magic
+            # variables silently never matched.
             "globals": re.compile(
-                r"(?:\$a|\$b|\$_|\$\$|\$@|\$!|\$\?|\$0|%ENV|%SIG|@ARGV|@INC)\b|^[ \t]*our\s+[\$@%]",
+                r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b|\$\$|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
                 re.M,
             ),
             # 19. decorators: Decorators / Annotations. Subroutine and variable attributes.
@@ -5997,15 +6036,32 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation Explicitly hiding logic from the rest of the application.
             "encapsulation": re.compile(r"\b(my|state|local)\b|:private\b"),
             # 48. listeners (Event Listeners / Observers) Waiting to receive state from an external broadcast.
-            "listeners": re.compile(r"\b(on\s*\(|subscribe\s*\(|add_listener)\b"),
+            # BUG FIX: `on\s*\(` and `subscribe\s*\(` both end in a literal
+            # `(` (non-word), so the shared trailing \b could only fire when
+            # a word char immediately followed -- never true for the most
+            # common real call shape, `on('event', ...)`, where a quote
+            # follows the paren. Both never matched at all.
+            "listeners": re.compile(r"\bon\s*\(|\bsubscribe\s*\(|\badd_listener\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs) Code that bypasses test verification.
             "test_skip": re.compile(r"\b(skip|todo_skip)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Perl Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(Storable::(?:thaw|fd_retrieve)|JSON::(?:decode_json|from_json)|YAML::(?:Load|LoadFile))\b"
             ),
+            # BUG FIX: the trailing `\s*[/\W]` allowed the delimiter check to
+            # be satisfied by an ordinary whitespace/punctuation character
+            # that has nothing to do with a regex delimiter -- `\W` matches
+            # ANY non-word char, including plain space. This meant an
+            # ordinary bareword-named scalar (`$s`, `$m`, `$y`) followed by
+            # any operator or even just a space (`$s = 5;`, `my $y = 1;`)
+            # was misclassified as the `s///`/`m//`/`y///` operator. Dropped
+            # `\s*` (real delimiter usage never has a space before the
+            # opening delimiter) and narrowed the trailing class to actual
+            # Perl regex delimiter punctuation, excluding whitespace and the
+            # ordinary-code characters (`=`, `;`, `,`) that triggered the
+            # false positive.
             "regex_execution": re.compile(
-                r"(=~|!~|\b(?:qr|m|s|tr|y)\b\s*[/\W])"
+                r"(=~|!~|\b(?:qr|m|s|tr|y)\b[/{}\[\]()<>!|#~^])"
             ),  # Catches Perl's native binding operators and regex quotes
             "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep|time)\b"),
             # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.

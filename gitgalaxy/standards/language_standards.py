@@ -614,8 +614,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(try|catch|finally|typeof|instanceof|Array\.isArray|Number\.(?:isFinite|isNaN)|Object\.hasOwn)\b|===|!==|\?\?|\?\."
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
-            # Loose equality and bypasses.
-            "safety_bypasses": re.compile(r"==(?!=)|!=(?!=)|\b(with|void)\b|eslint-disable|@ts-nocheck"),
+            # Loose equality and bypasses. (?<![=!]) on the == branch: without
+            # it, `===`/`!==` (strict equality/inequality -- explicitly SAFE
+            # per this language's own `safety` rule) both still matched via
+            # their trailing `==` substring at a shifted offset.
+            "safety_bypasses": re.compile(r"(?<![=!])==(?!=)|!=(?!=)|\b(with|void)\b|eslint-disable|@ts-nocheck"),
             # 8. danger (High-Risk Execution / System Calls)
             # Catastrophic vulnerabilities. EXCLUDES console.log (print_hits) and TODO (debt).
             "high_risk_execution": re.compile(
@@ -638,8 +641,12 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
             # 14. test (Testing & Assertions)
+            # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
+            # already carries this guard so `myRegex.test('x')` (a regex method
+            # call) isn't miscounted as a test-framework call -- JavaScript's own
+            # rule never got the same fix despite the identical ambiguity.
             "test": re.compile(
-                r"\b(describe|expect|assert|beforeEach|afterEach|jest|mocha|vitest|cy\.)\b|\b(?:it|test)\s*\("
+                r"\b(describe|expect|assert|beforeEach|afterEach|jest|mocha|vitest|cy\.)\b|(?<!\.)\b(?:it|test)\s*\("
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
@@ -759,8 +766,13 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(dispose|close|destroy|clearTimeout|clearInterval|removeEventListener|delete)\b"),
             # 47. encapsulation (Access Modifiers / Encapsulation)
-            # JS private fields and keywords.
-            "encapsulation": re.compile(r"\b(private|protected|internal|#)\b"),
+            # JS private fields and keywords. `#` needed its own un-bounded
+            # branch: \b#\b can only match when `#` is directly sandwiched
+            # between two word characters with no separator (e.g. "x#y"),
+            # which never happens in real private-field syntax (`#foo` is
+            # always preceded by `{`, whitespace, or `.` -- never a bare word
+            # char) -- so the `#` alternative was completely unreachable.
+            "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
@@ -1032,7 +1044,13 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(dispose|close|destroy|clearTimeout|clearInterval|removeEventListener|delete)\b"),
             # 47. encapsulation (Access Modifiers / Encapsulation)
-            "encapsulation": re.compile(r"\b(private|protected|internal|#)\b"),
+            # `#` needed its own un-bounded branch: \b#\b can only match when
+            # `#` is directly sandwiched between two word characters with no
+            # separator (e.g. "x#y"), which never happens in real private-
+            # field syntax (`#foo` is always preceded by `{`, whitespace, or
+            # `.` -- never a bare word char) -- so the `#` alternative was
+            # completely unreachable, same bug as javascript's copy of this.
+            "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
@@ -2672,8 +2690,12 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Error suppression, dangerous eval, and loose equality.
+            # (?<![=!]) on the == branch: without it, `===`/`!==` (strict
+            # equality/inequality, explicitly SAFE per this language's own
+            # `safety` rule above) both still matched via their trailing `==`
+            # substring at a shifted offset -- same bug found in javascript.
             "safety_bypasses": re.compile(
-                r"@(?:[a-zA-Z_\x80-\xff])|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|==(?!=)|!=(?!=)"
+                r"@(?:[a-zA-Z_\x80-\xff])|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
             ),
             # 8. danger (High-Risk Execution / System Calls)
             # Shell execution and process killers. EXCLUDES prints (Phase 5).

@@ -8389,8 +8389,13 @@ LANGUAGE_DEFINITIONS = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Obj-C specific @try/@catch blocks.
+            # BUG FIX: @try/@catch/@finally were inside the shared \b(...)\b
+            # group. \b requires a word/non-word transition, but `@` is
+            # non-word, so the leading \b could never match once `@` was
+            # preceded by anything else non-word (a space, line start) --
+            # meaning these 3 alternatives never actually matched real code.
             "branch": re.compile(
-                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto|@try|@catch|@finally)\b|&&|\|\||\?"
+                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto)\b|@try|@catch|@finally|&&|\|\||\?"
             ),
             # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
             "args": re.compile(
@@ -8404,8 +8409,10 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
+            # BUG FIX: the 8 @-prefixed alternatives never matched -- same
+            # \b-before-@ shape as branch's fix above.
             "structural_boundaries": re.compile(
-                r"\b(@interface|@implementation|@protocol|@end|@synthesize|@dynamic|@class|@import|typedef|struct|enum|union|__block|__weak|__strong)\b"
+                r"@interface|@implementation|@protocol|@end|@synthesize|@dynamic|@class|@import|\b(typedef|struct|enum|union|__block|__weak|__strong)\b"
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic.
             # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax
@@ -8430,12 +8437,22 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. ARC memory qualifiers and Cocoa/NeXT Assertions.
+            # BUG FIX: @try/@catch/@finally never matched -- same \b-before-@
+            # shape as branch's fix above.
             "safety": re.compile(
-                r"\b(@try|@catch|@finally|__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
+                r"@try|@catch|@finally|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
             ),
             # 7. safety_neg: Safety Bypasses. Bypassing ARC, raw void pointers, and dangerous dynamic selectors.
+            # BUG FIX: `void\s*\*` (trailing \b after a literal `*`) and
+            # `performSelector:` (trailing \b after a literal `:`) only
+            # matched when immediately followed by another non-word char
+            # (rare -- an identifier or `@selector(...)` almost always
+            # follows in real code). Dropped the trailing \b for both;
+            # also dropped the now-redundant "performSelector:withObject:"
+            # alternative, since "performSelector:" already matches as its
+            # prefix (alternation tries left-to-right and returns first hit).
             "safety_bypasses": re.compile(
-                r"\b(__unsafe_unretained|unsafe_unretained|id|void\s*\*|performSelector:|performSelector:withObject:)\b|!\s*[;,\]\)\.]|#pragma\s+clang\s+diagnostic\s+ignored"
+                r"\b(__unsafe_unretained|unsafe_unretained|id)\b|void\s*\*|performSelector:|!\s*[;,\]\)\.]|#pragma\s+clang\s+diagnostic\s+ignored"
             ),
             # 8. danger: High-Risk Execution. Process killers.
             "high_risk_execution": re.compile(r"\b(abort|exit)\b"),
@@ -8459,8 +8476,10 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. GCD (Grand Central Dispatch), NSOperation, and Locks.
+            # BUG FIX: @synchronized never matched -- same \b-before-@ shape
+            # as branch's fix above.
             "concurrency": re.compile(
-                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|@synchronized|NSLock|NXConditionLock)\b"
+                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|NSLock|NXConditionLock)\b|@synchronized"
             ),
             # 16. ui_framework: UI / View Components. Cocoa, UIKit, and AppKit hierarchies (Includes legacy NX classes).
             "ui_framework": re.compile(
@@ -8469,16 +8488,27 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. Objective-C Blocks.
             "closures": re.compile(r"\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\s*\([^)]*\)[ \t]*\{"),
             # 18. globals: Global / Shared State. Singleton/Shared instance access.
+            # BUG FIX: the two bracket-message alternatives never matched --
+            # `\b` requires a word/non-word transition, but `[`/`]` are both
+            # non-word, so both the leading and trailing \b could never
+            # match once flanked by anything else non-word (a space,
+            # semicolon, line start). Split them out of the shared wrapper.
             "globals": re.compile(
-                r"\b(extern|NSUserDefaults|NXDefaults|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]|NXApp)\b"
+                r"\b(extern|NSUserDefaults|NXDefaults|NXApp)\b|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]"
             ),
             # 19. decorators: Decorators / Annotations. Attributes and Property decorators.
             "decorators": re.compile(r"\b__attribute__\s*\(\([^)]*\)\)|@property\s*\([^)]+\)"),
             # 20. generics: Generics / Type Parameters. Lightweight generics (introduced in Xcode 7).
             "generics": re.compile(r"<\s*[A-Z][^>]*\s*\*?\s*>"),
             # 21. comprehensions: Iterators / Comprehensions. Block-based array/set enumeration.
+            # BUG FIX: the trailing \b (after a literal `:`) never matched --
+            # `:` is non-word, so the boundary only worked when followed by
+            # another non-word char, which is rare in real Obj-C selector
+            # syntax (a block or argument almost always follows). Moved the
+            # \b to before the colon instead, where it correctly applies to
+            # the preceding word character.
             "comprehensions": re.compile(
-                r"\b(enumerateObjectsUsingBlock:|filteredArrayUsingPredicate:|makeObjectsPerformSelector:)\b"
+                r"\b(?:enumerateObjectsUsingBlock|filteredArrayUsingPredicate|makeObjectsPerformSelector)\b:"
             ),
             # 22. scientific: Numerical / Compute Libraries. C-Math and CoreGraphics structs.
             "scientific": re.compile(
@@ -8495,7 +8525,10 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 25. ownership: Authorship metadata.
-            "ownership": re.compile(r"\b(?:Created by|@author|Author:|Copyright|Tim Berners-Lee)\b", re.I),
+            # BUG FIX: `@author` (leading \b before non-word `@`) and
+            # `Author:` (trailing \b after non-word `:`) never matched --
+            # same shape as branch's @try fix above.
+            "ownership": re.compile(r"\b(?:Created by|Copyright|Tim Berners-Lee)\b|@author|\bAuthor:", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
@@ -8508,8 +8541,13 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(WOComponent|WOResponse|WOContext|WOApplication|WODirectAction|WebObjects)\b"
             ),
             "events": re.compile(r"\b(NSNotificationCenter|addObserver|postNotification|NXApp\s+run|sendEvent)\b"),
+            # BUG FIX: `inject:`/`initWithDependency:` (trailing \b after a
+            # literal `:`) only matched when immediately followed by another
+            # non-word char -- true for a plain identifier argument, but
+            # false for the equally common `@selector(...)` argument form.
+            # Moved the \b to before the colon instead.
             "dependency_injection": re.compile(
-                r"\b(TyphoonComponentFactory|TyphoonDefinition|JSObjection|inject:|initWithDependency:)\b"
+                r"\b(TyphoonComponentFactory|TyphoonDefinition|JSObjection)\b|\b(?:inject|initWithDependency)\b:"
             ),
             "macros": re.compile(
                 r"^[ \t]*#(?:define|undef|ifdef|ifndef|if|elif|else|endif|pragma)\b",
@@ -8528,23 +8566,34 @@ LANGUAGE_DEFINITIONS = {
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
             "explicit_casts": re.compile(r"\(\s*[A-Za-z_]\w*\s*\*?\s*\)\s*[a-zA-Z_$]|typeof\b"),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
-            "panics_and_aborts": re.compile(r"\b(@throw|abort|exit)\b"),
+            # BUG FIX: @throw never matched -- same \b-before-@ shape as
+            # branch's fix above.
+            "panics_and_aborts": re.compile(r"@throw|\b(abort|exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing threads to sleep.
             "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep)\s*\("),
             # 43. bitwise_ops (Bitwise Operations)
             "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),
             # 44. sync_locks (Resource Management & Stability) Coordinated threading logic.
+            # BUG FIX: @synchronized never matched -- same \b-before-@ shape
+            # as branch's fix above.
             "sync_locks": re.compile(
-                r"\b(@synchronized|NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
+                r"@synchronized|\b(NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
             ),
             # 45. immutability_locks (Immutability Constraints) Immutability.
             "immutability_locks": re.compile(r"\b(const|readonly|immutable)\b"),
             # 46. cleanup (Resource Cleanup / Teardown) Resource release (Crucial for MRC NeXT era).
             "cleanup": re.compile(r"\b(dealloc|release|autorelease|free|NX_FREE)\b"),
             # 47. encapsulation Hiding logic from the application.
-            "encapsulation": re.compile(r"\b(@private|@protected|@package)\b"),
+            # BUG FIX: the leading \b before `@` never matched (same shape as
+            # branch's fix above). The trailing \b is fine as-is (each
+            # keyword ends in a letter).
+            "encapsulation": re.compile(r"@(?:private|protected|package)\b"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(addObserver:|observeValueForKeyPath:|subscribeNext:)\b"),
+            # BUG FIX: trailing \b after a literal `:` only matched when
+            # immediately followed by another non-word char -- true for a
+            # plain identifier argument, false for the equally common
+            # `@selector(...)` argument form. Moved the \b to before the colon.
+            "listeners": re.compile(r"\b(?:addObserver|observeValueForKeyPath|subscribeNext)\b:"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(XCTSkip|xit|xdescribe)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Objective-C Specifics) ---

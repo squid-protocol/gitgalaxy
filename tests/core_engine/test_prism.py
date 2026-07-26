@@ -404,6 +404,128 @@ def test_prism_strips_comments_against_the_real_config():
     assert "a comment" in result["comment_stream"]
 
 
+def test_prism_sub_families_fix_the_standard_block_delimiter_gap():
+    """
+    Regression test for #621: sqlite, lua, haskell, powershell, and perl were
+    all classified "standard_block" but don't use its C-style // and /* */
+    delimiters -- they got ZERO comment stripping (empirically confirmed
+    against the real config before this fix). The initial attempted fix
+    (adding all 9 of standard_block's configured delimiter tokens to one
+    shared regex) was rejected: it corrupted real C-family code, since `--`
+    is a decrement operator and `#` is a preprocessor directive in that
+    family, not a comment marker. The actual fix splits these 5 languages
+    into their own families (multi_style_dash, embedded_syntax,
+    recursive_block_haskell) or an existing compatible one (line_exclusive
+    for perl), so standard_block's regex is never shared with them.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    line_comment_cases = {
+        "sqlite": "SELECT 1;\n-- a secret comment\nSELECT 2;\n",
+        "lua": "print(1)\n-- a secret comment\nprint(2)\n",
+        "haskell": "main = do\n  -- a secret comment\n  print 1\n",
+        "powershell": "Write-Host 1\n# a secret comment\nWrite-Host 2\n",
+        "perl": "print 1;\n# a secret comment\nprint 2;\n",
+    }
+    for lang, code in line_comment_cases.items():
+        result = real_prism.split_streams(code, lang)
+        assert "a secret comment" not in result["code_stream"], (
+            f"{lang}: line comment leaked into code_stream"
+        )
+        assert "a secret comment" in result["comment_stream"], (
+            f"{lang}: line comment was not captured"
+        )
+
+    block_comment_cases = {
+        "sqlite": ("SELECT 1;\n/* block secret */\nSELECT 2;\n", "block secret"),
+        "lua": ("print(1)\n--[[\nblock secret\nspans lines\n]]\nprint(2)\n", "block secret"),
+        "haskell": ("main = do\n  {- block secret -}\n  print 1\n", "block secret"),
+        "powershell": ("Write-Host 1\n<# block secret #>\nWrite-Host 2\n", "block secret"),
+    }
+    for lang, (code, needle) in block_comment_cases.items():
+        result = real_prism.split_streams(code, lang)
+        assert needle not in result["code_stream"], f"{lang}: block comment leaked into code_stream"
+        assert needle in result["comment_stream"], f"{lang}: block comment was not captured"
+
+
+def test_prism_haskell_block_comments_actually_nest():
+    """
+    Regression test for #621: Haskell's own language_standards.py comment
+    explicitly says its {- -} blocks "strictly support recursive nesting" --
+    unlike sqlite/lua's flat delimiter handling, Haskell needed the same
+    iterative inside-out peel algorithm recursive_block already uses for
+    Rust/Swift/Dart/Scala, just with Haskell's -- / {- / -} tokens instead
+    of C-style ones (family "recursive_block_haskell").
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams(
+        "main = do\n  {- outer {- inner secret -} still outer secret -}\n  print 1\n",
+        "haskell",
+    )
+    assert "outer secret" not in result["code_stream"]
+    assert "inner secret" not in result["code_stream"]
+    assert "inner secret" in result["comment_stream"]
+    assert "outer secret" in result["comment_stream"]
+
+
+def test_prism_standard_block_c_family_unaffected_by_sub_family_split():
+    """
+    Regression guard for #621: splitting sqlite/lua/haskell/powershell/perl
+    out of "standard_block" must not change stripping behavior for the ~24
+    C-style languages that remain in it -- especially `--` (decrement
+    operator) and `#` (preprocessor directive), both of which the rejected
+    first-attempt fix broke by treating them as shared comment tokens.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    cpp_code = (
+        "int main() {\n"
+        "    int i = 10;\n"
+        "    while (i-- > 0) {\n"
+        "        do_something(i);\n"
+        "    }\n"
+        "    #include <vector>\n"
+        "    return 0;\n"
+        "}\n"
+    )
+    result = real_prism.split_streams(cpp_code, "cpp")
+    assert "i-- > 0" in result["code_stream"], "C-family decrement operator was corrupted"
+    assert "#include <vector>" in result["code_stream"], "C-family preprocessor directive was corrupted"
+
+    for lang, code in {
+        "c": "// a comment\nint main() {\n    /* a block comment */\n    return 0;\n}\n",
+        "javascript": "// a comment\nfunction f() {\n  /* a block comment */\n  return 1;\n}\n",
+    }.items():
+        result = real_prism.split_streams(code, lang)
+        assert "a comment" not in result["code_stream"]
+        assert "a comment" in result["comment_stream"]
+        assert "a block comment" not in result["code_stream"]
+        assert "a block comment" in result["comment_stream"]
+
+
+def test_prism_dash_comment_string_literal_shielding():
+    """
+    Regression guard for #621: a '--' or '#' sequence inside a real string
+    literal must still be shielded from the new multi_style_dash/
+    embedded_syntax comment patterns.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams('x = "this -- is not a comment"\n', "lua")
+    assert "this -- is not a comment" in result["code_stream"]
+
+
 # ==============================================================================
 # TEST 10: INLINE SUPPRESSION EXTRACTION (Devious Edge Cases)
 # ==============================================================================

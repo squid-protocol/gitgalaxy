@@ -249,8 +249,14 @@ class Prism:
         # line_exclusive/recursive_block/positional_anchored/block_exclusive/
         # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
         # stripper below, ever actually ran for any language.
-        if family == "recursive_block":
-            code, nested_lits = self._strip_nested_comments(text)
+        if family in ("recursive_block", "recursive_block_haskell"):
+            # #621: recursive_block_haskell added because Haskell's {- -}
+            # blocks genuinely nest (unlike the standard_block family's flat
+            # delimiters) but use -- for line comments and {- -} rather than
+            # recursive_block's C-style // /* */ -- same nesting algorithm,
+            # different token set, so this reads its own family's delimiters
+            # instead of assuming "recursive_block" specifically.
+            code, nested_lits = self._strip_nested_comments(text, family)
             lits.extend(nested_lits)
             return code, "\n".join(lits)
 
@@ -299,21 +305,21 @@ class Prism:
         matrix = {}
 
         # #386: fam_key now matches the real per-language "lexical_family"
-        # values. "recursive_block"/"positional_anchored" are excluded here
-        # because _strip_segment_comments() already special-cases and fully
-        # handles them above, before this matrix is ever consulted.
+        # values. "recursive_block"/"recursive_block_haskell"/
+        # "positional_anchored" are excluded here because
+        # _strip_segment_comments() already special-cases and fully handles
+        # them above, before this matrix is ever consulted.
         #
-        # KNOWN LIMITATION (tracked, not fixed here): "standard_block"'s real
-        # delimiter list has 9 entries (C-style //, /* */; SQL/Lua-style --,
-        # --[[, ]]; Haskell-style {-, -}; and a trailing #), but the pattern
-        # below only uses the first 3 (d[0..2], i.e. // and /* */). Languages
-        # in this family that don't use C-style delimiters at all (sqlite,
-        # lua, haskell, powershell, perl) still won't get comments stripped
-        # after this fix -- same as before, not a regression, just incomplete
-        # coverage for those five. The ~24 C-style languages in this family
-        # (c, cpp, java, javascript, go, etc.) are fully fixed.
+        # #621: "standard_block" used to carry 9 delimiter tokens covering 3
+        # incompatible comment conventions shared across one regex for all 29
+        # "standard_block" languages, which corrupted real C-family code
+        # (`i-- > 0` and `#include <vector>` both got swallowed as comments).
+        # Split into "multi_style_dash" (sqlite/lua), "embedded_syntax"
+        # (powershell), and "recursive_block_haskell" (haskell) instead --
+        # see gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS. perl moved to
+        # the existing "line_exclusive" family (needed no new family at all).
         for fam_key, data in self.lexical_families.items():
-            if fam_key in ("recursive_block", "positional_anchored"):
+            if fam_key in ("recursive_block", "recursive_block_haskell", "positional_anchored"):
                 continue
 
             delims = data.get("delimiters", [])
@@ -531,16 +537,17 @@ class Prism:
         self.logger.warning(f"Scanner Scope Guard: Failed to find balanced '{opener}{closer}'. Forcing closure.")
         return limit
 
-    def _strip_nested_comments(self, text: str) -> tuple[str, list[str]]:
+    def _strip_nested_comments(self, text: str, family: str = "recursive_block") -> tuple[str, list[str]]:
         """
-        Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala).
+        Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala,
+        or Haskell via the "recursive_block_haskell" family -- #621).
         Hardened with active string-masking to prevent logic erosion.
         """
         # #386 follow-up: was "recursive_c_style" -- missed in the original
         # rename pass. Currently harmless by coincidence (the fallback default
         # below matches "recursive_block"'s real delimiters exactly today),
         # but was silently ignoring the real config, not reading it.
-        delims = self.lexical_families.get("recursive_block", {}).get("delimiters", ["//", "/*", "*/"])
+        delims = self.lexical_families.get(family, {}).get("delimiters", ["//", "/*", "*/"])
         if len(delims) < 3:
             return text, []
 

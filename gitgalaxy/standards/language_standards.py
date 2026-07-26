@@ -2951,10 +2951,14 @@ LANGUAGE_DEFINITIONS = {
         ],
         # EXECUTION SIGNATURES: Modern cross-platform and legacy Windows interpreters found on Line 1.
         "shebangs": ["pwsh", "powershell"],
-        # UPGRADED: Maps to Family 4 (Hybrid Hash)
+        # Maps to Family 4 (Hybrid Hash) -- #621: this comment always said
+        # "Family 4 (Hybrid Hash)" but the value below was "standard_block"
+        # until now, meaning PowerShell shared a regex with C-style languages
+        # and got zero comment stripping (standard_block never used the `#`
+        # token). "embedded_syntax" is the real family for this shape.
         # Rationale: PowerShell uses '#' for single-line comments but relies on
         # a unique '<# #>' syntax for multi-line block comments, requiring hybrid parsing logic.
-        "lexical_family": "standard_block",
+        "lexical_family": "embedded_syntax",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---
             # PowerShell uses '#' for standard line-level literature.
@@ -4170,9 +4174,13 @@ LANGUAGE_DEFINITIONS = {
         ],
         # EXECUTION SIGNATURES: Interpreters found on Line 1.
         "shebangs": ["sqlite3", "sqlite"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # Maps to Family 5 (Hybrid Dash) -- #621: this comment always said
+        # "Family 5 (Hybrid Dash)" but the value below was "standard_block"
+        # until now, so sqlite shared a regex with C-style languages and got
+        # zero comment stripping (standard_block never used the `--` token).
+        # "multi_style_dash" is the real family for this shape.
         # Rationale: Uses '--' for line-level and '/*' '*/' for block-level Commented / Non-Executable Text.
-        "lexical_family": "standard_block",
+        "lexical_family": "multi_style_dash",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---
             # SQLite uses '--' for standard line-level literature.
@@ -5669,9 +5677,13 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".lua", ".luacheckrc", "stylua.toml", ".rockspec"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for CLI, Game-Engine, and embedded scripts.
         "shebangs": ["lua", "luajit", "luau", "texlua"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # Maps to Family 5 (Hybrid Dash) -- #621: this comment always said
+        # "Family 5 (Hybrid Dash)" but the value below was "standard_block"
+        # until now, so lua shared a regex with C-style languages and got
+        # zero comment stripping (standard_block never used the `--` token).
+        # "multi_style_dash" is the real family for this shape.
         # Rationale: Uses '--' for lines and '--[[ ... ]]' for blocks.
-        "lexical_family": "standard_block",
+        "lexical_family": "multi_style_dash",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---
             # Lua uses '--' for standard line-level literature.
@@ -5897,7 +5909,15 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": ["perl", "perl5", "perl6"],
         # UPGRADED: Maps to Family 6 (Polyglot)
         # Rationale: Perl's interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
-        "lexical_family": "standard_block",
+        # #621: was "standard_block" (shared a regex with C-style languages,
+        # got zero comment stripping -- standard_block never used the `#`
+        # token). "line_exclusive" fixes the basic `#` line-comment case
+        # (needed no new family at all -- line_exclusive's own delimiter
+        # table already leads with `#`). The full "Polyglot" vision in the
+        # rationale above -- POD blocks (=head/=cut) -- is NOT covered by
+        # this; line_exclusive's real config has Ruby's =begin/=end but not
+        # Perl's own POD markers. Known remaining gap, not fixed here.
+        "lexical_family": "line_exclusive",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---
             # Perl uses '#' for standard line-level literature.
@@ -6129,9 +6149,16 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".hs", ".lhs", "stack.yaml", "cabal.project", ".cabal"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for script-based Haskell execution.
         "shebangs": ["runhaskell", "runghc", "stack", "ghci"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # UPGRADED: Maps to Family 5 (Hybrid Dash) -- #621: this comment
+        # named the wrong family; "Hybrid Dash"/multi_style_dash doesn't
+        # nest, and this rationale explicitly says Haskell's blocks DO nest.
+        # "recursive_block_haskell" reuses the same iterative nested-peel
+        # algorithm as recursive_block (Rust/Swift/Dart/Scala) with
+        # Haskell's own -- / {- / -} tokens instead of C-style ones. Was
+        # "standard_block" until now, meaning zero comment stripping at all
+        # (standard_block never used the `--`/`{-`/`-}` tokens).
         # Rationale: Uses '--' for lines and '{- -}' for blocks, which strictly supports recursive nesting.
-        "lexical_family": "standard_block",
+        "lexical_family": "recursive_block_haskell",
         "rules": {
             # --- LEXICAL DELIMITER CONTROLS ---
             # Haskell uses '--' for line-level Commented / Non-Executable Text.

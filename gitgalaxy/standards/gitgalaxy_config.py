@@ -467,25 +467,50 @@ GUIDESTAR_CONFIG: dict[str, Any] = {
 
 # ------------------------------------------------------------------------------
 # 4. LEXICAL FAMILY HEURISTICS (Optical Delimiter Census)
-# Consumed by: language_lens.py (Tier 4 Heuristic Discovery)
+# Consumed by: language_lens.py (Tier 4 Heuristic Discovery) AND prism.py
+# (the real comment/code separation engine, via _compile_regex_matrix() --
+# see #621: this dict was previously commented as NOT being the source of
+# truth for that split, which was wrong and contributed to the bug there).
 # ------------------------------------------------------------------------------
-# NOTE: This dictionary does NOT split the executable code from the non-executable text.
-# That separation is handled by the compiled regexes in language_standards.py.
-# This dictionary is a heuristic fallback radar. It counts raw tokens to guess
-# the structural paradigm of unknown or extensionless files.
+# #621: "standard_block" used to carry 9 delimiter tokens covering 3
+# incompatible conventions (C-style //, /* */; SQL/Lua-style --, --[[, ]];
+# Haskell-style {-, -}) shared across one regex for all 29 "standard_block"
+# languages. Since C-family languages use `--` as a decrement operator and
+# `#` for preprocessor directives (not comments), a shared regex that also
+# treated those as comment tokens corrupted real C/C++/Java/etc. code
+# (confirmed: `i-- > 0` and `#include <vector>` both got silently swallowed
+# into the comment stream). Split into dedicated families instead -- each
+# language now only shares a regex with languages using compatible tokens.
 LEXICAL_FAMILY_HEURISTICS = {
     "lexical_families": {
-        # 1. Standard Block (Non-Recursive)
+        # 1. Standard Block (Non-Recursive, C-style only)
         # The language uses both line and block delimiters, but blocks CANNOT be nested.
-        # Examples: C, C++, Java, JavaScript, PHP, SQL, Go, CSS.
-        "standard_block": {"delimiters": ["//", "/*", "*/", "--", "--[[", "]]", "{-", "-}", "#"]},
+        # Examples: C, C++, Java, JavaScript, PHP, Go, CSS.
+        "standard_block": {"delimiters": ["//", "/*", "*/"]},
+        # 1b. Multi-Style Dash (#621)
+        # Dash-prefixed line comments, with EITHER a C-style /* */ block
+        # (SQL/sqlite) OR a doubled-bracket --[[ ]] block (Lua/Haskell).
+        # Sharing both block forms across this family is intentional and low
+        # risk (unlike the old standard_block sharing): neither substring is
+        # a meaningful operator in any of these languages, unlike C's `--`.
+        # Examples: sqlite, lua, haskell.
+        "multi_style_dash": {"delimiters": ["--", "/*", "*/", "--[[", "]]"]},
+        # 1c. Embedded Syntax, hash-block variant (#621)
+        # Hash-prefixed line comments with a <# ... #> block form.
+        # Examples: powershell.
+        "embedded_syntax": {"delimiters": ["#", "<#", "#>"]},
         # 2. Recursive Block
         # The language allows block comments to be safely nested inside one another.
         # Examples: Rust, Swift, Dart, Scala.
         "recursive_block": {"delimiters": ["//", "/*", "*/"]},
+        # 2b. Recursive Block, Haskell dialect (#621)
+        # Same nested-block-peeling algorithm as recursive_block, but with
+        # Haskell's own line/block tokens instead of C-style ones.
+        # Examples: haskell.
+        "recursive_block_haskell": {"delimiters": ["--", "{-", "-}"]},
         # 3. Line Exclusive
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
-        # Examples: Python, Shell, Makefile, Ruby, PowerShell, Assembly.
+        # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.
         "line_exclusive": {"delimiters": ["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%", "#|", "|#"]},
         # 4. Block Exclusive
         # The language possesses no native single-line comment syntax. All text must be enclosed.

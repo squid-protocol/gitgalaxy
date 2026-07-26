@@ -204,3 +204,63 @@ Generate a valid Python dictionary matching this exact structure.
     }
 }
 ```
+
+<br><br>
+
+---
+
+## Optional: The AI/ML & Literate-Programming Extension Pack
+
+The schema above is the universal baseline every language gets. A small number of languages
+also carry an **extension pack** of additional rule keys layered on top of the baseline —
+today, `python`, `javascript`, and `typescript` carry the AI/ML extension pack, and `markdown`
+carries a literate-programming one. These are opt-in: only add them to a language's `rules`
+dict if that language is a realistic host for the behavior being detected. Don't add the AI/ML
+pack to, say, COBOL just for parity — an empty/never-matching rule is worse than an absent one,
+since it implies detection coverage that doesn't exist.
+
+### AI/ML Extension Pack (currently: `python`, `javascript`, `typescript`)
+Detects the modern AI-application supply chain and its specific risk surface — none of this
+existed in the original 43-key baseline because none of it existed as a mainstream pattern when
+that schema was designed.
+
+* `llm_api`: Direct calls into a hosted LLM provider SDK. Includes: `openai`, `anthropic`.
+* `llm_orchestrator`: Agent/RAG orchestration frameworks. Includes: `langchain`, `llama_index`.
+* `llm_vector_store`: Vector database clients. Includes: `chromadb`, `pinecone`.
+* `ml_traditional`: Classical (non-deep-learning) ML libraries. Includes: `sklearn`.
+* `dl_frameworks`: Deep learning frameworks. Includes: `tensorflow`, `torch`, `keras`.
+* `hardware_bridge`: Bridges from software into physical/peripheral I/O. Includes: `serialport`,
+  `usb`, `bluetooth`, `socket.io`, `websocket`.
+* `cryptography`: Cryptographic primitives and identity libraries. Includes: `crypto`, `bcrypt`,
+  `x509`, `tls`/`ssl`, `jsonwebtoken`, `argon2`.
+* `rce_funnel`: Spawning a shell/interpreter subprocess from application code — a common
+  agentic-tool-use RCE shape. Includes: `child_process.spawn/exec/execSync` invoking
+  `python`/`bash`/`sh`/`node`.
+* `exfiltration_camouflage`: Outbound HTTP calls disguised as telemetry/metrics/audit traffic.
+  Includes: `requests.post`/`urllib.request`/`httpx.post` whose payload references
+  `telemetry`/`metrics`/`audit`-shaped keys.
+* `memory_scraping`: Direct reads of process memory. Includes: `/proc/<pid>/mem`-style paths.
+* `lazy_evaluation`: Generators and deferred-execution constructs. Includes: `yield`,
+  `Generator`, `Iterator` (and their `Async*` counterparts).
+* `vectorized_math`: Tensor/matrix math operations. Includes: `einsum`, `matmul`, `tensordot`,
+  `.dot(`, the `@` matmul operator.
+* `_named_token_capture`: Capture-group rule that extracts the exact imported symbol name(s)
+  from a `from X import Y` statement, for dependency-graph precision beyond what the baseline
+  `_dependency_capture` rule gives you.
+
+### Literate-Programming Extension Pack (currently: `markdown`)
+For languages that *are* documentation rather than executable code, but still have internal
+structure worth mapping.
+
+* `lit_code_blocks`: Fenced code block delimiters (` ``` `).
+* `lit_diagrams`: Embedded diagram blocks (e.g. Mermaid).
+* `lit_headers`: Section headers, for document structure/navigation mapping.
+* `lit_links`: Cross-reference/hyperlink targets.
+
+### Adding a new extension pack
+If you're detecting a new category of risk that doesn't fit any baseline key and only applies
+to a handful of languages, define it here the same way: a short name, its `re.compile(...)`
+pattern, and a one-line INCLUDES description, listed under a new `### <Name> Extension Pack`
+heading naming which languages carry it. Keep extension keys out of the baseline schema above —
+that schema is the one every language is expected to implement to Strict Feature Parity (Rule
+4); extension packs are deliberately the exception, not the rule.

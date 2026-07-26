@@ -1594,8 +1594,15 @@ LANGUAGE_DEFINITIONS = {
                 r"@(?:page|rendermode|code|layout)|\[(?:Route|CascadingParameter)\]|\b(RenderFragment|ComponentBase|IViewComponentResult)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `+=`/`-=` (event subscribe/unsubscribe operators) used
+            # to be inside the \b(...)\b wrapper. \b requires a word/non-word
+            # transition; since neither `+`/`=` nor `-`/`=` is a word
+            # character, `\b+=\s*\b` could only match with no surrounding
+            # whitespace at either edge (e.g. "x+=y"), never idiomatic C#
+            # like "MyEvent += handler" (spaced on both sides). Split out
+            # unguarded, same fix shape as #621's dash/hash families.
             "events": re.compile(
-                r"\b(event\s+[\w<>]+\s+\w+|EventHandler|\+=\s*|-=\s*|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b"
+                r"\b(event\s+[\w<>]+\s+\w+|EventHandler|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b|\+=\s*|-=\s*"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
             "dependency_injection": re.compile(
@@ -6001,8 +6008,18 @@ LANGUAGE_DEFINITIONS = {
                 r"(=~|!~|\b(?:qr|m|s|tr|y)\b\s*[/\W])"
             ),  # Catches Perl's native binding operators and regex quotes
             "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep|time)\b"),
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # \b requires a word/non-word transition; `system\s*\(` and
+            # `exec\s*\(` both END in a literal `(` (non-word), so the
+            # trailing \b could never match once the paren was followed by
+            # anything else non-word (e.g. a string-literal quote or
+            # variable sigil) -- meaning `system("ls")` and `exec("ls")`,
+            # the two most common forms, never matched at all. Each
+            # alternative now carries only the boundary that makes sense
+            # for its own shape (leading \b for word-prefixed forms, none
+            # for the punctuation-delimited backtick form).
             "ipc_rpc_bridges": re.compile(
-                r"\b(system\s*\(|exec\s*\(|fork|IPC::Open[23]|qx\b|`.*`)\b"
+                r"\bsystem\s*\(|\bexec\s*\(|\bfork\b|\bIPC::Open[23]\b|\bqx\b|`.*`"
             ),  # Backticks and qx// are shell executions
         },
     },
@@ -8086,8 +8103,17 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs Spaces density.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-side rendering.
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # \b requires a word/non-word transition; `<?lc`, `?>`, and every
+            # `$_POST`-style superglobal START with a non-word character
+            # (`<` or `$`), so the leading \b could never match once that
+            # symbol was preceded by anything else non-word (e.g. a space or
+            # line start) -- meaning none of those 6 alternatives (everything
+            # except the plain-word "put header") ever actually matched.
+            # Each alternative now carries only the boundary that makes
+            # sense for its own shape.
             "ssr_boundaries": re.compile(
-                r"\b(<\?lc|\?>|\$_POST|\$_GET|\$_SERVER|\$_COOKIE|\$_SESSION|put\s+header)\b",
+                r"<\?lc|\?>|\$_POST|\$_GET|\$_SERVER|\$_COOKIE|\$_SESSION|\bput\s+header\b",
                 re.I,
             ),
             # 32. events: Pub/Sub Network. Signal handlers and event brokers.

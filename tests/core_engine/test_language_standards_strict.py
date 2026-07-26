@@ -713,3 +713,58 @@ def test_python_explicit_casts_vs_pointers_no_overlap():
     assert not casts.search("ctypes.POINTER(ctypes.c_int)"), "explicit_casts false-positived on a ctypes pointer"
     assert pointers.search("ctypes.POINTER(ctypes.c_int)")
     assert not pointers.search("int('42')"), "pointers false-positived on a builtin cast"
+
+
+# ==============================================================================
+# CROSS-LANGUAGE SYMBOLIC-\b SWEEP (companion to #585's haskell =~ fix)
+# ==============================================================================
+# Found by a systematic scan for the same bug shape as haskell's
+# regex_execution `=~` fix and javascript/typescript's encapsulation `#`
+# fix: a purely-symbolic alternative (no letters/digits/underscore) wrapped
+# in a shared \b(...)\b group. \b requires a word/non-word transition, so a
+# symbolic alternative flanked by \b can only match with NO surrounding
+# whitespace/punctuation at either edge -- never how real code is
+# idiomatically formatted (operators and superglobals are almost always
+# spaced or preceded by other punctuation, not bare word characters).
+def test_csharp_events_plus_minus_equals_operators():
+    """
+    Regression test: `+=`/`-=` (event subscribe/unsubscribe) were inside the
+    shared \\b(...)\\b wrapper, so they could only match with no surrounding
+    whitespace (e.g. "x+=y") -- never idiomatic C# like "MyEvent += handler".
+    """
+    pattern = LANGUAGE_DEFINITIONS["csharp"]["rules"]["events"]
+    assert pattern.search("MyEvent += handler;"), "Failed to match the idiomatic spaced += form"
+    assert pattern.search("MyEvent -= handler;"), "Failed to match the idiomatic spaced -= form"
+    assert pattern.search("public event EventHandler Clicked;")
+
+
+def test_perl_ipc_rpc_bridges_system_and_exec_calls():
+    """
+    Regression test: `system\\s*\\(` and `exec\\s*\\(` both end in a literal
+    `(`, so the trailing \\b in the old shared wrapper could never match once
+    followed by anything else non-word (a string quote, a variable sigil) --
+    meaning `system("ls")` and `exec("ls")`, the two most common forms,
+    never matched at all.
+    """
+    pattern = LANGUAGE_DEFINITIONS["perl"]["rules"]["ipc_rpc_bridges"]
+    assert pattern.search('system("ls -la")'), "Failed to match system(...) -- the most common form"
+    assert pattern.search('exec("ls -la")'), "Failed to match exec(...) -- the most common form"
+    assert pattern.search("my $pid = fork();")
+    assert pattern.search("my $out = `ls -la`;")
+    assert not pattern.search("mysystem(1)"), "Incorrectly matched 'system' as a substring of another identifier"
+
+
+def test_livecode_ssr_boundaries_superglobals_and_tags():
+    """
+    Regression test: `<?lc`, `?>`, and every `$_POST`-style superglobal start
+    with a non-word character, so the leading \\b in the old shared wrapper
+    could never match once preceded by anything else non-word (a space or
+    line start) -- meaning none of those 6 alternatives (everything except
+    the plain-word "put header") ever actually matched.
+    """
+    pattern = LANGUAGE_DEFINITIONS["livecode"]["rules"]["ssr_boundaries"]
+    assert pattern.search('put $_POST["x"]'), "Failed to match $_POST in realistic surrounding code"
+    assert pattern.search("<?lc\ncode"), "Failed to match the <?lc open tag"
+    assert pattern.search("code ?>"), "Failed to match the ?> close tag"
+    assert pattern.search('put header "X"')
+    assert not pattern.search("computed headers"), "Incorrectly matched 'header' as a substring of 'headers'"

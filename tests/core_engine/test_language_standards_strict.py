@@ -463,3 +463,79 @@ def test_javascript_standard_block_redos_immunity_for_deeply_nested_jsdoc_generi
     pattern = JS_RULES["generics"]
     poison = "/**\n" + " * @template T\n" * 20000 + " */"
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+# ==============================================================================
+# CROSS-LANGUAGE REDOS SWEEP: "BARE IDENTIFIER BEFORE ARROW" FAMILY
+# ==============================================================================
+# All found by a systematic ReDoS sweep across every language's compiled
+# patterns (not just the ones with an existing historical-bug comment):
+# an unbounded identifier/word-run quantifier with no preceding \b anchor,
+# immediately followed by a required-but-often-absent literal suffix
+# (=>, ->, __c.getInstance, etc.). Because the leading character class has
+# no boundary anchor, the engine retries the greedy-then-backtrack match at
+# EVERY position in a long run of matching characters -- O(n^2) total, not
+# exponential, but still a real DoS risk on a single pathologically long
+# line (e.g. minified/obfuscated code). All bounded with numeric clamps
+# instead of possessive quantifiers (`*+`), since those aren't available
+# until Python 3.11 and this package supports 3.9+.
+def test_java_args_lambda_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["java"]["rules"]["args"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("x -> x + 1")
+    assert pattern.search("public void foo(int x) {")
+
+
+def test_csharp_args_lambda_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["csharp"]["rules"]["args"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("x => x + 1")
+
+
+def test_groovy_args_closure_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["groovy"]["rules"]["args"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("x -> x + 1")
+
+
+def test_fortran_state_mutation_redos_immunity_and_kind_exclusion():
+    """
+    Two bugs, found together: the ReDoS sweep caught the quadratic blowup,
+    and fixing it (adding a real \\b anchor) also fixed a pre-existing leak
+    in the KIND=/LEN=/etc exclusion -- the original negative lookahead only
+    blocked a match starting exactly at "KIND", not one starting mid-word
+    ("KIND = 5" still matched "IND = " starting at its 2nd character, since
+    \\bKIND doesn't apply there). Confirmed this leak existed before the
+    ReDoS fix too, via the pattern's original (unbounded) form.
+    """
+    pattern = LANGUAGE_DEFINITIONS["fortran"]["rules"]["state_mutation"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("myvar = 5")
+    assert pattern.search("mystruct%field = 1")
+    assert not pattern.search("KIND = 5"), "Failed to exclude the KIND= false-positive trap"
+    assert not pattern.search("LEN = 10"), "Failed to exclude the LEN= false-positive trap"
+
+
+def test_embedded_python_comprehensions_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["embedded_python"]["rules"]["comprehensions"]
+    assert_redos_immune(pattern, "(" * 40000, timeout_sec=3.0)
+    assert pattern.search("[x for x in range(10)]")
+
+
+def test_php_state_mutation_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["php"]["rules"]["state_mutation"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("$obj->prop = 1")
+    assert pattern.search("Foo::CONST_NAME = 1")
+
+
+def test_shell_state_mutation_arithmetic_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["shell"]["rules"]["state_mutation"]
+    assert_redos_immune(pattern, "(" * 40000, timeout_sec=3.0)
+    assert pattern.search("((i++))")
+
+
+def test_apex_globals_redos_immunity():
+    pattern = LANGUAGE_DEFINITIONS["apex"]["rules"]["globals"]
+    assert_redos_immune(pattern, "x" * 40000, timeout_sec=3.0)
+    assert pattern.search("MyObject__c.getInstance()")

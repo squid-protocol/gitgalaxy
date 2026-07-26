@@ -568,10 +568,19 @@ LANGUAGE_DEFINITIONS = {
                 # FIX 2 (Control Flow Shield): `while (i < 10) {` structurally mimics a method.
                 # Injected `(?!(?:if|for|while|switch|catch|return)\b)` to prevent reserve words
                 # from being mapped as method names.
+                # FIX 3 (Quadratic Blowup Shield): The arrow-function branch's identifier
+                # match used an unbounded `[\w$]*`. On a long line with no `=>` at all
+                # (e.g. a single massive minified/obfuscated line), the engine retried the
+                # greedy-then-backtrack identifier match at every starting position,
+                # producing O(n^2) time (empirically: ~3.5s at 20,000 chars, scaling
+                # quadratically from there). Bounded to {0,100} -- real identifiers don't
+                # get remotely that long -- per this doc's own "strict numeric clamps"
+                # rule; possessive quantifiers (`*+`) would be cleaner but aren't
+                # available until Python 3.11, and this package supports 3.9+.
                 # =====================================================================
                 r"(?:"
                 r"\b(?:async[ \t\n]+)?function[ \t\n]*\w*[ \t\n]*\([^)]*\)|"
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w$]*)[ \t\n]*=>|"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
                 r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?(?!(?:if|for|while|switch|catch|return)\b)(?:#?[a-zA-Z_$][\w$]*)[ \t\n]*\([^)]*\)(?=[ \t\n]*\{)"
                 r")",
                 re.M,
@@ -844,8 +853,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 2. args (Parameters / Coupling)
             # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
+            # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
+            # `[\w$]*` was unbounded. On a long line with no `=>` at all, the
+            # engine retried the greedy-then-backtrack identifier match at
+            # every starting position -- O(n^2) (same bug found and fixed in
+            # javascript's near-identical args rule). Bounded to {0,100};
+            # real identifiers never get remotely that long.
             "args": re.compile(
-                r"function\s+\w*(?:<[^>]*>)?\s*\([^)]*\)|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t]*=>|^[ \t]*(?:(?:public|private|protected|static|override|abstract)[ \t]+){0,3}(?:async[ \t]+)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch)\b)[a-zA-Z_$][\w$]*\s*\([^)]*\)",
+                r"function\s+\w*(?:<[^>]*>)?\s*\([^)]*\)|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]{0,100}[ \t]*=>|^[ \t]*(?:(?:public|private|protected|static|override|abstract)[ \t]+){0,3}(?:async[ \t]+)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch)\b)[a-zA-Z_$][\w$]*\s*\([^)]*\)",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -1127,6 +1142,12 @@ LANGUAGE_DEFINITIONS = {
                 # Branch 1: Standard Methods MUST have a return type.
                 # Branch 2: Constructors MUST be anchored to `{` or `throws`.
                 # Branch 3: Standard lambdas and method references `::`.
+                # QUADRATIC BLOWUP FIX: Branch 3's bare-identifier lambda form
+                # (`[a-zA-Z_$][\w_$]*` with no \b anchor, unlike Branches 1/2
+                # which are `^`-anchored) got retried at every position in a
+                # long `->`-less line, backtracking O(n) per position for
+                # O(n^2) total (same bug found and fixed in javascript's args).
+                # Bounded to {0,100}; real identifiers don't get that long.
                 # =====================================================================
                 r"(?:"
                 # 1. Standard Methods
@@ -1134,7 +1155,7 @@ LANGUAGE_DEFINITIONS = {
                 # 2. Constructors
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?:(?:public|protected|private|static)[ \t\n]+)?[A-Z]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
                 # 3. Lambdas & Method Refs
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)[ \t\n]*->|::"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*->|::"
                 r")",
                 re.M,
             ),
@@ -1376,6 +1397,12 @@ LANGUAGE_DEFINITIONS = {
                 # Branch 2: Constructors lack return types, so they MUST be anchored to `:` or `{`.
                 # Branch 3: Standard fat-arrow lambdas.
                 # Upgraded all spaces to `[ \t\n]+` to support Pathological vertical parameters.
+                # QUADRATIC BLOWUP FIX: Branch 3's bare-identifier lambda form
+                # (`[a-zA-Z_$][\w_$]*` with no \b anchor, unlike Branches 1/2
+                # which are `^`-anchored) got retried at every position in a
+                # long `=>`-less line, backtracking O(n) per position for
+                # O(n^2) total (same bug found and fixed in javascript's args).
+                # Bounded to {0,100}; real identifiers don't get that long.
                 # =====================================================================
                 r"(?:"
                 # 1. Standard Methods
@@ -1383,7 +1410,7 @@ LANGUAGE_DEFINITIONS = {
                 # 2. Constructors
                 r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?[A-Z]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
                 # 3. Lambdas
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)[ \t\n]*=>"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
                 r")",
                 re.M,
             ),
@@ -2709,8 +2736,12 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"\b(public)\b|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"),
             # 11. flux (State Mutation)
             # Mutation of state. Variable reassignments and array mutators.
+            # QUADRATIC BLOWUP FIX: the optional `(?:\w+)?` before the
+            # required-but-often-absent `->`/`::` was unbounded with no
+            # preceding \b anchor -- O(n^2) on a long run of word characters
+            # with neither token present. Bounded to {1,100}.
             "state_mutation": re.compile(
-                r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w+)?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
+                r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w{1,100})?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(
@@ -3190,8 +3221,14 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"^[ \t]*export\s+[a-zA-Z_]\w*", re.M),
             # 11. flux (State Mutation)
             # Mutation of state via assignment or arithmetic.
+            # QUADRATIC BLOWUP FIX: the arithmetic-expansion branch's two
+            # `[^)]*` quantifiers were unbounded -- on a long run of unclosed
+            # `(` characters, each opening pair is a candidate match start
+            # scanning to the end looking for the required operator + `))`,
+            # for O(n^2) total. Bounded to {0,200} each; real `(( ... ))`
+            # arithmetic expressions don't get remotely that long.
             "state_mutation": re.compile(
-                r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?=(?![=~])|\b(?:let|declare)\s+[a-zA-Z_]\w*=|\[\+\]=|\(\([^)]*(?:\+\+|--|[-+*/%]=)[^)]*\)\)",
+                r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?=(?![=~])|\b(?:let|declare)\s+[a-zA-Z_]\w*=|\[\+\]=|\(\([^)]{0,200}(?:\+\+|--|[-+*/%]=)[^)]{0,200}\)\)",
                 re.M,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -4902,8 +4939,22 @@ LANGUAGE_DEFINITIONS = {
             # 11. flux (State Mutation)
             # Mutation of state. Variable assignments and standard memory manipulations.
             # Captures standard `=` (avoiding `==`, `<=`, etc.)
+            # TWO FIXES:
+            # 1. QUADRATIC BLOWUP: the unbounded `[A-Za-z0-9_%()]+` (no \b
+            #    anchor) got retried at every position in a long `=`-less
+            #    line, backtracking O(n) per position for O(n^2) total.
+            #    Bounded to {0,199}; real Fortran variable/array-element
+            #    expressions (even with subscripts) don't get remotely
+            #    that long.
+            # 2. KIND=/LEN=/etc EXCLUSION WAS LEAKY: the negative lookahead
+            #    only blocks a match starting exactly at "KIND", not one
+            #    starting mid-word (e.g. "KIND = 5" still matched "IND = "
+            #    starting at position 1, since \bKIND doesn't apply there).
+            #    Added a real `\b` + explicit `[A-Za-z_]` first-char
+            #    requirement so the match can only start at a genuine word
+            #    boundary, where the exclusion lookahead actually applies.
             "state_mutation": re.compile(
-                r"(?!\b(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION)\s*=)[A-Za-z0-9_%\(\)]+[ \t]*=[^=>]",
+                r"(?!\b(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION)\s*=)\b[A-Za-z_][A-Za-z0-9_%\(\)]{0,199}[ \t]*=[^=>]",
                 re.I,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -6240,7 +6291,15 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(?:List|Dict|Set|Tuple|Optional|Union|Any|Callable|Sequence|Iterable)\[[^\]]*\]|->"
             ),
             # 21. comprehensions (Iterators / Comprehensions)
-            "comprehensions": re.compile(r"\[[^\]]*\bfor\b[^\]]*\]|\{[^}]*\bfor\b[^}]*\}|\([^)]*\bfor\b[^)]*\)"),
+            # QUADRATIC BLOWUP FIX: the 3 negated-class quantifiers were
+            # unbounded -- on a long run of unclosed brackets/braces/parens
+            # (e.g. "((((((..."), each opening char is tried as a match
+            # start, and each attempt scans to the end of the string looking
+            # for "for" + closer, for O(n^2) total. Bounded to {0,500}; real
+            # comprehensions don't get remotely that long.
+            "comprehensions": re.compile(
+                r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
+            ),
             # 22. scientific (Numerical / Compute Libraries)
             # Math, complex arrays, and ulab (MicroPython's NumPy).
             "scientific": re.compile(
@@ -6845,8 +6904,14 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. (Apex lacks true anonymous closures).
             "closures": None,
             # 18. globals: Global / Shared State. Custom Settings, Organization data, and User context.
+            # QUADRATIC BLOWUP FIX: the two `\w+` prefixes before the
+            # required-but-often-absent `__c.getInstance`/`__mdt.getInstance`
+            # suffixes were unbounded with no preceding \b anchor -- O(n^2)
+            # on a long run of word characters with neither suffix present.
+            # Bounded to {1,100}; real custom-object/metadata-type names
+            # don't get remotely that long.
             "globals": re.compile(
-                r"\b(UserInfo|System\.Label|Organization|Cache\.Org|Cache\.Session)\b|\w+__c\.getInstance\b|\w+__mdt\.getInstance\b",
+                r"\b(UserInfo|System\.Label|Organization|Cache\.Org|Cache\.Session)\b|\w{1,100}__c\.getInstance\b|\w{1,100}__mdt\.getInstance\b",
                 re.I,
             ),
             # 19. decorators: Decorators / Annotations. Execution context annotations.
@@ -9887,8 +9952,12 @@ LANGUAGE_DEFINITIONS = {
             # Captures standard method arguments and Groovy closures (x, y ->)
             # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it
             # doesn't hallucinate every standard method call or if-statement in the file.
+            # QUADRATIC BLOWUP FIX: the closure form's bare-identifier branch
+            # (`[a-zA-Z_$][\w_$]*` with no \b anchor) got retried at every
+            # position in a long `->`-less line -- O(n^2) (same bug found and
+            # fixed in javascript's args). Bounded to {0,100}.
             "args": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}[A-Za-z_$][\w_$]*\s*\([^)]*\)|(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)\s*->",
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}[A-Za-z_$][\w_$]*\s*\([^)]*\)|(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})\s*->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

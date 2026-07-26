@@ -3636,8 +3636,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES const (freeze_hits).
+            # BUG FIX: the 6 bang-method alternatives (`merge!`, `update!`,
+            # `gsub!`, `map!`, `select!`, `reject!`) all end on `!`
+            # (non-word), so the shared trailing \b could never fire --
+            # whatever follows a Ruby bang-method call (`;`, `)`, a
+            # newline, another `.method`) is never a word character. None
+            # of Ruby's canonical in-place-mutation methods ever matched.
             "state_mutation": re.compile(
-                r"@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|@@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|\b(?:push|pop|shift|unshift|delete|clear|merge!|update!|gsub!|map!|select!|reject!)\b|<<"
+                r"@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|@@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?="
+                r"|\b(?:push|pop|shift|unshift|delete|clear)\b|<<"
+                r"|\bmerge!|\bupdate!|\bgsub!|\bmap!|\bselect!|\breject!"
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(r"#[ \t]*(?:def|class|module|if|unless|while|puts|p)\b"),
@@ -3661,7 +3669,16 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(ActionView|render|render_to_string|ViewComponent::Base|Phlex::HTML|form_with|form_for|link_to|stylesheet_link_tag|Turbo|Stimulus|Hotwire)\b|<%|%>"
             ),
             # 17. closures (Closures / Anonymous Functions)
-            "closures": re.compile(r"\b(?:do\s*\|[^|]*\||do\b|\{\s*\|[^|]*\||->\s*(?:\([^)]*\))?[ \t]*\{)"),
+            # BUG FIX: all 4 alternatives shared one leading \b, but the
+            # brace-block (`{ |x| ... }`) and stabby-lambda (`->(x) { ... }`)
+            # forms both start with a non-word character (`{`/`-`) -- the
+            # shared leading \b could only fire when a word char
+            # immediately preceded them, never true for how these are
+            # actually written (preceded by whitespace, `=`, or a line
+            # start). Only the `do`-based forms ever matched; the brace
+            # block and stabby lambda -- two of Ruby's most common closure
+            # forms -- never did.
+            "closures": re.compile(r"\bdo\s*\|[^|]*\||\bdo\b|\{\s*\|[^|]*\||->\s*(?:\([^)]*\))?[ \t]*\{"),
             # 18. globals (Global / Shared State)
             "globals": re.compile(r"\$[a-zA-Z_]\w*|\b(ENV|ARGV|ARGF|STDIN|STDOUT|STDERR|RUBY_VERSION)\b"),
             # 19. decorators (Decorators / Annotations)
@@ -3681,8 +3698,11 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(Math|Complex|Rational|Matrix|Vector|Numo::NArray|BigDecimal)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Metaprogramming and runtime object extensions.
+            # BUG FIX: `respond_to_missing\?` ends on `?` (non-word), so the
+            # shared trailing \b could never fire. Never matched.
             "reflection_metaprogramming": re.compile(
-                r"\b(method_missing|define_method|const_missing|respond_to_missing\?|included|extended|prepended|class\s*<<\s*self)\b"
+                r"\b(?:method_missing|define_method|const_missing|included|extended|prepended|class\s*<<\s*self)\b"
+                r"|respond_to_missing\?"
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"\b(?:require|require_relative|load|autoload)\b[^'\"]*['\"]", re.M),
@@ -3752,7 +3772,12 @@ LANGUAGE_DEFINITIONS = {
             # # 40. explicit_casts (Explicit Type Casting)
             "explicit_casts": re.compile(r"\b(Integer|Float|String|Array|Hash|Complex|Rational)\b\s*\("),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
-            "panics_and_aborts": re.compile(r"\b(raise|fail|abort|exit!)\b"),
+            # BUG FIX: `exit!` ends on `!` (non-word), so the shared
+            # trailing \b could never fire -- unlike high_risk_execution's
+            # copy of this same alternative (which is harmlessly masked by
+            # its own bare `exit` alternative), there's no bare `exit` here
+            # to save it. Never matched.
+            "panics_and_aborts": re.compile(r"\b(?:raise|fail|abort)\b|\bexit!"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
             "thread_sleeps": re.compile(r"\bsleep\b\s*[0-9.]+"),
             # 43. bitwise_ops (Bitwise Operations)
@@ -3774,7 +3799,10 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(r"\b(JSON\.parse|YAML\.load|Marshal\.load|Nokogiri::(?:XML|HTML))\b"),
             "regex_execution": re.compile(r"\b(Regexp\.new)\b|\.(match|scan|gsub|sub)\b|=~"),
             "time_date_logic": re.compile(r"\b(Time\.now|Date\.today|DateTime\.now|sleep)\b"),
-            "ipc_rpc_bridges": re.compile(r"\b(Open3|system\s*\(|IO\.popen|Net::HTTP|TCPSocket|%x\{)\b"),
+            # BUG FIX: `system\s*\(` ends on `(` and `%x\{` both starts and
+            # ends on non-word characters (`%` / `{`) -- the shared \b
+            # boundaries could never fire for either. Neither ever matched.
+            "ipc_rpc_bridges": re.compile(r"\b(?:Open3|IO\.popen|Net::HTTP|TCPSocket)\b|\bsystem\s*\(|%x\{"),
         },
     },
     "swift": {

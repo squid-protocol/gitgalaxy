@@ -3163,8 +3163,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # func_start: Executable Logic Anchors. Anchors executable logic blocks.
             # EXCLUDES class/enum to fix False Positives.
+            # BUG FIX: the return-type bracket class `[^\]]+` couldn't
+            # represent one level of nested brackets, so a PS class method
+            # with a generic .NET return type (e.g.
+            # `[Dictionary[string,int]] GetMap() {` /
+            # `[System.Collections.Generic.List[string]] GetItems() {`) --
+            # a common real-world form -- never matched at all, unlike the
+            # identical non-generic form (`[int] GetValue() {`), which did.
             "func_start": re.compile(
-                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)|^[ \t]*\[[^\]]+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)"
+                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
                 re.I | re.M,
             ),
             # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
@@ -3228,8 +3236,13 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # concurrency: Temporal Static. Jobs, Runspaces, and PS7 Parallel pipelines.
+            # BUG FIX: `-Parallel` starts with `-` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `-` -- never true for how this
+            # ForEach-Object flag is actually written (preceded by
+            # whitespace). PS7's parallel pipeline feature never matched.
             "concurrency": re.compile(
-                r"\b(Start-Job|Wait-Job|Receive-Job|Start-ThreadJob|-Parallel|RunspaceFactory|PowerShell\.Create)\b",
+                r"\b(?:Start-Job|Wait-Job|Receive-Job|Start-ThreadJob|RunspaceFactory|PowerShell\.Create)\b|-Parallel\b",
                 re.I,
             ),
             # ui_framework: UI / View Components. WinForms/WPF bridges (Includes TBL WWW rendering emulation triggers).
@@ -3238,7 +3251,13 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # closures: Closures / Anonymous Functions. ScriptBlocks (The foundation of PS closures).
-            "closures": re.compile(r"\{\s*(?:param\s*\([^)]*\))?[^}]*\}", re.I),
+            # BUG FIX (ReDoS): the unbounded `[^}]*` before the closing `}`,
+            # combined with unanchored search, is O(n^2) on payloads with many
+            # `{` and no matching `}` (each of the n starting positions scans
+            # ~n chars before failing) -- confirmed via scaling measurements
+            # (~4x slowdown per input-size doubling). Bounded quantifiers cap
+            # the per-position scan cost, same fix shape as go/dart closures.
+            "closures": re.compile(r"\{\s{0,20}(?:param\s{0,10}\([^)]{0,300}\))?[^}]{0,500}\}", re.I),
             # globals: Global / Shared State. Environment and global/script scope variables.
             "globals": re.compile(
                 r"\$(?:global|env|script):[a-zA-Z_]\w*|\b(?:ErrorActionPreference|WarningPreference|ConfirmPreference)\b",
@@ -3267,8 +3286,14 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # import: Dependency Inclusions. Module and assembly loading.
+            # BUG FIX: the dot-sourcing alternative (`. .\script.ps1`)
+            # starts with `.` (non-word), so the shared leading \b could
+            # only fire when a word char immediately preceded the `.` --
+            # never true for how dot-sourcing is actually written (always
+            # preceded by whitespace or a line start). This common
+            # PowerShell module-loading idiom never matched at all.
             "import": re.compile(
-                r"\b(Import-Module|using\s+module|using\s+namespace|using\s+assembly|\.\s+[\w.\/\\]+\.ps1)\b",
+                r"\b(?:Import-Module|using\s+module|using\s+namespace|using\s+assembly)\b|\.\s+[\w.\/\\]+\.ps1\b",
                 re.I,
             ),
             # --- UPDATED LINE FOR THE ORCHESTRATOR ---
@@ -3349,8 +3374,18 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(
                 r"(?i)\b(ConvertFrom-Json|ConvertTo-Json|Import-Clixml|ConvertFrom-Csv|Import-Csv)\b"
             ),
+            # BUG FIX: `-match`/`-replace`/`-split` all start with `-`
+            # (non-word), so the shared leading \b could only fire when a
+            # word char immediately preceded the `-` -- never true for how
+            # these operators are actually written (always preceded by
+            # whitespace, after the left-hand operand). PowerShell's THREE
+            # most common native regex operators never matched at all.
+            # Same shape on `[regex]::` (leading `\b` before `[`, a
+            # non-word char, requires a preceding word char that's never
+            # actually there -- always whitespace, `=`, or line start) --
+            # dropped since `[` is already self-delimiting.
             "regex_execution": re.compile(
-                r"(?i)\b(-match|-replace|-split|Select-String|\[regex\]::(?:Match|Replace|Matches))\b"
+                r"(?i)-match\b|-replace\b|-split\b|\bSelect-String\b|\[regex\]::(?:Match|Replace|Matches)\b"
             ),
             "time_date_logic": re.compile(r"(?i)\b(Get-Date|New-TimeSpan|Start-Sleep|Measure-Command)\b"),
             "ipc_rpc_bridges": re.compile(

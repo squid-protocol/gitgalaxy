@@ -75,13 +75,15 @@ Generate a valid Python dictionary matching this exact structure.
     "discriminators": [], # Ecosystem Indicators / Disambiguation Anchors (e.g. "package.json")
     "shebangs": [], 
     "lexical_family": "", # See Lexical Parsing Families list above
+    # NOTE: comment/code separation is NOT configured per-language. It's driven
+    # entirely by `lexical_family` above, dispatched against the shared,
+    # family-level delimiter table in gitgalaxy_config.py's
+    # LEXICAL_FAMILY_HEURISTICS. An earlier version of this schema had
+    # per-language "_line_anchor"/"_inline_comment"/"_block_start"/"_block_end"
+    # rule keys; they were removed because nothing ever read them (confirmed
+    # via `grep -rn` across the whole package) -- prism.py's real comment
+    # stripper has always used the family table, not these. Do not re-add them.
     "rules": {
-        # --- LEXICAL DELIMITER CONTROLS ---
-        "_line_anchor": re.compile(r""), 
-        "_inline_comment": re.compile(r""),
-        "_block_start": re.compile(r""),
-        "_block_end": re.compile(r""),
-
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: Control flow that forces the CPU to make a decision or jump. Includes: if, else, switch, for, while, catch, try, &&, ||, ternary. EXCLUDES: Exceptions (throw, raise) — these belong in panics_and_aborts.
         "branch": re.compile(r""), 

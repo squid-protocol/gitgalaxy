@@ -309,22 +309,6 @@ LANGUAGE_DEFINITIONS = {
         # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "line_exclusive",
         "rules": {
-            # =====================================================================
-            # [ CRITICAL ROADMAP: JSONC/JSON5 LEXICAL DELIMITERS & THE RE.COMPILE TRAP ]
-            # 1. THE LEXICAL MAPPING: JSON with comments (.jsonc, .json5) strictly
-            #    uses C-style comments (// and /* */), NOT Python/Ruby hashes (#).
-            #    This is why JSON must map to the 'std_c' lexical_family, not 'pure_hash' or 'inert'.
-            # 2. THE RE.COMPILE TRAP: Every rule here MUST be wrapped in re.compile().
-            #    If passed as raw strings, the engine's physics loop will crash with
-            #    "'str' object has no attribute 'pattern'" during the Commented / Non-Executable Text extraction.
-            # =====================================================================
-            # JSON has no concept of a "column 1" or line-start-only comment anchor.
-            "_line_anchor": None,
-            # JSONC/JSON5 inline comments use standard C-style slashes.
-            "_inline_comment": re.compile(r"//"),
-            # JSONC/JSON5 multi-line blocks use standard C-style delimiters.
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.
@@ -565,15 +549,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes JSDoc // style)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
@@ -848,15 +823,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes TSDoc /// references)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
@@ -1126,15 +1092,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes Javadoc /**)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes modern switch expressions (yield) and pattern guards (when).
@@ -1384,15 +1341,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes XML Doc ///)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
@@ -1675,15 +1623,6 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": ["go", "gorun", "yaegi"],
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token.
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes select/case and range-based loops. EXCLUDES panic (bailout_hits).
@@ -1901,15 +1840,6 @@ LANGUAGE_DEFINITIONS = {
         # unlike standard C/C++. Standard C parsing would prematurely terminate here.
         "lexical_family": "recursive_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes /// and //!)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_start": re.compile(r"/\*"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES panic!/throw (bailout_hits).
@@ -2159,15 +2089,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # C++ uses '//' for standard line-level Literature (Commented / Non-Executable Text).
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # 1. branch (Control Flow / Branching)
             # Control flow jumps. Includes modern coroutine jumps (co_yield, co_await).
             # EXCLUDES exceptions (bailout_hits).
@@ -2446,15 +2367,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Modern C (C99+) uses '//' for standard line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (The primary literature delimiter for all C eras).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and jumps. EXCLUDES exit/abort (bailout_hits).
@@ -2726,14 +2638,6 @@ LANGUAGE_DEFINITIONS = {
         # comment styles (//, #, and /* */).
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # PHP supports both '//' and '#' for line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"//|#"),
-            # Inline comments follow the same dual-token logic.
-            "_inline_comment": re.compile(r"//|#"),
-            # Block comment start: /* '_block_start': re.compile(r'/\*'),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow. Includes modern match expression. EXCLUDES throw (bailout_hits).
@@ -2956,15 +2860,6 @@ LANGUAGE_DEFINITIONS = {
         # a unique '<# #>' syntax for multi-line block comments, requiring hybrid parsing logic.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # PowerShell uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: <#
-            "_block_start": re.compile(r"<#"),
-            # Block comment end: #>
-            "_block_end": re.compile(r"#>"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: decisions that split flow. Includes ternary operators (?) and null-coalescing (??).
             "branch": re.compile(
@@ -3212,14 +3107,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Relies strictly on '#' for line-level Commented / Non-Executable Text; no native block delimiters.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Shell uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: Shell lacks native multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].
@@ -3475,15 +3362,6 @@ LANGUAGE_DEFINITIONS = {
         # utilizes the `=begin ... =end` block syntax, requiring hybrid parsing rules.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Ruby uses '#' for standard line-level literature (Commented / Non-Executable Text).
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: =begin (Must be at the absolute start of the line).
-            "_block_start": re.compile(r"^=begin", re.M),
-            # Block comment end: =end (Must be at the absolute start of the line).
-            "_block_end": re.compile(r"^=end", re.M),
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
             "branch": re.compile(
@@ -3705,15 +3583,6 @@ LANGUAGE_DEFINITIONS = {
         # rather than standard C-style early termination.
         "lexical_family": "recursive_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_start": re.compile(r"/\*"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. Includes modern typed throws (throws(Error)).
@@ -3945,15 +3814,6 @@ LANGUAGE_DEFINITIONS = {
         # block comments (/* /* */ */). Using standard C parsing would cause early termination here.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /*
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. Includes modern 'when' and Elvis operator.
@@ -4174,15 +4034,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses '--' for line-level and '/*' '*/' for block-level Commented / Non-Executable Text.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # SQLite uses '--' for standard line-level literature.
-            "_line_anchor": re.compile(r"--"),
-            # Inline comments are also triggered by the '--' token.
-            "_inline_comment": re.compile(r"--"),
-            # Block comment start: /*
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical filters. Includes case logic and modern IIF().
@@ -4438,15 +4289,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses SGML-style block delimiters () exclusively; no single-line anchor.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # EXPLICIT: HTML has no native single-line comment anchor.
-            "_line_anchor": None,
-            # EXPLICIT: HTML has no native inline comment token.
-            "_inline_comment": None,
-            # Block comment start: Standard SGML/XML literature delimiter.
-            "_block_start": re.compile(r"<!--"),
-            # Block comment end: Accept both --> and permissive HTML parser form --!>.
-            "_block_end": re.compile(r"--!?>"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # User-driven branching and declarative framework conditionals.
@@ -4673,15 +4515,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses '/*' and '*/' for blocks; preprocessors add '//' for lines.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Supported in SCSS/SASS/LESS).
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Native vanilla CSS literature delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical gating. Includes Container/Media queries and logic-gating pseudo-selectors.
@@ -4918,17 +4751,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
         "lexical_family": "positional_anchored",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Line Anchor Logic:
-            # Matches Column 1 indicators for Legacy (C, c, *, d, D)
-            # and start-of-line '!' for Modern/Free-form.
-            "_line_anchor": re.compile(r"^[Cc*!dD](?!\$)"),
-            # Inline Comment Logic:
-            # Modern Fortran (90+) uses '!' for trailing literature/Commented / Non-Executable Text.
-            "_inline_comment": re.compile(r"!(?!\$)"),
-            # EXPLICIT: Fortran does not support standard multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.
@@ -5250,15 +5072,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses unique line delimiters ';' (NASM/Intel) and '#' (GAS/ARM).
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Assembly uses ';' or '#' for standard line-level literature.
-            # (Note: '//' is occasionally used in modern GAS but ';' remains the anchor).
-            "_line_anchor": re.compile(r"[;#]"),
-            # Inline comments are triggered by the same ';' or '#' tokens.
-            "_inline_comment": re.compile(r"[;#]"),
-            # EXPLICIT: Standard Assembly does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES system exits/halts (bailout_hits).
@@ -5469,14 +5282,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Digitized source uses '#' for line-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # AGC digitized source uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: AGC Assembly does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES fatal alarms (bailout_hits).
@@ -5673,16 +5478,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses '--' for lines and '--[[ ... ]]' for blocks.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Lua uses '--' for standard line-level literature.
-            "_line_anchor": re.compile(r"--"),
-            # Inline comments are also triggered by the '--' token.
-            "_inline_comment": re.compile(r"--"),
-            # Block comment start: --[[
-            # (Note: Lua supports long-brackets, but --[[ is the standard signature)
-            "_block_start": re.compile(r"--\[=*\["),
-            # Block comment end: Catches standard ]] and long-bracket ]=] styles
-            "_block_end": re.compile(r"\]=*\]"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
             "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|goto|and|or|not)\b"),
@@ -5899,15 +5694,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Perl's interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Perl uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: Perl uses POD (Plain Old Documentation) blocks.
-            "_block_start": re.compile(r"^=\w+", re.M),
-            # Block comment end: POD blocks are explicitly closed by '=cut'.
-            "_block_end": re.compile(r"^=cut", re.M),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
             "branch": re.compile(
@@ -6133,16 +5919,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses '--' for lines and '{- -}' for blocks, which strictly supports recursive nesting.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Haskell uses '--' for line-level Commented / Non-Executable Text.
-            # CRITICAL GUARDRAIL: Negative lookahead ensures we don't accidentally split on custom operators like '-->'
-            "_line_anchor": re.compile(r"--+(?![!#$%&*+./<=>?@\\^|~-])"),
-            # Inline comments follow the same highly-specific symbol guard
-            "_inline_comment": re.compile(r"--+(?![!#$%&*+./<=>?@\\^|~-])"),
-            # Block comment start: {-
-            "_block_start": re.compile(r"\{-"),
-            # Block comment end: -}
-            "_block_end": re.compile(r"-\}"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: decisions that split flow. Includes guards (|) and modern \cases.
             "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
@@ -6325,15 +6101,6 @@ LANGUAGE_DEFINITIONS = {
         # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # MicroPython uses '#' for line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: MicroPython lacks native multi-line block comment delimiters.
-            # (Note: Multi-line strings used as docs are handled by the 2.3.C Python Heuristic).
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES raise (bailout_hits).
@@ -6530,16 +6297,6 @@ LANGUAGE_DEFINITIONS = {
         # or slash '/' to identify line-level Commented / Non-Executable Text.
         "lexical_family": "positional_anchored",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Fixed Format Logic: Column 7 is the 'Indicator Area'.
-            # An asterisk '*' or forward-slash '/' in Col 7 marks the line as Literature (Commented / Non-Executable Text).
-            # Regex translates to: Start of line, skip 6 chars, match indicator.
-            "_line_anchor": re.compile(r"^.{6}[*/dD]"),
-            # Modern COBOL (GnuCOBOL/IBM 6+) supports floating inline comments via '*>'.
-            "_inline_comment": re.compile(r"\*>"),
-            # EXPLICIT: COBOL does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Entscheidungslogik. Control flow that splits execution paths.
             "branch": re.compile(
@@ -6785,11 +6542,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Zig intentionally omits multi-line block comments to keep parsing simple, exclusively using '//'.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
             "branch": re.compile(r"\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b|&&|\|\|"),
@@ -6954,11 +6706,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses standard '//' for lines and '/*' '*/' for block-level Commented / Non-Executable Text.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes switch on/when and DML try-catch.
             "branch": re.compile(
@@ -7181,10 +6928,6 @@ LANGUAGE_DEFINITIONS = {
         # comments (/* /* */ */). Standard C parsing would prematurely terminate here causing geometry failure.
         "lexical_family": "standard_block",
         "rules": {
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
             "branch": re.compile(
@@ -7425,10 +7168,6 @@ LANGUAGE_DEFINITIONS = {
         # requiring depth-aware stripping to prevent premature termination.
         "lexical_family": "recursive_block",
         "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes Scala 3 if-then and match-case.
             "branch": re.compile(
@@ -7665,10 +7404,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Docker natively uses '#' exclusively for line-level comments and parser directives.
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow executing inside RUN shell blocks. High density indicates complex embedded shell scripts.
@@ -7908,10 +7643,6 @@ LANGUAGE_DEFINITIONS = {
         # hybrid_dash would cause the engine to look for '--', missing the math entirely.
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"%"),
-            "_inline_comment": re.compile(r"%"),
-            "_block_start": re.compile(r"^[ \t]*%\{", re.M),
-            "_block_end": re.compile(r"^[ \t]*%\}", re.M),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: MATLAB control flow. EXCLUDES 'error' and 'rethrow' (bailout_hits).
             "branch": re.compile(r"\b(?:if|elseif|else|switch|case|otherwise|for|while|try|catch)\b|&&|\|\||~="),
@@ -8098,15 +7829,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Accepts '--', '//', '#', and '/* */' to support both its legacy HyperTalk roots and modern C-style syntax.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Handles all three line-comment styles found in the xTalk family.
-            "_line_anchor": re.compile(r"--|//|#"),
-            # Inline comments follow the same tri-token logic.
-            "_inline_comment": re.compile(r"--|//|#"),
-            # Block comment start: /* (Adopted in modern LiveCode)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes English-like loops and try-catch.
             "branch": re.compile(
@@ -8328,11 +8050,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Solidity strictly adheres to C-style line (//) and block (/* */) comments.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Solidity 0.6+ try/catch.
             "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?|:"),
@@ -8503,11 +8220,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses standard '//' for line-level literature and '/*' '*/' for blocks.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Obj-C specific @try/@catch blocks.
             "branch": re.compile(
@@ -8707,12 +8419,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Make natively uses '#' exclusively for line-level comments.
         "lexical_family": "line_exclusive",
         "rules": {
-            # Makefiles natively use '#' for both line and inline comments.
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: Makefiles lack native multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --------------------------------------------------------------------------
             # 1. GEOMETRY & SHAPE (Geometry & Shape)
             # --------------------------------------------------------------------------
@@ -8882,10 +8588,6 @@ LANGUAGE_DEFINITIONS = {
         # for an asterisk '*' to identify line-level Commented / Non-Executable Text, while allowing '"' for inline.
         "lexical_family": "positional_anchored",
         "rules": {
-            "_line_anchor": re.compile(r"^\*"),
-            "_inline_comment": re.compile(r"\""),
-            "_block_start": None,  # ABAP has no standard multi-line block comments
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes modern COND/SWITCH expressions.
             "branch": re.compile(
@@ -9175,10 +8877,6 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
             "args": re.compile(r"^[ \t]*with:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
@@ -9342,10 +9040,6 @@ LANGUAGE_DEFINITIONS = {
         # blocks (enclosed in %{ %}), relying entirely on standard '/* */' and '//' comments.
         "lexical_family": "standard_block",
         "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(if|else|switch|case|for|while|do)\b|\|"),
             "args": re.compile(r"\$\d+|\$\$"),
@@ -9433,11 +9127,6 @@ LANGUAGE_DEFINITIONS = {
         # line-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"\bdnl\b"),
-            "_inline_comment": re.compile(r"\bdnl\b"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # M4 branching logic and Autoconf shell-generation branches.
@@ -9600,13 +9289,6 @@ LANGUAGE_DEFINITIONS = {
         # comments and `#| |#` for nested block-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Scheme uses ';' for standard line-level literature.
-            "_line_anchor": re.compile(r";"),
-            "_inline_comment": re.compile(r";"),
-            # Scheme block comments (SRFI 30) use #| and |#
-            "_block_start": re.compile(r"#\|"),
-            "_block_end": re.compile(r"\|#"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Lisp control flow branches. Uses custom S-expression boundaries.
@@ -9809,12 +9491,7 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: MLIR intentionally adopts standard LLVM assembly syntax conventions,
         # using '//' exclusively for line comments to maintain C++ ecosystem familiarity.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "proto": {
         "_meta": {
@@ -9841,12 +9518,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: Protobuf schemas strictly use standard '//' and '/* */' comments.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "hlo": {
         "_meta": {
@@ -9866,12 +9538,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: HLO text format exclusively utilizes '//' for line-level comments, maintaining C++ ecosystem alignment.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "td": {
         "_meta": {
@@ -9898,12 +9565,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: TableGen was built to integrate seamlessly into LLVM's C++ codebase, natively supporting '//' and '/* */' comments.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "plaintext": {
         "_meta": {
@@ -9978,12 +9640,7 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         # THE FIX: Plaintext is mathematically inert. It has no lexical family.
         "lexical_family": "non_lexical",
-        "rules": {
-            "_line_anchor": None,
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "tcl": {
         "_meta": {
@@ -10005,11 +9662,6 @@ LANGUAGE_DEFINITIONS = {
         # have native block comments (developers sometimes hack `if 0 { ... }`, but `#` is the standard).
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Tcl control flow keywords.
@@ -10179,11 +9831,6 @@ LANGUAGE_DEFINITIONS = {
         # LEXICAL FAMILY
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in|try|catch|finally)\b|\?|:"),
@@ -10370,24 +10017,7 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         # THE FIX: JSON with comments relies on C-style comment structures, not Python/Ruby hashes.
         "lexical_family": "standard_block",
-        "rules": {
-            # =====================================================================
-            # [ CRITICAL ROADMAP: JSONC/JSON5 LEXICAL DELIMITERS & THE RE.COMPILE TRAP ]
-            # 1. THE LEXICAL MAPPING: JSON with comments (.jsonc, .json5) strictly
-            #    uses C-style comments (// and /* */), NOT Python/Ruby hashes (#).
-            #    This is why JSON must map to the 'std_c' lexical_family, not 'pure_hash' or 'inert'.
-            # 2. THE RE.COMPILE TRAP: Every rule here MUST be wrapped in re.compile().
-            #    If passed as raw strings, the engine's physics loop will crash with
-            #    "'str' object has no attribute 'pattern'" during the Commented / Non-Executable Text extraction.
-            # =====================================================================
-            # JSON has no concept of a "column 1" or line-start-only comment anchor.
-            "_line_anchor": None,
-            # JSONC/JSON5 inline comments use standard C-style slashes.
-            "_inline_comment": re.compile(r"//"),
-            # JSONC/JSON5 multi-line blocks use standard C-style delimiters.
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "glsl": {
         "_meta": {"target_version": "OpenGL Shading Language", "status": "production"},
@@ -10396,12 +10026,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".glsl", ".vert", ".frag"],
         "shebangs": [],
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "nix": {
         "_meta": {"target_version": "Nix Expression Language", "status": "production"},
@@ -10410,12 +10035,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": ["flake.nix", "default.nix", "shell.nix"],
         "shebangs": [],
         "lexical_family": "line_exclusive",
-        "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "blp": {
         "_meta": {"target_version": "Blueprint UI Markup", "status": "production"},
@@ -10424,12 +10044,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".blp", ".ui"],
         "shebangs": [],
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "batch": {
         "_meta": {"target_version": "Windows CMD/Batch", "status": "production"},
@@ -10438,13 +10053,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [],
         "shebangs": [],
         "lexical_family": "line_exclusive",
-        "rules": {
-            # Uses REM or :: for comments. No active logic rules needed (Inert Matter Bypass).
-            "_line_anchor": re.compile(r"^[ \t]*(?:REM|::)", re.I | re.M),
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "jcl": {
         "_meta": {
@@ -10457,11 +10066,6 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         "lexical_family": "line_exclusive",
         "rules": {
-            # JCL comments strictly start with //*
-            "_line_anchor": re.compile(r"^//\*"),
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
             "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
             "args": None,

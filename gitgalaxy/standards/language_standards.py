@@ -6105,8 +6105,16 @@ LANGUAGE_DEFINITIONS = {
             # closures: Closures / Anonymous Functions. Anonymous lambda depth.
             "closures": re.compile(r"\\[a-zA-Z0-9_\'\s(),\[\]]+\s*->|\\cases?"),
             # globals: Global / Shared State. Top-level state hacks (typically MVars using unsafePerformIO).
+            # BUG FIX: `[^=]*` blocked crossing the `=` that MUST appear
+            # before `unsafePerformIO` in any real usage (the binding's own
+            # implementation line: `counter = unsafePerformIO ...`) -- this
+            # signature could never match a single real occurrence of the
+            # idiom it's meant to detect. Replaced with a bounded
+            # lazy-any-character span ({0,200}?, ReDoS-safe) so it can cross
+            # both `=` and intervening lines (e.g. a `{-# NOINLINE #-}`
+            # pragma between the signature and the binding).
             "globals": re.compile(
-                r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[^=]*unsafePerformIO",
+                r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO",
                 re.M,
             ),
             # decorators: Decorators / Annotations. GHC pragmas (INLINE, LANGUAGE).
@@ -6182,7 +6190,13 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(
                 r"\b(Data\.Aeson|decode|decodeStrict|fromJSON|Data\.Binary|Data\.Serialize)\b"
             ),
-            "regex_execution": re.compile(r"\b(Text\.Regex|makeRegex|matchRegex|=~)\b"),
+            # `=~` was inside the shared \b...\b wrapper, but \b requires a
+            # word/non-word transition -- since neither `=` nor `~` is a word
+            # character, `\b=~\b` can only match when the operator has no
+            # surrounding whitespace (e.g. "x=~y"), never idiomatic Haskell
+            # like "text =~ pattern" (space on both sides means no boundary
+            # exists at either edge). Split out unguarded.
+            "regex_execution": re.compile(r"\b(Text\.Regex|makeRegex|matchRegex)\b|=~"),
             "time_date_logic": re.compile(r"\b(getCurrentTime|diffUTCTime|addUTCTime|System\.Time|threadDelay)\b"),
             "ipc_rpc_bridges": re.compile(
                 r"\b(System\.Process|createProcess|callProcess|callCommand|forkIO|Control\.Concurrent)\b"

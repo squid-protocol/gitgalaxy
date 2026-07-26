@@ -87,7 +87,18 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
     # --- ZERO-DEPENDENCY .ENV LOADER ---
     # Python doesn't read .env files natively. This parses it manually
     # so we don't force users to pip install python-dotenv.
-    env_path = os.path.join(os.getcwd(), ".env")
+    #
+    # #466: This MUST be scoped to GitGalaxy's own user config location, never
+    # to os.getcwd(). The documented CI usage pattern is `cd <scan-target> &&
+    # galaxyscope .`, which makes cwd the (often third-party, untrusted)
+    # repository being scanned -- reading its .env would merge whatever keys
+    # that repo's own .env defines into this process's environment via
+    # setdefault(), a trust-boundary crossing this project flags in other
+    # codebases. The documented ways to supply GITGALAXY_LICENSE_KEY (README,
+    # action.yml) already set it as a real environment variable, not via a
+    # cwd-relative .env, so this loader is purely a local-dev convenience and
+    # never needs to see the scan target's files at all.
+    env_path = os.path.join(os.path.expanduser("~"), ".config", "gitgalaxy", ".env")
     if os.path.exists(env_path):
         try:
             with open(env_path, encoding="utf-8") as f:

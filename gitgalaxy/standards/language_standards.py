@@ -1244,8 +1244,14 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(synchronized|Thread|Runnable|Future|CompletableFuture|ExecutorService|Semaphore|Atomic\w+|VirtualThread|StructuredTaskScope|ScopedValue|Mono|Flux|Publisher)\b|@(?:Async|Scheduled)"
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `@ModelAttribute` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded it -- never true for how annotations are
+            # actually written (preceded by whitespace or a line start).
+            # Never matched at all.
             "ui_framework": re.compile(
-                r"\b(SwingUtilities|JFrame|JPanel|javafx\.|ModelAndView|ModelMap|Model|@ModelAttribute|VaadinSession|FacesContext|UIComponent)\b"
+                r"\b(?:SwingUtilities|JFrame|JPanel|javafx\.|ModelAndView|ModelMap|Model|VaadinSession|FacesContext|UIComponent)\b"
+                r"|@ModelAttribute"
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"->|::"),
@@ -1285,16 +1291,25 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
+            # BUG FIX: `@ResponseBody`/`@ResponseStatus` both start with `@`
+            # (non-word) -- same leading-\b bug as ui_framework above.
             "ssr_boundaries": re.compile(
-                r"\b(ModelAndView|FacesServlet|HttpServletRequest|HttpServletResponse|@ResponseBody|@ResponseStatus|JspWriter|ThymeleafViewResolver)\b"
+                r"\b(?:ModelAndView|FacesServlet|HttpServletRequest|HttpServletResponse|JspWriter|ThymeleafViewResolver)\b"
+                r"|@ResponseBody|@ResponseStatus"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `@EventListener`/`@KafkaListener`/`@RabbitListener`/
+            # `@JmsListener` all start with `@` -- same bug.
             "events": re.compile(
-                r"\b(ApplicationEvent|ApplicationEventPublisher|ApplicationListener|@EventListener|@KafkaListener|@RabbitListener|@JmsListener|EventObject|publishEvent)\b"
+                r"\b(?:ApplicationEvent|ApplicationEventPublisher|ApplicationListener|EventObject|publishEvent)\b"
+                r"|@EventListener|@KafkaListener|@RabbitListener|@JmsListener"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: 10 of the 12 alternatives are `@`-prefixed Spring/
+            # Guice annotations -- same bug, at scale.
             "dependency_injection": re.compile(
-                r"\b(@Autowired|@Inject|@Qualifier|@Primary|@Component|@Service|@Repository|@Bean|@Configuration|ApplicationContext|BeanFactory|@Provides)\b"
+                r"\b(?:ApplicationContext|BeanFactory)\b"
+                r"|@Autowired|@Inject|@Qualifier|@Primary|@Component|@Service|@Repository|@Bean|@Configuration|@Provides"
             ),
             # 34. macros
             "macros": None,  # Java lacks preprocessor macros.
@@ -1338,7 +1353,9 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Access Modifiers / Encapsulation)
             "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\b(on[A-Z]\w*|addEventListener|subscribe|@KafkaListener|@RabbitListener)\b"),
+            # BUG FIX: `@KafkaListener`/`@RabbitListener` start with `@` --
+            # same leading-\b bug as dependency_injection above.
+            "listeners": re.compile(r"\b(?:on[A-Z]\w*|addEventListener|subscribe)\b|@KafkaListener|@RabbitListener"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mock\(|spy\(|verifyZeroInteractions"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Java Specifics) ---
@@ -3731,8 +3748,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 10. api (Public Surface Area)
             # Exposed surface area. Explicit visibility and Objective-C bridges.
+            # BUG FIX: 7 of the 10 alternatives are `@`-prefixed attributes,
+            # which start with a non-word char -- the shared leading \b
+            # could only fire when a word char immediately preceded the
+            # `@`, never true for how attributes are actually written.
+            # Never matched at all.
             "api": re.compile(
-                r"\b(public|open|package|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published)\b"
+                r"\b(?:public|open|package)\b"
+                r"|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published"
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES let (freeze_hits).
@@ -3753,8 +3776,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(async|await|actor|Task|TaskGroup|DispatchQueue|OperationQueue|MainActor|Sendable|isolated|nonisolated|continuation)\b"
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `@State`/`@Binding`/`@Environment` are `@`-prefixed --
+            # same leading-\b bug as api above.
             "ui_framework": re.compile(
-                r"\b(View|Body|ZStack|VStack|HStack|Text|Image|Button|SwiftUI|UIKit|AppKit|UIView|UIViewController|NSView|NSWindow|@State|@Binding|@Environment)\b"
+                r"\b(?:View|Body|ZStack|VStack|HStack|Text|Image|Button|SwiftUI|UIKit|AppKit|UIView|UIViewController|NSView|NSWindow)\b"
+                r"|@State|@Binding|@Environment"
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(
@@ -3778,8 +3804,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Reflection and Dynamic Dispatch.
+            # BUG FIX: `@objc` is `@`-prefixed -- same leading-\b bug.
             "reflection_metaprogramming": re.compile(
-                r"\b(@objc|dynamic|Mirror\(|unsafeBitCast|withUnsafe\w+|KeyPath|WritableKeyPath)\b|\\\.[\w.]+"
+                r"\b(?:dynamic|Mirror\(|unsafeBitCast|withUnsafe\w+|KeyPath|WritableKeyPath)\b|@objc|\\\.[\w.]+"
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"^[ \t]*(?:@_exported[ \t]+)?import\s+[a-zA-Z_]\w*", re.M),
@@ -3803,12 +3830,19 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(Vapor|Hummingbird|Request|Response|Route|app\.get|app\.post|EventLoopFuture)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `@Published` is `@`-prefixed -- same leading-\b bug.
+            # (`.sink`/`.assign` are left as-is: a leading `.` is preceded
+            # by an identifier in real method-chain usage, e.g.
+            # `publisher.sink { ... }`, so that leading \b fires correctly.)
             "events": re.compile(
-                r"\b(NotificationCenter|Combine|Publisher|Subscriber|CurrentValueSubject|PassthroughSubject|AnyCancellable|\.sink|\.assign|@Published|ObservableObject|Observation)\b"
+                r"\b(?:NotificationCenter|Combine|Publisher|Subscriber|CurrentValueSubject|PassthroughSubject|AnyCancellable|ObservableObject|Observation)\b"
+                r"|\.sink|\.assign|@Published"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: `@Environment`/`@EnvironmentObject`/`@Inject`/
+            # `@Dependency` are all `@`-prefixed -- same leading-\b bug.
             "dependency_injection": re.compile(
-                r"\b(@Environment|@EnvironmentObject|@Inject|@Dependency|Swinject|Container|Resolver|Factory)\b"
+                r"\b(?:Swinject|Container|Resolver|Factory)\b|@Environment|@EnvironmentObject|@Inject|@Dependency"
             ),
             # 34. macros (Preprocessor Directives / Macros)
             "macros": re.compile(
@@ -4605,8 +4639,13 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical gating. Includes Container/Media queries and logic-gating pseudo-selectors.
+            # BUG FIX: all 4 at-rule alternatives start with `@` (non-word),
+            # so the shared leading \b could only fire when a word char
+            # immediately preceded the `@` -- never true for how at-rules
+            # are actually written (preceded by whitespace or a line
+            # start). None of these ever matched at all.
             "branch": re.compile(
-                r"\b(@media|@supports|@container|@starting-style)\b|:(?:has|is|where|not)\s*\([^)]*\)",
+                r"@media\b|@supports\b|@container\b|@starting-style\b|:(?:has|is|where|not)\s*\([^)]*\)",
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
@@ -4617,8 +4656,10 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (none in CSS) and !important (freeze_hits).
+            # BUG FIX: all 8 at-rule alternatives are `@`-prefixed -- same
+            # leading-\b bug as branch above. None ever matched.
             "structural_boundaries": re.compile(
-                r"\b(@layer|@scope|@property|@font-face|@keyframes|@page|@charset|@namespace)\b",
+                r"@layer\b|@scope\b|@property\b|@font-face\b|@keyframes\b|@page\b|@charset\b|@namespace\b",
                 re.I,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -4988,8 +5029,12 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 14. test (Testing & Assertions)
             # Test frameworks like pFUnit, generic assertions, and verification routines.
+            # BUG FIX: all 5 pFUnit alternatives are `@`-prefixed -- the
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how these annotations are
+            # actually written. None ever matched at all.
             "test": re.compile(
-                r"\b(?:@test|@assertEqual|@assertTrue|@assertFalse|@assertException)\b|call[ \t]+assert_[a-z_]+",
+                r"@test\b|@assertEqual\b|@assertTrue\b|@assertFalse\b|@assertException\b|call[ \t]+assert_[a-z_]+",
                 re.I,
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -6426,8 +6471,12 @@ LANGUAGE_DEFINITIONS = {
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Lightweight web servers (Microdot, Picoweb).
+            # BUG FIX: `@app\.get`/`@app\.post` are `@`-prefixed -- the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `@`, never true for how route
+            # decorators are actually written. Never matched at all.
             "ssr_boundaries": re.compile(
-                r"\b(microdot|picoweb|MicroWebSrv|tinyweb|render_template|Response|@app\.get|@app\.post)\b"
+                r"\b(?:microdot|picoweb|MicroWebSrv|tinyweb|render_template|Response)\b|@app\.get|@app\.post"
             ),
             # 32. events (Event Emitters / Pub-Sub)
             # Hardware interrupts and async event flags.
@@ -6773,11 +6822,18 @@ LANGUAGE_DEFINITIONS = {
             # 6. safety: Defensive Programming. Error handling, payload capturing (|val|), and debug assertions.
             "safety": re.compile(r"\b(try|catch|orelse|errdefer|std\.debug\.assert)\b|\|[ \t]*[a-zA-Z_]\w*[ \t]*\|"),
             # 7. safety_neg: Safety Bypasses. Bypassing safety (undefined, unreachable, raw ptr casting).
+            # BUG FIX: the 6 `@`-prefixed builtins (Zig's cast/truncate
+            # operations are all `@builtin` forms) start with a non-word
+            # char, so the shared leading \b could only fire when a word
+            # char immediately preceded the `@` -- never true for how
+            # builtins are actually written. None of the 6 ever matched.
             "safety_bypasses": re.compile(
-                r"\b(undefined|unreachable|@ptrCast|@intCast|@alignCast|@bitCast|@truncate|@enumFromInt)\b"
+                r"\b(?:undefined|unreachable)\b"
+                r"|@ptrCast|@intCast|@alignCast|@bitCast|@truncate|@enumFromInt"
             ),
             # 8. danger: High-Risk Execution. Forceful panics and process terminations.
-            "high_risk_execution": re.compile(r"\b(@panic|panic|std\.process\.exit)\b"),
+            # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
+            "high_risk_execution": re.compile(r"\b(?:panic|std\.process\.exit)\b|@panic"),
             # 9. io: I/O & Network Boundaries. Standard library IO, Network, and Filesystem interactions.
             "io": re.compile(r"\b(std\.fs|std\.net|std\.io(?!\.getStdOut)|std\.ChildProcess|std\.posix|std\.os)\b"),
             # 10. api: Public Surface Area. Exposed boundaries via 'pub' and 'export' (C ABI).
@@ -6794,8 +6850,11 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Suspend/resume and thread primitives.
+            # BUG FIX: `@atomicLoad`/`@atomicStore`/`@atomicRmw` are
+            # `@`-prefixed builtins -- same leading-\b bug.
             "concurrency": re.compile(
-                r"\b(std\.Thread|std\.Thread\.Mutex|std\.Thread\.RwLock|std\.atomic|@atomicLoad|@atomicStore|@atomicRmw|suspend|resume|await)\b"
+                r"\b(?:std\.Thread|std\.Thread\.Mutex|std\.Thread\.RwLock|std\.atomic|suspend|resume|await)\b"
+                r"|@atomicLoad|@atomicStore|@atomicRmw"
             ),
             # 16. ui_framework: UI / View Components. (Zig lacks native UI; targets common bindings like Mach/zgui).
             "ui_framework": re.compile(r"\b(mach\.|zgui\.|zopengl\.|capy\.|vaxis\.|raylib\.)\b"),
@@ -6813,13 +6872,19 @@ LANGUAGE_DEFINITIONS = {
             # 21. comprehensions: Iterators / Comprehensions. (Not native to Zig).
             "comprehensions": None,
             # 22. scientific: Numerical / Compute Libraries. Math intrinsics and SIMD @Vector support.
-            "scientific": re.compile(r"\b(std\.math|@Vector|f16|f32|f64|f80|f128|@sqrt|@sin|@cos|@splat|@reduce)\b"),
+            # BUG FIX: `@Vector`/`@sqrt`/`@sin`/`@cos`/`@splat`/`@reduce`
+            # are `@`-prefixed builtins -- same leading-\b bug.
+            "scientific": re.compile(r"\b(?:std\.math|f16|f32|f64|f80|f128)\b|@Vector|@sqrt|@sin|@cos|@splat|@reduce"),
             # 23. heat_triggers: Metaprogramming & Reflection. Comptime metaprogramming and reflection.
+            # BUG FIX: `@Type`/`@typeInfo`/`@compileLog`/`@hasDecl`/
+            # `@hasField` are `@`-prefixed builtins -- same leading-\b bug.
             "reflection_metaprogramming": re.compile(
-                r"\b(comptime[ \t]*\{|inline\s+for|inline\s+while|@Type|@typeInfo|@compileLog|@hasDecl|@hasField)\b"
+                r"\b(?:comptime[ \t]*\{|inline\s+for|inline\s+while)\b|@Type|@typeInfo|@compileLog|@hasDecl|@hasField"
             ),
             # 24. import: Dependency Inclusions. Module and C-header bridges.
-            "import": re.compile(r"\b(@import|@cImport|@cInclude)\b"),
+            # BUG FIX: all 3 are `@`-prefixed builtins -- same leading-\b
+            # bug. None ever matched.
+            "import": re.compile(r"@import\b|@cImport\b|@cInclude\b"),
             "_dependency_capture": re.compile(
                 r"^[ \t]*(?:const[ \t]+[a-zA-Z_]\w*[ \t]*=[ \t]*)?(?:@import|@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
                 re.M,
@@ -6859,9 +6924,12 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
             "debug_prints": re.compile(r"\b(std\.debug\.print)\b"),
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit casting.
-            "explicit_casts": re.compile(r"\b(@ptrCast|@intCast|@alignCast|@bitCast|@as)\b"),
+            # BUG FIX: all 5 are `@`-prefixed builtins -- same leading-\b
+            # bug. None ever matched.
+            "explicit_casts": re.compile(r"@ptrCast\b|@intCast\b|@alignCast\b|@bitCast\b|@as\b"),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
-            "panics_and_aborts": re.compile(r"\b(@panic|unreachable|return)\b"),
+            # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
+            "panics_and_aborts": re.compile(r"\b(?:unreachable|return)\b|@panic"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
             "thread_sleeps": re.compile(r"\b(std\.time\.sleep)\b"),
             # 43. bitwise_ops (Bitwise Operations)
@@ -6954,8 +7022,13 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing safety (without sharing, raw casting).
+            # BUG FIX: `@SuppressWarnings` is `@`-prefixed -- the shared
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how annotations are actually
+            # written. Never matched at all.
             "safety_bypasses": re.compile(
-                r"\b(without\s+sharing|Database\.query(?!\s*\(.*?WITH\s+SECURITY_ENFORCED)|@SuppressWarnings)\b|\(\s*[A-Z_]\w*\s*\)\s*[a-z_]\w*",
+                r"\b(?:without\s+sharing|Database\.query(?!\s*\(.*?WITH\s+SECURITY_ENFORCED))\b"
+                r"|@SuppressWarnings|\(\s*[A-Z_]\w*\s*\)\s*[a-z_]\w*",
                 re.I,
             ),
             # 8. danger: High-Risk Execution. Dynamic SOQL, mass deletion, and hardcoded IDs.
@@ -7113,7 +7186,9 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers) Triggers listening for events.
             "listeners": re.compile(r"^[ \t]*trigger\s+[a-z_]\w*\s+on\b", re.I | re.M),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(StubProvider|Test\.setMock|@SuppressWarnings)\b", re.I),
+            # BUG FIX: `@SuppressWarnings` is `@`-prefixed -- same
+            # leading-\b bug as safety_bypasses above.
+            "test_skip": re.compile(r"\b(?:StubProvider|Test\.setMock)\b|@SuppressWarnings", re.I),
         },
     },
     "dart": {
@@ -7195,8 +7270,17 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. Null safety boundaries, type assertions, and required parameters.
+            # BUG FIX: `@immutable` and `@mustCallSuper` both start with `@`
+            # (non-word), so the shared leading \b could only fire when a
+            # word char immediately preceded the `@` -- never true for how
+            # annotations are actually written (always preceded by
+            # whitespace or a line start). Both never matched at all.
+            # (`!is` is a separate, harmless case: it still "matches" via
+            # the bare `is` alternative catching its own tail as a
+            # substring, so it isn't a functional miss -- left as-is.)
             "safety": re.compile(
-                r"\b(try|catch|finally|on\s+[A-Z]\w*|assert|required|late|is|!is|SafeArea|@immutable|@mustCallSuper)\b|\?\?|\?.",
+                r"\b(?:try|catch|finally|on\s+[A-Z]\w*|assert|required|late|is|!is|SafeArea)\b"
+                r"|@immutable|@mustCallSuper|\?\?|\?.",
                 re.I,
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing sound null safety or static analysis.
@@ -7230,8 +7314,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Event Loop primitives (Future, Stream, Isolate).
+            # BUG FIX: `sync\*` ended on `*` (non-word) inside the shared
+            # trailing \b group -- the generator-function modifier
+            # `sync* { ... }` never matched (no bare "sync" alternative
+            # exists to mask it, unlike `async*`, which happened to still
+            # match via the bare "async" alternative catching it as a
+            # substring). Pulled both `\*`-suffixed forms out for
+            # consistency.
             "concurrency": re.compile(
-                r"\b(async|async\*|sync\*|await|Future|Stream|Isolate|ReceivePort|SendPort|Completer|Timer|StreamSubscription)\b",
+                r"\b(?:async|await|Future|Stream|Isolate|ReceivePort|SendPort|Completer|Timer|StreamSubscription)\b"
+                r"|\basync\*|\bsync\*",
                 re.I,
             ),
             # 16. ui_framework: UI / View Components. Flutter Component trees and DOM nodes (Includes TBL triggers).
@@ -7240,7 +7332,16 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 17. closures: Closures / Anonymous Functions. Fat-arrows and anonymous function blocks.
-            "closures": re.compile(r"=>|\(\s*[^)]*\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
+            # BUG FIX (ReDoS): `[^)]*` was unbounded. Confirmed quadratic
+            # scaling (0.011s/0.045s/0.179s/0.713s/2.85s for n=5k/10k/20k/
+            # 40k/80k -- ~4x per doubling) against an adversarial run of
+            # unclosed `(` characters: at each of the ~n candidate `(`
+            # start positions, the unbounded class scans to the end of the
+            # string looking for a `)` that never appears, backtracking
+            # across the whole remaining length -- O(n) work at each of
+            # O(n) positions. Bounded to `{0,300}`, the same fix shape used
+            # elsewhere in this sweep.
+            "closures": re.compile(r"=>|\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
             # 18. globals: Global / Shared State. Static class fields and environmental bindings.
             "globals": re.compile(
                 r"\b(static\s+final|static\s+const|Platform\.environment|window\.|Zone\.current)\b|^[ \t]*(?:final|const|var)\s+[A-Za-z_$][\w$]*[ \t]*=",
@@ -7295,8 +7396,12 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 33. dependency_injection: Inversion of Control. GetIt, Provider, and Injectable markers.
+            # BUG FIX: `@injectable` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `@` -- never true for how
+            # annotations are actually written. Never matched at all.
             "dependency_injection": re.compile(
-                r"\b(GetIt\.I|GetIt\.instance|Provider\.of|ConsumerWidget|ref\.watch|ref\.read|Injector|@injectable)\b",
+                r"\b(?:GetIt\.I|GetIt\.instance|Provider\.of|ConsumerWidget|ref\.watch|ref\.read|Injector)\b|@injectable",
                 re.I,
             ),
             # 34. macros: Preprocessor Hooks. Modern macros and JsonSerializable generators.
@@ -7335,21 +7440,40 @@ LANGUAGE_DEFINITIONS = {
             # 44. sync_locks (Resource Management & Stability) Coordinated threading.
             "sync_locks": re.compile(r"\b(Mutex|Lock|synchronized|Semaphore|Completer)\b", re.I),
             # 45. immutability_locks (Immutability Constraints) Immutability.
-            "immutability_locks": re.compile(r"\b(const|final|readonly|@immutable)\b", re.I),
+            # BUG FIX: `@immutable` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded it -- never true for how annotations are
+            # actually written. Never matched at all.
+            "immutability_locks": re.compile(r"\b(?:const|final|readonly)\b|@immutable", re.I),
             # 46. cleanup (Resource Cleanup / Teardown) Resource release.
             "cleanup": re.compile(r"\b(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I),
             # 47. encapsulation Scope hiding (Underscore prefix).
             "encapsulation": re.compile(r"\b(_[a-zA-Z0-9_$]+)\b|@protected|@private"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(on\(|addEventListener|subscribe|watch|useEffect|listen)\b", re.I),
+            # BUG FIX: `on\(` ends on `(` (non-word), so the shared trailing
+            # \b could only fire when a word char immediately followed --
+            # never true for the common real call shape `on('event', ...)`,
+            # where a quote follows the paren.
+            "listeners": re.compile(r"\bon\(|\b(?:addEventListener|subscribe|watch|useEffect|listen)\b", re.I),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(@Ignore|test\.skip|t\.Skip|xit|mock)\b", re.I),
+            # BUG FIX: `@Ignore` starts with `@` (non-word), so the shared
+            # leading \b could only fire when a word char immediately
+            # preceded it -- never true for how annotations are actually
+            # written. Never matched at all.
+            "test_skip": re.compile(r"@Ignore|\b(?:test\.skip|t\.Skip|xit|mock)\b", re.I),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Dart Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(jsonDecode|jsonEncode|json\.decode|json\.encode|Utf8Decoder|Utf8Encoder)\b"
             ),
             "regex_execution": re.compile(r"\b(RegExp\s*\()|\.(hasMatch|allMatches|stringMatch)\b"),
-            "time_date_logic": re.compile(r"\b(DateTime\.now|Duration\s*\(|Timer\.run|Timer\.periodic|Stopwatch)\b"),
+            # BUG FIX: `Duration\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # -- true for the common named-argument form (`Duration(seconds:
+            # 5)`) but not for the zero-argument form (`Duration()`), where
+            # `)` (non-word) follows and the boundary fails.
+            "time_date_logic": re.compile(
+                r"\b(?:DateTime\.now|Timer\.run|Timer\.periodic|Stopwatch)\b|\bDuration\s*\("
+            ),
             "ipc_rpc_bridges": re.compile(
                 r"\b(Isolate\.spawn|ReceivePort|SendPort|Process\.run|Process\.start|HttpClient)\b"
             ),
@@ -7424,8 +7548,14 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(Option|Some|None|Try|Success|Failure|Either|Left|Right|sealed|require|assert|assume)\b|\|\s*Null\b"
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing type safety (asInstanceOf, .get).
+            # BUG FIX: `@unchecked` is `@`-prefixed -- the shared leading
+            # \b could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all. (`.get` is left as-is: a leading `.` is
+            # preceded by an identifier in real method-chain usage, so that
+            # leading \b fires correctly.)
             "safety_bypasses": re.compile(
-                r"\b(null|asInstanceOf|isInstanceOf|\.get\b(?!Class)|@unchecked|Any|AnyRef)\b"
+                r"\b(?:null|asInstanceOf|isInstanceOf|Any|AnyRef)\b|\.get\b(?!Class)|@unchecked"
             ),
             # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
             "high_risk_execution": re.compile(r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime\.exec)\b"),
@@ -7531,8 +7661,12 @@ LANGUAGE_DEFINITIONS = {
             # 32. events: Pub/Sub Network. Stream processing and event bus signatures.
             "events": re.compile(r"\b(Source|Flow|Sink|fs2\.Stream|ZStream|EventBus|system\.eventStream|Observable)\b"),
             # 33. dependency_injection: Inversion of Control. ZLayer and ReaderT patterns.
+            # BUG FIX: `@Inject` is `@`-prefixed -- the shared leading \b
+            # could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all.
             "dependency_injection": re.compile(
-                r"\b(@Inject|wire\[|ZLayer|ZLayer\.from|provide|provideSome|ReaderT|Kleisli|requires)\b"
+                r"\b(?:wire\[|ZLayer|ZLayer\.from|provide|provideSome|ReaderT|Kleisli|requires)\b|@Inject"
             ),
             # 34. macros: Preprocessor Hooks. Scala 3 inline and quoted metaprogramming.
             "macros": re.compile(
@@ -8936,8 +9070,12 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 10. api: Public Surface Area. Exposed RFCs, OData publishing, and Public sections.
+            # BUG FIX: `@OData\.publish` is `@`-prefixed -- the shared
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how this annotation is
+            # actually written. Never matched at all.
             "api": re.compile(
-                r"\b(REMOTE\s+FUNCTION|@OData\.publish|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b",
+                r"\b(?:REMOTE\s+FUNCTION|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b|@OData\.publish",
                 re.I,
             ),
             # 11. flux: State Mutation. State mutation (The core of ABAP data manipulation).
@@ -10237,15 +10375,24 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
+            # BUG FIX: `@ResponseBody` is `@`-prefixed -- the shared leading
+            # \b could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all.
             "ssr_boundaries": re.compile(
-                r"\b(MarkupBuilder|StreamingMarkupBuilder|TemplateEngine|HttpServletRequest|HttpServletResponse|@ResponseBody)\b"
+                r"\b(?:MarkupBuilder|StreamingMarkupBuilder|TemplateEngine|HttpServletRequest|HttpServletResponse)\b"
+                r"|@ResponseBody"
             ),
             # 32. events (Event Emitters / Pub-Sub)
-            "events": re.compile(r"\b(ApplicationEvent|ApplicationListener|@EventListener|publishEvent)\b"),
+            # BUG FIX: `@EventListener` is `@`-prefixed -- same bug.
+            "events": re.compile(r"\b(?:ApplicationEvent|ApplicationListener|publishEvent)\b|@EventListener"),
             # 33. dependency_injection (Dependency Injection / IoC)
             # Heavily captures Gradle plugin and dependency architecture.
+            # BUG FIX: 7 of the 10 alternatives are `@`-prefixed Spring
+            # annotations -- same bug, at scale.
             "dependency_injection": re.compile(
-                r"\b(@Autowired|@Inject|@Component|@Service|@Repository|@Bean|@Configuration|apply\s+plugin|plugins\s*\{|dependencies\s*\{)\b"
+                r"\b(?:apply\s+plugin|plugins\s*\{|dependencies\s*\{)\b"
+                r"|@Autowired|@Inject|@Component|@Service|@Repository|@Bean|@Configuration"
             ),
             # 34. macros
             "macros": None,
@@ -10278,7 +10425,8 @@ LANGUAGE_DEFINITIONS = {
             # 44. sync_locks (Resource Management & Stability)
             "sync_locks": re.compile(r"\b(synchronized|ReentrantLock|ReadWriteLock|Semaphore|Lock|Mutex)\b"),
             # 45. immutability_locks (Immutability Constraints)
-            "immutability_locks": re.compile(r"\b(final|@Immutable)\b"),
+            # BUG FIX: `@Immutable` is `@`-prefixed -- same leading-\b bug.
+            "immutability_locks": re.compile(r"\bfinal\b|@Immutable"),
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(close|dispose|shutdown)\b\s*\("),
             # 47. encapsulation (Access Modifiers / Encapsulation)

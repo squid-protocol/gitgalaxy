@@ -35,9 +35,7 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
         # THE FIX: Violently kill the OS process so it doesn't trap pytest's atexit handler
         p.terminate()
         p.join()  # Reap the zombie process instantly
-        raise AssertionError(
-            f"🔥 ReDoS TRIGGERED! Regex hung on payload:\n{payload}\nRegex: {pattern.pattern}"
-        )
+        raise AssertionError(f"🔥 ReDoS TRIGGERED! Regex hung on payload:\n{payload}\nRegex: {pattern.pattern}")
 
     if not result_queue.empty():
         duration = result_queue.get()
@@ -57,11 +55,7 @@ def test_c_knr_ambiguity_trap():
 
     # The Pathological String: 100 parameters, no semicolon, ending in an invalid token.
     # Without the negative lookahead and {0,150} bounds, this will freeze the CPU.
-    poison_knr = (
-        "int legacy_func(a, b, c) \n"
-        + "    int a; int b; int c;\n" * 50
-        + "    INVALID_MACRO"
-    )
+    poison_knr = "int legacy_func(a, b, c) \n" + "    int a; int b; int c;\n" * 50 + "    INVALID_MACRO"
 
     assert_redos_immune(c_func, poison_knr, timeout_sec=3.0)
 
@@ -85,11 +79,7 @@ def test_csharp_iron_wall_redos():
 
     # The Pathological String: Deeply nested generics, missing the final brace,
     # packed with spaces that would normally trigger (Space)+ Space+ overlaps.
-    poison_cs = (
-        "    public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n"
-        * 20
-        + "    BrokenMethod"
-    )
+    poison_cs = "    public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n" * 20 + "    BrokenMethod"
 
     assert_redos_immune(cs_func, poison_cs)
 
@@ -157,15 +147,11 @@ def test_cobol_ghost_satellite_prevention():
 
     # 1. The SQL Ghost (Indented table column with a period)
     sql_ghost = "           POLICY.CUSTOMERNUMBER."
-    assert len(list(cobol_func.finditer(sql_ghost))) == 0, (
-        "Hallucinated an SQL column as a paragraph!"
-    )
+    assert len(list(cobol_func.finditer(sql_ghost))) == 0, "Hallucinated an SQL column as a paragraph!"
 
     # 2. The Data Ghost (01 Level)
     data_ghost = "       01  WS-POLICY-RECORD."
-    assert len(list(cobol_func.finditer(data_ghost))) == 0, (
-        "Hallucinated a Data Division struct as a paragraph!"
-    )
+    assert len(list(cobol_func.finditer(data_ghost))) == 0, "Hallucinated a Data Division struct as a paragraph!"
 
     # 3. The Valid Paragraph
     valid_para = "       100-PROCESS-RECORDS SECTION."
@@ -185,30 +171,18 @@ def test_thermodynamic_operator_collisions():
     """
     # 1. C++ Bitwise vs. I/O Streams
     cpp_bitwise = LANGUAGE_DEFINITIONS["cpp"]["rules"]["bitwise_ops"]
-    assert len(list(cpp_bitwise.finditer("std::cout << 'Hello'"))) == 0, (
-        "C++ bitwise tripped on a cout stream!"
-    )
-    assert len(list(cpp_bitwise.finditer("x <<= 1;"))) == 1, (
-        "C++ bitwise failed to catch explicit shift assignment!"
-    )
+    assert len(list(cpp_bitwise.finditer("std::cout << 'Hello'"))) == 0, "C++ bitwise tripped on a cout stream!"
+    assert len(list(cpp_bitwise.finditer("x <<= 1;"))) == 1, "C++ bitwise failed to catch explicit shift assignment!"
 
     # 2. Rust Closures vs. Bitwise
     rust_bitwise = LANGUAGE_DEFINITIONS["rust"]["rules"]["bitwise_ops"]
-    assert len(list(rust_bitwise.finditer("let x = |a| a + 1;"))) == 0, (
-        "Rust bitwise tripped on a closure!"
-    )
-    assert len(list(rust_bitwise.finditer("a ^ b"))) == 1, (
-        "Rust bitwise failed to catch XOR!"
-    )
+    assert len(list(rust_bitwise.finditer("let x = |a| a + 1;"))) == 0, "Rust bitwise tripped on a closure!"
+    assert len(list(rust_bitwise.finditer("a ^ b"))) == 1, "Rust bitwise failed to catch XOR!"
 
     # 3. TypeScript Test Assertions vs. Object Methods
     ts_test = LANGUAGE_DEFINITIONS["typescript"]["rules"]["test"]
-    assert len(list(ts_test.finditer("myRegex.test('string')"))) == 0, (
-        "TS test metric tripped on a regex.test() call!"
-    )
-    assert len(list(ts_test.finditer("test('should work', () => {"))) == 1, (
-        "TS test metric missed a real test block!"
-    )
+    assert len(list(ts_test.finditer("myRegex.test('string')"))) == 0, "TS test metric tripped on a regex.test() call!"
+    assert len(list(ts_test.finditer("test('should work', () => {"))) == 1, "TS test metric missed a real test block!"
 
 
 # ==============================================================================
@@ -231,10 +205,7 @@ def test_global_regex_syntax_integrity():
                 except Exception as e:
                     failed.append(f"{lang}::{rule_name} -> {e}")
 
-    assert not failed, (
-        f"Found {len(failed)} uncompiled or broken regexes in production schema:\n"
-        + "\n".join(failed)
-    )
+    assert not failed, f"Found {len(failed)} uncompiled or broken regexes in production schema:\n" + "\n".join(failed)
 
 
 # ==============================================================================
@@ -260,11 +231,7 @@ def test_global_regex_syntax_integrity_catch(monkeypatch):
     import sys
 
     # Inject a fake broken regex to trigger the exception block
-    fake_defs = {
-        "fake_lang": {
-            "rules": {"broken_rule": "This is a string, not a compiled regex object!"}
-        }
-    }
+    fake_defs = {"fake_lang": {"rules": {"broken_rule": "This is a string, not a compiled regex object!"}}}
 
     # Patch the locally imported variable inside THIS file's namespace!
     monkeypatch.setattr(sys.modules[__name__], "LANGUAGE_DEFINITIONS", fake_defs)
@@ -727,12 +694,12 @@ _HS_SIMPLE_CASES = [
     ("safety", "case result of\n  Just x -> x\n  Nothing -> 0", None),
     ("safety_bypasses", "fromJust maybeValue", None),
     ("high_risk_execution", "exitWith (ExitFailure 1)", None),
-    ("io", "contents <- readFile \"f.txt\"", None),
+    ("io", 'contents <- readFile "f.txt"', None),
     ("state_mutation", "modifyIORef ref (+1)", None),
     ("dead_code", "-- data OldType = OldType", "-- just a note"),
     ("doc", "-- | A Haddock doc comment", None),
     ("test", 'describe "my suite" $ do', None),
-    ("concurrency", "forkIO (putStrLn \"hi\")", None),
+    ("concurrency", 'forkIO (putStrLn "hi")', None),
     ("ui_framework", "import Brick", None),
     ("closures", "\\x -> x + 1", None),
     ("globals", "counter :: IORef Int\ncounter = unsafePerformIO (newIORef 0)", None),
@@ -751,9 +718,9 @@ _HS_SIMPLE_CASES = [
     ("macros", "{-# LANGUAGE OverloadedStrings #-}", None),
     ("pointers", "peek ptr", None),
     ("memory_alloc", "allocaBytes 1024 $ \\p -> f p", None),
-    ("inline_asm", "foreign import ccall \"sin\" c_sin :: Double -> Double", None),
-    ("telemetry", "logInfo \"started\"", None),
-    ("debug_prints", "putStrLn \"debug\"", None),
+    ("inline_asm", 'foreign import ccall "sin" c_sin :: Double -> Double', None),
+    ("telemetry", 'logInfo "started"', None),
+    ("debug_prints", 'putStrLn "debug"', None),
     ("explicit_casts", "fromIntegral x", None),
     ("panics_and_aborts", "throwIO MyException", None),
     ("thread_sleeps", "threadDelay 1000000", None),
@@ -761,7 +728,7 @@ _HS_SIMPLE_CASES = [
     ("immutability_locks", "pure x", None),
     ("cleanup", "hClose handle", None),
     ("listeners", "subscribe channel handler", None),
-    ("test_skip", "it \"should work\" $ pending", None),
+    ("test_skip", 'it "should work" $ pending', None),
     ("serialization_parsing", "decode jsonBytes", None),
     ("regex_execution", "text =~ pattern", None),
     ("time_date_logic", "getCurrentTime", None),
@@ -861,9 +828,9 @@ def test_haskell_globals_unsafeperformio_bug():
     assert pattern.search("counter :: IORef Int\ncounter = unsafePerformIO (newIORef 0)"), (
         "Failed to match the real-world unsafePerformIO global idiom across two lines"
     )
-    assert pattern.search(
-        "counter :: IORef Int\n{-# NOINLINE counter #-}\ncounter = unsafePerformIO (newIORef 0)"
-    ), "Failed to match with a NOINLINE pragma between the signature and the binding"
+    assert pattern.search("counter :: IORef Int\n{-# NOINLINE counter #-}\ncounter = unsafePerformIO (newIORef 0)"), (
+        "Failed to match with a NOINLINE pragma between the signature and the binding"
+    )
     assert not pattern.search("counter :: IORef Int\ncounter = newIORef 0"), (
         "Incorrectly matched a plain IORef binding with no unsafePerformIO at all"
     )
@@ -961,7 +928,7 @@ _OBJC_SIMPLE_CASES = [
     ("pointers", "SEL selector = @selector(foo);", None),
     ("memory_alloc", "id obj = [MyClass alloc];", None),
     ("inline_asm", '__asm__ volatile ("nop");', None),
-    ("telemetry", "os_log(OS_LOG_DEFAULT, \"started\");", None),
+    ("telemetry", 'os_log(OS_LOG_DEFAULT, "started");', None),
     ("debug_prints", 'NSLog(@"debug value");', None),
     ("explicit_casts", "(NSString *)obj", None),
     ("panics_and_aborts", "@throw exception;", None),
@@ -970,10 +937,14 @@ _OBJC_SIMPLE_CASES = [
     ("immutability_locks", "const int x = 1;", None),
     ("cleanup", "[obj release];", None),
     ("encapsulation", "@private\nint _secret;", None),
-    ("listeners", "[self addObserver:self forKeyPath:@\"x\"];", None),
-    ("test_skip", "XCTSkip(\"not ready\");", None),
+    ("listeners", '[self addObserver:self forKeyPath:@"x"];', None),
+    ("test_skip", 'XCTSkip("not ready");', None),
     ("serialization_parsing", "[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];", None),
-    ("regex_execution", "NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:p options:0 error:nil];", None),
+    (
+        "regex_execution",
+        "NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:p options:0 error:nil];",
+        None,
+    ),
     ("time_date_logic", "NSDate *now = [NSDate date];", None),
     ("ipc_rpc_bridges", "NSTask *task = [[NSTask alloc] init];", None),
 ]
@@ -1023,7 +994,7 @@ def test_objectivec_class_start_captures_name():
 
 def test_objectivec_import_dependency_capture():
     dep_pattern = OBJC_RULES["_dependency_capture"]
-    m = dep_pattern.search('#import <Foundation/Foundation.h>')
+    m = dep_pattern.search("#import <Foundation/Foundation.h>")
     assert m is not None
     assert "Foundation/Foundation.h" in m.groups()
 
@@ -1388,6 +1359,284 @@ def test_perl_decorators_redos_immunity():
 
 
 # ==============================================================================
+# DART: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #578)
+# ==============================================================================
+DART_RULES = LANGUAGE_DEFINITIONS["dart"]["rules"]
+
+_DART_SIMPLE_CASES = [
+    # (signature, positive snippet, text expected to NOT match / None to skip)
+    ("branch", "if (x) { return; }", None),
+    ("args", "void foo(int x) {", None),
+    ("structural_boundaries", "await foo();", None),
+    ("func_start", "void foo() {", None),
+    ("class_start", "class Foo {", None),
+    ("safety", "try { risky(); } catch (e) {}", None),
+    ("safety_bypasses", "x!;", None),
+    ("high_risk_execution", "exit(1);", None),
+    ("io", "File('test.txt').readAsStringSync();", None),
+    ("api", "export 'src/foo.dart';", None),
+    ("state_mutation", "list.add(1);", None),
+    ("dead_code", "// if (x) {", "// just a note"),
+    ("doc", "/// This is a doc comment", None),
+    ("test", "test('should work', () {});", None),
+    ("concurrency", "await foo();", None),
+    ("ui_framework", "Widget build(BuildContext context) {", None),
+    ("closures", "(int x) { return x + 1; }", None),
+    ("globals", "static const x = 5;", None),
+    ("decorators", "@override", None),
+    ("generics", "List<String> names;", None),
+    ("comprehensions", "[for (var x in list) x * 2]", None),
+    ("scientific", "math.sqrt(4);", None),
+    ("reflection_metaprogramming", "noSuchMethod(invocation);", None),
+    ("import", "import 'package:foo/foo.dart';", None),
+    ("ownership", "// Author: Jane Doe", None),
+    ("planned_debt", "// TODO: refactor", None),
+    ("fragile_debt", "// HACK: workaround", None),
+    ("spec_exposure", "// [SPEC-123] implements the contract", None),
+    ("ssr_boundaries", "Response.ok('hi');", None),
+    ("events", "myStream.listen(onData);", None),
+    ("dependency_injection", "GetIt.instance.get<Foo>();", None),
+    ("macros", "@JsonSerializable()", None),
+    ("pointers", "Pointer<Int32> p;", None),
+    ("memory_alloc", "malloc.allocate(10);", None),
+    ("telemetry", "log.info('message');", None),
+    ("debug_prints", "print('debug');", None),
+    ("explicit_casts", "x as String;", None),
+    ("panics_and_aborts", "throw Exception('err');", None),
+    ("thread_sleeps", "sleep(Duration(seconds: 1));", None),
+    ("bitwise_ops", "a & b;", None),
+    ("sync_locks", "final lock = Mutex();", None),
+    ("immutability_locks", "const x = 5;", None),
+    ("cleanup", "controller.dispose();", None),
+    ("encapsulation", "int _secret = 5;", None),
+    ("listeners", "emitter.on('event', cb);", None),
+    ("test_skip", "@Ignore('reason')", None),
+    ("serialization_parsing", "jsonDecode(response.body);", None),
+    ("regex_execution", r"RegExp(r'\d+');", None),
+    ("time_date_logic", "DateTime.now();", None),
+    ("ipc_rpc_bridges", "Isolate.spawn(entryPoint, message);", None),
+]
+
+
+@pytest.mark.parametrize("signature,positive,negative", _DART_SIMPLE_CASES)
+def test_dart_signature_positive_and_negative(signature, positive, negative):
+    pattern = DART_RULES[signature]
+    assert pattern is not None, f"dart's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"dart {signature!r} failed to match its own documented positive case"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"dart {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
+        )
+
+
+def test_dart_args_control_flow_shield_and_redos_immunity():
+    pattern = DART_RULES["args"]
+    assert pattern.search("void foo(int x) {")
+    assert pattern.search("(int x) => x + 1;")
+    assert not pattern.search("if (x > 0) {"), "args hallucinated on an if statement"
+    assert not pattern.search("while (x) {"), "args hallucinated on a while statement"
+    assert not pattern.search("switch (x) {"), "args hallucinated on a switch statement"
+
+    poison_unclosed = "foo(" + "(a)" * 20000
+    assert_redos_immune(pattern, poison_unclosed, timeout_sec=3.0)
+    poison_deep = "foo(" + "(" * 20000
+    assert_redos_immune(pattern, poison_deep, timeout_sec=3.0)
+
+
+def test_dart_func_start_captures_name_with_modifiers_and_redos_immunity():
+    pattern = DART_RULES["func_start"]
+    m = pattern.search("void foo(int x) {")
+    assert m is not None
+    assert m.group(1) == "foo"
+
+    m2 = pattern.search("static external Future<void> bar() {")
+    assert m2 is not None
+    assert m2.group(1) == "bar"
+
+    m3 = pattern.search("get value() => _value;")
+    assert m3 is not None
+    assert m3.group(1) == "value"
+
+    assert not pattern.search("class Foo {"), "func_start incorrectly matched a class declaration"
+    assert not pattern.search("if (x) {"), "func_start incorrectly matched an if statement"
+
+    poison = "@a.b.c() " * 5 + "static " * 5 + " " * 40000 + "foo("
+    assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+def test_dart_class_start_captures_name_with_modifiers_and_inheritance():
+    pattern = DART_RULES["class_start"]
+    m = pattern.search("class Foo {")
+    assert m is not None
+    assert m.group(1) == "Foo"
+
+    m2 = pattern.search("abstract class Base {")
+    assert m2 is not None
+    assert m2.group(1) == "Base"
+
+    m3 = pattern.search("class Token extends Base implements Comparable {")
+    assert m3 is not None
+    assert m3.group(1) == "Token"
+
+    poison = "abstract\n" * 5 + "class Foo extends " + "Bar, " * 20000
+    assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+def test_dart_import_dependency_capture():
+    dep_pattern = DART_RULES["_dependency_capture"]
+    m = dep_pattern.search("import 'package:foo/foo.dart';")
+    assert m is not None
+    assert "package:foo/foo.dart" in m.groups()
+
+    m2 = dep_pattern.search("part of 'main.dart';")
+    assert m2 is not None
+    assert "main.dart" in m2.groups()
+
+
+def test_dart_concurrency_generator_modifier_boundary_regression():
+    """
+    Regression test: `sync\\*` ended on `*` (non-word), so the shared
+    trailing \\b could only fire when a word char immediately followed --
+    never true for the real generator-function modifier `sync* { ... }`.
+    Unlike `async*` (which happened to still match via the bare "async"
+    alternative catching it as a substring), no bare "sync" alternative
+    exists, so this one was completely unreachable.
+    """
+    pattern = DART_RULES["concurrency"]
+    assert pattern.search("Iterable<int> foo() sync* { yield 1; }"), "sync* still didn't match"
+    assert pattern.search("Stream<int> foo() async* { yield 1; }")
+    assert pattern.search("Future<void> foo() async { }")
+    assert not pattern.search("int x = 5;")
+
+
+def test_dart_listeners_call_form_boundary_regression():
+    """
+    Regression test: `on\\(` ends in a literal `(`, so the shared trailing
+    \\b could only fire when a word char immediately followed -- never
+    true for the common real call shape `on('event', ...)`, where a quote
+    follows the paren.
+    """
+    pattern = DART_RULES["listeners"]
+    assert pattern.search("emitter.on('data', callback);"), "on(...) still didn't match its most common form"
+    assert pattern.search("el.addEventListener('click', cb);")
+
+
+def test_dart_time_date_logic_duration_empty_args_boundary_regression():
+    """
+    Regression test: `Duration\\s*\\(` ends on `(`, so the shared trailing
+    \\b only fired when a word char immediately followed -- true for the
+    named-argument form (`Duration(seconds: 5)`) but not the zero-argument
+    form (`Duration()`), where `)` follows and the boundary failed.
+    """
+    pattern = DART_RULES["time_date_logic"]
+    assert pattern.search("final d = Duration();"), "the zero-argument Duration() form still didn't match"
+    assert pattern.search("Duration(seconds: 5);")
+    assert pattern.search("DateTime.now();")
+
+
+def test_dart_closures_redos_immunity():
+    """
+    Regression test for a confirmed real O(n^2) ReDoS: the anonymous
+    function block alternative's `[^)]*` was unbounded. Against an
+    adversarial run of unclosed `(` characters this scaled ~4x per
+    doubling of n (0.011s/0.045s/0.179s/0.713s/2.85s at
+    n=5k/10k/20k/40k/80k) before being bounded to `{0,300}`.
+    """
+    pattern = DART_RULES["closures"]
+    poison = "foo(" + "(" * 80000
+    assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+    # Correctness must survive the bound.
+    assert pattern.search("(int x) { return x + 1; }")
+    assert pattern.search("() async { await foo(); }")
+    assert pattern.search("() sync* { yield 1; }")
+    assert pattern.search("foo(a, b) => a + b;")
+
+
+def test_dart_ambiguity_sweep_shared_literals_are_not_bugs():
+    """
+    Documents several pairs the automated ambiguity sweep flagged for
+    sharing literal keywords: api<->dead_code/func_start
+    ("class"/"mixin"/"enum"/"extension"/"typedef"), args<->comprehensions/
+    dead_code/func_start ("if"/"for"/"while"/"switch"/"catch"),
+    class_start<->func_start ("abstract"), class_start<->globals
+    ("final"), comprehensions<->dead_code/func_start ("for"/"if"),
+    dead_code<->func_start. All confirmed false positives: dead_code's
+    `//`/`/*` comment-prefix requirement disambiguates it, args/
+    comprehensions/func_start's built-in control-flow keyword exclusions
+    (verified directly, not just via the negative lookahead's presence)
+    prevent them from ever matching bare if/for/while/switch statements,
+    and class_start requires an explicit class/mixin/enum keyword so it
+    never collides with func_start's `abstract` modifier or globals'
+    top-level `final` declarations on the same line.
+    """
+    api = DART_RULES["api"]
+    dead_code = DART_RULES["dead_code"]
+    func_start = DART_RULES["func_start"]
+    args = DART_RULES["args"]
+    comprehensions = DART_RULES["comprehensions"]
+    class_start = DART_RULES["class_start"]
+    globals_ = DART_RULES["globals"]
+
+    live_class = "class Foo {"
+    assert api.search(live_class) and not func_start.search(live_class) and not dead_code.search(live_class)
+
+    commented_class = "// class Foo {"
+    assert dead_code.search(commented_class)
+    assert not api.search(commented_class) and not func_start.search(commented_class)
+
+    for stmt in ("if (x > 0) {", "for (var i = 0; i < 10; i++) {", "while (x) {", "switch (x) {"):
+        assert not args.search(stmt), f"args hallucinated on {stmt!r}"
+        assert not func_start.search(stmt), f"func_start hallucinated on {stmt!r}"
+    assert not comprehensions.search("if (x > 0) {")
+    assert not comprehensions.search("for (var i = 0; i < 10; i++) {")
+
+    assert dead_code.search("// if (x) {")
+    assert not args.search("// if (x) {")
+
+    assert class_start.search("abstract class Foo {")
+    assert not func_start.search("abstract class Foo {")
+
+    assert globals_.search("final x = 5;")
+    assert not class_start.search("final x = 5;")
+
+    comp_literal = "[for (var x in list) x * 2]"
+    assert comprehensions.search(comp_literal)
+    assert not dead_code.search(comp_literal) and not func_start.search(comp_literal)
+
+
+def test_dart_test_vs_regex_execution_no_false_collision():
+    """
+    Known ambiguity pattern from the issue template (TypeScript's
+    `myRegex.test('x')` colliding with its test-framework `.test(`):
+    dart's `test` signature only matches the bareword `test`/`testWidgets`
+    functions or `expect`/`verify`/`when` calls, never a `.test(` method
+    call, so it doesn't collide with `regex_execution`'s `RegExp(...)`/
+    `.hasMatch`/`.allMatches` forms.
+    """
+    test_pattern = DART_RULES["test"]
+    regex_pattern = DART_RULES["regex_execution"]
+    assert test_pattern.search("test('should work', () {});")
+    assert regex_pattern.search("myRegex.hasMatch(input);")
+    assert not test_pattern.search("myRegex.hasMatch(input);"), "test incorrectly matched a regex method call"
+
+
+def test_dart_explicit_casts_and_pointers_no_false_collision():
+    """
+    Known ambiguity pattern from the issue template (C's cast syntax
+    overlapping pointer-asterisk repetition): dart's explicit_casts
+    (`as Type` / `(Type) value`) and pointers (dart:ffi `Pointer<`/
+    `NativeFunction<`) don't share tokens and fire independently.
+    """
+    casts = DART_RULES["explicit_casts"]
+    pointers = DART_RULES["pointers"]
+    assert casts.search("x as String;")
+    assert not casts.search("Pointer<Int32> p;"), "explicit_casts incorrectly matched an ffi pointer declaration"
+    assert pointers.search("Pointer<Int32> p;")
+    assert not pointers.search("x as String;"), "pointers incorrectly matched an explicit cast"
+
+
+# ==============================================================================
 # SOLIDITY: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #611)
 # ==============================================================================
 SOLIDITY_RULES = LANGUAGE_DEFINITIONS["solidity"]["rules"]
@@ -1513,9 +1762,7 @@ def test_solidity_ipc_rpc_bridges_boundary_regressions():
         "the idiomatic spaced .call{value: ...} form still didn't match"
     )
     assert pattern.search('target.call{value:amount}("");')
-    assert pattern.search("emit Transfer(from, to, amount);"), (
-        "a real multi-character event name still didn't match"
-    )
+    assert pattern.search("emit Transfer(from, to, amount);"), "a real multi-character event name still didn't match"
     assert pattern.search("target.delegatecall(data);")
     assert pattern.search("target.staticcall(data);")
     assert pattern.search("selfdestruct(payable(owner));")
@@ -1586,3 +1833,106 @@ def test_solidity_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("uint256 memory x;"), "explicit_casts incorrectly matched a memory location keyword"
     assert pointers.search("uint256 memory arr;")
     assert not pointers.search("uint256(x);"), "pointers incorrectly matched an explicit cast"
+
+
+# ==============================================================================
+# CROSS-LANGUAGE SWEEP: `@`-PREFIXED LEADING-\b BOUNDARY BUGS
+# ==============================================================================
+# Found while investigating dart's `test_skip` (`@Ignore` never matched) and
+# broadening the earlier find_symbolic_boundary_bugs.py-style sweep to also
+# check the START of each \b(...)\b alternative, not just the end. `@` is a
+# non-word character, so a shared LEADING \b before a `@`-prefixed
+# alternative can only fire when a word character immediately precedes the
+# `@` -- never true for how annotations/attributes/decorators are actually
+# written (always preceded by whitespace or a line start). This silently
+# blinded 10 already-"closed" or partially-fixed languages to nearly all of
+# their annotation-based structural signatures. Each language's own
+# dedicated closure PR already covers this signature; these are targeted
+# regressions for the specific alternatives found broken, bundled together
+# the same way the earlier ReDoS (#631) and symbolic-\b (#637) cross-language
+# sweeps were.
+
+
+def test_java_at_prefixed_annotations_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["java"]["rules"]
+    assert r["ui_framework"].search("@ModelAttribute\npublic String foo() {}")
+    assert r["ssr_boundaries"].search("@ResponseBody\npublic String foo() {}")
+    assert r["ssr_boundaries"].search("@ResponseStatus(HttpStatus.OK)")
+    assert r["events"].search("@EventListener\npublic void onEvent() {}")
+    assert r["events"].search('@KafkaListener(topics = "x")')
+    assert r["dependency_injection"].search("@Autowired\nprivate Foo foo;")
+    assert r["dependency_injection"].search("@Component\npublic class Foo {}")
+    assert r["listeners"].search('@KafkaListener(topics = "x")')
+
+
+def test_swift_at_prefixed_attributes_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["swift"]["rules"]
+    assert r["api"].search("@objc func foo() {}")
+    assert r["api"].search("@IBOutlet weak var label: UILabel!")
+    assert r["ui_framework"].search("@State private var count = 0")
+    assert r["reflection_metaprogramming"].search("@objc dynamic func foo() {}")
+    assert r["events"].search("@Published var value = 0")
+    assert r["dependency_injection"].search("@Inject var service: FooService")
+
+
+def test_css_at_rules_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["css"]["rules"]
+    assert r["branch"].search("@media (max-width: 600px) {")
+    assert r["branch"].search("@container (min-width: 400px) {")
+    assert r["structural_boundaries"].search("@keyframes spin {")
+    assert r["structural_boundaries"].search("@font-face {")
+
+
+def test_fortran_pfunit_annotations_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["fortran"]["rules"]
+    assert r["test"].search("@test")
+    assert r["test"].search("@assertEqual(1, 1)")
+
+
+def test_embedded_python_route_decorators_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["embedded_python"]["rules"]
+    assert r["ssr_boundaries"].search('@app.get("/")')
+    assert r["ssr_boundaries"].search('@app.post("/")')
+
+
+def test_zig_at_builtins_leading_boundary_regression():
+    """
+    Zig's cast/reflection/atomics/scientific operations are all `@builtin`
+    forms -- this was the single most affected language, with 8 separate
+    signatures silently blind to their primary detection surface.
+    """
+    r = LANGUAGE_DEFINITIONS["zig"]["rules"]
+    assert r["safety_bypasses"].search("@ptrCast(x)")
+    assert r["safety_bypasses"].search("const x: u8 = @truncate(y);")
+    assert r["high_risk_execution"].search('@panic("oops");')
+    assert r["concurrency"].search("@atomicLoad(u32, &x, .SeqCst);")
+    assert r["scientific"].search("const v = @Vector(4, f32);")
+    assert r["reflection_metaprogramming"].search("@typeInfo(T);")
+    assert r["import"].search('@import("std");')
+    assert r["explicit_casts"].search("@intCast(x);")
+    assert r["panics_and_aborts"].search('@panic("err");')
+
+
+def test_apex_suppresswarnings_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["apex"]["rules"]
+    assert r["safety_bypasses"].search("@SuppressWarnings('PMD')")
+    assert r["test_skip"].search("@SuppressWarnings('PMD')")
+
+
+def test_scala_at_prefixed_annotations_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["scala"]["rules"]
+    assert r["safety_bypasses"].search("case x: String @unchecked => x")
+    assert r["dependency_injection"].search("@Inject val service: FooService")
+
+
+def test_abap_odata_publish_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["abap"]["rules"]
+    assert r["api"].search("@OData.publish: true")
+
+
+def test_groovy_at_prefixed_annotations_leading_boundary_regression():
+    r = LANGUAGE_DEFINITIONS["groovy"]["rules"]
+    assert r["ssr_boundaries"].search("@ResponseBody\ndef foo() {}")
+    assert r["events"].search("@EventListener\ndef onEvent() {}")
+    assert r["dependency_injection"].search("@Autowired\nFooService foo")
+    assert r["immutability_locks"].search("@Immutable\nclass Point {}")

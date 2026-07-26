@@ -6013,7 +6013,11 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation
             "encapsulation": re.compile(r"\b(local|_ENV)\b|---@private", re.M),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\b(on\s*\(|subscribe|Connect|addEventListener)\b"),
+            # BUG FIX: `on\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b could only fire when a word char immediately
+            # followed the paren -- never true for the common real call
+            # shape `emitter:on('event', cb)`, where a quote follows.
+            "listeners": re.compile(r"\bon\s*\(|\b(?:subscribe|Connect|addEventListener)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(xdescribe|xit|skip)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Lua Specifics) ---

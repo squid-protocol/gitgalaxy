@@ -1243,6 +1243,11 @@ class StructuralExtractor:
             integration_mode = ScopeParsingRegistry.get_mode(lang_id)
 
             t_mode_start = time.perf_counter()
+            # NOT dead despite CodeQL's py/multiple-definition flag: the "no
+            # func_start rule for this language" fallthrough below leaves this
+            # unassigned, and the `mode_name != "Unknown"` check further down
+            # relies on that sentinel surviving. Removing this would crash
+            # with UnboundLocalError on that path.
             mode_name = "Unknown"
             sats: list[FunctionNode] = []
             impact = 0.0
@@ -1981,10 +1986,6 @@ class StructuralExtractor:
                 else (len(re.findall(str(linear_pattern), block)) if linear_pattern else 0)
             )
 
-        total_hits = branch_hits + linear_hits
-
-        # --- FAST CODING LOC HEURISTIC ---
-        # Quickly strip out blank lines and standard single-line comments to find the true logic mass
         total_hits = branch_hits + linear_hits
 
         # --- FAST CODING LOC HEURISTIC (Syntax Fixed!) ---

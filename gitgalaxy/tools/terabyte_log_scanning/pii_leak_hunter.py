@@ -196,7 +196,7 @@ Masked evidence logs are safely written to disk without exposing the full PII.
 
     if max_total > 0:
         for kw, count in total_counts.items():
-            bar_len = int((count / max_total) * 30) if max_total > 0 else 0
+            bar_len = int((count / max_total) * 30)
             bar = "█" * max(1, bar_len) if count > 0 else ""
             print(f" {kw.ljust(15)} | {bar} ({count:,} hits)")
     else:

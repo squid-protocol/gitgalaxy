@@ -121,8 +121,6 @@ class SpatialMapper:
         for b in range(NUM_BINS):
             spatial_grid[b].append(0)
 
-        current_angle = 0.0
-
         for i, sec in enumerate(sector_stats):
             s_name = sec["name"]
             s_nodes = sec["nodes"]
@@ -131,7 +129,6 @@ class SpatialMapper:
             if i == 0:
                 dist = self.CORE_EXCLUSION_RADIUS + sec_radius
                 sec_x, sec_z = dist, 0.0
-                current_angle = 0.0
             else:
                 # --- THE FIX: SUNFLOWER SEED MACRO SPIRAL ---
                 # Lock the ray rotation to the exact Golden Angle multiplier

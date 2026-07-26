@@ -8332,8 +8332,20 @@ LANGUAGE_DEFINITIONS = {
             "decorators": None,  # Modifiers are inline in Solidity, not on preceding lines.
             # 20. generics: Generics / Type Parameters. Parameterized K/V associations.
             # Deeply supports nested mapping structures across vertical lines.
+            # BUG FIX (ReDoS): the nested `[^)]+` was unbounded. Confirmed
+            # quadratic scaling (0.18s/0.72s/2.86s/11.4s for n=5k/10k/20k/40k
+            # -- ~4x per doubling) against a malformed/adversarial run of
+            # `mapping(mapping(uint => ` tokens with no closing paren: at
+            # each of the ~n candidate start positions where the outer
+            # `mapping(` matches, the inner alternative's unbounded
+            # `[^)]+` scans to the end of the string and fails, backtracking
+            # across the whole remaining length -- O(n) work at each of
+            # O(n) positions. Bounded to `{1,200}`, matching this same fix
+            # shape used elsewhere in the sweep (fortran/php/shell/apex/
+            # embedded_python) for "unbounded class immediately followed by
+            # an often-absent literal suffix" ReDoS.
             "generics": re.compile(
-                r"\bmapping\s*\([ \t\n]*[a-zA-Z0-9_]+\s*=>\s*(?:mapping\s*\([^)]+\)|[a-zA-Z0-9_]+)[ \t\n]*\)"
+                r"\bmapping\s*\([ \t\n]*[a-zA-Z0-9_]+\s*=>\s*(?:mapping\s*\([^)]{1,200}\)|[a-zA-Z0-9_]+)[ \t\n]*\)"
             ),
             # 21. comprehensions: Iterators / Comprehensions. Solidity lacks native comprehensions.
             "comprehensions": None,
@@ -8403,7 +8415,23 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(keccak256\s*\(\s*abi\.encodePacked)\b"
             ),  # Hashes are used instead of regex for complex string matching
             "time_date_logic": re.compile(r"\b(block\.timestamp|now|\d+\s+(?:days|weeks|years|hours|minutes))\b"),
-            "ipc_rpc_bridges": re.compile(r"\b(delegatecall|staticcall|\.call\{value:|emit\s+[A-Z]|selfdestruct)\b"),
+            # BUG FIX: `.call{value:` and `emit\s+[A-Z]` were both inside the
+            # shared \b(...)\b wrapper.
+            # - `.call{value:` ends on `:` (non-word), so the trailing \b
+            #   could only fire when a word char immediately followed --
+            #   never true for the idiomatic spaced form
+            #   `target.call{value: amount}(...)`, which is how this is
+            #   always written in real Solidity.
+            # - `emit\s+[A-Z]` only ever consumed a SINGLE uppercase letter
+            #   (the char class has no `+`/`*`), so for any real
+            #   multi-character event name (`emit Transfer(...)`) the char
+            #   right after the matched letter is another word char --
+            #   word-to-word is not a \b transition, so the trailing \b
+            #   failed for every event name longer than one letter, which
+            #   is effectively all of them.
+            "ipc_rpc_bridges": re.compile(
+                r"\b(?:delegatecall|staticcall|selfdestruct)\b|\.call\{value:|\bemit\s+[A-Z]\w*\b"
+            ),
         },
     },
     "objective-c": {

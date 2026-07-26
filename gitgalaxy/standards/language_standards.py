@@ -2890,8 +2890,13 @@ LANGUAGE_DEFINITIONS = {
             # equality/inequality, explicitly SAFE per this language's own
             # `safety` rule above) both still matched via their trailing `==`
             # substring at a shifted offset -- same bug found in javascript.
+            # BUG FIX: the `@` error-suppression check required the next
+            # char to be a letter/underscore, matching `@someFunc()` but
+            # missing PHP's extremely common `@$array['key']`/`@$var`
+            # suppression idiom (silencing "undefined index" notices).
+            # Widened to also allow `$` immediately after `@`.
             "safety_bypasses": re.compile(
-                r"@(?:[a-zA-Z_\x80-\xff])|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
+                r"@(?:[a-zA-Z_\x80-\xff]|\$)|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
             ),
             # 8. danger (High-Risk Execution / System Calls)
             # Shell execution and process killers. EXCLUDES prints (Phase 5).
@@ -2913,8 +2918,15 @@ LANGUAGE_DEFINITIONS = {
                 r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w{1,100})?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
+            # BUG FIX: the `function|class|namespace|use|if|foreach`
+            # keyword check only ran after `/*` (the rare block-comment
+            # form) -- a commented-out declaration using `//` (PHP's
+            # standard, far more common single-line comment style, e.g.
+            # `// function foo() {}`) never matched at all. Applied the
+            # same keyword check to both comment styles.
             "dead_code": re.compile(
-                r"//\s*[;{}]|/\*\s*(?:function|class|namespace|use|if|foreach)\s|#\s*\$|//\s*(?:echo|print|\$|return|var_dump)"
+                r"//\s*[;{}]|(?://|/\*)\s*(?:function|class|namespace|use|if|foreach)\b"
+                r"|#\s*\$|//\s*(?:echo|print|\$|return|var_dump)"
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@var|@deprecated|@property|@method"),
@@ -2924,19 +2936,43 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
+            # BUG FIX: `go\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # the paren -- never true for the zero-argument form (`go();`).
             "concurrency": re.compile(
-                r"\b(Fiber|yield|Swoole|React\\|Amp\\|Coroutine|go\(|await|suspend|resume|pcntl_fork)\b"
+                r"\b(?:Fiber|yield|Swoole|React\\|Amp\\|Coroutine|await|suspend|resume|pcntl_fork)\b|\bgo\("
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `view\s*\(`/`render\s*\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- never true for the common
+            # real call shape `view("index")`, where a quote follows.
             "ui_framework": re.compile(
-                r'\b(view\s*\(|render\s*\(|renderView|extends\s+Controller|Blade::|Twig\\Environment)\b|@(?:if|foreach|yield|section|extends)\b|<\?=|echo\s+[\'"]<|\{\{[^}]*\}\}|\{%\s*[^%]*\s*%\}'
+                r"\b(?:renderView|extends\s+Controller|Blade::|Twig\\Environment)\b"
+                r"|\bview\s*\(|\brender\s*\("
+                r'|@(?:if|foreach|yield|section|extends)\b|<\?=|echo\s+[\'"]<|\{\{[^}]*\}\}|\{%\s*[^%]*\s*%\}'
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"\b(?:function\s*\([^)]*\)\s*(?:use\s*\([^)]*\)\s*)?\{|fn\s*\([^)]*\)[ \t]*=>)"),
             # 18. globals (Global / Shared State)
-            "globals": re.compile(r"\b(\$_SERVER|\$_SESSION|\$_ENV|\$GLOBALS)\b|\bglobal\s+\$"),
+            # BUG FIX: the leading \b before `$_SERVER`/`$_SESSION`/
+            # `$_ENV`/`$GLOBALS` requires a word char immediately before
+            # the `$` -- never true in real PHP, where a superglobal is
+            # always preceded by whitespace, `=`, `(`, or a line start
+            # (all non-word). All 4 of PHP's most common superglobal
+            # accesses never matched at all. `$` is unambiguous as a
+            # start anchor on its own; no leading \b was needed.
+            "globals": re.compile(r"(?:\$_SERVER|\$_SESSION|\$_ENV|\$GLOBALS)\b|\bglobal\s+\$"),
             # 19. decorators (Decorators / Annotations)
-            "decorators": re.compile(r"#\[\s*[a-zA-Z0-9_:\\]+[^\]]*\]", re.M),
+            # BUG FIX (ReDoS): `[a-zA-Z0-9_:\\]+` and `[^\]]*` are two
+            # adjacent unbounded quantifiers matching an overlapping
+            # character set (both match plain letters/digits) -- against
+            # an adversarial attribute name with no closing `]`, every
+            # possible split between the two quantifiers gets tried
+            # before failing. Confirmed genuine O(n^2) scaling (0.045s/
+            # 0.18s/0.71s/2.85s for n=10k/20k/40k/80k, ~4x per doubling).
+            # Bounded both to reasonable caps.
+            "decorators": re.compile(r"#\[\s*[a-zA-Z0-9_:\\]{1,100}[^\]]{0,300}\]", re.M),
             # 20. generics (Generics / Type Parameters)
             # Simulated/Docblock generics.
             "generics": re.compile(
@@ -3005,11 +3041,20 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(EventDispatcher|dispatchEvent|Listener|dispatch|broadcast|notify|Event::|listen)\b"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: `app\(`/`make\(` both end on `(` (non-word), so the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren -- never true for the zero-argument form
+            # (`app();`/`make();`).
             "dependency_injection": re.compile(
-                r"\b(ContainerInterface|Container|getContainer|inject|bind|singleton|app\(|make\()\b|#\[(?:Inject|Autowire)[^\]]*\]"
+                r"\b(?:ContainerInterface|Container|getContainer|inject|bind|singleton)\b"
+                r"|\bapp\(|\bmake\(|#\[(?:Inject|Autowire)[^\]]*\]"
             ),
             # 34. macros (Preprocessor Directives / Macros)
-            "macros": re.compile(r"\b(?:Macroable|macro\s*\(|mixin\s*\()\b"),
+            # BUG FIX: `macro\s*\(`/`mixin\s*\(` both end on `(` -- the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren, e.g. `mixin(new Foo())` worked (`new`
+            # follows) but `macro("foo", ...)` didn't (a quote follows).
+            "macros": re.compile(r"\bMacroable\b|\bmacro\s*\(|\bmixin\s*\("),
             # 35. pointers (Pointer Arithmetic / Memory Addressing)
             "pointers": re.compile(r"\b(FFI::cast|FFI::addr|FFI::scope|FFI::new)\b"),
             # 36. memory_alloc
@@ -3018,8 +3063,13 @@ LANGUAGE_DEFINITIONS = {
             "inline_asm": None,
             # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
             # 38. telemetry (Structured Logging / Telemetry)
+            # BUG FIX: `logger\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # the paren -- never true for the idiomatic Laravel chain form
+            # `logger()->info('message')`, where `)` follows.
             "telemetry": re.compile(
-                r"\b(?:Log::|LoggerInterface|logger\(|Monolog\\|error_log|Psr\\Log)\b.*?(?:info|error|warning|debug|trace|notice|critical|alert|emergency)\b",
+                r"(?:\b(?:Log::|LoggerInterface|Monolog\\|error_log|Psr\\Log)\b|logger\()"
+                r".*?(?:info|error|warning|debug|trace|notice|critical|alert|emergency)\b",
                 re.I,
             ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
@@ -3045,7 +3095,11 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\.on\(|addEventListener|subscribe|@KafkaListener|@RabbitListener"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(markTestSkipped|test\.skip|it\.skip|mock\(|fake\()\b"),
+            # BUG FIX: `mock\(`/`fake\(` both end on `(` (non-word), so the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren -- never true for the zero-argument form
+            # (`mock();`).
+            "test_skip": re.compile(r"\b(?:markTestSkipped|test\.skip|it\.skip)\b|\bmock\(|\bfake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (PHP Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(unserialize|serialize|json_decode|json_encode|simplexml_load_(?:string|file)|DOMDocument)\b"
@@ -3053,7 +3107,14 @@ LANGUAGE_DEFINITIONS = {
             "regex_execution": re.compile(
                 r"\b(preg_match(?:_all)?|preg_replace(?:_callback)?|preg_split|preg_filter)\b"
             ),
-            "time_date_logic": re.compile(r"\b(strtotime|DateTime(?:Immutable)?|date_create|time\s*\(|date\s*\()\b"),
+            # BUG FIX: `time\s*\(`/`date\s*\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- never true for the
+            # zero-argument form (`time()`) or a quoted format string
+            # (`date("Y-m-d")`).
+            "time_date_logic": re.compile(
+                r"\b(?:strtotime|DateTime(?:Immutable)?|date_create)\b|\btime\s*\(|\bdate\s*\("
+            ),
             "ipc_rpc_bridges": re.compile(r"\b(shell_exec|exec|system|passthru|proc_open|curl_exec|fsockopen)\b"),
         },
     },

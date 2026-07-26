@@ -394,7 +394,20 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(List|Dict|Set|Tuple|Optional|Union|TypeVar|Generic|Any|Callable|Mapping)\b\[[^\]]*\]|\b(list|dict|set|tuple|type)\[[^\]]*\]|->"
             ),
             # 21. comprehensions (Iterators / Comprehensions)
-            "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
+            # Was `\.(?:map|filter|reduce|...)\s*\(` -- JavaScript's Array-method
+            # idiom, copy-pasted in by mistake (that pattern correctly belongs
+            # to javascript/typescript's own comprehensions rule, not this
+            # one). Python doesn't have `.map(`/`.filter(` as builtin list
+            # methods; it has comprehension syntax (`[x for x in y]`,
+            # `{k: v for k, v in items}`, generator expressions). The old
+            # pattern never matched a single real Python comprehension and
+            # only fired incidentally on unrelated methods that happen to
+            # share a name (e.g. a Django queryset's `.filter(active=True)`).
+            # Matches embedded_python's (correct, already ReDoS-bounded)
+            # comprehension pattern.
+            "comprehensions": re.compile(
+                r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
+            ),
             "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"

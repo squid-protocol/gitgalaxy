@@ -1230,8 +1230,19 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES final (freeze_hits).
+            # BUG FIX (ReDoS): confirmed genuine O(n^2) scaling (0.045s/
+            # 0.18s/0.71s/2.85s/11.2s for n=5k/10k/20k/40k/80k, ~4x per
+            # doubling) against a long run of plain word characters with
+            # no `.`/`(` anywhere: the unanchored `(?:\w+\.)?` before the
+            # method-name keywords greedily consumes the whole remaining
+            # run, fails to find the `.`, and backtracks one character at
+            # a time -- O(n) work at each of the O(n) positions re.search
+            # retries this unanchored alternative at. Bounded to
+            # `\w{0,100}`, matching the fix shape used throughout this
+            # sweep.
             "state_mutation": re.compile(
-                r"\b(volatile|Atomic\w+)\b|^[ \t]*(?:this\.)?\w+[ \t]*=|@(?:Setter|Data)\b|(?:\w+\.)?(?:set[A-Z]\w+|add|put|remove|clear|addAll|replace|computeIfAbsent)\s*\("
+                r"\b(volatile|Atomic\w+)\b|^[ \t]*(?:this\.)?\w+[ \t]*=|@(?:Setter|Data)\b"
+                r"|(?:\w{0,100}\.)?(?:set[A-Z]\w+|add|put|remove|clear|addAll|replace|computeIfAbsent)\s*\("
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(r"//[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b"),
@@ -1261,8 +1272,15 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"->|::"),
             # 18. globals (Global / Shared State)
+            # BUG FIX: the `public static final ... =` alternative ends on
+            # `=` (non-word), so the shared trailing \b could never fire --
+            # whatever follows the `=` in a real declaration (a space, then
+            # the value) is never a word character. This extremely common
+            # Java constant-declaration idiom never matched at all.
             "globals": re.compile(
-                r"\b(System\.getProperty|System\.getenv|public\s+static\s+(?:final[ \t]+)?\w+\s+[A-Z_0-9]+[ \t]*=|ThreadLocal|ScopedValue)\b|@(?:Value|ConfigurationProperties)"
+                r"\b(?:System\.getProperty|System\.getenv|ThreadLocal|ScopedValue)\b"
+                r"|public\s+static\s+(?:final[ \t]+)?\w+\s+[A-Z_0-9]+[ \t]*="
+                r"|@(?:Value|ConfigurationProperties)"
             ),
             # 19. decorators (Decorators / Annotations)
             "decorators": re.compile(r"^[ \t]*@[\w.]+(?:\([^)]*\))?", re.M),

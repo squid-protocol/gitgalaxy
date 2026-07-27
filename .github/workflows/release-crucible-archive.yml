@@ -36,7 +36,7 @@ jobs:
       RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
     steps:
       - name: Checkout GitGalaxy at the release tag
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.RELEASE_TAG }}
           path: gitgalaxy
@@ -79,7 +79,7 @@ jobs:
           done
 
       - name: Checkout Language Crucible
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: squid-protocol/language-crucible
           path: language-crucible-write

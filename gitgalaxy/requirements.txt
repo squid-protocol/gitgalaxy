@@ -45,9 +45,9 @@ jupyter_core==5.9.1
 jupyterlab_pygments==0.3.0
 keyring==25.7.0
 kiwisolver==1.5.0
-llvmlite==0.47.0
+llvmlite==0.48.0
 Markdown==3.10.2
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
 MarkupSafe==3.0.3
 matplotlib==3.10.8
 matplotlib-inline==0.2.2
@@ -65,7 +65,7 @@ nbconvert==7.17.1
 nbformat==5.10.4
 networkx==3.6.1
 nh3==0.3.3
-numba==0.65.0
+numba==0.66.0
 numpy==2.4.3
 nvidia-nccl-cu12==2.30.4
 opencv-python==5.0.0.93
@@ -127,7 +127,7 @@ tornado==6.5.7
 tqdm==4.68.3
 traitlets==5.14.3
 twine==6.2.0
-typing_extensions==4.15.0
+typing_extensions==4.16.0
 umap-learn==0.5.12
 urllib3==2.7.0
 watchdog==6.0.0
@@ -136,4 +136,4 @@ webencodings==0.5.1
 Werkzeug==3.1.8
 wheel==0.47.0
 xgboost==3.2.0
-yarg==0.1.9
+yarg==0.1.10

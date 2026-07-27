@@ -4470,7 +4470,7 @@ LANGUAGE_DEFINITIONS = {
             # Parameter blocks and input coupling. Bounded to prevent ReDoS on massive IN clauses.
             # Now explicitly captures CTE scoped arguments: cte_name (col1, col2)
             "args": re.compile(
-                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\([^)]*\)|^[ \t]*[a-zA-Z_]\w*[ \t\n]*\([^)]*\)[ \t\n]*AS[ \t\n]*\(",
+                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\([^)]{0,2000}\)|^[ \t]*[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
                 re.I | re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -4498,7 +4498,7 @@ LANGUAGE_DEFINITIONS = {
             # Physical entity instantiation (Tables).
             "class_start": re.compile(
                 r"^[ \t]*CREATE\s+(?:TEMP|TEMPORARY)?\s*(?:VIRTUAL[ \t]+)?TABLE\s+"
-                r"(?:IF\s+NOT\s+EXISTS[ \t]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;])",
+                r"(?:IF\s+NOT\s+EXISTS[ \t]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;]|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -4516,12 +4516,13 @@ LANGUAGE_DEFINITIONS = {
             # 8. danger (High-Risk Execution / System Calls)
             # Destructive schema actions and system bypasses.
             "high_risk_execution": re.compile(
-                r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE|\.shell|\.system|\.exit|\.quit)\b"
+                r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE)\b|^[ \t]*\.(?:shell|system|exit|quit)\b",
+                re.I | re.M,
             ),
             # 9. io (I/O & Network Boundaries)
             "io": re.compile(
-                r"\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|ATTACH\s+DATABASE|DETACH\s+DATABASE|\.import|\.output|\.dump|\.read|readfile|writefile)\b",
-                re.I,
+                r"\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|ATTACH\s+DATABASE|DETACH\s+DATABASE|readfile|writefile)\b|^[ \t]*\.(?:import|output|dump|read)\b",
+                re.I | re.M,
             ),
             # 10. api (Public Surface Area)
             # Exposed surface area (Views and Virtual Tables).
@@ -4537,15 +4538,15 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(
-                r"--[ \t]*(?:SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|PRAGMA)\b",
+                r"(?:--|/\*)[ \t]*(?:SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|PRAGMA)\b",
                 re.I,
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"--\s*@(?:param|return|brief|table|column)|/\*\*|--\s*Description:"),
             # 14. test (Testing & Assertions)
             "test": re.compile(
-                r"\b(?:EXPLAIN[ \t]+QUERY[ \t]+PLAN|PRAGMA[ \t]+integrity_check|PRAGMA[ \t]+foreign_key_check|\.testcase|\.lint)\b",
-                re.I,
+                r"\b(?:EXPLAIN[ \t]+QUERY[ \t]+PLAN|PRAGMA[ \t]+integrity_check|PRAGMA[ \t]+foreign_key_check)\b|^[ \t]*\.(?:testcase|lint)\b",
+                re.I | re.M,
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
@@ -4570,11 +4571,11 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 20. generics (Generics / Type Parameters)
-            "generics": re.compile(r"\bANY\b|\bCAST\s*\([^)]*\)", re.I),
+            "generics": re.compile(r"\bANY\b|\bCAST\s*\([^)]{0,500}\)", re.I),
             # 21. comprehensions (Iterators / Comprehensions)
             # JSON iterations and windowing.
             "comprehensions": re.compile(
-                r"\b(json_each|json_tree|json_group_array|json_group_object|OVER\s*\([^)]*\))\b",
+                r"\b(json_each|json_tree|json_group_array|json_group_object)\b|\bOVER\s*\([^)]{0,500}\)",
                 re.I,
             ),
             # 22. scientific (Numerical / Compute Libraries)
@@ -4585,7 +4586,7 @@ LANGUAGE_DEFINITIONS = {
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Recursive logic and JSON paths.
             "reflection_metaprogramming": re.compile(
-                r"\b(WITH\s+RECURSIVE|GENERATED\s+ALWAYS\s+AS|STORED|VIRTUAL)\b|->>|->|\b(?:json_extract|jsonb_extract)\b",
+                r"\bWITH\s+RECURSIVE\b|\bGENERATED\s+ALWAYS\s+AS\b[^,;()]{0,20}\([^()]{0,300}\)[ \t]*(?:STORED|VIRTUAL)\b|->>|->|\b(?:json_extract|jsonb_extract)\b",
                 re.I,
             ),
             # 24. import (Dependency Inclusions)
@@ -4605,7 +4606,7 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"--\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            "spec_exposure": re.compile(r"--\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
@@ -4646,13 +4647,17 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # # 40. explicit_casts (Explicit Type Casting)
-            "explicit_casts": re.compile(r"\bCAST[ \t]*\([^)]+[ \t]+AS[ \t]+[a-zA-Z_]+\s*\)", re.I),
+            "explicit_casts": re.compile(
+                r"\bCAST[ \t]*\((?:[^()]{0,500}|\([^()]{0,500}\)){0,500}[ \t]+AS[ \t]+[a-zA-Z_]+\s*\)", re.I
+            ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
-            "panics_and_aborts": re.compile(r"\b(ABORT|RAISE|EXIT|QUIT)\b|\.exit|\.quit", re.I),
+            "panics_and_aborts": re.compile(r"\b(ABORT|RAISE|EXIT|QUIT)\b|^[ \t]*\.(?:exit|quit)\b", re.I | re.M),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-            "thread_sleeps": re.compile(r"\bPRAGMA\s+busy_timeout\b|\.pause", re.I),
+            "thread_sleeps": re.compile(r"\bPRAGMA\s+busy_timeout\b|^[ \t]*\.pause\b", re.I | re.M),
             # 43. bitwise_ops (Bitwise Operations)
-            "bitwise_ops": re.compile(r"<<|>>|\^|~|(?<!\|)\|(?!\|)"),
+            # (?<!-)>> excludes the `->>` JSON arrow operator (reflection_metaprogramming),
+            # which is not a bitwise right-shift.
+            "bitwise_ops": re.compile(r"<<|(?<!-)>>|\^|~|(?<!\|)\|(?!\|)"),
             # 44. sync_locks (Resource Management & Stability)
             "sync_locks": re.compile(r"\b(BEGIN\s+EXCLUSIVE|BEGIN\s+IMMEDIATE|PRAGMA\s+synchronous)\b", re.I),
             # 45. immutability_locks (Immutability Constraints)
@@ -4665,7 +4670,7 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(BEFORE\s+|AFTER\s+|INSTEAD\s+OF)\b", re.I),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\.testcase\s+skip|\bPRAGMA\s+ignore_check_constraints\b", re.I),
+            "test_skip": re.compile(r"^[ \t]*\.testcase\s+skip\b|\bPRAGMA\s+ignore_check_constraints\b", re.I | re.M),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (SQLite / SQL Specifics) ---
             "serialization_parsing": re.compile(
                 r"(?i)\b(json_extract|json_tree|json_each|json_object|json_array|json_type)\b"

@@ -127,7 +127,7 @@ tornado==6.5.7
 tqdm==4.68.3
 traitlets==5.14.3
 twine==6.2.0
-typing_extensions==4.15.0
+typing_extensions==4.16.0
 umap-learn==0.5.12
 urllib3==2.7.0
 watchdog==6.0.0

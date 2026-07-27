@@ -9688,7 +9688,7 @@ LANGUAGE_DEFINITIONS = {
                 r"^[ \t]*continue-on-error:[ \t]*true|chmod[ \t]+777|\b(?:curl|wget)[ \t]+[^|\n]{1,200}\|[ \t]*(?:bash|sh|zsh)\b",
                 re.M | re.I,
             ),
-            "high_risk_execution": re.compile(r"\b(?:rm[ \t]+-rf[ \t]+/(?![A-Za-z])|eval|exec)\b", re.M | re.I),
+            "high_risk_execution": re.compile(r"\brm[ \t]+-rf[ \t]+/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I),
             "io": re.compile(
                 r"\b(?:wget|curl|apt-get|apk|yum|git[ \t]+clone|npm[ \t]+install|pip[ \t]+install)\b",
                 re.M | re.I,
@@ -9727,7 +9727,7 @@ LANGUAGE_DEFINITIONS = {
             "comprehensions": None,
             "scientific": None,
             # Catching complex GitHub Expression injection logic
-            "reflection_metaprogramming": re.compile(r"\$\{\{[ \t]*fromJson\(|to[A-Z][a-zA-Z]+\(", re.M),
+            "reflection_metaprogramming": re.compile(r"\$\{\{[ \t]*fromJson\(|to[A-Z][a-zA-Z]{0,40}\(", re.M),
             # The Gravity Links: External dependencies
             "import": re.compile(
                 r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t]+([a-zA-Z0-9_./@:-]+)",
@@ -9751,7 +9751,7 @@ LANGUAGE_DEFINITIONS = {
             "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             "events": re.compile(
-                r"^[ \t]*repository_dispatch:|schedule:|^[ \t]*-?[ \t]*cron:",
+                r"^[ \t]*repository_dispatch:|^[ \t]*schedule:|^[ \t]*-?[ \t]*cron:",
                 re.M | re.I,
             ),
             # Secrets injection
@@ -9761,7 +9761,7 @@ LANGUAGE_DEFINITIONS = {
             "memory_alloc": None,
             "inline_asm": None,
             # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
-            "telemetry": re.compile(r"^[ \t]*::(?:debug|warning|error)[ \t]+.*", re.M),
+            "telemetry": re.compile(r"::(?:debug|warning|error)(?:[ \t]|::)", re.M),
             "debug_prints": re.compile(r"\b(?:echo|printf)\b", re.I),
             "explicit_casts": None,
             # GitHub action specific bailout outputs
@@ -9777,7 +9777,7 @@ LANGUAGE_DEFINITIONS = {
             "cleanup": None,
             "encapsulation": None,
             "listeners": re.compile(r"^[ \t]*webhook:", re.M | re.I),
-            "test_skip": re.compile(r"\|\|[ \t]*true\b|\b(?:--passWithNoTests|skipTests|--no-audit)\b", re.I),
+            "test_skip": re.compile(r"\|\|[ \t]*true\b|--passWithNoTests\b|\bskipTests\b|--no-audit\b", re.I),
         },
     },
     "pbtxt": {

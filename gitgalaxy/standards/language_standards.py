@@ -3441,8 +3441,13 @@ LANGUAGE_DEFINITIONS = {
             "args": re.compile(r'\$(?:[1-9]|\{[1-9]\w*\}|@|\*|#)|"\$@"|"\$\*"'),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries and straight-line execution verbs.
+            # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
+            # can never satisfy a shared leading `\b` -- the same trap documented on
+            # `_dependency_capture` below. Pulled out into its own statement-boundary
+            # anchored alternative instead of sitting inside the `\b(...)\b` group.
             "structural_boundaries": re.compile(
-                r"\b(local|readonly|export|declare|typeset|return|exit|source|\.|read|cd|pwd|ls|cp|mv|rm|mkdir|touch)\b|\|(?!\s*\|)"
+                r"\b(local|readonly|export|declare|typeset|return|exit|source|read|cd|pwd|ls|cp|mv|rm|mkdir|touch)\b|\|(?!\s*\|)|(?:^|[ \t;|&])\.(?=[ \t])",
+                re.M,
             ),
             # Anchors executable logic blocks. Captures `function foo` or `foo()`.
             # Handled by Mode D (Semantic Handshake) in detector.py.
@@ -3463,8 +3468,15 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             # Shell hardening: strict modes, traps, and robust quoting.
+            # QUADRATIC BLOWUP + NESTING FIX: the trap clause's `[^\n]*` and both
+            # `${...}` clauses' flat `[^}]+`/`[^}]*` were unbounded and unanchored --
+            # O(n^2) on a long run of unclosed traps/expansions (confirmed ~4x
+            # slowdown per input-size doubling). The trap clause is bounded to
+            # {0,300}; the `${...}` clauses use the one-level-nesting form so a
+            # realistic nested default like `${LOG_LEVEL:-${DEFAULT:-info}}` is
+            # captured in full instead of truncating at the inner `}`.
             "safety": re.compile(
-                r'\b(set\s+-(?:[a-zA-Z]*e[a-zA-Z]*|u|o\s+pipefail)|trap\s+[^\n]*(?:ERR|EXIT|INT|TERM))\b|"\$[@*]"|"\$\{[^}]+\}"|\bcommand\s+-v\b|\$\{[a-zA-Z0-9_]+:[-=?][^}]*\}'
+                r'\b(set\s+-(?:[a-zA-Z]*e[a-zA-Z]*|u|o\s+pipefail)|trap\s+[^\n]{0,300}(?:ERR|EXIT|INT|TERM))\b|"\$[@*]"|"\$\{(?:[^{}]|\{[^{}]*\})+\}"|\bcommand\s+-v\b|\$\{[a-zA-Z0-9_]+:[-=?](?:[^{}]|\{[^{}]*\})*\}'
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Unquoted variables, dynamic evaluation, and blind network-to-shell piping.
@@ -3512,8 +3524,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
+            # QUADRATIC BLOWUP + NESTING FIX: the process-substitution clauses'
+            # flat `[^)]*` were unbounded and unanchored -- O(n^2) on a long run
+            # of unclosed `<(`/`>(` (confirmed ~4x slowdown per input-size
+            # doubling). Upgraded to the one-level-nesting form so a realistic
+            # nested process substitution (e.g. `diff <(sort <(cat a)) <(sort b)`)
+            # is captured in full instead of truncating at the inner `)`.
             "concurrency": re.compile(
-                r"&[ \t]*$|\b(wait(?:\s+-n)?|coproc|nohup|parallel|jobs|fg|bg|disown|xargs\s+-P)\b|&\s*\|\||<\([^)]*\)|>\([^)]*\)",
+                r"&[ \t]*$|\b(wait(?:\s+-n)?|coproc|nohup|parallel|jobs|fg|bg|disown|xargs\s+-P)\b|&\s*\|\||<\((?:[^()]|\([^()]*\))*\)|>\((?:[^()]|\([^()]*\))*\)",
                 re.M,
             ),
             # 16. ui_framework (UI / View Components)
@@ -3538,8 +3556,14 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(bc|awk|dc|expr|jq|RANDOM|SRANDOM)\b|\$\(\("),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Sub-languages and indirect expansion. (ReDoS Shielded)
+            # QUADRATIC BLOWUP + NESTING FIX: `$(...)`'s flat `[^)]+` was
+            # unbounded and unanchored -- O(n^2) on a long run of unclosed
+            # `$(` (confirmed ~4x slowdown per input-size doubling). Upgraded
+            # to the one-level-nesting form so the common nested command
+            # substitution idiom (e.g. `DIR=$(cd "$(dirname "$0")" && pwd)`)
+            # is captured in full instead of truncating at the inner `)`.
             "reflection_metaprogramming": re.compile(
-                r'\$\([^)]+\)|`[^`]+`|\b(?:awk|sed|perl|python[23]?|ruby)\s+[\'"][^\'"]{0,500}|\beval\s+\$|\$\{!?[a-zA-Z0-9_]+\}'
+                r'\$\((?:[^()]|\([^()]*\))+\)|`[^`]+`|\b(?:awk|sed|perl|python[23]?|ruby)\s+[\'"][^\'"]{0,500}|\beval\s+\$|\$\{!?[a-zA-Z0-9_]+\}'
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"(?:^|[ \t;|&])(?:source\b|\.(?=[ \t]))[ \t]+[^\s;]+", re.M),
@@ -3581,7 +3605,11 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"#\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # QUADRATIC BLOWUP FIX: the trailing `[^\]]*` was unbounded and
+            # unanchored -- O(n^2) on a long run of unclosed `#[SPEC-...` tags
+            # (confirmed ~4x slowdown per input-size doubling). Bounded to
+            # {0,300}; real spec/audit tags don't get remotely that long.
+            "spec_exposure": re.compile(r"#\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -3625,18 +3653,35 @@ LANGUAGE_DEFINITIONS = {
             # 45. immutability_locks (Immutability Constraints)
             "immutability_locks": re.compile(r"\b(readonly|declare\s+-r|typeset\s+-r)\b"),
             # 46. cleanup (Resource Cleanup / Teardown)
-            "cleanup": re.compile(r"\b(rm\s+-f|trap\s+.*EXIT|unset|exit|logout)\b"),
+            # QUADRATIC BLOWUP FIX: same class of bug as `safety`'s trap clause
+            # above -- the unbounded `.*` before the required `EXIT` literal was
+            # unanchored, O(n^2) on a long run of `trap ` occurrences that never
+            # resolve to EXIT (confirmed ~4x slowdown per input-size doubling).
+            # Bounded to {0,300}, matching the fix already applied to `safety`.
+            "cleanup": re.compile(r"\b(rm\s+-f|trap\s+.{0,300}EXIT|unset|exit|logout)\b"),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             # Physical Reality: local variables represent internal state scope.
             "encapsulation": re.compile(r"\b(local|typeset|declare)\b"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(read|inotifywait|nc\s+-l|while\s+read)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(test\.skip|bats_skip|#\s*SKIP|mock|stub)\b"),
+            # BOUNDARY FIX: `#\s*SKIP` starts with `#` (non-word), so it could
+            # never satisfy the shared leading `\b` -- real comment markers are
+            # always preceded by whitespace or line start (also non-word), so a
+            # `# SKIP: ...` comment never matched at all. Pulled out of the
+            # group with the leading `\b` dropped (the `#` is self-delimiting).
+            "test_skip": re.compile(r"\b(test\.skip|bats_skip|mock|stub)\b|#\s*SKIP\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Shell Specifics) ---
             "serialization_parsing": re.compile(r"\b(jq|yq|awk|sed|xmlstarlet)\b"),
             "regex_execution": re.compile(r"\b(grep|egrep|sed|awk)\b|=~"),
-            "time_date_logic": re.compile(r"\b(date\s+|sleep\s+|uptime|times)\b"),
+            # BOUNDARY FIX: the trailing `\s+` before the shared closing `\b`
+            # required a word char to immediately follow the whitespace --
+            # never true for how `date`/`sleep` are actually invoked (almost
+            # always followed by a `-flag` or `+FORMAT`, both non-word). The
+            # single most common real-world form of `date` (`date +%Y-%m-%d`)
+            # never matched at all. The `\s+` was redundant anyway -- `\b`
+            # alone already prevents partial-word matches like "update".
+            "time_date_logic": re.compile(r"\b(date|sleep|uptime|times)\b"),
             "ipc_rpc_bridges": re.compile(r"\b(curl|wget|nc|netcat|ssh|scp|xargs|socat)\b"),
         },
     },

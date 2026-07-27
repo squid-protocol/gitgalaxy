@@ -9671,10 +9671,10 @@ LANGUAGE_DEFINITIONS = {
         # Mapping this to 'hybrid_dash' would cause the engine to miss hidden documentation mass.
         "lexical_family": "line_exclusive",
         "rules": {
-            "lit_code_blocks": re.compile(r"^```[a-zA-Z0-9]*$", re.M),
-            "lit_diagrams": re.compile(r"^```(?:mermaid|plantuml)$", re.M),
-            "lit_headers": re.compile(r"^#{1,6}\s+", re.M),
-            "lit_links": re.compile(r"\[[^\]]+\]\([^)]+\)"),
+            "lit_code_blocks": re.compile(r"^[ \t]{0,3}```+[^`\r\n]*$", re.M),
+            "lit_diagrams": re.compile(r"^[ \t]{0,3}```+(?:mermaid|plantuml)\b", re.I | re.M),
+            "lit_headers": re.compile(r"^[ \t]{0,3}#{1,6}[ \t]+", re.M),
+            "lit_links": re.compile(r"\[(?:[^\[\]]|\[[^\[\]]*\])+\]\((?:[^()]|\([^()]*\))+\)"),
         },
     },
     "csv": {

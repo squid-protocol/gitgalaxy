@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/security_auditing/test_ai_appsec_sensor.py -q)",
+      "Bash(python -m pytest tests/security_auditing/ -q)",
+      "Bash(git commit -m ' *)",
+      "Bash(python -m pytest tests/core_engine/test_detector.py::test_detector_orphan_and_duplicate_logic -q)",
+      "Bash(python -m pytest tests/security_auditing/test_security_auditor.py tests/tools_recorders/test_llm_recorder.py tests/tools_recorders/test_record_keeper.py tests/core_engine/test_galaxyscope.py tests/core_engine/test_zero_dependency.py -q)",
+      "Bash(gh pr create -R squid-protocol/gitgalaxy --title 'Aggregate duplicate_logic count into equations, mirroring orphaned_logic' --body ' *)",
+      "Bash(python -c ' *)",
+      "Bash(python -m pytest tests/core_engine/test_language_lens.py::test_collision_resolved_confidence_is_clamped -q)",
+      "Bash(python -)",
+      "Bash(python -m pytest tests/core_engine/ -q)",
+      "Bash(gh issue *)",
+      "Bash(xargs -I{} cat {})",
+      "Bash(python -m pytest tests/core_engine/test_config_resolver.py -q)",
+      "Bash(python -m pytest tests/core_engine/test_galaxyscope.py tests/core_engine/test_aperture.py -q)",
+      "Bash(git branch *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git reset *)",
+      "Bash(awk 'NR==560,NR==860{if \\($0 ~ /^class |^    def /\\) print NR\": \"$0}' gitgalaxy/galaxyscope.py)",
+      "Bash(python -c \"import gitgalaxy.galaxyscope\")",
+      "Bash(python -m pytest tests/core_engine/test_galaxyscope.py -q)"
+    ],
+    "additionalDirectories": [
+      "/tmp/gh-issues"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pytest_quiet.py"
+          }
+        ]
+      }
+    ]
+  }
+}

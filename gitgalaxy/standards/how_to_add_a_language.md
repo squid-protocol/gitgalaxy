@@ -50,6 +50,19 @@ This dictionary defines the **Structural Signatures** used by an AST-free parsin
 6. **The Metric Inflation Anti-Pattern:** Do NOT put access modifiers (e.g., public, private, static) in the `structural_boundaries` array. This artificially inflates structural complexity metrics.
 7. **Strict Execution Anchoring:** `func_start` must ONLY match executable logic blocks (methods/functions/constructors). Do NOT match interfaces, types, or classes here.
 8. **Resource Management & Synchronization:** Pay special attention to Phase 5. Ensure that asynchronous execution (`concurrency`) and synchronization (`sync_locks`) are cleanly separated into their specific regex keys so the engine can balance them accurately.
+9. **Word-Boundary Correctness for Mixed Alternations:** `\b` only fires at a transition between a word character (`\w`) and a non-word character (or string edge) — it does NOT fire next to a symbolic character unless a word character sits on the other side. Never wrap a single `\b(...)\b` group around alternatives that don't all share the same edge shape. If even one alternative starts or ends with a non-word character (`-`, `.`, `@`, `$`, `(`, `[`, `!`, `?`, `~`, `+`, `:`, `=`), pull it out of the group and drop the `\b` on that side — the symbol is already self-delimiting.
+    * ❌ `\b(Import-Module|-Parallel)\b` — `-Parallel` can never satisfy the leading `\b`; real code always precedes it with whitespace (a non-word character), so the alternative silently never matches.
+    * ✅ `\bImport-Module\b|-Parallel\b`
+    * This was, by a wide margin, the single most common defect found across every language audited so far — it produces zero errors or warnings, the signature just quietly never matches its most common real-world form.
+10. **Zero-Argument / Symbol-First-Argument Call Forms:** When anchoring a function/method call by name with a trailing `\b` (e.g. `\bapp\(\b`-style reasoning), remember real calls are frequently written with zero arguments or a quoted/numeric first argument — never assume a word character follows the opening paren.
+    * ❌ A trailing `\b` placed right after a literal `(` — matches `app(x)` but not `app()` or `app("foo")`, which are usually the *more* common call shapes.
+    * ✅ Drop the trailing `\b` when an alternative already ends on `(` — the paren is self-delimiting, same principle as Rule 9.
+11. **Nested-Delimiter Coverage:** A negated character class like `[^\]]+` cannot represent even one level of legitimate nesting (e.g. a generic return type like `Dictionary[string,int]`, or `List<Map<K,V>>`). If the language has any construct where the same delimiter can nest one level deep (generics, indexers, attribute lists), use a bounded one-level-nesting form instead of a flat negated class.
+    * ❌ `\[[^\]]+\]` — breaks on `[List[int]]` (matches only up to the first `]`, then fails).
+    * ✅ `\[(?:[^\[\]]|\[[^\[\]]*\])+\]` — handles one level of nesting and stays linear (the two alternatives never match overlapping text, so it can't trigger the catastrophic backtracking Rule 5 warns against).
+12. **Comment-Style Completeness for `dead_code`:** If a language's lexical family supports more than one comment style (e.g. a `standard_block` language with both `//` and `/* */`), the `dead_code` keyword check must be wired to ALL of them, not just one — do not assume the style you happen to write the regex against first is the dominant one.
+    * ❌ `(?:/\*)\s*(?:function|class|...)\b` — only fires inside block comments, silently missing every `// function foo() {}` line-comment case even though `//` is usually the far more common style.
+    * ✅ `(?://|/\*)\s*(?:function|class|...)\b`
 
 ### THE LEXICAL PARSING FAMILIES
 You must assign the language to one of these 5 lexical parsing families based on how it handles comments and non-executable text:
@@ -208,6 +221,99 @@ Generate a valid Python dictionary matching this exact structure.
 ```
 
 <br><br>
+
+---
+
+## Strict Testing & Crucible Verification Framework
+
+Generating the signatures is only half the job. A regex an LLM just wrote, graded by the same
+LLM in the same pass, tends to get lenient, self-confirming tests — the model writes cases that
+happen to pass, not adversarial ones that probe the edge cases in Rules 9-12 above. Strict testing
+must therefore be **a separate prompt, run as a distinct pass** against the signatures you just
+registered, not a continuation of the generation conversation.
+
+### Step 4: Generate the Strict Testing Suite (Separate Pass)
+Open a **new** conversation (or at minimum a clearly separate turn) and feed the LLM the finished
+`rules` dict for the language plus the **Strict Testing Prompt** below. The output should be a
+pytest module in the shape of `tests/core_engine/test_language_standards_strict.py`'s existing
+per-language sections (see e.g. `_PHP_SIMPLE_CASES` / `test_php_*` for a concrete template).
+
+**Strict Testing Prompt:**
+You are an adversarial test engineer. You did not write the regex dictionary below — your job is
+to attack it, not confirm it. For the **[TARGET LANGUAGE]** rules dict provided, produce a pytest
+module covering all of the following, and do not skip a category just because the pattern "looks
+fine":
+
+1. **Per-signature positive/negative cases.** A `_[LANG]_SIMPLE_CASES` list of
+   `(signature, positive_snippet, negative_snippet_or_None)` tuples, one entry per non-`None` rule
+   key, parametrized into a single test. Every positive snippet must be realistic code you'd
+   actually find in a real file of this language — not a synthetic string engineered to match.
+2. **Symbolic-boundary audit (Rule 9/10).** For every `\b(...)\b` group in the dict, check whether
+   any alternative starts or ends on a non-word character. For each one found, write a regression
+   test proving the *realistic* real-world form (preceded/followed by whitespace, not a
+   conveniently-placed word character) actually matches.
+3. **Nested-delimiter audit (Rule 11).** For every rule using a flat negated class as a delimiter
+   matcher (`[^\]]+`, `[^)]+`, `[^}]+`), construct a realistic one-level-nested input for this
+   language (a generic type, a nested call, a nested nested structure) and verify it still matches.
+4. **Comment-style audit (Rule 12).** If the language's `lexical_family` supports more than one
+   comment style, verify `dead_code` fires under each of them, not just the one it was seemingly
+   written against.
+5. **ReDoS adversarial payloads, verified by scaling — not a single timing.** For every rule with
+   an unbounded-looking quantifier, construct the "never closes" adversarial payload (e.g. `"{" *
+   n` for a rule expecting a closing `}`, `"(" * n` for one expecting `)`) and measure actual
+   execution time at **several** geometrically increasing sizes (e.g. n = 2000, 4000, 8000, 16000,
+   32000). A roughly 2x time increase per doubling is linear and fine. A roughly 4x increase per
+   doubling is the signature of real O(n²) catastrophic backtracking and must be fixed (bound the
+   quantifier, e.g. `{0,300}` / `{0,500}`, generous enough to still match realistic code) — do not
+   report a ReDoS finding, and do not clear one, off a single timing.
+6. **Ambiguity sweep.** For every *pair* of signatures in the dict (not just an assumed subset),
+   check for shared literal tokens, then empirically verify each flagged pair on real-shaped input:
+   is it a genuine false collision (two signatures matching the exact same text when they
+   shouldn't), or a structurally-forced non-collision (e.g. `dead_code` requires an immediately
+   preceding comment marker that a live-code signature's anchor excludes)? Also explicitly check
+   these known cross-language ambiguity-prone pairs if the language has both sides of each:
+   `explicit_casts` vs `pointers`, `test` vs `regex_execution`, `func_start` vs `generics`,
+   `bitwise_ops` vs `closures`. Not every finding is a bug — e.g. a test-assertion DSL whose
+   "matches" keyword genuinely invokes a regex engine under the hood (Pester's `Should -Match`) is
+   a correct, intentional double-classification, not a false positive. State which it is and why.
+
+### Step 5: Verify Against the Language Crucible
+The project maintains `tests/test_golden_crucible.py`, which runs the real `galaxyscope` CLI
+against the `language-crucible` corpus (a pinned checkout of real open-source repos, cloned as a
+sibling directory or pointed to via `LANGUAGE_CRUCIBLE_PATH`) and diffs the result against
+`tests/golden_master_audit.json` / `tests/golden_master_zero_dep_audit.json` using
+`tests/golden_diff.py`. Run it explicitly via `pytest -m golden_crucible` (it's opt-in, excluded
+from the default run) — once with a full-precision environment installed, once with a
+zero-dependency one, since each maintains its own golden master fixture.
+
+Do not stop at "the test failed" or "the test passed" — a passing diff-count and a *correct* diff
+are not the same thing:
+1. When the test reports drift, don't just re-run `update_golden_master.py` reflexively. Load both
+   the old and new artifacts directly with `golden_diff.load_and_sanitize()` +
+   `golden_diff.deep_compare()` in a throwaway script — the pytest failure message truncates to 50
+   lines, which can hide diffs that matter.
+2. **Separate on-target from off-target effects.** Filter every diff by the real file *extension*
+   in its path, not by the crucible corpus's directory-group label — a directory grouped under one
+   language can legitimately bundle files of another (e.g. a Dockerfile-grouped repo containing
+   `.go` files). Every diff should trace to a file whose extension matches the language you just
+   touched. Any diff on a file of a *different* language is an off-target effect: your regex change
+   had an unintended blast radius (usually a signature-key collision or an overly broad new
+   alternative) and must be investigated before proceeding — never dismissed or regenerated over.
+3. **Explain every on-target diff by name.** Find the specific real file and construct responsible,
+   and confirm the direction of the change matches your fix's intent (a corrected boundary bug
+   should *increase* a previously-undercounted signature; a ReDoS bound should only *decrease*
+   counts, and only on abnormally large spans). An unexplained diff — even a single-digit one — is
+   a sign something other than your intended fix moved, and should not be papered over by
+   regenerating the fixture.
+4. **A zero-diff result is not automatically a clean bill of health.** If a real, intentional fix
+   produces no diff at all, confirm *why* — grep/find the crucible corpus to check whether it
+   simply contains no files, or no instances of the fixed construct, in that language. A silent
+   zero-diff from an empty corpus is not the same claim as "verified no regression."
+5. Only once every diff is individually explained and confirmed legitimate, regenerate the fixture
+   with `tests/tools/update_golden_master.py --yes` (run once per environment — it detects and
+   updates only the fixture matching whichever venv is currently active).
+6. Re-run the full test suite once more after regenerating, to confirm the new fixtures are
+   internally self-consistent with everything else.
 
 ---
 

@@ -10,67 +10,70 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io, safety_bypasses
 
+import concurrent.futures
+import importlib.util
 import logging
+import multiprocessing
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
 import time
 import zipfile
-import tempfile
-import shutil
-import sys
-import re
-import os
-import subprocess
-import importlib
-import multiprocessing
-import concurrent.futures
-from pathlib import Path
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Union, Set
 from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional, Union
 
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX
-from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
+from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
-from gitgalaxy.standards.language_lens import LanguageDetector
+from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
-from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.metrics.chronometer import Chronometer
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.metrics.statistical_auditor import StatisticalAuditor
+from gitgalaxy.recorders.audit_recorder import AuditRecorder
+from gitgalaxy.recorders.gpu_recorder import GPURecorder
+from gitgalaxy.recorders.llm_recorder import LLMRecorder
+from gitgalaxy.recorders.record_keeper import RecordKeeper
+from gitgalaxy.recorders.sarif_recorder import SarifRecorder
+from gitgalaxy.recorders.sbom_recorder import SbomRecorder
+from gitgalaxy.security.security_auditor import ML_AVAILABLE, SecurityAuditor
+from gitgalaxy.security.security_lens import SecurityLens
+from gitgalaxy.standards.analysis_lens import (
+    ASSET_MASKS,
+    PATH_MODIFIERS,
+)
+from gitgalaxy.standards.config_resolver import resolve_config
+from gitgalaxy.standards.gitgalaxy_config import (
+    LEXICAL_FAMILY_HEURISTICS,
+)
+from gitgalaxy.standards.language_lens import LanguageDetector
+from gitgalaxy.standards.language_standards import (
+    LANGUAGE_DEFINITIONS,
+    PROJECT_OVERRIDES,
+)
+from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
+from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
     run_firewall_audit,
 )
-from gitgalaxy.recorders.gpu_recorder import GPURecorder
-from gitgalaxy.recorders.audit_recorder import AuditRecorder
-from gitgalaxy.recorders.llm_recorder import LLMRecorder
-from gitgalaxy.recorders.record_keeper import RecordKeeper
-from gitgalaxy.recorders.sarif_recorder import SarifRecorder
-from gitgalaxy.recorders.sbom_recorder import SbomRecorder
-from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.security.security_auditor import SecurityAuditor, ML_AVAILABLE
-from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
-from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
-from gitgalaxy.standards.gitgalaxy_config import (
-    APERTURE_CONFIG,
-    PRIORITY_WHITELIST,
-    LEXICAL_FAMILY_HEURISTICS,
-    GUIDESTAR_CONFIG,
-    TEST_NAMING_CONVENTIONS,
-)
-from gitgalaxy.standards.language_standards import (
-    LANGUAGE_DEFINITIONS,
-    PROJECT_OVERRIDES,
-)
-from gitgalaxy.standards.analysis_lens import (
-    ThreatPolicy,
-    PATH_MODIFIERS,
-    ASSET_MASKS,
-)
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
+
+# S607 hardening: resolve once to an absolute path rather than relying on
+# PATH lookup at every subprocess.check_output(["git", ...]) call below.
+# Falls back to the bare name if git genuinely isn't installed -- the
+# existing FileNotFoundError/CalledProcessError handling at each call site
+# already covers that case unchanged.
+_GIT_BIN = shutil.which("git") or "git"
 
 logger = logging.getLogger("GalaxyScope")
 
@@ -79,9 +82,10 @@ logger = logging.getLogger("GalaxyScope")
 # ==============================================================================
 # Top-level functions to bypass Python's Multi-Processing pickling limitations
 
-_worker_state = {}
+_worker_state: dict[str, Any] = {}
 
-def execution_timeout_failsafe(signum, frame):
+
+def execution_timeout_failsafe(_signum, _frame):
     """
     Hardware-level OS interrupt for Catastrophic Backtracking (ReDoS) protection.
 
@@ -94,20 +98,20 @@ def execution_timeout_failsafe(signum, frame):
 
 def _init_worker(
     root_str: str,
-    config: Dict[str, Any],
-    ext_tally: Dict[str, int],
+    config: dict[str, Any],
+    ext_tally: dict[str, int],
     log_level: int,
-    git_tracked: Set[str],
-    census: Set[str],
+    git_tracked: set[str],
+    census: set[str],
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
-    
+
     ARCHITECTURAL DECISION (ISOLATED WORKER MEMORY):
     Python's Global Interpreter Lock (GIL) prevents true multi-threading for CPU-bound tasks.
     To map a massive repository at extreme velocity, GitGalaxy spawns entirely separate OS
-    processes. This boot-loader instantiates the heavy regex matrices entirely within the 
-    child's isolated RAM. This prevents the OS from attempting to pickle/serialize massive 
+    processes. This boot-loader instantiates the heavy regex matrices entirely within the
+    child's isolated RAM. This prevents the OS from attempting to pickle/serialize massive
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
@@ -131,7 +135,7 @@ def _init_worker(
 
     # 2. Warm up active project languages based on extensions found in Pass 0.
     active_langs = set()
-    for ext in ext_tally.keys():
+    for ext in ext_tally:
         for l_id, l_cfg in lang_defs.items():
             if ext in l_cfg.get("extensions", []):
                 active_langs.add(l_id)
@@ -140,12 +144,6 @@ def _init_worker(
     for lang_id in active_langs:
         if lang_id not in detector_cache:
             detector_cache[lang_id] = OpticalDetector(lang_id, lang_defs, parent_logger=worker_logger)
-
-    # --- NEW: Decide the Rules of Engagement before booting the engines ---
-    if config.get("PARANOID_MODE", False):
-        _active_policy = ThreatPolicy.get_policy("paranoid")
-    else:
-        _active_policy = ThreatPolicy.get_policy("baseline")
 
     _worker_state.update(
         {
@@ -157,15 +155,19 @@ def _init_worker(
             "git_tracked": git_tracked,
             "census": census,
             "filter": ApertureFilter(root, lang_defs, aperture_cfg, parent_logger=worker_logger),
-            "guidestar": GuideStarLens(root, priority_whitelist, parent_logger=worker_logger),
-            "detector": LanguageDetector(lang_defs, lexical_heuristics),
+            "guidestar": GuideStarLens(
+                root, priority_whitelist, parent_logger=worker_logger, guidestar_config=config.get("GUIDESTAR_CONFIG")
+            ),
+            "detector": LanguageDetector(
+                lang_defs, lexical_heuristics, exact_file_match=config.get("EXACT_FILE_MATCH")
+            ),
             "prism": Prism(lexical_heuristics, lang_defs, parent_logger=worker_logger),
             "detector_cache": detector_cache,
             "word_tokenizer": re.compile(r"\b\w+\b"),
             # --- NEW: Boot the Analysis Engines into worker memory ---
-            "chronometer": Chronometer(root, parent_logger=worker_logger),
+            "chronometer": Chronometer(root, parent_logger=worker_logger, resolved_config=config),
             "signal": SignalProcessor(aperture_config=config, parent_logger=worker_logger),
-            "security": SecurityLens(policy=_active_policy),
+            "security": SecurityLens(),
             # --------------------------------------------------------
         }
     )
@@ -173,7 +175,7 @@ def _init_worker(
     _worker_state["guidestar"].scan_project_config()
 
 
-def _process_file_worker(rel_path: str) -> Dict[str, Any]:
+def _process_file_worker(rel_path: str) -> dict[str, Any]:
     """Processes a single file path using the worker's cached hardware modules."""
 
     # ---> START THE CLOCK FOR THE MICRO-PROFILER <---
@@ -208,7 +210,12 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
     # -----------------------------------------------------------
 
     has_prior, intent_vector = guidestar.get_intent_status(full_path_str)
-    observation = {
+    # Annotated explicitly (matching this function's own Dict[str, Any] return
+    # type) because the different early-return branches below assign a mix of
+    # str/float/None/dict values into this same dict -- left un-annotated,
+    # mypy infers the type from this literal's initial 4 keys and then flags
+    # every later value of a different shape as an incompatible assignment.
+    observation: dict[str, Any] = {
         "rel_path": rel_path,
         "status": "filtered",
         "reason": "Aperture block",
@@ -294,7 +301,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
         # Phase 2: Disk I/O
         t_io = time.perf_counter()
         try:
-            with open(full_path_str, "r", encoding="utf-8", errors="ignore") as f:
+            with open(full_path_str, encoding="utf-8", errors="ignore") as f:
                 content_buffer = f.read()
         except FileNotFoundError:
             # Fast, zero-overhead disk failure routing.
@@ -303,7 +310,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             observation["processing_time"] = time.time() - t_start
             return observation
         except Exception as e:
-            observation["reason"] = f"I/O Error: {str(e)}"
+            observation["reason"] = f"I/O Error: {e!s}"
             observation["processing_time"] = time.time() - t_start
             return observation
         if is_file_profiling:
@@ -389,7 +396,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
                     phase_times["4_Lexical_Scan"] = time.perf_counter() - t_prism
 
                 if lang_id not in detector_cache:
-                    from gitgalaxy.core.detector import OpticalDetector
+                    from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
 
                     detector_cache[lang_id] = OpticalDetector(lang_id, lang_defs, parent_logger=logger)
 
@@ -428,13 +435,101 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
 
             if not is_inert:
                 # Handle the new nested dictionary
-                sec_results = security.scan_content(content_buffer, filter_res.get("total_loc", 0))
+                sec_results = security.scan_content(content_buffer)
 
+                # Additive, not an overwrite (#344): detector.py's own coding_analysis()
+                # can independently corroborate some of these same "sec_" keys (e.g.
+                # sec_tainted_injection, sec_hardcoded_secrets) via its in-segment
+                # spatial correlation. A plain assignment here would silently discard
+                # that contribution the moment security_lens's own scan ran second.
                 for sec_key, hit_count in sec_results["counts"].items():
-                    logic_data["equations"][f"sec_{sec_key}"] = hit_count
+                    mapped_key = f"sec_{sec_key}"
+                    logic_data["equations"][mapped_key] = logic_data["equations"].get(mapped_key, 0) + hit_count
 
                 # Pass the snippets into the payload
                 logic_data["threat_snippets"] = sec_results["snippets"]
+
+                # Fold security_lens.py's own line positions into the same shared,
+                # persisted ledger detector.py's rules already populate (#348).
+                # security_lens.py tracks a handful of signals (e.g. db_hooks) that
+                # have no detector.py-side equivalent at all -- without this, that
+                # position data was computed (for security_lens's own internal
+                # taint check) and then simply discarded, leaving post-hoc tools
+                # outside detector.py (dev_agent_firewall.py, ai_appsec_sensor.py,
+                # #105's future db_hooks correlation) with nothing to correlate
+                # against for these signals.
+                logic_data.setdefault("threat_locations", {})
+                for pos_key, line_numbers in sec_results.get("positions", {}).items():
+                    mapped_key = f"sec_{pos_key}"
+                    logic_data["threat_locations"].setdefault(mapped_key, []).extend(line_numbers)
+
+                # --- The Active Hemorrhage, reimplemented post-hoc (#348) ---
+                # This correlation (secrets near a logging/print sink) used to live
+                # in detector.py's coding_analysis(), but its target key,
+                # "sec_hardcoded_secrets", is the Passive Security Lens Observer
+                # name -- only ever populated by security_lens.py, right above, in
+                # THIS phase. It could never run inside detector.py; it needed to
+                # move here, where that data (and detector.py's own "telemetry"/
+                # "debug_prints" threat_locations) finally coexist.
+                threat_locs = logic_data["threat_locations"]
+                sinks_present = "telemetry" in threat_locs or "debug_prints" in threat_locs
+                if "sec_hardcoded_secrets" in threat_locs and sinks_present:
+                    # correlate_against_ledger() takes one sink key; fold telemetry
+                    # and debug_prints into one synthetic entry in a throwaway copy
+                    # of the ledger, matching detector.py's original "telemetry OR
+                    # debug_prints" sink definition.
+                    ledger_for_query = dict(threat_locs)
+                    ledger_for_query["_active_hemorrhage_sinks"] = sorted(
+                        threat_locs.get("telemetry", []) + threat_locs.get("debug_prints", [])
+                    )
+                    # 5 lines, not detector.py's original 150 CHARS -- this ledger is
+                    # line-indexed, not char-offset-indexed, so the radius has to be
+                    # re-expressed in the new unit rather than reused as a raw number.
+                    _, active_leaks = correlate_against_ledger(
+                        ledger_for_query,
+                        logic_data.get("functions", []),
+                        "sec_hardcoded_secrets",
+                        "_active_hemorrhage_sinks",
+                        max_distance=5,
+                    )
+                    if active_leaks:
+                        logic_data["equations"]["sec_hardcoded_secrets"] = (
+                            logic_data["equations"].get("sec_hardcoded_secrets", 0) + active_leaks * 50
+                        )
+                        logic_data.setdefault("mitigation_telemetry", {})
+                        logic_data["mitigation_telemetry"]["amplified_leaks"] = (
+                            logic_data["mitigation_telemetry"].get("amplified_leaks", 0) + active_leaks
+                        )
+
+                # --- The DB Injection Funnel (#105) ---
+                # A public API route ("api", detector.py-side) that directly
+                # invokes a raw DB sink ("sec_db_hooks", security_lens.py-side,
+                # folded into threat_locs above) within the SAME function is a
+                # deterministically proven injection funnel -- reuses the exact
+                # ledger/primitive #348 built for post-hoc correlation instead
+                # of #105's original flat-radius proposal. correlate_against_
+                # ledger()'s same-function scoping does the real precision
+                # work here; max_distance=5 mirrors the Active Hemorrhage's own
+                # char->line conversion just above (150 chars -> 5 lines,
+                # applied here to #105's originally-proposed 100-char radius)
+                # and exists only to guard against sprawling functions.
+                if "api" in threat_locs and "sec_db_hooks" in threat_locs:
+                    _, amplified_sql_injection = correlate_against_ledger(
+                        threat_locs,
+                        logic_data.get("functions", []),
+                        "api",
+                        "sec_db_hooks",
+                        max_distance=5,
+                    )
+                    if amplified_sql_injection:
+                        logic_data["equations"]["sec_amplified_sql_injection"] = (
+                            logic_data["equations"].get("sec_amplified_sql_injection", 0) + amplified_sql_injection
+                        )
+                        logic_data.setdefault("mitigation_telemetry", {})
+                        logic_data["mitigation_telemetry"]["amplified_sql_injection"] = (
+                            logic_data["mitigation_telemetry"].get("amplified_sql_injection", 0)
+                            + amplified_sql_injection
+                        )
 
             if is_file_profiling:
                 phase_times["5.5_Security_Lens"] = time.perf_counter() - t_security
@@ -523,9 +618,9 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
             "prior_lock": has_prior,
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
-            "mitigations": refraction.get("mitigations", []), # <--- THE FIX: Route the suppressions
+            "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": list(raw_imports),
-            "named_tokens": list(named_tokens),  
+            "named_tokens": list(named_tokens),
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -545,7 +640,7 @@ def _process_file_worker(rel_path: str) -> Dict[str, Any]:
 
     except Exception as e:
         observation["status"] = "anomaly"
-        observation["reason"] = f"Hardware failure: {str(e)}"
+        observation["reason"] = f"Hardware failure: {e!s}"
 
     # ---> RECORD THE FINAL TIME <---
     total_time = time.time() - t_start
@@ -587,8 +682,8 @@ class Orchestrator:
     def __init__(
         self,
         target_input: Union[str, Path],
-        config: Dict[str, Any],
-        version: str = "6.2.0",
+        config: dict[str, Any],
+        version: str = "latest",
     ):
         self.config = config
         self.version = version
@@ -606,10 +701,12 @@ class Orchestrator:
         self.filter = ApertureFilter(self.root, lang_defs, aperture_cfg, parent_logger=logger)
 
         # Bayesian prior injector (evaluates intent via Manifests, Readmes, .gitattributes)
-        self.guidestar = GuideStarLens(self.root, priority_whitelist, parent_logger=logger)
+        self.guidestar = GuideStarLens(
+            self.root, priority_whitelist, parent_logger=logger, guidestar_config=config.get("GUIDESTAR_CONFIG")
+        )
 
         # Temporal engine extracting Git volatility, churn velocity, and ownership entropy
-        self.chronometer = Chronometer(self.root, parent_logger=logger)
+        self.chronometer = Chronometer(self.root, parent_logger=logger, resolved_config=config)
         self.spatial_mapper = SpatialMapper(parent_logger=logger)
 
         # The primary heuristic math engine converting raw Structural Signatures to risk exposure vectors
@@ -635,16 +732,58 @@ class Orchestrator:
         # SARIF Recorder: Exports industry-standard JSON for enterprise security dashboards
         self.sarif_recorder = SarifRecorder(version=self.version, parent_logger=logger)
         # SBOM Recorder: Produces mathematically verified CycloneDX manifests
-        self.sbom_recorder = SbomRecorder(version=self.version, parent_logger=logger)
+        # --- DEPENDENCY AUDIT CACHE WIRING (PR C of the overhaul) ---
+        # The cache only matters on runs where the SBOM audit actually
+        # executes (default runs and --sbom-only). Under other exclusive
+        # modes SbomRecorder is never invoked, so an idle cache handle is
+        # harmless — but we skip even opening it there to avoid touching
+        # the file on runs that will never use it.
+        self.dependency_cache = None
+        _exclusive_no_sbom = (
+            config.get("LLM_ONLY")
+            or config.get("GPU_ONLY")
+            or config.get("AUDIT_ONLY")
+            or config.get("DB_ONLY")
+            or config.get("SARIF_ONLY")
+        ) and not config.get("SBOM_ONLY")
 
-        # --- NEW: THE SMART THREAT SWITCH (MAIN THREAD) ---
-        if self.config.get("PARANOID_MODE", False):
-            _active_policy = ThreatPolicy.get_policy("paranoid")
-        else:
-            _active_policy = ThreatPolicy.get_policy("baseline")
+        if not config.get("NO_DEPENDENCY_CACHE") and not _exclusive_no_sbom:
+            from gitgalaxy.security.dependency_audit_cache import DependencyAuditCache
+
+            cache_path = config.get("DEPENDENCY_CACHE_PATH")
+            if not cache_path:
+                cache_path = str(self.root / ".gitgalaxy" / "dependency_cache.db")
+
+            try:
+                _cache_existed = Path(cache_path).exists()
+                self.dependency_cache = DependencyAuditCache(cache_path, parent_logger=logger)
+                if _cache_existed:
+                    logger.info(f"🗂️ Dependency audit cache loaded: {cache_path}")
+                else:
+                    logger.warning(
+                        f"🗂️ No dependency audit baseline found — created new cache at {cache_path}. "
+                        "This run verifies dependencies incrementally; coverage accumulates across runs. "
+                        "Use --full-dependency-scan to build a complete baseline in one pass. "
+                        "(Recommend adding .gitgalaxy/ to your .gitignore.)"
+                    )
+            except OSError as e:
+                logger.warning(
+                    f"🗂️ Could not open dependency audit cache at {cache_path} ({e}). "
+                    "Falling back to legacy capped-sampling SBOM audit for this run."
+                )
+                self.dependency_cache = None
+
+        _budget = None if config.get("FULL_DEPENDENCY_SCAN") else config.get("DEPENDENCY_SCAN_BUDGET", 25)
+
+        self.sbom_recorder = SbomRecorder(
+            version=self.version,
+            parent_logger=logger,
+            dependency_cache=self.dependency_cache,
+            fresh_scan_budget=_budget,
+        )
 
         # Zero-Trust execution validation
-        self.security_analyzer = SecurityLens(policy=_active_policy)
+        self.security_analyzer = SecurityLens()
 
         # Multi-class XGBoost threat classification model
         self.model_auditor = SecurityAuditor(model_path="gitgalaxy_malware_xgb_multiclass.json", parent_logger=logger)
@@ -654,22 +793,22 @@ class Orchestrator:
         # GLOBAL STATE ARRAYS
         # Shared memory constructs used to aggregate worker output and manage state
         # ==============================================================================
-        self.census: Set[str] = set()
-        self.stem_map: Dict[str, str] = {}
-        self.ram_cache: Dict[str, Dict[str, Any]] = {}
-        self.parsed_files: List[Dict[str, Any]] = []
-        self.unparsable_files: List[Dict[str, Any]] = []
-        self.anomalies: List[Dict[str, str]] = []
-        self.popularity_scores: Dict[str, int] = {}
-        self.ext_tally: Dict[str, int] = {}
-        self.git_tracked_files: Set[str] = set()
+        self.census: set[str] = set()
+        self.stem_map: dict[str, str] = {}
+        self.ram_cache: dict[str, dict[str, Any]] = {}
+        self.parsed_files: list[dict[str, Any]] = []
+        self.unparsable_files: list[dict[str, Any]] = []
+        self.anomalies: list[dict[str, str]] = []
+        self.popularity_scores: dict[str, int] = {}
+        self.ext_tally: dict[str, int] = {}
+        self.git_tracked_files: set[str] = set()
 
         # ---> NEW: NEIGHBORHOOD MICRO-MASS QUOTA STATE <---
         # Prevents high-density utility directories (like icons/ or config blocks)
         # from overloading localized physical mass calculations.
         self.MICRO_MASS_BYTES = 50
         self.MICRO_MASS_GRACE_LIMIT = 15
-        self.neighborhood_tracker = defaultdict(int)
+        self.neighborhood_tracker: defaultdict[str, int] = defaultdict(int)
 
         self.splicing_telemetry = {
             "top_slowest": [],
@@ -793,6 +932,15 @@ class Orchestrator:
             t_phase = time.time()
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
+
+            # #371: repo_z_score is repo-wide (only knowable once summary is
+            # computed), but record_keeper.py/llm_recorder.py read it per-file
+            # off telemetry -- thread it down now that it exists, or every file's
+            # column/report field stays permanently the 0.0 fallback.
+            repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
+            for file_data in repository_graph or []:
+                file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
+
             report = self.processor.generate_forensic_report(repository_graph)
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
 
@@ -813,8 +961,19 @@ class Orchestrator:
             # ==========================================================
             logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
 
+            # NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
-            target_manifests = set(GUIDESTAR_CONFIG.get("MANIFEST_MAP", {}).keys())
+            # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
+            # etc. -- files with no parseable dependency list, used only for its own
+            # Bayesian intent inference) with SUPPORTED_MANIFEST_FILENAMES, the
+            # canonical set UniversalManifestSlicer can actually parse. Without this
+            # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
+            # requirements.txt) silently never reach the SBOM whenever any other
+            # manifest is also present in the repo.
+            from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_FILENAMES, ManifestParser
+
+            guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
+            target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
             manifest_paths = [
                 str(self.root / rel_path)
                 for rel_path in self.stem_map.values()
@@ -822,43 +981,47 @@ class Orchestrator:
             ]
 
             # 2. Build the global translation map
-            from gitgalaxy.security.manifest_parser import ManifestParser
-
             alias_map = ManifestParser(parent_logger=logger).build_resolution_map(manifest_paths)
 
             ecosystem_audits = {
                 "api_mapper": run_api_audit(self.root),
-                "xray": run_xray_audit(self.root),
+                "xray": run_xray_audit(self.root, config=self.config),
                 # 3. Pass the RAM graph and the alias map to the Firewall
-                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map),
+                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map, config=self.config),
             }
 
             # Attach it to the summary payload
             summary["ecosystem_audits"] = ecosystem_audits
-            
+
+            # #376: computed back in Phase 2 (_resolve_dependency_graph), where
+            # summary doesn't exist yet -- stashed on self and folded in here.
+            # record_keeper.py's real read is summary["typosquat_hits"] directly
+            # (top level, not nested under ecosystem_audits).
+            summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
+
             # ==========================================================
             # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
             # ==========================================================
             self.policy_failed = False
             max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
-            
+
             if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_systemic_threat > 0.0:
                 logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
-                
+
                 from gitgalaxy.metrics.signal_processor import SignalProcessor
-                
-                for file_data in (repository_graph or []):
+
+                for file_data in repository_graph or []:
                     # 1. Absolute Security Floor (Secrets)
                     if self.config.get("FAIL_ON_SECRETS"):
                         has_secrets = False
-                        
+
                         # Extract mitigations safely
                         mitigs = file_data.get("mitigations", [])
                         if isinstance(mitigs, dict):
                             mitigs = list(mitigs.keys())
                         elif not isinstance(mitigs, list):
                             mitigs = []
-                            
+
                         if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
                             # Check Risk Vector
                             if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
@@ -866,92 +1029,103 @@ class Orchestrator:
                                 rv = file_data.get("risk_vector", [])
                                 if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
                                     has_secrets = True
-                            
+
                             # THE FIX: Bulletproof Truthiness Check
                             ts = file_data.get("telemetry", {}).get("threat_snippets", {})
                             if isinstance(ts, dict):
                                 if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
                                     has_secrets = True
-                                
+
                             # Check Domain Context
                             ctx = file_data.get("telemetry", {}).get("domain_context", {})
                             if isinstance(ctx, dict):
                                 warning_msg = ctx.get("warning", "")
                                 if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
                                     has_secrets = True
-                                
+
                         if has_secrets:
-                            logger.critical(f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}")
+                            logger.critical(
+                                f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
+                            )
                             self.policy_failed = True
 
                     # 2. XGBoost Malware Floor
                     if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
-                        ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                        logger.critical(f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}")
+                        ai_class = (
+                            file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                        )
+                        logger.critical(
+                            f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
+                        )
                         self.policy_failed = True
-                        
+
                     # 3. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
                     if max_systemic_threat > 0.0:
                         risk_vec = file_data.get("risk_vector", [])
-                        cumulative_risk = sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
-                        
+                        cumulative_risk = (
+                            sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
+                        )
+
                         net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
                         blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
-                        
+
                         systemic_threat = cumulative_risk * blast_radius
-                        
+
                         if systemic_threat >= max_systemic_threat:
-                            logger.critical(f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}")
+                            logger.critical(
+                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}"
+                            )
                             self.policy_failed = True
 
             # ==========================================================
             # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts & Config Exclusions)
             # ==========================================================
             logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
-            
+
             ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
             ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
-            
-            for file_data in (repository_graph or []):
+
+            for file_data in repository_graph or []:
                 # Ensure cross-platform slash normalization
                 file_path = file_data.get("path", "").replace("\\", "/")
                 path_excluded = any(p in file_path for p in ignored_paths)
-                
+
                 if path_excluded:
                     file_data["equations"] = {}
                     file_data["is_ml_threat"] = False
-                    
+
                     if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
                         file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
-                        
+
                     if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
                         file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
-                        
+
                     if "telemetry" in file_data:
                         file_data["telemetry"] = {
                             "popularity": file_data["telemetry"].get("popularity", 0),
-                            "ownership": file_data["telemetry"].get("ownership", "Unknown")
+                            "ownership": file_data["telemetry"].get("ownership", "Unknown"),
                         }
-                    
+
                     if "metadata" in file_data:
                         file_data["metadata"] = {}
-                        
+
                     continue
-                
+
                 mitigs = file_data.get("mitigations", [])
                 if isinstance(mitigs, dict):
                     mitigs = list(mitigs.keys())
                 elif not isinstance(mitigs, list):
                     mitigs = []
-                
+
                 ts = file_data.get("telemetry", {}).get("threat_snippets", {})
                 eqs = file_data.get("equations", {})
-                
+
                 if isinstance(ts, dict) and isinstance(eqs, dict):
                     keys_to_delete_ts = [
-                        k for k in ts.keys() 
-                        if k in mitigs 
-                        or f"sec_{k}" in mitigs 
+                        k
+                        for k in ts.keys()
+                        if k in mitigs
+                        or f"sec_{k}" in mitigs
                         or k.replace("sec_", "") in mitigs
                         or k in ignored_rules
                         or f"sec_{k}" in ignored_rules
@@ -959,7 +1133,8 @@ class Orchestrator:
                         or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
                     ]
                     keys_to_delete_eqs = [
-                        k for k in eqs.keys()
+                        k
+                        for k in eqs.keys()
                         if k in mitigs
                         or k.replace("sec_", "") in mitigs
                         or k in ignored_rules
@@ -967,11 +1142,11 @@ class Orchestrator:
                         or f"GG-SAST-{k.upper()}" in ignored_rules
                         or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
                     ]
-                    
+
                     for k in keys_to_delete_ts:
                         if k in ts:
                             del ts[k]
-                            
+
                     for k in keys_to_delete_eqs:
                         if k in eqs:
                             del eqs[k]
@@ -983,10 +1158,15 @@ class Orchestrator:
                 if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
                     if "ai_guardrails" in file_data.get("telemetry", {}):
                         del file_data["telemetry"]["ai_guardrails"]
-                        
+
                 if file_data.get("is_ml_threat"):
-                    ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                    if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules or "ml_threat" in mitigs:
+                    ai_class = (
+                        file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                    )
+                    if (
+                        f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules
+                        or "ml_threat" in mitigs
+                    ):
                         file_data["is_ml_threat"] = False
 
             # ==========================================================
@@ -1135,6 +1315,7 @@ class Orchestrator:
                         summary=summary,
                         session_meta=session_meta,
                         output_path=sbom_output,
+                        manifest_paths=manifest_paths,
                     )
                 except Exception as e:
                     logger.error(
@@ -1152,13 +1333,16 @@ class Orchestrator:
                     parsed_files=repository_graph,
                     unparsable_files=total_unparsable,
                     summary=summary,
-                    forensic_report=report,
                     repo_name=self.root.name,
                     session_meta=session_meta,
+                    resolved_config=self.config,
                 )
 
                 payload["meta"]["session"] = session_meta
                 self.gpu_recorder.save_minified(payload, gpu_output)
+
+            if self.dependency_cache is not None:
+                self.dependency_cache.close()
 
             logger.info(f"--- PIPELINE_SUCCESS: {files_mapped_count} files mapped in {duration}s ---")
             logger.info(f"--- ENGINE_TELEMETRY: Processed {total_loc:,} lines of code at {loc_per_sec:,} LOC/s ---")
@@ -1192,7 +1376,7 @@ class Orchestrator:
             print("=" * 75 + "\n")
 
         except Exception as e:
-            logger.critical(f"FATAL_SYSTEM_COLLAPSE: {str(e)}", exc_info=True)
+            logger.critical(f"FATAL_SYSTEM_COLLAPSE: {e!s}", exc_info=True)
             raise
         finally:
             self.cleanup()
@@ -1200,8 +1384,8 @@ class Orchestrator:
     def _build_file_census(self):
         """Phase 0: Building the Census via Git Authority with Fallback."""
         try:
-            raw_output = subprocess.check_output(
-                ["git", "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
+            raw_output = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, args are fixed strings
+                [_GIT_BIN, "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
             )
             git_paths = raw_output.splitlines()
             self.git_tracked_files = set(git_paths)
@@ -1319,7 +1503,7 @@ class Orchestrator:
         Dispatches the physical file paths to the isolated worker pool (bypassing the GIL).
         As the workers complete their high-speed regex extraction, this method consumes the
         futures dynamically to prevent O(N^2) polling wait states. It catches structural
-        saturations (ReDoS), logs processing telemetry, and aggregates the extracted 
+        saturations (ReDoS), logs processing telemetry, and aggregates the extracted
         Structural Signatures into the global RAM cache.
         """
         total_files = len(self.stem_map)
@@ -1426,9 +1610,9 @@ class Orchestrator:
 
                     except Exception as e:
                         logger.error(f"WORKER_CRASH on {rel_path}: {e}")
-                        self._record_anomaly(rel_path, f"Fatal Worker Crash: {str(e)}")
+                        self._record_anomaly(rel_path, f"Fatal Worker Crash: {e!s}")
 
-            except concurrent.futures.TimeoutError:
+            except concurrent.futures.TimeoutError as e:
                 logger.error("\n" + "=" * 75)
                 logger.error(" SYSTEM HALT: Worker Thread Starvation")
                 logger.error(" All CPU workers have exceeded the 60.0s execution limit.")
@@ -1453,7 +1637,33 @@ class Orchestrator:
                 logger.warning("Aborting synthesis to unfreeze the terminal. Please check the Anti-ReDoS shields.")
 
                 executor.shutdown(wait=False, cancel_futures=True)
-                raise TimeoutError("Mission aborted due to worker starvation (ReDoS or IPC Deadlock).")
+                raise TimeoutError("Mission aborted due to worker starvation (ReDoS or IPC Deadlock).") from e
+
+        # as_completed() yields in whatever order workers happen to finish,
+        # so every downstream consumer that iterates ram_cache (folder
+        # dominant-language tallies, parsed_files construction, spatial
+        # positioning, etc.) inherited that nondeterministic order. Re-key
+        # into a stable, path-sorted dict once here so the entire rest of
+        # the pipeline sees a deterministic sequence regardless of thread
+        # scheduling.
+        self.ram_cache = dict(sorted(self.ram_cache.items()))
+
+        # unparsable_files is appended to from the same as_completed() loop
+        # (the "parser_bypass" branch above) as well as from the earlier
+        # sequential filesystem walk, so it's a mix of stable and
+        # nondeterministic ordering. Sorting it here, once both sources have
+        # finished contributing, makes the "Unparsable Artifacts" report
+        # order deterministic the same way ram_cache now is. This was missed
+        # in the original ordering fix -- two back-to-back runs on the same
+        # machine happened to interleave identically and masked it, but a
+        # genuinely different machine (e.g. a CI runner) did not.
+        self.unparsable_files.sort(key=lambda entry: entry["path"])
+
+        # Same nondeterminism, same fix: _record_anomaly() is called both from
+        # the sequential Phase 0 walk and from this parallel loop, and
+        # _summarize_anomalies() later turns iteration order directly into
+        # the "unparsable_artifacts" list order.
+        self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
 
     def _resolve_dependency_graph(self):
         """
@@ -1462,7 +1672,7 @@ class Orchestrator:
         """
         logger.info("PASS_1.5: Resolving import graphs via O(1) Pre-computed Suffix Hash Maps...")
 
-        self.popularity_scores = {rel_path: 0 for rel_path in self.stem_map.values()}
+        self.popularity_scores = dict.fromkeys(self.stem_map.values(), 0)
         repo_file_paths = set(self.stem_map.values())
 
         # --- O(1) SUFFIX MAP ---
@@ -1596,10 +1806,7 @@ class Orchestrator:
                     guess_stem = Path(clean_path).stem.lower()
                     if guess_stem in stem_to_paths and guess_stem not in stop_stems and len(guess_stem) >= 3:
                         for target_path in stem_to_paths[guess_stem]:
-                            if clean_path in target_path or guess_stem == clean_path:
-                                self.popularity_scores[target_path] += 1
-                                matched_internal = True
-                            elif "/" not in clean_path:
+                            if clean_path in target_path or guess_stem == clean_path or "/" not in clean_path:
                                 self.popularity_scores[target_path] += 1
                                 matched_internal = True
 
@@ -1715,8 +1922,15 @@ class Orchestrator:
         if typosquat_hits > 0:
             logger.warning(f"Intercepted {typosquat_hits} typosquatting attempts via repository baseline analysis.")
 
+        # #376: this count was previously only ever logged, never attached to
+        # summary/ecosystem_audits -- record_keeper.py's typosquat_hits column
+        # was always the fallback 0. summary doesn't exist yet at this point in
+        # the pipeline (this runs in Phase 2, summary isn't built until Phase 8),
+        # so stash it on self and fold it in once summary is assembled.
+        self.typosquat_hits = typosquat_hits
+
         # Evict memory before Pass 2
-        for rel_path, meta in self.ram_cache.items():
+        for meta in self.ram_cache.values():
             if "popularity_hits" in meta:
                 del meta["popularity_hits"]
 
@@ -1747,8 +1961,11 @@ class Orchestrator:
         folder_dominant_langs = {}
         for folder, tallies in folder_tallies.items():
             if tallies:
-                # The language with the most files wins the neighborhood
-                folder_dominant_langs[folder] = max(tallies, key=tallies.get)
+                # The language with the most files wins the neighborhood. Ties
+                # (equal file counts) break alphabetically by language name --
+                # explicit and deterministic, rather than relying on whichever
+                # key plain max() happens to see first.
+                folder_dominant_langs[folder] = max(tallies.items(), key=lambda kv: (kv[1], kv[0]))[0]
 
         # --- NEW: CALCULATE THE GLOBAL TEST UMBRELLA ---
         total_loc = 0
@@ -2072,17 +2289,19 @@ class Orchestrator:
                 self.temp_dir = tempfile.mkdtemp(prefix="refraction_")
                 with zipfile.ZipFile(input_path, "r") as zip_ref:
                     # DEVIOUS SHIELD: Zip Bomb Protection (Max 5GB expansion)
-                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024 
+                    MAX_SAFE_BYTES = 5 * 1024 * 1024 * 1024
                     total_uncompressed_size = sum(file_info.file_size for file_info in zip_ref.infolist())
-                    
+
                     if total_uncompressed_size > MAX_SAFE_BYTES:
-                        raise ValueError(f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes.")
-                        
+                        raise ValueError(
+                            f"Decompression bomb detected! Archive expands to {total_uncompressed_size} bytes."
+                        )
+
                     zip_ref.extractall(self.temp_dir)
                 return Path(self.temp_dir).resolve()
             except Exception as e:
                 self.cleanup()
-                raise InaccessibleArtifactError(f"Extraction failure: {e}")
+                raise InaccessibleArtifactError(f"Extraction failure: {e}") from e
 
         return input_path.resolve(strict=True)
 
@@ -2106,7 +2325,7 @@ class Orchestrator:
         logger.debug(f"ANOMALY: {name} | {message}")
         self.anomalies.append({"star": name, "diagnostic": message})
 
-    def _summarize_anomalies(self, total_unparsable: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _summarize_anomalies(self, total_unparsable: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Bridges isolated worker failures back to the main thread's forensic ledger.
 
@@ -2114,8 +2333,8 @@ class Orchestrator:
         a binary saturation threshold, or a regex timeout, this method captures the diagnostic
         string and appends it to the global anomalies array for the final Audit Recorder payload.
         """
-        summary = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
-        unparsable_artifacts: List[str] = []
+        summary: dict[str, Any] = {"size_limit": 0, "binary": 0, "unparsable": 0, "os_permissions": 0}
+        unparsable_artifacts: list[str] = []
 
         # 1. Maintain the physical error tallies (I/O, Binary, OS)
         for a in self.anomalies:
@@ -2136,7 +2355,7 @@ class Orchestrator:
             summary["unparsable_artifacts"] = unparsable_artifacts
 
         # 2. Build the hierarchical composition_by_extension_and_reason
-        composition = {}
+        composition: dict[str, dict[str, int]] = {}
         for unparsable in total_unparsable:
             path = unparsable.get("path", "")
             reason = unparsable.get("reason", "Unknown Reason")
@@ -2230,7 +2449,7 @@ class Orchestrator:
 
         print("=" * 75 + "\n")
 
-    def _get_git_audit(self) -> Dict[str, str]:
+    def _get_git_audit(self) -> dict[str, str]:
         """
         Extracts forensic Git metadata (Commit SHA, Branch, Remote URL, Date) via subprocess.
 
@@ -2246,16 +2465,16 @@ class Orchestrator:
         }
         try:
             # 1. Commit Hash
-            audit["commit_hash"] = subprocess.check_output(
-                ["git", "rev-parse", "HEAD"],
+            audit["commit_hash"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "rev-parse", "HEAD"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
             ).strip()
 
             # 2. Branch Name
-            audit["branch"] = subprocess.check_output(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            audit["branch"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "rev-parse", "--abbrev-ref", "HEAD"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
@@ -2263,8 +2482,8 @@ class Orchestrator:
 
             # 3. Remote URL (The true identity of the repo)
             try:
-                audit["remote_url"] = subprocess.check_output(
-                    ["git", "config", "--get", "remote.origin.url"],
+                audit["remote_url"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "config", "--get", "remote.origin.url"],
                     cwd=self.root,
                     text=True,
                     stderr=subprocess.DEVNULL,
@@ -2273,8 +2492,8 @@ class Orchestrator:
                 audit["remote_url"] = "Local Only (No Remote)"
 
             # 4. Last Commit Date (When the repo was last updated/pulled)
-            audit["latest_commit_date"] = subprocess.check_output(
-                ["git", "log", "-1", "--format=%cd", "--date=iso-strict"],
+            audit["latest_commit_date"] = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved, fixed args
+                [_GIT_BIN, "log", "-1", "--format=%cd", "--date=iso-strict"],
                 cwd=self.root,
                 text=True,
                 stderr=subprocess.DEVNULL,
@@ -2287,10 +2506,10 @@ class Orchestrator:
 
     def execute_incremental_scan(
         self,
-        ram_cache: Dict[str, Any],
-        added: List[str],
-        modified: List[str],
-        deleted: List[str],
+        ram_cache: dict[str, Any],
+        added: list[str],
+        modified: list[str],
+        deleted: list[str],
         db_output_path: str,
     ):
         """
@@ -2355,6 +2574,15 @@ class Orchestrator:
             # 7. Synthesis and Database Forging
             summary = self.processor.summarize_galaxy_metrics(repository_graph, unparsable_audits)
             summary["network_macro"] = network_macro
+
+            # #371: see the identical backfill in the main pipeline above.
+            repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
+            for file_data in repository_graph or []:
+                file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
+
+            # #376: see the identical backfill in the main pipeline above.
+            summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
+
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
@@ -2365,8 +2593,10 @@ class Orchestrator:
                 "missing_dependencies": {
                     "networkx": not HAS_NETWORKX,
                     "tiktoken": not HAS_TIKTOKEN,
+                    "xgboost": not ML_AVAILABLE,
+                    "pyyaml": not HAS_PYYAML,
                 },
-                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN),
+                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
             }
 
             self.db_recorder.record_mission(
@@ -2382,7 +2612,7 @@ class Orchestrator:
             )
 
         except Exception as e:
-            logger.critical(f"FATAL_DELTA_COLLAPSE: {str(e)}", exc_info=True)
+            logger.critical(f"FATAL_DELTA_COLLAPSE: {e!s}", exc_info=True)
             raise
         finally:
             self.cleanup()
@@ -2400,19 +2630,32 @@ def main():
 
     import argparse
     import copy
-    import os  # <-- Added for the hard memory eviction
     from pathlib import Path
 
     # Required for safe execution limits with the multiprocessing pool on Windows
     multiprocessing.freeze_support()
 
+    # #247: every flag below that can ALSO be set via .galaxyscope.yaml's
+    # `galaxyscope:` section defaults to None here, not a real "off" value
+    # (False / 0.0 / a real int). argparse can't tell "flag not passed"
+    # apart from "flag explicitly passed with a value that happens to look
+    # like a default" -- an explicit `--max-risk-exposure 0.0` and simply
+    # never passing the flag both used to produce args.max_risk_exposure ==
+    # 0.0, so a YAML file setting the same key would silently clobber an
+    # explicit CLI opt-out. None is a value none of these flags can ever
+    # legitimately have from real parsing, so it's a safe "unset" sentinel.
+    # _ARG_REAL_DEFAULTS (below, applied right after the YAML merge) is
+    # where the actual default value gets substituted back in -- once, in
+    # one place -- so every downstream reader of args.*/full_config still
+    # sees a concrete value exactly as before.
     parser = argparse.ArgumentParser(description="GitGalaxy GalaxyScope v2")
     parser.add_argument("target", help="Path to repo or ZIP")
     parser.add_argument("--output", default=None, help="Optional output filename override")
-    parser.add_argument("--debug", action="store_true", help="Turn on verbose Analytical logging")
+    parser.add_argument("--debug", action="store_true", default=None, help="Turn on verbose Analytical logging")
     parser.add_argument(
         "--paranoid",
         action="store_true",
+        default=None,
         help="Lower security thresholds to flag more potential threats.",
     )
 
@@ -2420,36 +2663,111 @@ def main():
     parser.add_argument(
         "--shadow-patch-detected",
         action="store_true",
+        default=None,
         help="Indicates the payload hash mutated without a version bump.",
     )
 
     # --- EXCLUSIVE RECORDER FLAGS ---
-    parser.add_argument("--llm-only", action="store_true", help="Run ONLY the LLM recorder")
-    parser.add_argument("--gpu-only", action="store_true", help="Run ONLY the GPU recorder")
-    parser.add_argument("--audit-only", action="store_true", help="Run ONLY the Audit recorder")
-    parser.add_argument("--db-only", action="store_true", help="Run ONLY the native SQLite recorder")
-    parser.add_argument("--sarif-only", action="store_true", help="Run ONLY the SARIF exporter")
-    parser.add_argument("--sbom-only", action="store_true", help="Run ONLY the CycloneDX SBOM generator")
-    parser.add_argument("--fail-on-secrets", action="store_true", help="CI/CD Gate: Fail build if hardcoded secrets are detected")
-    parser.add_argument("--fail-on-malware", action="store_true", help="CI/CD Gate: Fail build if ML threat inference flags malware")
-    parser.add_argument("--max-risk-exposure", type=float, default=0.0, help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)")
-    parser.add_argument("--max-systemic-threat", type=float, default=0.0, help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)")
-    parser.add_argument("--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning")
+    parser.add_argument("--llm-only", action="store_true", default=None, help="Run ONLY the LLM recorder")
+    parser.add_argument("--gpu-only", action="store_true", default=None, help="Run ONLY the GPU recorder")
+    parser.add_argument("--audit-only", action="store_true", default=None, help="Run ONLY the Audit recorder")
+    parser.add_argument("--db-only", action="store_true", default=None, help="Run ONLY the native SQLite recorder")
+    parser.add_argument("--sarif-only", action="store_true", default=None, help="Run ONLY the SARIF exporter")
+    parser.add_argument("--sbom-only", action="store_true", default=None, help="Run ONLY the CycloneDX SBOM generator")
+    parser.add_argument(
+        "--fail-on-secrets",
+        action="store_true",
+        default=None,
+        help="CI/CD Gate: Fail build if hardcoded secrets are detected",
+    )
+    parser.add_argument(
+        "--fail-on-malware",
+        action="store_true",
+        default=None,
+        help="CI/CD Gate: Fail build if ML threat inference flags malware",
+    )
+    parser.add_argument(
+        "--max-risk-exposure",
+        type=float,
+        default=None,
+        help="CI/CD Gate: Fail build if any file exceeds this risk percentage (0.0 to disable)",
+    )
+    parser.add_argument(
+        "--max-systemic-threat",
+        type=float,
+        default=None,
+        help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)",
+    )
+    parser.add_argument(
+        "--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning"
+    )
+
+    # --- DEPENDENCY AUDIT CACHE (incremental SBOM verification) ---
+    parser.add_argument(
+        "--dependency-cache",
+        type=str,
+        metavar="DB_PATH",
+        default=None,
+        help="Path to the persistent dependency-audit hash cache. Defaults to <target>/.gitgalaxy/dependency_cache.db",
+    )
+    parser.add_argument(
+        "--no-dependency-cache",
+        action="store_true",
+        default=None,
+        help="Disable the dependency-audit cache entirely (legacy capped-sampling SBOM audit)",
+    )
+    parser.add_argument(
+        "--full-dependency-scan",
+        action="store_true",
+        default=None,
+        help="Ignore the per-package fresh-scan budget and verify every dependency file this run",
+    )
+    parser.add_argument(
+        "--dependency-scan-budget",
+        type=int,
+        metavar="N",
+        default=None,
+        help="Max cache-miss files freshly scanned per package per run (default 25; deferred files are disclosed and picked up next run)",
+    )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
         action="store_true",
+        default=None,
         help="Profile regex and file processing speeds (capped at 5000 files)",
     )
     parser.add_argument(
         "--file-speed",
         action="store_true",
+        default=None,
         help="Profile the macro lifecycle phases of file processing",
     )
 
-    args = parser.parse_args()
+    # The real default for each flag above once the YAML merge runs and it's
+    # still unset -- kept as one table so adding a new overridable flag means
+    # adding one line here, not re-deriving the sentinel-collision fix.
+    _ARG_REAL_DEFAULTS = {
+        "debug": False,
+        "paranoid": False,
+        "shadow_patch_detected": False,
+        "llm_only": False,
+        "gpu_only": False,
+        "audit_only": False,
+        "db_only": False,
+        "sarif_only": False,
+        "sbom_only": False,
+        "fail_on_secrets": False,
+        "fail_on_malware": False,
+        "max_risk_exposure": 0.0,
+        "max_systemic_threat": 0.0,
+        "no_dependency_cache": False,
+        "full_dependency_scan": False,
+        "dependency_scan_budget": 25,
+        "splicing_speed": False,
+        "file_speed": False,
+    }
 
-    log_level = logging.DEBUG if args.debug else logging.INFO
+    args = parser.parse_args()
 
     # ---------------------------------------------------------
     # YAML Configuration File Interceptor
@@ -2457,24 +2775,42 @@ def main():
     config_file_data = {}
     if args.config and HAS_PYYAML:
         import yaml
+
         try:
-            with open(args.config, 'r') as f:
+            with open(args.config) as f:
                 config_file_data = yaml.safe_load(f) or {}
             logging.info(f"⚙️ Loaded repository configuration from {args.config}")
         except Exception as e:
             logging.error(f"Failed to load config file {args.config}: {e}")
-    
-    # Map YAML configurations directly to argparse attributes if not overridden via CLI
-    if 'galaxyscope' in config_file_data:
-        for key, val in config_file_data['galaxyscope'].items():
-            arg_key = key.replace('-', '_')
-            if hasattr(args, arg_key) and getattr(args, arg_key) in (None, False, 0.0, ""):
+
+    # Map YAML configurations directly to argparse attributes if not overridden via CLI.
+    # #247: `is None` -- not a truthy/falsy check -- because None is the only
+    # value that means "the CLI didn't set this" now that every affected flag
+    # above defaults to None instead of a real off-value.
+    if "galaxyscope" in config_file_data:
+        for key, val in config_file_data["galaxyscope"].items():
+            arg_key = key.replace("-", "_")
+            if hasattr(args, arg_key) and getattr(args, arg_key) is None:
                 setattr(args, arg_key, val)
+
+    # Neither the CLI nor the YAML file set these -- fall back to each
+    # flag's real default now, in one place, so every downstream reader of
+    # args.*/full_config sees a concrete value exactly as before #247.
+    for arg_key, real_default in _ARG_REAL_DEFAULTS.items():
+        if getattr(args, arg_key, None) is None:
+            setattr(args, arg_key, real_default)
+
+    # Computed after the YAML merge + real-default resolution above (not
+    # before, as previously) so a .galaxyscope.yaml `debug: true` with no
+    # --debug on the CLI actually takes effect instead of being silently
+    # ignored because log_level had already been fixed before the YAML
+    # value was ever applied to args.debug.
+    log_level = logging.DEBUG if args.debug else logging.INFO
 
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-        stream=sys.stderr, # <--- THE FIX: Route logs to stderr so CI/CD catches them
+        stream=sys.stderr,  # <--- THE FIX: Route logs to stderr so CI/CD catches them
         force=True,
     )
 
@@ -2507,37 +2843,29 @@ def main():
                 final_output = f"{project_name}_galaxy.json"
 
         # ---------------------------------------------------------
-        # 2. The Domain Dialect Pre-Flight Patch
+        # 2. Config Resolution (#332/#333: gitgalaxy_config.py defaults ->
+        #    .galaxyscope.yaml -> CLI, replacing the old 4-key-only
+        #    APERTURE_CONFIG hand-merge) + the Domain Dialect Pre-Flight
+        #    Patch (PROJECT_OVERRIDES, deliberately kept separate from the
+        #    resolver per #332 -- it also patches LANGUAGE_DEFINITIONS,
+        #    which is outside gitgalaxy_config.py's domain).
         # ---------------------------------------------------------
         base_langs = LANGUAGE_DEFINITIONS
         project_overrides = PROJECT_OVERRIDES
-        base_aperture = APERTURE_CONFIG
+
+        # The pipeline-flag interceptor above already claims any YAML key
+        # that matches an argparse dest (paranoid, fail-on-secrets, ...).
+        # Strip those out before handing the rest to resolve_config(), so a
+        # genuine gitgalaxy_config.py key typo still hard-errors (#332)
+        # instead of colliding with pipeline flags living in the same
+        # `galaxyscope:` YAML section.
+        yaml_section = config_file_data.get("galaxyscope", {}) if isinstance(config_file_data, dict) else {}
+        resolver_yaml_data = {key: val for key, val in yaml_section.items() if not hasattr(args, key.replace("-", "_"))}
+
+        resolved = resolve_config(yaml_data=resolver_yaml_data)
 
         merged_langs = copy.deepcopy(base_langs)
-        merged_aperture = copy.deepcopy(base_aperture)
-
-        if 'galaxyscope' in config_file_data and 'APERTURE_CONFIG' in config_file_data['galaxyscope']:
-            yaml_aperture = config_file_data['galaxyscope']['APERTURE_CONFIG']
-            
-            if 'IGNORED_DIRECTORIES' in yaml_aperture:
-                if "IGNORED_DIRECTORIES" not in merged_aperture:
-                    merged_aperture["IGNORED_DIRECTORIES"] = set()
-                merged_aperture["IGNORED_DIRECTORIES"].update(yaml_aperture['IGNORED_DIRECTORIES'])
-            
-            if 'CONTRABAND_PATTERNS' in yaml_aperture:
-                if "CONTRABAND_PATTERNS" not in merged_aperture:
-                    merged_aperture["CONTRABAND_PATTERNS"] = []
-                merged_aperture["CONTRABAND_PATTERNS"].extend(yaml_aperture['CONTRABAND_PATTERNS'])
-
-            if 'VENDOR_MINIFICATION_PATHS' in yaml_aperture:
-                if "VENDOR_MINIFICATION_PATHS" not in merged_aperture:
-                    merged_aperture["VENDOR_MINIFICATION_PATHS"] = []
-                merged_aperture["VENDOR_MINIFICATION_PATHS"].extend(yaml_aperture['VENDOR_MINIFICATION_PATHS'])
-                
-            if 'SECRETS_EXACT' in yaml_aperture:
-                if "SECRETS_EXACT" not in merged_aperture:
-                    merged_aperture["SECRETS_EXACT"] = set()
-                merged_aperture["SECRETS_EXACT"].update(yaml_aperture['SECRETS_EXACT'])
+        merged_aperture = resolved.APERTURE_CONFIG
 
         if project_name in project_overrides:
             logging.info(f"🌌 DIALECT DETECTED: Injecting Project Overrides for '{project_name}'")
@@ -2574,24 +2902,29 @@ def main():
 
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
-            _active_policy = ThreatPolicy.get_policy("paranoid")
             logging.getLogger("GalaxyScope").info(
                 "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
             )
-        else:
-            _active_policy = ThreatPolicy.get_policy("baseline")
         # -------------------------------
 
         # ---------------------------------------------------------
         # 3. Assemble the Final Configuration
         # ---------------------------------------------------------
         full_config = {
+            # Every gitgalaxy_config.py-backed key resolve_config() knows
+            # about (APERTURE_CONFIG, GUIDESTAR_CONFIG, PRIORITY_WHITELIST,
+            # STRICT_IMPORT_MODE, SARIF_IGNORED_RULES/PATHS, ...) -- see
+            # config_resolver.TOP_LEVEL_SPEC for the full list. This is
+            # what makes those keys reachable by Orchestrator/its workers
+            # at all; the per-file migration to actually *read* them from
+            # here instead of a direct gitgalaxy_config.py import is #335.
+            **resolved.to_dict(),
             "LANGUAGE_DEFINITIONS": merged_langs,
             "LEXICAL_FAMILY_HEURISTICS": LEXICAL_FAMILY_HEURISTICS,
+            # Overrides the resolved.to_dict() copy above with the version
+            # that also has the PROJECT_OVERRIDES dialect shield applied.
             "APERTURE_CONFIG": merged_aperture,
             "PATH_MODIFIERS": PATH_MODIFIERS,
-            "PRIORITY_WHITELIST": PRIORITY_WHITELIST,
-            "TEST_NAMING_CONVENTIONS": TEST_NAMING_CONVENTIONS,
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
             "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
@@ -2607,19 +2940,34 @@ def main():
             "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
-            "SARIF_IGNORED_RULES": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_RULES", []),
-            "SARIF_IGNORED_PATHS": config_file_data.get("galaxyscope", {}).get("SARIF_IGNORED_PATHS", []),
+            "DEPENDENCY_CACHE_PATH": args.dependency_cache,
+            "NO_DEPENDENCY_CACHE": args.no_dependency_cache,
+            "FULL_DEPENDENCY_SCAN": args.full_dependency_scan,
+            "DEPENDENCY_SCAN_BUDGET": args.dependency_scan_budget,
         }
 
         # ---------------------------------------------------------
         # 4. Ignite the Engine
         # ---------------------------------------------------------
+
+        # GUARD: --full-dependency-scan is meaningless when the SBOM audit
+        # won't run at all. Warn loudly instead of silently no-opping.
+        _sbomless_exclusive = (
+            args.llm_only or args.gpu_only or args.audit_only or args.db_only or args.sarif_only
+        ) and not args.sbom_only
+        if args.full_dependency_scan and _sbomless_exclusive:
+            logging.warning(
+                "⚠️ --full-dependency-scan has NO EFFECT: the current exclusive mode skips "
+                "SBOM generation entirely. Use --sbom-only or a default full run to audit dependencies."
+            )
+
         scope = Orchestrator(args.target, full_config)
 
         if args.incremental:
             from gitgalaxy.state_rehydrator import StateRehydrator
+
             logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
-            
+
             db_out_path = str(Path(final_output).with_name(f"{Path(final_output).stem}_master.db"))
             rehydrator = StateRehydrator(args.incremental)
             baseline_state = rehydrator.load_latest_state(project_name)
@@ -2627,43 +2975,50 @@ def main():
             if baseline_state:
                 baseline_commit = baseline_state["commit_hash"]
                 ram_cache = baseline_state["ram_cache"]
-                
+
                 try:
                     import subprocess
-                    diff_output = subprocess.check_output(
-                        ["git", "diff", "--name-status", baseline_commit],
+
+                    # Safe: _GIT_BIN resolved absolute; baseline_commit is our own
+                    # previously-saved commit hash (StateRehydrator), passed as a single argv
+                    # element (no shell=True), not interpolated into a shell string.
+                    diff_output = subprocess.check_output(  # noqa: S603
+                        [_GIT_BIN, "diff", "--name-status", baseline_commit],
                         cwd=target_path,
                         text=True,
-                        stderr=subprocess.DEVNULL
+                        stderr=subprocess.DEVNULL,
                     )
-                    
+
                     added, modified, deleted = [], [], []
                     for line in diff_output.splitlines():
                         if not line.strip():
                             continue
-                        
+
                         # DEVIOUS SHIELD: Split strictly by tabs, as filenames may contain spaces.
-                        parts = line.split('\t')
+                        parts = line.split("\t")
                         status = parts[0]
-                        
+
                         # Safely strip Git's quotation marks from spaced filenames
-                        def _clean(p): return p.strip('"\n\r')
-                        
-                        if status.startswith('A'):
+                        def _clean(p):
+                            return p.strip('"\n\r')
+
+                        if status.startswith("A"):
                             added.append(_clean(parts[1]))
-                        elif status.startswith('M'):
+                        elif status.startswith("M"):
                             modified.append(_clean(parts[1]))
-                        elif status.startswith('D'):
+                        elif status.startswith("D"):
                             deleted.append(_clean(parts[1]))
-                        elif status.startswith('R') or status.startswith('C'):
+                        elif status.startswith("R") or status.startswith("C"):
                             # Git Outputs: R100 \t "old file.py" \t "new file.py"
                             deleted.append(_clean(parts[1]))
                             if len(parts) > 2:
                                 added.append(_clean(parts[2]))
-                    
-                    logging.info(f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted")
+
+                    logging.info(
+                        f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted"
+                    )
                     scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
-                    
+
                 except subprocess.CalledProcessError:
                     logging.warning(f"⚠️ Git diff failed against {baseline_commit}. Falling back to full scan.")
                     scope.execute_pipeline(final_output)

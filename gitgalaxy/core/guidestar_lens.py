@@ -14,20 +14,21 @@
 
 # galaxyscope:ignore sec_io, llm_hooks
 
-import re
-import os
+import fnmatch
 import json
 import logging
-import fnmatch
+import os
+import re
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple, Union
+from typing import Any, Optional, Union
+
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
 # ==============================================================================
 
 # galaxyscope:ignore sec_io, llm_hooks
 # GitGalaxy Phase 0.5: Sector Intelligence (The GuideStar Lens)
-# Strategy: v6.3.0 (Deep Manifest Inspection & Evidence Hierarchy)
+# Strategy: (Deep Manifest Inspection & Evidence Hierarchy)
 # ==============================================================================
 
 # galaxyscope:ignore sec_io, llm_hooks
@@ -44,13 +45,6 @@ class GuideStarLens:
     This guarantees accurate language detection and bypasses expensive inference checks.
     """
 
-    # Fetch intelligence dictionaries directly from the configuration
-    _gs_config = GUIDESTAR_CONFIG
-
-    MANIFEST_MAP = _gs_config.get("MANIFEST_MAP", {})
-    INTENT_BIASED_SECTORS = set(_gs_config.get("INTENT_BIASED_SECTORS", []))
-    EXEC_PREFIX_MAP = _gs_config.get("EXEC_PREFIX_MAP", {})
-
     # Compiled regex for extracting target headers from README files
     README_TARGET_HEADERS = re.compile(
         r"^#+\s+(Usage|Structure|File|Layout|Getting\s+Started|Installation|Architecture|Scripts|CLI)",
@@ -60,8 +54,9 @@ class GuideStarLens:
     def __init__(
         self,
         root_path: Union[str, Path],
-        priority_whitelist: Optional[List[str]] = None,
+        priority_whitelist: Optional[list[str]] = None,
         parent_logger: Optional[logging.Logger] = None,
+        guidestar_config: Optional[dict[str, Any]] = None,
     ):
         """Initializes the Intelligence Engine and calibrates the lock maps."""
         if parent_logger:
@@ -74,14 +69,23 @@ class GuideStarLens:
         self.root = Path(root_path).resolve()
         self.whitelist = set(priority_whitelist or [])
 
+        # #335: was a class-level `GUIDESTAR_CONFIG` module import, which
+        # meant no YAML/CLI override (#332) could ever reach this lens.
+        # Falls back to the raw default only when the caller doesn't
+        # already have a resolved config to hand over (e.g. direct/test use).
+        self._gs_config = guidestar_config if guidestar_config is not None else GUIDESTAR_CONFIG
+        self.MANIFEST_MAP = self._gs_config.get("MANIFEST_MAP", {})
+        self.INTENT_BIASED_SECTORS = set(self._gs_config.get("INTENT_BIASED_SECTORS", []))
+        self.EXEC_PREFIX_MAP = self._gs_config.get("EXEC_PREFIX_MAP", {})
+
         # Internal Lock Map: Dict[filename, {lang, confidence, proof}]
-        self.intent_locks: Dict[str, Dict[str, Any]] = {}
+        self.intent_locks: dict[str, dict[str, Any]] = {}
 
         # Pattern Lock Map for .gitattributes (e.g., *.h)
-        self.pattern_locks: Dict[str, Dict[str, Any]] = {}
+        self.pattern_locks: dict[str, dict[str, Any]] = {}
 
         # Spatial Documentation Map: Dict[directory_path, coverage_strength_float]
-        self.documentation_coverage: Dict[str, float] = {}
+        self.documentation_coverage: dict[str, float] = {}
 
         self.logger.debug(f"GuideStar Lens Online | Sector: {self.root.name}")
 
@@ -109,7 +113,7 @@ class GuideStarLens:
             f"{len(self.pattern_locks)} pattern rules, and {len(self.documentation_coverage)} documentation shields."
         )
 
-    def get_intent_status(self, path: Union[str, Path]) -> Tuple[bool, Dict[str, Any]]:
+    def get_intent_status(self, path: Union[str, Path]) -> tuple[bool, dict[str, Any]]:
         """Returns the specific Intent Lock for a given file path based on strict, pattern, or sector match."""
         path_obj = Path(path)
         filename = path_obj.name
@@ -186,11 +190,11 @@ class GuideStarLens:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
     # DEEP MANIFEST INSPECTION
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_package_manifests(self):
         """Identifies authoritative project contextual baselines and parses their internal logic."""
@@ -212,7 +216,7 @@ class GuideStarLens:
         """Dispatches files to specific parsers based on their format."""
         try:
             # 1. Scan for AI/LLM footprints in the raw text first
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(path, encoding="utf-8", errors="ignore") as f:
                 self._detect_ai_ecosystem(f.read(), filename)
 
             # 2. Route to specific parsers for structural roadmaps
@@ -251,7 +255,7 @@ class GuideStarLens:
     def _parse_package_json(self, path: Path):
         """Extracts 'main', 'bin', and 'scripts' from Node/JS manifests."""
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
 
                 # Main Entry Point
@@ -274,13 +278,13 @@ class GuideStarLens:
                         self._inject_intent_lock(
                             f, "javascript", 0.85, f"Manifest Script (package.json:scripts:{name})"
                         )
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse manifest '{path}': {e}")
 
     def _parse_makefile(self, path: Path):
         """Parses Makefiles to find source variables and targets."""
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 content = f.read()
 
                 # Strategy 1: Find variable assignments like SRCS = main.c ...
@@ -296,13 +300,13 @@ class GuideStarLens:
                 for t in targets:
                     if t not in ("all", "clean", "test", "install"):
                         self._inject_intent_lock(t, "unknown", 0.70, "Makefile Target")
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse Makefile '{path}': {e}")
 
     def _parse_toml_style_manifest(self, path: Path, lang: str):
         """Simple regex-based TOML parser for script/entry points."""
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 content = f.read()
 
                 matches = re.findall(r'path\s*=\s*"(.*)"', content)
@@ -311,8 +315,8 @@ class GuideStarLens:
                 for m in matches:
                     if "/" in m or "." in m:
                         self._inject_intent_lock(m, lang, 0.95, f"Manifest Roadmap ({path.name})")
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"GuideStar: failed to parse TOML-style manifest '{path}': {e}")
 
     def _extract_execution_triggers(self, text: str):
         """Finds extensionless files used in command-line examples and infers exact language."""
@@ -332,11 +336,11 @@ class GuideStarLens:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
     # EXPLICIT AUTHORITY
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_gitattributes(self):
         """
@@ -359,7 +363,7 @@ class GuideStarLens:
         }
 
         try:
-            with open(gitattr_path, "r", encoding="utf-8") as f:
+            with open(gitattr_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):
@@ -390,11 +394,11 @@ class GuideStarLens:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
     # SECURITY EVASION DETECTION
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
 
     def _scan_gitignore_evasion(self):
         """
@@ -412,7 +416,7 @@ class GuideStarLens:
         hostile_bins = {".so", ".dll", ".exe", ".dylib", ".bin", ".xz", ".gz", ".zip"}
 
         try:
-            with open(gitignore_path, "r", encoding="utf-8") as f:
+            with open(gitignore_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
 
@@ -439,11 +443,11 @@ class GuideStarLens:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
     # DOCUMENTATION COVERAGE MAP
     # ==============================================================================
 
-# galaxyscope:ignore sec_io, llm_hooks
+    # galaxyscope:ignore sec_io, llm_hooks
 
     def _calculate_documentation_coverage(self):
         """
@@ -452,7 +456,7 @@ class GuideStarLens:
         PERFORMANCE OPTIMIZATION: Instead of opening and reading thousands of
         Markdown files to determine their value, we use `os.stat()` to fetch
         the physical byte size of the file. This is an extremely fast O(1) disk
-        operation that allows us to build a topological map of documentation coverage, 
+        operation that allows us to build a topological map of documentation coverage,
         making the assumption the larger doc files have more information in them.
         """
         anchor_patterns = {
@@ -469,10 +473,14 @@ class GuideStarLens:
             "USAGE.md",
         }
 
+        ignored_directories_lower = {d.lower() for d in self._gs_config.get("IGNORED_DIRECTORIES", set())}
+
         for root_dir, dirs, files in os.walk(self.root):
+            dirs[:] = [d for d in dirs if d.lower() not in ignored_directories_lower]
+
             dir_path = Path(root_dir)
 
-            if any(part in self._gs_config.get("IGNORED_DIRECTORIES", set()) for part in dir_path.parts):
+            if any(part.lower() in ignored_directories_lower for part in dir_path.parts):
                 continue
 
             local_shield_footprint = 0

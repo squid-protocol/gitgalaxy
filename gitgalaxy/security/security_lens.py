@@ -7,10 +7,14 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
-import math
 import bisect
+import logging
+import math
+import re
 from collections import Counter, defaultdict
+from typing import Any
+
+logger = logging.getLogger("security_lens")
 
 
 class SecurityLens:
@@ -22,17 +26,7 @@ class SecurityLens:
     augmented by Network Centrality metrics.
     """
 
-    def __init__(self, policy=None):
-        # ------------------------------------------------------------------
-        # DYNAMIC POLICY INJECTION
-        # ------------------------------------------------------------------
-        self.policy = policy or {
-            "secrets_risk_threshold": 0.001,
-            "hidden_malware_threshold": 0.60,
-            "logic_bomb_threshold": 0.50,
-            "injection_surface_threshold": 0.65,
-            "memory_corruption_threshold": 0.60,
-        }
+    def __init__(self):
 
         # DEFENSIVE GUARD: ReDoS Prevention
         # Extracts string literals for entropy scanning. Bounded to 64-1024 chars
@@ -195,25 +189,25 @@ class SecurityLens:
         sum_c_log_c = sum(c * math.log2(c) for c in frequencies.values())
         return math.log2(length) - (sum_c_log_c / length)
 
-    def scan_content(self, content: str, loc: int) -> dict:
+    def scan_content(self, content: str) -> dict:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
         """
-        counts = {}
-        snippets = {}
+        counts: dict[str, int] = {}
+        snippets: dict[str, list[str]] = {}
 
         safe_lines = [line.strip() for line in content.splitlines() if len(line) < 250]
         safe_content = "\n".join(safe_lines)
 
         # ---> MINIFICATION & OBFUSCATION FALLBACK SCREEN <---
-        # If the 250-character anti-ReDoS shield stripped out more than 90% of the file, 
-        # it is minified. We perform a blazing fast O(N) literal string search on the 
+        # If the 250-character anti-ReDoS shield stripped out more than 90% of the file,
+        # it is minified. We perform a blazing fast O(N) literal string search on the
         # raw buffer to catch blatant execution hooks without triggering regex timeouts.
         if len(safe_content) < (len(content) * 0.1):
             fast_screen = {
                 "high_risk_execution": ["eval(", "setTimeout(", "child_process", "shell_exec("],
                 "io": ["XMLHttpRequest", "fetch(", "http.request"],
-                "safety_bypasses": ["NODE_TLS_REJECT_UNAUTHORIZED", "disable_functions"]
+                "safety_bypasses": ["NODE_TLS_REJECT_UNAUTHORIZED", "disable_functions"],
             }
             for key, literals in fast_screen.items():
                 for lit in literals:
@@ -228,40 +222,49 @@ class SecurityLens:
         # PERFORMANCE OPTIMIZATION: O(1) Offset Map for Taint Analysis
         # Only tracks lines where an actual threat signature triggered, skipping blank space.
         threat_lines = defaultdict(set)
+        # Line positions for the four signals below, keyed the same way
+        # detector.py's own threat_locations are (rule_name -> [1-indexed line
+        # numbers]) -- exposed via scan_content()'s return so galaxyscope.py can
+        # fold them into the shared, persisted ledger (#348). Previously this
+        # position data was computed (via threat_lines above) but only ever
+        # used internally for this function's own taint check, then discarded.
+        positions: dict[str, list[int]] = defaultdict(list)
         if not is_auto_gen:
             line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
 
         for key, regex in self.THREAT_SIGNATURES.items():
-                if is_auto_gen and key == "homoglyphs":
-                    counts.setdefault(key, 0)
-                    snippets.setdefault(key, [])
-                    continue
-
-                # Ensure we add to the fallback screen hits rather than overwriting them.
-                # (Applying the safe_content patch here to ensure ReDoS armor remains intact).
-                new_hits = regex.findall(safe_content)
-                counts[key] = counts.get(key, 0) + len(new_hits)
+            if is_auto_gen and key == "homoglyphs":
+                counts.setdefault(key, 0)
                 snippets.setdefault(key, [])
+                continue
 
-                if len(new_hits) > 0:
-                    for match in regex.finditer(safe_content):
-                        snip = match.group(0).strip()
-                        if len(snippets[key]) < 3 and snip not in snippets[key]:
-                            snippets[key].append(snip)
+            # Ensure we add to the fallback screen hits rather than overwriting them.
+            # (Applying the safe_content patch here to ensure ReDoS armor remains intact).
+            new_hits = regex.findall(safe_content)
+            counts[key] = counts.get(key, 0) + len(new_hits)
+            snippets.setdefault(key, [])
 
-                        # Map the exact line indexes of critical threats for the Taint Tracker
-                        if not is_auto_gen and key in {
-                            "io",
-                            "high_risk_execution",
-                            "llm_hooks",
-                            "db_hooks",
-                        }:
-                            line_idx = bisect.bisect_right(line_starts, match.start()) - 1
-                            threat_lines[line_idx].add(key)
+            if len(new_hits) > 0:
+                for match in regex.finditer(safe_content):
+                    snip = match.group(0).strip()
+                    if len(snippets[key]) < 3 and snip not in snippets[key]:
+                        snippets[key].append(snip)
+
+                    # Map the exact line indexes of critical threats for the Taint Tracker
+                    if not is_auto_gen and key in {
+                        "io",
+                        "high_risk_execution",
+                        "llm_hooks",
+                        "db_hooks",
+                        "hardcoded_secrets",
+                    }:
+                        line_idx = bisect.bisect_right(line_starts, match.start()) - 1
+                        threat_lines[line_idx].add(key)
+                        positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0
-        entropy_snippets = []
+        entropy_snippets: list[str] = []
 
         if is_auto_gen:
             counts["entropy"] = 0
@@ -284,7 +287,7 @@ class SecurityLens:
         taint_hits = 0
         prompt_injection_hits = 0
         agentic_rce_hits = 0
-        taint_snippets = []
+        taint_snippets: list[str] = []
 
         has_global_io = counts.get("io", 0) > 0
         has_global_danger = counts.get("high_risk_execution", 0) > 0
@@ -347,7 +350,7 @@ class SecurityLens:
                         assign_op = None
                     else:
                         assign_op = ":=" if ":=" in line else "=" if "=" in line else None
-                        
+
                     if assign_op:
                         lhs = line.split(assign_op)[0]
                         possible_vars = re.findall(r"\b[a-zA-Z_]\w*\b", lhs)
@@ -383,75 +386,10 @@ class SecurityLens:
         counts["prompt_injection"] = prompt_injection_hits
         counts["agentic_rce"] = agentic_rce_hits
         snippets["tainted_injection"] = taint_snippets
+        snippets["prompt_injection"] = [s for s in taint_snippets if "LLM" in s]
+        snippets["agentic_rce"] = [s for s in taint_snippets if "RCE" in s]
 
-        return {"counts": counts, "snippets": snippets}
-
-    def evaluate_risk(self, aggregated_hits, total_loc, network_metrics=None):
-        """
-        Evaluates vulnerability risk with Network Centrality awareness.
-        Highly central files (e.g., God Nodes with massive Downstream Exposures) have a
-        drastically lower tolerance for embedded threats, scaling their density multipliers.
-        """
-        loc_safe = total_loc if total_loc > 0 else 1
-        exposures = {}
-
-        # --- 1. NETWORK CENTRALITY & BLAST RADIUS MODIFIER ---
-        network_multiplier = 1.0
-        if network_metrics:
-            pr = network_metrics.get("normalized_blast_radius", 0.0)
-            btw = network_metrics.get("betweenness_score", 0.0)
-            if pr > 1.0:
-                network_multiplier += pr * 0.5
-            if btw > 0.05:
-                network_multiplier += 0.5
-
-        # 1. Hidden Malware Risk
-        malware_hits = (
-            aggregated_hits.get("reflection_metaprogramming", 0)
-            + aggregated_hits.get("bitwise_ops", 0)
-            + aggregated_hits.get("shadow_imports", 0)
-            + aggregated_hits.get("homoglyphs", 0)
-            + aggregated_hits.get("entropy", 0)
-        )
-        malware_density = (malware_hits / loc_safe) * network_multiplier
-        if malware_density >= self.policy["hidden_malware_threshold"]:
-            exposures["Hidden Malware Risk"] = malware_density
-
-        # 2. Logic Bomb / Sabotage Risk
-        sabotage_hits = aggregated_hits.get("dead_code", 0) + (aggregated_hits.get("high_risk_execution", 0) * 1.5)
-        sabotage_density = (sabotage_hits / loc_safe) * network_multiplier
-        if sabotage_density >= self.policy["logic_bomb_threshold"]:
-            exposures["Logic Bomb Risk"] = sabotage_density
-
-        # 3. Data Injection Risk
-        injection_hits = (
-            aggregated_hits.get("io", 0) + aggregated_hits.get("high_risk_execution", 0) + aggregated_hits.get("state_mutation", 0)
-        )
-        injection_density = (injection_hits / loc_safe) * network_multiplier
-        if injection_density >= self.policy["injection_surface_threshold"]:
-            exposures["Data Injection Risk"] = injection_density
-
-        # 4. Memory Corruption Risk
-        memory_hits = aggregated_hits.get("memory_corruption", 0)
-        memory_density = (memory_hits / loc_safe) * network_multiplier
-        if memory_density >= self.policy["memory_corruption_threshold"]:
-            exposures["Memory Corruption Risk"] = memory_density
-
-        # 5. Secrets Risk
-        secrets_hits = aggregated_hits.get("hardcoded_secrets", 0)
-        secrets_density = (secrets_hits / loc_safe) * network_multiplier
-        if secrets_density >= self.policy["secrets_risk_threshold"]:
-            exposures["Secrets Leak Risk"] = secrets_density
-
-        # 6. Advanced Agentic Threats
-        prompt_inj = aggregated_hits.get("prompt_injection", 0)
-        agentic_rce = aggregated_hits.get("agentic_rce", 0)
-        if agentic_rce > 0:
-            exposures["Autonomous Execution Vector (Critical)"] = 100.0
-        elif prompt_inj > 0:
-            exposures["Prompt Injection Surface Risk"] = min((prompt_inj / loc_safe) * network_multiplier * 100.0, 100.0)
-
-        return exposures
+        return {"counts": counts, "snippets": snippets, "positions": dict(positions)}
 
     def scan_binary(self, raw_bytes: bytes, ext: str) -> dict:
         """
@@ -459,7 +397,7 @@ class SecurityLens:
         Validates compiled chunks against expected magic bytes and scans for
         embedded execution headers or extreme cryptographic entropy indicating packed malware.
         """
-        threats = {}
+        threats: dict[str, Any] = {}
 
         if not raw_bytes:
             return threats
@@ -488,7 +426,7 @@ class SecurityLens:
                 if entropy > 7.95:
                     threats["sec_reflection_metaprogramming"] = 1
                     threats["threat_snippet"] = f"Extreme binary entropy detected: {entropy:.2f}"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Binary entropy check failed, skipping this signal: {e}")
 
         return threats

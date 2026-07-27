@@ -9,13 +9,13 @@
 # network sockets.
 #
 # ARCHITECTURAL DECISION:
-# AI agents with unconstrained execution boundaries represent a critical 
-# security risk. By analyzing the structural topology of the codebase, this 
-# sensor deterministically identifies Autonomous Execution Vectors and 
+# AI agents with unconstrained execution boundaries represent a critical
+# security risk. By analyzing the structural topology of the codebase, this
+# sensor deterministically identifies Autonomous Execution Vectors and
 # Over-Permissioned Agents before they reach production.
 # ==============================================================================
 import logging
-from typing import List, Dict, Any
+from typing import Any
 
 
 class AIAppSecSensor:
@@ -26,28 +26,36 @@ class AIAppSecSensor:
     def __init__(self, parent_logger=None):
         self.logger = parent_logger.getChild("appsec_sensor") if parent_logger else logging.getLogger("appsec_sensor")
 
-    def hunt_threats(self, parsed_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def hunt_threats(self, parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
         self.logger.info("AI AppSec Sensor: Scanning for Agentic Vulnerabilities...")
 
         for file_data in parsed_files:
-            # Extract the raw structural signatures (assuming they are tallied in 'telemetry')
-            telemetry = file_data.get("telemetry", {})
+            # Extract the raw structural signatures. These are tallied in 'equations'
+            # (raw_signals keyed by SIGNAL_SCHEMA name), not 'telemetry' -- 'telemetry'
+            # only holds derived/computed metrics (network stats, popularity, etc.).
+            equations = file_data.get("equations", {})
 
             # Extract specific architectural signals
-            ai_orchestrator = telemetry.get("ai_orchestrator", 0) > 0
-            llm_api = telemetry.get("llm_api", 0) > 0
-            ai_tools = telemetry.get("ai_tools", 0) > 0
+            ai_orchestrator = equations.get("llm_orchestrator", 0) > 0
+            llm_api = equations.get("llm_api", 0) > 0
 
-            arch_api = telemetry.get("arch_api", 0) > 0  # Publicly exposed
-            arch_io = telemetry.get("arch_io", 0) > 0  # Network/Disk I/O
+            arch_api = equations.get("api", 0) > 0  # Publicly exposed
+            arch_io = (equations.get("io", 0) + equations.get("sec_io", 0)) > 0  # Network/Disk I/O
             db_complexity = file_data.get("max_db_complexity", 0)  # Data gravity
 
             # Security Structural Signatures
-            sec_danger = telemetry.get("sec_high_risk_execution", 0) > 0  # eval, exec, subprocess
-            sec_secrets = telemetry.get("sec_secrets", 0) > 0  # Hardcoded keys/env access
-            safety_density = telemetry.get("safety_density", 1.0)  # Defensive programming (try/catch, regex)
+            sec_danger = equations.get("sec_high_risk_execution", 0) > 0  # eval, exec, subprocess
+            sec_secrets = equations.get("sec_hardcoded_secrets", 0) > 0  # Hardcoded keys/env access
 
-            appsec_report = {
+            # Defensive programming density (try/catch, guards, regex validation) per LOC.
+            # No existing schema signal captures this ratio directly, so it's derived here
+            # from the raw 'safety' hit count, using the same doc_mult-style scaling
+            # SignalProcessor._calc_cog_load uses to turn sparse per-LOC hit counts into a
+            # meaningful 0-1 density.
+            safe_loc = max(file_data.get("coding_loc", 1), 1)
+            safety_density = min(1.0, (equations.get("safety", 0) * 10.0) / safe_loc)
+
+            appsec_report: dict[str, Any] = {
                 "is_rce_funnel": False,
                 "over_permissioned_agent": False,
                 "agentic_exfiltration_risk": False,
@@ -63,8 +71,23 @@ class AIAppSecSensor:
                 )
 
             # 2. Over-Permissioned Agent Binding (Autonomous Escalation)
-            # AI Agent Tools + State Mutation (DB or Disk) + Low Defensive Safety
-            if ai_tools and (db_complexity >= 2 or arch_io) and safety_density < 0.5:
+            # Agent Orchestration Framework + State Mutation (DB or Disk) + Low Defensive Safety
+            #
+            # #365/#323: this used to gate on "ai_tools", a SIGNAL_SCHEMA category
+            # removed in #323 because agent tool-CALLING is behavior, not library
+            # identity -- a regex-based structural signature engine can't reliably
+            # detect it, so the category was deliberately dropped rather than left
+            # as a permanent false negative. That silently broke this rule (it
+            # could never fire again) until #365 found it via #325's dead key audit.
+            #
+            # ai_orchestrator (langchain/llama_index imports) is the closest thing
+            # this engine CAN honestly detect: those are specifically the frameworks
+            # whose entire purpose is binding an LLM to tools/actions, so "this file
+            # imports an agent orchestration framework" is a reasonable, lexically-
+            # detectable proxy for "this file has agentic tool-binding capability" --
+            # library-identity detection, exactly the kind of signal #323 said this
+            # engine is good at, not the behavioral one it isn't.
+            if ai_orchestrator and (db_complexity >= 2 or arch_io) and safety_density < 0.5:
                 appsec_report["over_permissioned_agent"] = True
                 appsec_report["critical_warnings"].append(
                     "CRITICAL [Over-Permissioned Agent]: AI is bound to tools with raw Database/IO write access and < 50% safety density. High risk of autonomous data corruption."

@@ -3,20 +3,22 @@
 # GitGalaxy Tool: Autonomous Agent Firewall
 #
 # PURPOSE:
-# Evaluates the structural and topological constraints of the codebase to 
+# Evaluates the structural and topological constraints of the codebase to
 # determine the safety boundaries for autonomous AI agents (e.g., Claude, Cursor).
 #
 # ARCHITECTURAL DECISION:
-# Autonomous coding agents excel in isolated, pure-function environments but 
+# Autonomous coding agents excel in isolated, pure-function environments but
 # struggle with highly coupled, poorly documented, or dynamically generated logic.
-# This firewall establishes Zero-Trust guardrails to prevent AI agents from 
-# executing unchecked modifications in volatile sectors, mitigating the risk 
+# This firewall establishes Zero-Trust guardrails to prevent AI agents from
+# executing unchecked modifications in volatile sectors, mitigating the risk
 # of cascading failures, context window exhaustion, and silent state mutations.
 # ==============================================================================
 import logging
-from typing import List, Dict, Any
+from typing import Any
 
+from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
 
 class DevAgentFirewall:
     """
@@ -26,23 +28,21 @@ class DevAgentFirewall:
     def __init__(self, parent_logger=None):
         self.logger = parent_logger.getChild("guardrails") if parent_logger else logging.getLogger("guardrails")
 
-    def evaluate_ecosystem(self, parsed_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def evaluate_ecosystem(self, parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
         self.logger.info("Executing Autonomous Agent Firewall & Token Density Validation...")
 
         risk_schema = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
-        signal_schema = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
         for file_data in parsed_files:
             token_mass = file_data.get("token_mass", 0)
             network_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
             risk_vector = file_data.get("risk_vector", [])  # Assuming standard 0-100 risk scores
-            hit_vector = file_data.get("hit_vector", [])
 
             # Extract relevant structural metrics, safely handling None values from Zero-Dependency Mode
             pagerank = network_metrics.get("normalized_blast_radius") or 0.0
             max_big_o = file_data.get("max_big_o") or 1
 
-            guardrails = {
+            guardrails: dict[str, Any] = {
                 "is_agentic_black_hole": False,
                 "requires_hitl": False,  # Human-in-the-Loop
                 "hallucination_zone": False,
@@ -54,10 +54,6 @@ class DevAgentFirewall:
             state_flux = 0
             if "state_flux" in risk_schema and len(risk_vector) > risk_schema.index("state_flux"):
                 state_flux = risk_vector[risk_schema.index("state_flux")]
-
-            meta_count = 0
-            if "reflection_metaprogramming" in signal_schema and len(hit_vector) > signal_schema.index("reflection_metaprogramming"):
-                meta_count = hit_vector[signal_schema.index("reflection_metaprogramming")]
 
             # 1. Context Window Exhaustion (Agentic Black Hole)
             # If a file exceeds token limits AND has severe algorithmic complexity, the AI will lose context.
@@ -74,19 +70,46 @@ class DevAgentFirewall:
                     "WARNING [HITL Mandate]: High Downstream Exposure combined with severe risk debt. Human-in-the-Loop required for structural modifications."
                 )
 
-            # 3. Metaprogramming Hallucination Risk
-            meta_heavy = meta_count > 2
-            doc_density = file_data.get("telemetry", {}).get("doc_density", 1.0)
-
-            if meta_heavy and doc_density < 0.2:
+            # 3. Metaprogramming Hallucination Risk (#106)
+            # Replaces the old global-average check (file-wide doc_density vs.
+            # file-wide metaprogramming count), which was fully dead code -- no
+            # producer ever wrote telemetry["doc_density"] (#345) -- and, even
+            # if it had, a global average has two documented blind spots: it
+            # misses undocumented metaprogramming buried in an otherwise
+            # well-documented file, and it false-positives on well-documented
+            # metaprogramming just because the REST of the file is sparse.
+            #
+            # correlate_against_ledger() (#348) proves proximity directly: a
+            # "reflection_metaprogramming" hit is only flagged if no "doc" hit
+            # falls within max_distance=10 lines AND the same function/satellite
+            # -- reusing #106's own anticipated fixture value, matching
+            # test_spatial_correlation.py's existing correlate_against_ledger
+            # coverage for this exact signal pair.
+            undocumented_metaprogramming, _ = correlate_against_ledger(
+                file_data.get("threat_locations", {}),
+                file_data.get("functions", []),
+                "reflection_metaprogramming",
+                "doc",
+                max_distance=10,
+            )
+            if undocumented_metaprogramming > 0:
+                guardrails["undocumented_metaprogramming"] = undocumented_metaprogramming
                 guardrails["hallucination_zone"] = True
                 guardrails["warnings"].append(
-                    "DANGER [Hallucination Risk]: Dynamic metaprogramming detected combined with severe Documentation Risk Exposure (< 20% density). Autonomous agents are highly likely to hallucinate missing methods."
+                    f"DANGER [Hallucination Risk]: {undocumented_metaprogramming} undocumented metaprogramming "
+                    "construct(s) found with no surrounding documentation in the same function. Autonomous "
+                    "agents are highly likely to hallucinate missing methods."
                 )
 
             # 4. Cascading State Flux (Silent Mutation Risk)
             in_degree = network_metrics.get("in_degree", 0)
-            has_tests = file_data.get("telemetry", {}).get("has_tests", False)
+            # #373: telemetry["has_tests"] never had a producer, so this dampener
+            # could never be satisfied by real coverage. test_coverage_map
+            # (galaxyscope.py, network_risk_sensor.py's outbound-call mapping
+            # from test files to production functions) is a real, already-
+            # computed signal for exactly this -- a non-empty map means at
+            # least one function in this file is actually exercised by a test.
+            has_tests = bool(file_data.get("test_coverage_map", {}))
 
             if state_flux > 50 and in_degree > 5 and not has_tests:
                 guardrails["silent_mutation_risk"] = True

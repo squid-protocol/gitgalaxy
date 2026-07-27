@@ -7,11 +7,11 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at [https://polyformproject.org/licenses/noncommercial/1.0.0/](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 # ==============================================================================
+import datetime
+import hashlib
 import os
 import sys
 import time
-import datetime
-import hashlib
 
 # ==============================================================================
 # ASYMMETRIC PUBLIC KEY (Zero-Dependency RSA)
@@ -26,7 +26,16 @@ RSA_E = 65537
 def _validate_offline_key(license_key: str) -> str:
     """
     Mathematically verifies an offline license key using pure Python RSA.
-    Returns specific states: "VALID", "EXPIRED", "MISSING", or "INVALID".
+    Returns specific states: "VALID", "EXPIRED", "MISSING", "MALFORMED", or "FORGED".
+
+    MALFORMED means the key couldn't even be parsed into a well-formed candidate
+    (wrong segment count, wrong prefix, non-hex signature, unparseable date) --
+    consistent with a copy-paste error, not evidence of tampering. FORGED is
+    reserved for a well-formed key whose cryptographic signature doesn't verify,
+    which (short of breaking RSA) can't happen without the private key -- i.e.
+    genuine tampering evidence. Keep these separate: enforce_licensing_guard()
+    routes them to differently-worded messages and friction levels, and
+    conflating them means a fat-fingered paste gets accused of forgery.
     """
     if not license_key:
         return "MISSING"
@@ -36,7 +45,7 @@ def _validate_offline_key(license_key: str) -> str:
 
         # Key must contain exactly 5 segments: GG - TIER - CUSTOMER - EXPDATE - SIGNATURE
         if len(parts) != 5 or parts[0] != "GG":
-            return "INVALID"
+            return "MALFORMED"
 
         tier, customer, exp_date_str, signature_hex = (
             parts[1],
@@ -47,7 +56,7 @@ def _validate_offline_key(license_key: str) -> str:
 
         # 1. RECONSTRUCT PAYLOAD & HASH
         # We recreate the exact string the minter signed, then hash it.
-        payload = f"{tier}-{customer}-{exp_date_str}".encode("utf-8")
+        payload = f"{tier}-{customer}-{exp_date_str}".encode()
         payload_hash = hashlib.sha256(payload).digest()
 
         # Convert the raw bytes of the SHA-256 hash into a Python integer
@@ -59,11 +68,14 @@ def _validate_offline_key(license_key: str) -> str:
             # RSA Math: (Signature ^ E) mod N
             decrypted_hash_int = pow(signature_int, RSA_E, RSA_N)
         except ValueError:
-            return "INVALID"
+            # Not valid hex -- a copy-paste error, not evidence of tampering.
+            return "MALFORMED"
 
-        # If the math fails, the key is forged or tampered with.
+        # A well-formed, correctly hex-encoded signature that doesn't verify
+        # against this exact payload cannot be produced without the private
+        # key -- this is the one branch that actually represents forgery.
         if hash_int != decrypted_hash_int:
-            return "INVALID"
+            return "FORGED"
 
         # 3. VERIFY EXPIRATION DATE (Only reached if the key is cryptographically authentic)
         try:
@@ -71,12 +83,17 @@ def _validate_offline_key(license_key: str) -> str:
             if datetime.datetime.now() > exp_date:
                 return "EXPIRED"
         except ValueError:
-            return "INVALID"
+            # Signature checks out but the date field itself doesn't parse.
+            # In practice unreachable without the private key, but still not
+            # tampering evidence, so route it with the other malformed cases.
+            return "MALFORMED"
 
         return "VALID"
 
     except Exception:
-        return "INVALID"
+        # Any other unexpected parsing failure -- treat as malformed input,
+        # not as evidence of tampering.
+        return "MALFORMED"
 
 
 def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
@@ -87,10 +104,21 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
     # --- ZERO-DEPENDENCY .ENV LOADER ---
     # Python doesn't read .env files natively. This parses it manually
     # so we don't force users to pip install python-dotenv.
-    env_path = os.path.join(os.getcwd(), ".env")
+    #
+    # #466: This MUST be scoped to GitGalaxy's own user config location, never
+    # to os.getcwd(). The documented CI usage pattern is `cd <scan-target> &&
+    # galaxyscope .`, which makes cwd the (often third-party, untrusted)
+    # repository being scanned -- reading its .env would merge whatever keys
+    # that repo's own .env defines into this process's environment via
+    # setdefault(), a trust-boundary crossing this project flags in other
+    # codebases. The documented ways to supply GITGALAXY_LICENSE_KEY (README,
+    # action.yml) already set it as a real environment variable, not via a
+    # cwd-relative .env, so this loader is purely a local-dev convenience and
+    # never needs to see the scan target's files at all.
+    env_path = os.path.join(os.path.expanduser("~"), ".config", "gitgalaxy", ".env")
     if os.path.exists(env_path):
         try:
-            with open(env_path, "r", encoding="utf-8") as f:
+            with open(env_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     # Ignore comments and empty lines, ensure it's a key=value pair
@@ -98,7 +126,7 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
                         key, val = line.split("=", 1)
                         # Only inject if it's not already set in the system environment
                         os.environ.setdefault(key.strip(), val.strip().strip("\"'"))
-        except Exception:
+        except Exception:  # noqa: S110 -- deliberately silent, see comment below
             pass  # Fail gracefully if the .env file is locked by OS permissions
     # -----------------------------------
 
@@ -138,8 +166,8 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
     if key_status == "VALID":
         return
 
-    # 3. THE STANDARD FRICTION TRAP (Expired or Missing - 5 Seconds)
-    if key_status in ["EXPIRED", "MISSING"]:
+    # 3. THE STANDARD FRICTION TRAP (Expired, Missing, or Malformed - 5 Seconds)
+    if key_status in ["EXPIRED", "MISSING", "MALFORMED"]:
         print("\n" + "=" * 80, file=sys.stderr)
         print(f" 🪐 {tool_name.upper()} ONLINE", file=sys.stderr)
         print("=" * 80, file=sys.stderr)
@@ -150,6 +178,19 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
             )
             print(
                 " You are no longer authorized to use this software for commercial purposes.",
+                file=sys.stderr,
+            )
+        elif key_status == "MALFORMED":
+            print(
+                " ⚠️  LICENSE KEY MALFORMED: Could not parse the provided key.",
+                file=sys.stderr,
+            )
+            print(
+                " Double-check for a copy-paste error -- missing/extra characters or segments.",
+                file=sys.stderr,
+            )
+            print(
+                " Executing under PolyForm Noncommercial License 1.0.0.",
                 file=sys.stderr,
             )
         else:
@@ -175,12 +216,15 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
         time.sleep(5.0)
         return
 
-    # 4. THE FORGERY HAMMER (Invalid / Tampered - 10 Seconds)
+    # 4. THE FORGERY HAMMER (Cryptographically Tampered - 10 Seconds)
+    # Reached only for key_status == "FORGED": a well-formed key whose signature
+    # doesn't verify, i.e. a genuinely bad cryptographic match rather than a
+    # copy-paste error (those are MALFORMED and routed above, tier 3).
     print("\n" + "=" * 80, file=sys.stderr)
     print(f" 🪐 {tool_name.upper()} ONLINE", file=sys.stderr)
     print("=" * 80, file=sys.stderr)
     print(
-        " 🚨 LICENSE FORGERY DETECTED: Invalid cryptographic signature.",
+        " 🚨 LICENSE FORGERY DETECTED: Cryptographic signature does not match.",
         file=sys.stderr,
     )
     print(
@@ -188,7 +232,11 @@ def enforce_licensing_guard(tool_name: str = "GitGalaxy Engine v2"):
         file=sys.stderr,
     )
     print(
-        " Incident has been flagged. Executing under maximum compliance friction.",
+        " This check runs entirely offline -- nothing is logged or transmitted anywhere.",
+        file=sys.stderr,
+    )
+    print(
+        " Executing under maximum compliance friction.",
         file=sys.stderr,
     )
     print(" Contact joe@gitgalaxy.io to acquire a valid commercial key.", file=sys.stderr)

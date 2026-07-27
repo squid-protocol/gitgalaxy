@@ -2,58 +2,62 @@
 # ==============================================================================
 # GitGalaxy Tool: Binary Anomaly Detector
 #
-# PURPOSE: 
-# Performs high-speed triage of binary anomalies, magic byte mismatches, and 
+# PURPOSE:
+# Performs high-speed triage of binary anomalies, magic byte mismatches, and
 # obfuscated payloads within the CI/CD pipeline.
 #
 # ARCHITECTURAL DECISION:
-# Traditional SAST tools struggle with binaries, either ignoring them completely 
-# (allowing steganography/hidden malware) or attempting to parse them, causing 
-# pipeline timeouts. This module acts as a lightweight heuristic gatekeeper, 
-# relying on mathematical entropy and header verification to detect malicious 
+# Traditional SAST tools struggle with binaries, either ignoring them completely
+# (allowing steganography/hidden malware) or attempting to parse them, causing
+# pipeline timeouts. This module acts as a lightweight heuristic gatekeeper,
+# relying on mathematical entropy and header verification to detect malicious
 # packing without requiring deep binary execution.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
-import os
-import time
 import fnmatch
+import os
+import sys
+import time
 from pathlib import Path
+from typing import Any, Optional, Union
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
+from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-# Safely import the config, falling back if the user hasn't configured exceptions yet
-try:
-    from gitgalaxy.standards.gitgalaxy_config import (
-        APERTURE_CONFIG,
-        ALLOWLIST_PATHS,
-        DENYLIST_PATTERNS,
-        XRAY_BYPASS_EXTENSIONS,
-        XRAY_BYPASS_PATHS,
-    )
-except ImportError:
-    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
-
-    ALLOWLIST_PATHS = []
-    DENYLIST_PATTERNS = []
-    XRAY_BYPASS_EXTENSIONS = []
-    XRAY_BYPASS_PATHS = []
 
 
 def main():
+    import logging
+
     from gitgalaxy.licensing import enforce_licensing_guard
 
     enforce_licensing_guard("Binary Anomaly Detector")
 
     parser = argparse.ArgumentParser(description="Binary Anomaly Detector: Entropy & Magic Byte Scanner")
     parser.add_argument("target", help="Directory to scan")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to project-level configuration file (e.g., .galaxyscope.yaml) -- "
+        "same resolver galaxyscope.py uses, so standalone runs honor the same "
+        "ALLOWLIST_PATHS / DENYLIST_PATTERNS / XRAY_BYPASS_* overrides (#335).",
+    )
     args = parser.parse_args()
+
+    # #335: was a direct module-level gitgalaxy_config.py import, which meant
+    # no YAML/CLI override (#332) could ever reach this standalone detector.
+    resolved_config = resolve_config(yaml_path=args.config)
+    allowlist_paths = resolved_config.get("ALLOWLIST_PATHS", [])
+    denylist_patterns = resolved_config.get("DENYLIST_PATTERNS", [])
+    xray_bypass_extensions = resolved_config.get("XRAY_BYPASS_EXTENSIONS", [])
+    xray_bypass_paths = resolved_config.get("XRAY_BYPASS_PATHS", [])
+    aperture_config = resolved_config.get("APERTURE_CONFIG", {})
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():
@@ -63,13 +67,13 @@ def main():
     print(f"🔍 Initializing Binary Anomaly Detector on {target_path.name}...")
 
     # Initialize lightweight filters
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, aperture_config)
     security = SecurityLens()
 
     # ==============================================================================
     # DEFENSIVE DESIGN (SENSOR OPTIMIZATION):
-    # Restrict the Security Lens to entropy and bitwise operations. By disabling 
-    # the heavy AST and regex processors used for source code, we minimize CPU 
+    # Restrict the Security Lens to entropy and bitwise operations. By disabling
+    # the heavy AST and regex processors used for source code, we minimize CPU
     # overhead and prevent Catastrophic Backtracking on dense binary data.
     # ==============================================================================
     security.THREAT_SIGNATURES = {
@@ -91,8 +95,8 @@ def main():
         rel_root = str(Path(root).relative_to(target_path))
 
         # ARCHITECTURAL DECISION (ROOT TRAVERSAL PRUNING):
-        # We evaluate top-level directories against ignore rules and modify the `dirs` 
-        # list in-place. This prevents the OS from walking down massive ignored trees 
+        # We evaluate top-level directories against ignore rules and modify the `dirs`
+        # list in-place. This prevents the OS from walking down massive ignored trees
         # (like `node_modules` or `.git`), saving massive I/O overhead.
         if rel_root == ".":
             dirs[:] = [d for d in dirs if filter_engine._check_ignore_rules(d)]
@@ -109,14 +113,14 @@ def main():
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
 
             # Evaluate Global vs. Tool-Specific Bypasses
-            is_global_allow = any(approved in rel_path_str for approved in ALLOWLIST_PATHS)
-            is_xray_bypass = ext in XRAY_BYPASS_EXTENSIONS or any(b in rel_path_str for b in XRAY_BYPASS_PATHS)
+            is_global_allow = any(approved in rel_path_str for approved in allowlist_paths)
+            is_xray_bypass = ext in xray_bypass_extensions or any(b in rel_path_str for b in xray_bypass_paths)
 
             is_whitelisted = is_global_allow or is_xray_bypass
 
             # FALSE POSITIVE MITIGATION (TEST DIRECTORIES):
-            # Unit tests frequently generate high-entropy mock data (e.g., mock 
-            # cryptographic keys, dummy hashes). We whitelist these paths to prevent 
+            # Unit tests frequently generate high-entropy mock data (e.g., mock
+            # cryptographic keys, dummy hashes). We whitelist these paths to prevent
             # pipeline friction, assuming test directories are not deployed to production.
             if (
                 "/test/" in rel_path_str.lower()
@@ -126,7 +130,7 @@ def main():
                 is_whitelisted = True
 
             # 1. DENYLIST ENFORCEMENT
-            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in DENYLIST_PATTERNS)
+            is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in denylist_patterns)
             if is_forbidden and not is_whitelisted:
                 print(f"[DENYLIST MATCH] Unauthorized file pattern detected: {rel_path_str}")
                 forbidden_blocked += 1
@@ -134,7 +138,7 @@ def main():
                 continue
 
             # NOTE: We intentionally bypass `evaluate_path_integrity` here.
-            # This specific detector must scan actual binaries (.png, .zip, .dll), 
+            # This specific detector must scan actual binaries (.png, .zip, .dll),
             # which standard Aperture filtering drops.
             files_to_deep_scan.append((file_path, rel_path_str, ext, is_whitelisted))
 
@@ -151,8 +155,8 @@ def main():
     for file_path, rel_path_str, ext, is_whitelisted in files_to_deep_scan:
         try:
             # DEFENSIVE DESIGN (MEMORY SHIELD):
-            # Read only the first 8KB of the file. This is sufficient to capture 
-            # magic bytes, execution headers, and enough string data for an accurate 
+            # Read only the first 8KB of the file. This is sufficient to capture
+            # magic bytes, execution headers, and enough string data for an accurate
             # entropy calculation, completely preventing Out-Of-Memory (OOM) crashes on huge files.
             with open(file_path, "rb") as f:
                 head_bytes = f.read(8192)
@@ -164,7 +168,7 @@ def main():
             binary_threats = security.scan_binary(head_bytes, ext)
 
             # EXPECTED HEADER EXCEPTION:
-            # Shell scripts naturally contain the '#!/bin/' header. We clear this 
+            # Shell scripts naturally contain the '#!/bin/' header. We clear this
             # specific threat if the extension matches a known script format.
             if binary_threats:
                 threat_msg = binary_threats.get("threat_snippet", "")
@@ -177,7 +181,7 @@ def main():
 
             # 2. String Entropy Analysis (Encrypted/Packed Payloads)
             content = head_bytes.decode("utf-8", errors="ignore")
-            sec_results = security.scan_content(content, 100)
+            sec_results = security.scan_content(content)
 
             if sec_results["counts"].get("entropy", 0) > 0:
                 has_anomaly = True
@@ -197,8 +201,8 @@ def main():
                         print(f"   -> {msg}")
                     anomalies_found += 1
 
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger("binary_anomaly_detector").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()
     time_delta = end_time - start_time
@@ -234,14 +238,34 @@ def main():
     print("=" * 75 + "\n")
 
 
-def run_xray_audit(target_path: Path) -> dict:
-    """Programmatic entry point for GalaxyScope (orchestrator execution)."""
+def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, dict[str, Any]]] = None) -> dict:
+    """
+    Programmatic entry point for GalaxyScope (orchestrator execution).
+
+    `config` was previously a module-level `gitgalaxy_config.py` import
+    (#332/#335) -- that meant no YAML/CLI override could ever reach this
+    audit, regardless of what a user put in .galaxyscope.yaml. Defaults to
+    an unconfigured resolve_config() only when the caller doesn't already
+    have a resolved config to hand over (e.g. direct/test use).
+    """
     import logging
+
     # Mute the noisy Aperture Filter init during headless Phase 10 execution
     quiet_logger = logging.getLogger("GalaxyScope.xray")
     quiet_logger.setLevel(logging.WARNING)
-    
-    filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, APERTURE_CONFIG, parent_logger=quiet_logger)
+
+    # .get() rather than attribute access: the caller may hand over either
+    # a ResolvedConfig or Orchestrator's plain full_config dict, and only
+    # .get() works uniformly across both.
+    resolved_config = config if config is not None else resolve_config()
+    allowlist_paths = resolved_config.get("ALLOWLIST_PATHS", [])
+    denylist_patterns = resolved_config.get("DENYLIST_PATTERNS", [])
+    xray_bypass_extensions = resolved_config.get("XRAY_BYPASS_EXTENSIONS", [])
+    xray_bypass_paths = resolved_config.get("XRAY_BYPASS_PATHS", [])
+
+    filter_engine = ApertureFilter(
+        target_path, LANGUAGE_DEFINITIONS, resolved_config.get("APERTURE_CONFIG", {}), parent_logger=quiet_logger
+    )
     security = SecurityLens()
     security.THREAT_SIGNATURES = {
         "reflection_metaprogramming": security.THREAT_SIGNATURES["reflection_metaprogramming"],
@@ -249,7 +273,7 @@ def run_xray_audit(target_path: Path) -> dict:
     }
 
     anomalies_found = 0
-    
+
     # Minimal silent scan for headless execution
     for root, dirs, files in os.walk(target_path):
         rel_root = str(Path(root).relative_to(target_path))
@@ -262,17 +286,17 @@ def run_xray_audit(target_path: Path) -> dict:
         for file in files:
             file_path = Path(root) / file
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
-            
+
             is_whitelisted = (
-                any(a in rel_path_str for a in ALLOWLIST_PATHS)
-                or file_path.suffix.lower() in XRAY_BYPASS_EXTENSIONS
-                or any(b in rel_path_str for b in XRAY_BYPASS_PATHS)
+                any(a in rel_path_str for a in allowlist_paths)
+                or file_path.suffix.lower() in xray_bypass_extensions
+                or any(b in rel_path_str for b in xray_bypass_paths)
             )
-            
+
             if "/test/" in rel_path_str.lower() or "/tests/" in rel_path_str.lower():
                 is_whitelisted = True
 
-            if any(fnmatch.fnmatch(file, p) for p in DENYLIST_PATTERNS) and not is_whitelisted:
+            if any(fnmatch.fnmatch(file, p) for p in denylist_patterns) and not is_whitelisted:
                 anomalies_found += 1
                 continue
 
@@ -280,7 +304,7 @@ def run_xray_audit(target_path: Path) -> dict:
                 with open(file_path, "rb") as f:
                     head_bytes = f.read(8192)
                 ext = file_path.suffix.lower()
-                
+
                 # Check Binary Headers
                 bt = security.scan_binary(head_bytes, ext)
                 if bt and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", "")):
@@ -289,13 +313,15 @@ def run_xray_audit(target_path: Path) -> dict:
 
                 # Check String Entropy
                 content = head_bytes.decode("utf-8", errors="ignore")
-                sr = security.scan_content(content, 100)
+                sr = security.scan_content(content)
                 if (
                     sr["counts"].get("entropy", 0) > 0 or sr["counts"].get("bitwise_ops", 0) > 0
                 ) and not is_whitelisted:
                     anomalies_found += 1
-            except Exception:
-                pass
+            except Exception as e:
+                # Deliberately NOT quiet_logger (WARNING-only, muted above for
+                # ApertureFilter's init noise) -- that would silently drop this too.
+                logging.getLogger("binary_anomaly_detector").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     return {"anomalies_found": anomalies_found}
 

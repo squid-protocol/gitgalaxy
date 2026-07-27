@@ -8,21 +8,21 @@
 # and Memory Overlays (REDEFINES).
 #
 # ARCHITECTURAL DECISION:
-# Relational databases and Java ORMs (Hibernate/JPA) allocate memory entirely 
-# differently than mainframe COBOL. COBOL utilizes absolute byte boundaries, 
-# arrays (OCCURS), and memory overlays (REDEFINES) where multiple variables 
-# point to the exact same physical byte block. This generator dynamically maps 
-# these legacy constraints into modern JPA annotations (e.g., @ElementCollection, 
-# @Transient) to ensure legacy data structures are safely persisted without 
+# Relational databases and Java ORMs (Hibernate/JPA) allocate memory entirely
+# differently than mainframe COBOL. COBOL utilizes absolute byte boundaries,
+# arrays (OCCURS), and memory overlays (REDEFINES) where multiple variables
+# point to the exact same physical byte block. This generator dynamically maps
+# these legacy constraints into modern JPA annotations (e.g., @ElementCollection,
+# @Transient) to ensure legacy data structures are safely persisted without
 # duplicating columns or corrupting the modern relational schema.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
 import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -154,32 +154,59 @@ def generate_java_entity(schema_json: dict, package_name: str) -> str:
 
         # ======================================================================
         # DEFENSIVE DESIGN (JAVA SYNTAX SANITIZATION):
-        # COBOL variables frequently use names that are protected keywords in Java 
-        # (e.g., CLASS, NEW, DEFAULT) or start with numeric characters. We strictly 
-        # sanitize the target variable names to guarantee the output is 100% compilable 
+        # COBOL variables frequently use names that are protected keywords in Java
+        # (e.g., CLASS, NEW, DEFAULT) or start with numeric characters. We strictly
+        # sanitize the target variable names to guarantee the output is 100% compilable
         # before the AI agent touches it.
         # ======================================================================
-        
+
         # Java variables cannot start with a number. Prefix with 'v'.
         if camel_name and camel_name[0].isdigit():
             camel_name = "v" + camel_name
 
         reserved_vars = {
-            "class", "static", "public", "private", "protected", "return", 
-            "new", "system", "default", "enum", "interface", "void", "try", 
-            "catch", "finally", "import", "package", "super", "this", "const", 
-            "goto", "byte", "int", "char", "short", "long", "float", "double", 
-            "boolean", "null", "true", "false"
+            "class",
+            "static",
+            "public",
+            "private",
+            "protected",
+            "return",
+            "new",
+            "system",
+            "default",
+            "enum",
+            "interface",
+            "void",
+            "try",
+            "catch",
+            "finally",
+            "import",
+            "package",
+            "super",
+            "this",
+            "const",
+            "goto",
+            "byte",
+            "int",
+            "char",
+            "short",
+            "long",
+            "float",
+            "double",
+            "boolean",
+            "null",
+            "true",
+            "false",
         }
         if camel_name in reserved_vars:
             camel_name += "Val"
 
         # ======================================================================
         # SCENARIO 1: MEMORY OVERLAY (REDEFINES)
-        # DEFENSIVE DESIGN: In COBOL, REDEFINES creates an alias pointing to the 
-        # same physical byte address. In JPA, mapping both variables as standard 
-        # columns would duplicate the data in the SQL table. We map the alias 
-        # as `@Transient` so it can be used in business logic without persisting 
+        # DEFENSIVE DESIGN: In COBOL, REDEFINES creates an alias pointing to the
+        # same physical byte address. In JPA, mapping both variables as standard
+        # columns would duplicate the data in the SQL table. We map the alias
+        # as `@Transient` so it can be used in business logic without persisting
         # a duplicate column to the database.
         # ======================================================================
         if "redefines" in constraints:

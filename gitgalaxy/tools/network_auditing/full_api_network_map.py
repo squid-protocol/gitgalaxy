@@ -9,20 +9,22 @@
 #
 # ARCHITECTURAL DECISION:
 # API documentation frequently drifts from the compiled reality of the codebase.
-# This module performs AST-free structural signature identification to map 
-# actual, executable endpoints across multiple frameworks (Spring, Express, 
-# FastAPI) and enforces strict parity with declared specifications, exposing 
+# This module performs AST-free structural signature identification to map
+# actual, executable endpoints across multiple frameworks (Spring, Express,
+# FastAPI) and enforces strict parity with declared specifications, exposing
 # hidden attack surfaces.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
-import re
 import json
-from pathlib import Path
+import logging
+import re
+import sys
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -32,7 +34,7 @@ except ImportError:
 # ==============================================================================
 # 1. ROUTER STRUCTURAL SIGNATURES (EXPANDED FRAMEWORK REGEX PATTERNS)
 # ==============================================================================
-FRAMEWORK_SIGNATURES = {
+FRAMEWORK_SIGNATURES: dict[str, dict[str, Any]] = {
     "Python (FastAPI/Flask/Django)": {
         "ext": [".py"],
         "regex": re.compile(
@@ -92,28 +94,28 @@ FRAMEWORK_SIGNATURES = {
 
 def normalize_endpoint(method: str, path: str) -> str:
     """
-    Normalizes endpoints to fix REST Path Parameter Collisions, Query String 
+    Normalizes endpoints to fix REST Path Parameter Collisions, Query String
     Contamination, and Whitespace artifacts.
     """
     # Fix #166: Strip Query Strings and Whitespace
-    path = path.split('?')[0].strip()
-    
+    path = path.split("?")[0].strip()
+
     # Fix #164: Normalize Dynamic REST Parameters to a universal {var} token
     # Express/Fastify (e.g., /users/:userId)
-    path = re.sub(r':[a-zA-Z0-9_]+', '{var}', path)
+    path = re.sub(r":[a-zA-Z0-9_]+", "{var}", path)
     # Flask (e.g., /users/<int:user_id>)
-    path = re.sub(r'<[^>]+>', '{var}', path)
+    path = re.sub(r"<[^>]+>", "{var}", path)
     # Swagger/OpenAPI/Laravel/Spring (e.g., /users/{userId})
-    path = re.sub(r'\{[^}]+\}', '{var}', path)
-    
+    path = re.sub(r"\{[^}]+\}", "{var}", path)
+
     # Clean trailing slashes for uniformity
-    if path != '/' and path.endswith('/'):
-        path = path.rstrip('/')
-        
+    if path != "/" and path.endswith("/"):
+        path = path.rstrip("/")
+
     # Ensure root slash
-    if not path.startswith('/'):
-        path = '/' + path
-        
+    if not path.startswith("/"):
+        path = "/" + path
+
     return f"{method.upper()} {path}"
 
 
@@ -130,7 +132,7 @@ def auto_discover_swagger(target_dir: Path) -> list:
     }
 
     for filepath in target_dir.rglob("*"):
-        if not filepath.is_file() or filepath.suffix not in [".json", ".yaml", ".yml"]:
+        if not filepath.is_file() or filepath.suffix.lower() not in [".json", ".yaml", ".yml"]:
             continue
 
         # 1. Check filename first (Fast Path)
@@ -140,13 +142,13 @@ def auto_discover_swagger(target_dir: Path) -> list:
 
         # ==============================================================================
         # DEFENSIVE DESIGN (I/O OPTIMIZATION & MEMORY SHIELD):
-        # Reading entire JSON/YAML files just to check if they are valid Swagger specs 
-        # can cause OOM crashes on massive declarative data blobs. We restrict the read 
-        # buffer to the first 1000 characters to achieve O(1) memory validation while 
+        # Reading entire JSON/YAML files just to check if they are valid Swagger specs
+        # can cause OOM crashes on massive declarative data blobs. We restrict the read
+        # buffer to the first 1000 characters to achieve O(1) memory validation while
         # maintaining extreme pipeline velocity.
         # ==============================================================================
         try:
-            with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            with open(filepath, encoding="utf-8", errors="ignore") as f:
                 head = f.read(1000)
                 # Extra validation to ensure it's a real spec, not just a package.json mentioning swagger
                 if re.search(
@@ -154,8 +156,8 @@ def auto_discover_swagger(target_dir: Path) -> list:
                     head,
                 ):
                     candidates.add(filepath)
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger("full_api_network_map").debug(f"Failed to probe candidate spec '{filepath}': {e}")
 
     return list(candidates)
 
@@ -164,7 +166,7 @@ def parse_official_swagger(swagger_path: Path) -> set:
     """Parses the official security documentation to extract a baseline of approved APIs."""
     approved_apis = set()
     try:
-        with open(swagger_path, "r", encoding="utf-8") as f:
+        with open(swagger_path, encoding="utf-8") as f:
             if swagger_path.suffix.lower() in [".yaml", ".yml"]:
                 if yaml is None:
                     # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
@@ -179,7 +181,7 @@ def parse_official_swagger(swagger_path: Path) -> set:
                 approved_apis.add(normalize_endpoint(method, api_path))
     except Exception as e:
         # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
-        raise RuntimeError(f"Error parsing Swagger file {swagger_path.name}: {e}")
+        raise RuntimeError(f"Error parsing Swagger file {swagger_path.name}: {e}") from e
 
     return approved_apis
 
@@ -187,11 +189,11 @@ def parse_official_swagger(swagger_path: Path) -> set:
 def map_physical_codebase(target_dir: Path) -> tuple:
     """
     Analyzes the source code to extract every executable API endpoint.
-    
+
     ARCHITECTURAL DECISION (REGEX OVER AST):
-    Relying on language-specific ASTs requires compiling the code and supporting 
-    dozens of parsers. By using bounded regex structural signatures, we can 
-    deterministically identify framework routing intents (e.g., @GetMapping, 
+    Relying on language-specific ASTs requires compiling the code and supporting
+    dozens of parsers. By using bounded regex structural signatures, we can
+    deterministically identify framework routing intents (e.g., @GetMapping,
     app.post) at high speed, regardless of language or compilation status.
     """
     physical_apis = defaultdict(list)
@@ -202,7 +204,7 @@ def map_physical_codebase(target_dir: Path) -> tuple:
             continue
 
         for framework, config in FRAMEWORK_SIGNATURES.items():
-            if filepath.suffix in config["ext"]:
+            if filepath.suffix.lower() in config["ext"]:
                 try:
                     content = filepath.read_text(encoding="utf-8", errors="ignore")
                     hits = config["regex"].findall(content)
@@ -212,8 +214,8 @@ def map_physical_codebase(target_dir: Path) -> tuple:
                     for method, api_path in hits:
                         endpoint = normalize_endpoint(method, api_path)
                         physical_apis[endpoint].append(filepath.name)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logging.getLogger("full_api_network_map").debug(f"Failed to scan '{filepath}' for {framework}: {e}")
 
     return physical_apis, frameworks_detected
 
@@ -221,33 +223,33 @@ def map_physical_codebase(target_dir: Path) -> tuple:
 def calculate_api_drift(physical_endpoints: set, approved_apis: set) -> tuple:
     """
     Fixes #163: The Router Prefix Blindspot.
-    Uses suffix topological matching to align physical endpoints (which may be missing 
+    Uses suffix topological matching to align physical endpoints (which may be missing
     their class/router-level prefixes) with fully qualified Swagger endpoints.
     """
     shadow_apis = set()
     matched_approved = set()
-    
+
     for phys in physical_endpoints:
         phys_meth, phys_path = phys.split(" ", 1)
         found = False
-        
+
         for app in approved_apis:
             app_meth, app_path = app.split(" ", 1)
-            
+
             if phys_meth == app_meth:
                 # Suffix Match: Physical '/profile' aligns with Swagger '/api/v1/users/profile'
-                # Because our normalizer guarantees phys_path starts with a '/', 
+                # Because our normalizer guarantees phys_path starts with a '/',
                 # .endswith(phys_path) naturally prevents partial word bleeding.
                 if app_path == phys_path or app_path.endswith(phys_path):
                     found = True
                     matched_approved.add(app)
                     break
-        
+
         if not found:
             shadow_apis.add(phys)
-            
+
     ghost_apis = approved_apis - matched_approved
-    
+
     return shadow_apis, ghost_apis
 
 
@@ -306,7 +308,9 @@ def main():
             swagger_path = primary_cands[0]
             print(f" [DISCOVERY] Primary Swagger specification identified: {swagger_path.relative_to(source_path)}")
             if test_cands:
-                print(f" 🛡️  Safely excluded {len(test_cands)} schemas detected in test directories (Test-Schema Pollution Mitigation):")
+                print(
+                    f" 🛡️  Safely excluded {len(test_cands)} schemas detected in test directories (Test-Schema Pollution Mitigation):"
+                )
                 for tc in test_cands:
                     print(f"    - [Assumed Test] {tc.relative_to(source_path)}")
             print("")
@@ -364,7 +368,7 @@ def main():
         except RuntimeError as e:
             print(f" ❌ {e}")
             sys.exit(1)
-        
+
     physical_apis_map, frameworks_detected = map_physical_codebase(source_path)
     physical_endpoints = set(physical_apis_map.keys())
 

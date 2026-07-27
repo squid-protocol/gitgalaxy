@@ -11,6 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
+from typing import ClassVar, TypedDict
 
 """
 analysis_lens.py
@@ -34,7 +35,7 @@ AI_THREAT_THRESHOLD = 90.0
 class ThreatPolicy:
     """Defines the threshold at which a structural anomaly becomes a critical threat."""
 
-    PROFILES = {
+    PROFILES: ClassVar[dict[str, dict[str, float]]] = {
         # The Baseline: For standard, internal development where some low-level logic is expected.
         "baseline": {
             "secrets_risk_threshold": 0.001,  # 0.1% density
@@ -771,7 +772,6 @@ RISK_EQUATION_TUNING = {
     "tech_debt": {
         "good_debt_weight": 1.0,
         "bad_debt_weight": 3.0,
-        "stub_weight": 0.5,
         "irc_weight": 0.5,
         "threshold": 5.0,
         "sigmoid_slope": 0.5,
@@ -1044,7 +1044,21 @@ LANGUAGE_SECURITY_PROFILES = {
 # 7. RECORDING SCHEMAS & UI MAPPINGS
 # Consumed by: gpu_recorder.py, audit_recorder.py, llm_recorder.py, detector.py
 # ------------------------------------------------------------------------------
-RECORDING_SCHEMAS = {
+class RecordingSchemas(TypedDict):
+    # RISK_SCHEMA/SIGNAL_SCHEMA/etc. are read with .index() throughout the
+    # codebase (galaxyscope.py, signal_processor.py, record_keeper.py, ...).
+    # Without this TypedDict, the dict's mixed list/dict values widen to
+    # Collection[str], which has no .index() -- the single largest source
+    # of mypy fan-out errors repo-wide (#431).
+    RISK_SCHEMA: list[str]
+    SIGNAL_SCHEMA: list[str]
+    SAT_SCHEMA: list[str]
+    GPU_TEXTURE_LOOKUPS: list[str]
+    FRIENDLY_MAP: dict[str, str]
+    EXPOSURE_LABELS: dict[str, str]
+
+
+RECORDING_SCHEMAS: RecordingSchemas = {
     "RISK_SCHEMA": [
         "cognitive_load",
         "safety_score",
@@ -1128,13 +1142,21 @@ RECORDING_SCHEMAS = {
         "regex_execution",
         "time_date_logic",
         # --- NEW: AI & LLM SENSORS ---
+        # ai_tools/ai_memory/ai_logic_loop removed (#323): unlike the other
+        # 6 categories here, which just need "does this file import X" (a
+        # lexical pattern regex can do that), these 3 were trying to detect
+        # BEHAVIOR -- agent tool-calling, agent memory/state management,
+        # autonomous ReAct-style execution loops. No regex-based Structural
+        # Signature engine can reliably tell "this file imports langchain"
+        # apart from "this file implements an autonomous execution loop";
+        # the latter is a semantic/structural pattern, not a lexical one.
+        # They had zero producers anywhere in language_standards.py --
+        # always-zero dead weight, not a functioning (if imperfect)
+        # detector, and permanently unfixable via this engine's approach.
         "llm_api",
         "llm_orchestrator",
         "llm_vector_store",
         "llm_local_compute",
-        "ai_tools",
-        "ai_memory",
-        "ai_logic_loop",
         "ml_traditional",
         "dl_frameworks",
         # --- NEW: ADVANCED ALGORITHMIC SENSORS ---
@@ -1272,9 +1294,6 @@ RECORDING_SCHEMAS = {
         "llm_orchestrator": "AI Orchestration Frameworks",
         "llm_vector_store": "Vector Databases (RAG)",
         "llm_local_compute": "Local Inference & Tensor Math",
-        "ai_tools": "Agentic Tool & Function Calling",
-        "ai_memory": "Agentic State & Memory Management",
-        "ai_logic_loop": "Autonomous Execution Loops (ReAct)",
         "ml_traditional": "Traditional Machine Learning (Stats/Trees)",
         "dl_frameworks": "Deep Learning & Neural Networks",
         "lazy_evaluation": "Lazy Evaluation & Generators (O(1) Memory)",

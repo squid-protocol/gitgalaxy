@@ -105,8 +105,7 @@ def test_unpack_ebcdic_file_e2e(tmp_path):
     # 2. The Mock Binary Payload
     # Record 1: 'ALICE' in EBCDIC + 12345.67 in COMP-3
     r1_name = "ALICE".encode("cp037")  # 5 bytes
-    r1_bal = b"\x01\x23\x45\x67\xc0"[:4]  # 4 bytes (01 23 45 6C)
-    r1_bal = b"\x01\x23\x45\x6c"
+    r1_bal = b"\x01\x23\x45\x6c"  # 4 bytes (01 23 45 6C)
 
     # Record 2: 'BOB  ' in EBCDIC + -12.34 in COMP-3
     r2_name = "BOB  ".encode("cp037")  # 5 bytes

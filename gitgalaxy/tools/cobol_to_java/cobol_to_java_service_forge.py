@@ -3,23 +3,23 @@
 # GitGalaxy Tool: Java Spring Service Scaffolding Generator
 #
 # PURPOSE:
-# Scaffolds the @Service class and stages cross-service dependencies discovered 
+# Scaffolds the @Service class and stages cross-service dependencies discovered
 # via the global DAG (lineage) for the autonomous agent.
 #
 # ARCHITECTURAL DECISION:
-# Following domain-driven design principles, the `@Service` layer encapsulates 
-# pure business logic, strictly isolated from REST API routing. By scaffolding 
-# this layer and mapping unresolved dynamic calls (from the DAG lineage) as 
-# explicit constraints, we guide the autonomous agent to implement the core 
-# COBOL rules while preventing it from hallucinating missing Spring beans or 
+# Following domain-driven design principles, the `@Service` layer encapsulates
+# pure business logic, strictly isolated from REST API routing. By scaffolding
+# this layer and mapping unresolved dynamic calls (from the DAG lineage) as
+# explicit constraints, we guide the autonomous agent to implement the core
+# COBOL rules while preventing it from hallucinating missing Spring beans or
 # breaking the overall ApplicationContext.
 # ==============================================================================
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
 import json
+import sys
 from pathlib import Path
 
 
@@ -47,9 +47,9 @@ def generate_service_skeleton(ir_state: dict, package_name: str) -> str:
 
     # ==========================================================================
     # DEFENSIVE DESIGN (APPLICATION CONTEXT SHIELD):
-    # Cross-Service dependencies are injected as comments/TODOs rather than active 
-    # autowired fields. If we actively inject a dependency that hasn't been fully 
-    # generated yet, the Spring Boot IoC container will throw a 
+    # Cross-Service dependencies are injected as comments/TODOs rather than active
+    # autowired fields. If we actively inject a dependency that hasn't been fully
+    # generated yet, the Spring Boot IoC container will throw a
     # NoSuchBeanDefinitionException, preventing the pipeline from compiling.
     # ==========================================================================
     if unresolved_calls:

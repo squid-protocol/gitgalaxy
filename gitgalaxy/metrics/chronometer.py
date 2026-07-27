@@ -14,22 +14,28 @@
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
-import os
-import subprocess
 import logging
+import os
+import shutil
+import subprocess
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
-from gitgalaxy.standards import gitgalaxy_config as config
+from typing import Any, Optional
+
+from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 # GitGalaxy Phase 3: Chronometer (Time-Series Analyzer)
-# Strategy v6.3.0 Protocol: Bulk Survey, Dynamic Windowing & Thread-Safety
+# Strategy Protocol: Bulk Survey, Dynamic Windowing & Thread-Safety
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
+
+# S607 hardening: resolve once to an absolute path, same rationale as
+# galaxyscope.py's identical _GIT_BIN constant.
+_GIT_BIN = shutil.which("git") or "git"
 
 
 class Chronometer:
@@ -40,7 +46,7 @@ class Chronometer:
     and physical file-system stability, providing raw telemetry to the
     Signal Processor for exposure calculations.
 
-    ARCHITECTURE (v6.3.0):
+    ARCHITECTURE:
     1. Survey-First Logic: Performs a bulk metadata sweep during initialization
        to ensure Pass 2 threading is a zero-I/O memory lookup.
     2. Dynamic Windowing: Calculates a rolling window based on 10% of the project's
@@ -51,7 +57,12 @@ class Chronometer:
        finalization to prevent zombie processes and FD leaks.
     """
 
-    def __init__(self, root_path: Path, parent_logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        root_path: Path,
+        parent_logger: Optional[logging.Logger] = None,
+        resolved_config=None,
+    ):
         """Initializes the Time-Series Analyzer and ignites the Bulk Survey Pass."""
         if parent_logger:
             self.logger = parent_logger.getChild("chronometer")
@@ -63,14 +74,25 @@ class Chronometer:
         self.root = Path(root_path).resolve()
         self.is_git_enabled = False
 
-        # Pull configurations safely
-        self.chrono_config = getattr(config, "CHRONOMETER_CONFIG", {})
-        self.aperture_config = getattr(config, "APERTURE_CONFIG", {})
+        # #335: was `from gitgalaxy.standards import gitgalaxy_config as
+        # config`, the raw unmerged module -- meant no YAML/CLI override
+        # (#332) could ever reach the Chronometer, even the APERTURE_CONFIG
+        # keys galaxyscope.py's main() already merges correctly. Falls back
+        # to an unconfigured resolve_config() only when the caller doesn't
+        # already have a resolved config to hand over (e.g. direct/test
+        # use). Uses .get() rather than getattr() because the caller may
+        # hand over either a ResolvedConfig or Orchestrator's plain
+        # full_config dict -- both support .get(), but getattr() on a
+        # plain dict silently always returns the default, which is exactly
+        # the reachability bug this migration exists to close.
+        config_source = resolved_config if resolved_config is not None else resolve_config()
+        self.chrono_config = config_source.get("CHRONOMETER_CONFIG", {})
+        self.aperture_config = config_source.get("APERTURE_CONFIG", {})
 
         # --- INTERNAL STATE (The Sensor Cache) ---
-        self.churn_map: Dict[str, int] = {}
-        self.mtime_map: Dict[str, float] = {}
-        self.author_map: Dict[str, Dict[str, int]] = {}
+        self.churn_map: dict[str, int] = {}
+        self.mtime_map: dict[str, float] = {}
+        self.author_map: dict[str, dict[str, int]] = {}
 
         # Signal 1: Global Temporal Boundaries
         self.repo_min_time = time.time()
@@ -88,7 +110,7 @@ class Chronometer:
         # Step A: Git Binary Verification
         if (self.root / ".git").exists():
             try:
-                subprocess.run(["git", "--version"], capture_output=True, check=True)
+                subprocess.run([_GIT_BIN, "--version"], capture_output=True, check=True)  # noqa: S603
                 self.is_git_enabled = True
                 self.logger.debug("Git binary verified. Commencing Deep Boundary Survey.")
             except (subprocess.CalledProcessError, FileNotFoundError):
@@ -104,8 +126,8 @@ class Chronometer:
             self._survey_filesystem_mtimes()
 
             # ---> NEW: THE TEMPORAL COLLAPSE SANITY CHECK <---
-            # If the OS walk returns a timeline spanning less than 5 minutes (300 seconds), 
-            # we are likely inside a shallow-clone CI/CD environment where every file 
+            # If the OS walk returns a timeline spanning less than 5 minutes (300 seconds),
+            # we are likely inside a shallow-clone CI/CD environment where every file
             # was just stamped with the exact same download time.
             delta = self.repo_max_time - self.repo_min_time
             if delta < 300.0:
@@ -131,8 +153,8 @@ class Chronometer:
         if self.is_git_enabled:
             try:
                 # Get Most Recent Commit (Max Time)
-                res_max = subprocess.run(
-                    ["git", "log", "-1", "--format=%ct"],
+                res_max = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "log", "-1", "--format=%ct"],
                     cwd=self.root,
                     capture_output=True,
                     text=True,
@@ -142,8 +164,8 @@ class Chronometer:
                     self.repo_max_time = float(res_max.stdout.strip())
 
                 # Get First Commit (Min Time)
-                res_min = subprocess.run(
-                    ["git", "rev-list", "--max-parents=0", "HEAD"],
+                res_min = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "rev-list", "--max-parents=0", "HEAD"],
                     cwd=self.root,
                     capture_output=True,
                     text=True,
@@ -151,8 +173,9 @@ class Chronometer:
                 )
                 first_commits = res_min.stdout.strip().split("\n")
                 if first_commits and first_commits[0]:
-                    res_min_time = subprocess.run(
-                        ["git", "log", "-1", "--format=%ct", first_commits[0]],
+                    # first_commits[0] is git's own prior stdout (git rev-list), not external input.
+                    res_min_time = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute
+                        [_GIT_BIN, "log", "-1", "--format=%ct", first_commits[0]],
                         cwd=self.root,
                         capture_output=True,
                         text=True,
@@ -200,7 +223,7 @@ class Chronometer:
 
         if ignore_file.exists():
             try:
-                with open(ignore_file, "r", encoding="utf-8") as f:
+                with open(ignore_file, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         # Skip comments and empty lines
@@ -221,8 +244,8 @@ class Chronometer:
 
         # 1. Establish the Denominator (Total Tracked Files)
         try:
-            res = subprocess.run(
-                ["git", "ls-files"],
+            res = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "ls-files"],
                 cwd=self.root,
                 capture_output=True,
                 text=True,
@@ -252,7 +275,7 @@ class Chronometer:
         # 3. The Command: Limit Git to the last year of commits.
         # This generates massive churn spikes without getting bogged down in decade-old bedrock.
         cmd = [
-            "git",
+            _GIT_BIN,
             "log",
             "--since=1.year",
             "--name-only",
@@ -283,13 +306,13 @@ class Chronometer:
 
     def _stream_git_log(
         self,
-        cmd: List[str],
+        cmd: list[str],
         ignored_hashes: set,
         tracked_files: set,
         required_files: int,
         timeout_limit: float,
         start_time: float,
-    ) -> Tuple[int, bool]:
+    ) -> tuple[int, bool]:
         """Executes Git log via Popen stream, halting dynamically based on coverage or time."""
         processed_lines = 0
         process = None
@@ -299,10 +322,10 @@ class Chronometer:
         reached_target = False
 
         # Local tracker to ensure we only count files that currently exist
-        valid_files_seen = set()
+        valid_files_seen: set[str] = set()
 
         try:
-            process = subprocess.Popen(
+            process = subprocess.Popen(  # noqa: S603 -- cmd is built above from _GIT_BIN + fixed args, no external input
                 cmd,
                 cwd=self.root,
                 stdout=subprocess.PIPE,
@@ -310,6 +333,9 @@ class Chronometer:
                 text=True,
                 bufsize=1,
             )
+            # Safe: type-narrowing for mypy, not a runtime security gate --
+            # stdout=subprocess.PIPE above guarantees this is never None.
+            assert process.stdout is not None  # noqa: S101
 
             for line in process.stdout:
                 # [TIMEOUT GUARD] Enforce the hard compute timeout
@@ -398,7 +424,7 @@ class Chronometer:
                 except (OSError, ValueError):
                     continue
 
-    def get_file_history_metrics(self, rel_path: str) -> Dict[str, Any]:
+    def get_file_history_metrics(self, rel_path: str) -> dict[str, Any]:
         """
         ========================================================================
         DEFENSIVE ARCHITECTURE: Zero-I/O Thread Safety

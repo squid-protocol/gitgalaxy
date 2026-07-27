@@ -11,21 +11,38 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
+from typing import Any, TypedDict
 
 """
 language_standards.py
 Phase 2 & 3: The Lexical Registry & Syntax Dictionaries.
 
-This file contains the compiled regular expressions, mechanical delimiters, 
-and language-specific rules used to physically slice, parse, and identify 
+This file contains the compiled regular expressions, mechanical delimiters,
+and language-specific rules used to physically slice, parse, and identify
 source code across the repository.
 """
+
+
+class LensConfig(TypedDict):
+    # LENS_CONFIG's mixed set/dict/list values were widening to
+    # Collection[object] under mypy, so every .get()/.items() call on it
+    # throughout language_lens.py errored (#431). HANDSHAKE_REGISTRY's
+    # inner dicts stay Dict[str, Any] rather than their own TypedDict --
+    # "pair" is None for two of the three current entries and a tuple for
+    # the third, and nothing here needs to type-check their contents,
+    # only LENS_CONFIG's own top-level shape.
+    COLLISION_FREQUENCIES: set[str]
+    PROSE_ANCHORS: set[str]
+    DISQUALIFIERS: dict[str, str]
+    HANDSHAKE_REGISTRY: list[dict[str, Any]]
+    THRESHOLDS: dict[str, float]
+
 
 # ------------------------------------------------------------------------------
 # 1. STRUCTURAL SIGNATURE CONFIGURATION (Language Identification & Disambiguation)
 # Consumed by: language_lens.py
 # ------------------------------------------------------------------------------
-LENS_CONFIG = {
+LENS_CONFIG: LensConfig = {
     "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m"},
     "PROSE_ANCHORS": {
         "README",
@@ -120,11 +137,24 @@ LENS_CONFIG = {
     },
 }
 
+
+class PrismConfigSchema(TypedDict):
+    # Same widening problem as LensConfig above: the mixed str/set/dict
+    # values were collapsing to Collection[str] under mypy, breaking every
+    # .get()/re.compile() call on PRISM_CONFIG throughout prism.py.
+    SHIELD_PATTERN: str
+    PYTHON_DOC_PATTERN: str
+    PHP_HEREDOC_PATTERN: str
+    PHP_MULTILINE_STRING: str
+    POSITIONAL_ANCHORS: set[str]
+    THRESHOLDS: dict[str, int]
+
+
 # ------------------------------------------------------------------------------
 # 2. PRISM CONFIGURATION (Structural Refraction & String Shielding)
 # Consumed by: prism.py
 # ------------------------------------------------------------------------------
-PRISM_CONFIG = {
+PRISM_CONFIG: PrismConfigSchema = {
     "SHIELD_PATTERN": r'((?<!\\)"(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\])*\'|(?<!\\)`(?:\\.|[^`\\])*`)',
     "PYTHON_DOC_PATTERN": r'(?m)^\s*(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')',
     "PHP_HEREDOC_PATTERN": r'<<<[ \t]*([\'"]?)([a-zA-Z_]\w*)\1[ \t]*\r?\n[\s\S]*?\n[ \t]*\2;?',
@@ -196,6 +226,25 @@ _DENSE_FRAGILE = (
 )
 GLOBAL_FRAGILE_DEBT = re.compile(f"{_SPACED_FRAGILE}|{_DENSE_FRAGILE}", re.I)
 
+
+# --- 3. AI / LLM & ML SDK DETECTION (split by SIGNAL_SCHEMA category) ---
+# Mirrors GLOBAL_PLANNED_DEBT/GLOBAL_FRAGILE_DEBT: compiled once here and
+# referenced identically by every language block that wants it, instead of
+# being hand-pasted per-language (see #322).
+_IMPORT_WRAPPER = r"\b(?:import|require|from)\b.*?(?:{names})\b"
+
+_LLM_API_NAMES = r"openai|anthropic"
+_LLM_ORCHESTRATOR_NAMES = r"langchain|llama_index"
+_LLM_VECTOR_STORE_NAMES = r"chromadb|pinecone"
+_ML_TRADITIONAL_NAMES = r"sklearn"
+_DL_FRAMEWORKS_NAMES = r"tensorflow|torch|keras"
+
+GLOBAL_LLM_API = re.compile(_IMPORT_WRAPPER.format(names=_LLM_API_NAMES))
+GLOBAL_LLM_ORCHESTRATOR = re.compile(_IMPORT_WRAPPER.format(names=_LLM_ORCHESTRATOR_NAMES))
+GLOBAL_LLM_VECTOR_STORE = re.compile(_IMPORT_WRAPPER.format(names=_LLM_VECTOR_STORE_NAMES))
+GLOBAL_ML_TRADITIONAL = re.compile(_IMPORT_WRAPPER.format(names=_ML_TRADITIONAL_NAMES))
+GLOBAL_DL_FRAMEWORKS = re.compile(_IMPORT_WRAPPER.format(names=_DL_FRAMEWORKS_NAMES))
+
 # ------------------------------------------------------------------------------
 # 4. LANGUAGE DEFINITIONS (The Structural Signature Matrix)
 # Consumed by: detector.py, language_lens.py, prism.py
@@ -260,22 +309,6 @@ LANGUAGE_DEFINITIONS = {
         # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "line_exclusive",
         "rules": {
-            # =====================================================================
-            # [ CRITICAL ROADMAP: JSONC/JSON5 LEXICAL DELIMITERS & THE RE.COMPILE TRAP ]
-            # 1. THE LEXICAL MAPPING: JSON with comments (.jsonc, .json5) strictly
-            #    uses C-style comments (// and /* */), NOT Python/Ruby hashes (#).
-            #    This is why JSON must map to the 'std_c' lexical_family, not 'pure_hash' or 'inert'.
-            # 2. THE RE.COMPILE TRAP: Every rule here MUST be wrapped in re.compile().
-            #    If passed as raw strings, the engine's physics loop will crash with
-            #    "'str' object has no attribute 'pattern'" during the Commented / Non-Executable Text extraction.
-            # =====================================================================
-            # JSON has no concept of a "column 1" or line-start-only comment anchor.
-            "_line_anchor": None,
-            # JSONC/JSON5 inline comments use standard C-style slashes.
-            "_inline_comment": re.compile(r"//"),
-            # JSONC/JSON5 multi-line blocks use standard C-style delimiters.
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.
@@ -353,7 +386,12 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"\blambda\b"),
             # 18. globals (Global / Shared State)
-            "globals": re.compile(r"\b(os\.environ|sys\.argv|sys\.path|globals\(\)|locals\(\))\b"),
+            # BUG FIX: `globals\(\)`/`locals\(\)` both end on `)`
+            # (non-word), so the shared trailing \b could never fire --
+            # whatever follows a function call (`;`, a newline, `.method`,
+            # end of string) is never a word character. Neither builtin
+            # ever matched in any real usage.
+            "globals": re.compile(r"\b(?:os\.environ|sys\.argv|sys\.path)\b|\bglobals\(\)|\blocals\(\)"),
             # 19. decorators (Decorators / Annotations)
             "decorators": re.compile(r"^[ \t]*@[\w.]+", re.M),
             # 20. generics (Generics / Type Parameters)
@@ -361,11 +399,21 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(List|Dict|Set|Tuple|Optional|Union|TypeVar|Generic|Any|Callable|Mapping)\b\[[^\]]*\]|\b(list|dict|set|tuple|type)\[[^\]]*\]|->"
             ),
             # 21. comprehensions (Iterators / Comprehensions)
-            "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            # Expanded to include LLM orchestration tools for the Agentic Shield
-            "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:tensorflow|torch|keras|numpy|pandas|scipy|sklearn|matplotlib|opencv|cv2|langchain|openai|anthropic|llama_index|chromadb|pinecone)\b"
+            # Was `\.(?:map|filter|reduce|...)\s*\(` -- JavaScript's Array-method
+            # idiom, copy-pasted in by mistake (that pattern correctly belongs
+            # to javascript/typescript's own comprehensions rule, not this
+            # one). Python doesn't have `.map(`/`.filter(` as builtin list
+            # methods; it has comprehension syntax (`[x for x in y]`,
+            # `{k: v for k, v in items}`, generator expressions). The old
+            # pattern never matched a single real Python comprehension and
+            # only fired incidentally on unrelated methods that happen to
+            # share a name (e.g. a Django queryset's `.filter(active=True)`).
+            # Matches embedded_python's (correct, already ReDoS-bounded)
+            # comprehension pattern.
+            "comprehensions": re.compile(
+                r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
             ),
+            "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
             ),
@@ -377,6 +425,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:from\s+[a-zA-Z0-9_.]+\s+import\b|import\s+[a-zA-Z0-9_., \t]+|\b__import__\s*\(|\bimportlib\.import_module\s*\()",
@@ -398,7 +452,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -513,15 +567,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes JSDoc // style)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
@@ -541,17 +586,28 @@ LANGUAGE_DEFINITIONS = {
                 # FIX 2 (Control Flow Shield): `while (i < 10) {` structurally mimics a method.
                 # Injected `(?!(?:if|for|while|switch|catch|return)\b)` to prevent reserve words
                 # from being mapped as method names.
+                # FIX 3 (Quadratic Blowup Shield): The arrow-function branch's identifier
+                # match used an unbounded `[\w$]*`. On a long line with no `=>` at all
+                # (e.g. a single massive minified/obfuscated line), the engine retried the
+                # greedy-then-backtrack identifier match at every starting position,
+                # producing O(n^2) time (empirically: ~3.5s at 20,000 chars, scaling
+                # quadratically from there). Bounded to {0,100} -- real identifiers don't
+                # get remotely that long -- per this doc's own "strict numeric clamps"
+                # rule; possessive quantifiers (`*+`) would be cleaner but aren't
+                # available until Python 3.11, and this package supports 3.9+.
                 # =====================================================================
                 r"(?:"
                 r"\b(?:async[ \t\n]+)?function[ \t\n]*\w*[ \t\n]*\([^)]*\)|"
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w$]*)[ \t\n]*=>|"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
                 r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?(?!(?:if|for|while|switch|catch|return)\b)(?:#?[a-zA-Z_$][\w$]*)[ \t\n]*\([^)]*\)(?=[ \t\n]*\{)"
                 r")",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
             # Structural declaration boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
-            "structural_boundaries": re.compile(r"\b(let|var|import|export|return|class|extends|super|await|delete)\b|=>"),
+            "structural_boundaries": re.compile(
+                r"\b(let|var|import|export|return|class|extends|super|await|delete)\b|=>"
+            ),
             # 4. func_start (Executable Logic Anchors)
             # Uses positive lookaheads (?=) to stop the match exactly at the identifier name.
             # Captures standard functions, namespace assignments (foo.bar = function),
@@ -585,8 +641,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(try|catch|finally|typeof|instanceof|Array\.isArray|Number\.(?:isFinite|isNaN)|Object\.hasOwn)\b|===|!==|\?\?|\?\."
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
-            # Loose equality and bypasses.
-            "safety_bypasses": re.compile(r"==(?!=)|!=(?!=)|\b(with|void)\b|eslint-disable|@ts-nocheck"),
+            # Loose equality and bypasses. (?<![=!]) on the == branch: without
+            # it, `===`/`!==` (strict equality/inequality -- explicitly SAFE
+            # per this language's own `safety` rule) both still matched via
+            # their trailing `==` substring at a shifted offset.
+            "safety_bypasses": re.compile(r"(?<![=!])==(?!=)|!=(?!=)|\b(with|void)\b|eslint-disable|@ts-nocheck"),
             # 8. danger (High-Risk Execution / System Calls)
             # Catastrophic vulnerabilities. EXCLUDES console.log (print_hits) and TODO (debt).
             "high_risk_execution": re.compile(
@@ -609,8 +668,12 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
             # 14. test (Testing & Assertions)
+            # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
+            # already carries this guard so `myRegex.test('x')` (a regex method
+            # call) isn't miscounted as a test-framework call -- JavaScript's own
+            # rule never got the same fix despite the identical ambiguity.
             "test": re.compile(
-                r"\b(describe|expect|assert|beforeEach|afterEach|jest|mocha|vitest|cy\.)\b|\b(?:it|test)\s*\("
+                r"\b(describe|expect|assert|beforeEach|afterEach|jest|mocha|vitest|cy\.)\b|(?<!\.)\b(?:it|test)\s*\("
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
@@ -632,10 +695,7 @@ LANGUAGE_DEFINITIONS = {
             "generics": re.compile(r"@template\s+\w+|/\*\*\s*@type\s*(?:\{|<\w+)"),
             # 21. comprehensions (Iterators / Comprehensions)
             "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
-            # Expanded to include LLM orchestration tools for the Agentic Shield
-            "scientific": re.compile(
-                r"\b(?:import|require|from)\b.*?(?:tensorflow|torch|keras|numpy|pandas|scipy|sklearn|matplotlib|opencv|cv2|langchain|openai|anthropic|llama_index|chromadb|pinecone)\b"
-            ),
+            "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
             "hardware_bridge": re.compile(
                 r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
             ),
@@ -646,6 +706,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:import|export)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
@@ -684,7 +750,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -727,8 +793,13 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(dispose|close|destroy|clearTimeout|clearInterval|removeEventListener|delete)\b"),
             # 47. encapsulation (Access Modifiers / Encapsulation)
-            # JS private fields and keywords.
-            "encapsulation": re.compile(r"\b(private|protected|internal|#)\b"),
+            # JS private fields and keywords. `#` needed its own un-bounded
+            # branch: \b#\b can only match when `#` is directly sandwiched
+            # between two word characters with no separator (e.g. "x#y"),
+            # which never happens in real private-field syntax (`#foo` is
+            # always preceded by `{`, whitespace, or `.` -- never a bare word
+            # char) -- so the `#` alternative was completely unreachable.
+            "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
@@ -759,7 +830,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "TypeScript 6.0 / ES2026",
             "last_updated": "2026-03-12",
-            "blueprint_version": "v6.3.1",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard modern suffixes, JSX variants, and ambient declaration boundaries.
@@ -791,15 +862,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes TSDoc /// references)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
@@ -809,8 +871,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 2. args (Parameters / Coupling)
             # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
+            # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
+            # `[\w$]*` was unbounded. On a long line with no `=>` at all, the
+            # engine retried the greedy-then-backtrack identifier match at
+            # every starting position -- O(n^2) (same bug found and fixed in
+            # javascript's near-identical args rule). Bounded to {0,100};
+            # real identifiers never get remotely that long.
             "args": re.compile(
-                r"function\s+\w*(?:<[^>]*>)?\s*\([^)]*\)|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t]*=>|^[ \t]*(?:(?:public|private|protected|static|override|abstract)[ \t]+){0,3}(?:async[ \t]+)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch)\b)[a-zA-Z_$][\w$]*\s*\([^)]*\)",
+                r"function\s+\w*(?:<[^>]*>)?\s*\([^)]*\)|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]{0,100}[ \t]*=>|^[ \t]*(?:(?:public|private|protected|static|override|abstract)[ \t]+){0,3}(?:async[ \t]+)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch)\b)[a-zA-Z_$][\w$]*\s*\([^)]*\)",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -916,6 +984,12 @@ LANGUAGE_DEFINITIONS = {
             "reflection_metaprogramming": re.compile(
                 r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
             ),
+            # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
+            "llm_api": GLOBAL_LLM_API,
+            "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
+            "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
+            "ml_traditional": GLOBAL_ML_TRADITIONAL,
+            "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"\b(?:import(?:\s+type)?|export(?:\s+type)?)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
@@ -958,7 +1032,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -1003,7 +1077,13 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(dispose|close|destroy|clearTimeout|clearInterval|removeEventListener|delete)\b"),
             # 47. encapsulation (Access Modifiers / Encapsulation)
-            "encapsulation": re.compile(r"\b(private|protected|internal|#)\b"),
+            # `#` needed its own un-bounded branch: \b#\b can only match when
+            # `#` is directly sandwiched between two word characters with no
+            # separator (e.g. "x#y"), which never happens in real private-
+            # field syntax (`#foo` is always preceded by `{`, whitespace, or
+            # `.` -- never a bare word char) -- so the `#` alternative was
+            # completely unreachable, same bug as javascript's copy of this.
+            "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
@@ -1063,15 +1143,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes Javadoc /**)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes modern switch expressions (yield) and pattern guards (when).
@@ -1089,6 +1160,12 @@ LANGUAGE_DEFINITIONS = {
                 # Branch 1: Standard Methods MUST have a return type.
                 # Branch 2: Constructors MUST be anchored to `{` or `throws`.
                 # Branch 3: Standard lambdas and method references `::`.
+                # QUADRATIC BLOWUP FIX: Branch 3's bare-identifier lambda form
+                # (`[a-zA-Z_$][\w_$]*` with no \b anchor, unlike Branches 1/2
+                # which are `^`-anchored) got retried at every position in a
+                # long `->`-less line, backtracking O(n) per position for
+                # O(n^2) total (same bug found and fixed in javascript's args).
+                # Bounded to {0,100}; real identifiers don't get that long.
                 # =====================================================================
                 r"(?:"
                 # 1. Standard Methods
@@ -1096,7 +1173,7 @@ LANGUAGE_DEFINITIONS = {
                 # 2. Constructors
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?:(?:public|protected|private|static)[ \t\n]+)?[A-Z]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
                 # 3. Lambdas & Method Refs
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)[ \t\n]*->|::"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*->|::"
                 r")",
                 re.M,
             ),
@@ -1153,8 +1230,19 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES final (freeze_hits).
+            # BUG FIX (ReDoS): confirmed genuine O(n^2) scaling (0.045s/
+            # 0.18s/0.71s/2.85s/11.2s for n=5k/10k/20k/40k/80k, ~4x per
+            # doubling) against a long run of plain word characters with
+            # no `.`/`(` anywhere: the unanchored `(?:\w+\.)?` before the
+            # method-name keywords greedily consumes the whole remaining
+            # run, fails to find the `.`, and backtracks one character at
+            # a time -- O(n) work at each of the O(n) positions re.search
+            # retries this unanchored alternative at. Bounded to
+            # `\w{0,100}`, matching the fix shape used throughout this
+            # sweep.
             "state_mutation": re.compile(
-                r"\b(volatile|Atomic\w+)\b|^[ \t]*(?:this\.)?\w+[ \t]*=|@(?:Setter|Data)\b|(?:\w+\.)?(?:set[A-Z]\w+|add|put|remove|clear|addAll|replace|computeIfAbsent)\s*\("
+                r"\b(volatile|Atomic\w+)\b|^[ \t]*(?:this\.)?\w+[ \t]*=|@(?:Setter|Data)\b"
+                r"|(?:\w{0,100}\.)?(?:set[A-Z]\w+|add|put|remove|clear|addAll|replace|computeIfAbsent)\s*\("
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(r"//[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b"),
@@ -1172,14 +1260,27 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(synchronized|Thread|Runnable|Future|CompletableFuture|ExecutorService|Semaphore|Atomic\w+|VirtualThread|StructuredTaskScope|ScopedValue|Mono|Flux|Publisher)\b|@(?:Async|Scheduled)"
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `@ModelAttribute` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded it -- never true for how annotations are
+            # actually written (preceded by whitespace or a line start).
+            # Never matched at all.
             "ui_framework": re.compile(
-                r"\b(SwingUtilities|JFrame|JPanel|javafx\.|ModelAndView|ModelMap|Model|@ModelAttribute|VaadinSession|FacesContext|UIComponent)\b"
+                r"\b(?:SwingUtilities|JFrame|JPanel|javafx\.|ModelAndView|ModelMap|Model|VaadinSession|FacesContext|UIComponent)\b"
+                r"|@ModelAttribute"
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"->|::"),
             # 18. globals (Global / Shared State)
+            # BUG FIX: the `public static final ... =` alternative ends on
+            # `=` (non-word), so the shared trailing \b could never fire --
+            # whatever follows the `=` in a real declaration (a space, then
+            # the value) is never a word character. This extremely common
+            # Java constant-declaration idiom never matched at all.
             "globals": re.compile(
-                r"\b(System\.getProperty|System\.getenv|public\s+static\s+(?:final[ \t]+)?\w+\s+[A-Z_0-9]+[ \t]*=|ThreadLocal|ScopedValue)\b|@(?:Value|ConfigurationProperties)"
+                r"\b(?:System\.getProperty|System\.getenv|ThreadLocal|ScopedValue)\b"
+                r"|public\s+static\s+(?:final[ \t]+)?\w+\s+[A-Z_0-9]+[ \t]*="
+                r"|@(?:Value|ConfigurationProperties)"
             ),
             # 19. decorators (Decorators / Annotations)
             "decorators": re.compile(r"^[ \t]*@[\w.]+(?:\([^)]*\))?", re.M),
@@ -1210,19 +1311,28 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
+            # BUG FIX: `@ResponseBody`/`@ResponseStatus` both start with `@`
+            # (non-word) -- same leading-\b bug as ui_framework above.
             "ssr_boundaries": re.compile(
-                r"\b(ModelAndView|FacesServlet|HttpServletRequest|HttpServletResponse|@ResponseBody|@ResponseStatus|JspWriter|ThymeleafViewResolver)\b"
+                r"\b(?:ModelAndView|FacesServlet|HttpServletRequest|HttpServletResponse|JspWriter|ThymeleafViewResolver)\b"
+                r"|@ResponseBody|@ResponseStatus"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `@EventListener`/`@KafkaListener`/`@RabbitListener`/
+            # `@JmsListener` all start with `@` -- same bug.
             "events": re.compile(
-                r"\b(ApplicationEvent|ApplicationEventPublisher|ApplicationListener|@EventListener|@KafkaListener|@RabbitListener|@JmsListener|EventObject|publishEvent)\b"
+                r"\b(?:ApplicationEvent|ApplicationEventPublisher|ApplicationListener|EventObject|publishEvent)\b"
+                r"|@EventListener|@KafkaListener|@RabbitListener|@JmsListener"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: 10 of the 12 alternatives are `@`-prefixed Spring/
+            # Guice annotations -- same bug, at scale.
             "dependency_injection": re.compile(
-                r"\b(@Autowired|@Inject|@Qualifier|@Primary|@Component|@Service|@Repository|@Bean|@Configuration|ApplicationContext|BeanFactory|@Provides)\b"
+                r"\b(?:ApplicationContext|BeanFactory)\b"
+                r"|@Autowired|@Inject|@Qualifier|@Primary|@Component|@Service|@Repository|@Bean|@Configuration|@Provides"
             ),
             # 34. macros
             "macros": None,  # Java lacks preprocessor macros.
@@ -1241,8 +1351,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(log|logger|LOGGER|LoggerFactory|LogManager|MDC|Tracer|Span)\.(?:info|error|warn|warning|debug|trace|log)\b|@Slf4j|@Log4j2"
             ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs)
+            # BUG FIX: `\.printStackTrace\(\)` ends on `)` (non-word), so
+            # the shared trailing \b could never fire. Never matched.
             "debug_prints": re.compile(
-                r"\b(System\.out\.(?:print|println|printf)|System\.err\.(?:print|println|printf)|\.printStackTrace\(\))\b"
+                r"\b(?:System\.out\.(?:print|println|printf)|System\.err\.(?:print|println|printf))\b"
+                r"|\.printStackTrace\(\)"
             ),
             # # 40. explicit_casts (Explicit Type Casting)
             "explicit_casts": re.compile(
@@ -1266,7 +1379,9 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Access Modifiers / Encapsulation)
             "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\b(on[A-Z]\w*|addEventListener|subscribe|@KafkaListener|@RabbitListener)\b"),
+            # BUG FIX: `@KafkaListener`/`@RabbitListener` start with `@` --
+            # same leading-\b bug as dependency_injection above.
+            "listeners": re.compile(r"\b(?:on[A-Z]\w*|addEventListener|subscribe)\b|@KafkaListener|@RabbitListener"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mock\(|spy\(|verifyZeroInteractions"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Java Specifics) ---
@@ -1321,15 +1436,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes XML Doc ///)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
@@ -1347,6 +1453,12 @@ LANGUAGE_DEFINITIONS = {
                 # Branch 2: Constructors lack return types, so they MUST be anchored to `:` or `{`.
                 # Branch 3: Standard fat-arrow lambdas.
                 # Upgraded all spaces to `[ \t\n]+` to support Pathological vertical parameters.
+                # QUADRATIC BLOWUP FIX: Branch 3's bare-identifier lambda form
+                # (`[a-zA-Z_$][\w_$]*` with no \b anchor, unlike Branches 1/2
+                # which are `^`-anchored) got retried at every position in a
+                # long `=>`-less line, backtracking O(n) per position for
+                # O(n^2) total (same bug found and fixed in javascript's args).
+                # Bounded to {0,100}; real identifiers don't get that long.
                 # =====================================================================
                 r"(?:"
                 # 1. Standard Methods
@@ -1354,7 +1466,7 @@ LANGUAGE_DEFINITIONS = {
                 # 2. Constructors
                 r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?[A-Z]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
                 # 3. Lambdas
-                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)[ \t\n]*=>"
+                r"(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
                 r")",
                 re.M,
             ),
@@ -1438,10 +1550,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Null-forgiving operator, dynamic, and unsafe bypasses.
-            "safety_bypasses": re.compile(r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"),
+            "safety_bypasses": re.compile(
+                r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"
+            ),
             # 8. danger (High-Risk Execution / System Calls)
             # Extreme tech debt/vulnerabilities. EXCLUDES TODO (debt) and Console (print).
-            "high_risk_execution": re.compile(r"\b(Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit|goto)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit|goto)\b"
+            ),
             # 9. io (I/O & Network Boundaries)
             "io": re.compile(
                 r"\b(File|Directory|Stream|HttpClient|Path|SqlConnection|SqlCommand|DbContext|DbSet|HttpRequest|HttpResponse)\b\.|\[Table\("
@@ -1463,8 +1579,14 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"///|///\s*<summary>|///\s*<param|///\s*<returns>|///\s*<remarks>"),
             # 14. test (Testing & Assertions)
+            # BUG FIX: `Should\(\)` (FluentAssertions) ends on `)`
+            # (non-word), so the shared trailing \b could never fire --
+            # the fluent form is always immediately chained with another
+            # `.method(...)`, never followed by a word character. Never
+            # matched.
             "test": re.compile(
-                r"\[(?:Test|Fact|Theory|TestMethod|TestClass|SetUp|TearDown)\]|\b(?:Assert\.|Should\(\)|Mock\.|Substitute\.For)\b"
+                r"\[(?:Test|Fact|Theory|TestMethod|TestClass|SetUp|TearDown)\]"
+                r"|\b(?:Assert\.|Mock\.|Substitute\.For)\b|Should\(\)"
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
@@ -1514,15 +1636,22 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (The Blazor/Razor Horizon)
             "ssr_boundaries": re.compile(
                 r"@(?:page|rendermode|code|layout)|\[(?:Route|CascadingParameter)\]|\b(RenderFragment|ComponentBase|IViewComponentResult)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `+=`/`-=` (event subscribe/unsubscribe operators) used
+            # to be inside the \b(...)\b wrapper. \b requires a word/non-word
+            # transition; since neither `+`/`=` nor `-`/`=` is a word
+            # character, `\b+=\s*\b` could only match with no surrounding
+            # whitespace at either edge (e.g. "x+=y"), never idiomatic C#
+            # like "MyEvent += handler" (spaced on both sides). Split out
+            # unguarded, same fix shape as #621's dash/hash families.
             "events": re.compile(
-                r"\b(event\s+[\w<>]+\s+\w+|EventHandler|\+=\s*|-=\s*|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b"
+                r"\b(event\s+[\w<>]+\s+\w+|EventHandler|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b|\+=\s*|-=\s*"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
             "dependency_injection": re.compile(
@@ -1556,7 +1685,11 @@ LANGUAGE_DEFINITIONS = {
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
             "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-            "thread_sleeps": re.compile(r"\b(sleep|delay|Wait\(\)|Task\.Delay|Thread\.Sleep)\b"),
+            # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared
+            # trailing \b could never fire (`task.Wait();` -- the next
+            # char is always `;`, a newline, or another `.method`, never a
+            # word character). Never matched.
+            "thread_sleeps": re.compile(r"\b(?:sleep|delay|Task\.Delay|Thread\.Sleep)\b|\bWait\(\)"),
             # 43. bitwise_ops (Bitwise Operations)
             # Low-level byte manipulation. Safely maps to C# bitwise operators without overlapping language-specific pipelines.
             "bitwise_ops": re.compile(r"<<|>>|\^|~"),
@@ -1608,15 +1741,6 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": ["go", "gorun", "yaegi"],
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token.
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Includes select/case and range-based loops. EXCLUDES panic (bailout_hits).
@@ -1659,8 +1783,11 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
+            # BUG FIX: `recover\(\)` ends on `)` (non-word), so the shared
+            # trailing \b could never fire -- the classic
+            # `defer func() { recover() }()` idiom never matched.
             "safety": re.compile(
-                r"err\s*!=\s*nil|\b(errors\.(?:Is|As|New|Join)|sync\.(?:Once|WaitGroup)|context\.Context|recover\(\))\b"
+                r"err\s*!=\s*nil|\b(?:errors\.(?:Is|As|New|Join)|sync\.(?:Once|WaitGroup)|context\.Context)\b|\brecover\(\)"
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Explicitly ignoring errors via blank identifier.
@@ -1674,8 +1801,32 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 10. api (Public Surface Area)
             # Implicit Public Reality: Capitalized top-level identifiers in Go are public.
+            # BUG FIX: `^[ \t]*` allowed arbitrary leading whitespace, so
+            # the original (no-prefix) form matched ANY indented line
+            # starting with a capitalized word -- including a bare call to
+            # an exported function inside a function body
+            # (`    DoSomething()`), which is not a declaration at all.
+            # Column-0-only anchoring alone overcorrects: Go's grouped
+            # `var (...)`/`const (...)` blocks legitimately indent their
+            # member declarations (e.g. `const (\n\tBurstReplicas = 500\n)`
+            # in real k8s source), and those ARE top-level/exported. So:
+            # explicit `func`/`type`/`var`/`const` keyword forms stay
+            # anchored to column 0 (gofmt never indents these), while the
+            # no-prefix fallback (for grouped members) keeps indentation
+            # tolerance but requires it (a bare col-0 identifier isn't
+            # valid Go outside a group) and excludes anything immediately
+            # followed by `(` -- a grouped member is `Name = value` or
+            # `Name Type`, never `Name(`, which is what a real function
+            # CALL statement looks like. The trailing `\b` before the
+            # lookahead is required: without it, greedy `\w+` can
+            # backtrack one character short of the real identifier end
+            # purely to dodge the `(?!\()` check (matching `DoSomethin`
+            # instead of `DoSomething` to sidestep the `(` in
+            # `DoSomething(`) -- `\b` forces the lookahead to apply at the
+            # true word boundary, where backtracking can't produce a
+            # second valid stopping point.
             "api": re.compile(
-                r"^[ \t]*(?:func\s+(?:\([^)]*\)[ \t]+)?)?[A-Z]\w+|^[ \t]*(?:type|var|const)\s+[A-Z]\w+",
+                r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]\w+|^(?:type|var|const)\s+[A-Z]\w+|^[ \t]+\b[A-Z]\w+\b(?!\()",
                 re.M,
             ),
             # 11. flux (State Mutation)
@@ -1690,8 +1841,15 @@ LANGUAGE_DEFINITIONS = {
             "test": re.compile(r"\b(?:Test|Benchmark|Fuzz)[A-Z]\w*\b|t\.Run\b|\b(?:assert|require|mock)\.\w+\("),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
+            # BUG FIX: `select[ \t]*\{` ends on `{` (non-word), so the
+            # shared trailing \b only fired when a word char immediately
+            # followed the brace -- never true in real Go, where a `select`
+            # block's body always starts on the next line (or at least
+            # with whitespace) after the opening brace. This core
+            # concurrency primitive never matched at all, spaced or not.
             "concurrency": re.compile(
-                r"\b(go\s+func|go\s+\w+|chan\s+|select[ \t]*\{|context\.(?:WithTimeout|WithCancel)|errgroup\.Group)\b"
+                r"\b(?:go\s+func|go\s+\w+|chan\s+|context\.(?:WithTimeout|WithCancel)|errgroup\.Group)\b"
+                r"|select[ \t]*\{"
             ),
             # 16. ui_framework (UI / View Components)
             # Go is primarily backend; targets templates and web handlers.
@@ -1699,7 +1857,20 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(html/template|text/template|http\.HandleFunc|ServeHTTP|gin\.|echo\.|fiber\.)\b"
             ),
             # 17. closures (Closures / Anonymous Functions)
-            "closures": re.compile(r"func\s*\([^)]*\)\s*(?:\[[^\]]*\])?\s*(?:\([^)]*\))?[ \t]*\{"),
+            # BUG FIX (ReDoS): confirmed genuine O(n^2) scaling (0.32s/
+            # 1.27s/5.12s/20.6s for n=2k/4k/8k/16k, ~4x per doubling; 68.6s
+            # observed at n=30k) against an adversarial payload with two
+            # large whitespace runs (`func` + huge ws + `(recv)` + huge ws
+            # + unclosed name) that ultimately fails to complete a match --
+            # the three unbounded `\s*` occurrences plus the two unbounded
+            # `[^)]*`/`[^\]]*` classes force exhaustive backtracking across
+            # every combination of how much each could consume. Bounded
+            # every quantifier, and replaced the two narrowly-specific
+            # optional groups (generics brackets, multi-return parens) with
+            # one bounded `[^{]{0,80}` gap -- this also fixes a real,
+            # separate gap: a bare (non-parenthesized) single return type
+            # (`func(x int) int {`) never matched either shape.
+            "closures": re.compile(r"func[ \t\n]{0,80}\([^)]{0,300}\)[^{]{0,80}\{"),
             # 18. globals (Global / Shared State)
             "globals": re.compile(
                 r"^[ \t]*var\s+[a-zA-Z_]\w*\s*(?:[a-zA-Z_]\w*\s*)?=|os\.Getenv|os\.Environ",
@@ -1709,7 +1880,13 @@ LANGUAGE_DEFINITIONS = {
             # Go lacks @decorators; uses Struct Tags and Build Tags.
             "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),
             # 20. generics (Generics / Type Parameters)
-            "generics": re.compile(r"\[[^\]]*\b(?:any|comparable|~[a-zA-Z_]\w*)\b[^\]]*\]|\bany\b"),
+            # BUG FIX: `~[a-zA-Z_]\w*` (the Go 1.18+ approximation-element
+            # constraint, e.g. `~int`) starts with `~` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `~` -- never true for how this
+            # constraint is actually written (always preceded by a space
+            # or `|` inside the type-parameter brackets). Never matched.
+            "generics": re.compile(r"\[[^\]]*(?:\b(?:any|comparable)\b|~[a-zA-Z_]\w*\b)[^\]]*\]|\bany\b"),
             # 21. comprehensions (Iterators / Comprehensions)
             # Functional iteration helpers from the slices/maps packages.
             "comprehensions": re.compile(r"\b(slices\.(?:Delete|Filter|Sort|Compact)|maps\.(?:Keys|Values))\b"),
@@ -1738,7 +1915,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Gofmt mandates tabs; finding spaces at start signals structural friction.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -1789,8 +1966,46 @@ LANGUAGE_DEFINITIONS = {
             "cleanup": re.compile(r"\b(defer|Close|Unlock|RUnlock|Stop|Cleanup)\b\s*\("),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             # Unexported identifiers (lowercase) in Go are private/internal.
+            # BUG FIX (two layered issues):
+            # 1. `^[ \t]*` allowed arbitrary leading whitespace, so this
+            #    matched ANY indented line starting with a lowercase word
+            #    -- effectively every statement in Go (`if`, `for`,
+            #    `return`, a bare function call, ...), since almost all
+            #    keywords and local identifiers are lowercase. gofmt never
+            #    indents real package-level declarations (always column
+            #    0), so anchored to `^` with no whitespace tolerance,
+            #    matching the same fix applied to `api` above.
+            # 2. Even after that fix, the `func` prefix in alt 1 was
+            #    OPTIONAL, so on a line like `func Foo() {` the engine
+            #    could skip matching "func" as the prefix and instead
+            #    fall through to matching the literal word "func" itself
+            #    via the bare `[a-z]\w+` fallback (since "func" is itself
+            #    lowercase) -- misclassifying an exported, PUBLIC function
+            #    as private. `type`/`var`/`const` don't have this problem
+            #    in alt 2 since consuming the keyword is mandatory there.
+            #    Made the `func` prefix mandatory in alt 1 too (Go has no
+            #    top-level declaration form other than these 4 keywords,
+            #    so there's no real case an optional prefix was needed for).
+            # 3. Column-0-only anchoring alone overcorrects: Go's grouped
+            #    `var (...)`/`const (...)` blocks legitimately indent their
+            #    member declarations, and an unexported member of one of
+            #    those groups IS still a private top-level identifier. The
+            #    no-prefix fallback keeps indentation tolerance for this
+            #    case, but requires it (bare col-0 identifiers aren't valid
+            #    Go outside a group) and explicitly excludes Go's
+            #    lowercase reserved keywords (which is what let `if`/`for`/
+            #    `return`/etc. through in the first place) and anything
+            #    immediately followed by `(` (a real function CALL
+            #    statement, not a `Name = value`/`Name Type` group member).
+            #    The trailing `\b` before the lookahead is required for
+            #    the same reason as in `api` above: without it, greedy
+            #    `\w+` can backtrack one character short of the real
+            #    identifier end purely to dodge the `(?!\()` check.
             "encapsulation": re.compile(
-                r"^[ \t]*(?:func\s+(?:\([^)]*\)[ \t]+)?)?[a-z]\w+|^[ \t]*(?:type|var|const)\s+[a-z]\w+",
+                r"^func\s+(?:\([^)]*\)[ \t]+)?[a-z]\w+|^(?:type|var|const)\s+[a-z]\w+"
+                r"|^[ \t]+(?!(?:if|else|for|switch|case|default|break|continue|goto|fallthrough"
+                r"|return|go|defer|select|range|func|type|var|const|package|import|struct"
+                r"|interface|map|chan|make|new|nil|true|false|iota)\b)\b[a-z]\w+\b(?!\()",
                 re.M,
             ),
             # 48. listeners (Event Listeners / Observers)
@@ -1802,7 +2017,12 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(json\.Unmarshal|json\.Marshal|xml\.Unmarshal|xml\.Marshal|gob\.NewEncoder)\b"
             ),
             "regex_execution": re.compile(r"\b(regexp\.Compile|regexp\.MustCompile|\.MatchString)\b"),
-            "time_date_logic": re.compile(r"\b(time\.Now\(\)|time\.Parse|time\.Duration|time\.Sleep|time\.Since)\b"),
+            # BUG FIX: `time\.Now\(\)` ends on `)` (non-word), so the
+            # shared trailing \b could never fire (whatever follows a
+            # function call -- `;`, a newline, another `.method()`, or end
+            # of string -- is never a word character). Go's single most
+            # common time-related call never matched in any real usage.
+            "time_date_logic": re.compile(r"\b(?:time\.Parse|time\.Duration|time\.Sleep|time\.Since)\b|time\.Now\(\)"),
             "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),
         },
     },
@@ -1834,15 +2054,6 @@ LANGUAGE_DEFINITIONS = {
         # unlike standard C/C++. Standard C parsing would prematurely terminate here.
         "lexical_family": "recursive_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Includes /// and //!)
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_start": re.compile(r"/\*"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES panic!/throw (bailout_hits).
@@ -1941,7 +2152,9 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(ndarray::|nalgebra::|num::|f32|f64|std::simd)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Metaprogramming and memory transmutation.
-            "reflection_metaprogramming": re.compile(r"\b(macro_rules!|std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"),
+            "reflection_metaprogramming": re.compile(
+                r"\b(macro_rules!|std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"
+            ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"\b(?:pub[ \t]+)?use\s+[^;]+;", re.M),
             "_dependency_capture": re.compile(
@@ -1978,7 +2191,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -2090,15 +2303,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # C++ uses '//' for standard line-level Literature (Commented / Non-Executable Text).
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Standard non-recursive delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # 1. branch (Control Flow / Branching)
             # Control flow jumps. Includes modern coroutine jumps (co_yield, co_await).
             # EXCLUDES exceptions (bailout_hits).
@@ -2268,7 +2472,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|render_template|Inja::|ctemplate::)\b"),
@@ -2377,15 +2581,6 @@ LANGUAGE_DEFINITIONS = {
         # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Modern C (C99+) uses '//' for standard line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the standard '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (The primary literature delimiter for all C eras).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and jumps. EXCLUDES exit/abort (bailout_hits).
@@ -2461,7 +2656,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Dangerous legacy functions and raw void manipulation.
-            "safety_bypasses": re.compile(r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"),
+            "safety_bypasses": re.compile(
+                r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"
+            ),
             # 8. danger (High-Risk Execution / System Calls)
             # Process killers and context switches. EXCLUDES prints (Phase 5).
             "high_risk_execution": re.compile(r"\b(system|popen|execl|execv|fork|longjmp|setjmp)\b"),
@@ -2542,7 +2739,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|khttp_parse|MHD_start_daemon|facil\.io)\b"),
@@ -2574,7 +2771,7 @@ LANGUAGE_DEFINITIONS = {
             "explicit_casts": re.compile(
                 # =====================================================================
                 # [ROADMAP: NESTED OPTIONAL SPACES (ReDoS TRAP)]
-                # FIX 2: `\s*[*]*\s*` is highly vulnerable to ReDoS if the payload 
+                # FIX 2: `\s*[*]*\s*` is highly vulnerable to ReDoS if the payload
                 # is spaced asterisks like `(int * * *)`. Flattened to strictly linear
                 # `[ \t\n]*(?:\*[ \t\n]*)*` to prevent any overlapping whitespace matching.
                 # =====================================================================
@@ -2655,14 +2852,6 @@ LANGUAGE_DEFINITIONS = {
         # comment styles (//, #, and /* */).
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # PHP supports both '//' and '#' for line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"//|#"),
-            # Inline comments follow the same dual-token logic.
-            "_inline_comment": re.compile(r"//|#"),
-            # Block comment start: /* '_block_start': re.compile(r'/\*'),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow. Includes modern match expression. EXCLUDES throw (bailout_hits).
@@ -2697,8 +2886,17 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Error suppression, dangerous eval, and loose equality.
+            # (?<![=!]) on the == branch: without it, `===`/`!==` (strict
+            # equality/inequality, explicitly SAFE per this language's own
+            # `safety` rule above) both still matched via their trailing `==`
+            # substring at a shifted offset -- same bug found in javascript.
+            # BUG FIX: the `@` error-suppression check required the next
+            # char to be a letter/underscore, matching `@someFunc()` but
+            # missing PHP's extremely common `@$array['key']`/`@$var`
+            # suppression idiom (silencing "undefined index" notices).
+            # Widened to also allow `$` immediately after `@`.
             "safety_bypasses": re.compile(
-                r"@(?:[a-zA-Z_\x80-\xff])|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|==(?!=)|!=(?!=)"
+                r"@(?:[a-zA-Z_\x80-\xff]|\$)|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
             ),
             # 8. danger (High-Risk Execution / System Calls)
             # Shell execution and process killers. EXCLUDES prints (Phase 5).
@@ -2712,12 +2910,23 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"\b(public)\b|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"),
             # 11. flux (State Mutation)
             # Mutation of state. Variable reassignments and array mutators.
+            # QUADRATIC BLOWUP FIX: the optional `(?:\w+)?` before the
+            # required-but-often-absent `->`/`::` was unbounded with no
+            # preceding \b anchor -- O(n^2) on a long run of word characters
+            # with neither token present. Bounded to {1,100}.
             "state_mutation": re.compile(
-                r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w+)?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
+                r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w{1,100})?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
+            # BUG FIX: the `function|class|namespace|use|if|foreach`
+            # keyword check only ran after `/*` (the rare block-comment
+            # form) -- a commented-out declaration using `//` (PHP's
+            # standard, far more common single-line comment style, e.g.
+            # `// function foo() {}`) never matched at all. Applied the
+            # same keyword check to both comment styles.
             "dead_code": re.compile(
-                r"//\s*[;{}]|/\*\s*(?:function|class|namespace|use|if|foreach)\s|#\s*\$|//\s*(?:echo|print|\$|return|var_dump)"
+                r"//\s*[;{}]|(?://|/\*)\s*(?:function|class|namespace|use|if|foreach)\b"
+                r"|#\s*\$|//\s*(?:echo|print|\$|return|var_dump)"
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@var|@deprecated|@property|@method"),
@@ -2727,19 +2936,43 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
+            # BUG FIX: `go\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # the paren -- never true for the zero-argument form (`go();`).
             "concurrency": re.compile(
-                r"\b(Fiber|yield|Swoole|React\\|Amp\\|Coroutine|go\(|await|suspend|resume|pcntl_fork)\b"
+                r"\b(?:Fiber|yield|Swoole|React\\|Amp\\|Coroutine|await|suspend|resume|pcntl_fork)\b|\bgo\("
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `view\s*\(`/`render\s*\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- never true for the common
+            # real call shape `view("index")`, where a quote follows.
             "ui_framework": re.compile(
-                r'\b(view\s*\(|render\s*\(|renderView|extends\s+Controller|Blade::|Twig\\Environment)\b|@(?:if|foreach|yield|section|extends)\b|<\?=|echo\s+[\'"]<|\{\{[^}]*\}\}|\{%\s*[^%]*\s*%\}'
+                r"\b(?:renderView|extends\s+Controller|Blade::|Twig\\Environment)\b"
+                r"|\bview\s*\(|\brender\s*\("
+                r'|@(?:if|foreach|yield|section|extends)\b|<\?=|echo\s+[\'"]<|\{\{[^}]*\}\}|\{%\s*[^%]*\s*%\}'
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"\b(?:function\s*\([^)]*\)\s*(?:use\s*\([^)]*\)\s*)?\{|fn\s*\([^)]*\)[ \t]*=>)"),
             # 18. globals (Global / Shared State)
-            "globals": re.compile(r"\b(\$_SERVER|\$_SESSION|\$_ENV|\$GLOBALS)\b|\bglobal\s+\$"),
+            # BUG FIX: the leading \b before `$_SERVER`/`$_SESSION`/
+            # `$_ENV`/`$GLOBALS` requires a word char immediately before
+            # the `$` -- never true in real PHP, where a superglobal is
+            # always preceded by whitespace, `=`, `(`, or a line start
+            # (all non-word). All 4 of PHP's most common superglobal
+            # accesses never matched at all. `$` is unambiguous as a
+            # start anchor on its own; no leading \b was needed.
+            "globals": re.compile(r"(?:\$_SERVER|\$_SESSION|\$_ENV|\$GLOBALS)\b|\bglobal\s+\$"),
             # 19. decorators (Decorators / Annotations)
-            "decorators": re.compile(r"#\[\s*[a-zA-Z0-9_:\\]+[^\]]*\]", re.M),
+            # BUG FIX (ReDoS): `[a-zA-Z0-9_:\\]+` and `[^\]]*` are two
+            # adjacent unbounded quantifiers matching an overlapping
+            # character set (both match plain letters/digits) -- against
+            # an adversarial attribute name with no closing `]`, every
+            # possible split between the two quantifiers gets tried
+            # before failing. Confirmed genuine O(n^2) scaling (0.045s/
+            # 0.18s/0.71s/2.85s for n=10k/20k/40k/80k, ~4x per doubling).
+            # Bounded both to reasonable caps.
+            "decorators": re.compile(r"#\[\s*[a-zA-Z0-9_:\\]{1,100}[^\]]{0,300}\]", re.M),
             # 20. generics (Generics / Type Parameters)
             # Simulated/Docblock generics.
             "generics": re.compile(
@@ -2797,7 +3030,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -2808,11 +3041,20 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(EventDispatcher|dispatchEvent|Listener|dispatch|broadcast|notify|Event::|listen)\b"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: `app\(`/`make\(` both end on `(` (non-word), so the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren -- never true for the zero-argument form
+            # (`app();`/`make();`).
             "dependency_injection": re.compile(
-                r"\b(ContainerInterface|Container|getContainer|inject|bind|singleton|app\(|make\()\b|#\[(?:Inject|Autowire)[^\]]*\]"
+                r"\b(?:ContainerInterface|Container|getContainer|inject|bind|singleton)\b"
+                r"|\bapp\(|\bmake\(|#\[(?:Inject|Autowire)[^\]]*\]"
             ),
             # 34. macros (Preprocessor Directives / Macros)
-            "macros": re.compile(r"\b(?:Macroable|macro\s*\(|mixin\s*\()\b"),
+            # BUG FIX: `macro\s*\(`/`mixin\s*\(` both end on `(` -- the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren, e.g. `mixin(new Foo())` worked (`new`
+            # follows) but `macro("foo", ...)` didn't (a quote follows).
+            "macros": re.compile(r"\bMacroable\b|\bmacro\s*\(|\bmixin\s*\("),
             # 35. pointers (Pointer Arithmetic / Memory Addressing)
             "pointers": re.compile(r"\b(FFI::cast|FFI::addr|FFI::scope|FFI::new)\b"),
             # 36. memory_alloc
@@ -2821,8 +3063,13 @@ LANGUAGE_DEFINITIONS = {
             "inline_asm": None,
             # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
             # 38. telemetry (Structured Logging / Telemetry)
+            # BUG FIX: `logger\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # the paren -- never true for the idiomatic Laravel chain form
+            # `logger()->info('message')`, where `)` follows.
             "telemetry": re.compile(
-                r"\b(?:Log::|LoggerInterface|logger\(|Monolog\\|error_log|Psr\\Log)\b.*?(?:info|error|warning|debug|trace|notice|critical|alert|emergency)\b",
+                r"(?:\b(?:Log::|LoggerInterface|Monolog\\|error_log|Psr\\Log)\b|logger\()"
+                r".*?(?:info|error|warning|debug|trace|notice|critical|alert|emergency)\b",
                 re.I,
             ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
@@ -2848,7 +3095,11 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\.on\(|addEventListener|subscribe|@KafkaListener|@RabbitListener"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(markTestSkipped|test\.skip|it\.skip|mock\(|fake\()\b"),
+            # BUG FIX: `mock\(`/`fake\(` both end on `(` (non-word), so the
+            # shared trailing \b only fired when a word char immediately
+            # followed the paren -- never true for the zero-argument form
+            # (`mock();`).
+            "test_skip": re.compile(r"\b(?:markTestSkipped|test\.skip|it\.skip)\b|\bmock\(|\bfake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (PHP Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(unserialize|serialize|json_decode|json_encode|simplexml_load_(?:string|file)|DOMDocument)\b"
@@ -2856,7 +3107,14 @@ LANGUAGE_DEFINITIONS = {
             "regex_execution": re.compile(
                 r"\b(preg_match(?:_all)?|preg_replace(?:_callback)?|preg_split|preg_filter)\b"
             ),
-            "time_date_logic": re.compile(r"\b(strtotime|DateTime(?:Immutable)?|date_create|time\s*\(|date\s*\()\b"),
+            # BUG FIX: `time\s*\(`/`date\s*\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- never true for the
+            # zero-argument form (`time()`) or a quoted format string
+            # (`date("Y-m-d")`).
+            "time_date_logic": re.compile(
+                r"\b(?:strtotime|DateTime(?:Immutable)?|date_create)\b|\btime\s*\(|\bdate\s*\("
+            ),
             "ipc_rpc_bridges": re.compile(r"\b(shell_exec|exec|system|passthru|proc_open|curl_exec|fsockopen)\b"),
         },
     },
@@ -2880,20 +3138,15 @@ LANGUAGE_DEFINITIONS = {
         ],
         # EXECUTION SIGNATURES: Modern cross-platform and legacy Windows interpreters found on Line 1.
         "shebangs": ["pwsh", "powershell"],
-        # UPGRADED: Maps to Family 4 (Hybrid Hash)
+        # Maps to Family 4 (Hybrid Hash) -- #621: this comment always said
+        # "Family 4 (Hybrid Hash)" but the value below was "standard_block"
+        # until now, meaning PowerShell shared a regex with C-style languages
+        # and got zero comment stripping (standard_block never used the `#`
+        # token). "embedded_syntax" is the real family for this shape.
         # Rationale: PowerShell uses '#' for single-line comments but relies on
         # a unique '<# #>' syntax for multi-line block comments, requiring hybrid parsing logic.
-        "lexical_family": "standard_block",
+        "lexical_family": "embedded_syntax",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # PowerShell uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: <#
-            "_block_start": re.compile(r"<#"),
-            # Block comment end: #>
-            "_block_end": re.compile(r"#>"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: decisions that split flow. Includes ternary operators (?) and null-coalescing (??).
             "branch": re.compile(
@@ -2910,8 +3163,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # func_start: Executable Logic Anchors. Anchors executable logic blocks.
             # EXCLUDES class/enum to fix False Positives.
+            # BUG FIX: the return-type bracket class `[^\]]+` couldn't
+            # represent one level of nested brackets, so a PS class method
+            # with a generic .NET return type (e.g.
+            # `[Dictionary[string,int]] GetMap() {` /
+            # `[System.Collections.Generic.List[string]] GetItems() {`) --
+            # a common real-world form -- never matched at all, unlike the
+            # identical non-generic form (`[int] GetValue() {`), which did.
             "func_start": re.compile(
-                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)|^[ \t]*\[[^\]]+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)"
+                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
                 re.I | re.M,
             ),
             # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
@@ -2975,8 +3236,13 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # concurrency: Temporal Static. Jobs, Runspaces, and PS7 Parallel pipelines.
+            # BUG FIX: `-Parallel` starts with `-` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `-` -- never true for how this
+            # ForEach-Object flag is actually written (preceded by
+            # whitespace). PS7's parallel pipeline feature never matched.
             "concurrency": re.compile(
-                r"\b(Start-Job|Wait-Job|Receive-Job|Start-ThreadJob|-Parallel|RunspaceFactory|PowerShell\.Create)\b",
+                r"\b(?:Start-Job|Wait-Job|Receive-Job|Start-ThreadJob|RunspaceFactory|PowerShell\.Create)\b|-Parallel\b",
                 re.I,
             ),
             # ui_framework: UI / View Components. WinForms/WPF bridges (Includes TBL WWW rendering emulation triggers).
@@ -2985,7 +3251,13 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # closures: Closures / Anonymous Functions. ScriptBlocks (The foundation of PS closures).
-            "closures": re.compile(r"\{\s*(?:param\s*\([^)]*\))?[^}]*\}", re.I),
+            # BUG FIX (ReDoS): the unbounded `[^}]*` before the closing `}`,
+            # combined with unanchored search, is O(n^2) on payloads with many
+            # `{` and no matching `}` (each of the n starting positions scans
+            # ~n chars before failing) -- confirmed via scaling measurements
+            # (~4x slowdown per input-size doubling). Bounded quantifiers cap
+            # the per-position scan cost, same fix shape as go/dart closures.
+            "closures": re.compile(r"\{\s{0,20}(?:param\s{0,10}\([^)]{0,300}\))?[^}]{0,500}\}", re.I),
             # globals: Global / Shared State. Environment and global/script scope variables.
             "globals": re.compile(
                 r"\$(?:global|env|script):[a-zA-Z_]\w*|\b(?:ErrorActionPreference|WarningPreference|ConfirmPreference)\b",
@@ -3014,8 +3286,14 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # import: Dependency Inclusions. Module and assembly loading.
+            # BUG FIX: the dot-sourcing alternative (`. .\script.ps1`)
+            # starts with `.` (non-word), so the shared leading \b could
+            # only fire when a word char immediately preceded the `.` --
+            # never true for how dot-sourcing is actually written (always
+            # preceded by whitespace or a line start). This common
+            # PowerShell module-loading idiom never matched at all.
             "import": re.compile(
-                r"\b(Import-Module|using\s+module|using\s+namespace|using\s+assembly|\.\s+[\w.\/\\]+\.ps1)\b",
+                r"\b(?:Import-Module|using\s+module|using\s+namespace|using\s+assembly)\b|\.\s+[\w.\/\\]+\.ps1\b",
                 re.I,
             ),
             # --- UPDATED LINE FOR THE ORCHESTRATOR ---
@@ -3032,7 +3310,7 @@ LANGUAGE_DEFINITIONS = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Structural formatting violating norms. Handled natively by the GitGalaxy Signal Processor.
             "tabs_vs_spaces": None,
             "ssr_boundaries": re.compile(
@@ -3096,8 +3374,18 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(
                 r"(?i)\b(ConvertFrom-Json|ConvertTo-Json|Import-Clixml|ConvertFrom-Csv|Import-Csv)\b"
             ),
+            # BUG FIX: `-match`/`-replace`/`-split` all start with `-`
+            # (non-word), so the shared leading \b could only fire when a
+            # word char immediately preceded the `-` -- never true for how
+            # these operators are actually written (always preceded by
+            # whitespace, after the left-hand operand). PowerShell's THREE
+            # most common native regex operators never matched at all.
+            # Same shape on `[regex]::` (leading `\b` before `[`, a
+            # non-word char, requires a preceding word char that's never
+            # actually there -- always whitespace, `=`, or line start) --
+            # dropped since `[` is already self-delimiting.
             "regex_execution": re.compile(
-                r"(?i)\b(-match|-replace|-split|Select-String|\[regex\]::(?:Match|Replace|Matches))\b"
+                r"(?i)-match\b|-replace\b|-split\b|\bSelect-String\b|\[regex\]::(?:Match|Replace|Matches)\b"
             ),
             "time_date_logic": re.compile(r"(?i)\b(Get-Date|New-TimeSpan|Start-Sleep|Measure-Command)\b"),
             "ipc_rpc_bridges": re.compile(
@@ -3141,14 +3429,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Relies strictly on '#' for line-level Commented / Non-Executable Text; no native block delimiters.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Shell uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: Shell lacks native multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].
@@ -3206,8 +3486,14 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"^[ \t]*export\s+[a-zA-Z_]\w*", re.M),
             # 11. flux (State Mutation)
             # Mutation of state via assignment or arithmetic.
+            # QUADRATIC BLOWUP FIX: the arithmetic-expansion branch's two
+            # `[^)]*` quantifiers were unbounded -- on a long run of unclosed
+            # `(` characters, each opening pair is a candidate match start
+            # scanning to the end looking for the required operator + `))`,
+            # for O(n^2) total. Bounded to {0,200} each; real `(( ... ))`
+            # arithmetic expressions don't get remotely that long.
             "state_mutation": re.compile(
-                r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?=(?![=~])|\b(?:let|declare)\s+[a-zA-Z_]\w*=|\[\+\]=|\(\([^)]*(?:\+\+|--|[-+*/%]=)[^)]*\)\)",
+                r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?=(?![=~])|\b(?:let|declare)\s+[a-zA-Z_]\w*=|\[\+\]=|\(\([^)]{0,200}(?:\+\+|--|[-+*/%]=)[^)]{0,200}\)\)",
                 re.M,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -3296,7 +3582,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"#\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Legacy CGI shell environments.
@@ -3404,15 +3690,6 @@ LANGUAGE_DEFINITIONS = {
         # utilizes the `=begin ... =end` block syntax, requiring hybrid parsing rules.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Ruby uses '#' for standard line-level literature (Commented / Non-Executable Text).
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: =begin (Must be at the absolute start of the line).
-            "_block_start": re.compile(r"^=begin", re.M),
-            # Block comment end: =end (Must be at the absolute start of the line).
-            "_block_end": re.compile(r"^=end", re.M),
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
             "branch": re.compile(
@@ -3473,8 +3750,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES const (freeze_hits).
+            # BUG FIX: the 6 bang-method alternatives (`merge!`, `update!`,
+            # `gsub!`, `map!`, `select!`, `reject!`) all end on `!`
+            # (non-word), so the shared trailing \b could never fire --
+            # whatever follows a Ruby bang-method call (`;`, `)`, a
+            # newline, another `.method`) is never a word character. None
+            # of Ruby's canonical in-place-mutation methods ever matched.
             "state_mutation": re.compile(
-                r"@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|@@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|\b(?:push|pop|shift|unshift|delete|clear|merge!|update!|gsub!|map!|select!|reject!)\b|<<"
+                r"@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|@@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?="
+                r"|\b(?:push|pop|shift|unshift|delete|clear)\b|<<"
+                r"|\bmerge!|\bupdate!|\bgsub!|\bmap!|\bselect!|\breject!"
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             "dead_code": re.compile(r"#[ \t]*(?:def|class|module|if|unless|while|puts|p)\b"),
@@ -3498,7 +3783,16 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(ActionView|render|render_to_string|ViewComponent::Base|Phlex::HTML|form_with|form_for|link_to|stylesheet_link_tag|Turbo|Stimulus|Hotwire)\b|<%|%>"
             ),
             # 17. closures (Closures / Anonymous Functions)
-            "closures": re.compile(r"\b(?:do\s*\|[^|]*\||do\b|\{\s*\|[^|]*\||->\s*(?:\([^)]*\))?[ \t]*\{)"),
+            # BUG FIX: all 4 alternatives shared one leading \b, but the
+            # brace-block (`{ |x| ... }`) and stabby-lambda (`->(x) { ... }`)
+            # forms both start with a non-word character (`{`/`-`) -- the
+            # shared leading \b could only fire when a word char
+            # immediately preceded them, never true for how these are
+            # actually written (preceded by whitespace, `=`, or a line
+            # start). Only the `do`-based forms ever matched; the brace
+            # block and stabby lambda -- two of Ruby's most common closure
+            # forms -- never did.
+            "closures": re.compile(r"\bdo\s*\|[^|]*\||\bdo\b|\{\s*\|[^|]*\||->\s*(?:\([^)]*\))?[ \t]*\{"),
             # 18. globals (Global / Shared State)
             "globals": re.compile(r"\$[a-zA-Z_]\w*|\b(ENV|ARGV|ARGF|STDIN|STDOUT|STDERR|RUBY_VERSION)\b"),
             # 19. decorators (Decorators / Annotations)
@@ -3518,8 +3812,11 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(Math|Complex|Rational|Matrix|Vector|Numo::NArray|BigDecimal)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Metaprogramming and runtime object extensions.
+            # BUG FIX: `respond_to_missing\?` ends on `?` (non-word), so the
+            # shared trailing \b could never fire. Never matched.
             "reflection_metaprogramming": re.compile(
-                r"\b(method_missing|define_method|const_missing|respond_to_missing\?|included|extended|prepended|class\s*<<\s*self)\b"
+                r"\b(?:method_missing|define_method|const_missing|included|extended|prepended|class\s*<<\s*self)\b"
+                r"|respond_to_missing\?"
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"\b(?:require|require_relative|load|autoload)\b[^'\"]*['\"]", re.M),
@@ -3557,7 +3854,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
@@ -3589,7 +3886,12 @@ LANGUAGE_DEFINITIONS = {
             # # 40. explicit_casts (Explicit Type Casting)
             "explicit_casts": re.compile(r"\b(Integer|Float|String|Array|Hash|Complex|Rational)\b\s*\("),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
-            "panics_and_aborts": re.compile(r"\b(raise|fail|abort|exit!)\b"),
+            # BUG FIX: `exit!` ends on `!` (non-word), so the shared
+            # trailing \b could never fire -- unlike high_risk_execution's
+            # copy of this same alternative (which is harmlessly masked by
+            # its own bare `exit` alternative), there's no bare `exit` here
+            # to save it. Never matched.
+            "panics_and_aborts": re.compile(r"\b(?:raise|fail|abort)\b|\bexit!"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
             "thread_sleeps": re.compile(r"\bsleep\b\s*[0-9.]+"),
             # 43. bitwise_ops (Bitwise Operations)
@@ -3611,7 +3913,10 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(r"\b(JSON\.parse|YAML\.load|Marshal\.load|Nokogiri::(?:XML|HTML))\b"),
             "regex_execution": re.compile(r"\b(Regexp\.new)\b|\.(match|scan|gsub|sub)\b|=~"),
             "time_date_logic": re.compile(r"\b(Time\.now|Date\.today|DateTime\.now|sleep)\b"),
-            "ipc_rpc_bridges": re.compile(r"\b(Open3|system\s*\(|IO\.popen|Net::HTTP|TCPSocket|%x\{)\b"),
+            # BUG FIX: `system\s*\(` ends on `(` and `%x\{` both starts and
+            # ends on non-word characters (`%` / `{`) -- the shared \b
+            # boundaries could never fire for either. Neither ever matched.
+            "ipc_rpc_bridges": re.compile(r"\b(?:Open3|IO\.popen|Net::HTTP|TCPSocket)\b|\bsystem\s*\(|%x\{"),
         },
     },
     "swift": {
@@ -3634,15 +3939,6 @@ LANGUAGE_DEFINITIONS = {
         # rather than standard C-style early termination.
         "lexical_family": "recursive_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_start": re.compile(r"/\*"),
-            # REQUIRED for Family 2: Recursive logic markers
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. Includes modern typed throws (throws(Error)).
@@ -3691,8 +3987,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
+            # BUG FIX: `try\?`/`as\?` both end on `?` (non-word), so the
+            # shared trailing \b could never fire -- whatever follows
+            # these operators (a space, then the expression) is never a
+            # word character. Neither of Swift's two most common
+            # error-softening operators ever matched.
             "safety": re.compile(
-                r"\b(guard\s+let|if\s+let|guard\s+var|if\s+var|try\?|as\?|catch|is|Sendable|Result|assert|precondition|Mutex)\b|@MainActor|\?\?"
+                r"\b(?:guard\s+let|if\s+let|guard\s+var|if\s+var|catch|is|Sendable|Result|assert|precondition|Mutex)\b"
+                r"|try\?|as\?|@MainActor|\?\?"
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Unsafe pointers and linter bypasses. EXCLUDES forced unwraps (moved to friction).
@@ -3703,13 +4005,23 @@ LANGUAGE_DEFINITIONS = {
             # Fatal traps and process killers. EXCLUDES TODO (debt) and print (print_hits).
             "high_risk_execution": re.compile(r"\b(fatalError|preconditionFailure|assertionFailure|abort|exit)\b"),
             # 9. io (I/O & Network Boundaries)
+            # BUG FIX: `Data\(contentsOf:`/`write\(to:` both end on `:`
+            # (non-word), so the shared trailing \b could never fire.
+            # Neither ever matched.
             "io": re.compile(
-                r"\b(URLSession|FileManager|FileHandle|Data\(contentsOf:|write\(to:|UserDefaults|CoreData|SwiftData|NWConnection)\b"
+                r"\b(?:URLSession|FileManager|FileHandle|UserDefaults|CoreData|SwiftData|NWConnection)\b"
+                r"|Data\(contentsOf:|write\(to:"
             ),
             # 10. api (Public Surface Area)
             # Exposed surface area. Explicit visibility and Objective-C bridges.
+            # BUG FIX: 7 of the 10 alternatives are `@`-prefixed attributes,
+            # which start with a non-word char -- the shared leading \b
+            # could only fire when a word char immediately preceded the
+            # `@`, never true for how attributes are actually written.
+            # Never matched at all.
             "api": re.compile(
-                r"\b(public|open|package|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published)\b"
+                r"\b(?:public|open|package)\b"
+                r"|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published"
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES let (freeze_hits).
@@ -3730,8 +4042,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(async|await|actor|Task|TaskGroup|DispatchQueue|OperationQueue|MainActor|Sendable|isolated|nonisolated|continuation)\b"
             ),
             # 16. ui_framework (UI / View Components)
+            # BUG FIX: `@State`/`@Binding`/`@Environment` are `@`-prefixed --
+            # same leading-\b bug as api above.
             "ui_framework": re.compile(
-                r"\b(View|Body|ZStack|VStack|HStack|Text|Image|Button|SwiftUI|UIKit|AppKit|UIView|UIViewController|NSView|NSWindow|@State|@Binding|@Environment)\b"
+                r"\b(?:View|Body|ZStack|VStack|HStack|Text|Image|Button|SwiftUI|UIKit|AppKit|UIView|UIViewController|NSView|NSWindow)\b"
+                r"|@State|@Binding|@Environment"
             ),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(
@@ -3755,8 +4070,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Reflection and Dynamic Dispatch.
+            # BUG FIX: `@objc` is `@`-prefixed -- same leading-\b bug.
             "reflection_metaprogramming": re.compile(
-                r"\b(@objc|dynamic|Mirror\(|unsafeBitCast|withUnsafe\w+|KeyPath|WritableKeyPath)\b|\\\.[\w.]+"
+                r"\b(?:dynamic|Mirror\(|unsafeBitCast|withUnsafe\w+|KeyPath|WritableKeyPath)\b|@objc|\\\.[\w.]+"
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"^[ \t]*(?:@_exported[ \t]+)?import\s+[a-zA-Z_]\w*", re.M),
@@ -3773,19 +4089,26 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(Vapor|Hummingbird|Request|Response|Route|app\.get|app\.post|EventLoopFuture)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: `@Published` is `@`-prefixed -- same leading-\b bug.
+            # (`.sink`/`.assign` are left as-is: a leading `.` is preceded
+            # by an identifier in real method-chain usage, e.g.
+            # `publisher.sink { ... }`, so that leading \b fires correctly.)
             "events": re.compile(
-                r"\b(NotificationCenter|Combine|Publisher|Subscriber|CurrentValueSubject|PassthroughSubject|AnyCancellable|\.sink|\.assign|@Published|ObservableObject|Observation)\b"
+                r"\b(?:NotificationCenter|Combine|Publisher|Subscriber|CurrentValueSubject|PassthroughSubject|AnyCancellable|ObservableObject|Observation)\b"
+                r"|\.sink|\.assign|@Published"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
+            # BUG FIX: `@Environment`/`@EnvironmentObject`/`@Inject`/
+            # `@Dependency` are all `@`-prefixed -- same leading-\b bug.
             "dependency_injection": re.compile(
-                r"\b(@Environment|@EnvironmentObject|@Inject|@Dependency|Swinject|Container|Resolver|Factory)\b"
+                r"\b(?:Swinject|Container|Resolver|Factory)\b|@Environment|@EnvironmentObject|@Inject|@Dependency"
             ),
             # 34. macros (Preprocessor Directives / Macros)
             "macros": re.compile(
@@ -3796,8 +4119,11 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(?:Unsafe(?:Mutable)?(?:Raw|Buffer)?Pointer|OpaquePointer|CVaListPointer|Unmanaged)\b|\.pointee\b|(?<=[=\s,(])&\w+"
             ),
             # 36. memory_alloc (Manual Memory Management)
+            # BUG FIX: `\.allocate\(capacity:` ends on `:` and
+            # `\.deallocate\(\)` ends on `)` -- both non-word, so the
+            # shared trailing \b could never fire. Neither ever matched.
             "memory_alloc": re.compile(
-                r"\b(?:malloc|calloc|free|\.allocate\(capacity:|\.deallocate\(\)|ManagedBuffer)\b"
+                r"\b(?:malloc|calloc|free|ManagedBuffer)\b|\.allocate\(capacity:|\.deallocate\(\)"
             ),
             # 37. inline_asm
             "inline_asm": None,  # Swift delegates ASM to C-headers.
@@ -3833,7 +4159,12 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\.onAppear\(|\.onChange\(|\.sink\(|addObserver|subscribe"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(XCTSkip|mock\(|stub\(|fake\(|double\()\b"),
+            # BUG FIX: `mock\(`/`stub\(`/`fake\(`/`double\(` all end on `(`
+            # (non-word), so the shared trailing \b only fired when a word
+            # char immediately followed the paren -- true for most
+            # single-argument calls, but never for the zero-argument form
+            # (`double()`), where `)` follows instead.
+            "test_skip": re.compile(r"\bXCTSkip\b|\bmock\(|\bstub\(|\bfake\(|\bdouble\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Swift Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(JSONDecoder|JSONEncoder|PropertyListSerialization|NSKeyedUnarchiver|XMLParser)\b"
@@ -3841,11 +4172,14 @@ LANGUAGE_DEFINITIONS = {
             "regex_execution": re.compile(
                 r"\b(NSRegularExpression|Regex|try\s+Regex|\.range\(of:.*\.regularExpression)\b"
             ),
+            # BUG FIX: `Date\(\)` ends on `)` (non-word), so the shared
+            # trailing \b could never fire. Never matched.
             "time_date_logic": re.compile(
-                r"\b(Date\(\)|Calendar\.current|DateFormatter|DispatchTime\.now|Timer\.scheduledTimer)\b"
+                r"\b(?:Calendar\.current|DateFormatter|DispatchTime\.now|Timer\.scheduledTimer)\b|\bDate\(\)"
             ),
+            # BUG FIX: `Process\(\)` ends on `)` -- same bug. Never matched.
             "ipc_rpc_bridges": re.compile(
-                r"\b(URLSession|NSXPCConnection|Process\(\)|NotificationCenter|DispatchQueue)\b"
+                r"\b(?:URLSession|NSXPCConnection|NotificationCenter|DispatchQueue)\b|\bProcess\(\)"
             ),
         },
     },
@@ -3853,7 +4187,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Kotlin 2.3.10 (K2 Compiler / Wasm / Java 25 Support)",
             "last_updated": "2026-03-12",
-            "blueprint_version": "v6.3.1",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard sources, Kotlin script files (heavily used in modern Gradle), and module declarations.
@@ -3874,15 +4208,6 @@ LANGUAGE_DEFINITIONS = {
         # block comments (/* /* */ */). Using standard C parsing would cause early termination here.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /*
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. Includes modern 'when' and Elvis operator.
@@ -4013,15 +4338,20 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(ApplicationCall|call\.respond|call\.respondText|call\.respondHtml|ServerResponse|ModelAndView)\b"
             ),
             # 32. events (Event Emitters / Pub-Sub)
+            # BUG FIX: required a literal `(`, but Kotlin's idiomatic
+            # SAM-conversion trailing-lambda form (`flow.collect { value ->
+            # ... }`, omitting the parens entirely) is the dominant
+            # real-world style for Flow collectors -- more common than the
+            # parenthesized form. Widened to accept either `(` or `{`.
             "events": re.compile(
-                r"\.(?:collect|collectLatest|observe|subscribe|onNext)\(|\b(LiveData|Observer|Observable|FlowCollector)\b"
+                r"\.(?:collect|collectLatest|observe|subscribe|onNext)\s*[\(\{]|\b(LiveData|Observer|Observable|FlowCollector)\b"
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
             "dependency_injection": re.compile(
@@ -4062,18 +4392,40 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Access Modifiers / Encapsulation)
             "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\.(?:collect|observe|subscribe|on[A-Z]\w*|set[A-Z]\w*Listener)\("),
+            # BUG FIX: required a literal `(`, but the idiomatic Kotlin
+            # SAM-conversion trailing-lambda form (`button.setOnClickListener
+            # { ... }`, omitting the parens entirely) is the dominant
+            # real-world style for Android/Compose listeners. Widened to
+            # accept either `(` or `{`.
+            "listeners": re.compile(r"\.(?:collect|observe|subscribe|on[A-Z]\w*|set[A-Z]\w*Listener)\s*[\(\{]"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mockk|spyK|fake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Kotlin Specifics) ---
+            # BUG FIX: `Gson\(\)` ends on `)` -- shared trailing \b never
+            # fired. Never matched.
             "serialization_parsing": re.compile(
-                r"\b(Json\.decodeFromString|Json\.encodeToString|Gson\(\)|Moshi|ObjectMapper)\b"
+                r"\b(?:Json\.decodeFromString|Json\.encodeToString|Moshi|ObjectMapper)\b|\bGson\(\)"
             ),
-            "regex_execution": re.compile(r"\b(Regex\(\)|\.toRegex\(\)|\.matches\(|\.find\()\b"),
+            # BUG FIX: `Regex\(\)` required LITERALLY EMPTY parens, but
+            # Kotlin's `Regex` class has no zero-arg constructor -- real
+            # usage is always `Regex(pattern)`, which never matched even
+            # before the `\)` trailing-\b bug is considered. Widened to
+            # `Regex\(` (matching the constructor call regardless of its
+            # argument). `\.toRegex\(\)` (the real zero-arg extension
+            # function on String) keeps its literal empty parens but still
+            # needed the same trailing-\b fix as the rest of this sweep.
+            "regex_execution": re.compile(r"\bRegex\(|\.toRegex\(\)|\.matches\(|\.find\("),
             "time_date_logic": re.compile(
                 r"\b(Clock\.System\.now|Instant\.now|System\.currentTimeMillis|Duration\.minutes|LocalDate)\b"
             ),
-            "ipc_rpc_bridges": re.compile(r"\b(Intent\(|BroadcastReceiver|HttpClient\(|ProcessBuilder|bindService)\b"),
+            # BUG FIX: `Intent\(`/`HttpClient\(` both end on `(` (non-word),
+            # so the shared trailing \b only fired when a word char
+            # immediately followed the paren -- true for the common
+            # `Intent(this, Foo::class.java)` form, but never for the
+            # zero-argument form (`HttpClient()`), where `)` follows.
+            "ipc_rpc_bridges": re.compile(
+                r"\b(?:BroadcastReceiver|ProcessBuilder|bindService)\b|\bIntent\(|\bHttpClient\("
+            ),
         },
     },
     "sqlite": {
@@ -4099,19 +4451,14 @@ LANGUAGE_DEFINITIONS = {
         ],
         # EXECUTION SIGNATURES: Interpreters found on Line 1.
         "shebangs": ["sqlite3", "sqlite"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # Maps to Family 5 (Hybrid Dash) -- #621: this comment always said
+        # "Family 5 (Hybrid Dash)" but the value below was "standard_block"
+        # until now, so sqlite shared a regex with C-style languages and got
+        # zero comment stripping (standard_block never used the `--` token).
+        # "multi_style_dash" is the real family for this shape.
         # Rationale: Uses '--' for line-level and '/*' '*/' for block-level Commented / Non-Executable Text.
-        "lexical_family": "standard_block",
+        "lexical_family": "multi_style_dash",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # SQLite uses '--' for standard line-level literature.
-            "_line_anchor": re.compile(r"--"),
-            # Inline comments are also triggered by the '--' token.
-            "_inline_comment": re.compile(r"--"),
-            # Block comment start: /*
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical filters. Includes case logic and modern IIF().
@@ -4168,7 +4515,9 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 8. danger (High-Risk Execution / System Calls)
             # Destructive schema actions and system bypasses.
-            "high_risk_execution": re.compile(r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE|\.shell|\.system|\.exit|\.quit)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE|\.shell|\.system|\.exit|\.quit)\b"
+            ),
             # 9. io (I/O & Network Boundaries)
             "io": re.compile(
                 r"\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|ATTACH\s+DATABASE|DETACH\s+DATABASE|\.import|\.output|\.dump|\.read|readfile|writefile)\b",
@@ -4257,7 +4606,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"--\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -4365,15 +4714,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses SGML-style block delimiters () exclusively; no single-line anchor.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # EXPLICIT: HTML has no native single-line comment anchor.
-            "_line_anchor": None,
-            # EXPLICIT: HTML has no native inline comment token.
-            "_inline_comment": None,
-            # Block comment start: Standard SGML/XML literature delimiter.
-            "_block_start": re.compile(r"<!--"),
-            # Block comment end: Accept both --> and permissive HTML parser form --!>.
-            "_block_end": re.compile(r"--!?>"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # User-driven branching and declarative framework conditionals.
@@ -4509,7 +4849,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Back-end template engine hydration.
@@ -4600,20 +4940,16 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses '/*' and '*/' for blocks; preprocessors add '//' for lines.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Standard C-family line comment token (Supported in SCSS/SASS/LESS).
-            "_line_anchor": re.compile(r"//"),
-            # Inline comments follow the same '//' delimiter.
-            "_inline_comment": re.compile(r"//"),
-            # Block comment start: /* (Native vanilla CSS literature delimiter).
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical gating. Includes Container/Media queries and logic-gating pseudo-selectors.
+            # BUG FIX: all 4 at-rule alternatives start with `@` (non-word),
+            # so the shared leading \b could only fire when a word char
+            # immediately preceded the `@` -- never true for how at-rules
+            # are actually written (preceded by whitespace or a line
+            # start). None of these ever matched at all.
             "branch": re.compile(
-                r"\b(@media|@supports|@container|@starting-style)\b|:(?:has|is|where|not)\s*\([^)]*\)",
+                r"@media\b|@supports\b|@container\b|@starting-style\b|:(?:has|is|where|not)\s*\([^)]*\)",
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
@@ -4624,8 +4960,10 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (none in CSS) and !important (freeze_hits).
+            # BUG FIX: all 8 at-rule alternatives are `@`-prefixed -- same
+            # leading-\b bug as branch above. None ever matched.
             "structural_boundaries": re.compile(
-                r"\b(@layer|@scope|@property|@font-face|@keyframes|@page|@charset|@namespace)\b",
+                r"@layer\b|@scope\b|@property\b|@font-face\b|@keyframes\b|@page\b|@charset\b|@namespace\b",
                 re.I,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -4740,7 +5078,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -4845,17 +5183,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
         "lexical_family": "positional_anchored",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Line Anchor Logic:
-            # Matches Column 1 indicators for Legacy (C, c, *, d, D)
-            # and start-of-line '!' for Modern/Free-form.
-            "_line_anchor": re.compile(r"^[Cc*!dD](?!\$)"),
-            # Inline Comment Logic:
-            # Modern Fortran (90+) uses '!' for trailing literature/Commented / Non-Executable Text.
-            "_inline_comment": re.compile(r"!(?!\$)"),
-            # EXPLICIT: Fortran does not support standard multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.
@@ -4977,8 +5304,22 @@ LANGUAGE_DEFINITIONS = {
             # 11. flux (State Mutation)
             # Mutation of state. Variable assignments and standard memory manipulations.
             # Captures standard `=` (avoiding `==`, `<=`, etc.)
+            # TWO FIXES:
+            # 1. QUADRATIC BLOWUP: the unbounded `[A-Za-z0-9_%()]+` (no \b
+            #    anchor) got retried at every position in a long `=`-less
+            #    line, backtracking O(n) per position for O(n^2) total.
+            #    Bounded to {0,199}; real Fortran variable/array-element
+            #    expressions (even with subscripts) don't get remotely
+            #    that long.
+            # 2. KIND=/LEN=/etc EXCLUSION WAS LEAKY: the negative lookahead
+            #    only blocks a match starting exactly at "KIND", not one
+            #    starting mid-word (e.g. "KIND = 5" still matched "IND = "
+            #    starting at position 1, since \bKIND doesn't apply there).
+            #    Added a real `\b` + explicit `[A-Za-z_]` first-char
+            #    requirement so the match can only start at a genuine word
+            #    boundary, where the exclusion lookahead actually applies.
             "state_mutation": re.compile(
-                r"(?!\b(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION)\s*=)[A-Za-z0-9_%\(\)]+[ \t]*=[^=>]",
+                r"(?!\b(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION)\s*=)\b[A-Za-z_][A-Za-z0-9_%\(\)]{0,199}[ \t]*=[^=>]",
                 re.I,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -4992,8 +5333,12 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 14. test (Testing & Assertions)
             # Test frameworks like pFUnit, generic assertions, and verification routines.
+            # BUG FIX: all 5 pFUnit alternatives are `@`-prefixed -- the
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how these annotations are
+            # actually written. None ever matched at all.
             "test": re.compile(
-                r"\b(?:@test|@assertEqual|@assertTrue|@assertFalse|@assertException)\b|call[ \t]+assert_[a-z_]+",
+                r"@test\b|@assertEqual\b|@assertTrue\b|@assertFalse\b|@assertException\b|call[ \t]+assert_[a-z_]+",
                 re.I,
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -5059,7 +5404,7 @@ LANGUAGE_DEFINITIONS = {
             # Audit tags establishing traceability of intent back to physics papers or architectural specifications.
             # CRITICAL: Removed (?i) to enforce strict uppercase [SPEC-XYZ] tags and prevent prose collisions.
             "spec_exposure": re.compile(r"\[\s*(?:SPEC\s*-\s*\d+|AUDIT-[A-Z0-9_-]+)\s*\]"),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Identifies Tab indentation. In Legacy Fortran 77, columns strictly dictate syntax (1-5 label, 6 continuation, 7+ code).
             # Using tabs violates strict standard constraints, establishing heavy tech debt/formatter civil wars.
             "tabs_vs_spaces": None,
@@ -5177,15 +5522,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses unique line delimiters ';' (NASM/Intel) and '#' (GAS/ARM).
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Assembly uses ';' or '#' for standard line-level literature.
-            # (Note: '//' is occasionally used in modern GAS but ';' remains the anchor).
-            "_line_anchor": re.compile(r"[;#]"),
-            # Inline comments are triggered by the same ';' or '#' tokens.
-            "_inline_comment": re.compile(r"[;#]"),
-            # EXPLICIT: Standard Assembly does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES system exits/halts (bailout_hits).
@@ -5303,7 +5639,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|rfc)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -5396,14 +5732,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Digitized source uses '#' for line-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # AGC digitized source uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: AGC Assembly does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES fatal alarms (bailout_hits).
@@ -5532,7 +5860,7 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(GSOP|LUMINARY|COMANCHE|COLOSSUS|SUNDISK|SUNBURST|PCR\s*\d+|PCN\s*\d+|SPEC\s*-\s*\d+|#\s*REF:)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -5596,27 +5924,23 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".lua", ".luacheckrc", "stylua.toml", ".rockspec"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for CLI, Game-Engine, and embedded scripts.
         "shebangs": ["lua", "luajit", "luau", "texlua"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # Maps to Family 5 (Hybrid Dash) -- #621: this comment always said
+        # "Family 5 (Hybrid Dash)" but the value below was "standard_block"
+        # until now, so lua shared a regex with C-style languages and got
+        # zero comment stripping (standard_block never used the `--` token).
+        # "multi_style_dash" is the real family for this shape.
         # Rationale: Uses '--' for lines and '--[[ ... ]]' for blocks.
-        "lexical_family": "standard_block",
+        "lexical_family": "multi_style_dash",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Lua uses '--' for standard line-level literature.
-            "_line_anchor": re.compile(r"--"),
-            # Inline comments are also triggered by the '--' token.
-            "_inline_comment": re.compile(r"--"),
-            # Block comment start: --[[
-            # (Note: Lua supports long-brackets, but --[[ is the standard signature)
-            "_block_start": re.compile(r"--\[=*\["),
-            # Block comment end: Catches standard ]] and long-bracket ]=] styles
-            "_block_end": re.compile(r"\]=*\]"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
             "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|goto|and|or|not)\b"),
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
             "args": re.compile(r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?\([^)]*\)"),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
-            "structural_boundaries": re.compile(r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"),
+            "structural_boundaries": re.compile(
+                r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"
+            ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (named functions).
             "func_start": re.compile(
                 # =====================================================================
@@ -5645,7 +5969,9 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(rawget|rawset|rawlen|debug\.[a-zA-Z0-9_]+|collectgarbage|_G|_ENV|getfenv|setfenv)\b"
             ),
             # 8. danger: High-Risk Execution. Dynamic evaluation and OS-level execution hooks.
-            "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"
+            ),
             # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
             "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.close|io\.input|io\.output|io\.popen|os\.getenv)\b"),
             # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
@@ -5783,7 +6109,11 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation
             "encapsulation": re.compile(r"\b(local|_ENV)\b|---@private", re.M),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\b(on\s*\(|subscribe|Connect|addEventListener)\b"),
+            # BUG FIX: `on\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b could only fire when a word char immediately
+            # followed the paren -- never true for the common real call
+            # shape `emitter:on('event', cb)`, where a quote follows.
+            "listeners": re.compile(r"\bon\s*\(|\b(?:subscribe|Connect|addEventListener)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(xdescribe|xit|skip)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Lua Specifics) ---
@@ -5819,18 +6149,17 @@ LANGUAGE_DEFINITIONS = {
         # EXECUTION SIGNATURES: Interpreters found on Line 1.
         "shebangs": ["perl", "perl5", "perl6"],
         # UPGRADED: Maps to Family 6 (Polyglot)
-        # Rationale: Perl’s interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
-        "lexical_family": "standard_block",
+        # Rationale: Perl's interaction with POD documentation blocks (=head, =cut) and embedded regex makes it a true polyglot lexical engine.
+        # #621: was "standard_block" (shared a regex with C-style languages,
+        # got zero comment stripping -- standard_block never used the `#`
+        # token). "line_exclusive" fixes the basic `#` line-comment case
+        # (needed no new family at all -- line_exclusive's own delimiter
+        # table already leads with `#`). The full "Polyglot" vision in the
+        # rationale above -- POD blocks (=head/=cut) -- is NOT covered by
+        # this; line_exclusive's real config has Ruby's =begin/=end but not
+        # Perl's own POD markers. Known remaining gap, not fixed here.
+        "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Perl uses '#' for standard line-level literature.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # Block comment start: Perl uses POD (Plain Old Documentation) blocks.
-            "_block_start": re.compile(r"^=\w+", re.M),
-            # Block comment end: POD blocks are explicitly closed by '=cut'.
-            "_block_end": re.compile(r"^=cut", re.M),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
             "branch": re.compile(
@@ -5876,11 +6205,42 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. Defensive constructs (strict, warnings, safe exceptions).
+            # BUG FIX: `eval[ \t]*\{` was inside the shared \b(...)\b wrapper.
+            # It ends on the literal `{` (non-word), so the trailing \b only
+            # matched when a word character immediately followed the brace
+            # (e.g. `eval{risky()}`) -- the far more common idiomatic style
+            # with a space after `{` (`eval { risky(); }`) has a non-word
+            # char (the space) right after the brace, so the boundary could
+            # never fire and the whole safe-eval-block form silently never
+            # matched. Also widened `[ \t]*` to `[ \t\n]*` to match perl's own
+            # vertical func_start shield -- a vertically-placed opening brace
+            # (`eval\n{`) is valid, if less common, style.
             "safety": re.compile(
-                r"\b(use\s+strict|use\s+warnings|use\s+v5\.\d+|croak|confess|try|catch|finally|eval[ \t]*\{|defer|isa|DOES)\b|->isa\b|->DOES\b"
+                r"\b(?:use\s+strict|use\s+warnings|use\s+v5\.\d+|croak|confess|try|catch|finally|defer|isa|DOES)\b"
+                r"|\beval[ \t\n]*\{|->isa\b|->DOES\b"
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing safety (no strict, string eval).
-            "safety_bypasses": re.compile(r'\b(no\s+strict|no\s+warnings|eval\s*["\']|eval\s+(?!\w|{)|goto\s+\&)\b'),
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # `eval\s+(?!\w|{)` and `goto\s+\&` both end on a non-word
+            # character by construction (the negative lookahead guarantees
+            # the char after the trailing whitespace isn't \w, and `&` is
+            # never a word char) -- so the shared trailing \b, which needs a
+            # non-word/word transition, could never be satisfied. This
+            # silently dropped the two most common dangerous idioms:
+            # `eval $code;` / `eval($code);` (string-eval on a variable, not
+            # a literal) and `goto &$sub;` (dynamic dispatch). Each
+            # alternative now carries only the boundary that makes sense for
+            # its own shape. Also added a dedicated `eval\s*\(` alternative
+            # so the equally common no-space function-call form
+            # `eval($code)` is caught alongside `eval $code` -- naively
+            # widening the existing `eval\s+(?!\w|{)` to `eval\s*(?!\w|{)`
+            # doesn't work here, since `\s*` can backtrack to zero-width and
+            # let the lookahead be satisfied by the whitespace character
+            # itself, re-admitting the safe `eval q{1}` / `eval { ... }`
+            # bareword and block forms this guard exists to exclude.
+            "safety_bypasses": re.compile(
+                r'\b(?:no\s+strict|no\s+warnings)\b|\beval\s*["\']|\beval\s*\(|\beval\s+(?!\w|{)|\bgoto\s+&'
+            ),
             # 8. danger: High-Risk Execution. Process killers and raw shell execution.
             "high_risk_execution": re.compile(r"\b(system|exec|exit|qx|CORE::dump)\b|`[^`]+`"),
             # 9. io: I/O & Network Boundaries. Disk, Network, DBI, and standard handles.
@@ -5919,8 +6279,16 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. Anonymous subroutines.
             "closures": re.compile(r"\bsub\s*(?:\([^)]*\))?[ \t]*\{"),
             # 18. globals: Global / Shared State. Magic variables and system globals.
+            # BUG FIX: `$$`, `$@`, `$!`, and `$?` were inside the shared
+            # trailing \b group. Each ends on a symbolic, non-word character,
+            # so the trailing \b (needed for the word-ending alternatives,
+            # to stop `$a` from matching inside `$abc`) could only fire when
+            # a word char immediately followed -- never true for how these
+            # 4 special vars are actually written (`$$;`, `if ($@)`, `warn
+            # $!;`, `$? >> 8`). All 4 of the most common Perl magic
+            # variables silently never matched.
             "globals": re.compile(
-                r"(?:\$a|\$b|\$_|\$\$|\$@|\$!|\$\?|\$0|%ENV|%SIG|@ARGV|@INC)\b|^[ \t]*our\s+[\$@%]",
+                r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b|\$\$|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
                 re.M,
             ),
             # 19. decorators: Decorators / Annotations. Subroutine and variable attributes.
@@ -6021,19 +6389,46 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation Explicitly hiding logic from the rest of the application.
             "encapsulation": re.compile(r"\b(my|state|local)\b|:private\b"),
             # 48. listeners (Event Listeners / Observers) Waiting to receive state from an external broadcast.
-            "listeners": re.compile(r"\b(on\s*\(|subscribe\s*\(|add_listener)\b"),
+            # BUG FIX: `on\s*\(` and `subscribe\s*\(` both end in a literal
+            # `(` (non-word), so the shared trailing \b could only fire when
+            # a word char immediately followed -- never true for the most
+            # common real call shape, `on('event', ...)`, where a quote
+            # follows the paren. Both never matched at all.
+            "listeners": re.compile(r"\bon\s*\(|\bsubscribe\s*\(|\badd_listener\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs) Code that bypasses test verification.
             "test_skip": re.compile(r"\b(skip|todo_skip)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Perl Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(Storable::(?:thaw|fd_retrieve)|JSON::(?:decode_json|from_json)|YAML::(?:Load|LoadFile))\b"
             ),
+            # BUG FIX: the trailing `\s*[/\W]` allowed the delimiter check to
+            # be satisfied by an ordinary whitespace/punctuation character
+            # that has nothing to do with a regex delimiter -- `\W` matches
+            # ANY non-word char, including plain space. This meant an
+            # ordinary bareword-named scalar (`$s`, `$m`, `$y`) followed by
+            # any operator or even just a space (`$s = 5;`, `my $y = 1;`)
+            # was misclassified as the `s///`/`m//`/`y///` operator. Dropped
+            # `\s*` (real delimiter usage never has a space before the
+            # opening delimiter) and narrowed the trailing class to actual
+            # Perl regex delimiter punctuation, excluding whitespace and the
+            # ordinary-code characters (`=`, `;`, `,`) that triggered the
+            # false positive.
             "regex_execution": re.compile(
-                r"(=~|!~|\b(?:qr|m|s|tr|y)\b\s*[/\W])"
+                r"(=~|!~|\b(?:qr|m|s|tr|y)\b[/{}\[\]()<>!|#~^])"
             ),  # Catches Perl's native binding operators and regex quotes
             "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep|time)\b"),
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # \b requires a word/non-word transition; `system\s*\(` and
+            # `exec\s*\(` both END in a literal `(` (non-word), so the
+            # trailing \b could never match once the paren was followed by
+            # anything else non-word (e.g. a string-literal quote or
+            # variable sigil) -- meaning `system("ls")` and `exec("ls")`,
+            # the two most common forms, never matched at all. Each
+            # alternative now carries only the boundary that makes sense
+            # for its own shape (leading \b for word-prefixed forms, none
+            # for the punctuation-delimited backtick form).
             "ipc_rpc_bridges": re.compile(
-                r"\b(system\s*\(|exec\s*\(|fork|IPC::Open[23]|qx\b|`.*`)\b"
+                r"\bsystem\s*\(|\bexec\s*\(|\bfork\b|\bIPC::Open[23]\b|\bqx\b|`.*`"
             ),  # Backticks and qx// are shell executions
         },
     },
@@ -6052,20 +6447,17 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".hs", ".lhs", "stack.yaml", "cabal.project", ".cabal"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for script-based Haskell execution.
         "shebangs": ["runhaskell", "runghc", "stack", "ghci"],
-        # UPGRADED: Maps to Family 5 (Hybrid Dash)
+        # UPGRADED: Maps to Family 5 (Hybrid Dash) -- #621: this comment
+        # named the wrong family; "Hybrid Dash"/multi_style_dash doesn't
+        # nest, and this rationale explicitly says Haskell's blocks DO nest.
+        # "recursive_block_haskell" reuses the same iterative nested-peel
+        # algorithm as recursive_block (Rust/Swift/Dart/Scala) with
+        # Haskell's own -- / {- / -} tokens instead of C-style ones. Was
+        # "standard_block" until now, meaning zero comment stripping at all
+        # (standard_block never used the `--`/`{-`/`-}` tokens).
         # Rationale: Uses '--' for lines and '{- -}' for blocks, which strictly supports recursive nesting.
-        "lexical_family": "standard_block",
+        "lexical_family": "recursive_block_haskell",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Haskell uses '--' for line-level Commented / Non-Executable Text.
-            # CRITICAL GUARDRAIL: Negative lookahead ensures we don't accidentally split on custom operators like '-->'
-            "_line_anchor": re.compile(r"--+(?![!#$%&*+./<=>?@\\^|~-])"),
-            # Inline comments follow the same highly-specific symbol guard
-            "_inline_comment": re.compile(r"--+(?![!#$%&*+./<=>?@\\^|~-])"),
-            # Block comment start: {-
-            "_block_start": re.compile(r"\{-"),
-            # Block comment end: -}
-            "_block_end": re.compile(r"-\}"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: decisions that split flow. Includes guards (|) and modern \cases.
             "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
@@ -6104,7 +6496,9 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(unsafePerformIO|unsafeCoerce|error|undefined|fromJust|head|tail|init|last|throw|unsafeFixIO)\b"
             ),
             # danger: High-Risk Execution. Forceful aborts and Debug-trace leaks in production.
-            "high_risk_execution": re.compile(r"\b(die|exitWith|exitFailure|Debug\.Trace|trace|traceShow|traceIO|traceM)\b"),
+            "high_risk_execution": re.compile(
+                r"\b(die|exitWith|exitFailure|Debug\.Trace|trace|traceShow|traceIO|traceM)\b"
+            ),
             # io: I/O & Network Boundaries. IO Monad and hardware interactions.
             "io": re.compile(
                 r"\b(IO|readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
@@ -6137,8 +6531,16 @@ LANGUAGE_DEFINITIONS = {
             # closures: Closures / Anonymous Functions. Anonymous lambda depth.
             "closures": re.compile(r"\\[a-zA-Z0-9_\'\s(),\[\]]+\s*->|\\cases?"),
             # globals: Global / Shared State. Top-level state hacks (typically MVars using unsafePerformIO).
+            # BUG FIX: `[^=]*` blocked crossing the `=` that MUST appear
+            # before `unsafePerformIO` in any real usage (the binding's own
+            # implementation line: `counter = unsafePerformIO ...`) -- this
+            # signature could never match a single real occurrence of the
+            # idiom it's meant to detect. Replaced with a bounded
+            # lazy-any-character span ({0,200}?, ReDoS-safe) so it can cross
+            # both `=` and intervening lines (e.g. a `{-# NOINLINE #-}`
+            # pragma between the signature and the binding).
             "globals": re.compile(
-                r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[^=]*unsafePerformIO",
+                r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO",
                 re.M,
             ),
             # decorators: Decorators / Annotations. GHC pragmas (INLINE, LANGUAGE).
@@ -6187,7 +6589,9 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs)
             "debug_prints": re.compile(r"\b(putStr|putStrLn|print|putChar)\b"),
             # # # 40. explicit_casts (Explicit Type Casting) "Trust Me" Tax.
-            "explicit_casts": re.compile(r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"),
+            "explicit_casts": re.compile(
+                r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"
+            ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
             "panics_and_aborts": re.compile(r"\b(throw|throwIO|panic|error)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
@@ -6203,9 +6607,7 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(hClose|close|free|bracket|finally|onException)\b"),
             # 47. encapsulation (Encapsulation / Access Modifiers)
-            "encapsulation": re.compile(
-                r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*\s*\([^)]*\)\s*where", re.M
-            ),
+            "encapsulation": re.compile(r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*\s*\([^)]*\)\s*where", re.M),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(subscribe|onEvent|addEventListener|watch)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.
@@ -6214,7 +6616,13 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(
                 r"\b(Data\.Aeson|decode|decodeStrict|fromJSON|Data\.Binary|Data\.Serialize)\b"
             ),
-            "regex_execution": re.compile(r"\b(Text\.Regex|makeRegex|matchRegex|=~)\b"),
+            # `=~` was inside the shared \b...\b wrapper, but \b requires a
+            # word/non-word transition -- since neither `=` nor `~` is a word
+            # character, `\b=~\b` can only match when the operator has no
+            # surrounding whitespace (e.g. "x=~y"), never idiomatic Haskell
+            # like "text =~ pattern" (space on both sides means no boundary
+            # exists at either edge). Split out unguarded.
+            "regex_execution": re.compile(r"\b(Text\.Regex|makeRegex|matchRegex)\b|=~"),
             "time_date_logic": re.compile(r"\b(getCurrentTime|diffUTCTime|addUTCTime|System\.Time|threadDelay)\b"),
             "ipc_rpc_bridges": re.compile(
                 r"\b(System\.Process|createProcess|callProcess|callCommand|forkIO|Control\.Concurrent)\b"
@@ -6246,15 +6654,6 @@ LANGUAGE_DEFINITIONS = {
         # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # MicroPython uses '#' for line-level Commented / Non-Executable Text.
-            "_line_anchor": re.compile(r"#"),
-            # Inline comments are also triggered by the '#' token.
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: MicroPython lacks native multi-line block comment delimiters.
-            # (Note: Multi-line strings used as docs are handled by the 2.3.C Python Heuristic).
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES raise (bailout_hits).
@@ -6345,7 +6744,15 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(?:List|Dict|Set|Tuple|Optional|Union|Any|Callable|Sequence|Iterable)\[[^\]]*\]|->"
             ),
             # 21. comprehensions (Iterators / Comprehensions)
-            "comprehensions": re.compile(r"\[[^\]]*\bfor\b[^\]]*\]|\{[^}]*\bfor\b[^}]*\}|\([^)]*\bfor\b[^)]*\)"),
+            # QUADRATIC BLOWUP FIX: the 3 negated-class quantifiers were
+            # unbounded -- on a long run of unclosed brackets/braces/parens
+            # (e.g. "((((((..."), each opening char is tried as a match
+            # start, and each attempt scans to the end of the string looking
+            # for "for" + closer, for O(n^2) total. Bounded to {0,500}; real
+            # comprehensions don't get remotely that long.
+            "comprehensions": re.compile(
+                r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
+            ),
             # 22. scientific (Numerical / Compute Libraries)
             # Math, complex arrays, and ulab (MicroPython's NumPy).
             "scientific": re.compile(
@@ -6368,12 +6775,16 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Lightweight web servers (Microdot, Picoweb).
+            # BUG FIX: `@app\.get`/`@app\.post` are `@`-prefixed -- the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `@`, never true for how route
+            # decorators are actually written. Never matched at all.
             "ssr_boundaries": re.compile(
-                r"\b(microdot|picoweb|MicroWebSrv|tinyweb|render_template|Response|@app\.get|@app\.post)\b"
+                r"\b(?:microdot|picoweb|MicroWebSrv|tinyweb|render_template|Response)\b|@app\.get|@app\.post"
             ),
             # 32. events (Event Emitters / Pub-Sub)
             # Hardware interrupts and async event flags.
@@ -6451,16 +6862,6 @@ LANGUAGE_DEFINITIONS = {
         # or slash '/' to identify line-level Commented / Non-Executable Text.
         "lexical_family": "positional_anchored",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Fixed Format Logic: Column 7 is the 'Indicator Area'.
-            # An asterisk '*' or forward-slash '/' in Col 7 marks the line as Literature (Commented / Non-Executable Text).
-            # Regex translates to: Start of line, skip 6 chars, match indicator.
-            "_line_anchor": re.compile(r"^.{6}[*/dD]"),
-            # Modern COBOL (GnuCOBOL/IBM 6+) supports floating inline comments via '*>'.
-            "_inline_comment": re.compile(r"\*>"),
-            # EXPLICIT: COBOL does not support multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Entscheidungslogik. Control flow that splits execution paths.
             "branch": re.compile(
@@ -6706,11 +7107,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Zig intentionally omits multi-line block comments to keep parsing simple, exclusively using '//'.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
             "branch": re.compile(r"\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b|&&|\|\|"),
@@ -6734,11 +7130,18 @@ LANGUAGE_DEFINITIONS = {
             # 6. safety: Defensive Programming. Error handling, payload capturing (|val|), and debug assertions.
             "safety": re.compile(r"\b(try|catch|orelse|errdefer|std\.debug\.assert)\b|\|[ \t]*[a-zA-Z_]\w*[ \t]*\|"),
             # 7. safety_neg: Safety Bypasses. Bypassing safety (undefined, unreachable, raw ptr casting).
+            # BUG FIX: the 6 `@`-prefixed builtins (Zig's cast/truncate
+            # operations are all `@builtin` forms) start with a non-word
+            # char, so the shared leading \b could only fire when a word
+            # char immediately preceded the `@` -- never true for how
+            # builtins are actually written. None of the 6 ever matched.
             "safety_bypasses": re.compile(
-                r"\b(undefined|unreachable|@ptrCast|@intCast|@alignCast|@bitCast|@truncate|@enumFromInt)\b"
+                r"\b(?:undefined|unreachable)\b"
+                r"|@ptrCast|@intCast|@alignCast|@bitCast|@truncate|@enumFromInt"
             ),
             # 8. danger: High-Risk Execution. Forceful panics and process terminations.
-            "high_risk_execution": re.compile(r"\b(@panic|panic|std\.process\.exit)\b"),
+            # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
+            "high_risk_execution": re.compile(r"\b(?:panic|std\.process\.exit)\b|@panic"),
             # 9. io: I/O & Network Boundaries. Standard library IO, Network, and Filesystem interactions.
             "io": re.compile(r"\b(std\.fs|std\.net|std\.io(?!\.getStdOut)|std\.ChildProcess|std\.posix|std\.os)\b"),
             # 10. api: Public Surface Area. Exposed boundaries via 'pub' and 'export' (C ABI).
@@ -6755,8 +7158,11 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Suspend/resume and thread primitives.
+            # BUG FIX: `@atomicLoad`/`@atomicStore`/`@atomicRmw` are
+            # `@`-prefixed builtins -- same leading-\b bug.
             "concurrency": re.compile(
-                r"\b(std\.Thread|std\.Thread\.Mutex|std\.Thread\.RwLock|std\.atomic|@atomicLoad|@atomicStore|@atomicRmw|suspend|resume|await)\b"
+                r"\b(?:std\.Thread|std\.Thread\.Mutex|std\.Thread\.RwLock|std\.atomic|suspend|resume|await)\b"
+                r"|@atomicLoad|@atomicStore|@atomicRmw"
             ),
             # 16. ui_framework: UI / View Components. (Zig lacks native UI; targets common bindings like Mach/zgui).
             "ui_framework": re.compile(r"\b(mach\.|zgui\.|zopengl\.|capy\.|vaxis\.|raylib\.)\b"),
@@ -6774,13 +7180,19 @@ LANGUAGE_DEFINITIONS = {
             # 21. comprehensions: Iterators / Comprehensions. (Not native to Zig).
             "comprehensions": None,
             # 22. scientific: Numerical / Compute Libraries. Math intrinsics and SIMD @Vector support.
-            "scientific": re.compile(r"\b(std\.math|@Vector|f16|f32|f64|f80|f128|@sqrt|@sin|@cos|@splat|@reduce)\b"),
+            # BUG FIX: `@Vector`/`@sqrt`/`@sin`/`@cos`/`@splat`/`@reduce`
+            # are `@`-prefixed builtins -- same leading-\b bug.
+            "scientific": re.compile(r"\b(?:std\.math|f16|f32|f64|f80|f128)\b|@Vector|@sqrt|@sin|@cos|@splat|@reduce"),
             # 23. heat_triggers: Metaprogramming & Reflection. Comptime metaprogramming and reflection.
+            # BUG FIX: `@Type`/`@typeInfo`/`@compileLog`/`@hasDecl`/
+            # `@hasField` are `@`-prefixed builtins -- same leading-\b bug.
             "reflection_metaprogramming": re.compile(
-                r"\b(comptime[ \t]*\{|inline\s+for|inline\s+while|@Type|@typeInfo|@compileLog|@hasDecl|@hasField)\b"
+                r"\b(?:comptime[ \t]*\{|inline\s+for|inline\s+while)\b|@Type|@typeInfo|@compileLog|@hasDecl|@hasField"
             ),
             # 24. import: Dependency Inclusions. Module and C-header bridges.
-            "import": re.compile(r"\b(@import|@cImport|@cInclude)\b"),
+            # BUG FIX: all 3 are `@`-prefixed builtins -- same leading-\b
+            # bug. None ever matched.
+            "import": re.compile(r"@import\b|@cImport\b|@cInclude\b"),
             "_dependency_capture": re.compile(
                 r"^[ \t]*(?:const[ \t]+[a-zA-Z_]\w*[ \t]*=[ \t]*)?(?:@import|@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
                 re.M,
@@ -6820,9 +7232,12 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
             "debug_prints": re.compile(r"\b(std\.debug\.print)\b"),
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit casting.
-            "explicit_casts": re.compile(r"\b(@ptrCast|@intCast|@alignCast|@bitCast|@as)\b"),
+            # BUG FIX: all 5 are `@`-prefixed builtins -- same leading-\b
+            # bug. None ever matched.
+            "explicit_casts": re.compile(r"@ptrCast\b|@intCast\b|@alignCast\b|@bitCast\b|@as\b"),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
-            "panics_and_aborts": re.compile(r"\b(@panic|unreachable|return)\b"),
+            # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
+            "panics_and_aborts": re.compile(r"\b(?:unreachable|return)\b|@panic"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
             "thread_sleeps": re.compile(r"\b(std\.time\.sleep)\b"),
             # 43. bitwise_ops (Bitwise Operations)
@@ -6875,11 +7290,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses standard '//' for lines and '/*' '*/' for block-level Commented / Non-Executable Text.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes switch on/when and DML try-catch.
             "branch": re.compile(
@@ -6920,8 +7330,13 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing safety (without sharing, raw casting).
+            # BUG FIX: `@SuppressWarnings` is `@`-prefixed -- the shared
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how annotations are actually
+            # written. Never matched at all.
             "safety_bypasses": re.compile(
-                r"\b(without\s+sharing|Database\.query(?!\s*\(.*?WITH\s+SECURITY_ENFORCED)|@SuppressWarnings)\b|\(\s*[A-Z_]\w*\s*\)\s*[a-z_]\w*",
+                r"\b(?:without\s+sharing|Database\.query(?!\s*\(.*?WITH\s+SECURITY_ENFORCED))\b"
+                r"|@SuppressWarnings|\(\s*[A-Z_]\w*\s*\)\s*[a-z_]\w*",
                 re.I,
             ),
             # 8. danger: High-Risk Execution. Dynamic SOQL, mass deletion, and hardcoded IDs.
@@ -6970,8 +7385,14 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. (Apex lacks true anonymous closures).
             "closures": None,
             # 18. globals: Global / Shared State. Custom Settings, Organization data, and User context.
+            # QUADRATIC BLOWUP FIX: the two `\w+` prefixes before the
+            # required-but-often-absent `__c.getInstance`/`__mdt.getInstance`
+            # suffixes were unbounded with no preceding \b anchor -- O(n^2)
+            # on a long run of word characters with neither suffix present.
+            # Bounded to {1,100}; real custom-object/metadata-type names
+            # don't get remotely that long.
             "globals": re.compile(
-                r"\b(UserInfo|System\.Label|Organization|Cache\.Org|Cache\.Session)\b|\w+__c\.getInstance\b|\w+__mdt\.getInstance\b",
+                r"\b(UserInfo|System\.Label|Organization|Cache\.Org|Cache\.Session)\b|\w{1,100}__c\.getInstance\b|\w{1,100}__mdt\.getInstance\b",
                 re.I,
             ),
             # 19. decorators: Decorators / Annotations. Execution context annotations.
@@ -7073,7 +7494,9 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers) Triggers listening for events.
             "listeners": re.compile(r"^[ \t]*trigger\s+[a-z_]\w*\s+on\b", re.I | re.M),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(StubProvider|Test\.setMock|@SuppressWarnings)\b", re.I),
+            # BUG FIX: `@SuppressWarnings` is `@`-prefixed -- same
+            # leading-\b bug as safety_bypasses above.
+            "test_skip": re.compile(r"\b(?:StubProvider|Test\.setMock)\b|@SuppressWarnings", re.I),
         },
     },
     "dart": {
@@ -7102,10 +7525,6 @@ LANGUAGE_DEFINITIONS = {
         # comments (/* /* */ */). Standard C parsing would prematurely terminate here causing geometry failure.
         "lexical_family": "standard_block",
         "rules": {
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
             "branch": re.compile(
@@ -7159,8 +7578,17 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. Null safety boundaries, type assertions, and required parameters.
+            # BUG FIX: `@immutable` and `@mustCallSuper` both start with `@`
+            # (non-word), so the shared leading \b could only fire when a
+            # word char immediately preceded the `@` -- never true for how
+            # annotations are actually written (always preceded by
+            # whitespace or a line start). Both never matched at all.
+            # (`!is` is a separate, harmless case: it still "matches" via
+            # the bare `is` alternative catching its own tail as a
+            # substring, so it isn't a functional miss -- left as-is.)
             "safety": re.compile(
-                r"\b(try|catch|finally|on\s+[A-Z]\w*|assert|required|late|is|!is|SafeArea|@immutable|@mustCallSuper)\b|\?\?|\?.",
+                r"\b(?:try|catch|finally|on\s+[A-Z]\w*|assert|required|late|is|!is|SafeArea)\b"
+                r"|@immutable|@mustCallSuper|\?\?|\?.",
                 re.I,
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing sound null safety or static analysis.
@@ -7194,8 +7622,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Event Loop primitives (Future, Stream, Isolate).
+            # BUG FIX: `sync\*` ended on `*` (non-word) inside the shared
+            # trailing \b group -- the generator-function modifier
+            # `sync* { ... }` never matched (no bare "sync" alternative
+            # exists to mask it, unlike `async*`, which happened to still
+            # match via the bare "async" alternative catching it as a
+            # substring). Pulled both `\*`-suffixed forms out for
+            # consistency.
             "concurrency": re.compile(
-                r"\b(async|async\*|sync\*|await|Future|Stream|Isolate|ReceivePort|SendPort|Completer|Timer|StreamSubscription)\b",
+                r"\b(?:async|await|Future|Stream|Isolate|ReceivePort|SendPort|Completer|Timer|StreamSubscription)\b"
+                r"|\basync\*|\bsync\*",
                 re.I,
             ),
             # 16. ui_framework: UI / View Components. Flutter Component trees and DOM nodes (Includes TBL triggers).
@@ -7204,7 +7640,16 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 17. closures: Closures / Anonymous Functions. Fat-arrows and anonymous function blocks.
-            "closures": re.compile(r"=>|\(\s*[^)]*\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
+            # BUG FIX (ReDoS): `[^)]*` was unbounded. Confirmed quadratic
+            # scaling (0.011s/0.045s/0.179s/0.713s/2.85s for n=5k/10k/20k/
+            # 40k/80k -- ~4x per doubling) against an adversarial run of
+            # unclosed `(` characters: at each of the ~n candidate `(`
+            # start positions, the unbounded class scans to the end of the
+            # string looking for a `)` that never appears, backtracking
+            # across the whole remaining length -- O(n) work at each of
+            # O(n) positions. Bounded to `{0,300}`, the same fix shape used
+            # elsewhere in this sweep.
+            "closures": re.compile(r"=>|\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
             # 18. globals: Global / Shared State. Static class fields and environmental bindings.
             "globals": re.compile(
                 r"\b(static\s+final|static\s+const|Platform\.environment|window\.|Zone\.current)\b|^[ \t]*(?:final|const|var)\s+[A-Za-z_$][\w$]*[ \t]*=",
@@ -7249,8 +7694,11 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. shelf/Serverpod response handlers.
+            # BUG FIX: `Router\(\)` ends on `)` -- shared trailing \b never
+            # fired. Never matched.
             "ssr_boundaries": re.compile(
-                r"\b(shelf|dart_frog|Serverpod|Response\.(?:ok|internalServerError)|RequestContext|Router\(\)|Handler|Serve|renderHtml)\b",
+                r"\b(?:shelf|dart_frog|Serverpod|Response\.(?:ok|internalServerError)|RequestContext|Handler|Serve|renderHtml)\b"
+                r"|Router\(\)",
                 re.I,
             ),
             # 32. events: Pub/Sub Network. Stream subscriptions and broadcast observables.
@@ -7259,8 +7707,12 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 33. dependency_injection: Inversion of Control. GetIt, Provider, and Injectable markers.
+            # BUG FIX: `@injectable` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded the `@` -- never true for how
+            # annotations are actually written. Never matched at all.
             "dependency_injection": re.compile(
-                r"\b(GetIt\.I|GetIt\.instance|Provider\.of|ConsumerWidget|ref\.watch|ref\.read|Injector|@injectable)\b",
+                r"\b(?:GetIt\.I|GetIt\.instance|Provider\.of|ConsumerWidget|ref\.watch|ref\.read|Injector)\b|@injectable",
                 re.I,
             ),
             # 34. macros: Preprocessor Hooks. Modern macros and JsonSerializable generators.
@@ -7299,21 +7751,40 @@ LANGUAGE_DEFINITIONS = {
             # 44. sync_locks (Resource Management & Stability) Coordinated threading.
             "sync_locks": re.compile(r"\b(Mutex|Lock|synchronized|Semaphore|Completer)\b", re.I),
             # 45. immutability_locks (Immutability Constraints) Immutability.
-            "immutability_locks": re.compile(r"\b(const|final|readonly|@immutable)\b", re.I),
+            # BUG FIX: `@immutable` starts with `@` (non-word), so the
+            # shared leading \b could only fire when a word char
+            # immediately preceded it -- never true for how annotations are
+            # actually written. Never matched at all.
+            "immutability_locks": re.compile(r"\b(?:const|final|readonly)\b|@immutable", re.I),
             # 46. cleanup (Resource Cleanup / Teardown) Resource release.
             "cleanup": re.compile(r"\b(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I),
             # 47. encapsulation Scope hiding (Underscore prefix).
             "encapsulation": re.compile(r"\b(_[a-zA-Z0-9_$]+)\b|@protected|@private"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(on\(|addEventListener|subscribe|watch|useEffect|listen)\b", re.I),
+            # BUG FIX: `on\(` ends on `(` (non-word), so the shared trailing
+            # \b could only fire when a word char immediately followed --
+            # never true for the common real call shape `on('event', ...)`,
+            # where a quote follows the paren.
+            "listeners": re.compile(r"\bon\(|\b(?:addEventListener|subscribe|watch|useEffect|listen)\b", re.I),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(@Ignore|test\.skip|t\.Skip|xit|mock)\b", re.I),
+            # BUG FIX: `@Ignore` starts with `@` (non-word), so the shared
+            # leading \b could only fire when a word char immediately
+            # preceded it -- never true for how annotations are actually
+            # written. Never matched at all.
+            "test_skip": re.compile(r"@Ignore|\b(?:test\.skip|t\.Skip|xit|mock)\b", re.I),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Dart Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(jsonDecode|jsonEncode|json\.decode|json\.encode|Utf8Decoder|Utf8Encoder)\b"
             ),
             "regex_execution": re.compile(r"\b(RegExp\s*\()|\.(hasMatch|allMatches|stringMatch)\b"),
-            "time_date_logic": re.compile(r"\b(DateTime\.now|Duration\s*\(|Timer\.run|Timer\.periodic|Stopwatch)\b"),
+            # BUG FIX: `Duration\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b only fired when a word char immediately followed
+            # -- true for the common named-argument form (`Duration(seconds:
+            # 5)`) but not for the zero-argument form (`Duration()`), where
+            # `)` (non-word) follows and the boundary fails.
+            "time_date_logic": re.compile(
+                r"\b(?:DateTime\.now|Timer\.run|Timer\.periodic|Stopwatch)\b|\bDuration\s*\("
+            ),
             "ipc_rpc_bridges": re.compile(
                 r"\b(Isolate\.spawn|ReceivePort|SendPort|Process\.run|Process\.start|HttpClient)\b"
             ),
@@ -7346,10 +7817,6 @@ LANGUAGE_DEFINITIONS = {
         # requiring depth-aware stripping to prevent premature termination.
         "lexical_family": "recursive_block",
         "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes Scala 3 if-then and match-case.
             "branch": re.compile(
@@ -7392,7 +7859,15 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(Option|Some|None|Try|Success|Failure|Either|Left|Right|sealed|require|assert|assume)\b|\|\s*Null\b"
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing type safety (asInstanceOf, .get).
-            "safety_bypasses": re.compile(r"\b(null|asInstanceOf|isInstanceOf|\.get\b(?!Class)|@unchecked|Any|AnyRef)\b"),
+            # BUG FIX: `@unchecked` is `@`-prefixed -- the shared leading
+            # \b could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all. (`.get` is left as-is: a leading `.` is
+            # preceded by an identifier in real method-chain usage, so that
+            # leading \b fires correctly.)
+            "safety_bypasses": re.compile(
+                r"\b(?:null|asInstanceOf|isInstanceOf|Any|AnyRef)\b|\.get\b(?!Class)|@unchecked"
+            ),
             # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
             "high_risk_execution": re.compile(r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime\.exec)\b"),
             # 9. io: I/O & Network Boundaries. Filesystem, Network, and Http Clients (Includes CERN triggers).
@@ -7416,8 +7891,11 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc: Structured Documentation. Scaladoc documentation (/**) and annotations.
             "doc": re.compile(r"/\*\*|@param|@return|@tparam|@throws|@see|@note"),
             # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
+            # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
+            # trailing \b could never fire. Never matched.
             "test": re.compile(
-                r"\b(test\s*\(|it\s+should|assertEquals|assertThrows|AnyFunSuite|WordSpec|munit|weaver)\b|\b(?:must|expect|assert)\s*[\(\{]"
+                r"\b(?:it\s+should|assertEquals|assertThrows|AnyFunSuite|WordSpec|munit|weaver)\b"
+                r"|\btest\s*\(|\b(?:must|expect|assert)\s*[\(\{]"
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Effect systems and Actor paradigms (ZIO, Cats Effect, Akka).
@@ -7474,8 +7952,14 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 25. ownership: Authorship indicators.
+            # BUG FIX: the Scaladoc `@author` tag was grouped with
+            # `Created by`/`Maintainer`/`Copyright`, all of which require a
+            # literal `:` -- but Scaladoc's actual convention (matching
+            # Javadoc, and how java's own ownership rule already handles
+            # it) is `@author Jane Doe`, with no colon at all. The colon
+            # requirement meant the real Scaladoc tag never matched.
             "ownership": re.compile(
-                r"(?:@author|Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
+                r"@author\s+([^\n]+)|(?:Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
                 re.I,
             ),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -7491,24 +7975,49 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Play Framework and twirl template endpoints.
+            # BUG FIX: `Ok\(`/`BadRequest\(` both end on `(` (non-word), so
+            # the shared trailing \b could never fire. Neither of Play's
+            # two most common Result constructors ever matched.
             "ssr_boundaries": re.compile(
-                r"\b(Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.[a-zA-Z_]\w*|Ok\(|BadRequest\()\b"
+                r"\b(?:Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.[a-zA-Z_]\w*)\b|\bOk\(|\bBadRequest\("
             ),
             # 32. events: Pub/Sub Network. Stream processing and event bus signatures.
             "events": re.compile(r"\b(Source|Flow|Sink|fs2\.Stream|ZStream|EventBus|system\.eventStream|Observable)\b"),
             # 33. dependency_injection: Inversion of Control. ZLayer and ReaderT patterns.
+            # BUG FIX: `@Inject` is `@`-prefixed -- the shared leading \b
+            # could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all.
             "dependency_injection": re.compile(
-                r"\b(@Inject|wire\[|ZLayer|ZLayer\.from|provide|provideSome|ReaderT|Kleisli|requires)\b"
+                r"\b(?:wire\[|ZLayer|ZLayer\.from|provide|provideSome|ReaderT|Kleisli|requires)\b|@Inject"
             ),
             # 34. macros: Preprocessor Hooks. Scala 3 inline and quoted metaprogramming.
             "macros": re.compile(
                 r"\b(inline\s+def|transparent\s+inline|macro|scala\.quoted|Expr|Type|Quotes)\b|\$\{.*?\}|\'\{"
             ),
             # 35. pointers: Memory Map. Scala Native C-Interop pointers.
-            "pointers": re.compile(r"\b(Ptr\[[^\]]+\]|scala\.scalanative\.unsafe|!ptr|ptr\.|CFuncPtr|CStruct\d+)\b"),
+            # BUG FIX: `Ptr\[[^\]]+\]` ends on the closing `]` (non-word),
+            # so the shared trailing \b could never fire -- unlike
+            # `decode\[` elsewhere (bounded only by the opening `[`, always
+            # followed by a word-char type name), this alternative matches
+            # through the CLOSING bracket, and whatever follows a type
+            # declaration (` = `, `;`, a newline) is never a word
+            # character. Never matched. Also bounded the previously
+            # unbounded `[^\]]+` to `{1,200}`. (`!ptr` is left as-is: it's
+            # harmlessly masked by `ptr\.` matching the same text via its
+            # own valid boundary, since `!` immediately preceding `ptr` is
+            # a valid non-word-to-word transition.)
+            "pointers": re.compile(
+                r"\bPtr\[[^\]]{1,200}\]|\b(?:scala\.scalanative\.unsafe|!ptr|ptr\.|CFuncPtr|CStruct\d+)\b"
+            ),
             # 36. memory_alloc: Manual Memory Management. Heap and Native allocations.
+            # BUG FIX: `zone[ \t]*\{` ends on `{` and `alloc\[[^\]]+\]` ends
+            # on the closing `]` -- both non-word, so the shared trailing
+            # \b could never fire for either. Neither ever matched. Also
+            # bounded the previously unbounded `[^\]]+` to `{1,200}`.
             "memory_alloc": re.compile(
-                r"\b(Zone|zone[ \t]*\{|alloc\[[^\]]+\]|malloc|calloc|free|scala\.scalanative\.libc\.stdlib)\b"
+                r"\b(?:Zone|malloc|calloc|free|scala\.scalanative\.libc\.stdlib)\b"
+                r"|zone[ \t]*\{|alloc\[[^\]]{1,200}\]"
             ),
             # 37. inline_asm: Bare Metal.
             "inline_asm": None,
@@ -7520,7 +8029,9 @@ LANGUAGE_DEFINITIONS = {
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
             "debug_prints": re.compile(r"\b(println|print|Console\.println)\b"),
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
-            "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
+            "explicit_casts": re.compile(
+                r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"
+            ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
             "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
@@ -7536,7 +8047,10 @@ LANGUAGE_DEFINITIONS = {
             # 47. encapsulation (Encapsulation / Access Modifiers)
             "encapsulation": re.compile(r"\b(private|protected)\b|private\[[^\]]+\]"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(on\(|addEventListener|subscribe|watch|useEffect|listen)\b"),
+            # BUG FIX: `on\(` ends on `(` (non-word), so the shared
+            # trailing \b could never fire -- never true for the common
+            # real call shape `on('event', ...)`, where a quote follows.
+            "listeners": re.compile(r"\bon\(|\b(?:addEventListener|subscribe|watch|useEffect|listen)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(ignore|pending|skip|xit|xdescribe)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Scala Specifics) ---
@@ -7544,17 +8058,23 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(io\.circe|decode\[|asJson|Json\.parse|Json\.toJson|upickle\.default)\b"
             ),
             "regex_execution": re.compile(r'"[^"]+"\.r\b|\bRegex\s*\(|\.(findAllIn|findFirstIn|replaceAllIn)\b'),
+            # BUG FIX: `Duration\s*\(` ends on `(` (non-word), so the
+            # shared trailing \b only fired for the non-empty-argument form
+            # (`Duration(5, SECONDS)`, where a digit follows the paren),
+            # not the empty-argument form (`Duration()`).
             "time_date_logic": re.compile(
-                r"\b(Duration\s*\(|FiniteDuration|System\.currentTimeMillis|LocalDate\.now)\b"
+                r"\b(?:FiniteDuration|System\.currentTimeMillis|LocalDate\.now)\b|\bDuration\s*\("
             ),
-            "ipc_rpc_bridges": re.compile(r"\b(ActorSystem|ActorRef|sys\.process\._|Process\s*\(|Future\.apply)\b"),
+            # BUG FIX: `Process\s*\(` ends on `(` -- same bug. Never
+            # matched the common `Process("cmd")` form (a quote follows).
+            "ipc_rpc_bridges": re.compile(r"\b(?:ActorSystem|ActorRef|sys\.process\._|Future\.apply)\b|\bProcess\s*\("),
         },
     },
     "dockerfile": {
         "_meta": {
             "target_version": "Dockerfile (BuildKit)",
             "last_updated": "2026-02-27",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard extensions for container definitions across Docker and Podman ecosystems.
@@ -7582,10 +8102,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Docker natively uses '#' exclusively for line-level comments and parser directives.
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Control flow executing inside RUN shell blocks. High density indicates complex embedded shell scripts.
@@ -7599,7 +8115,9 @@ LANGUAGE_DEFINITIONS = {
             # 3. linear (Sequential Boundaries)
             # Structural boundaries defining straight-line execution and environment contexts.
             # CRITICAL GUARDRAIL: EXCLUDES `FROM` and `RUN`/`CMD` to maintain geometric stability.
-            "structural_boundaries": re.compile(r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b", re.M | re.I),
+            "structural_boundaries": re.compile(
+                r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b", re.M | re.I
+            ),
             # 4. func_start (Executable Logic Anchors)
             # CRITICAL GUARDRAIL: Anchors logic blocks. ONLY executable logic blocks.
             # In Docker, `RUN`, `CMD`, and `ENTRYPOINT` execute logic, generating discrete intermediate image layers.
@@ -7716,7 +8234,7 @@ LANGUAGE_DEFINITIONS = {
                 r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit|CVE-\d{4}-\d+)[^\]]*\]",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Dockerfiles strictly use spaces for formatting continuations. Tabs indicate formatter disruption.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -7797,7 +8315,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "MATLAB R2024b",
             "last_updated": "2026-02-27",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard scripts, functions, and modern Live Scripts (.mlx).
@@ -7806,6 +8324,11 @@ LANGUAGE_DEFINITIONS = {
         "exact_matches": [],
         # ECOSYSTEM ANCHORS & DISAMBIGUATION: Critical for resolving the massive .m collision with Objective-C. Binary workspace and figure files act as absolute anchors.
         "discriminators": [".m", ".mat", ".fig", ".mlx", "project.prj"],
+        # #377: this is exactly the "massive .m collision with Objective-C" the
+        # comment above already calls out -- heavy presence of Objective-C's OWN
+        # ecosystem anchors (its own "discriminators", below) elsewhere in the
+        # repo is direct evidence AGAINST an ambiguous .m file being MATLAB.
+        "disqualifiers": [".mm", "project.pbxproj", ".storyboard", ".xib", ".xcworkspace", "Podfile", "Cartfile"],
         # Instantly claims any .m file that uses MATLAB's unique comment character (%)
         # or the MATLAB function declaration syntax. Defeats Objective-C gravity theft.
         # Instantly claims any .m file via a definitive MATLAB section break (%%)
@@ -7818,10 +8341,6 @@ LANGUAGE_DEFINITIONS = {
         # hybrid_dash would cause the engine to look for '--', missing the math entirely.
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"%"),
-            "_inline_comment": re.compile(r"%"),
-            "_block_start": re.compile(r"^[ \t]*%\{", re.M),
-            "_block_end": re.compile(r"^[ \t]*%\}", re.M),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: MATLAB control flow. EXCLUDES 'error' and 'rethrow' (bailout_hits).
             "branch": re.compile(r"\b(?:if|elseif|else|switch|case|otherwise|for|while|try|catch)\b|&&|\|\||~="),
@@ -8008,15 +8527,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Accepts '--', '//', '#', and '/* */' to support both its legacy HyperTalk roots and modern C-style syntax.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Handles all three line-comment styles found in the xTalk family.
-            "_line_anchor": re.compile(r"--|//|#"),
-            # Inline comments follow the same tri-token logic.
-            "_inline_comment": re.compile(r"--|//|#"),
-            # Block comment start: /* (Adopted in modern LiveCode)
-            "_block_start": re.compile(r"/\*"),
-            # Block comment end: */
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes English-like loops and try-catch.
             "branch": re.compile(
@@ -8147,8 +8657,17 @@ LANGUAGE_DEFINITIONS = {
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs Spaces density.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-side rendering.
+            # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
+            # \b requires a word/non-word transition; `<?lc`, `?>`, and every
+            # `$_POST`-style superglobal START with a non-word character
+            # (`<` or `$`), so the leading \b could never match once that
+            # symbol was preceded by anything else non-word (e.g. a space or
+            # line start) -- meaning none of those 6 alternatives (everything
+            # except the plain-word "put header") ever actually matched.
+            # Each alternative now carries only the boundary that makes
+            # sense for its own shape.
             "ssr_boundaries": re.compile(
-                r"\b(<\?lc|\?>|\$_POST|\$_GET|\$_SERVER|\$_COOKIE|\$_SESSION|put\s+header)\b",
+                r"<\?lc|\?>|\$_POST|\$_GET|\$_SERVER|\$_COOKIE|\$_SESSION|\bput\s+header\b",
                 re.I,
             ),
             # 32. events: Pub/Sub Network. Signal handlers and event brokers.
@@ -8217,7 +8736,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "Solidity 0.8.20+ (Smart Contracts / Foundry / Hardhat)",
             "last_updated": "2026-04-01",
-            "blueprint_version": "v6.3.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard Solidity contracts and library files.
@@ -8238,11 +8757,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Solidity strictly adheres to C-style line (//) and block (/* */) comments.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Solidity 0.6+ try/catch.
             "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?|:"),
@@ -8302,8 +8816,20 @@ LANGUAGE_DEFINITIONS = {
             "decorators": None,  # Modifiers are inline in Solidity, not on preceding lines.
             # 20. generics: Generics / Type Parameters. Parameterized K/V associations.
             # Deeply supports nested mapping structures across vertical lines.
+            # BUG FIX (ReDoS): the nested `[^)]+` was unbounded. Confirmed
+            # quadratic scaling (0.18s/0.72s/2.86s/11.4s for n=5k/10k/20k/40k
+            # -- ~4x per doubling) against a malformed/adversarial run of
+            # `mapping(mapping(uint => ` tokens with no closing paren: at
+            # each of the ~n candidate start positions where the outer
+            # `mapping(` matches, the inner alternative's unbounded
+            # `[^)]+` scans to the end of the string and fails, backtracking
+            # across the whole remaining length -- O(n) work at each of
+            # O(n) positions. Bounded to `{1,200}`, matching this same fix
+            # shape used elsewhere in the sweep (fortran/php/shell/apex/
+            # embedded_python) for "unbounded class immediately followed by
+            # an often-absent literal suffix" ReDoS.
             "generics": re.compile(
-                r"\bmapping\s*\([ \t\n]*[a-zA-Z0-9_]+\s*=>\s*(?:mapping\s*\([^)]+\)|[a-zA-Z0-9_]+)[ \t\n]*\)"
+                r"\bmapping\s*\([ \t\n]*[a-zA-Z0-9_]+\s*=>\s*(?:mapping\s*\([^)]{1,200}\)|[a-zA-Z0-9_]+)[ \t\n]*\)"
             ),
             # 21. comprehensions: Iterators / Comprehensions. Solidity lacks native comprehensions.
             "comprehensions": None,
@@ -8373,7 +8899,23 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(keccak256\s*\(\s*abi\.encodePacked)\b"
             ),  # Hashes are used instead of regex for complex string matching
             "time_date_logic": re.compile(r"\b(block\.timestamp|now|\d+\s+(?:days|weeks|years|hours|minutes))\b"),
-            "ipc_rpc_bridges": re.compile(r"\b(delegatecall|staticcall|\.call\{value:|emit\s+[A-Z]|selfdestruct)\b"),
+            # BUG FIX: `.call{value:` and `emit\s+[A-Z]` were both inside the
+            # shared \b(...)\b wrapper.
+            # - `.call{value:` ends on `:` (non-word), so the trailing \b
+            #   could only fire when a word char immediately followed --
+            #   never true for the idiomatic spaced form
+            #   `target.call{value: amount}(...)`, which is how this is
+            #   always written in real Solidity.
+            # - `emit\s+[A-Z]` only ever consumed a SINGLE uppercase letter
+            #   (the char class has no `+`/`*`), so for any real
+            #   multi-character event name (`emit Transfer(...)`) the char
+            #   right after the matched letter is another word char --
+            #   word-to-word is not a \b transition, so the trailing \b
+            #   failed for every event name longer than one letter, which
+            #   is effectively all of them.
+            "ipc_rpc_bridges": re.compile(
+                r"\b(?:delegatecall|staticcall|selfdestruct)\b|\.call\{value:|\bemit\s+[A-Z]\w*\b"
+            ),
         },
     },
     "objective-c": {
@@ -8398,6 +8940,10 @@ LANGUAGE_DEFINITIONS = {
             "Podfile",
             "Cartfile",
         ],
+        # #377: the symmetric counterpart to matlab's disqualifiers above -- heavy
+        # presence of MATLAB's own ecosystem anchors elsewhere in the repo is
+        # direct evidence AGAINST an ambiguous .m file being Objective-C.
+        "disqualifiers": [".mat", ".fig", ".mlx", "project.prj"],
         # EXECUTION SIGNATURES: Compiled natively via LLVM/Clang; no shebangs exist.
         "shebangs": [],
         "internal_discriminator": re.compile(
@@ -8409,15 +8955,15 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Uses standard '//' for line-level literature and '/*' '*/' for blocks.
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Obj-C specific @try/@catch blocks.
+            # BUG FIX: @try/@catch/@finally were inside the shared \b(...)\b
+            # group. \b requires a word/non-word transition, but `@` is
+            # non-word, so the leading \b could never match once `@` was
+            # preceded by anything else non-word (a space, line start) --
+            # meaning these 3 alternatives never actually matched real code.
             "branch": re.compile(
-                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto|@try|@catch|@finally)\b|&&|\|\||\?"
+                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto)\b|@try|@catch|@finally|&&|\|\||\?"
             ),
             # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
             "args": re.compile(
@@ -8431,8 +8977,10 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
+            # BUG FIX: the 8 @-prefixed alternatives never matched -- same
+            # \b-before-@ shape as branch's fix above.
             "structural_boundaries": re.compile(
-                r"\b(@interface|@implementation|@protocol|@end|@synthesize|@dynamic|@class|@import|typedef|struct|enum|union|__block|__weak|__strong)\b"
+                r"@interface|@implementation|@protocol|@end|@synthesize|@dynamic|@class|@import|\b(typedef|struct|enum|union|__block|__weak|__strong)\b"
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic.
             # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax
@@ -8457,12 +9005,22 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety: Defensive Programming. ARC memory qualifiers and Cocoa/NeXT Assertions.
+            # BUG FIX: @try/@catch/@finally never matched -- same \b-before-@
+            # shape as branch's fix above.
             "safety": re.compile(
-                r"\b(@try|@catch|@finally|__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
+                r"@try|@catch|@finally|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
             ),
             # 7. safety_neg: Safety Bypasses. Bypassing ARC, raw void pointers, and dangerous dynamic selectors.
+            # BUG FIX: `void\s*\*` (trailing \b after a literal `*`) and
+            # `performSelector:` (trailing \b after a literal `:`) only
+            # matched when immediately followed by another non-word char
+            # (rare -- an identifier or `@selector(...)` almost always
+            # follows in real code). Dropped the trailing \b for both;
+            # also dropped the now-redundant "performSelector:withObject:"
+            # alternative, since "performSelector:" already matches as its
+            # prefix (alternation tries left-to-right and returns first hit).
             "safety_bypasses": re.compile(
-                r"\b(__unsafe_unretained|unsafe_unretained|id|void\s*\*|performSelector:|performSelector:withObject:)\b|!\s*[;,\]\)\.]|#pragma\s+clang\s+diagnostic\s+ignored"
+                r"\b(__unsafe_unretained|unsafe_unretained|id)\b|void\s*\*|performSelector:|!\s*[;,\]\)\.]|#pragma\s+clang\s+diagnostic\s+ignored"
             ),
             # 8. danger: High-Risk Execution. Process killers.
             "high_risk_execution": re.compile(r"\b(abort|exit)\b"),
@@ -8486,8 +9044,10 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. GCD (Grand Central Dispatch), NSOperation, and Locks.
+            # BUG FIX: @synchronized never matched -- same \b-before-@ shape
+            # as branch's fix above.
             "concurrency": re.compile(
-                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|@synchronized|NSLock|NXConditionLock)\b"
+                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|NSLock|NXConditionLock)\b|@synchronized"
             ),
             # 16. ui_framework: UI / View Components. Cocoa, UIKit, and AppKit hierarchies (Includes legacy NX classes).
             "ui_framework": re.compile(
@@ -8496,16 +9056,27 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. Objective-C Blocks.
             "closures": re.compile(r"\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\s*\([^)]*\)[ \t]*\{"),
             # 18. globals: Global / Shared State. Singleton/Shared instance access.
+            # BUG FIX: the two bracket-message alternatives never matched --
+            # `\b` requires a word/non-word transition, but `[`/`]` are both
+            # non-word, so both the leading and trailing \b could never
+            # match once flanked by anything else non-word (a space,
+            # semicolon, line start). Split them out of the shared wrapper.
             "globals": re.compile(
-                r"\b(extern|NSUserDefaults|NXDefaults|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]|NXApp)\b"
+                r"\b(extern|NSUserDefaults|NXDefaults|NXApp)\b|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]"
             ),
             # 19. decorators: Decorators / Annotations. Attributes and Property decorators.
             "decorators": re.compile(r"\b__attribute__\s*\(\([^)]*\)\)|@property\s*\([^)]+\)"),
             # 20. generics: Generics / Type Parameters. Lightweight generics (introduced in Xcode 7).
             "generics": re.compile(r"<\s*[A-Z][^>]*\s*\*?\s*>"),
             # 21. comprehensions: Iterators / Comprehensions. Block-based array/set enumeration.
+            # BUG FIX: the trailing \b (after a literal `:`) never matched --
+            # `:` is non-word, so the boundary only worked when followed by
+            # another non-word char, which is rare in real Obj-C selector
+            # syntax (a block or argument almost always follows). Moved the
+            # \b to before the colon instead, where it correctly applies to
+            # the preceding word character.
             "comprehensions": re.compile(
-                r"\b(enumerateObjectsUsingBlock:|filteredArrayUsingPredicate:|makeObjectsPerformSelector:)\b"
+                r"\b(?:enumerateObjectsUsingBlock|filteredArrayUsingPredicate|makeObjectsPerformSelector)\b:"
             ),
             # 22. scientific: Numerical / Compute Libraries. C-Math and CoreGraphics structs.
             "scientific": re.compile(
@@ -8522,7 +9093,10 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 25. ownership: Authorship metadata.
-            "ownership": re.compile(r"\b(?:Created by|@author|Author:|Copyright|Tim Berners-Lee)\b", re.I),
+            # BUG FIX: `@author` (leading \b before non-word `@`) and
+            # `Author:` (trailing \b after non-word `:`) never matched --
+            # same shape as branch's @try fix above.
+            "ownership": re.compile(r"\b(?:Created by|Copyright|Tim Berners-Lee)\b|@author|\bAuthor:", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
@@ -8535,8 +9109,13 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(WOComponent|WOResponse|WOContext|WOApplication|WODirectAction|WebObjects)\b"
             ),
             "events": re.compile(r"\b(NSNotificationCenter|addObserver|postNotification|NXApp\s+run|sendEvent)\b"),
+            # BUG FIX: `inject:`/`initWithDependency:` (trailing \b after a
+            # literal `:`) only matched when immediately followed by another
+            # non-word char -- true for a plain identifier argument, but
+            # false for the equally common `@selector(...)` argument form.
+            # Moved the \b to before the colon instead.
             "dependency_injection": re.compile(
-                r"\b(TyphoonComponentFactory|TyphoonDefinition|JSObjection|inject:|initWithDependency:)\b"
+                r"\b(TyphoonComponentFactory|TyphoonDefinition|JSObjection)\b|\b(?:inject|initWithDependency)\b:"
             ),
             "macros": re.compile(
                 r"^[ \t]*#(?:define|undef|ifdef|ifndef|if|elif|else|endif|pragma)\b",
@@ -8555,23 +9134,34 @@ LANGUAGE_DEFINITIONS = {
             # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
             "explicit_casts": re.compile(r"\(\s*[A-Za-z_]\w*\s*\*?\s*\)\s*[a-zA-Z_$]|typeof\b"),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
-            "panics_and_aborts": re.compile(r"\b(@throw|abort|exit)\b"),
+            # BUG FIX: @throw never matched -- same \b-before-@ shape as
+            # branch's fix above.
+            "panics_and_aborts": re.compile(r"@throw|\b(abort|exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing threads to sleep.
             "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep)\s*\("),
             # 43. bitwise_ops (Bitwise Operations)
             "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),
             # 44. sync_locks (Resource Management & Stability) Coordinated threading logic.
+            # BUG FIX: @synchronized never matched -- same \b-before-@ shape
+            # as branch's fix above.
             "sync_locks": re.compile(
-                r"\b(@synchronized|NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
+                r"@synchronized|\b(NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
             ),
             # 45. immutability_locks (Immutability Constraints) Immutability.
             "immutability_locks": re.compile(r"\b(const|readonly|immutable)\b"),
             # 46. cleanup (Resource Cleanup / Teardown) Resource release (Crucial for MRC NeXT era).
             "cleanup": re.compile(r"\b(dealloc|release|autorelease|free|NX_FREE)\b"),
             # 47. encapsulation Hiding logic from the application.
-            "encapsulation": re.compile(r"\b(@private|@protected|@package)\b"),
+            # BUG FIX: the leading \b before `@` never matched (same shape as
+            # branch's fix above). The trailing \b is fine as-is (each
+            # keyword ends in a letter).
+            "encapsulation": re.compile(r"@(?:private|protected|package)\b"),
             # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
-            "listeners": re.compile(r"\b(addObserver:|observeValueForKeyPath:|subscribeNext:)\b"),
+            # BUG FIX: trailing \b after a literal `:` only matched when
+            # immediately followed by another non-word char -- true for a
+            # plain identifier argument, false for the equally common
+            # `@selector(...)` argument form. Moved the \b to before the colon.
+            "listeners": re.compile(r"\b(?:addObserver|observeValueForKeyPath|subscribeNext)\b:"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(XCTSkip|xit|xdescribe)\b"),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Objective-C Specifics) ---
@@ -8591,7 +9181,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "GNU Make 4.4+",
             "last_updated": "2026-02-28",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard make extensions, definitions, and includes.
@@ -8613,12 +9203,6 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: Make natively uses '#' exclusively for line-level comments.
         "lexical_family": "line_exclusive",
         "rules": {
-            # Makefiles natively use '#' for both line and inline comments.
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            # EXPLICIT: Makefiles lack native multi-line block comment delimiters.
-            "_block_start": None,
-            "_block_end": None,
             # --------------------------------------------------------------------------
             # 1. GEOMETRY & SHAPE (Geometry & Shape)
             # --------------------------------------------------------------------------
@@ -8701,7 +9285,9 @@ LANGUAGE_DEFINITIONS = {
             # Launching explicit calculation boundaries outside the Make environment natively.
             "scientific": re.compile(r"\b(?:bc|expr|awk)\b|\$\(shell[ \t]+expr[ \t]+"),
             # Extremely dense meta-programming manipulations drastically raising cognitive load during debugging.
-            "reflection_metaprogramming": re.compile(r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"),
+            "reflection_metaprogramming": re.compile(
+                r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"
+            ),
             # Linking isolated segments of the graph execution via modular file resolution.
             "import": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
             "_dependency_capture": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
@@ -8786,10 +9372,6 @@ LANGUAGE_DEFINITIONS = {
         # for an asterisk '*' to identify line-level Commented / Non-Executable Text, while allowing '"' for inline.
         "lexical_family": "positional_anchored",
         "rules": {
-            "_line_anchor": re.compile(r"^\*"),
-            "_inline_comment": re.compile(r"\""),
-            "_block_start": None,  # ABAP has no standard multi-line block comments
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes modern COND/SWITCH expressions.
             "branch": re.compile(
@@ -8838,8 +9420,12 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 10. api: Public Surface Area. Exposed RFCs, OData publishing, and Public sections.
+            # BUG FIX: `@OData\.publish` is `@`-prefixed -- the shared
+            # leading \b could only fire when a word char immediately
+            # preceded the `@`, never true for how this annotation is
+            # actually written. Never matched at all.
             "api": re.compile(
-                r"\b(REMOTE\s+FUNCTION|@OData\.publish|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b",
+                r"\b(?:REMOTE\s+FUNCTION|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b|@OData\.publish",
                 re.I,
             ),
             # 11. flux: State Mutation. State mutation (The core of ABAP data manipulation).
@@ -9079,10 +9665,6 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         "lexical_family": "line_exclusive",
         "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
             "args": re.compile(r"^[ \t]*with:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
@@ -9246,14 +9828,12 @@ LANGUAGE_DEFINITIONS = {
         # blocks (enclosed in %{ %}), relying entirely on standard '/* */' and '//' comments.
         "lexical_family": "standard_block",
         "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(if|else|switch|case|for|while|do)\b|\|"),
             "args": re.compile(r"\$\d+|\$\$"),
-            "structural_boundaries": re.compile(r"\b(return|goto|break|continue|%token|%type|%left|%right|%nonassoc)\b"),
+            "structural_boundaries": re.compile(
+                r"\b(return|goto|break|continue|%token|%type|%left|%right|%nonassoc)\b"
+            ),
             # Executable Logic Anchor: Anchors specifically onto Grammar Rules
             # Matches "rule_name :" or "rule_name:" at the start of a line
             "func_start": re.compile(r"^[ \t]*([a-zA-Z_]\w*)(?=[ \t]*:)", re.M),
@@ -9335,11 +9915,6 @@ LANGUAGE_DEFINITIONS = {
         # line-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"\bdnl\b"),
-            "_inline_comment": re.compile(r"\bdnl\b"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # M4 branching logic and Autoconf shell-generation branches.
@@ -9378,7 +9953,9 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"\b(?:AC_SUBST|AC_DEFINE|AC_PROVIDE|m4_provide)\b"),
             # 11. flux (State Mutation)
             # Stack-based macro overriding and list appending.
-            "state_mutation": re.compile(r"\b(?:pushdef|popdef|m4_pushdef|m4_popdef|m4_append|m4_append_uniq|m4_combine)\b"),
+            "state_mutation": re.compile(
+                r"\b(?:pushdef|popdef|m4_pushdef|m4_popdef|m4_append|m4_append_uniq|m4_combine)\b"
+            ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out macro definitions.
             "dead_code": re.compile(r"^[ \t]*dnl[ \t]+(?:m4_define|define|AC_DEFUN|ifelse|AS_IF)\b", re.M),
@@ -9428,7 +10005,7 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
@@ -9484,7 +10061,7 @@ LANGUAGE_DEFINITIONS = {
         "_meta": {
             "target_version": "R5RS / R6RS / Guile (GnuPG gpgscm)",
             "last_updated": "2026-03-11",
-            "blueprint_version": "v6.2.2",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard Scheme, legacy PLT/Chez suffixes, and Racket sources.
@@ -9500,13 +10077,6 @@ LANGUAGE_DEFINITIONS = {
         # comments and `#| |#` for nested block-level Commented / Non-Executable Text.
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            # Scheme uses ';' for standard line-level literature.
-            "_line_anchor": re.compile(r";"),
-            "_inline_comment": re.compile(r";"),
-            # Scheme block comments (SRFI 30) use #| and |#
-            "_block_start": re.compile(r"#\|"),
-            "_block_end": re.compile(r"\|#"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Lisp control flow branches. Uses custom S-expression boundaries.
@@ -9709,12 +10279,7 @@ LANGUAGE_DEFINITIONS = {
         # Rationale: MLIR intentionally adopts standard LLVM assembly syntax conventions,
         # using '//' exclusively for line comments to maintain C++ ecosystem familiarity.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "proto": {
         "_meta": {
@@ -9741,12 +10306,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: Protobuf schemas strictly use standard '//' and '/* */' comments.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "hlo": {
         "_meta": {
@@ -9766,12 +10326,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: HLO text format exclusively utilizes '//' for line-level comments, maintaining C++ ecosystem alignment.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "td": {
         "_meta": {
@@ -9798,12 +10353,7 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: TableGen was built to integrate seamlessly into LLVM's C++ codebase, natively supporting '//' and '/* */' comments.
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "plaintext": {
         "_meta": {
@@ -9878,18 +10428,13 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         # THE FIX: Plaintext is mathematically inert. It has no lexical family.
         "lexical_family": "non_lexical",
-        "rules": {
-            "_line_anchor": None,
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "tcl": {
         "_meta": {
             "target_version": "Tcl 8.6 / SQLite Test Suite",
             "last_updated": "2026-03-11",
-            "blueprint_version": "v6.3.0",
+            "blueprint_version": "",
             "status": "production",
         },
         # COMPREHENSIVE SURFACE AREA: Standard scripts and Tcl modules.
@@ -9905,11 +10450,6 @@ LANGUAGE_DEFINITIONS = {
         # have native block comments (developers sometimes hack `if 0 { ... }`, but `#` is the standard).
         "lexical_family": "line_exclusive",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Tcl control flow keywords.
@@ -9957,7 +10497,9 @@ LANGUAGE_DEFINITIONS = {
             "api": re.compile(r"^[ \t]*(?:package[ \t]+provide|namespace[ \t]+export)\b", re.M),
             # 11. flux (State Mutation)
             # Variable state mutations.
-            "state_mutation": re.compile(r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[a-zA-Z0-9_:]+"),
+            "state_mutation": re.compile(
+                r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[a-zA-Z0-9_:]+"
+            ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented out structural code.
             "dead_code": re.compile(r"^[ \t]*#[ \t]*(?:proc|set|if|while|foreach|return)\b", re.M),
@@ -9994,7 +10536,9 @@ LANGUAGE_DEFINITIONS = {
             "scientific": re.compile(r"\b(?:expr|math::)\b|\b(?:sin|cos|tan|sqrt|exp|log|pow)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # High Cognitive Load: Intercepting variables, tracking execution, and runtime aliasing.
-            "reflection_metaprogramming": re.compile(r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"),
+            "reflection_metaprogramming": re.compile(
+                r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"
+            ),
             # 24. import (Dependency Inclusions)
             # Package and module loading.
             "import": re.compile(r"^[ \t]*(?:package[ \t]+require|source|load)\b", re.M),
@@ -10009,7 +10553,7 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Tcl standardizes on spaces. Tabs indicate formatter friction.
             "tabs_vs_spaces": None,
             "ssr_boundaries": None,
@@ -10075,11 +10619,6 @@ LANGUAGE_DEFINITIONS = {
         # LEXICAL FAMILY
         "lexical_family": "standard_block",
         "rules": {
-            # --- LEXICAL DELIMITER CONTROLS ---
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in|try|catch|finally)\b|\?|:"),
@@ -10087,8 +10626,12 @@ LANGUAGE_DEFINITIONS = {
             # Captures standard method arguments and Groovy closures (x, y ->)
             # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it
             # doesn't hallucinate every standard method call or if-statement in the file.
+            # QUADRATIC BLOWUP FIX: the closure form's bare-identifier branch
+            # (`[a-zA-Z_$][\w_$]*` with no \b anchor) got retried at every
+            # position in a long `->`-less line -- O(n^2) (same bug found and
+            # fixed in javascript's args). Bounded to {0,100}.
             "args": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}[A-Za-z_$][\w_$]*\s*\([^)]*\)|(?:\([^)]*\)|[a-zA-Z_$][\w_$]*)\s*->",
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}[A-Za-z_$][\w_$]*\s*\([^)]*\)|(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})\s*->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -10179,18 +10722,27 @@ LANGUAGE_DEFINITIONS = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies) 
+            # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
+            # BUG FIX: `@ResponseBody` is `@`-prefixed -- the shared leading
+            # \b could only fire when a word char immediately preceded the
+            # `@`, never true for how annotations are actually written.
+            # Never matched at all.
             "ssr_boundaries": re.compile(
-                r"\b(MarkupBuilder|StreamingMarkupBuilder|TemplateEngine|HttpServletRequest|HttpServletResponse|@ResponseBody)\b"
+                r"\b(?:MarkupBuilder|StreamingMarkupBuilder|TemplateEngine|HttpServletRequest|HttpServletResponse)\b"
+                r"|@ResponseBody"
             ),
             # 32. events (Event Emitters / Pub-Sub)
-            "events": re.compile(r"\b(ApplicationEvent|ApplicationListener|@EventListener|publishEvent)\b"),
+            # BUG FIX: `@EventListener` is `@`-prefixed -- same bug.
+            "events": re.compile(r"\b(?:ApplicationEvent|ApplicationListener|publishEvent)\b|@EventListener"),
             # 33. dependency_injection (Dependency Injection / IoC)
             # Heavily captures Gradle plugin and dependency architecture.
+            # BUG FIX: 7 of the 10 alternatives are `@`-prefixed Spring
+            # annotations -- same bug, at scale.
             "dependency_injection": re.compile(
-                r"\b(@Autowired|@Inject|@Component|@Service|@Repository|@Bean|@Configuration|apply\s+plugin|plugins\s*\{|dependencies\s*\{)\b"
+                r"\b(?:apply\s+plugin|plugins\s*\{|dependencies\s*\{)\b"
+                r"|@Autowired|@Inject|@Component|@Service|@Repository|@Bean|@Configuration"
             ),
             # 34. macros
             "macros": None,
@@ -10206,8 +10758,10 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(log|logger|LOGGER|LoggerFactory)\.(?:info|error|warn|warning|debug|trace)\b|@Slf4j|@Log4j2|@Log"
             ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs)
+            # BUG FIX: `\.printStackTrace\(\)` ends on `)` (non-word), so
+            # the shared trailing \b could never fire. Never matched.
             "debug_prints": re.compile(
-                r"\b(println|print|printf|System\.out\.print|System\.err\.print|\.printStackTrace\(\))\b"
+                r"\b(?:println|print|printf|System\.out\.print|System\.err\.print)\b|\.printStackTrace\(\)"
             ),
             # # 40. explicit_casts (Explicit Type Casting)
             "explicit_casts": re.compile(
@@ -10223,7 +10777,8 @@ LANGUAGE_DEFINITIONS = {
             # 44. sync_locks (Resource Management & Stability)
             "sync_locks": re.compile(r"\b(synchronized|ReentrantLock|ReadWriteLock|Semaphore|Lock|Mutex)\b"),
             # 45. immutability_locks (Immutability Constraints)
-            "immutability_locks": re.compile(r"\b(final|@Immutable)\b"),
+            # BUG FIX: `@Immutable` is `@`-prefixed -- same leading-\b bug.
+            "immutability_locks": re.compile(r"\bfinal\b|@Immutable"),
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(close|dispose|shutdown)\b\s*\("),
             # 47. encapsulation (Access Modifiers / Encapsulation)
@@ -10266,24 +10821,7 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         # THE FIX: JSON with comments relies on C-style comment structures, not Python/Ruby hashes.
         "lexical_family": "standard_block",
-        "rules": {
-            # =====================================================================
-            # [ CRITICAL ROADMAP: JSONC/JSON5 LEXICAL DELIMITERS & THE RE.COMPILE TRAP ]
-            # 1. THE LEXICAL MAPPING: JSON with comments (.jsonc, .json5) strictly
-            #    uses C-style comments (// and /* */), NOT Python/Ruby hashes (#).
-            #    This is why JSON must map to the 'std_c' lexical_family, not 'pure_hash' or 'inert'.
-            # 2. THE RE.COMPILE TRAP: Every rule here MUST be wrapped in re.compile().
-            #    If passed as raw strings, the engine's physics loop will crash with
-            #    "'str' object has no attribute 'pattern'" during the Commented / Non-Executable Text extraction.
-            # =====================================================================
-            # JSON has no concept of a "column 1" or line-start-only comment anchor.
-            "_line_anchor": None,
-            # JSONC/JSON5 inline comments use standard C-style slashes.
-            "_inline_comment": re.compile(r"//"),
-            # JSONC/JSON5 multi-line blocks use standard C-style delimiters.
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "glsl": {
         "_meta": {"target_version": "OpenGL Shading Language", "status": "production"},
@@ -10292,12 +10830,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".glsl", ".vert", ".frag"],
         "shebangs": [],
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "nix": {
         "_meta": {"target_version": "Nix Expression Language", "status": "production"},
@@ -10306,12 +10839,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": ["flake.nix", "default.nix", "shell.nix"],
         "shebangs": [],
         "lexical_family": "line_exclusive",
-        "rules": {
-            "_line_anchor": re.compile(r"#"),
-            "_inline_comment": re.compile(r"#"),
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "blp": {
         "_meta": {"target_version": "Blueprint UI Markup", "status": "production"},
@@ -10320,12 +10848,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".blp", ".ui"],
         "shebangs": [],
         "lexical_family": "standard_block",
-        "rules": {
-            "_line_anchor": re.compile(r"//"),
-            "_inline_comment": re.compile(r"//"),
-            "_block_start": re.compile(r"/\*"),
-            "_block_end": re.compile(r"\*/"),
-        },
+        "rules": {},
     },
     "batch": {
         "_meta": {"target_version": "Windows CMD/Batch", "status": "production"},
@@ -10334,13 +10857,7 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [],
         "shebangs": [],
         "lexical_family": "line_exclusive",
-        "rules": {
-            # Uses REM or :: for comments. No active logic rules needed (Inert Matter Bypass).
-            "_line_anchor": re.compile(r"^[ \t]*(?:REM|::)", re.I | re.M),
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
-        },
+        "rules": {},
     },
     "jcl": {
         "_meta": {
@@ -10353,31 +10870,21 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         "lexical_family": "line_exclusive",
         "rules": {
-            # JCL comments strictly start with //*
-            "_line_anchor": re.compile(r"^//\*"),
-            "_inline_comment": None,
-            "_block_start": None,
-            "_block_end": None,
-            
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
             "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
             "args": None,
-            
             # Structural boundaries (Any line starting with // and a command)
-            "structural_boundaries": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]+\s+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I),
-            
+            "structural_boundaries": re.compile(
+                r"^[ \t]*//[A-Za-z0-9_#$@]+\s+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
+            ),
             # Functions (EXEC steps)
             "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+EXEC\b", re.M | re.I),
-            
             # Classes/Entities (JOB cards)
             "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+JOB\b", re.M | re.I),
-            
             # Danger (Execution of arbitrary programs)
             "high_risk_execution": re.compile(r"\bPGM=[A-Za-z0-9_#$@]+\b", re.I),
-            
             # I/O (Data Set Names and Sysouts)
             "io": re.compile(r"\b(DSN|DSNAME|SYSOUT|SYSPRINT|DISP=)\b", re.I),
-            
             # JCL doesn't have traditional code equivalents for these, keep them null to prevent crashes
             "safety": None,
             "api": None,

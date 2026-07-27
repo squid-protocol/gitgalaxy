@@ -10,7 +10,7 @@
 /**
  * FILENAME: data-parser.js
  * GitGalaxy Data Ingestion & Transformation Layer
- * v6.5.0: Deep Refraction Update (Fibonacci Physics + Complexity Depth)
+ *: Deep Refraction Update (Fibonacci Physics + Complexity Depth)
  * Handles Satellite Impact Scoring, 3D Phyllotaxis, and DNA Inheritance.
  */
 

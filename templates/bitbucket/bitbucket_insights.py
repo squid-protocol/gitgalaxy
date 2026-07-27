@@ -71,9 +71,18 @@ def publish_insights(sarif_path: str):
         })
 
     report_id = "gitgalaxy-audit-report"
-    base_url = f"http://localhost:29418/2.0/repositories/{workspace}/{repo}/commit/{commit}/reports/{report_id}"
+    # Bitbucket's proxy requires HTTP (not HTTPS) to automatically inject the Auth header
+    base_url = f"http://api.bitbucket.org/2.0/repositories/{workspace}/{repo}/commit/{commit}/reports/{report_id}"
     
-    # 4. Create the Parent Report (PUT)
+    # 4. Set up the Proxy Handler for Bitbucket Pipelines
+    proxy_handler = urllib.request.ProxyHandler({
+        'http': 'http://localhost:29418',
+        'https': 'http://localhost:29418'
+    })
+    opener = urllib.request.build_opener(proxy_handler)
+    urllib.request.install_opener(opener)
+    
+    # Create the Parent Report (PUT)
     report_payload = json.dumps({
         "title": "GitGalaxy Spectral Audit",
         "details": f"GitGalaxy mapped {len(bitbucket_annotations)} architectural threats.",
@@ -81,9 +90,9 @@ def publish_insights(sarif_path: str):
         "result": "FAILED" if any(a["severity"] == "HIGH" for a in bitbucket_annotations) else "PASSED"
     }).encode("utf-8")
 
-    # Enforce loopback destination boundaries to neutralize remote protocol exploits
-    if not base_url.startswith("http://localhost:29418/"):
-        print("❌ Security Violation: Invalid localized API destination.")
+    # Enforce API destination boundaries to neutralize remote protocol exploits
+    if not base_url.startswith("http://api.bitbucket.org/"):
+        print("❌ Security Violation: Invalid API destination.")
         sys.exit(1)
 
     req = urllib.request.Request(base_url, data=report_payload, method="PUT")
@@ -94,8 +103,9 @@ def publish_insights(sarif_path: str):
         urllib.request.urlopen(req)
         print(f"✅ Created Code Insights Report: {report_id}")
     except urllib.error.URLError as e:
-        print(f"❌ Failed to create Bitbucket report: {e}")
-        sys.exit(1)
+        print(f"⚠️  Failed to create Bitbucket report (transient API issue?): {e}")
+        print("⚠️  Skipping annotation publish this run — this does not affect the underlying scan result.")
+        return
 
     # 5. Bulk Upload Annotations in Chunks of 100 (POST)
     annotations_url = f"{base_url}/annotations"
@@ -105,8 +115,8 @@ def publish_insights(sarif_path: str):
         chunk = bitbucket_annotations[i:i + chunk_size]
         chunk_payload = json.dumps(chunk).encode("utf-8")
         
-        if not annotations_url.startswith("http://localhost:29418/"):
-            print("❌ Security Violation: Invalid localized API destination.")
+        if not annotations_url.startswith("http://api.bitbucket.org/"):
+            print("❌ Security Violation: Invalid API destination.")
             sys.exit(1)
             
         req = urllib.request.Request(annotations_url, data=chunk_payload, method="POST")

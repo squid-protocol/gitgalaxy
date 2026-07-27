@@ -3,19 +3,19 @@
 # GitGalaxy Tool: MVS 3.8j COBOL Compiler Scaffolding
 #
 # PURPOSE:
-# Dynamically generates the mainframe build JCL based on the detected COBOL 
+# Dynamically generates the mainframe build JCL based on the detected COBOL
 # dialect (74 vs 85) to ensure deterministic legacy compilation.
 #
 # ARCHITECTURAL DECISION:
-# Legacy compilers are highly sensitive to dialect constraints. Feeding modern 
-# COBOL-85 structural signatures (like EVALUATE or END-IF) into an OS/VS COBOL-74 
-# compiler will trigger catastrophic compilation failures. This module inspects 
-# the extracted source logic, detects the era-specific dialect, and automatically 
+# Legacy compilers are highly sensitive to dialect constraints. Feeding modern
+# COBOL-85 structural signatures (like EVALUATE or END-IF) into an OS/VS COBOL-74
+# compiler will trigger catastrophic compilation failures. This module inspects
+# the extracted source logic, detects the era-specific dialect, and automatically
 # routes the build sequence to the correct enterprise compiler (COBUCL vs IGYWCL).
 # ==============================================================================
 import argparse
-import sys
 import re
+import sys
 from pathlib import Path
 
 # Execution constraint to prevent resource starvation from cyclic copybooks
@@ -40,8 +40,8 @@ def flatten_copybooks(source_text: str, base_dir: Path, current_depth: int = 0) 
     # ==========================================================================
     # DEFENSIVE DESIGN (RECURSION LIMITER):
     # Legacy architectures frequently contain cyclic dependencies (e.g., Copybook A
-    # imports Copybook B, which imports Copybook A). Without a strict recursion 
-    # depth limit, this resolution function will trap the CPU in an infinite loop, 
+    # imports Copybook B, which imports Copybook A). Without a strict recursion
+    # depth limit, this resolution function will trap the CPU in an infinite loop,
     # triggering an Out-Of-Memory (OOM) pipeline collapse.
     # ==========================================================================
     if current_depth > MAX_RECURSION_DEPTH:

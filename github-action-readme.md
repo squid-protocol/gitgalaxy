@@ -4,9 +4,9 @@
 [![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Physics-00BFFF.svg)](#)
 [![Security](https://img.shields.io/badge/Security-Zero--Trust_Enforcement-FF4500.svg)](#)
 
-GitGalaxy is an AST-free, high-velocity heuristic physics engine for codebase architecture and DevSecOps. 
+Gitgalaxy is a static analysis tool that can assess full repos, comprised of mixes of 50+ different languages and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. 
 
-Instead of relying on slow static parsers, GitGalaxy translates structural codebase DNA into N-dimensional risk physics. This GitHub Action allows you to drop our entire suite of security sentinels, autonomous AI guardrails, and architectural cartography tools directly into your CI/CD pipeline. It physically blocks threats and automatically generates living architectural documentation.
+This GitHub Action drops our security sentinels, AI-agent guardrails, and architectural cartography tools directly into your CI/CD pipeline, and can automatically generate living architectural documentation.
 
 For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-the-blast-paradigm.md) and our [Security Landscape Overview](docs/wiki/04-00-security_landscape.md).
 
@@ -14,64 +14,32 @@ For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-t
 
 ## 🚀 The "Golden Path" (Recommended Pipeline)
 
-For the highest level of automated enterprise security and documentation, we recommend the **Parallel Enforcement & Autonomous Reporting** pipeline. 
+For standard PR gating, use the **3-job Zero-Trust Sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `supply-chain-firewall` run in parallel, and any one of them can fail the build.
 
-This workflow runs our core Zero-Trust Sentinels simultaneously for lightning-fast pipeline execution. If (and only if) the code passes all security gates, the Orchestrator (`galaxyscope`) generates an updated LLM Architectural Brief and automatically commits it back to your `main` branch under the `docs/` folder.
+Rather than pasting the workflow here (which is exactly how our version pins drifted out of sync last time), use the maintained template directly:
 
-Create a file at `.github/workflows/gitgalaxy-pipeline.yml`:
+**➡️ [`templates/github/gitgalaxy-pipeline.yml`](templates/github/gitgalaxy-pipeline.yml)** — copy this file to `.github/workflows/gitgalaxy-pipeline.yml` in your repo.
+
+> **Note on trigger:** the shipped template runs `on: push: branches: [main]` — it reports on code *after* it lands on `main`, not before. If you want these gates to actually block a merge rather than report after the fact, change the trigger to `on: pull_request` before adopting it. We kept `push` as the default because it's the lower-friction starting point, but it's worth a deliberate decision, not an assumption.
+
+### Advanced: Autonomous Architecture Docs
+
+If you also want GitGalaxy to keep an LLM-readable architecture brief up to date automatically, add a 4th job that runs *after* all three gates pass, and commits the brief back to `docs/` on `main`:
 
 ```yaml
-name: GitGalaxy Zero-Trust Pipeline
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  vault-sentinel:
-    name: Vault Sentinel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: squid-protocol/gitgalaxy@v2.2.1
-        with:
-          tool: 'vault-sentinel'
-          target: '.'
-
-  xray-inspector:
-    name: X-Ray Inspector
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: squid-protocol/gitgalaxy@v2.2.1
-        with:
-          tool: 'xray-inspector'
-          target: '.'
-
-  supply-chain-firewall:
-    name: Supply Chain Firewall
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: squid-protocol/gitgalaxy@v2.2.1
-        with:
-          tool: 'supply-chain-firewall'
-          target: '.'
-
   architectural-report:
     name: Autonomous LLM Brief
     needs: [vault-sentinel, xray-inspector, supply-chain-firewall]
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Grants the Action permission to push the report to main
+      contents: write # This job pushes to main — grant this scope deliberately
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Required to calculate historical Volatility/Churn
 
       - name: Generate GalaxyScope LLM Brief
-        uses: squid-protocol/gitgalaxy@v2.2.1
+        uses: squid-protocol/gitgalaxy@v2.4.0
         with:
           tool: 'galaxyscope'
           target: '.'
@@ -82,14 +50,16 @@ jobs:
         run: |
           mkdir -p docs
           mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md || true
-          
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/gitgalaxy_architecture_brief.md
-          
+
           # Only commit and push if the architecture actually changed
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update LLM architectural brief" && git push)
 ```
+
+This is genuinely optional, and separate for a reason: it's the only job in this file with write access to your repo, running unattended. Add it once you're comfortable with the base 3-job pipeline, not as your first step.
 
 ---
 
@@ -98,7 +68,7 @@ jobs:
 The `tool` input determines which GitGalaxy program executes. Choose the right tool for your specific pipeline stage:
 
 ### 1. The Orchestrator (Reporting & Observability)
-* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates 18-point risk physics (Cognitive Load, State Flux, Instructional Density), runs ML threat inference, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs). *Does not fail the pipeline; strictly for reporting and cartography.*
+* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates 19-point risk physics (Cognitive Load, State Flux, Instructional Density, and more), runs ML threat inference, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Does not fail the pipeline; strictly for reporting and cartography.*
 
 ### 2. The Sentinels (Zero-Trust Enforcement)
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
@@ -112,7 +82,6 @@ The `tool` input determines which GitGalaxy program executes. Choose the right t
 * **[`dev-agent-firewall`](docs/wiki/02-18-dev-agent-firewall.md)**: Evaluates algorithmic complexity and blast radius to determine if an AI has the context to safely modify the code. Flags "Context Window Black Holes" and enforces Human-in-the-Loop (HITL) mandates for highly volatile infrastructure.
 
 ### 4. Specialized Hunters & Artifacts (Targeted Audits)
-* **[`zero-trust-sbom`](docs/wiki/04-02-sbom-generator.md)**: Generates a universally compliant CycloneDX 1.4 JSON SBOM. Unlike standard tools that blindly trust manifests, this engine physically verifies packages on disk, flagging high-entropy code and spoofed files.
 * **[`api-network-map`](docs/wiki/04-01-full-api-network-map.md)**: Compares physical source-code routing against official OpenAPI/Swagger specs to hunt down undocumented **Shadow APIs** (Security Risks) and **Ghost APIs** (Audit Bloat).
 * **[`pii-leak-hunter`](docs/wiki/04-06-pii-leak-hunter.md)**: A high-velocity streaming binary scanner for massive, single files. Scrubs database dumps or raw production logs for exposed VISA, Mastercard, SSN, and AWS keys, generating a safely masked evidence log.
 
@@ -127,7 +96,7 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 | `tool` | Yes | `galaxyscope` | The specific executable to run (see Tool Directory above). |
 | `target` | Yes | `.` | The directory or specific file path to scan. |
 | `args` | No | `""` | Additional CLI arguments passed directly to the tool. |
-| `version` | No | `latest` | Target a specific PyPI version of GitGalaxy (e.g., `2.2.1`). |
+| `version` | No | `latest` | Pin to a specific version of GitGalaxy (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases) for available versions). |
 | `full_precision` | No | `false` | Set to `'true'` to install heavy physics engines (`networkx`, `tiktoken`, `xgboost`) for Blast Radius math and ML Threat Inference. |
 
 ### 🛡️ Understanding the `--paranoid` Flag
@@ -142,15 +111,16 @@ When passing arguments via `args`, the `--paranoid` flag allows you to control t
 ## 🛠️ Advanced Integration Examples
 
 ### Universal Zero-Trust SBOM Generation
-Generate a physical-verified CycloneDX SBOM to attach to a release.
+Generate a physical-verified CycloneDX SBOM to attach to a release. SBOM generation is native to `galaxyscope` — see the [SBOM generator reference](docs/wiki/04-02-sbom-generator.md).
 
 ```yaml
       - name: Generate Physical SBOM
-        uses: squid-protocol/gitgalaxy@v2.2.1
+        uses: squid-protocol/gitgalaxy@v2.4.0
         with:
-          tool: 'zero-trust-sbom'
+          tool: 'galaxyscope'
           target: '.'
-          
+          args: '--sbom-only'
+
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -163,13 +133,13 @@ Automatically halt the CI/CD pipeline if an AI agent commits code that exposes a
 
 ```yaml
       - name: AI AppSec Validation
-        uses: squid-protocol/gitgalaxy@v2.2.1
+        uses: squid-protocol/gitgalaxy@v2.4.0
         with:
           tool: 'ai-appsec-sensor'
           target: '.'
 
       - name: Agent Context Firewall
-        uses: squid-protocol/gitgalaxy@v2.2.1
+        uses: squid-protocol/gitgalaxy@v2.4.0
         with:
           tool: 'dev-agent-firewall'
           target: '.'
@@ -180,7 +150,7 @@ Automatically audit Pull Requests to ensure developers aren't silently exposing 
 
 ```yaml
       - name: Shadow API Audit
-        uses: squid-protocol/gitgalaxy@v2.2.1
+        uses: squid-protocol/gitgalaxy@v2.4.0
         with:
           tool: 'api-network-map'
           target: '.'

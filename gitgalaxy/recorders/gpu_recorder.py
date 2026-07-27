@@ -14,19 +14,20 @@
 
 # galaxyscope:ignore sec_high_risk_execution
 
+import gc
 import json
 import logging
-import gc
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
+
 from gitgalaxy.standards import analysis_lens
-from gitgalaxy.standards import gitgalaxy_config
+from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 9: GPU Recorder
-# Strategy v6.2.0 Protocol: Destructive Columnar Pivot & Text Interning
+# Strategy Protocol: Destructive Columnar Pivot & Text Interning
 # Stage 3.3: Destructive RAM Eviction (Final Pipeline Phase)
 # ==============================================================================
 
@@ -59,16 +60,16 @@ class GPURecorder:
 
         # --- TEXT INTERNING REGISTRIES ---
         # Converts repetitive strings across 10,000+ files into O(1) integer array lookups
-        self.lang_lookup: List[str] = []
-        self.author_lookup: List[str] = []
-        self.proof_lookup: List[str] = []
-        self.purpose_lookup: List[str] = []
-        self.reason_lookup: List[str] = []
-        self.ext_lookup: List[str] = []
-        self.import_lookup: List[str] = []
-        self.texture_lookup: List[str] = schemas.get("GPU_TEXTURE_LOOKUPS", [])
-        self.dir_group_lookup: List[str] = []
-        self.archetype_lookup: List[str] = []
+        self.lang_lookup: list[str] = []
+        self.author_lookup: list[str] = []
+        self.proof_lookup: list[str] = []
+        self.purpose_lookup: list[str] = []
+        self.reason_lookup: list[str] = []
+        self.ext_lookup: list[str] = []
+        self.import_lookup: list[str] = []
+        self.texture_lookup: list[str] = schemas.get("GPU_TEXTURE_LOOKUPS", [])
+        self.dir_group_lookup: list[str] = []
+        self.archetype_lookup: list[str] = []
 
         # --- POSITION-SENSITIVE SCHEMAS ---
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
@@ -77,15 +78,13 @@ class GPURecorder:
 
     def record_mission(
         self,
-        parsed_files: List[Dict],
-        unparsable_files: List[Dict],
-        summary: Dict,
-        forensic_report: Dict,
+        parsed_files: list[dict],
+        unparsable_files: list[dict],
+        summary: dict,
         repo_name: str,
-        session_meta: Dict = None,
-        commit_hash: str = "untracked_local",
-        branch_name: str = "unknown_branch",
-    ) -> Dict:
+        session_meta: Optional[dict] = None,
+        resolved_config=None,
+    ) -> dict:
         """
         Orchestrates the synthesis and implementation of Destructive RAM Eviction.
         Iteratively destroys the input lists to free memory while building the columnar manifest.
@@ -93,7 +92,7 @@ class GPURecorder:
         self.logger.info("GPU_RECORDER: Engaging Stage 3.3 Destructive RAM Eviction.")
 
         # The 'Galaxy' array maps 1:1 to the WebGL rendering instance
-        repository_graph = {
+        repository_graph: dict[str, Any] = {
             "names": [],
             "paths": [],
             "lang_ids": [],
@@ -128,7 +127,7 @@ class GPURecorder:
         }
 
         # The 'Singularity' array maps 1:1 to Excluded Artifacts
-        excluded_artifacts = {
+        excluded_artifacts: dict[str, list[Any]] = {
             "paths": [],
             "exts": [],
             "reasons": [],
@@ -152,15 +151,15 @@ class GPURecorder:
                 resolution_map[stem] = idx
 
         # Pre-allocate the "Imported By" (inbound dependency) array for all files
-        inbound_edges = [[] for _ in range(len(parsed_files))]
+        inbound_edges: list[list[int]] = [[] for _ in range(len(parsed_files))]
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         # DESTRUCTIVE PIVOT: Parsed Artifacts
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         while parsed_files:
             current_idx = len(repository_graph["paths"])
             file_data = parsed_files.pop()
@@ -303,11 +302,11 @@ class GPURecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         # DESTRUCTIVE PIVOT: Excluded Artifacts Queue
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         while unparsable_files:
             unparsable = unparsable_files.pop()
             path = unparsable.get("path", "")
@@ -327,11 +326,11 @@ class GPURecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         # SUMMARY FLATTENING (UI Diagnostics)
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         unparsable_sum = summary.get("unparsable_files", {})
         breakdown = {
             "binary": unparsable_sum.get("binary", 0),
@@ -356,12 +355,23 @@ class GPURecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+        # galaxyscope:ignore sec_high_risk_execution
         # MISSION LORE INJECTION
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
-        project_stories = getattr(gitgalaxy_config, "PROJECT_STORIES", {})
+        # galaxyscope:ignore sec_high_risk_execution
+        # #335: was `from gitgalaxy.standards import gitgalaxy_config`, the
+        # raw unmerged module -- meant no YAML/CLI override (#332) could
+        # ever reach this lookup. Falls back to an unconfigured
+        # resolve_config() only when the caller doesn't already have a
+        # resolved config to hand over (e.g. direct/test use). Uses .get()
+        # rather than getattr() because the caller may hand over either a
+        # ResolvedConfig or Orchestrator's plain full_config dict -- both
+        # support .get(), but getattr() on a plain dict silently always
+        # returns the default, which is exactly the reachability bug this
+        # migration exists to close.
+        config_source = resolved_config if resolved_config is not None else resolve_config()
+        project_stories = config_source.get("PROJECT_STORIES", {})
 
         story_payload = project_stories.get(
             repo_name,
@@ -403,7 +413,7 @@ class GPURecorder:
                         "constellations": self.dir_group_lookup,
                         "archetypes": self.archetype_lookup,
                     },
-                }
+                },
             },
             "global_summary": summary,
             "galaxy": repository_graph,
@@ -411,13 +421,13 @@ class GPURecorder:
             "story": story_payload,
         }
 
-    def _intern(self, val: str, registry: List[str]) -> int:
+    def _intern(self, val: str, registry: list[str]) -> int:
         """Minifies payload footprints by mapping repetitive strings to integer IDs."""
         if val not in registry:
             registry.append(val)
         return registry.index(val)
 
-    def save_minified(self, payload: Dict[str, Any], filename: str):
+    def save_minified(self, payload: dict[str, Any], filename: str):
         """Serializes with maximum JSON compression to the provided output path."""
         target_path = Path(filename)
         target_path.parent.mkdir(parents=True, exist_ok=True)

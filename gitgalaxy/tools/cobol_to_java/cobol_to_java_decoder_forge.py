@@ -3,15 +3,15 @@
 # GitGalaxy Tool: EBCDIC & COMP-3 Decoder Generator
 #
 # PURPOSE:
-# Auto-generates the utility class necessary to translate raw mainframe byte 
+# Auto-generates the utility class necessary to translate raw mainframe byte
 # streams into modern Java data structures (UTF-8 Strings and BigDecimals).
 #
 # ARCHITECTURAL DECISION:
-# Mainframe datasets do not natively map to modern ASCII/UTF-8 strings or IEEE 754 
-# floating-point numbers. IBM's Packed Decimal (COMP-3) and EBCDIC encodings 
-# require precise, bit-level translation. By auto-generating a dedicated, thoroughly 
-# tested decoding utility within the Spring Boot architecture, we prevent the AI 
-# agent from hallucinating flawed byte-shifting logic and ensure enterprise-grade 
+# Mainframe datasets do not natively map to modern ASCII/UTF-8 strings or IEEE 754
+# floating-point numbers. IBM's Packed Decimal (COMP-3) and EBCDIC encodings
+# require precise, bit-level translation. By auto-generating a dedicated, thoroughly
+# tested decoding utility within the Spring Boot architecture, we prevent the AI
+# agent from hallucinating flawed byte-shifting logic and ensure enterprise-grade
 # data integrity during binary ingestion.
 # ==============================================================================
 

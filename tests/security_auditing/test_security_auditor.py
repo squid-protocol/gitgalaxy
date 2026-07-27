@@ -142,6 +142,50 @@ def test_audit_repository_ml_inference(mock_xgb_class, mock_artifacts):
     # 4. Assert Safe File (utils.py)
     assert utils_artifact["is_ml_threat"] is False
 
+    # 5. Regression test for #364: the producer must write "AI Threat Score",
+    # not the near-miss "AI Threat Confidence" every consumer except
+    # sarif_recorder.py used to fall through past. (100.0%, not 99.0%, because
+    # the Shadow Patch override above also forces ml_score to 100.0.)
+    assert main_artifact["telemetry"]["domain_context"]["AI Threat Score"] == "100.0%"
+    assert "AI Threat Confidence" not in main_artifact["telemetry"]["domain_context"]
+
+
+# ==============================================================================
+# TEST 4: END-TO-END REGRESSION (#364 -- the real chain, not a hand-mocked one)
+# ==============================================================================
+@patch("gitgalaxy.security.security_auditor.xgb.XGBClassifier")
+def test_ai_threat_score_survives_from_auditor_into_recorders(mock_xgb_class, mock_artifacts):
+    """
+    Every existing recorder test mocked "domain_context": {"AI Threat Score": ...}
+    directly -- which meant they all quietly assumed the correct producer shape
+    without ever exercising the real producer, and none of them would have caught
+    #364 (the producer actually wrote "AI Threat Confidence"). This drives a REAL
+    SecurityAuditor.audit_repository() artifact through the exact one-line reads
+    gpu_recorder.py and record_keeper.py use, proving the real score -- not a
+    0.0%/"0.0%" fallback -- survives into both.
+    """
+    mock_model = mock_xgb_class.return_value
+    mock_model.feature_names_in_ = ["log_logic_loc", "log_density_hit_high_risk_execution"]
+    mock_model.predict_proba.return_value = np.array(
+        [[0.01, 0.99, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]]
+    )
+
+    auditor = SecurityAuditor()
+    auditor.model = mock_model
+    auditor.feature_names = mock_model.feature_names_in_
+
+    audited_artifacts = auditor.audit_repository(mock_artifacts, is_shadow_patch=False)
+    real_domain_context = audited_artifacts[0]["telemetry"]["domain_context"]
+
+    # gpu_recorder.py's exact extraction (gitgalaxy/recorders/gpu_recorder.py:248)
+    gpu_ai_score_str = real_domain_context.get("AI Threat Score", "0.0%")
+    assert gpu_ai_score_str != "0.0%"
+    assert float(gpu_ai_score_str.replace("%", "")) == 99.0
+
+    # record_keeper.py's exact extraction (gitgalaxy/recorders/record_keeper.py:423-425)
+    rk_ai_threat_str = real_domain_context.get("AI Threat Score", "0.0%")
+    assert float(rk_ai_threat_str.replace("%", "")) == 99.0
+
 
 # ==============================================================================
 # TEST 4: FATAL DESYNC & EXCEPTION CATCHING

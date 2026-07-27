@@ -115,6 +115,43 @@ def test_signal_processor_apocalypse_breaches(processor):
 
 
 # ==============================================================================
+# TEST 2b: THE PROVABLY-EMPTY TINY FILE (True Zero, Not the Small-File Floor)
+# ==============================================================================
+def test_signal_processor_empty_tiny_file_scores_true_zero(processor):
+    """
+    Proves a provably empty <=2 LOC file (e.g. a near-blank __init__.py) gets
+    a true 0.0 Cognitive Load, not the small-file 5.0 floor _calc_cog_load
+    applies to files under 15 LOC. Regression guard for a bug where this
+    exact carve-out existed in the code but was unreachable -- an earlier
+    `if safe_loc < 15` branch always returned first, so a 1-2 line file with
+    zero signals was still forced to 5.0.
+    """
+    meta, sig = create_synthetic_star(processor, "blank_init", 2)
+    meta["lang_id"] = "rust"  # tier1 (irc=0) -- tier2/3 languages carry a nonzero
+    # irc floor that keeps total_density above 0 even with no raw signals, so this
+    # carve-out can only ever fire for tier1 languages. See _get_tier().
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert res["risk_vector"][idx_cog] == 0.0, (
+        "Provably empty tiny file should score a true 0.0, not the small-file floor!"
+    )
+
+
+def test_signal_processor_small_file_floor_still_applies(processor):
+    """
+    Proves the small-file 5.0 floor is untouched for files under 15 LOC that
+    DO have some signal -- only the provably-empty <=2 LOC case should get
+    the true-zero carve-out.
+    """
+    meta, sig = create_synthetic_star(processor, "small_but_real", 10, {"branch": 3})
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert res["risk_vector"][idx_cog] == 5.0, "Small file with real signal should still hit the 5.0 floor!"
+
+
+# ==============================================================================
 # TEST 3: ZERO-DIVISION & EMPTY STATE FALLBACKS
 # ==============================================================================
 def test_signal_processor_zero_division_shields(processor):
@@ -345,11 +382,58 @@ def test_signal_processor_doc_and_secrets_bypass(processor):
 
     # 2. Test Critical Secrets Leak
     meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
-    meta_sec["metadata"] = {"aperture_reason": "CRITICAL LEAK"}
+    meta_sec["metadata"] = {"reason": "CRITICAL LEAK"}  # #374: real key is "reason", not "aperture_reason"
 
     res_sec = processor.calculate_risk_vector(meta_sec, sig_sec)
     assert 100.0 in res_sec["risk_vector"], (
         "Critical Leak failed to spike the Secrets Risk to 100%!"
+    )
+
+
+def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor):
+    """
+    Regression test for #245: documentation and critical-leak overrides must
+    report raw_churn_freq in their telemetry, otherwise the Pass 2 global
+    normalization pass (_normalize_temporal_metrics) reads back the default
+    0.0 and silently zeroes out the churn score these branches just computed.
+    """
+    churn_idx = processor.RISK_SCHEMA.index("churn")
+    hot_temporal = {
+        "is_git_tracked": True,
+        "mtime": 100,
+        "repo_min_time": 0,
+        "repo_max_time": 110,
+        "commit_count": 500,
+    }
+
+    meta_doc, sig_doc = create_synthetic_star(processor, "readme", 500, {"branch": 500})
+    meta_doc["lang_id"] = "markdown"
+    meta_doc["temporal_telemetry"] = hot_temporal
+
+    meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
+    meta_sec["metadata"] = {"reason": "CRITICAL LEAK"}  # #374: real key is "reason", not "aperture_reason"
+    meta_sec["temporal_telemetry"] = hot_temporal
+
+    for meta, sig in ((meta_doc, sig_doc), (meta_sec, sig_sec)):
+        res = processor.calculate_risk_vector(meta, sig)
+        meta["telemetry"] = res["telemetry"]
+        meta["risk_vector"] = res["risk_vector"]
+        meta["file_impact"] = res["file_impact"]
+        assert meta["risk_vector"][churn_idx] > 0.0, (
+            "Override branch failed to compute an initial churn score!"
+        )
+        assert "raw_churn_freq" in meta["telemetry"], (
+            "Override branch must publish raw_churn_freq so Pass 2 "
+            "normalization doesn't clobber it back to 0.0!"
+        )
+
+    processor.summarize_galaxy_metrics([meta_doc, meta_sec], [])
+
+    assert meta_doc["risk_vector"][churn_idx] > 0.0, (
+        "Documentation file's churn was silently zeroed by global normalization!"
+    )
+    assert meta_sec["risk_vector"][churn_idx] > 0.0, (
+        "Critical-secret-leak file's churn was silently zeroed by global normalization!"
     )
 
 
@@ -393,21 +477,24 @@ def test_signal_processor_memory_exhaustion_spatial(processor):
 # TEST 14: AI TOPOLOGY & NETWORK POSTURE
 # ==============================================================================
 def test_signal_processor_ai_topology(processor):
-    """Proves the aggregator correctly classifies Autonomous Fleets and RAG pipelines."""
-    # Level 4 Agent (Tools + Logic Loops, but NO memory)
-    m1, sig1 = create_synthetic_star(
-        processor,
-        "agent",
-        100,
-        {"ai_logic_loop": 10, "ai_tools": 10, "ai_memory": 0},
-    )
+    """
+    Proves the AI Network Posture insights (PageRank blast radius,
+    Betweenness choke-point) fire for any file that registers nonzero AI
+    mass, using llm_orchestrator as the trigger signal.
 
-    # RAG Pipeline
-    m2, sig2 = create_synthetic_star(
-        processor, "rag", 100, {"llm_api": 10, "llm_vector_store": 10}
-    )
+    #323: this test used to exercise ai_logic_loop/ai_tools/ai_memory
+    ("Autonomous Agentic Fleet (Level 4)" + "context amnesia" insight) --
+    those 3 categories were removed from SIGNAL_SCHEMA entirely (they
+    detect BEHAVIOR, not import identity, which a regex engine can't do;
+    they had zero producers in language_standards.py and were permanently
+    unreachable against real source). RAG Pipeline / Cloud API Wrapper
+    classification coverage lives in
+    test_signal_processor_ai_topology_rag_cloud below; this test now only
+    needs to prove the network-posture insight logic itself still works
+    off a signal that's actually still real.
+    """
+    m1, sig1 = create_synthetic_star(processor, "orchestrator", 100, {"llm_orchestrator": 10})
 
-    # Process files
     tel1 = processor.calculate_risk_vector(m1, sig1)
     m1["telemetry"] = tel1["telemetry"]
     m1["hit_vector"] = tel1["hit_vector"]  # Essential for the AI sensor!
@@ -420,20 +507,14 @@ def test_signal_processor_ai_topology(processor):
         "ecosystem_role": "Core Hub",
     }
 
-    tel2 = processor.calculate_risk_vector(m2, sig2)
-    m2["telemetry"] = tel2["telemetry"]
-    m2["hit_vector"] = tel2["hit_vector"]
-
-    parsed = [m1, m2]
-    summary = processor.summarize_galaxy_metrics(parsed, [])
+    summary = processor.summarize_galaxy_metrics([m1], [])
 
     topology = summary.get("ai_topology", {})
-    assert topology["classification"] == "Autonomous Agentic Fleet (Level 4)", (
-        "Failed to classify Level 4 Agent!"
+    assert topology["classification"] == "Framework-Heavy Orchestration", (
+        "Failed to classify orchestration-heavy repo!"
     )
 
     insights = " ".join(topology["insights"])
-    assert "context amnesia" in insights, "Failed to detect missing Agent Memory!"
     assert "catastrophically across the system" in insights, (
         "Failed to detect high PageRank blast radius!"
     )
@@ -577,6 +658,36 @@ def test_signal_processor_security_lenses(processor):
         "Memory corruption must return a float!"
     )
     assert r_mem["risk_vector"][idx_mem] >= 9.0, "Memory corruption failed to register!"
+
+
+# ==============================================================================
+# TEST 16.1: THE DB INJECTION FUNNEL (#105)
+# ==============================================================================
+def test_signal_processor_db_injection_funnel(processor):
+    """
+    sec_amplified_sql_injection (galaxyscope.py's post-hoc correlation of a
+    public API route against a raw DB sink via correlate_against_ledger(),
+    #105) must spike Injection Surface Exposure exactly like the deterministic
+    sec_tainted_injection signal does, even with no other io/exec signals
+    present -- it is proof of a real funnel, not a probabilistic guess.
+    """
+    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
+
+    m_bare, sig_bare = create_synthetic_star(processor, "bare", 100, {})
+    m_funnel, sig_funnel = create_synthetic_star(
+        processor, "funnel", 100, {"sec_amplified_sql_injection": 1}
+    )
+
+    r_bare = processor.calculate_risk_vector(m_bare, sig_bare)
+    r_funnel = processor.calculate_risk_vector(m_funnel, sig_funnel)
+
+    assert r_bare["risk_vector"][idx_inj] == 0.0, (
+        "A file with zero signals should have zero injection surface exposure!"
+    )
+    assert r_funnel["risk_vector"][idx_inj] > 10.0, (
+        "A confirmed DB injection funnel must spike Injection Surface Exposure "
+        "even without a separate sec_high_risk_execution/sec_io signal!"
+    )
 
 
 # ==============================================================================
@@ -954,11 +1065,15 @@ def test_signal_processor_llm_execution_vulnerability(processor):
     )
 
     # 2. Agentic dynamic execution
+    # #323: ai_tools removed here -- it was removed from SIGNAL_SCHEMA
+    # entirely, so it was already inert dead data in this fixture even
+    # before that (calculate_risk_vector never read it directly; only
+    # llm_orchestrator drives the amplification this test verifies).
     m_agent, sig_agent = create_synthetic_star(
         processor,
         "agent_exec",
         100,
-        {"sec_high_risk_execution": 10, "llm_orchestrator": 5, "ai_tools": 5},
+        {"sec_high_risk_execution": 10, "llm_orchestrator": 5},
     )
 
     r_std = processor.calculate_risk_vector(m_std, sig_std)
@@ -1013,9 +1128,19 @@ def test_signal_processor_crypto_professionalism_shield(processor):
 # TEST 31: LLM API SECRETS LEAK
 # ==============================================================================
 def test_signal_processor_llm_api_secrets(processor):
-    """Proves that hardcoded secrets mixed with LLM APIs trigger a massive careless amplifier."""
+    """
+    Proves that hardcoded secrets mixed with LLM APIs trigger a massive
+    careless amplifier in _calc_secrets_risk.
+
+    Regression test: this test previously built both fixtures but never
+    called calculate_risk_vector or asserted anything on either -- a
+    complete no-op that always passed regardless of whether the LLM
+    amplifier (or _calc_secrets_risk at all) worked. Ruff's F841/RUF059
+    would have caught the resulting unused variables, but tests/ is out
+    of scope for the ruff baseline, so it went unnoticed.
+    """
     # 1. Standard secret leak (Requires sec_heat_triggers to bypass the 2.0 clamp)
-    _unused_m_std, sig_std = create_synthetic_star(
+    m_std, sig_std = create_synthetic_star(
         processor,
         "std_leak",
         500,
@@ -1023,12 +1148,73 @@ def test_signal_processor_llm_api_secrets(processor):
     )
 
     # 2. Careless LLM API secret leak (Calling APIs without using global variables)
-    m_llm, _unused_sig_llm = create_synthetic_star(
+    m_llm, sig_llm = create_synthetic_star(
         processor,
         "llm_leak",
         500,
         {"sec_hardcoded_secrets": 1, "llm_api": 5, "globals": 0, "sec_reflection_metaprogramming": 1},
     )
+
+    r_std = processor.calculate_risk_vector(m_std, sig_std)
+    r_llm = processor.calculate_risk_vector(m_llm, sig_llm)
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+
+    assert r_llm["risk_vector"][idx_sec] > r_std["risk_vector"][idx_sec], (
+        "Careless LLM API secret leak (no globals) should score higher than a standard leak, "
+        "via the 3x careless_amplifiers spike -- it didn't!"
+    )
+    assert r_std["risk_vector"][idx_sec] > 0.0, "A genuine hardcoded-secret signal should never score exactly 0."
+
+
+def test_signal_processor_secrets_risk_zero_when_no_hardcoded_signal(processor):
+    """base_leak == 0 must short-circuit to a flat 0.0, never entering the amplifier math."""
+    meta, sig = create_synthetic_star(processor, "clean_file", 500, {"llm_api": 5, "globals": 0})
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] == 0.0
+
+
+def test_signal_processor_secrets_risk_clamped_without_reflection_signal(processor):
+    """
+    Outside paranoid mode, with zero sec_reflection_metaprogramming signal,
+    careless_amplifiers is clamped to a maximum of 2.0 -- proves the clamp
+    branch itself (as opposed to the LLM-amplifier test above, which
+    deliberately supplies reflection signal to bypass this exact clamp).
+    """
+    meta, sig = create_synthetic_star(
+        processor, "clamped_leak", 500, {"sec_hardcoded_secrets": 1, "globals": 1, "debug_prints": 50}
+    )
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    # A huge debug_prints count would blow the amplifier way past 2.0 if
+    # unclamped; the score should still land in a sane, non-maxed-out range.
+    assert 0.0 < result["risk_vector"][idx_sec] < 100.0
+
+
+def test_signal_processor_secrets_risk_paranoid_mode_skips_clamp(processor):
+    """In paranoid mode, the 2.0 clamp never applies regardless of reflection signal."""
+    meta, sig = create_synthetic_star(
+        processor, "paranoid_leak", 500, {"sec_hardcoded_secrets": 1, "globals": 1, "debug_prints": 50}
+    )
+    processor.is_paranoid = True
+    try:
+        result = processor.calculate_risk_vector(meta, sig)
+    finally:
+        processor.is_paranoid = False
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] > 0.0
+
+
+def test_signal_processor_secrets_risk_low_score_floors_to_zero(processor):
+    """A raw score under 5.0 is explicitly floored to 0.0, not left as noisy near-zero signal."""
+    # A single hardcoded-secret hit in an enormous file produces a tiny
+    # density, and thus a tiny sigmoid score -- exactly the < 5.0 floor case.
+    meta, sig = create_synthetic_star(processor, "diluted_leak", 50000, {"sec_hardcoded_secrets": 1})
+    result = processor.calculate_risk_vector(meta, sig)
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert result["risk_vector"][idx_sec] == 0.0, "A sub-5.0 raw score should floor to exactly 0.0, not a noisy near-zero value."
 
 
 # ==============================================================================
@@ -1322,7 +1508,7 @@ def test_signal_processor_critical_leak_bypass(processor):
     """Proves that critical leaks bypass standard physics and max out secrets risk."""
     m_leak, sig_leak = create_synthetic_star(processor, "aws_key", 10, {})
     m_leak["path"] = "config/production.pem"
-    m_leak["metadata"] = {"aperture_reason": "CRITICAL LEAK DETECTED"}
+    m_leak["metadata"] = {"reason": "CRITICAL LEAK DETECTED"}  # #374: real key is "reason", not "aperture_reason"
 
     r_leak = processor.calculate_risk_vector(m_leak, sig_leak)
 
@@ -1336,6 +1522,27 @@ def test_signal_processor_critical_leak_bypass(processor):
     )
     assert r_leak["telemetry"]["domain_context"]["alert"] == "CRITICAL LEAK BYPASS", (
         "Bypass alert missing from telemetry!"
+    )
+
+
+def test_signal_processor_critical_leak_via_reason_text_alone(processor):
+    """
+    Regression test for #374 (#325's own pre-documented instance #3): isolates
+    the THIRD is_critical_leak path -- "CRITICAL LEAK" in the reason text --
+    from the other two (extension/exact-filename match), which the test above
+    already covers via a .pem path. This file has neither a secrets extension
+    nor an exact secrets filename, so it can ONLY trigger via
+    ghost_meta.get("reason", ""), proving that mechanism works in isolation
+    now that it reads the key aperture.py actually writes.
+    """
+    m_leak, sig_leak = create_synthetic_star(processor, "config_loader", 10, {})
+    m_leak["metadata"] = {"reason": "CRITICAL LEAK (Exposed Secret: 'config_loader.py')"}
+
+    r_leak = processor.calculate_risk_vector(m_leak, sig_leak)
+
+    idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
+    assert r_leak["risk_vector"][idx_sec] == 100.0, (
+        "The reason-text-only critical leak path failed to fire!"
     )
 
 

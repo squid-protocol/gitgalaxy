@@ -186,6 +186,31 @@ def test_build_markdown_generates_context(recorder, mock_pipeline_state):
     assert "Prompt Injection Surface" in md_text
 
 
+def test_house_of_cards_section_reads_fragile_dependency_chain(recorder, mock_pipeline_state):
+    """
+    Regression test for #370: the "House of Cards" section used to read
+    sys_bots.get("house_of_cards", []) -- a key signal_processor.py's real
+    bottleneck detector never produces (its actual key is
+    "fragile_dependency_chain"). Proves a real fragile_dependency_chain
+    entry now renders in that section.
+    """
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    forensic_report = {
+        "systemic_bottlenecks": {
+            "fragile_dependency_chain": [
+                {"path": "src/core/config_loader.py", "score": 12.5, "close": 0.8, "err": 15.6}
+            ],
+        }
+    }
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, forensic_report)
+
+    assert "House of Cards" in md_text
+    assert "src/core/config_loader.py" in md_text
+    assert "Severity: 12.5" in md_text
+
+
 # ==============================================================================
 # TEST 3: SQLITE KNOWLEDGE GRAPH GENERATION
 # ==============================================================================

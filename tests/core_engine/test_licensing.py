@@ -74,19 +74,20 @@ def test_licensing_env_loader_exception(mock_exists, monkeypatch):
 # TEST 3: OFFLINE RSA MATH VALIDATION (_validate_offline_key)
 # ==============================================================================
 def test_validate_key_missing_or_malformed():
-    """Proves empty, malformed, or tampered keys are flagged accurately."""
+    """Proves empty or malformed keys are flagged as MALFORMED, not FORGED -- a
+    fat-fingered copy-paste is not the same claim as cryptographic tampering."""
     # 1. Missing Key
     assert _validate_offline_key("") == "MISSING"
     assert _validate_offline_key(None) == "MISSING"
 
     # 2. Malformed Format
-    assert _validate_offline_key("TOO-SHORT") == "INVALID"
+    assert _validate_offline_key("TOO-SHORT") == "MALFORMED"
     assert (
-        _validate_offline_key("WRONG-TIER-CUSTOMER-DATE-SIG") == "INVALID"
+        _validate_offline_key("WRONG-TIER-CUSTOMER-DATE-SIG") == "MALFORMED"
     )  # Missing GG prefix
 
     # 3. Invalid Hex Signature (Throws ValueError internally)
-    assert _validate_offline_key("GG-TIER-CUST-20991231-NOTHEX") == "INVALID"
+    assert _validate_offline_key("GG-TIER-CUST-20991231-NOTHEX") == "MALFORMED"
 
 
 @patch("gitgalaxy.licensing.pow")
@@ -117,11 +118,12 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     expired_key = "GG-ENTERPRISE-ACME-20000101-1A2B"  # gitleaks:allow
     assert _validate_offline_key(expired_key) == "EXPIRED"
 
-    # 3. FORGED KEY (Math mismatch)
+    # 3. FORGED KEY (Math mismatch -- the one branch that's actually tampering)
     mock_pow.return_value = 99999999999  # Incorrect decryption
-    assert _validate_offline_key(valid_key) == "INVALID"
+    assert _validate_offline_key(valid_key) == "FORGED"
 
-    # 4. CORRUPTED DATE FORMAT
+    # 4. CORRUPTED DATE FORMAT (signature checks out, but the payload itself
+    # is broken -- still not tampering evidence, so it's MALFORMED not FORGED)
     payload_bad_date = "ENTERPRISE-ACME-BAD_DATE".encode("utf-8")
     expected_hash_bad = int.from_bytes(
         hashlib.sha256(payload_bad_date).digest(), byteorder="big"
@@ -129,7 +131,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     mock_pow.return_value = expected_hash_bad
 
     corrupted_date_key = "GG-ENTERPRISE-ACME-BAD_DATE-1A2B"  # gitleaks:allow
-    assert _validate_offline_key(corrupted_date_key) == "INVALID"
+    assert _validate_offline_key(corrupted_date_key) == "MALFORMED"
 
 
 # ==============================================================================
@@ -165,10 +167,12 @@ def test_routing_valid_enterprise_tier(mock_validate, monkeypatch, capsys):
 
 @patch("gitgalaxy.licensing._validate_offline_key")
 def test_routing_forgery_hammer(mock_validate, monkeypatch, capsys):
-    """Proves forged keys trigger the maximum 10-second penalty."""
+    """Proves forged keys trigger the maximum 10-second penalty, and that the
+    message no longer makes the false claim that an incident was "flagged"
+    somewhere -- this check is entirely local/offline and nothing persists."""
     monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
     monkeypatch.setattr(os, "environ", {"GITGALAXY_LICENSE_KEY": "GG-FORGED-KEY"})
-    mock_validate.return_value = "INVALID"
+    mock_validate.return_value = "FORGED"
 
     with patch("gitgalaxy.licensing.time.sleep") as mock_sleep:
         enforce_licensing_guard()
@@ -176,3 +180,23 @@ def test_routing_forgery_hammer(mock_validate, monkeypatch, capsys):
         mock_sleep.assert_called_once_with(10.0)
         captured = capsys.readouterr()
         assert "LICENSE FORGERY DETECTED" in captured.err
+        assert "flagged" not in captured.err.lower()
+
+
+@patch("gitgalaxy.licensing._validate_offline_key")
+def test_routing_malformed_key(mock_validate, monkeypatch, capsys):
+    """Proves a malformed key (e.g. a copy-paste error) gets the lighter,
+    non-accusatory 5-second friction trap instead of the forgery hammer --
+    a fat-fingered paste isn't evidence of tampering."""
+    monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
+    monkeypatch.setattr(os, "environ", {"GITGALAXY_LICENSE_KEY": "GG-TRUNCATED"})
+    mock_validate.return_value = "MALFORMED"
+
+    with patch("gitgalaxy.licensing.time.sleep") as mock_sleep:
+        enforce_licensing_guard()
+
+        mock_sleep.assert_called_once_with(5.0)
+        captured = capsys.readouterr()
+        assert "LICENSE KEY MALFORMED" in captured.err
+        assert "FORGERY" not in captured.err
+        assert "tampering" not in captured.err.lower()

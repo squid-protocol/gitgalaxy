@@ -111,7 +111,12 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
         {
             "path": "src/hardcoded.py",
             "telemetry": {
-                "domain_context": {"alert": "CRITICAL LEAK BYPASS"}
+                "domain_context": {
+                    "alert": "CRITICAL LEAK BYPASS",
+                    # #374: the real key signal_processor.py's ghost_meta spread
+                    # produces is "reason" (aperture.py), not "aperture_reason".
+                    "reason": "CRITICAL LEAK (Exposed Secret: 'hardcoded.py')",
+                }
             },
             "is_ml_threat": False, # ML missed it or deemed it safe
             "risk_vector": [100.0, 50.0, 0.0], # 100% Secrets Risk
@@ -125,7 +130,11 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
 
     security = payload["3. Forensic Security & Vulnerability Audit"]
     assert security["Audit Status"] == "CRITICAL_THREATS_DETECTED (Rule-Based)"
-    assert len(security["Exposed Secrets & Credentials (Quarantined Files)"]) == 1
+    quarantined = security["Exposed Secrets & Credentials (Quarantined Files)"]
+    assert len(quarantined) == 1
+    assert "CRITICAL LEAK (Exposed Secret: 'hardcoded.py')" in quarantined[0]["Diagnostic"], (
+        "Diagnostic must surface the real Aperture reason text, not the 'Manual Bypass' fallback!"
+    )
 
 
 # ==============================================================================

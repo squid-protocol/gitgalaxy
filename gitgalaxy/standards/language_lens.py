@@ -7,19 +7,22 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
-import math
-import time
 import logging
+import math
+import re
+import time
 from pathlib import Path
-from typing import Tuple, Optional, Dict, List, Any, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
+
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH
-from gitgalaxy.standards.language_standards import LENS_CONFIG
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: F401
+from gitgalaxy.standards.language_standards import (
+    LANGUAGE_DEFINITIONS,  # noqa: F401
+    LENS_CONFIG,
+)
 
 # ==============================================================================
 # GitGalaxy Phase 1: The Entity Census (Linguistic Classification Engine)
-# Strategy v6.2.0 Protocol: Bayesian Inference & Confidence Hierarchy
+# Strategy Protocol: Bayesian Inference & Confidence Hierarchy
 # ==============================================================================
 
 
@@ -31,12 +34,12 @@ class DetectorResult(TypedDict):
     family: Optional[str]
     lock_tier: Union[int, float]
     source_proof: str
-    candidates: List[str]
+    candidates: list[str]
     path: str
-    lang_mix: List[Dict[str, Any]]
+    lang_mix: list[dict[str, Any]]
     loc: int
     size_bytes: int
-    anomaly_flags: List[str]  # Security RAM Cache for conflicting identity indicators
+    anomaly_flags: list[str]  # Security RAM Cache for conflicting identity indicators
 
 
 class FocusingError(Exception):
@@ -64,12 +67,18 @@ class LanguageDetector:
 
     def __init__(
         self,
-        language_definitions: Dict[str, Any],
-        lexical_heuristics: Dict[str, Any],
+        language_definitions: dict[str, Any],
+        lexical_heuristics: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
+        exact_file_match: Optional[dict[str, str]] = None,
     ):
         self.languages = language_definitions
         self.lexical_heuristics = lexical_heuristics
+        # #335: was a direct module-level EXACT_FILE_MATCH import, which
+        # meant no YAML/CLI override (#332) could ever reach it. Falls back
+        # to the raw default only when the caller doesn't already have a
+        # resolved config to hand over (e.g. direct/test use).
+        self.exact_file_match = exact_file_match if exact_file_match is not None else EXACT_FILE_MATCH
 
         if parent_logger:
             self.logger = parent_logger.getChild("lens")
@@ -78,8 +87,8 @@ class LanguageDetector:
             self.logger = logging.getLogger("lens")
             self.logger.setLevel(logging.INFO)
 
-        self.extension_map: Dict[str, str] = {}
-        self.anchor_map: Dict[str, str] = {}
+        self.extension_map: dict[str, str] = {}
+        self.anchor_map: dict[str, str] = {}
 
         # --- BAYESIAN TUNING CONSTANTS (Dynamic Fetch) ---
         self.thresholds = LENS_CONFIG.get("THRESHOLDS", {})
@@ -131,7 +140,7 @@ class LanguageDetector:
 
     def focus(
         self, file_path: Union[str, Path], content_sample: str = "", **kwargs
-    ) -> Tuple[str, float, Optional[str]]:
+    ) -> tuple[str, float, Optional[str]]:
         """Legacy Support Gateway for systems expecting the older Tuple return format."""
         result = self.inspect(file_path, content_sample, **kwargs)
         if result["intensity"] < 0.25:
@@ -147,9 +156,9 @@ class LanguageDetector:
         content_sample: str = "",
         has_intent: bool = False,
         intent_lang: str = "",
-        intent_vector: Optional[Dict[str, Any]] = None,
-        ext_tally: Optional[Dict[str, int]] = None,
-        **kwargs,
+        intent_vector: Optional[dict[str, Any]] = None,
+        ext_tally: Optional[dict[str, int]] = None,
+        **kwargs,  # noqa: ARG002 -- absorbs caller-side extra kwargs (e.g. galaxyscope.py's census=) so focus()'s legacy passthrough and forward-compatible callers don't hit a TypeError
     ) -> DetectorResult:
         """Primary classification orchestrator combining metadata, context, and lexical analysis."""
 
@@ -214,9 +223,9 @@ class LanguageDetector:
         if not content_sample:
             content_sample = self._capture_raw_signal(file_path)
 
-        if name in EXACT_FILE_MATCH:
+        if name in self.exact_file_match:
             return self._forge_result(
-                lang_id=EXACT_FILE_MATCH[name],
+                lang_id=self.exact_file_match[name],
                 intensity=0.95,
                 tier=2,
                 proof="Single Indicator (Exact Match)",
@@ -249,9 +258,9 @@ class LanguageDetector:
                     content_sample,
                 )
 
-            target_id = "markdown" if ext in {".md", ".mdx"} else "plaintext"
+            prose_target_id = "markdown" if ext in {".md", ".mdx"} else "plaintext"
             return self._forge_result(
-                target_id,
+                prose_target_id,
                 self.thresholds.get("PROSE_CONFIDENCE", 0.95),
                 1,
                 f"Prose Extension ({ext})",
@@ -282,7 +291,7 @@ class LanguageDetector:
                     for anchor in self.PROSE_ANCHORS
                 )
 
-        target_id = None
+        target_id: Optional[str] = None
         anchor_proof = f"Metadata Anchor ({name})"
 
         if name in self.anchor_map:
@@ -372,7 +381,8 @@ class LanguageDetector:
         # =========================================================================
         best_lang = "undeterminable"
         best_conf = 0.10
-        lock_tier = 4
+        # float, not int: sub-tiers like 1.5/1.7 are intentional (see Tier 1.5/1.7 below).
+        lock_tier: float = 4
         source_proof = "Heuristic Discovery"
 
         # TIER 0: ABSOLUTE CONSENSUS
@@ -508,7 +518,7 @@ class LanguageDetector:
                 else:
                     if ext in self.COLLISION_FREQUENCIES:
                         best_lang = spectral_id
-                        best_conf = max(spec_intensity + 0.10, 0.92)
+                        best_conf = min(max(spec_intensity + 0.10, 0.92), 1.0)
                         lock_tier = 4
                         source_proof = f"Collision Resolved ({ext} -> {spectral_id})"
                     elif lock_tier == 4:
@@ -549,8 +559,8 @@ class LanguageDetector:
         return self._forge_result(best_lang, best_conf, lock_tier, source_proof, result, content_sample)
 
     def _evaluate_ecosystem_gravity(
-        self, file_path: Union[str, Path], ext: str, global_tally: Dict[str, int]
-    ) -> Tuple[Optional[str], float]:
+        self, file_path: Union[str, Path], ext: str, global_tally: dict[str, int]
+    ) -> tuple[Optional[str], float]:
         """
         Resolves identical extension collisions (e.g., .h) by surveying the surrounding
         directory neighborhood for dominating implementation languages (C vs C++ vs Obj-C).
@@ -565,15 +575,15 @@ class LanguageDetector:
             return None, 0.0
 
         # 2. GATHER LOCAL FOLDER CENSUS
-        local_tally = {}
+        local_tally: dict[str, int] = {}
         try:
             parent_dir = Path(file_path).parent
             for child in parent_dir.iterdir():
                 if child.is_file():
                     local_tally[child.suffix.lower()] = local_tally.get(child.suffix.lower(), 0) + 1
                     local_tally[child.name.lower()] = local_tally.get(child.name.lower(), 0) + 1
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.debug(f"Local folder census failed for '{file_path}': {e}")
 
         # 3. TWO-PASS PHYSICS (Local Neighborhood -> Global Repository)
         for scope_name, tally in [("Local", local_tally), ("Global", global_tally)]:
@@ -635,7 +645,12 @@ class LanguageDetector:
             if total_gravity == 0:
                 continue  # Inconclusive. Fall back to the Global tally loop.
 
-            top_lid = max(scores, key=scores.get)
+            # lambda, not scores.get -- dict.get is overloaded (1-arg vs
+            # 2-arg-with-default), which mypy can't resolve when passed
+            # bare as max()'s key function. Every key here is already a
+            # member of scores (we're iterating its own keys), so a direct
+            # __getitem__ lookup needs no default anyway.
+            top_lid = max(scores, key=lambda lid: scores[lid])
             dominance = scores[top_lid] / total_gravity
 
             if ext == ".h" and set(scores.keys()).issubset({"c", "cpp", "objective-c"}):
@@ -702,7 +717,7 @@ class LanguageDetector:
         ext: str,
         claimed_lang: str = "undeterminable",
         gravity_lang: Optional[str] = None,
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """
         The Strict Boundary Scanner.
         Evaluates the specific structural syntax of a file to verify a claimed extension.
@@ -750,11 +765,17 @@ class LanguageDetector:
                     if c > content_len:
                         c = 0  # Prevents runaway overlaps
                     raw_score += c * 10.0
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Rule regex evaluation failed for '{lid}', skipping this rule: {e}")
 
             # Apply Ecosystem Consensus Boost
             if lid == gravity_lang:
+                raw_score *= 1.25
+
+            # Claimed Language Boost: reinforces the tentative ID already
+            # established by extension-tier classification, mirroring the
+            # gravity_lang consensus treatment above.
+            if lid == claimed_lang:
                 raw_score *= 1.25
 
             # Comment Delimiter Bonus
@@ -791,7 +812,7 @@ class LanguageDetector:
         coding_loc: int,
         ext: str = "",
         gravity_lang: Optional[str] = None,
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """
         Heuristic Discovery for unknown or extensionless files.
         Prioritizes graceful failure over blind guessing by enforcing a strict 1.5x margin
@@ -825,7 +846,10 @@ class LanguageDetector:
                 "positional_anchored": content.count("*>") + content.count("!"),
             }
 
-        winning_family = max(family_scores, key=family_scores.get, default=None)
+        # lambda, not family_scores.get -- same overload-resolution issue as
+        # the max() call above. key is only ever invoked on elements from
+        # family_scores itself, so a direct lookup is safe even with default=None.
+        winning_family = max(family_scores, key=lambda fam: family_scores[fam], default=None)
 
         # Fail gracefully if no comments/structure exist to establish a lexical family
         if not winning_family or family_scores.get(winning_family, 0) == 0:
@@ -866,7 +890,7 @@ class LanguageDetector:
         friction_scores = {}
 
         for lid in surviving_candidates:
-            regex_hits = 0
+            regex_hits: float = 0  # float: the abap handicap below multiplies by 0.7
             rules = self.languages.get(lid, {}).get("rules", {})
             t_start = time.time()
 
@@ -893,8 +917,8 @@ class LanguageDetector:
                         hits = 0
 
                     regex_hits += hits
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Rule regex evaluation failed for '{lid}', skipping this rule: {e}")
 
             # ---> HEURISTIC BOOST: C/C++ Macro Execution <---
             family_key = self.languages.get(lid, {}).get("lexical_family")
@@ -957,7 +981,7 @@ class LanguageDetector:
                     self.logger.warning(f"Tier 4 [Reconciliation]: TEMPORAL FRICTION ANOMALY on {top_id}...")
                     return "undeterminable", 0.0
 
-                return top_id, top_density
+                return top_id, min(top_density, 1.0)
 
             # 2. Friction Tie-Breaker (If margin is tight, penalize slow regex execution)
             elif density_margin >= self.thresholds.get("TIER_4_OUTLIER_MARGIN", 1.10):
@@ -967,7 +991,7 @@ class LanguageDetector:
                     )
                     return "undeterminable", 0.0
                 self.logger.debug(f"Tier 4 [Reconciliation]: Friction Tie-Breaker utilized for {top_id}.")
-                return top_id, top_density
+                return top_id, min(top_density, 1.0)
 
             # 3. Absolute Ambiguity Resolution
             else:
@@ -976,21 +1000,21 @@ class LanguageDetector:
                         self.logger.debug(
                             f"Tier 4 [Reconciliation]: C/C++ Tie broken by Ecosystem Consensus -> {gravity_lang}"
                         )
-                        return gravity_lang, top_density
+                        return gravity_lang, min(top_density, 1.0)
                     # If no consensus exists, default to C as the lowest-level structural base
                     self.logger.debug("Tier 4 [Reconciliation]: C/C++ Tie broken by default architectural base -> c")
-                    return "c", top_density
+                    return "c", min(top_density, 1.0)
 
                 return "undeterminable", 0.0
 
         # 4. Single Candidate Victory
-        return top_id, top_density
+        return top_id, min(top_density, 1.0)
 
     def _forge_result(
         self,
         lang_id: str,
         intensity: float,
-        tier: int,
+        tier: float,
         proof: str,
         base: DetectorResult,
         content_sample: str = "",
@@ -1022,18 +1046,24 @@ class LanguageDetector:
         analyzer at massive log dumps or multi-gigabyte auto-generated monoliths.
         """
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 return f.read(1024 * 50)
-        except (PermissionError, FileNotFoundError, IOError, OSError) as e:
-            self.logger.error(f"Hardware/IO failure reading '{file_path}': {str(e)}")
+        except (PermissionError, FileNotFoundError, OSError) as e:
+            self.logger.error(f"Hardware/IO failure reading '{file_path}': {e!s}")
             raise FocusingError(f"Failed to focus lens on {file_path}") from e
 
     def _find_balanced_end(self, text: str, start_pos: int, opener: str, closer: str) -> int:
         depth = 0
         in_string: Optional[str] = None
-        limit = min(
-            start_pos + self.thresholds.get("HANDSHAKE_LOOKAHEAD_LIMIT", 50000),
-            len(text),
+        # int(): self.thresholds is Dict[str, float] (THRESHOLDS mixes float
+        # confidence values with integer limits like this one) -- range()
+        # below needs an actual int, and a character-position limit was
+        # always meant to be a whole number anyway.
+        limit = int(
+            min(
+                start_pos + self.thresholds.get("HANDSHAKE_LOOKAHEAD_LIMIT", 50000),
+                len(text),
+            )
         )
 
         for i in range(start_pos, limit):
@@ -1058,7 +1088,7 @@ class LanguageDetector:
 
         return limit
 
-    def _detect_hybrids(self, content: str, primary_id: str) -> List[Dict[str, Any]]:
+    def _detect_hybrids(self, content: str, primary_id: str) -> list[dict[str, Any]]:
         """Identifies secondary logic streams (like HTML inside PHP files) via syntax handshakes."""
         total_len = len(content)
         if total_len == 0:

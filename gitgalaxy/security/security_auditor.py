@@ -3,8 +3,9 @@
 # GitGalaxy Phase 7.8: Advanced Machine Learning Threat Hunting (HARDENED)
 # ==============================================================================
 import logging
-from pathlib import Path
 from collections import deque
+from pathlib import Path
+from typing import ClassVar
 
 try:
     import numpy as np
@@ -22,7 +23,7 @@ try:
 except ImportError:
     HAS_NETWORKX = False
 
-from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS, AI_THREAT_THRESHOLD
+from gitgalaxy.standards.analysis_lens import AI_THREAT_THRESHOLD, RECORDING_SCHEMAS
 
 
 class SecurityAuditor:
@@ -36,7 +37,7 @@ class SecurityAuditor:
     """
 
     # The taxonomy map for the Multiclass engine
-    CLASS_NAMES = {
+    CLASS_NAMES: ClassVar[dict[int, str]] = {
         0: "Safe Code",
         1: "Botnet / DDoS",
         2: "Stealer / Trojan",
@@ -123,7 +124,7 @@ class SecurityAuditor:
                 return artifacts
 
             # 2. DEFENSIVE GUARD: Schema Alignment
-            # Reindex to guarantee columns match the exact training schema. 
+            # Reindex to guarantee columns match the exact training schema.
             # We use np.nan to explicitly preserve missing data for XGBoost decision trees.
             X = df.reindex(columns=self.feature_names, fill_value=np.nan)
 
@@ -163,14 +164,27 @@ class SecurityAuditor:
                     )
 
                 # ---> NEW: The Machine Learning Assembly & Static Asset Shield <---
-                # XGBoost falsely flags raw Assembly, inert static files (Markdown/JSON), 
-                # and Legacy ecosystems (Perl/Templates) as obfuscated Droppers 
+                # XGBoost falsely flags raw Assembly, inert static files (Markdown/JSON),
+                # and Legacy ecosystems (Perl/Templates) as obfuscated Droppers
                 # due to their lack of modern cyclomatic complexity or extreme density.
                 lang = str(artifact.get("lang_id", "")).lower()
                 if lang in {
-                    "assembly", "agc_assembly", "markdown", "plaintext", 
-                    "json", "yaml", "csv", "xml", "toml", "ini", "properties", "text",
-                    "perl", "template", "html", "css"
+                    "assembly",
+                    "agc_assembly",
+                    "markdown",
+                    "plaintext",
+                    "json",
+                    "yaml",
+                    "csv",
+                    "xml",
+                    "toml",
+                    "ini",
+                    "properties",
+                    "text",
+                    "perl",
+                    "template",
+                    "html",
+                    "css",
                 }:
                     ml_score = 0.0
                     predicted_class = 0
@@ -183,7 +197,14 @@ class SecurityAuditor:
                 if is_threat:
                     threat_name = self.CLASS_NAMES.get(predicted_class, "Unknown Threat")
                     artifact["telemetry"]["domain_context"]["AI Threat Class"] = threat_name
-                    artifact["telemetry"]["domain_context"]["AI Threat Confidence"] = f"{ml_score}%"
+                    # #364: every consumer except sarif_recorder.py reads "AI Threat
+                    # Score" (audit_recorder.py, gpu_recorder.py, llm_recorder.py,
+                    # record_keeper.py, and audit_recorder.py's own internal
+                    # "AI Threat Score" -> "AI Threat Confidence" copy-through all
+                    # already expect this name) -- this used to write "AI Threat
+                    # Confidence" instead, a near-miss rename that left every one of
+                    # those reads permanently falling back to their 0.0%/"0.0%" default.
+                    artifact["telemetry"]["domain_context"]["AI Threat Score"] = f"{ml_score}%"
                     artifact["is_ml_threat"] = True
                     threats_found += 1
                     self.logger.debug(f"🚨 AI THREAT DETECTED: {artifact.get('path')} ({threat_name} | {ml_score}%)")

@@ -7,18 +7,20 @@
 # exact code reduction and quantify the shedding of over-permissioned I/O.
 #
 # ARCHITECTURAL DECISION:
-# Over decades, mainframe Job Control Language (JCL) scripts accumulate "ghost" 
-# Data Definition (DD) statements—files that are allocated to a job step but 
-# never actually opened or utilized by the compiled COBOL program. This violates 
-# the principle of least privilege. This auditor mathematically proves the 
-# security posture of the modernized architecture by comparing the legacy 
+# Over decades, mainframe Job Control Language (JCL) scripts accumulate "ghost"
+# Data Definition (DD) statements—files that are allocated to a job step but
+# never actually opened or utilized by the compiled COBOL program. This violates
+# the principle of least privilege. This auditor mathematically proves the
+# security posture of the modernized architecture by comparing the legacy
 # footprint against the newly generated, zero-trust equivalents.
 # ==============================================================================
 import argparse
 import json
+import logging
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 SYSTEM_DDS = {
     "STEPLIB",
@@ -44,12 +46,12 @@ SYSTEM_PGMS = {
 
 def parse_jcl_intent(filepath: Path) -> dict:
     """Parses a JCL file to extract its raw execution and dataset allocation intent."""
-    metrics = {"lines_of_code": 0, "exec_pgms": set(), "data_definitions": set()}
+    metrics: dict[str, Any] = {"lines_of_code": 0, "exec_pgms": set(), "data_definitions": set()}
     pgm_pattern = re.compile(r"EXEC\s+(?:PGM=)?([A-Z0-9@#$\-]+)", re.IGNORECASE)
     dd_pattern = re.compile(r"^//([A-Z0-9@#$\-]+)\s+DD\s+", re.IGNORECASE)
 
     try:
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("//*"):
@@ -67,15 +69,15 @@ def parse_jcl_intent(filepath: Path) -> dict:
                     dd_name = dd_match.group(1).upper()
                     if dd_name not in SYSTEM_DDS:
                         metrics["data_definitions"].add(dd_name)
-    except Exception:
-        pass
+    except Exception as e:
+        logging.getLogger("cobol_jcl_auditor").debug(f"Failed to parse JCL file '{filepath}': {e}")
     return metrics
 
 
 def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
     """Core logic to calculate architectural bloat and privilege reduction metrics."""
     legacy_jcls = list(original_dir.rglob("*.[jJ][cC][lL]")) + list(original_dir.rglob("*.txt"))
-    legacy_map = {}
+    legacy_map: dict[str, Any] = {}
 
     # 1. Map Legacy JCLs by Intent (Handling multi-step monoliths)
     for lj in legacy_jcls:
@@ -89,7 +91,7 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
 
     # 2. Compare against Generated (Zero-Trust) JCLs
     generated_files = list(generated_dir.glob("*.jcl"))
-    report = {
+    report: dict[str, Any] = {
         "audited": 0,
         "original_loc": 0,
         "forged_loc": 0,  # Maintained key for downstream DB compatibility
@@ -108,7 +110,7 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
             twin_metrics = legacy_map[pgm_name]["metrics"]
 
             loc_saved = max(0, twin_metrics["lines_of_code"] - generated_metrics["lines_of_code"])
-            
+
             # The exact number of datasets allocated in legacy but stripped from modern
             excess_dds = max(
                 0,

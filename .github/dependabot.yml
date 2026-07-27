@@ -7,7 +7,6 @@ updates:
     cooldown:
       default-days: 7
     labels:
-      - "security"
       - "github-actions"
 
   - package-ecosystem: "pip"
@@ -17,5 +16,4 @@ updates:
     cooldown:
       default-days: 7
     labels:
-      - "security"
       - "python"

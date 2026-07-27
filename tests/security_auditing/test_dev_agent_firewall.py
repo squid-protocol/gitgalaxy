@@ -42,6 +42,40 @@ def test_black_hole_detection(firewall):
 
 
 # ==============================================================================
+# TEST 1.5: THE BLACK HOLE, END TO END (#372 -- the real pipeline, not a mock)
+# ==============================================================================
+def test_black_hole_detection_from_real_network_risk_sensor_output(firewall):
+    """
+    Regression test for #372: dev_agent_firewall.py read file_data["max_big_o"]
+    directly, but the only real producer set it as a networkx graph node
+    attribute (network_risk_sensor.py) that was never copied back onto the
+    file dict -- so this check could never fire on real data, only on a
+    hand-mocked "max_big_o" like the test above. Drives a REAL
+    NetworkRiskSensor.build_dependency_graph() output into the REAL firewall.
+    """
+    from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
+
+    parsed_files = [
+        {
+            "path": "src/math/heavy_calc.py",
+            "raw_imports": [],
+            "risk_vector": [],
+            "token_mass": 8500,  # Exceeds 8k limit
+            "functions": [{"big_o_depth": 4, "is_recursive": True}],  # O(N^4)
+            "telemetry": {},
+        }
+    ]
+
+    mapped_files, _ = NetworkRiskSensor().build_dependency_graph(parsed_files)
+    result = firewall.evaluate_ecosystem(mapped_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["is_agentic_black_hole"] is True, (
+        "max_big_o from the real network sensor output must reach the firewall!"
+    )
+
+
+# ==============================================================================
 # TEST 2: The HITL Mandate (Blast Radius + Risk Debt)
 # ==============================================================================
 def test_hitl_mandate_detection(firewall):
@@ -68,19 +102,19 @@ def test_hitl_mandate_detection(firewall):
 
 
 # ==============================================================================
-# TEST 3: The Hallucination Zone (Schema Drift Fix)
+# TEST 3: The Hallucination Zone (#106 -- spatially verified, not global-average)
 # ==============================================================================
 def test_hallucination_zone_detection(firewall):
     """
-    Proves that high dynamic execution (pulled from hit_vector) and poor documentation
-    triggers the Hallucination Zone warning.
+    Proves that a "reflection_metaprogramming" hit with no nearby "doc" hit --
+    in the SAME function -- triggers the Hallucination Zone warning, via the
+    persisted threat_locations ledger and correlate_against_ledger() (#348),
+    not the old dead doc_density global average (#345).
     """
     mock_files = [
         {
-            "hit_vector": [0, 3],  # ☢️ Index 1 is reflection_metaprogramming (> 2 triggers)
-            "telemetry": {
-                "doc_density": 0.15,  # ☢️ < 0.20 density
-            }
+            "threat_locations": {"reflection_metaprogramming": [50]},
+            "functions": [{"start_line": 40, "end_line": 60}],
         }
     ]
 
@@ -88,7 +122,60 @@ def test_hallucination_zone_detection(firewall):
     guardrails = result[0]["telemetry"]["ai_guardrails"]
 
     assert guardrails["hallucination_zone"] is True, "Failed to detect the Hallucination Zone!"
+    assert guardrails["undocumented_metaprogramming"] == 1
     assert any("Hallucination Risk" in warning for warning in guardrails["warnings"])
+
+
+def test_hallucination_zone_spares_locally_documented_metaprogramming(firewall):
+    """
+    #106's second documented blind spot: metaprogramming that IS documented
+    right where it lives must NOT be flagged, even though this is exactly the
+    shape the old dead doc_density check would have gotten wrong if it had
+    ever fired (a low file-wide average could still block a well-documented
+    function).
+    """
+    mock_files = [
+        {
+            "threat_locations": {
+                "reflection_metaprogramming": [45],
+                "doc": [40],
+            },
+            "functions": [{"start_line": 40, "end_line": 60}],
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["hallucination_zone"] is False
+    assert "undocumented_metaprogramming" not in guardrails
+
+
+def test_hallucination_zone_ignores_documentation_in_a_different_function(firewall):
+    """
+    #106's first documented blind spot: a doc comment concentrated in one
+    function (e.g. a class docstring near the top) must not paper over
+    undocumented metaprogramming in a totally different function -- this is
+    exactly the false negative the old GLOBAL doc_density average produced.
+    """
+    mock_files = [
+        {
+            "threat_locations": {
+                "reflection_metaprogramming": [50],
+                "doc": [5],
+            },
+            "functions": [
+                {"start_line": 1, "end_line": 10},
+                {"start_line": 40, "end_line": 60},
+            ],
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails["hallucination_zone"] is True
+    assert guardrails["undocumented_metaprogramming"] == 1
 
 
 # ==============================================================================
@@ -102,8 +189,8 @@ def test_silent_mutation_risk_detection(firewall):
     mock_files = [
         {
             "risk_vector": [10.0, 55.0, 20.0],  # ☢️ Index 1 is state_flux (> 50)
+            "test_coverage_map": {},  # ☢️ Zero test coverage (#373: real signal, not telemetry["has_tests"])
             "telemetry": {
-                "has_tests": False,                   # ☢️ Zero test coverage
                 "network_metrics": {"in_degree": 6},  # ☢️ > 5 dependencies rely on this
             }
         }
@@ -114,6 +201,33 @@ def test_silent_mutation_risk_detection(firewall):
 
     assert guardrails.get("silent_mutation_risk") is True, "Failed to detect Silent Mutation Risk!"
     assert any("Cascading State Flux" in warning for warning in guardrails["warnings"])
+
+
+def test_silent_mutation_risk_dampened_by_real_test_coverage(firewall):
+    """
+    Regression test for #373: the Silent Mutation Risk dampener used to read
+    telemetry["has_tests"], a key nothing ever produced -- meaning real test
+    coverage could never suppress this guardrail. Proves a non-empty
+    test_coverage_map (at least one function genuinely exercised by a test)
+    now correctly dampens it, even with the same high-flux/high-in-degree
+    conditions as the test above.
+    """
+    mock_files = [
+        {
+            "risk_vector": [10.0, 55.0, 20.0],
+            "test_coverage_map": {"process_payment": [{"impact": 5.0}]},  # Real coverage
+            "telemetry": {
+                "network_metrics": {"in_degree": 6},
+            }
+        }
+    ]
+
+    result = firewall.evaluate_ecosystem(mock_files)
+    guardrails = result[0]["telemetry"]["ai_guardrails"]
+
+    assert guardrails.get("silent_mutation_risk") is False, (
+        "Real test coverage must dampen the Silent Mutation Risk guardrail!"
+    )
 
 
 # ==============================================================================
@@ -130,9 +244,9 @@ def test_safe_agentic_baseline(firewall):
             "max_big_o": 1,
             "risk_vector": [10, 5, 0],  # ✅ Low risk debt
             "hit_vector": [0, 0],       # ✅ No dynamic execution
+            "test_coverage_map": {"handler": [{"impact": 1.0}]},  # ✅ Real test coverage
             "telemetry": {
                 "doc_density": 0.85,
-                "has_tests": True,
                 "network_metrics": {
                     "normalized_blast_radius": 0.5,
                     "in_degree": 1,
@@ -189,9 +303,8 @@ def test_survives_short_vectors(firewall):
             # Schema says state_flux is at index 1, but we only pass index 0
             "risk_vector": [99.0], 
             # Schema says metaprogramming is at index 1, but we only pass index 0
-            "hit_vector": [5],     
+            "hit_vector": [5],
             "telemetry": {
-                "has_tests": False,
                 "network_metrics": {"in_degree": 10},
                 "doc_density": 0.1
             }

@@ -14,13 +14,30 @@
 
 # galaxyscope:ignore ai_guardrails, sec_db_hooks
 
-import sqlite3
 import json
 import logging
+import sqlite3
 import statistics
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Optional, TypedDict
+
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
+
+class FolderStats(TypedDict):
+    """Accumulator shape for the folder-level rollup below -- without this,
+    the mixed int/float/list values collapse to "object" under mypy, which
+    then can't type-check the sum()/max()/append() calls that consume it."""
+
+    file_count: int
+    total_loc: int
+    total_coding_loc: int
+    total_functions: int
+    total_classes: int
+    total_mass: float
+    cog_loads: list[float]
+    tech_debts: list[float]
+    churns: list[float]
 
 
 class RecordKeeper:
@@ -126,10 +143,10 @@ class RecordKeeper:
 
     def record_mission(
         self,
-        parsed_files: List[Dict],
-        unparsable_files: List[Dict],
-        summary: Dict,
-        session_meta: Dict,
+        parsed_files: list[dict],
+        unparsable_files: list[dict],
+        summary: dict,
+        session_meta: dict,
         output_path: str,
     ):
         """Builds the formal relational SQLite database directly from pipeline RAM state."""
@@ -420,10 +437,10 @@ class RecordKeeper:
             import_count = len(file_data.get("raw_imports", []))
             dependency_density = import_count / float(logic_loc_denom)
 
-            ai_threat_conf_str = tel.get("domain_context", {}).get(
-                "AI Threat Confidence",
-                tel.get("domain_context", {}).get("AI Threat Score", "0.0%"),
-            )
+            # #364: security_auditor.py writes "AI Threat Score" -- "AI Threat
+            # Confidence" was never a real producer key here, just a dead primary
+            # lookup that always fell through to this same fallback anyway.
+            ai_threat_conf_str = tel.get("domain_context", {}).get("AI Threat Score", "0.0%")
             ai_threat = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
             ai_threat_class = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
             encapsulation_ratio = float(tel.get("encapsulation_ratio", 1.0))
@@ -470,18 +487,44 @@ class RecordKeeper:
                 tel.get("domain_context", {}).get("AI Threat Score", 0.0),
             )
             try:
-                ai_score = float(str(raw_ai_score).replace("%", ""))
+                ai_score: Optional[float] = float(str(raw_ai_score).replace("%", ""))
             except ValueError:
                 ai_score = 0.0
 
-            is_malware = 1 if file_data.get("is_malware", False) else 0
-            has_creds = 1 if file_data.get("has_credentials", False) else 0
-            bin_anomaly = 1 if file_data.get("binary_anomaly", False) else 0
-            obfuscation_flag = 1 if file_data.get("glassworm_flag", False) else 0
+            # #366: security_auditor.py's real output key is "is_ml_threat", not
+            # "is_malware" -- a near-miss rename that left this column always 0.
+            is_malware = 1 if file_data.get("is_ml_threat", False) else 0
+            # #367: no producer ever set file_data["has_credentials"]; the engine's
+            # real hardcoded-secrets signal is equations["sec_hardcoded_secrets"]
+            # (security_lens.py, correlated in galaxyscope.py's Active Hemorrhage
+            # step, #348).
+            has_creds = 1 if file_data.get("equations", {}).get("sec_hardcoded_secrets", 0) > 0 else 0
+            # #368: no producer ever set file_data["binary_anomaly"]. The Binary
+            # Analysis Sensor (galaxyscope.py) does exist and does run
+            # SecurityLens.scan_binary() on suspicious binaries, but its findings
+            # flow into the same generic equations["sec_*"] keys regular text
+            # scanning uses -- there's no dedicated boolean. Of those,
+            # "sec_extension_mismatch" (magic bytes don't match the claimed
+            # extension) is the most direct match for "binary anomaly" specifically;
+            # sec_high_risk_execution/sec_reflection_metaprogramming from a binary
+            # scan represent distinct threat categories already surfaced elsewhere
+            # and would double-count if folded in here too.
+            bin_anomaly = 1 if file_data.get("equations", {}).get("sec_extension_mismatch", 0) > 0 else 0
+            # #369: unlike is_malware/has_credentials/binary_anomaly, there is no
+            # existing signal anywhere in gitgalaxy/ this column could alias --
+            # "GlassWorm" implies a self-propagating supply-chain worm detector
+            # that was never actually built (confirmed: no producer, and no
+            # worm/propagation-pattern detection exists anywhere in the codebase
+            # to wire up). Building one is a real detector effort, not a
+            # dead-key fix. Keeping the SQLite column (for schema/query
+            # compatibility) but hardcoding it to 0 so this is an honest,
+            # explicit "not implemented yet" rather than a read that silently
+            # never resolves.
+            obfuscation_flag = 0
 
             # --- NETWORK TOPOLOGY EXTRACTION ---
             net_mets = tel.get("network_metrics", {})
-            
+
             if session_meta.get("zero_dependency_mode"):
                 ai_score = None
                 pagerank_score = None
@@ -592,6 +635,11 @@ class RecordKeeper:
 
             placeholders = ",".join(["?"] * len(row_data))
 
+            # Safe: f-string interpolation is limited to self.RISK_SCHEMA/
+            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP, internal hardcoded class
+            # constants (column names), not user input -- SQLite has no
+            # parameterized syntax for column names. Every actual row value
+            # goes through `placeholders`/`?` (noqa is on the closing `"""` below).
             cursor.execute(
                 f"""
                 INSERT INTO file_data (
@@ -611,7 +659,7 @@ class RecordKeeper:
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
                 ) VALUES ({placeholders})
-            """,
+            """,  # noqa: S608
                 row_data,
             )
 
@@ -673,12 +721,14 @@ class RecordKeeper:
         # PERFORMANCE OPTIMIZATION: Execute all accumulated functions in a single transaction loop
         if all_func_rows:
             func_placeholders = ",".join(["?"] * len(all_func_rows[0]))
+            # Safe: same as above -- self.SHORT_KEY_MAP/SIGNAL_SCHEMA are
+            # internal constants, row values go through func_placeholders/`?`.
             cursor.executemany(
                 f"""
-                INSERT INTO function_data 
+                INSERT INTO function_data
                 (file_id, parent_class_id, func_name, complexity, loc, args, usage_status, keyword_density, func_archetype, func_z_score, big_o_depth, is_recursive, db_complexity, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
                 VALUES ({func_placeholders})
-            """,
+            """,  # noqa: S608
                 all_func_rows,
             )
 
@@ -706,11 +756,16 @@ class RecordKeeper:
             net_avg_path_length = None
             net_articulation_points = None
         else:
-            net_modularity = net_macro.get("modularity", 0.0)
-            net_assortativity = net_macro.get("assortativity", 0.0)
-            net_cyclic_density = net_macro.get("cyclic_density", 0.0)
-            net_avg_path_length = net_macro.get("avg_path_length", 0.0)
-            net_articulation_points = net_macro.get("articulation_points", 0)
+            # #473: no `, 0.0` fallback -- network_risk_sensor.py's producer
+            # now always sets these keys to either a real value or an explicit
+            # None (computation failed or was skipped for scale), never
+            # leaves them absent. Defaulting a missing key to 0.0 here would
+            # silently turn that honest None back into a fake "measured zero".
+            net_modularity = net_macro.get("modularity")
+            net_assortativity = net_macro.get("assortativity")
+            net_cyclic_density = net_macro.get("cyclic_density")
+            net_avg_path_length = net_macro.get("avg_path_length")
+            net_articulation_points = net_macro.get("articulation_points")
 
         repo_row_data = (
             [
@@ -759,7 +814,7 @@ class RecordKeeper:
                 {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
                 file_composition
             ) VALUES ({repo_placeholders})
-        """,
+        """,  # noqa: S608 -- SHORT_KEY_MAP/SIGNAL_SCHEMA are internal constants, values go through repo_placeholders/`?`
             repo_row_data,
         )
 
@@ -791,12 +846,12 @@ class RecordKeeper:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_db_hooks
+        # galaxyscope:ignore sec_db_hooks
         # 5. FOLDER-LEVEL ROLLUP (MATERIALIZED PATH AGGREGATION)
         # ==============================================================================
 
-# galaxyscope:ignore sec_db_hooks
-        folder_stats = {}
+        # galaxyscope:ignore sec_db_hooks
+        folder_stats: dict[str, FolderStats] = {}
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
 
         for file_data in parsed_files:

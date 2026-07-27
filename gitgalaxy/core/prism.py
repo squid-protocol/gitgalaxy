@@ -7,14 +7,15 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import re
 import logging
-from typing import Dict, List, Optional, Tuple, Any, TypedDict
+import re
+from typing import Any, Optional, TypedDict
+
 from gitgalaxy.standards.language_standards import LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
 # GitGalaxy Phase 2: Payload & Surface Splitter (The Prism)
-# Strategy v6.2.0 Protocol: Safe Delimiter Extraction & Format Bypasses
+# Strategy Protocol: Safe Delimiter Extraction & Format Bypasses
 # ==============================================================================
 
 
@@ -34,7 +35,7 @@ class PrismResult(TypedDict):
     comment_stream: str
     coding_loc: int
     doc_loc: int
-    mitigations: List[str]
+    mitigations: list[str]
 
 
 class PrismError(Exception):
@@ -56,7 +57,7 @@ class Prism:
     compilable code. To achieve polyglot velocity and prioritize functional intent across
     50+ languages, the Prism utilizes highly bounded, ReDoS-proof regular expressions.
 
-    PIPELINE RULES (v6.2.0):
+    PIPELINE RULES:
     1. Format Bypass: Respects 'undeterminable' files by passing them untouched to prevent pipeline stalls.
     2. Dynamic Regex Matrix: Pre-compiles standard comment rules at runtime based on the JSON configuration.
     3. O(1) String Literal Masking: Temporarily masks string literals to prevent the scanner from
@@ -66,8 +67,8 @@ class Prism:
 
     def __init__(
         self,
-        comment_definitions: Dict[str, Any],
-        language_definitions: Dict[str, Any],
+        comment_definitions: dict[str, Any],
+        language_definitions: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
     ):
         """Initializes the Prism and pre-compiles the regex matrix."""
@@ -80,7 +81,16 @@ class Prism:
             self.logger = logging.getLogger("prism")
             self.logger.setLevel(logging.INFO)
 
-        self.lexical_families = comment_definitions.get("mechanical_families", {})
+        # #386: was "mechanical_families", a key nothing ever wrote (see #378's
+        # dead key audit finding) -- the real key in LEXICAL_FAMILY_HEURISTICS
+        # (gitgalaxy_config.py) is "lexical_families". This alone was only half
+        # the bug: the family NAMES used below and in _compile_regex_matrix()
+        # also didn't match the real per-language "lexical_family" values
+        # (standard_block/line_exclusive/recursive_block/positional_anchored),
+        # so comment stripping never actually ran for ANY language even before
+        # this fix -- see the family-name renames below and in
+        # _compile_regex_matrix().
+        self.lexical_families = comment_definitions.get("lexical_families", {})
         self.languages = language_definitions
 
         self.logger.debug("Initializing Prism and warming up regex matrix...")
@@ -90,7 +100,7 @@ class Prism:
         self.LITERAL_MASK_PATTERN = PRISM_CONFIG.get("SHIELD_PATTERN", "")
 
         # --- TIER 2: REGEX PRE-COMPILATION ---
-        self.REGEX_MATRIX: Dict[str, re.Pattern] = self._compile_regex_matrix()
+        self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
 
         # Phase 6.1 Handshake Registry (Synchronized securely via Language Standards)
         self.EMBEDDED_TRIGGERS = []
@@ -163,8 +173,8 @@ class Prism:
         header, body = self._guard_metadata_signal(content)
 
         # 2. STATE INITIALIZATION
-        code_parts: List[str] = []
-        comment_parts: List[str] = []
+        code_parts: list[str] = []
+        comment_parts: list[str] = []
 
         try:
             # 3. THE SLIDING LOOP (Phase 6)
@@ -177,7 +187,9 @@ class Prism:
                 )
 
             for lang_id, segment_text in segments:
-                family = self.languages.get(lang_id, {}).get("lexical_family", "c_style_comment")
+                # #386: default fallback renamed to match the real taxonomy
+                # ("standard_block" is what "c_style_comment" always meant here).
+                family = self.languages.get(lang_id, {}).get("lexical_family", "standard_block")
                 self.logger.debug(f"Scanning segment [{lang_id}] using syntax family '{family}'...")
 
                 # Strip comments from the segment
@@ -216,9 +228,9 @@ class Prism:
                 f"Catastrophic structural failure during structural scan: {e}",
                 exc_info=True,
             )
-            raise PrismError(f"Prism failure: {e}")
+            raise PrismError(f"Prism failure: {e}") from e
 
-    def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> Tuple[str, str]:
+    def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> tuple[str, str]:
         """Surgically strips documentation using an ordered, additive pipeline."""
         lits = []
 
@@ -231,18 +243,30 @@ class Prism:
             lits.extend(php_lits)
 
         # 2. SPECIALIZED LEXICAL FAMILY ROUTING
-        if family == "recursive_c_style":
-            code, nested_lits = self._strip_nested_comments(text)
+        # #386: these three used to check "recursive_c_style"/"column_sensitive"/
+        # "single_line_only" -- names that never matched any real per-language
+        # "lexical_family" value (the real taxonomy is standard_block/
+        # line_exclusive/recursive_block/positional_anchored/block_exclusive/
+        # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
+        # stripper below, ever actually ran for any language.
+        if family in ("recursive_block", "recursive_block_haskell"):
+            # #621: recursive_block_haskell added because Haskell's {- -}
+            # blocks genuinely nest (unlike the standard_block family's flat
+            # delimiters) but use -- for line comments and {- -} rather than
+            # recursive_block's C-style // /* */ -- same nesting algorithm,
+            # different token set, so this reads its own family's delimiters
+            # instead of assuming "recursive_block" specifically.
+            code, nested_lits = self._strip_nested_comments(text, family)
             lits.extend(nested_lits)
             return code, "\n".join(lits)
 
-        if family == "column_sensitive":
+        if family == "positional_anchored":
             code, pos_lits = self._strip_positional_comments(text)
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)
 
-        if family == "single_line_only":
+        if family == "line_exclusive":
             code, single_lits = self._strip_single_line_comments(text)
             if single_lits:
                 lits.extend(single_lits.splitlines())
@@ -276,12 +300,26 @@ class Prism:
 
         return code, "\n".join(lits)
 
-    def _compile_regex_matrix(self) -> Dict[str, re.Pattern]:
+    def _compile_regex_matrix(self) -> dict[str, re.Pattern]:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
         matrix = {}
 
+        # #386: fam_key now matches the real per-language "lexical_family"
+        # values. "recursive_block"/"recursive_block_haskell"/
+        # "positional_anchored" are excluded here because
+        # _strip_segment_comments() already special-cases and fully handles
+        # them above, before this matrix is ever consulted.
+        #
+        # #621: "standard_block" used to carry 9 delimiter tokens covering 3
+        # incompatible comment conventions shared across one regex for all 29
+        # "standard_block" languages, which corrupted real C-family code
+        # (`i-- > 0` and `#include <vector>` both got swallowed as comments).
+        # Split into "multi_style_dash" (sqlite/lua), "embedded_syntax"
+        # (powershell), and "recursive_block_haskell" (haskell) instead --
+        # see gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS. perl moved to
+        # the existing "line_exclusive" family (needed no new family at all).
         for fam_key, data in self.lexical_families.items():
-            if fam_key in ("recursive_c_style", "column_sensitive"):
+            if fam_key in ("recursive_block", "recursive_block_haskell", "positional_anchored"):
                 continue
 
             delims = data.get("delimiters", [])
@@ -293,23 +331,21 @@ class Prism:
             p = ""
 
             # Dynamically build regex based on family type and safe bounds checks
-            if fam_key == "c_style_comment" and len(d) >= 3:
+            if fam_key == "standard_block" and len(d) >= 3:
                 p = rf"({d[0]}[^\n]*|{d[1]}.*?{d[2]})"
-            elif fam_key == "single_line_only" and len(d) >= 1:
+            elif fam_key == "line_exclusive" and len(d) >= 1:
                 p = rf"({d[0]}[^\n]*)"
-            elif fam_key == "embedded_syntax" and len(d) >= 3:
-                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
-            elif fam_key == "multi_style_dash" and len(d) >= 5:
-                p = rf"({d[1]}.*?{d[2]}|{d[3]}.*?{d[4]}|{d[0]}[^\n]*)"
-            elif fam_key == "multi_style_dash" and len(d) >= 3:  # Fallback
-                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
             elif fam_key == "embedded_syntax" and len(d) >= 3:
                 # If len is 4, include d[3], otherwise just [0,1,2]
                 if len(d) >= 4:
                     p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*|{d[3]}[^\n]*)"
                 else:
                     p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
-            elif fam_key == "single_line_only":
+            elif fam_key == "multi_style_dash" and len(d) >= 5:
+                p = rf"({d[1]}.*?{d[2]}|{d[3]}.*?{d[4]}|{d[0]}[^\n]*)"
+            elif fam_key == "multi_style_dash" and len(d) >= 3:  # Fallback
+                p = rf"({d[1]}.*?{d[2]}|{d[0]}[^\n]*)"
+            elif fam_key == "line_exclusive":
                 # =====================================================================
                 # THE FIX: Neutralized the Zero-Width ReDoS Bomb.
                 #
@@ -347,7 +383,7 @@ class Prism:
                     full_pattern = f"{self.LITERAL_MASK_PATTERN}|{p}"
 
                     flags = re.S | re.M
-                    if fam_key == "single_line_only":
+                    if fam_key == "line_exclusive":
                         flags |= re.IGNORECASE
 
                     matrix[fam_key] = re.compile(full_pattern, flags)
@@ -357,7 +393,7 @@ class Prism:
 
         return matrix
 
-    def _strip_python_docstrings(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_python_docstrings(self, text: str) -> tuple[str, list[str]]:
         """Extracts triple-quoted strings as documentation."""
         docs = []
 
@@ -370,7 +406,7 @@ class Prism:
         clean = re.sub(r'(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')', callback, text)
         return clean, docs
 
-    def _strip_php_string_mass(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_php_string_mass(self, text: str) -> tuple[str, list[str]]:
         """Surgically extracts PHP Heredoc and multi-line strings to prevent structural hallucinations."""
         lits = []
 
@@ -388,7 +424,7 @@ class Prism:
 
         return text, lits
 
-    def _partition_embedded_languages(self, content: str, primary_id: str) -> List[Tuple[str, str]]:
+    def _partition_embedded_languages(self, content: str, primary_id: str) -> list[tuple[str, str]]:
         """Splits content into language segments based on embedded language triggers."""
         segments = []
         last_idx = 0
@@ -464,7 +500,7 @@ class Prism:
         """Balanced scoping implementation for paired-bracket embedded segments."""
         depth = 0
         in_string: Optional[str] = None
-        limit = min(start_pos + self.EMBEDDED_LOOKAHEAD_LIMIT, len(text))
+        limit = int(min(start_pos + self.EMBEDDED_LOOKAHEAD_LIMIT, len(text)))
 
         i = start_pos
         while i < limit:
@@ -501,12 +537,17 @@ class Prism:
         self.logger.warning(f"Scanner Scope Guard: Failed to find balanced '{opener}{closer}'. Forcing closure.")
         return limit
 
-    def _strip_nested_comments(self, text: str) -> Tuple[str, List[str]]:
+    def _strip_nested_comments(self, text: str, family: str = "recursive_block") -> tuple[str, list[str]]:
         """
-        Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala).
+        Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala,
+        or Haskell via the "recursive_block_haskell" family -- #621).
         Hardened with active string-masking to prevent logic erosion.
         """
-        delims = self.lexical_families.get("recursive_c_style", {}).get("delimiters", ["//", "/*", "*/"])
+        # #386 follow-up: was "recursive_c_style" -- missed in the original
+        # rename pass. Currently harmless by coincidence (the fallback default
+        # below matches "recursive_block"'s real delimiters exactly today),
+        # but was silently ignoring the real config, not reading it.
+        delims = self.lexical_families.get(family, {}).get("delimiters", ["//", "/*", "*/"])
         if len(delims) < 3:
             return text, []
 
@@ -516,7 +557,7 @@ class Prism:
         # 1. Protect Strings via Safe Masking
         # Masking prevents the `.rfind` mathematical loop from tearing apart string literals
         shield = re.compile(self.LITERAL_MASK_PATTERN, re.S | re.M)
-        string_cache = {}
+        string_cache: dict[str, str] = {}
 
         def _shield_replacer(m: re.Match) -> str:
             if m.group(1):
@@ -574,7 +615,7 @@ class Prism:
         # 4. Final Logic Unmasking
         return unmask(protected_code), lits
 
-    def _strip_positional_comments(self, text: str) -> Tuple[str, str]:
+    def _strip_positional_comments(self, text: str) -> tuple[str, str]:
         """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran)."""
         code, lits = [], []
 
@@ -600,7 +641,7 @@ class Prism:
 
         return "\n".join(code), "\n".join(lits)
 
-    def _guard_metadata_signal(self, content: str) -> Tuple[str, str]:
+    def _guard_metadata_signal(self, content: str) -> tuple[str, str]:
         """Protects shebangs and preprocessor headers from the stripping engine."""
         lines = content.split("\n", 1)
         if not lines:
@@ -613,7 +654,7 @@ class Prism:
 
         return "", content
 
-    def _strip_single_line_comments(self, text: str) -> Tuple[str, str]:
+    def _strip_single_line_comments(self, text: str) -> tuple[str, str]:
         """Generic single-line comment stripper (for '#' or ';' or '--')."""
         lines = text.splitlines()
         code, comments = [], []

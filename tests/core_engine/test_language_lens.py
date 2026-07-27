@@ -309,6 +309,42 @@ def test_local_ecosystem_consensus_and_toxic_pruning(mock_iterdir, isolated_dete
 
 
 # ==============================================================================
+# TEST 11.5: MATLAB vs OBJECTIVE-C .m COLLISION (#377)
+# ==============================================================================
+def test_matlab_objective_c_m_collision_resolved_by_real_disqualifiers():
+    """
+    Regression test for #377: the real LANGUAGE_DEFINITIONS's own comments
+    ("Critical for resolving the massive .m collision with Objective-C" /
+    "The ultimate defense against MATLAB") describe exactly this scenario, but
+    zero of the 57 language definitions ever populated a "disqualifiers" list
+    -- the toxic-collapse mechanism test_local_ecosystem_consensus_and_toxic_pruning
+    proves above was fully wired, but had no real data anywhere to act on.
+    Uses the REAL LanguageDetector against the REAL LANGUAGE_DEFINITIONS (not
+    the isolated mock fixture) so this only passes if the live data is correct.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+
+    # A repo with heavy Xcode/Objective-C ecosystem presence (Podfile, .storyboard)
+    # alongside the ambiguous .m files -- MATLAB's own disqualifiers should
+    # collapse its score to 0, leaving Objective-C to win.
+    global_tally = {
+        ".m": 5,
+        ".storyboard": 3,
+        "podfile": 1,
+    }
+
+    lang, _ = detector._evaluate_ecosystem_gravity(
+        "src/nonexistent_dir_for_this_test/AppDelegate.m", ".m", global_tally
+    )
+
+    assert lang == "objective-c", (
+        "Strong Objective-C ecosystem anchors must disqualify the MATLAB candidate for a contested .m file!"
+    )
+
+
+# ==============================================================================
 # TEST 12: Legacy Focus Gateway
 # ==============================================================================
 def test_legacy_focus_gateway(isolated_detector):
@@ -434,3 +470,61 @@ def test_corrupted_intent_vector_survival(isolated_detector):
     # The engine should ignore the garbage metadata and drop down to standard Heuristic Discovery
     assert result["lang_id"] in ["undeterminable", "plaintext", "python"]
     assert "Discovery" in result["source_proof"]
+
+
+# ==============================================================================
+# TEST 18: TIER 4 DENSITY CONFIDENCE CLAMP (ISSUE #257)
+# ==============================================================================
+@patch("gitgalaxy.standards.language_lens.time.time")
+def test_tier_4_density_confidence_is_clamped(mock_time, isolated_detector):
+    """
+    Proves Tier 4's `regex_hits / loc` density score is clamped to 1.0 before
+    being returned as a confidence value.
+
+    Unlike Tier 3 (`confidence = min(top_signal / 50.0, 1.0)`), Tier 4 used to
+    return `top_density` verbatim at every Phase 5 return point. Real files
+    routinely have more than one regex hit per physical line, so density
+    regularly exceeds 1.0 -- this payload deliberately hits "int main" three
+    times per line to drive raw density to ~2x, well past 1.0.
+    """
+    mock_time.side_effect = [float(i) for i in range(50)]
+
+    # 5 comment lines (to establish the standard_block lexical family) + 20
+    # lines with 3 "int main" hits each -> 60 hits over ~26 physical lines,
+    # a raw density of ~2.3 -- unclamped, this would flow straight into
+    # `intensity` in the final result.
+    c_payload = "// C file\n" * 5 + "int main(); int main(); int main();\n" * 20
+
+    result = isolated_detector.inspect("no_extension_file", c_payload)
+
+    assert result["lang_id"] == "c"
+    assert result["intensity"] <= 1.0, (
+        f"Tier 4 confidence must be clamped to <= 1.0, got {result['intensity']}"
+    )
+
+
+# ==============================================================================
+# TEST 19: COLLISION-RESOLVED CONFIDENCE CLAMP (ISSUE #315)
+# ==============================================================================
+def test_collision_resolved_confidence_is_clamped(isolated_detector):
+    """
+    Proves the Tier-3 collision-resolution branch clamps
+    `spec_intensity + 0.10` to 1.0 before it becomes the final confidence.
+
+    ".h" is a COLLISION_FREQUENCIES extension shared by cpp/c/objective-c, so
+    Tier 1 refuses to lock it (undeterminable) and it falls through to the
+    lexical scan. This payload repeats "int main()" enough times on a single
+    short line to saturate `_tier_3_lexical_scan`'s score at exactly 1.0 --
+    unclamped, `max(1.0 + 0.10, 0.92)` would return 1.10.
+    """
+    content = "int main(); " * 6
+
+    result = isolated_detector.inspect(
+        file_path="test_collision_xyz.h", content_sample=content, ext_tally={}
+    )
+
+    assert result["lang_id"] == "c"
+    assert "Collision Resolved" in result["source_proof"]
+    assert result["intensity"] <= 1.0, (
+        f"Collision-resolved confidence must be clamped to <= 1.0, got {result['intensity']}"
+    )

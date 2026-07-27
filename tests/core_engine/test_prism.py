@@ -3,7 +3,7 @@ import re
 from unittest.mock import patch
 
 # Adjust this import to match your project structure
-from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.prism import Prism, PrismError
 
 # ==============================================================================
 # MOCK MATRIX CALIBRATION
@@ -11,23 +11,33 @@ from gitgalaxy.core.prism import Prism
 # We mock the language and comment definitions so the tests run deterministically
 # regardless of what is inside your actual language_standards.py file.
 
+# #386: these used to be a fictional taxonomy ("mechanical_families",
+# "c_style_comment", "single_line_only", "recursive_c_style",
+# "column_sensitive") that never matched the real config
+# (gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS uses "lexical_families",
+# and real per-language "lexical_family" values are standard_block/
+# line_exclusive/recursive_block/positional_anchored/block_exclusive/
+# non_lexical) -- every test in this file passed anyway, because they never
+# exercised the real config, which is exactly how prism.py's total failure
+# to strip comments for any language went undetected. Renamed to match
+# reality so this class of drift can't silently recur.
 MOCK_COMMENT_DEFS = {
-    "mechanical_families": {
-        "c_style_comment": {"delimiters": ["//", "/*", "*/"]},
-        "single_line_only": {"delimiters": ["#"]},
-        "recursive_c_style": {"delimiters": ["//", "/*", "*/"]},
-        "column_sensitive": {"delimiters": []},
+    "lexical_families": {
+        "standard_block": {"delimiters": ["//", "/*", "*/"]},
+        "line_exclusive": {"delimiters": ["#"]},
+        "recursive_block": {"delimiters": ["//", "/*", "*/"]},
+        "positional_anchored": {"delimiters": []},
     }
 }
 
 MOCK_LANG_DEFS = {
-    "c": {"lexical_family": "c_style_comment"},
-    "python": {"lexical_family": "single_line_only"},
-    "rust": {"lexical_family": "recursive_c_style"},
-    "cobol": {"lexical_family": "column_sensitive"},
+    "c": {"lexical_family": "standard_block"},
+    "python": {"lexical_family": "line_exclusive"},
+    "rust": {"lexical_family": "recursive_block"},
+    "cobol": {"lexical_family": "positional_anchored"},
     "markdown": {"lexical_family": "prose"},
     "html": {"lexical_family": "xml"},
-    "php": {"lexical_family": "c_style_comment"},
+    "php": {"lexical_family": "standard_block"},
 }
 
 
@@ -62,6 +72,33 @@ def test_prism_prose_bypass(prism_engine):
     assert result["comment_stream"] == content
     assert result["coding_loc"] == 0
     assert result["doc_loc"] == 3
+
+
+def test_prism_empty_content_short_circuits(prism_engine):
+    """An empty content buffer must return the zeroed-out result shape directly, skipping all regex work."""
+    result = prism_engine.split_streams("", primary_lang="python")
+    assert result == {
+        "code_stream": "",
+        "comment_stream": "",
+        "coding_loc": 0,
+        "doc_loc": 0,
+        "mitigations": [],
+    }
+
+
+def test_prism_catastrophic_failure_wraps_in_prism_error(prism_engine):
+    """
+    Stress test: if something inside the scan raises unexpectedly (not one
+    of the specific, already-handled cases), split_streams must wrap it in a
+    PrismError with the original exception chained -- never let a raw,
+    unrelated exception type escape to the caller.
+    """
+    with patch.object(prism_engine, "_strip_segment_comments", side_effect=RuntimeError("simulated engine failure")):
+        with pytest.raises(PrismError) as exc_info:
+            prism_engine.split_streams("some code", primary_lang="python")
+
+    assert "simulated engine failure" in str(exc_info.value)
+    assert isinstance(exc_info.value.__cause__, RuntimeError)
 
 
 def test_prism_metadata_guard(prism_engine):
@@ -118,6 +155,25 @@ def test_prism_nested_block_peeling(prism_engine):
     assert "println!('Done');" in code
     assert "Outer comment" not in code
     assert "Inner comment" in docs
+
+
+def test_prism_nested_block_peeling_reads_the_real_lexical_families_key(prism_engine):
+    """
+    Regression test for a #386 follow-up: _strip_nested_comments() looked up
+    self.lexical_families.get("recursive_c_style", ...) -- the OLD dead name,
+    missed in the original rename pass -- and only "worked" because its
+    hardcoded fallback default (["//", "/*", "*/"]) happened to coincidentally
+    match "recursive_block"'s real delimiters. Using non-default delimiters
+    here proves the lookup key itself is correct, not just the fallback.
+    """
+    prism_engine.lexical_families["recursive_block"] = {"delimiters": ["##", "<<", ">>"]}
+
+    content = "fn main() {\n    << Outer << Inner >> Back to outer >>\n    do_work();\n}"
+    result = prism_engine.split_streams(content, primary_lang="rust")
+
+    assert "do_work();" in result["code_stream"]
+    assert "Outer" not in result["code_stream"]
+    assert "Inner" in result["comment_stream"]
 
 
 # ==============================================================================
@@ -193,7 +249,7 @@ def test_prism_format_and_xml_bypass(prism_engine):
 # ==============================================================================
 def test_prism_php_string_extraction(prism_engine):
     """Proves PHP Heredoc and large strings are stripped to the documentation stream."""
-    prism_engine.languages["php"] = {"lexical_family": "c_style_comment"}
+    prism_engine.languages["php"] = {"lexical_family": "standard_block"}
     prism_engine.PHP_HEREDOC_PATTERN = re.compile(r"<<<EOT[\s\S]*?EOT;", re.M)
     prism_engine.PHP_MULTILINE_STRING = re.compile(r"'(?:\\'|[^'])*'", re.M)
 
@@ -249,21 +305,24 @@ def test_prism_regex_matrix_calibration_edge_cases():
 
     # 1. Primary Branches (Full Delimiter Sets)
     primary_families = {
-        "single_line_only": {"delimiters": ["#", "<#", "#>"]},
+        "line_exclusive": {"delimiters": ["#", "<#", "#>"]},
         "multi_style_dash": {"delimiters": ["--", html_open, html_close, "{-", "-}"]},
         "embedded_syntax": {"delimiters": ["//", "/*", "*/", "#"]},
         "empty_delim": {"delimiters": []},
     }
 
     engine_primary = Prism(
-        comment_definitions={"mechanical_families": primary_families},
+        comment_definitions={"lexical_families": primary_families},
         language_definitions={},
     )
 
-    assert "single_line_only" in engine_primary.REGEX_MATRIX
+    assert "line_exclusive" in engine_primary.REGEX_MATRIX
     assert "multi_style_dash" in engine_primary.REGEX_MATRIX
     assert re.escape("{-") in engine_primary.REGEX_MATRIX["multi_style_dash"].pattern
     assert "embedded_syntax" in engine_primary.REGEX_MATRIX
+    # Regression for #258: confirms the 4th delimiter ("#") wasn't silently
+    # dropped by the unreachable duplicate elif branch.
+    assert "#" in engine_primary.REGEX_MATRIX["embedded_syntax"].pattern
 
     # 2. Fallback Branches (Partial Delimiter Sets)
     fallback_families = {
@@ -272,13 +331,329 @@ def test_prism_regex_matrix_calibration_edge_cases():
     }
 
     engine_fallback = Prism(
-        comment_definitions={"mechanical_families": fallback_families},
+        comment_definitions={"lexical_families": fallback_families},
         language_definitions={},
     )
 
     assert "multi_style_dash" in engine_fallback.REGEX_MATRIX
 
     # We check if the safely escaped version of '
+    
+def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
+    """
+    Regression test for #258: an embedded_syntax family configured with a
+    4th delimiter must actually use it when stripping comments, not silently
+    lose it to an unreachable duplicate elif branch.
+    """
+    prism_engine.languages["configlang"] = {"lexical_family": "embedded_syntax"}
+    prism_engine.lexical_families["embedded_syntax"] = {
+        "delimiters": ["//", "/*", "*/", "#"]
+    }
+    prism_engine.REGEX_MATRIX = prism_engine._compile_regex_matrix()
+
+    content = "value = 1 # this is a hash comment\nother = 2"
+    result = prism_engine.split_streams(content, primary_lang="configlang")
+
+    assert "value = 1" in result["code_stream"]
+    assert "this is a hash comment" in result["comment_stream"]
+    assert "this is a hash comment" not in result["code_stream"]
+
+# ==============================================================================
+# TEST 9.5: THE REAL CONFIG, NOT THE MOCK (#386)
+# ==============================================================================
+def test_prism_strips_comments_against_the_real_config():
+    """
+    Regression test for #386: every other test in this file drives Prism
+    through MOCK_COMMENT_DEFS/MOCK_LANG_DEFS, which used to be a fictional,
+    internally-consistent taxonomy that never matched the real
+    gitgalaxy_config.py/language_standards.py config -- meaning NONE of them
+    would have caught prism.py's total failure to strip comments for any of
+    the 58 real languages. This test wires up the REAL config instead, and
+    proves comment stripping actually works for one language per real family
+    (standard_block, line_exclusive, recursive_block, positional_anchored).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    # standard_block (C)
+    result = real_prism.split_streams(
+        "// a comment\nint main() {\n    /* block */\n    return 0;\n}\n", "c"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # line_exclusive (Python)
+    result = real_prism.split_streams("x = 1  # a comment\ny = 2\n", "python")
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # recursive_block (Rust)
+    result = real_prism.split_streams(
+        "fn main() {\n    // a comment\n}\n", "rust"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+    # positional_anchored (COBOL)
+    result = real_prism.split_streams(
+        "       IDENTIFICATION DIVISION.\n      * a comment\n", "cobol"
+    )
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+
+
+def test_prism_sub_families_fix_the_standard_block_delimiter_gap():
+    """
+    Regression test for #621: sqlite, lua, haskell, powershell, and perl were
+    all classified "standard_block" but don't use its C-style // and /* */
+    delimiters -- they got ZERO comment stripping (empirically confirmed
+    against the real config before this fix). The initial attempted fix
+    (adding all 9 of standard_block's configured delimiter tokens to one
+    shared regex) was rejected: it corrupted real C-family code, since `--`
+    is a decrement operator and `#` is a preprocessor directive in that
+    family, not a comment marker. The actual fix splits these 5 languages
+    into their own families (multi_style_dash, embedded_syntax,
+    recursive_block_haskell) or an existing compatible one (line_exclusive
+    for perl), so standard_block's regex is never shared with them.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    line_comment_cases = {
+        "sqlite": "SELECT 1;\n-- a secret comment\nSELECT 2;\n",
+        "lua": "print(1)\n-- a secret comment\nprint(2)\n",
+        "haskell": "main = do\n  -- a secret comment\n  print 1\n",
+        "powershell": "Write-Host 1\n# a secret comment\nWrite-Host 2\n",
+        "perl": "print 1;\n# a secret comment\nprint 2;\n",
+    }
+    for lang, code in line_comment_cases.items():
+        result = real_prism.split_streams(code, lang)
+        assert "a secret comment" not in result["code_stream"], f"{lang}: line comment leaked into code_stream"
+        assert "a secret comment" in result["comment_stream"], f"{lang}: line comment was not captured"
+
+    block_comment_cases = {
+        "sqlite": ("SELECT 1;\n/* block secret */\nSELECT 2;\n", "block secret"),
+        "lua": ("print(1)\n--[[\nblock secret\nspans lines\n]]\nprint(2)\n", "block secret"),
+        "haskell": ("main = do\n  {- block secret -}\n  print 1\n", "block secret"),
+        "powershell": ("Write-Host 1\n<# block secret #>\nWrite-Host 2\n", "block secret"),
+    }
+    for lang, (code, needle) in block_comment_cases.items():
+        result = real_prism.split_streams(code, lang)
+        assert needle not in result["code_stream"], f"{lang}: block comment leaked into code_stream"
+        assert needle in result["comment_stream"], f"{lang}: block comment was not captured"
+
+
+def test_prism_haskell_block_comments_actually_nest():
+    """
+    Regression test for #621: Haskell's own language_standards.py comment
+    explicitly says its {- -} blocks "strictly support recursive nesting" --
+    unlike sqlite/lua's flat delimiter handling, Haskell needed the same
+    iterative inside-out peel algorithm recursive_block already uses for
+    Rust/Swift/Dart/Scala, just with Haskell's -- / {- / -} tokens instead
+    of C-style ones (family "recursive_block_haskell").
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams(
+        "main = do\n  {- outer {- inner secret -} still outer secret -}\n  print 1\n",
+        "haskell",
+    )
+    assert "outer secret" not in result["code_stream"]
+    assert "inner secret" not in result["code_stream"]
+    assert "inner secret" in result["comment_stream"]
+    assert "outer secret" in result["comment_stream"]
+
+
+def test_prism_standard_block_c_family_unaffected_by_sub_family_split():
+    """
+    Regression guard for #621: splitting sqlite/lua/haskell/powershell/perl
+    out of "standard_block" must not change stripping behavior for the ~24
+    C-style languages that remain in it -- especially `--` (decrement
+    operator) and `#` (preprocessor directive), both of which the rejected
+    first-attempt fix broke by treating them as shared comment tokens.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    cpp_code = (
+        "int main() {\n"
+        "    int i = 10;\n"
+        "    while (i-- > 0) {\n"
+        "        do_something(i);\n"
+        "    }\n"
+        "    #include <vector>\n"
+        "    return 0;\n"
+        "}\n"
+    )
+    result = real_prism.split_streams(cpp_code, "cpp")
+    assert "i-- > 0" in result["code_stream"], "C-family decrement operator was corrupted"
+    assert "#include <vector>" in result["code_stream"], "C-family preprocessor directive was corrupted"
+
+    for lang, code in {
+        "c": "// a comment\nint main() {\n    /* a block comment */\n    return 0;\n}\n",
+        "javascript": "// a comment\nfunction f() {\n  /* a block comment */\n  return 1;\n}\n",
+    }.items():
+        result = real_prism.split_streams(code, lang)
+        assert "a comment" not in result["code_stream"]
+        assert "a comment" in result["comment_stream"]
+        assert "a block comment" not in result["code_stream"]
+        assert "a block comment" in result["comment_stream"]
+
+
+def test_prism_dash_comment_string_literal_shielding():
+    """
+    Regression guard for #621: a '--' or '#' sequence inside a real string
+    literal must still be shielded from the new multi_style_dash/
+    embedded_syntax comment patterns.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams('x = "this -- is not a comment"\n', "lua")
+    assert "this -- is not a comment" in result["code_stream"]
+
+
+def test_prism_haskell_and_powershell_string_literal_shielding():
+    """
+    Extends the #621 shielding guard to the other two new families:
+    Haskell's '--' inside a string must not be treated as a line comment by
+    the recursive_block_haskell nested-peel algorithm, and PowerShell's '#'
+    inside a string must not be treated as a comment by embedded_syntax.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    result = real_prism.split_streams('x = "this -- is not a comment"\n', "haskell")
+    assert "this -- is not a comment" in result["code_stream"]
+
+    result = real_prism.split_streams('$x = "this # is not a comment"\n', "powershell")
+    assert "this # is not a comment" in result["code_stream"]
+
+
+# ==============================================================================
+# TEST 9.6: BLOCK_EXCLUSIVE / NON_LEXICAL (#622)
+# ==============================================================================
+def test_prism_block_exclusive_and_non_lexical_real_config():
+    """
+    Part of #622. xml (block_exclusive) and plaintext (non_lexical) are each
+    the ONLY real language currently assigned to their family. Both also
+    happen to be hardcoded into split_streams()'s "prose bypass" list
+    (alongside markdown), which routes them to the documentation stream
+    before family dispatch ever runs -- so this proves that behavior against
+    the REAL lexical_family values (matching #386's "test the real config,
+    not a mock" discipline), not just that the bypass mechanism works at all
+    (test_prism_format_and_xml_bypass already covers that against a mock).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    assert LANGUAGE_DEFINITIONS["xml"]["lexical_family"] == "block_exclusive"
+    assert LANGUAGE_DEFINITIONS["plaintext"]["lexical_family"] == "non_lexical"
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    xml_content = "<data>" + chr(60) + "!-- a secret comment --" + chr(62) + "</data>"
+    result = real_prism.split_streams(xml_content, "xml")
+    assert result["code_stream"] == ""
+    assert "a secret comment" in result["comment_stream"]
+
+    plaintext_content = "just some plain text\nwith a secret comment in it\n"
+    result = real_prism.split_streams(plaintext_content, "plaintext")
+    assert result["code_stream"] == ""
+    assert "a secret comment" in result["comment_stream"]
+
+
+def test_prism_block_exclusive_and_non_lexical_have_no_compiled_pattern():
+    """
+    Part of #622: documents a latent gap, not a live bug. block_exclusive
+    and non_lexical are NOT in _compile_regex_matrix()'s branch list at all
+    (unlike standard_block/line_exclusive/multi_style_dash/embedded_syntax),
+    so REGEX_MATRIX has no entry for either family. This is harmless TODAY
+    only because xml and plaintext -- the sole real member of each family --
+    are also hardcoded into split_streams()'s "prose bypass" list, which
+    intercepts them before family dispatch is ever consulted.
+
+    If a FUTURE language is assigned block_exclusive or non_lexical without
+    also being added to that bypass list, it would silently fall through to
+    "no pattern registered" and get zero comment stripping -- the same
+    silent-failure shape as #386 and #621. This test exercises that exact
+    fallthrough directly (bypassing the prose-bypass shortcut) so it's
+    documented and will fail loudly if someone "fixes" it by accident in a
+    way that changes the fallthrough's behavior without updating this test.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    assert "block_exclusive" not in real_prism.REGEX_MATRIX
+    assert "non_lexical" not in real_prism.REGEX_MATRIX
+
+    # Call the family stripper directly for a hypothetical language in each
+    # family that ISN'T in the prose-bypass list, proving today's actual
+    # fallthrough behavior: the text passes through completely unstripped.
+    code, comments = real_prism._strip_segment_comments(
+        "some content <!-- not actually stripped --> more content", "hypothetical_lang", "block_exclusive"
+    )
+    assert code == "some content <!-- not actually stripped --> more content"
+    assert comments == ""
+
+    code, comments = real_prism._strip_segment_comments(
+        "some plain content, never stripped", "hypothetical_lang", "non_lexical"
+    )
+    assert code == "some plain content, never stripped"
+    assert comments == ""
+
+
+# ==============================================================================
+# TEST 9.7: REDOS IMMUNITY FOR THE REAL PER-FAMILY PATTERNS (#622)
+# ==============================================================================
+def test_prism_real_family_patterns_are_redos_immune():
+    """
+    Part of #622: test_prism_suppression_regex_bomb already proves the
+    'galaxyscope:ignore' suppression regex is ReDoS-immune, and
+    test_prism_regex_matrix_calibration_edge_cases proves the branch-
+    selection logic works against synthetic delimiter sets -- but neither
+    exercises the ACTUAL compiled patterns for the real families against a
+    pathological payload. This does, using the same "must resolve well
+    under a generous timeout" bar as test_prism_suppression_regex_bomb.
+    """
+    import time
+
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    poison_cases = {
+        # standard_block (C-style, 24 languages)
+        "cpp": "/* " + "* " * 20000 + "*/",
+        # multi_style_dash (sqlite, lua) -- long runs of the shared '-' token
+        "lua": "-- " + "- " * 20000,
+        # embedded_syntax (powershell) -- long runs of '#'
+        "powershell": "# " + "# " * 20000,
+        # line_exclusive (python, perl, ~20 others)
+        "perl": "# " + "# " * 20000,
+        # recursive_block_haskell -- deeply nested-looking (but never
+        # actually closed) block markers
+        "haskell": "{- " * 5000 + "unterminated",
+    }
+    for lang, payload in poison_cases.items():
+        start = time.perf_counter()
+        real_prism.split_streams(payload, lang)
+        duration = time.perf_counter() - start
+        assert duration < 2.0, f"{lang}: real family pattern took {duration:.2f}s on a pathological payload"
+
 
 # ==============================================================================
 # TEST 10: INLINE SUPPRESSION EXTRACTION (Devious Edge Cases)

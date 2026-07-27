@@ -14,18 +14,19 @@
 
 # galaxyscope:ignore sec_high_risk_execution, ai_guardrails, sec_db_hooks
 
-import sqlite3
 import logging
+import sqlite3
 import statistics
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Optional
+
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
 # GitGalaxy Phase 10: LLM Recorder (The AI Translation Layer)
-# Strategy v6.3.0 Protocol: Token Density, Distribution Topology & Context Graphs
+# Strategy Protocol: Token Density, Distribution Topology & Context Graphs
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
@@ -56,7 +57,7 @@ class LLMRecorder:
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         self.SIGNAL_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
 
-    def _parse_threat_score(self, artifact: Dict) -> Tuple[float, str]:
+    def _parse_threat_score(self, artifact: dict) -> tuple[float, str]:
         """Safely extracts and converts the AI threat score string to a float."""
         score_str = artifact.get("telemetry", {}).get("domain_context", {}).get("AI Threat Score", "0.0%")
         try:
@@ -66,12 +67,12 @@ class LLMRecorder:
 
     def generate_artifacts(
         self,
-        parsed_files: List[Dict[str, Any]],
-        unparsable_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session_meta: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        unparsable_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
         output_dir: str,
-        forensic_report: Optional[Dict[str, Any]] = None,
+        forensic_report: Optional[dict[str, Any]] = None,
     ):
         """Generates the dual-output AI artifacts: Markdown and SQLite."""
         if forensic_report is None:
@@ -143,11 +144,11 @@ class LLMRecorder:
 
     def _build_markdown(
         self,
-        parsed_files: List[Dict[str, Any]],
-        unparsable_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session_meta: Dict[str, Any],
-        forensic_report: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        unparsable_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
+        forensic_report: dict[str, Any],
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")
@@ -371,7 +372,7 @@ class LLMRecorder:
             )
         else:
             lines.append(
-                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."
+                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."  # noqa: RUF001
             )
         lines.append("")
 
@@ -472,7 +473,10 @@ class LLMRecorder:
         )[:5]
         lines.append("### Top 5 Structural Pillars (Highest 'Imported By' / Blast Radius)")
         lines.append(
-            "These files act as core load-bearing infrastructure. Changes here carry a high risk of cascading breaks.\n"
+            "These are the most interconnected files relative to the rest of this repository. On a repo with dense "
+            "internal coupling, that means core load-bearing infrastructure -- changes carry real cascading-break "
+            "risk. On a repo with a flatter internal architecture, the gap between #1 and #5 may be small, and this "
+            "list is a weaker signal accordingly; compare the connection counts below before treating it as a verdict.\n"
         )
         for rank, file_data in enumerate(pillars, 1):
             name = file_data.get("name", "Unknown")
@@ -595,47 +599,46 @@ class LLMRecorder:
         if debt_idx >= 0:
             high_debt = sorted(
                 [s for s in parsed_files if len(s.get("risk_vector", [])) > debt_idx],
-                key=lambda x: x.get("risk_vector")[debt_idx],
+                key=lambda x: x.get("risk_vector", [])[debt_idx],
                 reverse=True,
             )[:5]
-            if high_debt and high_debt[0].get("risk_vector")[debt_idx] > 0:
+            if high_debt and high_debt[0].get("risk_vector", [])[debt_idx] > 0:
                 lines.append("### Highest Tech Debt (Fragile/Planned)")
                 for s in high_debt:
-                    if s.get("risk_vector")[debt_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[debt_idx]}%** Exposure")
+                    if s.get("risk_vector", [])[debt_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure")
 
         flux_idx = self.RISK_SCHEMA.index("state_flux") if "state_flux" in self.RISK_SCHEMA else -1
         if flux_idx >= 0:
             high_flux = sorted(
                 [s for s in parsed_files if len(s.get("risk_vector", [])) > flux_idx],
-                key=lambda x: x.get("risk_vector")[flux_idx],
+                key=lambda x: x.get("risk_vector", [])[flux_idx],
                 reverse=True,
             )[:5]
-            if high_flux and high_flux[0].get("risk_vector")[flux_idx] > 0:
+            if high_flux and high_flux[0].get("risk_vector", [])[flux_idx] > 0:
                 lines.append("### Highest State Flux (Mutation/Volatility)")
                 for s in high_flux:
-                    if s.get("risk_vector")[flux_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[flux_idx]}%** Exposure")
+                    if s.get("risk_vector", [])[flux_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure")
 
-        orphan_idx = (
-            self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
-        )
-        dup_idx = (
-            self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
-        )
+        orphan_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
+        dup_idx = self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
 
         if orphan_idx >= 0 and dup_idx >= 0:
             high_slop = sorted(
                 [s for s in parsed_files if len(s.get("hit_vector", [])) > max(orphan_idx, dup_idx)],
-                key=lambda x: x.get("hit_vector")[orphan_idx] + x.get("hit_vector")[dup_idx],
+                key=lambda x: x.get("hit_vector", [])[orphan_idx] + x.get("hit_vector", [])[dup_idx],
                 reverse=True,
             )[:5]
 
-            if high_slop and (high_slop[0].get("hit_vector")[orphan_idx] + high_slop[0].get("hit_vector")[dup_idx]) > 0:
+            if (
+                high_slop
+                and (high_slop[0].get("hit_vector", [])[orphan_idx] + high_slop[0].get("hit_vector", [])[dup_idx]) > 0
+            ):
                 lines.append("### Highest Design Slop (Dead & Duplicated Logic)")
                 for s in high_slop:
-                    o_hits = s.get("hit_vector")[orphan_idx]
-                    d_hits = s.get("hit_vector")[dup_idx]
+                    o_hits = s.get("hit_vector", [])[orphan_idx]
+                    d_hits = s.get("hit_vector", [])[dup_idx]
                     if o_hits > 0 or d_hits > 0:
                         lines.append(
                             f"- `{s.get('path')}` -> **{o_hits}** Orphaned Functions | **{d_hits}** Duplicates"
@@ -649,7 +652,7 @@ class LLMRecorder:
                 "> **CRITICAL THREATS DETECTED.** The following files possess the structural signatures of known vulnerabilities.\n"
             )
             cutoff = max(10, int(len(ml_threats) * 0.10))
-            for i, (s, val, string_val) in enumerate(ml_threats[:cutoff]):
+            for i, (s, _val, string_val) in enumerate(ml_threats[:cutoff]):
                 lines.append(f"{i + 1}. **`{s.get('path')}`** -> AI Confidence: **{string_val}**")
         else:
             lines.append("*No files met the threshold for malicious structural signatures.*")
@@ -677,9 +680,9 @@ class LLMRecorder:
                     [
                         s
                         for s in parsed_files
-                        if len(s.get("risk_vector", [])) > v_idx and s.get("risk_vector")[v_idx] > 0.0
+                        if len(s.get("risk_vector", [])) > v_idx and s.get("risk_vector", [])[v_idx] > 0.0
                     ],
-                    key=lambda x: x.get("risk_vector")[v_idx],
+                    key=lambda x: x.get("risk_vector", [])[v_idx],
                     reverse=True,
                 )
 
@@ -688,7 +691,7 @@ class LLMRecorder:
                     label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
                     lines.append(f"### {label}")
                     for s in v_files[:5]:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector')[v_idx]}%** Exposure")
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure")
 
         if not vuln_found:
             lines.append("*No critical vulnerabilities or security lens thresholds breached.*")
@@ -710,9 +713,9 @@ class LLMRecorder:
                 [
                     s
                     for s in parsed_files
-                    if len(s.get("hit_vector", [])) > rce_idx and s.get("hit_vector")[rce_idx] > 0
+                    if len(s.get("hit_vector", [])) > rce_idx and s.get("hit_vector", [])[rce_idx] > 0
                 ],
-                key=lambda x: x.get("hit_vector")[rce_idx],
+                key=lambda x: x.get("hit_vector", [])[rce_idx],
                 reverse=True,
             )
             if rce_files:
@@ -723,14 +726,18 @@ class LLMRecorder:
                 )
                 for s in rce_files[:5]:
                     lines.append(
-                        f"- `{s.get('path')}` -> **{s.get('hit_vector')[rce_idx]}** confirmed execution vectors"
+                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[rce_idx]}** confirmed execution vectors"
                     )
                 lines.append("")
 
         if pi_idx >= 0:
             pi_files = sorted(
-                [s for s in parsed_files if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector")[pi_idx] > 0],
-                key=lambda x: x.get("hit_vector")[pi_idx],
+                [
+                    s
+                    for s in parsed_files
+                    if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector", [])[pi_idx] > 0
+                ],
+                key=lambda x: x.get("hit_vector", [])[pi_idx],
                 reverse=True,
             )
             if pi_files:
@@ -740,7 +747,9 @@ class LLMRecorder:
                     "The following files pass raw, untrusted external I/O directly into an LLM context window without sanitization.\n"
                 )
                 for s in pi_files[:5]:
-                    lines.append(f"- `{s.get('path')}` -> **{s.get('hit_vector')[pi_idx]}** exposed injection surfaces")
+                    lines.append(
+                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[pi_idx]}** exposed injection surfaces"
+                    )
                 lines.append("")
 
         if not ai_vuln_found:
@@ -789,11 +798,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 11. CUMULATIVE RISK HITLIST ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)")
         lines.append(
             "> Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.\n"
@@ -806,17 +815,17 @@ class LLMRecorder:
             for rank, cr in enumerate(cumulative_risks[:10], 1):
                 p = cr.get("path")
                 c_val = cr.get("value")
-                s = file_map.get(p)
+                matched_file = file_map.get(p)
 
-                if not s:
+                if not matched_file:
                     lines.append(f"### {rank}. `{p}` -> Cumulative Risk: **{c_val}**")
                     continue
 
-                l = s.get("lang_id", "UNK").upper()
-                m = s.get("file_impact", 0.0)
-                loc = s.get("total_loc", 0)
-                tel = s.get("telemetry", {})
-                rv = s.get("risk_vector", [])
+                l = matched_file.get("lang_id", "UNK").upper()
+                m = matched_file.get("file_impact", 0.0)
+                loc = matched_file.get("total_loc", 0)
+                tel = matched_file.get("telemetry", {})
+                rv = matched_file.get("risk_vector", [])
 
                 lines.append(f"### {rank}. `{p}` ({l}) -> Cumulative Risk: **{c_val}**")
                 arch = tel.get("archetype", "Unknown Archetype")
@@ -836,7 +845,7 @@ class LLMRecorder:
                 lines.append(f"- **Primary Risk Drivers:** {', '.join(top_file_risks) if top_file_risks else 'None'}")
 
                 sats = sorted(
-                    s.get("functions", []),
+                    matched_file.get("functions", []),
                     key=lambda x: x.get("impact", 0),
                     reverse=True,
                 )[:3]
@@ -851,11 +860,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files) ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files)")
         lines.append(
             "> *Note: 'Magnitude' represents the file's total Structural Magnitude and impact within the system. It is independent of its Risk Profile. High magnitude implies high structural importance and centralization.*\n"
@@ -949,11 +958,11 @@ class LLMRecorder:
                         lines.append(f"    * *Intent:* {clean_doc}")
 
             mitigations = tel.get("mitigation_telemetry", {})
-            
+
             # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
             if isinstance(mitigations, list):
-                mitigations = {m: 1 for m in mitigations}
-                
+                mitigations = dict.fromkeys(mitigations, 1)
+
             active_mitigations = {k: v for k, v in mitigations.items() if v > 0}
             if active_mitigations:
                 lines.append("**Contextual Mitigations & Amplifications:**")
@@ -991,11 +1000,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
         lines.append(
             "> **AI CONTEXT:** Pay close attention to 'Anti-Pattern' files. These files blend in globally (Low Global Drift), but heavily violate the standard conventions of their native programming language (High Local Drift). 'Mixed-Responsibility' files sit perfectly between two global archetypes (Delta <= 0.9 IQR), indicating a violation of the Single Responsibility Principle.\n"
@@ -1072,19 +1081,19 @@ class LLMRecorder:
                     p = s.get("path", "UNK")
                     l = s.get("lang_id", "UNK").upper()
                     m = s.get("file_impact", 0.0)
-                    sec_a, sec_d = drift["secondary"]
+                    sec_a, _sec_d = drift["secondary"]
 
                     lines.append(
                         f"- `{p}` ({l}) | Magnitude: {m} | Delta: **{round(drift['delta'], 3)} IQR** | Secondary Pull: `{sec_a}`"
                     )
 
-                    struct_hits = [
+                    struct_signal_hits = [
                         (self.SIGNAL_SCHEMA[i], val)
                         for i, val in enumerate(s.get("hit_vector", []))
                         if val > 0 and i < len(self.SIGNAL_SCHEMA)
                     ]
-                    struct_hits.sort(key=lambda x: x[1], reverse=True)
-                    top_hits = ", ".join([f"{k}: {v}" for k, v in struct_hits[:4]])
+                    struct_signal_hits.sort(key=lambda x: x[1], reverse=True)
+                    top_hits = ", ".join([f"{k}: {v}" for k, v in struct_signal_hits[:4]])
 
                     lines.append(f"  * Top Architectural Signatures: {top_hits if top_hits else 'None'}")
                 lines.append("")
@@ -1094,11 +1103,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.5 STRATEGIC REFACTORING TARGETS ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 13.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)")
         lines.append(
             "> **AI CONTEXT:** Use these intersections to recommend pragmatic next steps. Risk is exponentially worse when combined with high churn (frequent edits) or high authorship centralization (single points of failure).\n"
@@ -1121,9 +1130,9 @@ class LLMRecorder:
                 lines.append(
                     "These files are messy, complex, and modified frequently. They are the primary source of developer friction.\n"
                 )
-                hotspots.sort(key=lambda x: x.get("risk_vector")[churn_idx], reverse=True)
+                hotspots.sort(key=lambda x: x.get("risk_vector", [])[churn_idx], reverse=True)
                 for s in hotspots[:5]:
-                    rv = s.get("risk_vector")
+                    rv = s.get("risk_vector", [])
                     lines.append(
                         f"- `{s.get('path')}` -> Churn: **{rv[churn_idx]}%** | Cog Load: {rv[cog_idx]}% | Debt: {rv[debt_idx]}%"
                     )
@@ -1151,11 +1160,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Physics) ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         sys_bots = forensic_report.get("systemic_bottlenecks", {})
         if any(v and v[0]["score"] > 0 for v in sys_bots.values()):
             lines.append("## 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)")
@@ -1176,7 +1185,10 @@ class LLMRecorder:
                         )
                 lines.append("")
 
-            hoc = sys_bots.get("house_of_cards", [])
+            # #370: the real bottleneck-detector key is "fragile_dependency_chain"
+            # (signal_processor.py) -- "house_of_cards" was never a real key, just
+            # this section's own display name mistakenly used as the lookup too.
+            hoc = sys_bots.get("fragile_dependency_chain", [])
             if hoc and hoc[0]["score"] > 0:
                 lines.append("### 🃏 House of Cards (Closeness * Error Risk)")
                 lines.append(
@@ -1204,11 +1216,11 @@ class LLMRecorder:
 
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         # --- 14. SYSTEM PROMPT: HOW TO RESPOND ---
         # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## AI SYSTEM INSTRUCTIONS (OUTPUT FORMAT)")
         lines.append(
             "> **CRITICAL TONE DIRECTIVE:** Act as a Principal Staff Engineer. Use grounded, professional software engineering terminology (e.g., coupling, cohesion, technical debt, single responsibility). DO NOT use sci-fi, dramatic, or sensational jargon (e.g., 'Trojan', 'violently violates', 'parasitic', 'chimeric'). Be objective, practical, and direct."
@@ -1237,11 +1249,11 @@ class LLMRecorder:
 
     def _generate_sqlite_graph(
         self,
-        parsed_files: List[Dict[str, Any]],
-        summary: Dict[str, Any],
-        session: Dict[str, Any],
+        parsed_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session: dict[str, Any],
         db_path: Path,
-        inbound_map: Dict[str, List[str]],
+        inbound_map: dict[str, list[str]],
     ):
         """Creates a relational database for advanced SQL-based AI analysis."""
         try:
@@ -1267,19 +1279,23 @@ class LLMRecorder:
                     ),
                     ("ecosystem_baseline", macro_info.get("name", "Unclassified")),
                     ("repo_z_score", str(macro_info.get("z_score", 0.0))),
-                    ("network_modularity", str(net_macro.get("modularity", 0.0))),
-                    ("network_assortativity", str(net_macro.get("assortativity", 0.0))),
+                    # #473: no `, 0.0` fallback -- see record_keeper.py's identical
+                    # fix for why. An absent key here (network_macro not computed
+                    # at all) still renders "None" via str(), same as an explicit
+                    # None value would -- consistent either way.
+                    ("network_modularity", str(net_macro.get("modularity"))),
+                    ("network_assortativity", str(net_macro.get("assortativity"))),
                     (
                         "network_cyclic_density",
-                        str(net_macro.get("cyclic_density", 0.0)),
+                        str(net_macro.get("cyclic_density")),
                     ),
                     (
                         "network_avg_path_length",
-                        str(net_macro.get("avg_path_length", 0.0)),
+                        str(net_macro.get("avg_path_length")),
                     ),
                     (
                         "network_articulation_points",
-                        str(net_macro.get("articulation_points", 0)),
+                        str(net_macro.get("articulation_points")),
                     ),
                 ],
             )
@@ -1405,7 +1421,7 @@ class LLMRecorder:
             import json
 
             for file_data in parsed_files:
-                p = file_data.get("path")
+                p = file_data.get("path", "")
                 c_name = file_data.get("directory_group", "__monolith__")
                 tel = file_data.get("telemetry", {})
 
@@ -1416,19 +1432,24 @@ class LLMRecorder:
                 repo_z = tel.get("repo_z_score", 0.0)
                 parent_entity = tel.get("domain_context", {}).get("parent_entity", "")
 
+                # Safe: the only f-string interpolation here is self.RISK_SCHEMA,
+                # an internal hardcoded class constant (column names), not user
+                # input -- SQLite has no parameterized syntax for column
+                # names/DDL, only values. Every actual row value below goes
+                # through a `?` placeholder (noqa is on the closing `"""` below).
                 cursor.execute(
                     f"""
                     INSERT INTO artifacts (
-                        path, filename, parent_entity, directory_group, language, lock_tier, 
+                        path, filename, parent_entity, directory_group, language, lock_tier,
                         total_loc, coding_loc, doc_loc, file_impact,
                         control_flow_ratio, author_distribution, ownership_entropy,
-                        raw_churn_freq, cog_raw, ownership, popularity, 
+                        raw_churn_freq, cog_raw, ownership, popularity,
                         archetype, global_drift, local_archetype, local_drift,
                         ecosystem_baseline, repo_z_score, max_algorithmic_complexity, max_db_complexity,
                         {", ".join(self.RISK_SCHEMA)}
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
-                """,
+                """,  # noqa: S608
                     (
                         p,
                         Path(p).name,

@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -283,6 +284,127 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             os.remove(temp_yaml_path)
 
     # ==============================================================================
+    # TEST 7b: #247 -- EXPLICIT FALSY-LOOKING CLI VALUE SURVIVES A YAML OVERRIDE
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_explicit_cli_sentinel_value_not_clobbered_by_yaml(self, mock_license, mock_orchestrator):
+        """
+        The exact reproduction steps from #247: a .galaxyscope.yaml sets
+        max-risk-exposure: 25.0, and the CLI explicitly passes
+        --max-risk-exposure 0.0 (a real, intentional "disable this gate"
+        value, not "I forgot to set it"). Before the #247 fix, argparse
+        could not tell "flag not passed" apart from "flag passed with a
+        value that happens to equal the old truthy/falsy sentinel", so the
+        YAML value silently won. The explicit CLI value must win instead.
+        """
+        import sys
+        import tempfile
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  max-risk-exposure: 25.0\n")
+
+        test_args = [
+            "galaxyscope",
+            ".",
+            "--config", temp_yaml_path,
+            "--max-risk-exposure", "0.0",
+        ]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertEqual(
+                ignited_config["MAX_RISK_EXPOSURE"], 0.0,
+                "YAML silently overwrote an explicit CLI value that looked like a default -- #247 regression!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    # ==============================================================================
+    # TEST 7c: #247 -- A FLAG WITH A TRUTHY DEFAULT IS NOW REACHABLE FROM YAML AT ALL
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_can_set_flag_with_previously_truthy_default(self, mock_license, mock_orchestrator):
+        """
+        --dependency-scan-budget defaulted to 25 (truthy) before #247's fix,
+        which meant the OLD interceptor's `in (None, False, 0.0, "")` check
+        could NEVER match it -- YAML could never set this flag even when
+        the CLI never touched it at all. Proves the flip side of the same
+        bug is also fixed: a real default no longer permanently blocks a
+        YAML override.
+        """
+        import sys
+        import tempfile
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  dependency-scan-budget: 5\n")
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertEqual(
+                ignited_config["DEPENDENCY_SCAN_BUDGET"], 5,
+                "YAML failed to reach a flag whose CLI default used to be truthy!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    # ==============================================================================
+    # TEST 7d: #247 -- YAML `debug: true` ACTUALLY TAKES EFFECT
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_debug_flag_actually_sets_log_level(self, mock_license, mock_orchestrator):
+        """
+        log_level used to be computed from args.debug BEFORE the YAML merge
+        ran, so a .galaxyscope.yaml `debug: true` with no --debug on the
+        CLI was silently a no-op -- log_level had already been fixed to
+        INFO by the time the YAML value was applied to args.debug. Fixed by
+        computing log_level after the YAML merge + real-default resolution.
+        """
+        import sys
+        import tempfile
+        import logging
+        from gitgalaxy.galaxyscope import main
+
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write("galaxyscope:\n  debug: true\n")
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            self.assertEqual(
+                logging.getLogger().getEffectiveLevel(), logging.DEBUG,
+                "YAML debug: true failed to actually raise the log level -- #247 ordering regression!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+            logging.getLogger().setLevel(logging.INFO)
+
+    # ==============================================================================
     # TEST 8: THE TYPOSQUATTING DOPPELGÄNGER (Supply Chain Radar)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.logger")
@@ -312,6 +434,44 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertIn("sec_homoglyphs", hacked_node["equations"], "Failed to flag 'requasts' as a homoglyph!")
         self.assertIn("metadata", hacked_node)
         self.assertIn("TYPOSQUATTING", hacked_node["metadata"]["alert"])
+
+    # ==============================================================================
+    # TEST 8.5: THE TYPOSQUAT WHITELIST (#375)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_typosquatting_radar_respects_whitelist(self, mock_logger):
+        """
+        Regression test for #375: APERTURE_CONFIG had no "TYPOSQUAT_WHITELIST"
+        key at all, so galaxyscope.py's own whitelist shield
+        (`if orphan_imp in whitelist: continue`) could never suppress anything.
+        Same setup as the doppelganger test above, but "requasts" is now an
+        explicitly whitelisted, known-legitimate import name -- it must NOT
+        be flagged.
+        """
+        from gitgalaxy.standards import gitgalaxy_config
+
+        scope = Orchestrator(".", self.mock_config)
+
+        scope.ram_cache = {
+            "src/app.py": {"raw_imports": {"requests"}},
+            "src/api.py": {"raw_imports": {"requests"}},
+            "src/db.py": {"raw_imports": {"requests"}},
+            "src/legit.py": {"raw_imports": {"requasts"}},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        original_whitelist = gitgalaxy_config.APERTURE_CONFIG.get("TYPOSQUAT_WHITELIST")
+        gitgalaxy_config.APERTURE_CONFIG["TYPOSQUAT_WHITELIST"] = {"requasts"}
+        try:
+            scope._resolve_dependency_graph()
+        finally:
+            gitgalaxy_config.APERTURE_CONFIG["TYPOSQUAT_WHITELIST"] = original_whitelist
+
+        legit_node = scope.ram_cache["src/legit.py"]
+        self.assertNotIn(
+            "sec_homoglyphs", legit_node.get("equations", {}),
+            "A whitelisted import must not be flagged as typosquatting!",
+        )
 
     # ==============================================================================
     # TEST 9: INCREMENTAL DELTA SHIFT (State Rehydration)
@@ -517,6 +677,301 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(result["data"]["equations"]["sec_high_risk_execution"], 1, "Worker dropped security equations!")
 
     # ==============================================================================
+    # TEST 13.5: THE DOUBLE CORROBORATION (Additive sec_ Merge, #344)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_merges_sec_tainted_injection_additively(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #344: detector.py's own in-segment proximity check
+        (block 1, "Taint Tracking") and security_lens.py's independent variable-echo
+        check both contribute to the same "sec_tainted_injection" signal. Before the
+        fix, galaxyscope.py's Phase 5.5 merge used a plain assignment, so whichever
+        of the two ran second silently discarded the other's finding entirely.
+        This drives a real detector.py contribution (via a genuine
+        high_risk_execution/io proximity hit) together with a mocked
+        security_lens.py contribution, and asserts the final count is their SUM,
+        not just security_lens.py's value alone.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "eval(input())"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports its own variable-echo-based hit.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {"counts": {"tainted_injection": 3}, "snippets": {}}
+
+        # Real per-language rules so detector.py's own block 1 correlation fires for
+        # real: "eval(" is high_risk_execution, "input(" is io, well within the
+        # 250-char proximity radius -- this should corroborate to exactly 1 hit.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {
+                    "high_risk_execution": re.compile(r"\beval\b"),
+                    "io_ops": re.compile(r"\binput\b"),
+                },
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["equations"]["sec_tainted_injection"],
+            4,
+            "Additive merge regressed: detector.py's own corroboration (1) and "
+            "security_lens.py's independent finding (3) must both survive (1 + 3 = 4), "
+            "not just whichever system ran last.",
+        )
+
+    # ==============================================================================
+    # TEST 13.6: THE FORGOTTEN LEDGER (security_lens positions survive, #348)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_folds_security_lens_positions_into_threat_locations(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #348: security_lens.py computes line positions for
+        signals like db_hooks that detector.py has no rule of its own to ever
+        produce -- before this fix, that position data was discarded the moment
+        scan_content() returned, leaving nothing in threat_locations for a
+        post-hoc tool (outside detector.py entirely) to correlate db_hooks
+        against. This drives a mocked security_lens contribution through the
+        real worker path and asserts its positions survive into
+        result["data"]["threat_locations"], prefixed exactly like its counts.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "cursor.execute(query)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"db_hooks": 1},
+            "snippets": {},
+            "positions": {"db_hooks": [1]},
+        }
+
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {"python": {"extensions": [".py"], "rules": {}}}
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["threat_locations"].get("sec_db_hooks"),
+            [1],
+            "security_lens.py's db_hooks line positions must survive into the shared "
+            "threat_locations ledger, not be silently discarded after scan_content() returns.",
+        )
+
+    # ==============================================================================
+    # TEST 13.7: THE ACTIVE HEMORRHAGE, RELOCATED (#348)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_amplifies_active_hemorrhage_post_hoc(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #348: "The Active Hemorrhage" (a hardcoded secret
+        correlated with a nearby logging/print sink) used to live in
+        detector.py, but its target key ("sec_hardcoded_secrets") never
+        existed there -- see test_detector.py's
+        test_detector_active_hemorrhage_leak_no_longer_lives_in_detector.
+        This drives the real post-hoc replacement: a mocked security_lens
+        secret-position finding, correlated against a REAL detector.py
+        "debug_prints" hit (from actual regex parsing) on the same line,
+        via the shared threat_locations ledger.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "print(password)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 1, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports a hardcoded secret on line 1.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"hardcoded_secrets": 1},
+            "snippets": {},
+            "positions": {"hardcoded_secrets": [1]},
+        }
+
+        # Real rule so detector.py's OWN parsing produces a genuine "debug_prints"
+        # threat_locations entry on the same line -- this is the sink half of the
+        # correlation, and it must come from real detector.py output, not a mock.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {"debug_prints": re.compile(r"\bprint\b")},
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(
+            result["data"]["equations"].get("sec_hardcoded_secrets", 0),
+            51,
+            "Active Hemorrhage amplification regressed: 1 raw hit + (1 corroborated * 50) = 51",
+        )
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_leaks", 0), 1)
+
+    # ==============================================================================
+    # TEST 13.8: THE DB INJECTION FUNNEL (#105)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_amplifies_db_injection_funnel_post_hoc(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        Regression test for #105: a public API route ("api", a real
+        detector.py-side hit) that directly invokes a raw DB sink
+        ("sec_db_hooks", a mocked security_lens.py-side finding, folded into
+        the shared threat_locations ledger by #348) must deterministically
+        register as amplified_sql_injection via correlate_against_ledger(),
+        exactly like the Active Hemorrhage's post-hoc reimplementation above.
+        """
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_detector_inst = MockDetector.return_value
+        mock_detector_inst.inspect.return_value = {
+            "lang_id": "python", "intensity": 0.99, "lock_tier": 1, "source_proof": "Test"
+        }
+
+        code = "app_route(x)\ncursor.execute(query)"
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": code, "comment_stream": "", "coding_loc": 2, "doc_loc": 0
+        }
+
+        # security_lens.py independently reports a raw DB sink on line 2.
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"db_hooks": 1},
+            "snippets": {},
+            "positions": {"db_hooks": [2]},
+        }
+
+        # Real rule so detector.py's OWN parsing produces a genuine "api"
+        # threat_locations entry on line 1 -- this is the source half of the
+        # correlation, and it must come from real detector.py output, not a mock.
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {
+                "extensions": [".py"],
+                "rules": {"api": re.compile(r"app_route")},
+            }
+        }
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".py": 1},
+            log_level=logging.INFO,
+            git_tracked={"src/main.py"},
+            census={"main"},
+        )
+
+        with patch("builtins.open", mock_open(read_data=code)):
+            result = _process_file_worker("src/main.py")
+
+        self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        self.assertEqual(result["data"]["equations"].get("sec_amplified_sql_injection", 0), 1)
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_sql_injection", 0), 1)
+
+    # ==============================================================================
     # TEST 14: THE MEMORY HOLE (SARIF Sanitization & Inline Suppressions)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
@@ -582,6 +1037,92 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         # 2. SARIF_IGNORED_RULES should destroy the AI guardrail
         self.assertNotIn("ai_guardrails", sanitized_file["telemetry"], "Failed to purge SARIF ignored rule!")
+
+    # ==============================================================================
+    # TEST 14.5: THE REPO Z-SCORE BACKFILL (#371)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.RecordKeeper")
+    @patch("gitgalaxy.galaxyscope.SarifRecorder")
+    def test_repo_z_score_backfilled_into_per_file_telemetry(self, mock_sarif, mock_db, mock_calc, mock_res, mock_ext, mock_cen):
+        """
+        Regression test for #371: repo_z_score is only knowable once the
+        repo-wide summary is computed, but record_keeper.py/llm_recorder.py
+        read it per-file off telemetry -- before this fix, nothing ever
+        threaded the repo-wide value back down, so it was always the 0.0
+        fallback. Proves the real summarize_galaxy_metrics() output survives
+        into every file's telemetry.
+        """
+        config = self.mock_config.copy()
+        config["SARIF_ONLY"] = True  # Bypass the destructive GPU Recorder
+
+        scope = Orchestrator(".", config)
+        scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
+
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = (scope.parsed_files, {})
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = (scope.parsed_files, [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = scope.parsed_files
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {
+            "repo_macro_species": {"z_score": 3.7},
+        }
+
+        scope.execute_pipeline("fake.json")
+
+        self.assertEqual(scope.parsed_files[0]["telemetry"]["repo_z_score"], 3.7)
+
+    # ==============================================================================
+    # TEST 14.6: THE TYPOSQUAT HITS BACKFILL (#376)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.RecordKeeper")
+    @patch("gitgalaxy.galaxyscope.SarifRecorder")
+    def test_typosquat_hits_folded_into_summary(self, mock_sarif, mock_db, mock_calc, mock_res, mock_ext, mock_cen):
+        """
+        Regression test for #376: _resolve_dependency_graph() (Phase 2) computes
+        and logs a real typosquat_hits count, but summary doesn't exist yet at
+        that point in the pipeline -- nothing ever attached the count to it, so
+        record_keeper.py's typosquat_hits column was always the fallback 0.
+        _resolve_dependency_graph() is mocked here (as in the sibling #371 test
+        above), so this test sets scope.typosquat_hits directly to simulate what
+        a real typosquatting hit would have stashed on the instance, and proves
+        it survives into summary once Phase 10 assembles it.
+        """
+        config = self.mock_config.copy()
+        config["DB_ONLY"] = True  # Only the SQLite recorder needs to run for this test
+
+        scope = Orchestrator(".", config)
+        scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
+        scope.typosquat_hits = 3  # Simulates a real hit from _resolve_dependency_graph()
+
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = (scope.parsed_files, {})
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = (scope.parsed_files, [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = scope.parsed_files
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {}
+
+        captured_summary = {}
+
+        def _capture_record_mission(*args, **kwargs):
+            captured_summary.update(kwargs.get("summary", {}))
+
+        mock_db.return_value.record_mission.side_effect = _capture_record_mission
+
+        scope.execute_pipeline("fake.json")
+
+        self.assertEqual(captured_summary.get("typosquat_hits"), 3)
 
     # ==============================================================================
     # TEST 15: THE GIT-LESS VOID (Fallback OS Walk)
@@ -1332,3 +1873,147 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             scope.execute_pipeline("out.json")
             
         self.assertIn("Complete Hardware Memory Failure", str(context.exception))
+    
+    # ==============================================================================
+    # TEST 33: MANIFEST REGISTRY ALIGNMENT (Phase 10)
+    # ==============================================================================
+    @patch("gitgalaxy.recorders.sbom_recorder.SbomRecorder.generate_report")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
+    @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
+    def test_phase_10_manifest_paths_includes_all_supported_ecosystems(
+        self, mock_census, mock_extract, mock_resolve, mock_risk, mock_sbom
+    ):
+        """
+        Regression: GUIDESTAR_CONFIG["MANIFEST_MAP"] (language-intent inference)
+        and SUPPORTED_MANIFEST_FILENAMES (what UniversalManifestSlicer can parse)
+        are two different lists for two different purposes, and have historically
+        drifted -- MANIFEST_MAP never tracked composer.json or requirements.txt.
+        Phase 10 must UNION both when building manifest_paths, or any repo that
+        also contains a MANIFEST_MAP-recognized file (package.json, Makefile,
+        etc.) silently starves SbomRecorder of Python/PHP manifests, even
+        though UniversalManifestSlicer is fully capable of parsing them.
+        """
+        config = self.mock_config.copy()
+        scope = Orchestrator(".", config)
+
+        # Simulate a mixed-ecosystem repo: package.json (in MANIFEST_MAP) sits
+        # alongside requirements.txt (NOT in MANIFEST_MAP, only in
+        # SUPPORTED_MANIFEST_FILENAMES) in a different directory.
+        scope.stem_map = {
+            "package.json": "frontend/package.json",
+            "requirements.txt": "backend/requirements.txt",
+        }
+        scope.ram_cache = {}
+        scope.parsed_files = []
+        scope.unparsable_files = []
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = ([], {})
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {}
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = ([], [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = []
+        scope.gpu_recorder = MagicMock()
+
+        with patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}), \
+            patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}), \
+            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}):
+            scope.execute_pipeline("fake_output.json")
+
+        mock_sbom.assert_called_once()
+        _, sbom_kwargs = mock_sbom.call_args
+        manifest_paths = sbom_kwargs.get("manifest_paths") or []
+
+        self.assertTrue(
+            any(p.endswith("requirements.txt") for p in manifest_paths),
+            f"requirements.txt missing from manifest_paths -- MANIFEST_MAP/"
+            f"SUPPORTED_MANIFEST_FILENAMES drifted again! Got: {manifest_paths}",
+        )
+        self.assertTrue(
+            any(p.endswith("package.json") for p in manifest_paths),
+            f"package.json missing from manifest_paths! Got: {manifest_paths}",
+        )
+
+    # ==============================================================================
+    # TEST 34: CONFIG RESOLVER WIRING (#333/#334)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_gitgalaxy_config_key_reaches_full_config(self, mock_license, mock_orchestrator):
+        """
+        Before #333/#334, a gitgalaxy_config.py key other than the 4
+        APERTURE_CONFIG sub-keys the old hand-merge covered (e.g.
+        STRICT_IMPORT_MODE, BLACKLISTED_IMPORTS) had no path from
+        .galaxyscope.yaml into the config ignited into the Orchestrator at
+        all -- main() never looked at it. Now that main() calls
+        resolve_config(), those keys must actually show up in full_config.
+        """
+        import sys
+        from gitgalaxy.galaxyscope import main
+
+        yaml_payload = """
+        galaxyscope:
+          STRICT_IMPORT_MODE: true
+          BLACKLISTED_IMPORTS:
+            - evil-pkg
+        """
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write(yaml_payload)
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                main()
+
+            args, _ = mock_orchestrator.call_args
+            ignited_config = args[1]
+
+            self.assertTrue(
+                ignited_config.get("STRICT_IMPORT_MODE"),
+                "YAML STRICT_IMPORT_MODE never reached the ignited config!",
+            )
+            self.assertIn(
+                "evil-pkg",
+                ignited_config.get("BLACKLISTED_IMPORTS", []),
+                "YAML BLACKLISTED_IMPORTS never reached the ignited config!",
+            )
+        finally:
+            os.remove(temp_yaml_path)
+
+    @patch("gitgalaxy.galaxyscope.Orchestrator")
+    @patch("gitgalaxy.licensing.enforce_licensing_guard")
+    def test_yaml_typo_in_gitgalaxy_config_key_aborts_run(self, mock_license, mock_orchestrator):
+        """
+        #332's hard-error decision: a typo'd gitgalaxy_config.py-style key
+        (e.g. STRICT_IMPORT_MDOE) must abort the run rather than silently
+        matching nothing -- that silent-drop-on-typo behavior is exactly
+        what this whole effort exists to close.
+        """
+        import sys
+        from gitgalaxy.galaxyscope import main
+
+        yaml_payload = """
+        galaxyscope:
+          STRICT_IMPORT_MDOE: true
+        """
+        fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, 'w') as f:
+            f.write(yaml_payload)
+
+        test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
+
+        try:
+            with patch.object(sys, 'argv', test_args):
+                mock_orchestrator.return_value.policy_failed = False
+                with self.assertRaises(SystemExit):
+                    main()
+
+            mock_orchestrator.assert_not_called()
+        finally:
+            os.remove(temp_yaml_path)

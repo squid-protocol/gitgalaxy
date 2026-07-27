@@ -254,3 +254,58 @@ def test_zero_trust_sbom_clean_run(mock_detector_class, mock_security_class, tmp
 
     props = {p["name"]: p["value"] for p in bom_data["components"][0]["properties"]}
     assert props["gitgalaxy:trust_status"] == "VERIFIED_SAFE"
+
+# ==============================================================================
+# TEST 6: MANIFEST REGISTRY SYNC (drift guard)
+# ==============================================================================
+def test_manifest_names_match_slicer_support(tmp_path):
+    """
+    Regression: SbomRecorder._MANIFEST_NAMES (now an alias for
+    manifest_parser.SUPPORTED_MANIFEST_FILENAMES) must never drift from the
+    filenames UniversalManifestSlicer.slice_manifest() actually knows how to
+    parse. This is exactly the class of bug behind the
+    GUIDESTAR_CONFIG["MANIFEST_MAP"] drift: two independently-maintained
+    lists silently disagreeing.
+    """
+    slicer = UniversalManifestSlicer()
+    expected_ecosystems = {
+        "package.json": "npm",
+        "composer.json": "packagist",
+        "requirements.txt": "pypi",
+        "Cargo.toml": "cargo",
+        "go.mod": "golang",
+        "Gemfile": "rubygems",
+        "pom.xml": "maven",
+    }
+
+    assert set(SbomRecorder._MANIFEST_NAMES) == set(expected_ecosystems), (
+        "SbomRecorder._MANIFEST_NAMES no longer matches the known ecosystem set "
+        "-- update this test AND confirm slice_manifest() handles the change."
+    )
+
+    for filename, expected_eco in expected_ecosystems.items():
+        f = tmp_path / filename
+        f.write_text("")  # ecosystem is identified by filename before content is parsed
+        ecosystem, _ = slicer.slice_manifest(f)
+        assert ecosystem == expected_eco, (
+            f"{filename} is in _MANIFEST_NAMES but slice_manifest identified it as "
+            f"'{ecosystem}' instead of '{expected_eco}' -- the two are out of sync!"
+        )
+
+def test_locate_physical_package_hoisted_dependency(tmp_path):
+    """Regression: npm/yarn/pnpm workspaces hoist shared deps to the
+    workspace root instead of duplicating them per sub-package. Without
+    repo_root, a hoisted dep must still miss (backward compatibility for
+    callers that don't know about workspace roots). With repo_root, it
+    must be found by walking upward -- but never past repo_root."""
+    slicer = UniversalManifestSlicer()
+    frontend = tmp_path / "packages" / "frontend"
+    frontend.mkdir(parents=True)
+    (tmp_path / "node_modules" / "react").mkdir(parents=True)
+
+    assert slicer.locate_physical_package(frontend, "react", "npm") is None, (
+        "Legacy call signature (no repo_root) must stay unaffected."
+    )
+    assert slicer.locate_physical_package(frontend, "react", "npm", repo_root=tmp_path) is not None, (
+        "Hoisted dependency at the workspace root was not found."
+    )

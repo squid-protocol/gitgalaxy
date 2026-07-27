@@ -1,23 +1,28 @@
 name: GitGalaxy Zero-Trust Pipeline
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main]
+    paths-ignore: ["docs/**"]
+  push:
     branches: [main]
 
 permissions:
   contents: read
 
 jobs:
+  # ============================================================
+  # PRE-GATE — runs on every PR, blocks the merge on failure.
+  # Fast; no heavy ML/graph dependencies installed.
+  # ============================================================
   vault-sentinel:
+    if: github.event_name == 'pull_request'
     name: Vault Sentinel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: vault-sentinel
@@ -25,13 +30,13 @@ jobs:
           version: local
 
   xray-inspector:
+    if: github.event_name == 'pull_request'
     name: X-Ray Inspector
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: xray-inspector
@@ -39,15 +44,113 @@ jobs:
           version: local
 
   supply-chain-firewall:
+    if: github.event_name == 'pull_request'
     name: Supply Chain Firewall
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
       - uses: ./
         with:
           tool: supply-chain-firewall
           target: .
           version: local
+
+  # ============================================================
+  # POST-GATE — runs only once code is on main (merge or direct
+  # push). One galaxyscope pass produces all 6 outputs; we route
+  # 3 of them and let the rest live only in the ephemeral runner.
+  # --fail-on-malware stays on here too, as a safety net in case
+  # branch protection is ever bypassed.
+  #
+  # The LLM brief embeds a Timestamp/Scan Duration/Git Commit in its own
+  # content (llm_recorder.py), so it always differs from the last commit
+  # even with zero real code changes -- and merging the bot's own PR is
+  # itself a push to main. Without the second half of this condition, that
+  # is a genuine infinite loop: this confirmed live on 2026-07-25, landing
+  # 13 junk commits in ~13 minutes before being caught and disabled. Skip
+  # regenerating when the triggering push IS the bot's own previous merge.
+  # ============================================================
+  full-report:
+    if: |
+      github.event_name == 'push' &&
+      !startsWith(github.event.head_commit.message, 'docs: auto-update LLM architectural brief')
+    name: Full Report (SARIF, SBOM, LLM Brief)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write   # NEW — required for create-pull-request to open the PR
+      security-events: write
+    steps:
+      - name: Checkout Repository          # unchanged
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Python                 # unchanged
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy & Full Precision Engines   # unchanged
+        run: |
+          python -m pip install --upgrade pip
+          pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+
+      - name: Run GalaxyScope (single pass — all 6 outputs)   # unchanged
+        env:
+          GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+        run: |
+          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
+
+      - name: Upload SARIF to GitHub Security Tab   # unchanged
+        uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4
+        with:
+          sarif_file: gitgalaxy-results_sarif.json
+
+      - name: Upload SBOM as Build Artifact   # unchanged
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gitgalaxy-sbom
+          path: gitgalaxy-results_sbom.json
+
+      # --- everything below here REPLACES the old "Commit LLM Brief to Docs" step ---
+      - name: Prepare LLM Brief
+        run: |
+          mkdir -p docs
+          mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
+
+      - name: Open PR with Updated LLM Brief
+        id: llm-brief-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          commit-message: "docs: auto-update LLM architectural brief"
+          title: "docs: auto-update LLM architectural brief"
+          body: "Automated update from the latest GalaxyScope scan on `main`."
+          branch: auto/llm-architecture-brief
+          delete-branch: true
+          add-paths: docs/gitgalaxy_architecture_brief.md
+
+      # Nothing gates this PR today (branch protection requires 0
+      # reviews/checks), so without this it just sits mergeable-but-unmerged
+      # until a human notices. `gh pr merge --auto` alone is unreliable here:
+      # GitHub's enablePullRequestAutoMerge mutation *rejects* PRs that are
+      # already in "clean" (immediately mergeable) status with "Pull request
+      # is in clean status" -- and given 0 required checks, a fresh PR here
+      # reaches clean almost instantly, so whether --auto lands before or
+      # after that happens is a race (confirmed: PR #409 hit the rejection).
+      # Try a direct merge first (the expected path today); only fall back
+      # to --auto if that's rejected because something is still genuinely
+      # pending -- which is exactly the case --auto is for.
+      - name: Merge the LLM Brief PR
+        if: steps.llm-brief-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.llm-brief-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

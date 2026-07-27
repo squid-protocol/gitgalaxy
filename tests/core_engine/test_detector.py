@@ -42,10 +42,9 @@ MOCK_LANG_DEFS = {
             ),
             "memory_scraping": re.compile(r"\b(memcpy|VirtualRead)\b"),
             "exfiltration_camouflage": re.compile(r"\b(send|socket)\b"),
-            "high_risk_execution": re.compile(r"\b(strcpy|gets)\b"),
+            "high_risk_execution": re.compile(r"\b(strcpy|gets|system)\b"),
             "safety": re.compile(r"\b(strncpy|fgets)\b"),
-            "sec_high_risk_execution": re.compile(r"system"),
-            "sec_io": re.compile(r"request_get"),
+            "io": re.compile(r"request_get"),
             "concurrency": re.compile(r"std::thread"),
             "state_mutation": re.compile(r"shared_state"),
             "sync_locks": re.compile(r"mutex_lock"),
@@ -129,6 +128,35 @@ def test_detector_spatial_appsec_correlation():
     assert result["mitigation_telemetry"]["amplified_leaks"] == 1, (
         "Failed to log the active leak mitigation stat!"
     )
+
+
+def test_detector_exfiltration_check_does_not_cross_function_boundaries():
+    """
+    Regression test for #102: the Exfiltration Distance Check was the one
+    correlate() pair #346/#348 missed when they scoped the other six to real
+    function boundaries -- it kept running flat/unscoped in coding_analysis()
+    until now. A memory read in one function and a socket send in a
+    DIFFERENT, unrelated function must not correlate just because they're
+    within the old flat 200-char radius.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void reads_memory() {\n"
+        "    memcpy(buffer, secret_key, 100);\n"
+        "}\n"
+        "\n"
+        "void sends_elsewhere() {\n"
+        "    send(socket, other_buffer, 100, 0);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    assert result["equations"]["memory_scraping"] == 1, (
+        "A socket send in a DIFFERENT function must not amplify this memory read -- "
+        "cross-function exfiltration correlation regressed!"
+    )
+    assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
 
 
 def test_detector_silencer_region():
@@ -277,7 +305,8 @@ def test_detector_atomic_literal_shield():
 def test_detector_orphan_and_duplicate_logic():
     """
     Proves the engine accurately identifies uncalled (orphan) functions
-    and duplicated function definitions within a single file.
+    and duplicated function definitions within a single file, and that both
+    counts are aggregated into equations (orphaned_logic / duplicate_logic).
     """
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     code = (
@@ -285,6 +314,12 @@ def test_detector_orphan_and_duplicate_logic():
         "    return True\n"
         "\n"
         "def forgotten_orphan():\n"
+        "    pass\n"
+        "\n"
+        "def repeated_name():\n"
+        "    pass\n"
+        "\n"
+        "def repeated_name():\n"
         "    pass\n"
         "\n"
         "def main_process():\n"
@@ -296,12 +331,24 @@ def test_detector_orphan_and_duplicate_logic():
 
     # active_helper is used, forgotten_orphan is not, main_process is the entry point
     orphans = [f["name"] for f in result["functions"] if f.get("usage_status") == 1]
+    duplicates = [f["name"] for f in result["functions"] if f.get("usage_status") == 2]
 
     assert "forgotten_orphan" in orphans, (
         "Failed to flag the unused function as an orphan!"
     )
     assert "active_helper" not in orphans, (
         "Falsely flagged an active function as an orphan!"
+    )
+    assert duplicates.count("repeated_name") == 2, (
+        "Failed to flag both definitions of the duplicated function name!"
+    )
+
+    # forgotten_orphan and main_process (never called, name > 3 chars) both flag as orphans.
+    assert result["equations"].get("orphaned_logic", 0) == len(orphans), (
+        "orphan_count was not aggregated into equations['orphaned_logic']!"
+    )
+    assert result["equations"].get("duplicate_logic", 0) == 2, (
+        "duplicate_count was not aggregated into equations['duplicate_logic']!"
     )
 
 
@@ -517,6 +564,10 @@ def test_detector_ghost_tether_and_metadata():
     assert "internal docstring tethered" in func["docstring"], (
         "Failed to tether the docstring to the physical function bounds!"
     )
+    # Regression guard for #246
+    assert "return True" not in func["docstring"], (
+        "Docstring extraction ran past the closing delimiter and swallowed code!"
+    )
 
 
 # ==============================================================================
@@ -567,7 +618,7 @@ def test_detector_advanced_appsec_sensors():
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    # 1. RCE Weaponization: sec_danger spatially overlapping with sec_io
+    # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
     assert eqs.get("sec_tainted_injection", 0) >= 1, (
         "Failed to spatially correlate Tainted RCE Injection!"
     )
@@ -584,6 +635,61 @@ def test_detector_advanced_appsec_sensors():
     assert eqs.get("memory_alloc", 0) >= 1, (
         "Failed to flag the unmitigated Memory Leak!"
     )
+
+
+# ==============================================================================
+# TEST 47: SATELLITE-SCOPED DAMPENER CORRELATION (#346 phase 1)
+# ==============================================================================
+def test_detector_dampeners_do_not_cross_function_boundaries():
+    """
+    Regression test for #346 phase 1: a safety/cleanup call in one function
+    must not silently cancel a danger/leak signal in a DIFFERENT function,
+    even though both are well within the old flat 500-char correlation
+    radius. Before this fix, the two functions below (under 150 total
+    characters apart) would have had their risk fully cancelled out.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void dangerous_one() {\n"
+        "    strcpy(buf, input);\n"
+        "}\n"
+        "\n"
+        "void safe_two() {\n"
+        "    strncpy(buf2, input2, 10);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    eqs = result["equations"]
+    mits = result["mitigation_telemetry"]
+
+    assert eqs.get("high_risk_execution", 0) == 1, (
+        "A safety call in a DIFFERENT function must not mitigate this danger signal -- "
+        "cross-function dampening regressed!"
+    )
+    assert mits.get("mitigated_danger", 0) == 0, (
+        "mitigated_danger should be 0: the only safety call is in an unrelated function"
+    )
+
+
+def test_detector_dampeners_still_apply_within_same_function():
+    """The same safety/cleanup call, when it's genuinely inside the SAME function, still mitigates."""
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void guarded() {\n"
+        "    strcpy(buf, input);\n"
+        "    strncpy(buf2, input2, 10);\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    eqs = result["equations"]
+    mits = result["mitigation_telemetry"]
+
+    assert eqs.get("high_risk_execution", 0) == 0, (
+        "Same-function safety call should still mitigate this danger signal"
+    )
+    assert mits.get("mitigated_danger", 0) == 1
 
 
 # ==============================================================================
@@ -716,6 +822,43 @@ def test_spatial_mapper_ray_casting_collision_avoidance(spatial_mapper):
     assert distance > footprint * 1.5, (
         "Ray-Caster failed! Massive constellations are overlapping in 3D space."
     )
+
+
+def test_spatial_mapper_uses_parent_logger_when_provided():
+    """Proves the mapper attaches as a child of a supplied parent logger instead of
+    creating its own root-level logger."""
+    parent = logging.getLogger("gitgalaxy_parent_test")
+    parent.setLevel(logging.DEBUG)
+
+    mapper = SpatialMapper(parent_logger=parent)
+
+    assert mapper.logger.name == "gitgalaxy_parent_test.spatial_mapper"
+    assert mapper.logger.level == logging.DEBUG
+
+
+def test_spatial_mapper_supermassive_sector_registers_in_all_bins(spatial_mapper):
+    """
+    Proves the spatial-hash registration handles a sector so massive that its
+    effective placement radius (post MACRO_STEP_FACTOR) envelops the origin --
+    i.e. eff_pr >= dist_to_center for the very first sector placed. This forces
+    the "register in every angular bin" branch (as opposed to the normal
+    angular-arc calculation), which no other test exercises: every other fixture
+    uses a handful of files, never enough for one sector's hull_radius to blow
+    past its own distance-to-center.
+    """
+    # A single sector with enough sibling files that its hull radius
+    # (footprint + sqrt(n) * MICRO_SPACING) overtakes CORE_EXCLUSION_RADIUS by
+    # more than the MACRO_STEP_FACTOR margin requires.
+    files = [{"path": f"monolith/file_{i}.py", "file_impact": 10.0} for i in range(700)]
+
+    mapped = spatial_mapper.map_repository(files)
+
+    # No crash, and every node still got real coordinates -- the actual
+    # behavior under test is line coverage of the all-bins registration branch,
+    # which has no externally observable side effect beyond "didn't crash and
+    # kept placing nodes correctly."
+    assert len(mapped) == 700
+    assert all("pos_x" in f and "pos_z" in f for f in mapped)
 
 
 # ==============================================================================
@@ -956,13 +1099,25 @@ def test_detector_explicit_type_override():
 
 
 # ==============================================================================
-# TEST 23: APPSEC ACTIVE HEMORRHAGE SENSOR
+# TEST 23: APPSEC ACTIVE HEMORRHAGE SENSOR (RELOCATED, #348)
 # ==============================================================================
-def test_detector_active_hemorrhage_leak():
-    """Proves the AppSec sensor detects secrets being passed to outbound logging/print streams."""
+def test_detector_active_hemorrhage_leak_no_longer_lives_in_detector():
+    """
+    "The Active Hemorrhage" (secrets correlated with a logging/print sink) has
+    moved out of detector.py entirely (#348): its target key,
+    "sec_hardcoded_secrets", is the Passive Security Lens Observer name, only
+    ever populated by security_lens.py in galaxyscope.py's Phase 5.5 -- data
+    that structurally cannot exist yet at the point detector.py's
+    coding_analysis() runs. The real, working amplification now lives in
+    galaxyscope.py's post-hoc correlation step; see
+    test_galaxyscope.py::test_worker_amplifies_active_hemorrhage_post_hoc.
+
+    This test only proves detector.py itself no longer touches this key at
+    all -- injecting a fake "sec_hardcoded_secrets" rule directly (as the old
+    version of this test did) now just produces a raw, unamplified count.
+    """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    
-    # Inject rules for the hemorrhage sensor
+
     opt_detector.primary_rules["sec_hardcoded_secrets"] = re.compile(r"password")
     opt_detector.primary_rules["telemetry"] = re.compile(r"console\.log|printf")
 
@@ -972,16 +1127,14 @@ def test_detector_active_hemorrhage_leak():
         "    printf(password);                // Trigger: telemetry (sink)\n"
         "}\n"
     )
-    
+
     result = opt_detector.splice(code, "")
-    
-    # A single private_info hit is multiplied by 50 when correlated with a telemetry sink
-    assert result["equations"].get("sec_hardcoded_secrets", 0) >= 50, (
-        "AppSec Sensor failed to amplify the Active Hemorrhage penalty!"
+
+    assert result["equations"].get("sec_hardcoded_secrets", 0) == 2, (
+        "detector.py should report only the raw, unamplified hit count (2x 'password') -- "
+        "amplification is no longer computed here at all"
     )
-    assert result["mitigation_telemetry"].get("amplified_leaks", 0) >= 1, (
-        "Failed to log the active hemorrhage telemetry!"
-    )
+    assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
 
 # ==============================================================================
 # TEST 24: HARVEST ABOVE (GHOST TETHER) & CLASS LINEAGE
@@ -1098,6 +1251,75 @@ def test_detector_metadata_block_parsing():
     assert "line 1" in meta.get("purpose", ""), "Failed to read block metadata!"
     assert "line 2" in meta.get("purpose", ""), "Failed to continue reading block metadata!"
     assert "ignored" not in meta.get("purpose", ""), "Failed to stop at the boundary marker!"
+
+
+def test_detector_metadata_block_terminates_on_trailing_blank_line():
+    """
+    A blank line AFTER block text has started ends the block (break), with
+    no boundary marker needed at all -- distinct from the leading-blank-line
+    case below, which must be skipped rather than ending the block early.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = re.compile(r"^Purpose:")
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose:\n# Real purpose text.\n#\n# Some other ignored comment.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    assert "Real purpose text" in meta.get("purpose", "")
+    assert "ignored" not in meta.get("purpose", ""), "A trailing blank line should end the block, not just the boundary marker!"
+
+
+def test_detector_metadata_block_skips_leading_blank_lines():
+    """A blank line BEFORE any block text has appeared is skipped, not treated as end-of-block."""
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = re.compile(r"^Purpose:")
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose:\n#\n# Real purpose text, after a leading blank line.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    assert "Real purpose text" in meta.get("purpose", ""), (
+        "A leading blank line inside the block should be skipped, not end the block before any text was captured!"
+    )
+
+
+def test_detector_metadata_single_line_purpose_continuation():
+    """
+    Single-line `Purpose: ...` metadata (not a block) continues accumulating
+    unrelated-looking comment lines into a fallback buffer until a blank
+    line, a boundary marker, or a block-purpose marker ends it.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    # _meta_purpose_block is deliberately cleared: MOCK_LANG_DEFS is a shared
+    # module-level dict and primary_rules is a reference into it, not a copy
+    # -- an earlier test in this file sets _meta_purpose_block, which would
+    # otherwise leak in here and hijack "Purpose:" into the block branch
+    # instead of the single-line branch this test targets.
+    opt_detector.primary_rules["_meta_purpose_block"] = None
+    opt_detector.primary_rules["_meta_boundary"] = re.compile(r"^\-\-\-")
+
+    comment_stream = "# Purpose: Does the thing.\n# And continues here.\n# ---\n# Not part of it.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    purpose = meta.get("purpose", "")
+    assert "Does the thing" in purpose
+    assert "continues here" in purpose, "Single-line purpose continuation lines should accumulate!"
+    assert "Not part of it" not in purpose, "Continuation should stop at the boundary marker!"
+
+
+def test_detector_metadata_single_line_purpose_terminates_on_blank_line():
+    """Same single-line continuation, but terminated by a blank line instead of a boundary."""
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    opt_detector.primary_rules["_meta_purpose_block"] = None  # see comment above
+    opt_detector.primary_rules["_meta_boundary"] = None
+
+    comment_stream = "# Purpose: Does the thing.\n#\n# Not part of it.\n"
+    meta = opt_detector._decode_comment_stream(comment_stream)
+
+    purpose = meta.get("purpose", "")
+    assert "Does the thing" in purpose
+    assert "Not part of it" not in purpose, "A blank line should terminate single-line purpose continuation!"
 
 
 # ==============================================================================
@@ -1363,10 +1585,17 @@ def test_detector_harvest_below_docstrings():
         "    pass\n"
     )
     result = opt.splice(code, "", raw_content=code)
-    
+
     assert len(result["functions"]) == 1
-    assert "docstring below the def" in result["functions"][0]["docstring"], (
+    docstring = result["functions"][0]["docstring"]
+    assert "docstring below the def" in docstring, (
         "Ghost Tether failed to harvest docstrings below the function!"
+    )
+    # Regression guard for #246: the bare closing "'''" was previously
+    # misclassified as an opening marker, letting the scan run past it
+    # and swallow subsequent code into the docstring field.
+    assert "pass" not in docstring, (
+        "Docstring extraction ran past the closing delimiter and swallowed code!"
     )
 
 
@@ -1539,3 +1768,124 @@ def test_detector_exact_loc_mapping():
     assert "sec_hardcoded_secrets" in threat_locations, "Failed to map threat location!"
     assert threat_locations["sec_hardcoded_secrets"][0] == 5, f"Expected line 5, got {threat_locations['sec_hardcoded_secrets'][0]}"
     assert threat_locations["high_risk_execution"][0] == 6, "Failed to map subsequent line threat!"
+
+# ==============================================================================
+# TEST: DOCSTRING EXTRACTION STOPS AT A STAND-ALONE CLOSING """ (#246)
+# ==============================================================================
+def test_detector_docstring_stops_at_standalone_closing_triple_quote():
+    """
+    Regression test for #246: the exact PEP 257 shape from the bug report —
+    opening \"\"\" alone, summary line, closing \"\"\" alone — must not let
+    the scan run past the closing line into subsequent code.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "def foo():\n"
+        '    """\n'
+        "    Summary line.\n"
+        '    """\n'
+        "    return 1\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary line." in docstring
+    assert "return 1" not in docstring, (
+        "Docstring extraction swallowed the function body past the closing delimiter!"
+    )
+
+
+def test_detector_single_line_docstring_still_terminates_correctly():
+    """
+    Regression guard for #246: confirms the len(nxt) > 3 single-line-docstring
+    check still works correctly under the refactored state tracking — a
+    docstring that opens AND closes on the same line must stop immediately
+    and not bleed into the next line.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "def bar():\n"
+        '    """Summary on one line."""\n'
+        "    return 2\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary on one line." in docstring
+    assert "return 2" not in docstring
+
+
+def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
+    """
+    Regression guard for #246's underlying fix: if 'harvest above' (step 1)
+    already populated doc_buffer before the below-docstring scan (step 2)
+    begins, step 2's first line must still be evaluated as a potential
+    OPENING line, not misclassified as a continuation of unrelated content.
+    """
+    opt = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "# Architect: Ada Lovelace\n"
+        "def baz():\n"
+        '    """\n'
+        "    Summary line.\n"
+        '    """\n'
+        "    return 3\n"
+    )
+    result = opt.splice(code, "", raw_content=code)
+
+    docstring = result["functions"][0]["docstring"]
+    assert "Summary line." in docstring
+    assert "return 3" not in docstring, (
+        "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
+    )
+
+# ==============================================================================
+# TEST 47: FALLBACK SIGNATURE ALIGNMENT (_slice_by_braces)
+# ==============================================================================
+@patch.object(StructuralExtractor, "_slice_by_braces")
+def test_detector_fallback_slice_by_braces_arguments(mock_slice_by_braces):
+    """
+    Proves that the fallback paths in _slice_by_keywords and _slice_by_terminator
+    pass the correct number of positional arguments (code, lang_id, rules, offset, spatial_map)
+    to _slice_by_braces to prevent silent structural corruption.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+
+    # 1. Trigger Mode D's Fallback (Pass an unregistered language to force it to fail)
+    opt_detector._slice_by_keywords(
+        code="def test(): pass",
+        lang_id="unregistered_alien_lang",
+        rules={"mock": "rule"},
+        offset=42,
+        spatial_map={"branch": [10, 20]}
+    )
+    
+    # Assert all 5 arguments were passed in the exact correct order
+    mock_slice_by_braces.assert_called_with(
+        "def test(): pass", 
+        "unregistered_alien_lang", 
+        {"mock": "rule"}, 
+        42, 
+        {"branch": [10, 20]}
+    )
+
+    # Reset the mock for the next test
+    mock_slice_by_braces.reset_mock()
+
+    # 2. Trigger Mode E's Fallback
+    opt_detector._slice_by_terminator(
+        code="SELECT * FROM table;",
+        lang_id="unregistered_sql_dialect",
+        rules={"io": "rule"},
+        offset=99,
+        spatial_map={"io": [5]}
+    )
+    
+    # Assert all 5 arguments were passed in the exact correct order
+    mock_slice_by_braces.assert_called_with(
+        "SELECT * FROM table;", 
+        "unregistered_sql_dialect", 
+        {"io": "rule"}, 
+        99, 
+        {"io": [5]}
+    )

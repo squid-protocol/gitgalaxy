@@ -10,9 +10,6 @@ trigger:
       - v*
 
 variables:
-  GG_TOOL: 'galaxyscope'
-  GG_TARGET: '.'
-  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
   PIP_CACHE_DIR: '$(Pipeline.Workspace)/.pip-cache'
   GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
 
@@ -20,37 +17,81 @@ stages:
 - stage: SecurityScan
   displayName: 'GitGalaxy Zero-Trust Audit'
   jobs:
-  - job: RunGalaxyScope
-    displayName: 'GalaxyScope Static Analysis'
+
+  - job: VaultSentinel
+    displayName: 'Vault Sentinel'
     pool:
       vmImage: 'ubuntu-latest'
     steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.12'
-      displayName: 'Initialize Python Environment'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install gitgalaxy
+      displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
+    - script: vault-sentinel .
+      displayName: 'Run Vault Sentinel'
 
+  - job: XrayInspector
+    displayName: 'X-Ray Inspector'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.12'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install gitgalaxy
+      displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
+    - script: xray-inspector .
+      displayName: 'Run X-Ray Inspector'
+
+  - job: SupplyChainFirewall
+    displayName: 'Supply Chain Firewall'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.12'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install gitgalaxy
+      displayName: 'Install GitGalaxy'
+    - checkout: self
+      fetchDepth: 0
+    - script: supply-chain-firewall .
+      displayName: 'Run Supply Chain Firewall'
+
+  - job: GalaxyScopeReport
+    displayName: 'GalaxyScope Reporting (SARIF + ML Malware Gate)'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.12'
     - task: Cache@2
       inputs:
         key: 'pip | "$(Agent.OS)"'
         path: $(PIP_CACHE_DIR)
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
-
     - script: |
         python -m pip install --upgrade pip
         pip install gitgalaxy networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
-
     - checkout: self
       fetchDepth: 0
-      displayName: 'Checkout Repository (Full Depth)'
-
     - script: |
-        echo "Running: $(GG_TOOL) $(GG_TARGET)$(GG_ARGS)"
-        $(GG_TOOL) $(GG_TARGET)$(GG_ARGS)
+        galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json
       displayName: 'Execute Zero-Trust Spectral Audit'
-
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(Build.ArtifactStagingDirectory)/gitgalaxy-results_sarif.json'

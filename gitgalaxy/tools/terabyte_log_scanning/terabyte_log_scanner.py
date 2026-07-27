@@ -7,10 +7,10 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import argparse
-import sys
-import re
-import time
 import json
+import re
+import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -110,7 +110,7 @@ Expected JSON Schema:
             sys.exit(1)
 
         try:
-            with open(state_path, "r", encoding="utf-8") as f:
+            with open(state_path, encoding="utf-8") as f:
                 ir_state = json.load(f)
 
             # Strict Schema Validation
@@ -197,7 +197,7 @@ Expected JSON Schema:
 
                         f_out.write(f"{decoded_line}\n")
                         break  # Stop checking keywords once a hit is found on this line
-    except IOError as e:
+    except OSError as e:
         print(f"\n[FATAL ERROR] I/O failure during streaming: {e}")
         sys.exit(1)
 
@@ -220,7 +220,7 @@ Expected JSON Schema:
         with open(sidecar_path, "w", encoding="utf-8") as f_json:
             json.dump(telemetry_payload, f_json, indent=4)
         print(f"JSON State Sidecar written to: {sidecar_path}")
-    except IOError as e:
+    except OSError as e:
         print(f"\n[ERROR] Failed to write telemetry sidecar: {e}")
 
     print("=" * 75 + "\n")

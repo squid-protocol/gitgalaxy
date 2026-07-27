@@ -3,21 +3,30 @@
 # GitGalaxy Tool: Pipeline Validation Harness
 #
 # PURPOSE:
-# Stress-tests the entire Cloud Modernization Pathway (Structural Extraction -> 
-# Spring Boot Scaffolding -> Maven Compilation) across 'n' legacy repositories. 
+# Stress-tests the entire Cloud Modernization Pathway (Structural Extraction ->
+# Spring Boot Scaffolding -> Maven Compilation) across 'n' legacy repositories.
 # Captures granular debugging logs for CI/CD auditing.
 #
 # ARCHITECTURAL DECISION:
-# In enterprise migrations, translating thousands of COBOL programs introduces 
-# compounding points of failure. This harness isolates each translation phase, 
-# enforcing strict dependency bounds and execution timeouts to guarantee 
+# In enterprise migrations, translating thousands of COBOL programs introduces
+# compounding points of failure. This harness isolates each translation phase,
+# enforcing strict dependency bounds and execution timeouts to guarantee
 # deterministic batch validation without pipeline stalling.
 # ==============================================================================
 import argparse
-import subprocess
-import time
 import os
+import shutil
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+# S607/S603 hardening (#472): sys.executable for "python" (guarantees the
+# same interpreter/venv this harness itself runs under), shutil.which for
+# "mvn" (resolves once to an absolute path rather than a PATH lookup per
+# call). Command lists are all hardcoded below, never built from
+# untrusted/external input.
+_MVN_BIN = shutil.which("mvn") or "mvn"
 
 
 def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
@@ -25,21 +34,23 @@ def run_command(command: list, cwd: Path) -> tuple[bool, str, str]:
 
     # ==========================================================================
     # DEFENSIVE DESIGN (ENVIRONMENT PARITY):
-    # Compiling generated code across different developer machines or CI/CD runners 
-    # invites "it works on my machine" failures. We clone the environment and 
+    # Compiling generated code across different developer machines or CI/CD runners
+    # invites "it works on my machine" failures. We clone the environment and
     # forcefully inject a specific JDK path to guarantee deterministic compilation.
     # ==========================================================================
     custom_env = os.environ.copy()
     custom_env["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
 
     try:
-        result = subprocess.run(
+        # Safe: `command` always comes from this file's own hardcoded cmd1/cmd2/cmd3
+        # lists (sys.executable/_MVN_BIN + fixed args), never external/untrusted input.
+        result = subprocess.run(  # noqa: S603
             command,
             cwd=cwd,
             env=custom_env,
             capture_output=True,
             text=True,
-            # DEFENSIVE DESIGN: 5-minute timeout per command to prevent zombie 
+            # DEFENSIVE DESIGN: 5-minute timeout per command to prevent zombie
             # processes from hanging the entire batch run if a regex loops infinitely.
             timeout=300,
         )
@@ -82,7 +93,7 @@ def main():
     summary = {
         "passed": 0,
         "failed_refractor": 0,  # Preserved dictionary key
-        "failed_java_forge": 0, # Preserved dictionary key
+        "failed_java_forge": 0,  # Preserved dictionary key
         "failed_maven": 0,
     }
 
@@ -95,7 +106,7 @@ def main():
             repo_error_log = reports_dir / f"{repo.name}_error_{timestamp}.log"
 
             # STEP 1: Structural Extraction
-            cmd1 = ["python", str(v6_dir / "cobol_refractor_controller.py"), repo.name]
+            cmd1 = [sys.executable, str(v6_dir / "cobol_refractor_controller.py"), repo.name]
             success1, out1, err1 = run_command(cmd1, cwd=corpus_path)
             if not success1:
                 print("❌ FAILED (Structural Extraction Phase)")
@@ -117,7 +128,7 @@ def main():
 
             # STEP 2: Spring Boot Scaffolding
             cmd2 = [
-                "python",
+                sys.executable,
                 str(v6_dir / "cobol_to_java_controller.py"),
                 clean_room.name,
             ]
@@ -141,7 +152,7 @@ def main():
             java_dir = java_dirs[0]
 
             # STEP 3: Maven Compilation
-            cmd3 = ["mvn", "clean", "compile"]
+            cmd3 = [_MVN_BIN, "clean", "compile"]
             success3, out3, err3 = run_command(cmd3, cwd=java_dir)
             if not success3:
                 print("❌ FAILED (Maven Compilation)")

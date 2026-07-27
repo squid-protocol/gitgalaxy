@@ -14,12 +14,20 @@
 
 # galaxyscope:ignore sec_high_risk_execution
 
-import re
-import math
-import logging
-import time
 import bisect
-from typing import Dict, List, Any, TypedDict, Optional, Tuple
+import logging
+import math
+import re
+import time
+from typing import Any, ClassVar, Optional, TypedDict, cast
+
+from gitgalaxy.core.spatial_correlation import (
+    apply_amplifier_correlations,
+    apply_dampener_correlations,
+)
+from gitgalaxy.core.spatial_correlation import (
+    correlate_signals as _correlate_signals_impl,
+)
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
 HAS_TIKTOKEN = False
@@ -33,7 +41,7 @@ except ImportError:
     pass
 
 
-def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
+def get_token_mass(text: str) -> Optional[int]:
     """Calculates context window footprint. Returns None if tiktoken is missing to prevent dataset poisoning."""
     if not text:
         return 0
@@ -46,19 +54,41 @@ def get_token_mass(text: str, deep_scan: bool = False) -> Optional[int]:
 
 # galaxyscope:ignore sec_high_risk_execution
 # GitGalaxy Phase 2.5 & 7.5: Logic Splicer & Topological Mapper
-# Strategy v6.3.0 Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
+# Strategy Protocol: Fluid-State Counters, Language Sliding & Semantic Modes
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
+
+
+class ClassInfo(TypedDict):
+    """A regex-extracted class/struct/interface/trait/enum, with its linked methods' physics."""
+
+    name: str
+    inheritance: list[str]
+    method_count: int
+    state_entanglement: float
+    lcom_score: float
+
+
+class _ClassInfoWithBounds(ClassInfo, total=False):
+    # _start_line/_end_line are spatial scratch state, deleted once function
+    # linkage is done (see "Erase the temporary spatial boundaries" below) --
+    # split into a total=False subclass so those two `del`s stay valid: mypy
+    # rejects deleting a key from a `total=True` TypedDict.
+    _start_line: int
+    _end_line: int
 
 
 class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
 
     name: str
+    parent_class_name: str
+    usage_status: int
 
     # Dual-Key mapping to ensure compatibility with all pipeline versions
     semantic_type: str
+    texture: str
     type_id: str
 
     loc: int
@@ -72,37 +102,41 @@ class FunctionNode(TypedDict, total=False):
     args_count: int
 
     control_flow_angle: float
+    logic_angle: float
     angle: float
 
     control_flow_ratio: float
     cf_ratio: float
 
     structural_weight: float
+    magnitude: float
     mag: float
     impact: float
 
     start_line: int
     end_line: int
+    start_idx: int
+    end_idx: int
 
     big_o_depth: int
     is_recursive: bool
     db_complexity: int
     docstring: str
-    calls_out_to: List[str]
-    hit_vector: Dict[str, int]
-    token_mass: int
+    calls_out_to: list[str]
+    hit_vector: dict[str, int]
+    token_mass: Optional[int]
 
 
 class LogicData(TypedDict, total=False):
-    """The standardized output schema for Strategy v6.2.0+ compliance."""
+    """The standardized output schema for Strategy compliance."""
 
-    equations: Dict[str, int]
-    functions: List[FunctionNode]
+    equations: dict[str, int]
+    functions: list[FunctionNode]
     logic_density: float
     total_functional_impact: float
     total_control_flow_ratio: float
     raw_imports: list
-    metadata: Dict[str, str]
+    metadata: dict[str, str]
     token_mass: int
     financial_read_cost: float
 
@@ -131,7 +165,7 @@ class ScopeParsingRegistry:
     """
 
     # Internal aliases to route variations to their base optical physics
-    _ALIASES = {
+    _ALIASES: ClassVar[dict[str, str]] = {
         "bash": "shell",
         "sh": "shell",
         "zsh": "shell",
@@ -144,7 +178,7 @@ class ScopeParsingRegistry:
         "vba": "vb",
     }
 
-    DEFINITIONS = {
+    DEFINITIONS: ClassVar[dict[str, dict[str, Any]]] = {
         # ==========================================
         # 🔴 INTEGRATION MODE D: The Handshake Stack
         # ==========================================
@@ -286,7 +320,7 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
-    HANDSHAKE_REGISTRY = [
+    HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = [
         {
             "trigger": re.compile(r"<script", re.I),
             "end": re.compile(r"</script>", re.I),
@@ -310,7 +344,7 @@ class StructuralExtractor:
     def __init__(
         self,
         lang_id: str,
-        language_definitions: Dict[str, Any],
+        language_definitions: dict[str, Any],
         parent_logger: Optional[logging.Logger] = None,
     ):
         if parent_logger:
@@ -321,10 +355,16 @@ class StructuralExtractor:
             self.logger.setLevel(logging.INFO)
 
         self.primary_lang_id = lang_id.lower() if lang_id else "unknown"
-        self.languages = language_definitions
+        # Pinned explicitly: LANGUAGE_DEFINITIONS (assigned to this same
+        # attribute below, in the AUTO-HEAL branch) has no module-level
+        # annotation, so mypy infers its instance-attribute type from that
+        # massive nested literal instead of this constructor's declared
+        # Dict[str, Any] param -- which doesn't support the plain .get()
+        # calls this class relies on throughout.
+        self.languages: dict[str, Any] = language_definitions
 
-        lang_config = self.languages.get(self.primary_lang_id, {})
-        self.primary_rules = lang_config.get("rules", {})
+        lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+        self.primary_rules: dict[str, Any] = lang_config.get("rules", {})
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
 
         self.assembly_returns = re.compile(
@@ -349,11 +389,20 @@ class StructuralExtractor:
             try:
                 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-                # Apply the healed definitions to the instance state
-                self.languages = LANGUAGE_DEFINITIONS
-                lang_config = self.languages.get(self.primary_lang_id, {})
-                self.primary_rules = lang_config.get("rules", {})
-                self.primary_family = lang_config.get("lexical_family", "c_style_comment")
+                # Apply the healed definitions to the instance state. cast():
+                # despite self.languages being pinned to Dict[str, Any] above,
+                # reassigning it from LANGUAGE_DEFINITIONS here re-narrows it
+                # to LANGUAGE_DEFINITIONS' own (unannotated, wide) inferred
+                # type for the rest of this branch -- confirmed via
+                # reveal_type that .get() on it then returns `object`, not
+                # Any. The cast forces it back to the declared type instead
+                # of fighting that narrowing.
+                self.languages = cast(dict[str, Any], LANGUAGE_DEFINITIONS)
+                # renamed (not reusing lang_config): mypy rejects
+                # re-annotating the same name twice in one scope.
+                healed_lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
+                self.primary_rules = healed_lang_config.get("rules", {})
+                self.primary_family = healed_lang_config.get("lexical_family", "c_style_comment")
 
                 self.logger.warning(f"[AUTO-HEAL] Re-injected LANGUAGE_DEFINITIONS for '{self.primary_lang_id}'")
             except ImportError:
@@ -366,10 +415,10 @@ class StructuralExtractor:
         confidence: float = 1.0,
         profile_regex: bool = False,
         raw_content: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Executes the structural regex pass over refracted code streams."""
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
-        regex_telemetry = {}
+        regex_telemetry: dict[str, float] = {}
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -434,8 +483,8 @@ class StructuralExtractor:
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
 
-            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = self.coding_analysis(
-                segments, regex_telemetry if profile_regex else None
+            equations, mitigation_telemetry, segment_spatial_maps, extracted_parents, threat_locations = (
+                self.coding_analysis(segments, regex_telemetry if profile_regex else None)
             )
 
             if extracted_parents:
@@ -447,11 +496,13 @@ class StructuralExtractor:
             functions, sum_fxn_impact = self._function_slice(
                 segments,
                 segment_spatial_maps,
+                equations,
+                mitigation_telemetry,
                 regex_telemetry if profile_regex else None,
             )
 
             # ---> NEW: FAST CLASS EXTRACTOR & FUNCTION LINKAGE <---
-            classes = []
+            classes: list[_ClassInfoWithBounds] = []
             # Upgraded regex to catch standard OOP entities across polyglot languages
             class_pattern = re.compile(
                 r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
@@ -522,6 +573,7 @@ class StructuralExtractor:
             token_counts = collections.Counter(re.findall(r"\b\w+\b", code_stream))
 
             orphan_count = 0
+            duplicate_count = 0
             func_names = [f.get("name", "") for f in functions]
             func_name_counts = collections.Counter(func_names)
 
@@ -532,6 +584,7 @@ class StructuralExtractor:
                 # Check for Duplicates (Defined multiple times in the same file)
                 if func_name and func_name_counts[func_name] > 1:
                     usage_status = 2  # 2 = Duplicate
+                    duplicate_count += 1
                 elif len(func_name) > 3 and func_name not in {
                     "Unknown_Sat",
                     "Anonymous_Block",
@@ -547,6 +600,8 @@ class StructuralExtractor:
 
             if orphan_count > 0:
                 equations["orphaned_logic"] = orphan_count
+            if duplicate_count > 0:
+                equations["duplicate_logic"] = duplicate_count
 
             # Calculate total file footprint, preferring the unshielded raw text if available
             file_token_mass = get_token_mass(raw_content if raw_content else code_stream)
@@ -585,7 +640,7 @@ class StructuralExtractor:
                 "metadata": ghost_meta,
             }
 
-    def _decode_comment_stream(self, comment_stream: str) -> Dict[str, str]:
+    def _decode_comment_stream(self, comment_stream: str) -> dict[str, str]:
         meta = {"ownership": "Unknown Architect"}
         if not comment_stream:
             return meta
@@ -599,8 +654,8 @@ class StructuralExtractor:
                     ownership_val = (
                         m_owner.group(m_owner.lastindex).strip() if m_owner.lastindex else m_owner.group(0).strip()
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.debug(f"Ownership regex extraction failed, leaving 'Unknown Architect': {e}")
 
         if ownership_val:
             raw_ownership = re.sub(r"<[^>]+>", "", ownership_val).strip()
@@ -678,8 +733,8 @@ class StructuralExtractor:
                         )
                         if purpose_text:
                             fallback_buffer.append(purpose_text)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Purpose-line regex extraction failed, skipping this line: {e}")
                 continue
 
         final_purpose = purpose_buffer if purpose_buffer else fallback_buffer
@@ -701,16 +756,18 @@ class StructuralExtractor:
         if i < 0 or i >= len(self.raw_content_lines):
             return ""
 
-        doc_buffer = []
+        doc_buffer: list[str] = []
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
             if not prev:
                 continue
-            if prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")):
-                doc_buffer.insert(0, prev)
-            elif prev.endswith("*/") or prev.endswith("#>"):
+            if (
+                prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
+                or prev.endswith("*/")
+                or prev.endswith("#>")
+            ):
                 doc_buffer.insert(0, prev)
             elif prev.startswith("@") or prev.startswith("["):  # Step over decorators safely
                 continue
@@ -719,24 +776,36 @@ class StructuralExtractor:
 
         # 2. Harvest Below (Python docstrings, MATLAB help, Ruby =begin)
         if lang_id in ("python", "matlab", "ruby", "elixir"):
+            in_below_doc = False
             for j in range(i + 1, min(len(self.raw_content_lines), i + 10)):
                 nxt = self.raw_content_lines[j].strip()
                 if not nxt:
                     continue
-                if nxt.startswith(('"""', "'''", "%", "#", "=begin")):
-                    doc_buffer.append(nxt)
-                    if len(nxt) > 3 and (nxt.endswith('"""') or nxt.endswith("'''")):
+                if not in_below_doc:
+                    # Only the FIRST non-blank line below the signature is
+                    # checked for whether it opens a docstring/comment block.
+                    # A subsequent line (e.g. a stand-alone closing '"""')
+                    # must never be re-tested against this branch (#246) —
+                    # once we're inside the block, only the elif below
+                    # applies, regardless of what the line itself starts with.
+                    if nxt.startswith(('"""', "'''", "%", "#", "=begin")):
+                        doc_buffer.append(nxt)
+                        in_below_doc = True
+                        # Single-line docstring: opens AND closes on the same
+                        # line (e.g. """Summary."""). len(nxt) > 3 excludes a
+                        # bare 3-char opening marker with nothing else on it.
+                        if len(nxt) > 3 and (nxt.endswith('"""') or nxt.endswith("'''")):
+                            break
+                    else:
                         break
-                elif len(doc_buffer) > 0:
+                else:
                     doc_buffer.append(nxt)
                     if nxt.endswith('"""') or nxt.endswith("'''") or nxt == "=end":
                         break
-                else:
-                    break
 
         return "\n".join(doc_buffer)[:2000]  # Cap at 2000 chars to prevent DB bloat
 
-    def _partition_segments(self, content: str, primary_id: str) -> List[Tuple[str, str, int]]:
+    def _partition_segments(self, content: str, primary_id: str) -> list[tuple[str, str, int]]:
         """Splits content into language segments based on handshake triggers."""
         segments = []
         last_idx = 0
@@ -822,39 +891,21 @@ class StructuralExtractor:
 
         return limit
 
-    def _correlate_signals(self, targets: List[int], dampeners: List[int], max_distance: int = 500) -> Tuple[int, int]:
+    def _correlate_signals(self, targets: list[int], dampeners: list[int], max_distance: int = 500) -> tuple[int, int]:
         """
         Sweeps two sorted lists of indices to find how many targets are within
         'max_distance' of a dampener. Runs in O(N) linear time.
+
+        Extracted to gitgalaxy.core.spatial_correlation (#346) so the same
+        primitive is reusable outside this class; kept here as a thin
+        delegating wrapper for backward compatibility with existing callers.
         """
-        if not targets:
-            return 0, 0
-        if not dampeners:
-            return len(targets), 0
-
-        unmitigated_count = 0
-        mitigated_count = 0
-
-        damp_idx = 0
-        damp_len = len(dampeners)
-
-        for t_pos in targets:
-            # Move the dampener pointer forward until it is somewhat near the target
-            while damp_idx < damp_len and dampeners[damp_idx] < (t_pos - max_distance):
-                damp_idx += 1
-
-            # Check if the closest dampener is within the blast radius
-            if damp_idx < damp_len and abs(dampeners[damp_idx] - t_pos) <= max_distance:
-                mitigated_count += 1
-            else:
-                unmitigated_count += 1
-
-        return unmitigated_count, mitigated_count
+        return _correlate_signals_impl(targets, dampeners, max_distance)
 
     def coding_analysis(
-        self, segments: List[Tuple[str, str, int]], regex_telemetry: dict = None
-    ) -> Tuple[Dict[str, int], Dict[str, int], List[Dict[str, List[int]]], List[str], Dict[str, List[int]]]:
-        counts: Dict[str, int] = {key: 0 for key in self.UNIVERSAL_METRICS_SCHEMA}
+        self, segments: list[tuple[str, str, int]], regex_telemetry: Optional[dict] = None
+    ) -> tuple[dict[str, int], dict[str, int], list[dict[str, list[int]]], list[str], dict[str, list[int]]]:
+        counts: dict[str, int] = dict.fromkeys(self.UNIVERSAL_METRICS_SCHEMA, 0)
 
         # --- THE FIX: INJECT APPSEC SENSORS ---
         # Force the new Phase 4 sensors into the schema so the LogicSplicer doesn't ignore them
@@ -862,7 +913,7 @@ class StructuralExtractor:
             if appsec_key not in counts:
                 counts[appsec_key] = 0
 
-        mitigations: Dict[str, int] = {
+        mitigations: dict[str, int] = {
             "mitigated_danger": 0,
             "mitigated_memory_allocs": 0,
             "amplified_rce": 0,
@@ -871,7 +922,7 @@ class StructuralExtractor:
         }
         segment_spatial_maps = []
         extracted_parents = []
-        threat_locations: Dict[str, List[int]] = {}
+        threat_locations: dict[str, list[int]] = {}
 
         for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
@@ -880,7 +931,7 @@ class StructuralExtractor:
             seg_len = len(seg_code)
 
             # ---> NEW: Spatial Map for this segment <---
-            spatial_map = {}
+            spatial_map: dict[str, list[int]] = {}
 
             for rule_name, pattern in rules.items():
                 if rule_name.startswith("_"):
@@ -909,7 +960,7 @@ class StructuralExtractor:
                     if hasattr(pattern, "finditer"):
                         matches = list(pattern.finditer(seg_code))
                         hit_indices = [m.start() for m in matches]
-                        
+
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
                             line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
@@ -924,7 +975,7 @@ class StructuralExtractor:
                     else:
                         matches = list(re.finditer(str(pattern), seg_code))
                         hit_indices = [m.start() for m in matches]
-                        
+
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
                             line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
@@ -956,21 +1007,17 @@ class StructuralExtractor:
 
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+            # galaxyscope:ignore sec_high_risk_execution
             # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
-            # 0a. The Exfiltration Distance Check
-            if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
-                # Measures the physical call-path distance between the memory read and the socket
-                unmitigated, confirmed_exfiltration = self._correlate_signals(
-                    targets=spatial_map["memory_scraping"],
-                    dampeners=spatial_map["exfiltration_camouflage"],
-                    max_distance=200,  # If they happen within 200 chars of each other, it's a confirmed attack
-                )
-                counts["memory_scraping"] += confirmed_exfiltration * 100  # Massive penalty multiplier
-                mitigations["amplified_leaks"] += confirmed_exfiltration
+            # galaxyscope:ignore sec_high_risk_execution
+            # 0a. The Exfiltration Distance Check has been RELOCATED (#102) to
+            # apply_amplifier_correlations() in gitgalaxy.core.spatial_correlation,
+            # called from _function_slice() -- it was the one correlate() pair
+            # #346/#348 missed when they enumerated and migrated the other six,
+            # so it kept running flat/unscoped after everything else had moved
+            # to same-function scoping.
 
             # 0b. The RCE Funnel Amplifier
             if "rce_funnel" in spatial_map:
@@ -978,79 +1025,25 @@ class StructuralExtractor:
                 counts["rce_funnel"] += len(spatial_map["rce_funnel"]) * 50
             # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+            # galaxyscope:ignore sec_high_risk_execution
 
-            # 1. Taint Tracking (RCE Weaponization)
-            if "sec_high_risk_execution" in spatial_map and ("sec_io" in spatial_map or "io" in spatial_map):
-                io_hits = sorted(spatial_map.get("sec_io", []) + spatial_map.get("io", []))
-                _, corroborated_rce = self._correlate_signals(
-                    targets=spatial_map["sec_high_risk_execution"],
-                    dampeners=io_hits,
-                    max_distance=250,
-                )
-                counts["sec_tainted_injection"] += corroborated_rce
-                mitigations["amplified_rce"] += corroborated_rce
-
-            # 2. The Silencer Region (True Safety)
-            if "high_risk_execution" in spatial_map and "safety" in spatial_map:
-                unmitigated_danger, mitigated_danger = self._correlate_signals(
-                    targets=spatial_map["high_risk_execution"],
-                    dampeners=spatial_map["safety"],
-                    max_distance=500,
-                )
-                counts["high_risk_execution"] -= mitigated_danger
-                mitigations["mitigated_danger"] += mitigated_danger
-
-            # 3. The Race Condition Radar
-            if "concurrency" in spatial_map and "state_mutation" in spatial_map:
-                unmitigated_flux, _ = self._correlate_signals(
-                    targets=spatial_map["state_mutation"],
-                    dampeners=spatial_map.get("sync_locks", []),
-                    max_distance=300,
-                )
-                if unmitigated_flux > 0:
-                    _, race_conditions = self._correlate_signals(
-                        targets=spatial_map["concurrency"],
-                        dampeners=spatial_map["state_mutation"],
-                        max_distance=150,
-                    )
-                    counts["concurrency"] += race_conditions * 5
-                    mitigations["amplified_race_conditions"] += race_conditions
-
-            # 4. The Active Hemorrhage
-            if "sec_hardcoded_secrets" in spatial_map and ("telemetry" in spatial_map or "debug_prints" in spatial_map):
-                sinks = sorted(spatial_map.get("telemetry", []) + spatial_map.get("debug_prints", []))
-                _, active_leaks = self._correlate_signals(
-                    targets=spatial_map["sec_hardcoded_secrets"],
-                    dampeners=sinks,
-                    max_distance=150,
-                )
-                counts["sec_hardcoded_secrets"] += active_leaks * 50
-                mitigations["amplified_leaks"] += active_leaks
-
-            # 5. The Memory Leak / UAF Tracker
-            if "memory_alloc" in spatial_map:
-                unmitigated_allocs, _ = self._correlate_signals(
-                    targets=spatial_map["memory_alloc"],
-                    dampeners=spatial_map.get("cleanup", []),
-                    max_distance=800,
-                )
-                original_allocs = len(spatial_map["memory_alloc"])
-                mitigated = original_allocs - unmitigated_allocs
-
-                counts["memory_alloc"] = unmitigated_allocs
-                mitigations["mitigated_memory_allocs"] += mitigated
-
-            # 6. The OOM Bomb (Cascading State Flux)
-            if "state_mutation" in spatial_map and "branch" in spatial_map:
-                # Assuming 'branch' captures while/for loops
-                _, cascading_flux = self._correlate_signals(
-                    targets=spatial_map["state_mutation"],
-                    dampeners=spatial_map["branch"],
-                    max_distance=150,  # If state is mutated near heavy branching
-                )
-                counts["state_mutation"] += cascading_flux * 2  # Double the raw signal
-                mitigations["amplified_cascading_flux"] = mitigations.get("amplified_cascading_flux", 0) + cascading_flux
+            # 1. Taint Tracking (RCE Weaponization), 2. The Silencer Region,
+            # 3. The Race Condition Radar, 5. The Memory Leak / UAF Tracker, and
+            # 6. The OOM Bomb have all been RELOCATED (#346 phase 1, #348 phase 2)
+            # to apply_dampener_correlations()/apply_amplifier_correlations() in
+            # gitgalaxy.core.spatial_correlation, called from _function_slice()
+            # once real satellite/function boundaries exist -- coding_analysis()
+            # runs before those boundaries are computed, so none of these six
+            # pairs ever had real scope available to them here.
+            #
+            # 4. The Active Hemorrhage is NOT relocated to that same in-detector
+            # correlation step: its target key ("sec_hardcoded_secrets") is the
+            # Passive Security Lens Observer name, only ever populated by
+            # security_lens.py in galaxyscope.py's Phase 5.5 -- strictly after
+            # this function (and _function_slice()) have both already returned.
+            # It is instead reimplemented as a genuine post-hoc correlation in
+            # galaxyscope.py, against the persisted threat_locations ledger, via
+            # spatial_correlation.correlate_against_ledger() (#348).
 
             # Capture indentation signatures
             counts["indent_tabs"] += len(re.findall(r"^\t+(?=\S)", seg_code, flags=re.MULTILINE))
@@ -1059,7 +1052,7 @@ class StructuralExtractor:
 
         return counts, mitigations, segment_spatial_maps, extracted_parents, threat_locations
 
-    def comment_analysis(self, comment_stream: str, lang_id: str, counts: Dict[str, int]) -> Dict[str, int]:
+    def comment_analysis(self, comment_stream: str, lang_id: str, counts: dict[str, int]) -> dict[str, int]:
         """
         Analyzes the comment stream for developer intent, technical debt, and traceability.
         Kept strictly separated from active coding analysis to maintain Separation of Concerns.
@@ -1100,13 +1093,13 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # PRE-PROCESSING HELPERS
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
-    def _apply_literal_shield(self, text: str, lang_id: str = None) -> str:
+    def _apply_literal_shield(self, text: str, lang_id: Optional[str] = None) -> str:
         """
         The Smarter Atomic Literal Shield: Handles C++ Raw Strings, Python Triple Quotes,
         and safely isolates Heredocs to prevent Quote Desynchronization.
@@ -1224,20 +1217,22 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # THE MASTER DISPATCHER
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _function_slice(
         self,
-        segments: List[Tuple[str, str, int]],
-        segment_spatial_maps: List[Dict[str, List[int]]],
-        regex_telemetry: dict = None,
-    ) -> Tuple[List[FunctionNode], float]:
+        segments: list[tuple[str, str, int]],
+        segment_spatial_maps: list[dict[str, list[int]]],
+        counts: dict[str, int],
+        mitigations: dict[str, int],
+        regex_telemetry: Optional[dict] = None,
+    ) -> tuple[list[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
-        all_satellites = []
+        all_satellites: list[FunctionNode] = []
         global_impact = 0.0
 
         for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
@@ -1248,7 +1243,14 @@ class StructuralExtractor:
             integration_mode = ScopeParsingRegistry.get_mode(lang_id)
 
             t_mode_start = time.perf_counter()
+            # NOT dead despite CodeQL's py/multiple-definition flag: the "no
+            # func_start rule for this language" fallthrough below leaves this
+            # unassigned, and the `mode_name != "Unknown"` check further down
+            # relies on that sentinel surviving. Removing this would crash
+            # with UnboundLocalError on that path.
             mode_name = "Unknown"
+            sats: list[FunctionNode] = []
+            impact = 0.0
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -1259,65 +1261,80 @@ class StructuralExtractor:
             else:
                 # Fallback to standard structural heuristics (Modes A, B, C)
                 func_start = rules.get("func_start")
-                if not func_start:
-                    continue
-
-                # Routed via formal Lexical Family taxonomy
-                if lang_id in (
-                    "assembly",
-                    "agc_assembly",
-                    "cobol",
-                    "fortran",
-                ) or family in ("column_sensitive"):
-                    mode_name = "Mode_A_Labels"
-                    sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
-                elif family in ("single_line_only", "multi_style_dash") or lang_id in (
-                    "python",
-                    "yaml",
-                ):
-                    mode_name = "Mode_C_Indentation"
-                    sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
-                else:
-                    mode_name = "Mode_B_Braces"
-                    sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map, family=family)
+                if func_start:
+                    # Routed via formal Lexical Family taxonomy
+                    if lang_id in (
+                        "assembly",
+                        "agc_assembly",
+                        "cobol",
+                        "fortran",
+                    ) or family in ("column_sensitive"):
+                        mode_name = "Mode_A_Labels"
+                        sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
+                    elif family in ("single_line_only", "multi_style_dash") or lang_id in (
+                        "python",
+                        "yaml",
+                    ):
+                        mode_name = "Mode_C_Indentation"
+                        sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
+                    else:
+                        mode_name = "Mode_B_Braces"
+                        sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
+                # else: no func_start rule for this language at all -- sats stays [],
+                # and the dampener correlation below falls back to flat behavior for
+                # this segment (see apply_dampener_correlations()).
 
             # Record the telemetry if profiling is active
             if regex_telemetry is not None and mode_name != "Unknown":
                 key = f"{lang_id}::Cartography_{mode_name}"
                 regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (time.perf_counter() - t_mode_start)
 
-            all_satellites.extend(sats)
-            global_impact += impact
+            # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
+            # Runs for every segment unconditionally, using THIS segment's own
+            # satellite ranges. Deliberately placed before the MAX_SATELLITES
+            # truncation below: that cap only bounds stored function metadata,
+            # it must never silently disable risk correlation for the rest of
+            # an unusually large file.
+            sat_ranges = sorted(
+                (sat["start_idx"], sat["end_idx"]) for sat in sats if "start_idx" in sat and "end_idx" in sat
+            )
+            apply_dampener_correlations(spatial_map, sat_ranges, counts, mitigations)
+            apply_amplifier_correlations(spatial_map, sat_ranges, counts, mitigations)
 
-            if len(all_satellites) >= self.MAX_SATELLITES:
-                all_satellites = all_satellites[: self.MAX_SATELLITES]
-                break
+            if len(all_satellites) < self.MAX_SATELLITES:
+                all_satellites.extend(sats)
+                if len(all_satellites) > self.MAX_SATELLITES:
+                    all_satellites = all_satellites[: self.MAX_SATELLITES]
+            global_impact += impact
 
         all_satellites.sort(key=lambda x: x.get("mag", 0), reverse=True)
         return all_satellites, global_impact
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # INTEGRATION MODES (Slicers)
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
         self,
         code: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE A] - Greedy Label-Based Scan (Assembly, COBOL)."""
-        satellites = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
         try:
-            matches = list(func_start.finditer(code))
+            # If func_start is None (key missing from rules), .finditer()
+            # raises AttributeError, which the except below already handles --
+            # mypy just can't see that the try/except is the actual guard here.
+            matches = list(func_start.finditer(code))  # type: ignore[union-attr]
         except Exception:
             return [], 0.0
 
@@ -1382,13 +1399,12 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-        family: str = "c_style_comment",
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
-        satellites = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1514,12 +1530,12 @@ class StructuralExtractor:
     def _slice_by_indentation(
         self,
         code: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE C] - Density Stratification (Python, YAML)."""
-        satellites = []
+        satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
 
@@ -1636,15 +1652,15 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE D] - Semantic Handshake Stack (Shell, Ruby, Lua)."""
         self.logger.debug(f"[DIAGNOSTIC] Mode D: Initiating _slice_by_keywords for {lang_id}")
         config = ScopeParsingRegistry.get_config(lang_id)
         if not config:
-            return self._slice_by_braces(code, rules, offset)
+            return self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
 
         flags = re.IGNORECASE if config.get("ignore_case") else 0
         open_pattern = re.compile("|".join(config["openers"]), flags)
@@ -1681,7 +1697,7 @@ class StructuralExtractor:
         lang_key = ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
 
         # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
-        for idx, (orig_line, safe_line) in enumerate(zip(original_lines, safe_lines)):
+        for orig_line, safe_line in zip(original_lines, safe_lines):
             opens = len(open_pattern.findall(safe_line))
             closes = len(close_pattern.findall(safe_line))
 
@@ -1794,14 +1810,14 @@ class StructuralExtractor:
         self,
         code: str,
         lang_id: str,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         offset: int,
-        spatial_map: Dict[str, List[int]],
-    ) -> Tuple[List[FunctionNode], float]:
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE E] - Terminator Cleaving (SQL, Erlang, Prolog)."""
         config = ScopeParsingRegistry.get_config(lang_id)
         if not config:
-            return self._slice_by_braces(code, rules, offset)
+            return self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
 
         terminator_pattern = re.compile(config["terminator"])
         igniter_pattern = re.compile(config["igniter"], re.IGNORECASE)
@@ -1911,11 +1927,11 @@ class StructuralExtractor:
 
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
     # SHARED FUNCTIONAL METRICS ENGINE
     # ==============================================================================
 
-# galaxyscope:ignore sec_high_risk_execution
+    # galaxyscope:ignore sec_high_risk_execution
 
     def _calculate_block_metrics(
         self,
@@ -1924,11 +1940,11 @@ class StructuralExtractor:
         loc: int,
         start_line: int,
         end_line: int,
-        rules: Dict[str, Any],
+        rules: dict[str, Any],
         start_idx: int = 0,
         end_idx: int = 0,
-        spatial_map: Dict[str, List[int]] = None,
-    ) -> Tuple[FunctionNode, float]:
+        spatial_map: Optional[dict[str, list[int]]] = None,
+    ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
         for an extracted functional block.
@@ -1956,21 +1972,20 @@ class StructuralExtractor:
             # Fallback for untested manual calls
             branch_pattern = rules.get("branch")
             linear_pattern = rules.get("structural_boundaries")
+            # Both .findall() calls below are guarded by hasattr(), which
+            # mypy doesn't narrow None away for the way it would isinstance()
+            # -- hence the type: ignore[union-attr] markers on each.
             branch_hits = (
-                len(branch_pattern.findall(block))
+                len(branch_pattern.findall(block))  # type: ignore[union-attr]
                 if hasattr(branch_pattern, "findall")
                 else (len(re.findall(str(branch_pattern), block)) if branch_pattern else 0)
             )
             linear_hits = (
-                len(linear_pattern.findall(block))
+                len(linear_pattern.findall(block))  # type: ignore[union-attr]
                 if hasattr(linear_pattern, "findall")
                 else (len(re.findall(str(linear_pattern), block)) if linear_pattern else 0)
             )
 
-        total_hits = branch_hits + linear_hits
-
-        # --- FAST CODING LOC HEURISTIC ---
-        # Quickly strip out blank lines and standard single-line comments to find the true logic mass
         total_hits = branch_hits + linear_hits
 
         # --- FAST CODING LOC HEURISTIC (Syntax Fixed!) ---
@@ -2031,8 +2046,8 @@ class StructuralExtractor:
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.debug(f"Argument-count regex extraction failed, leaving args_count 0: {e}")
 
         texture_str = self._classify_function(name, block, rules)
 
@@ -2166,6 +2181,8 @@ class StructuralExtractor:
             "impact": round(magnitude, 1),
             "start_line": start_line,
             "end_line": end_line,
+            "start_idx": start_idx,
+            "end_idx": end_idx,
             "hit_vector": hit_vector,
             "keyword_density": round(keyword_density, 3),
             "coding_loc": coding_loc,
@@ -2239,7 +2256,7 @@ class StructuralExtractor:
 
         return words[-1] if words else "Unknown_Block"
 
-    def _classify_function(self, name: str, block: str, rules: Dict[str, Any]) -> str:
+    def _classify_function(self, name: str, block: str, rules: dict[str, Any]) -> str:
         tag_match = re.search(r"[\@](?:type|gal_type)[:\s]+(\w+)", block, re.IGNORECASE)
         if tag_match:
             return tag_match.group(1).lower()

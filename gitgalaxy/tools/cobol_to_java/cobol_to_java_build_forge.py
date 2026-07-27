@@ -3,15 +3,15 @@
 # GitGalaxy Tool: Java Spring Build System Generator
 #
 # PURPOSE:
-# Auto-generates the Maven pom.xml and application.yml configuration to ensure 
+# Auto-generates the Maven pom.xml and application.yml configuration to ensure
 # the translated Spring Boot architecture is immediately and perfectly compilable.
 #
 # ARCHITECTURAL DECISION:
-# Generative AI frequently hallucinates incompatible library versions, mixes Maven 
+# Generative AI frequently hallucinates incompatible library versions, mixes Maven
 # and Gradle paradigms randomly, or omits critical runtime drivers (like PostgreSQL).
-# By utilizing this static generation module to lay down the build infrastructure 
-# and properties, we establish a rigid, compilable sandbox. The autonomous agents 
-# are then restricted entirely to editing the business logic within the bounds 
+# By utilizing this static generation module to lay down the build infrastructure
+# and properties, we establish a rigid, compilable sandbox. The autonomous agents
+# are then restricted entirely to editing the business logic within the bounds
 # of this pre-verified dependency graph.
 # ==============================================================================
 

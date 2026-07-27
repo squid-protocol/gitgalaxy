@@ -3,14 +3,14 @@
 # GitGalaxy Tool: Lexical Patcher (Pre-Processor)
 #
 # PURPOSE:
-# Neutralizes legacy COBOL flow control anomalies by safely restructuring 
+# Neutralizes legacy COBOL flow control anomalies by safely restructuring
 # them into deterministic equivalents.
 #
 # ARCHITECTURAL DECISION:
-# Legacy constructs like 'NEXT SENTENCE' create opaque execution jumps that 
-# break modern Abstract Syntax Trees and topological mapping. This module 
-# intercepts these anomalies and rewrites them into explicit scope terminators 
-# (CONTINUE), protected by a Dialect Sensor to ensure backward-compatibility 
+# Legacy constructs like 'NEXT SENTENCE' create opaque execution jumps that
+# break modern Abstract Syntax Trees and topological mapping. This module
+# intercepts these anomalies and rewrites them into explicit scope terminators
+# (CONTINUE), protected by a Dialect Sensor to ensure backward-compatibility
 # with strict COBOL-74 environments.
 # ==============================================================================
 import re
@@ -34,7 +34,7 @@ def detect_cobol_dialect(content: str) -> str:
 
 def patch_lexical_traps(filepath: Path) -> bool:
     """
-    Scans the file for NEXT SENTENCE. If found, rewrites it safely based on the 
+    Scans the file for NEXT SENTENCE. If found, rewrites it safely based on the
     compiler dialect. Returns True if the file was modified, False otherwise.
     """
     try:

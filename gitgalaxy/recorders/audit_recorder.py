@@ -14,19 +14,20 @@
 
 # galaxyscope:ignore sec_high_risk_execution
 
-import json
 import argparse
+import json
 import os
 import re
 from pathlib import Path
 from typing import Any
+
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
 # GitGalaxy Phase 8 & 9: Forensic Audit Recorder
-# Strategy v6.2.0 Protocol: Data Provenance & State Decoding
+# Strategy Protocol: Data Provenance & State Decoding
 # Stage 2.5: Total Feature Parity (Descriptive Descriptors + Performance)
 # ==============================================================================
 
@@ -103,7 +104,7 @@ class AuditRecorder:
         git_audit = session_meta.get("git_audit", {})
         forensic_trail = {
             "Analysis Context": {
-                "Engine Identity": session_meta.get("engine", "GitGalaxy Scope v6.2.0"),
+                "Engine Identity": session_meta.get("engine", "GitGalaxy Scope"),
                 "Zero-Dependency Mode Active": session_meta.get("zero_dependency_mode", False),
                 "Missing Dependencies": session_meta.get("missing_dependencies", {}),
                 "Target Root Name": session_meta.get("target", "Unknown"),
@@ -167,7 +168,7 @@ class AuditRecorder:
                     telemetry["control_flow_ratio"] = 0.0
                 if not file_data.get("file_impact"):
                     file_data["file_impact"] = round(max(file_data.get("total_loc", 1) / 50.0, 1.0), 2)
-                
+
                 # THE FIX: Explicitly pop the risk vector if it exists so text files are ALWAYS marked UNSCANNED
                 if "risk_vector" in file_data:
                     file_data.pop("risk_vector")
@@ -200,7 +201,7 @@ class AuditRecorder:
             # --- EXPOSURE FORMATTER ---
             exposures_dict = {}
             raw_risk = file_data.get("risk_vector")
-            
+
             # THE FIX: Enforce strict data provenance. If missing, label it explicitly.
             if not raw_risk:
                 for label in risk_labels:
@@ -225,11 +226,11 @@ class AuditRecorder:
             folder_archetype_counts[d_name][arch] = folder_archetype_counts[d_name].get(arch, 0) + 1
 
             mitigation_data = telemetry.get("mitigation_telemetry", {})
-            
+
             # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
             if isinstance(mitigation_data, list):
-                mitigation_data = {m: 1 for m in mitigation_data}
-                
+                mitigation_data = dict.fromkeys(mitigation_data, 1)
+
             formatted_mitigations = {
                 key.replace("_", " ").title(): f"{val} instances" for key, val in mitigation_data.items() if val > 0
             }
@@ -424,12 +425,12 @@ class AuditRecorder:
 
         raw_threat_hits = {
             "_description": "Total occurrences of explicit vulnerability regex signatures across all analyzed artifacts.",
-            **{label: 0 for label in sec_hit_mapping.values()},
+            **dict.fromkeys(sec_hit_mapping.values(), 0),
         }
 
         # Safe index lookups mapping formal schema names back to array indices
-        risk_indices = {k: self.RISK_SCHEMA.index(k) for k in sec_risk_mapping.keys() if k in self.RISK_SCHEMA}
-        hit_indices = {k: self.HIT_SCHEMA.index(k) for k in sec_hit_mapping.keys() if k in self.HIT_SCHEMA}
+        risk_indices = {k: self.RISK_SCHEMA.index(k) for k in sec_risk_mapping if k in self.RISK_SCHEMA}
+        hit_indices = {k: self.HIT_SCHEMA.index(k) for k in sec_hit_mapping if k in self.HIT_SCHEMA}
 
         # Sweep the files for security anomalies
         for file_data in parsed_files:
@@ -458,7 +459,10 @@ class AuditRecorder:
                 quarantined_files.append(
                     {
                         "Path": path,
-                        "Diagnostic": f"CRITICAL LEAK (Exposed Secret/Key): {domain_ctx.get('aperture_reason', 'Manual Bypass')}",
+                        # #374: signal_processor.py builds this domain_context via
+                        # {"alert": "CRITICAL LEAK BYPASS", **ghost_meta} -- ghost_meta
+                        # never had an "aperture_reason" key, only "reason" (aperture.py).
+                        "Diagnostic": f"CRITICAL LEAK (Exposed Secret/Key): {domain_ctx.get('reason', 'Manual Bypass')}",
                     }
                 )
 
@@ -487,8 +491,15 @@ class AuditRecorder:
         has_malware = vuln_exposures["Hidden Malware Risk Exposure"]["Artifacts Flagged"] > 0
         has_secrets = vuln_exposures["Secrets Risk Exposure"]["Artifacts Flagged"] > 0
 
+        # Explicit tie-break by Path so equal-confidence files (very common at
+        # 100.0%) land in a deterministic order instead of whatever order the
+        # parallel worker pool happened to finish them in.
+        quarantined_files.sort(key=lambda x: x["Path"])
+        for exposure in vuln_exposures.values():
+            exposure["Critical Files"].sort(key=lambda x: x["Path"])
+
         # Sort and map the ML (XGBoost) hit list descending by confidence
-        ml_threat_files.sort(key=lambda x: x["AI_Confidence"], reverse=True)
+        ml_threat_files.sort(key=lambda x: (-x["AI_Confidence"], x["Path"]))
         top_ml_threats = [
             {
                 "Path": threat["Path"],
@@ -500,7 +511,7 @@ class AuditRecorder:
 
         # Tiered Status Routing (ML acts as the supreme authority)
         is_zero_dep = session_meta.get("zero_dependency_mode", False)
-        
+
         if ml_threat_files:
             audit_status = "ML_CONFIRMED_THREAT_DETECTED"
         elif quarantined_files or has_malware or has_secrets or malicious_hits_total > 0:
@@ -562,7 +573,7 @@ class AuditRecorder:
             }
 
         mission_audit = {
-            "Audit Protocol": "GitGalaxy v6.3.2-Audit",
+            "Audit Protocol": "GitGalaxy-Audit",
             "1. Forensic Trail (Traceability)": forensic_trail,
             "2. Global Ecosystem Summary": summary,
             "3. Forensic Security & Vulnerability Audit": security_audit,
@@ -587,7 +598,7 @@ def decode_galaxy(input_path, output_path=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="GitGalaxy v6.2.0 Forensic Audit Recorder CLI")
+    parser = argparse.ArgumentParser(description="GitGalaxy Forensic Audit Recorder CLI")
     parser.add_argument("input", help="Path to columnar galaxy.json")
     parser.add_argument("--out", help="Optional output path")
     args = parser.parse_args()

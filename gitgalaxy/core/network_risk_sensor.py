@@ -4,8 +4,10 @@
 # ==============================================================================
 import logging
 import math
+from collections import defaultdict
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import Any, Optional
+
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
 HAS_NETWORKX = False
@@ -31,7 +33,74 @@ class NetworkRiskSensor:
         self.logger = parent_logger.getChild("network_sensor") if parent_logger else logging.getLogger("network_sensor")
         self.RISK_SCHEMA = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
 
-    def extract_test_coverage_mapping(self, files: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
+        """
+        Maps each lookup key (full path, filename, stem) to ALL candidate file
+        paths sharing that key — never silently overwrites on duplicate
+        filenames. Full-path keys are always unambiguous; name/stem keys may
+        resolve to multiple candidates in monorepos with duplicate filenames
+        across directories.
+        """
+        resolution_map: dict[str, list[str]] = defaultdict(list)
+        for f in files:
+            path = f.get("path", "")
+            if not path:
+                continue
+            name = f.get("name", Path(path).name)
+            stem = Path(path).stem
+
+            resolution_map[path].append(path)
+            if name:
+                resolution_map[name].append(path)
+            if stem:
+                resolution_map[stem].append(path)
+
+        return resolution_map
+
+    def _resolve_target(self, target_token: str, resolution_map: dict[str, list[str]], curr_path: str) -> Optional[str]:
+        """
+        Resolves an import token to a single file path, refusing to guess when
+        genuinely ambiguous rather than silently misattributing an edge.
+        """
+        token_as_path = target_token.replace(".", "/").replace("\\", "/")
+
+        # Stage 1: direct key lookup — handles full-path, bare-filename, and
+        # bare-stem tokens that match a stored key exactly.
+        candidates = resolution_map.get(target_token)
+
+        # Stage 1b: compound tokens (e.g. "service_b/utils" or "pkg.utils")
+        # are never stored as map keys directly — resolution_map only holds
+        # full paths, bare filenames, and bare stems. Fall back to the
+        # token's final path component so there's something to disambiguate
+        # against in Stage 2.
+        if not candidates:
+            bare_component = token_as_path.rsplit("/", 1)[-1]
+            candidates = resolution_map.get(bare_component)
+
+        if not candidates:
+            return None
+
+        candidates = list(dict.fromkeys(candidates))  # de-dupe, preserve order
+        if len(candidates) == 1:
+            return candidates[0]
+
+        # Stage 2: multiple files share this name/stem — disambiguate using
+        # any path context already present in the token, comparing against
+        # each candidate's path with its extension stripped.
+        path_matches = [
+            c for c in candidates if str(Path(c).with_suffix("")).replace("\\", "/").endswith(token_as_path)
+        ]
+        if len(path_matches) == 1:
+            return path_matches[0]
+
+        # Still ambiguous — skip rather than misattribute.
+        self.logger.debug(
+            f"Ambiguous import token '{target_token}' matches {len(candidates)} "
+            f"files {candidates}; skipping edge from '{curr_path}'."
+        )
+        return None
+
+    def extract_test_coverage_mapping(self, files: list[dict[str, Any]]) -> dict[str, dict[str, list[dict[str, Any]]]]:
         """
         Maps function calls from test files to their imported production targets.
         Returns a dictionary mapping: production_file_path -> { production_function_name: [test_function_data] }
@@ -40,16 +109,8 @@ class NetworkRiskSensor:
         By mapping outbound AST calls from tests to production targets, we can calculate
         the exact architectural "Dependency Blast Radius" of untested functions.
         """
-        coverage_map = {}
-        resolution_map = {}
-
-        # 1. Build resolution map
-        for f in files:
-            path = f.get("path", "")
-            if path:
-                resolution_map[path] = path
-                resolution_map[Path(path).name] = path
-                resolution_map[Path(path).stem] = path
+        coverage_map: dict[str, dict[str, list[dict[str, Any]]]] = {}
+        resolution_map = self._build_resolution_map(files)
 
         # 2. Identify Test Files and extract their outgoing invocations
         for f in files:
@@ -65,7 +126,7 @@ class NetworkRiskSensor:
             target_paths = set()
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                target_path = resolution_map.get(target_token)
+                target_path = self._resolve_target(target_token, resolution_map, path)
 
                 if target_path and target_path != path:
                     target_paths.add(target_path)
@@ -99,7 +160,7 @@ class NetworkRiskSensor:
 
         return coverage_map
 
-    def build_dependency_graph(self, parsed_files: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
         Modifies the 'telemetry' dictionary of each file in place.
@@ -112,17 +173,9 @@ class NetworkRiskSensor:
         G = nx.DiGraph()
 
         # 1. Build the Resolution Map (Fast Path Lookup)
-        resolution_map = {}
+        resolution_map = self._build_resolution_map(parsed_files)
         for f in parsed_files:
             path = f.get("path", "")
-            name = f.get("name", Path(path).name)
-            stem = Path(path).stem
-            if path:
-                resolution_map[path] = path
-            if name:
-                resolution_map[name] = path
-            if stem:
-                resolution_map[stem] = path
 
             # Extract Max Algorithmic Complexity for the node
             funcs = f.get("functions", [])
@@ -151,15 +204,14 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                if target_token in resolution_map:
-                    target_path = resolution_map[target_token]
-                    if target_path != curr_path:
-                        # Edge weight can be increased if specific entities are highly coupled
-                        weight = 1.5 if entity else 1.0
-                        if G.has_edge(curr_path, target_path):
-                            G[curr_path][target_path]["weight"] += weight
-                        else:
-                            G.add_edge(curr_path, target_path, weight=weight)
+                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                if target_path and target_path != curr_path:
+                    # Edge weight can be increased if specific entities are highly coupled
+                    weight = 1.5 if entity else 1.0
+                    if G.has_edge(curr_path, target_path):
+                        G[curr_path][target_path]["weight"] += weight
+                    else:
+                        G.add_edge(curr_path, target_path, weight=weight)
 
         # =========================================================================
         # 3. NETWORK MATHEMATICS (Dependency Blast Radius & Centrality)
@@ -172,21 +224,24 @@ class NetworkRiskSensor:
             pagerank = nx.pagerank(G, weight="weight")
 
             # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
+            # seed is fixed because k triggers *approximate* betweenness via random
+            # node sampling -- unseeded, two scans of an unchanged repo can pick a
+            # completely different sample and report different bottleneck files.
             k_val = min(len(G.nodes()), 100) if len(G.nodes()) > 500 else None
-            betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight")
+            betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight", seed=42 if k_val is not None else None)
 
             # Closeness Centrality has no built-in sampling. Hard bypass at 1500 nodes.
             if len(G.nodes()) > 1500:
                 self.logger.debug("Graph too massive for exact Closeness Centrality. Bypassing.")
-                closeness = {n: 0.0 for n in G.nodes()}
+                closeness = dict.fromkeys(G.nodes(), 0.0)
             else:
                 closeness = nx.closeness_centrality(G)
 
         except Exception as e:
             self.logger.warning(f"Network math failed to converge, defaulting to 0: {e}")
-            pagerank = {n: 0.0 for n in G.nodes()}
-            betweenness = {n: 0.0 for n in G.nodes()}
-            closeness = {n: 0.0 for n in G.nodes()}
+            pagerank = dict.fromkeys(G.nodes(), 0.0)
+            betweenness = dict.fromkeys(G.nodes(), 0.0)
+            closeness = dict.fromkeys(G.nodes(), 0.0)
 
         in_degrees = dict(G.in_degree())
         out_degrees = dict(G.out_degree())
@@ -239,6 +294,14 @@ class NetworkRiskSensor:
             if "telemetry" not in f:
                 f["telemetry"] = {}
 
+            # #372: max_big_o was already read from the graph node (above) to
+            # compute is_algorithmic_bottleneck, but never copied back onto the
+            # file dict itself -- dev_agent_firewall.py's Agentic Black Hole
+            # check reads file_data.get("max_big_o") directly (a different
+            # object than this function's own G.nodes[path]), so it was always
+            # falling back to 1 and could never trigger on real complexity.
+            f["max_big_o"] = max_big_o
+
             f["telemetry"]["network_metrics"] = {
                 "pagerank_score": round(pr_score, 6),
                 "normalized_blast_radius": round(pr_normalized, 3),
@@ -258,12 +321,21 @@ class NetworkRiskSensor:
         # =========================================================================
         # 6. MACRO-ECOSYSTEM TOPOLOGY (Repo-Level Health & Resilience)
         # =========================================================================
-        macro_metrics = {
-            "modularity": 0.0,
-            "assortativity": 0.0,
-            "cyclic_density": 0.0,
-            "avg_path_length": 0.0,
-            "articulation_points": 0,
+        # #473: these default to None, not 0.0/0 -- same "explicitly missing,
+        # not a specific observation" convention record_keeper.py already uses
+        # for zero_dependency_mode's pagerank/ai_score/etc (see #429's mypy
+        # session 3). A 0.0 modularity is a real, meaningful score (no
+        # community structure); collapsing "computation failed or was
+        # skipped" into that same value made a silent failure indistinguishable
+        # from a genuine measurement. Consumers (record_keeper.py,
+        # llm_recorder.py) must not paper over None with their own 0.0
+        # fallback, or this fix is undone one hop downstream.
+        macro_metrics: dict[str, Optional[float]] = {
+            "modularity": None,
+            "assortativity": None,
+            "cyclic_density": None,
+            "avg_path_length": None,
+            "articulation_points": None,
         }
 
         if len(G) > 0:
@@ -273,54 +345,56 @@ class NetworkRiskSensor:
                 # A. Modularity (Spaghetti vs Microservice)
                 try:
                     if len(U) > 5000:
-                        self.logger.debug("Graph too massive for Modularity. Bypassing.")
-                        macro_metrics["modularity"] = 0.0
+                        self.logger.debug("Graph too massive for Modularity. Leaving unset (None).")
                     else:
                         # Attempt Louvain (blazing fast), fallback to Greedy (slow)
+                        # seed is fixed so repeated scans of an unchanged repo
+                        # report the same modularity and Critical Files list
+                        # instead of a different randomized partition each run.
                         try:
-                            communities = community.louvain_communities(U)
+                            communities = community.louvain_communities(U, seed=42)
                         except AttributeError:
                             communities = community.greedy_modularity_communities(U)
 
                         macro_metrics["modularity"] = round(community.modularity(U, communities), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Modularity computation failed, leaving unset (None): {e}")
 
                 # B. Assortativity (Resiliency)
                 try:
                     import warnings
+
                     with warnings.catch_warnings():
                         warnings.simplefilter("ignore", category=RuntimeWarning)
                         assort = nx.degree_assortativity_coefficient(G)
                     macro_metrics["assortativity"] = round(assort, 4) if not math.isnan(assort) else 0.0
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Assortativity computation failed, leaving unset (None): {e}")
 
                 # C. Cyclic Density (Circular Dependencies / Dependency Loops)
                 try:
                     sccs = list(nx.strongly_connected_components(G))
                     nodes_in_cycles = sum(len(c) for c in sccs if len(c) > 1)
                     macro_metrics["cyclic_density"] = round(nodes_in_cycles / len(G), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Cyclic density computation failed, leaving unset (None): {e}")
 
                 # D. Average Shortest Path (Coupling Distance)
                 try:
                     if len(U) > 5000:
-                        self.logger.debug("Graph too massive for Avg Path Length. Bypassing.")
-                        macro_metrics["avg_path_length"] = 0.0
+                        self.logger.debug("Graph too massive for Avg Path Length. Leaving unset (None).")
                     else:
                         largest_cc = max(nx.connected_components(U), key=len)
                         subgraph = U.subgraph(largest_cc)
                         macro_metrics["avg_path_length"] = round(nx.average_shortest_path_length(subgraph), 4)
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Avg shortest path computation failed, leaving unset (None): {e}")
 
                 # E. Articulation Points (Fragmentation Risk)
                 try:
                     macro_metrics["articulation_points"] = len(list(nx.articulation_points(U)))
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.logger.debug(f"Articulation points computation failed, leaving unset (None): {e}")
 
             except Exception as e:
                 self.logger.warning(f"Macro network math failed: {e}")
@@ -328,22 +402,12 @@ class NetworkRiskSensor:
         self.logger.info("Network Risk Sensor: Vector Mathematics & Graph Topology Complete.")
         return parsed_files, macro_metrics
 
-    def _fallback_build_graph(self, parsed_files: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode. Using linear counting for Ecosystem Roles."
         )
 
-        resolution_map = {}
-        for f in parsed_files:
-            p = f.get("path", "")
-            if p:
-                resolution_map[p] = p
-            name = f.get("name", Path(p).name)
-            if name:
-                resolution_map[name] = p
-            stem = Path(p).stem
-            if stem:
-                resolution_map[stem] = p
+        resolution_map = self._build_resolution_map(parsed_files)
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -352,11 +416,10 @@ class NetworkRiskSensor:
             curr_path = f.get("path", "")
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                if target_token in resolution_map:
-                    target_path = resolution_map[target_token]
-                    if target_path != curr_path:
-                        out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
-                        in_degrees[target_path] = in_degrees.get(target_path, 0) + 1
+                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                if target_path and target_path != curr_path:
+                    out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
+                    in_degrees[target_path] = in_degrees.get(target_path, 0) + 1
 
         for f in parsed_files:
             path = f.get("path", "")
@@ -392,11 +455,21 @@ class NetworkRiskSensor:
             }
             f["telemetry"]["popularity"] = in_d
 
-        macro_metrics = {
-            "modularity": 0.0,
-            "assortativity": 0.0,
-            "cyclic_density": 0.0,
-            "avg_path_length": 0.0,
-            "articulation_points": 0,
+            # #372: computing max_big_o doesn't actually need networkx (it's
+            # pure Python off "functions"), so Zero-Dependency Mode shouldn't
+            # leave dev_agent_firewall.py's Agentic Black Hole check any more
+            # broken here than in the main path.
+            funcs = f.get("functions", [])
+            f["max_big_o"] = max([func.get("big_o_depth", 1) for func in funcs]) if funcs else 1
+
+        # #473: None, not 0.0/0 -- zero-dependency mode means these were never
+        # attempted at all (networkx isn't installed), not measured as zero.
+        # Same convention as the real-computation path above.
+        macro_metrics: dict[str, Optional[float]] = {
+            "modularity": None,
+            "assortativity": None,
+            "cyclic_density": None,
+            "avg_path_length": None,
+            "articulation_points": None,
         }
         return parsed_files, macro_metrics

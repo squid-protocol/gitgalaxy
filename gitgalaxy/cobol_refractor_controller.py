@@ -13,29 +13,31 @@
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 import argparse
-import sys
 import json
 import sqlite3
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
+
+from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
+from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
+from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jcls
 
 # Import the core logic functions directly
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import (
     analyze_cobol_intent,
     generate_zero_trust_jcl,
 )
-from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
-from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
-from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
+from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
 from gitgalaxy.tools.cobol_to_cobol.cobol_microservice_slicer import (
     slice_business_logic,
 )
+from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
     scan_system_limits,
 )
-from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
-from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor import audit_zero_trust_jcls
-from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
 
 # ==============================================================================
 
@@ -71,7 +73,7 @@ class IRStateManager:
 
     def __init__(self, mode: str, db_path: Path):
         self.mode = mode
-        self.ram_ir = {}
+        self.ram_ir: dict[str, dict[str, Any]] = {}
         self.conn = None
 
         if self.mode == "SQLITE":
@@ -98,7 +100,7 @@ class IRStateManager:
                 "dead_paras": dead_paras,
                 "orphaned_vars": orphaned_vars,
             }
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             for p in dead_paras:
                 cursor.execute(
@@ -115,24 +117,26 @@ class IRStateManager:
     def get_dead_paras(self, program_id: str) -> set:
         if self.mode == "RAM":
             return self.ram_ir.get(program_id, {}).get("dead_paras", set())
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             cursor.execute(
                 "SELECT entity_name FROM Graveyard WHERE program_id=? AND entity_type='PARAGRAPH'",
                 (program_id,),
             )
             return {row[0] for row in cursor.fetchall()}
+        return set()
 
     def get_orphaned_vars(self, program_id: str) -> set:
         if self.mode == "RAM":
             return self.ram_ir.get(program_id, {}).get("orphaned_vars", set())
-        elif self.mode == "SQLITE":
+        elif self.mode == "SQLITE" and self.conn is not None:
             cursor = self.conn.cursor()
             cursor.execute(
                 "SELECT entity_name FROM Graveyard WHERE program_id=? AND entity_type='VARIABLE'",
                 (program_id,),
             )
             return {row[0] for row in cursor.fetchall()}
+        return set()
 
     def close(self):
         if self.conn:
@@ -148,13 +152,13 @@ class IRStateManager:
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
-def process_payload(filepath: Path, state_manager: IRStateManager, target_var: str = None) -> dict:
+def process_payload(filepath: Path, state_manager: IRStateManager, target_var: Optional[str] = None) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline."""
     print(f" ⚙️ Analyzing {filepath.name}...")
     program_id = filepath.stem
 
     # 1. Initialize local file payload
-    ir = {
+    ir: dict[str, Any] = {
         "metadata": {
             "file_name": filepath.name,
             "path": str(filepath),

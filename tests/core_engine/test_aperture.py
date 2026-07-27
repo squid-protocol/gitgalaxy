@@ -19,6 +19,7 @@ MOCK_CONFIG = {
     "SECRETS_EXACT": {"id_rsa", ".env"},
     "SECRETS_EXTENSIONS": {".pem", ".key"},
     "MAX_FILE_SIZE_MB": 10,
+    "MAX_FILE_SIZE_HARD_MB": 100,
     "MAX_LINE_LENGTH": 500,
     "IGNORED_DIRECTORIES": {"node_modules", ".git"},
     "IGNORED_EXTENSIONS": {".exe", ".dll"},
@@ -197,7 +198,7 @@ def test_aperture_system_guardrails(filter_engine, tmp_path):
     assert result["is_in_scope"] is False
     assert "Protocol Violation: Missing content buffer" in result["reason"]
 
-    # 3. Size Cap Exceeded (Mocking stat to simulate an 11MB file)
+    # 3. Size Cap Exceeded (Mocking stat to simulate a 15MB file, no Intent Lock)
     big_file = tmp_path / "huge.py"
     big_file.write_text("x")
 
@@ -207,7 +208,53 @@ def test_aperture_system_guardrails(filter_engine, tmp_path):
 
         assert result["is_in_scope"] is False
         assert result["classification"] == "oversized_minified"
-        assert "File size exceeds 10MB limit" in result["reason"]
+        assert "File size exceeds 10MB limit without Intent Lock" in result["reason"]
+
+
+# ==============================================================================
+# TEST 13: TIERED MASS CEILING (SOFT vs. HARD, ISSUE #245-followup)
+# ==============================================================================
+def test_aperture_tiered_mass_ceiling(filter_engine, tmp_path):
+    """
+    Proves the file-size gate is no longer a single flat cutoff:
+      - Below the soft ceiling (MAX_FILE_SIZE_MB): always passes.
+      - Above the soft ceiling but below the hard ceiling: blocked UNLESS the
+        file carries a GuideStar Intent Lock, in which case it's handed to the
+        content-based classifiers instead of being excluded on size alone.
+      - Above the hard ceiling (MAX_FILE_SIZE_HARD_MB): blocked unconditionally,
+        even with an Intent Lock, and rejected at evaluate_path_integrity
+        (zero-I/O, pre-read) rather than is_in_scope.
+    """
+    mid_file = tmp_path / "generated_schema.py"
+    mid_file.write_text("x", encoding="utf-8")
+
+    # 1. Above soft (10MB), below hard (100MB), NO intent -> blocked
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 20 * 1024 * 1024  # 20MB
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=False)
+        assert result["is_in_scope"] is False
+        assert "without Intent Lock" in result["reason"]
+
+    # 2. Above soft (10MB), below hard (100MB), WITH intent -> passes the size
+    #    gate and reaches content classification
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 20 * 1024 * 1024  # 20MB
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=True)
+        assert result["is_in_scope"] is True
+
+    # 3. Above hard ceiling (100MB) -> blocked even WITH intent, and caught by
+    #    the zero-I/O pre-read gate (evaluate_path_integrity), not is_in_scope.
+    with patch("pathlib.Path.stat") as mock_stat:
+        mock_stat.return_value.st_size = 150 * 1024 * 1024  # 150MB
+        is_valid, _, reason = filter_engine.evaluate_path_integrity(
+            mid_file, has_intent=True
+        )
+        assert is_valid is False
+        assert "absolute 100MB safety ceiling" in reason
+
+        result = filter_engine.is_in_scope(mid_file, content="x", has_intent=True)
+        assert result["is_in_scope"] is False
+        assert "safety ceiling" in result["reason"]
 
 
 # ==============================================================================
@@ -280,7 +327,7 @@ def test_aperture_declarative_blob_shield(filter_engine, tmp_path):
 
     res1 = filter_engine.is_in_scope(json_file, content=content_1500, has_intent=False)
     assert res1["is_in_scope"] is False
-    assert "Declarative Data Blob without Intent" in res1["reason"]
+    assert "Static Asset Blob without Intent" in res1["reason"]
 
     # 2. Over 2500 LOC, WITH Intent -> Still Blocked (Absolute Cap)
     content_3000 = "{\n" + '  "key": "value",\n' * 3000 + "}"
@@ -288,7 +335,7 @@ def test_aperture_declarative_blob_shield(filter_engine, tmp_path):
 
     res2 = filter_engine.is_in_scope(json_file, content=content_3000, has_intent=True)
     assert res2["is_in_scope"] is False
-    assert "Massive Declarative/Vector Blob" in res2["reason"]
+    assert "Massive Static Asset Blob" in res2["reason"]
 
 
 # ==============================================================================
@@ -333,4 +380,59 @@ def test_aperture_gitignore_and_contraband(tmp_path):
     assert engine._check_ignore_rules("src/vendor.bundle.js") is False
 
     # Verify standard files pass
+    assert engine._check_ignore_rules("src/valid.py") is True
+
+
+def test_aperture_gitignore_survives_unreadable_file(tmp_path):
+    """A .gitignore that can't be opened (e.g. a directory, not a file) must not crash init."""
+    ignore_file = tmp_path / ".gitignore"
+    ignore_file.mkdir()
+
+    engine = ApertureFilter(tmp_path, MOCK_REGISTRY, MOCK_CONFIG)  # Must not raise.
+    assert engine._check_ignore_rules("src/valid.py") is True
+
+
+# ==============================================================================
+# TEST 12: IGNORED_DIRECTORIES CASE-INSENSITIVITY (ISSUE #255)
+# ==============================================================================
+def test_aperture_ignored_directories_case_insensitive(tmp_path):
+    """
+    Proves that mixed-case IGNORED_DIRECTORIES entries (as gitgalaxy_config.py
+    deliberately ships them -- Pods, Carthage, CVS, Release, Debug, CMakeFiles,
+    TestResults, DerivedData, __MACOSX) still block, even though
+    _check_ignore_rules lowercases the path component before comparing.
+
+    Before the fix, self.ignored_directories stored the raw-case config
+    entries verbatim, so "pods" (lowercased path part) could never equal
+    "Pods" (stored config entry) and iOS/Xcode/CMake vendor directories
+    scanned as if they were source.
+
+    Path/file names below are deliberately chosen to avoid the unrelated
+    infra_path_pattern shield (which independently matches generic words
+    like "build", "lib", "test", "spec") and the dot-prefix shield (which
+    blocks any path segment starting with "."), so each assertion isolates
+    the IGNORED_DIRECTORIES case-matching logic specifically. Verified by
+    temporarily reverting the fix: all 9 assertions below flip to allowed
+    (True) without it.
+    """
+    mixed_case_config = {
+        **MOCK_CONFIG,
+        "IGNORED_DIRECTORIES": {
+            "CVS", "Pods", "Carthage", "Release", "Debug",
+            "CMakeFiles", "TestResults", "DerivedData", "__MACOSX",
+        },
+    }
+    engine = ApertureFilter(tmp_path, MOCK_REGISTRY, mixed_case_config)
+
+    assert engine._check_ignore_rules("Pods/Alamofire/Alamofire.swift") is False
+    assert engine._check_ignore_rules("Carthage/Checkouts/Foo/Foo.swift") is False
+    assert engine._check_ignore_rules("project/CMakeFiles/CMakeCache.txt") is False
+    assert engine._check_ignore_rules("artifacts/Release/app.bin") is False
+    assert engine._check_ignore_rules("artifacts/Debug/app.bin") is False
+    assert engine._check_ignore_rules("TestResults/run1.xml") is False
+    assert engine._check_ignore_rules("DerivedData/x.log") is False
+    assert engine._check_ignore_rules("__MACOSX/file.txt") is False
+    assert engine._check_ignore_rules("CVS/Entries") is False
+
+    # Non-matching source files still pass
     assert engine._check_ignore_rules("src/valid.py") is True

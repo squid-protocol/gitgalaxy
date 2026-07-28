@@ -5179,3 +5179,57 @@ def test_markdown_ambiguity_sweep_intentional_overlaps():
     assert links.search(code_with_link), (
         "lit_links should match link inside code block (intentional independent multi-metric scanning)"
     )
+
+
+def test_markdown_adversarial_edge_cases():
+    """
+    Adversarial edge-case sweep for Markdown signatures:
+    1. lit_links: Query parameters, fragment anchors, complex parens, space exclusions.
+    2. lit_code_blocks: Info strings with leading spaces, attribute params, inline backticks exclusion.
+    3. lit_diagrams: Case variations, title attributes, non-diagram exclusions.
+    4. lit_headers: Closed ATX headers, 0-3 space indentation, issue/hashtag exclusions.
+    """
+    links = MARKDOWN_RULES["lit_links"]
+    code_blocks = MARKDOWN_RULES["lit_code_blocks"]
+    diagrams = MARKDOWN_RULES["lit_diagrams"]
+    headers = MARKDOWN_RULES["lit_headers"]
+
+    # --- 1. lit_links ---
+    # URL with query parameters & anchor fragment
+    m1 = links.search("[API Query](https://api.example.com/v1/search?q=git&lang=py#results)")
+    assert m1 is not None and m1.group(0) == "[API Query](https://api.example.com/v1/search?q=git&lang=py#results)"
+
+    # URL with balanced internal query parens
+    m2 = links.search("[Spec](https://example.org/path?filter=(type:alert))")
+    assert m2 is not None and m2.group(0) == "[Spec](https://example.org/path?filter=(type:alert))"
+
+    # Link with 1-level nested brackets in text (Rule 11 standard boundary)
+    m3 = links.search("[badge [v1.0]](https://example.com)")
+    assert m3 is not None and m3.group(0) == "[badge [v1.0]](https://example.com)"
+
+
+    # Exclusions
+    assert not links.search("[unclosed link](http://example.com"), "matched unclosed URL paren"
+    assert not links.search("[spaced link] (http://example.com)"), "matched link with space before URL paren"
+
+    # --- 2. lit_code_blocks ---
+    assert code_blocks.search("```   python"), "failed on fence with spaces before info string"
+    assert code_blocks.search("```bash exec=true env=prod"), "failed on fence with parameters"
+    assert not code_blocks.search("   `inline_code`"), "matched inline single-backtick code"
+    assert not code_blocks.search("    ```python"), "matched 4-space indented code block"
+
+    # --- 3. lit_diagrams ---
+    assert diagrams.search('```PlantUML title="Architecture"'), "failed on PlantUML with title attribute"
+    assert diagrams.search("```Mermaid"), "failed on capitalized Mermaid"
+    assert not diagrams.search("```python\nprint('hi')\n```"), "matched python code block as diagram"
+
+
+    # --- 4. lit_headers ---
+    assert headers.search("# Header 1"), "failed level 1 header"
+    assert headers.search("###### Header 6"), "failed level 6 header"
+    assert headers.search("  ### Closed Header ###"), "failed closed ATX header"
+    assert not headers.search("####### Header 7"), "matched 7-hash non-header"
+    assert not headers.search("#12345"), "matched issue number #12345"
+    assert not headers.search("#hashtag"), "matched hashtag #hashtag"
+    assert not headers.search("#\nBare hash followed by line break"), "matched bare # across line break"
+

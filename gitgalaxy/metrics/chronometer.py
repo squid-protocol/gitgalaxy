@@ -253,9 +253,9 @@ class Chronometer:
             )
             tracked_files = set(res.stdout.splitlines())
             total_files = len(tracked_files)
-        except Exception:
-            tracked_files = set()
-            total_files = 1000  # Fallback safety
+        except Exception as e:
+            self.logger.warning(f"Chronometer: git ls-files failed ({e}). Aborting stream to prevent timeout trap.")
+            return
 
         # ======================================================================
         # DEFENSIVE ARCHITECTURE: Compute & RAM Starvation Guard

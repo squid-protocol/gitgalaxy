@@ -77,6 +77,18 @@ a bug, or an intentional improvement that needs the baseline re-blessed. **Never
 fixtures.** Regenerate with `python tests/tools/update_golden_master.py` (shows the diff, asks
 for confirmation) and explain *why* in the PR description — CI flags any PR touching these files.
 
+**Verifying locally before pushing:** use `python tests/tools/crucible_check.py` (add `--update`
+to regenerate) instead of hand-building venvs. It builds/reuses two venvs at
+`.crucible_venvs/{full_precision,zero_dependency}` *inside the current checkout* and — critically
+— re-runs a fast `pip install -e . --no-deps` before every check. Skipping that step is a real
+footgun: a venv's editable install is a pointer to whatever path was passed to `pip install -e .`
+at creation time, and `galaxyscope` is invoked as a subprocess, so reusing a venv across worktrees
+(e.g. a long-lived personal dev venv) makes it silently scan a *different* checkout's code — this
+produced a false "zero diff" pass locally while CI correctly failed on real output drift (PR
+#579/#723, 2026-07-28). Never point `LANGUAGE_CRUCIBLE_PATH`/a shared venv at this without
+confirming which checkout its editable install actually resolves to
+(`python -c "import gitgalaxy; print(gitgalaxy.__file__)"` from inside that venv).
+
 ## Issue generation and pipeline/CI triage
 
 Two subagents with pinned models are set up for this so routine triage doesn't burn main-context

@@ -196,3 +196,18 @@ def test_chronometer_temporal_collapse_guard(mock_getmtime, mock_walk, mock_run,
     assert chrono.repo_min_time == expected_safe_min, (
         f"Temporal Collapse Guard Failed! Expected neutralized min_time {expected_safe_min}, got {chrono.repo_min_time}"
     )
+@patch("gitgalaxy.metrics.chronometer.subprocess.run")
+def test_scan_git_history_fallback_abort(mock_run, tmp_path):
+    """Proves the chronometer aborts _scan_git_history if ls-files fails, avoiding a timeout trap."""
+    mock_run.side_effect = Exception("ls-files failed")
+    
+    with patch("gitgalaxy.metrics.chronometer.Chronometer._initialize_history_scan"):
+        chrono = Chronometer(tmp_path)
+        chrono.is_git_enabled = True
+        
+        # This should return immediately and not call subprocess.Popen for git log
+        with patch("gitgalaxy.metrics.chronometer.subprocess.Popen") as mock_popen:
+            chrono._scan_git_history()
+            
+            # Verify Popen (git log stream) was never called
+            mock_popen.assert_not_called()

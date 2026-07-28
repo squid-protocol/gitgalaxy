@@ -279,7 +279,7 @@ class Chronometer:
             "log",
             "--since=1.year",
             "--name-only",
-            "--pretty=format:%H|%at|%an",
+            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",
             "--no-merges",
         ]
 
@@ -351,19 +351,19 @@ class Chronometer:
                 if not clean_line:
                     continue
 
-                # Check if this is the commit header (Hash|Timestamp|Author)
-                if "|" in clean_line:
-                    parts = clean_line.split("|", 2)
-                    if len(parts) >= 2 and parts[1].isdigit():
-                        commit_hash = parts[0]
+                # Check if this is the commit header (@@GIT_COMMIT@@|Hash|Timestamp|Author)
+                if clean_line.startswith("@@GIT_COMMIT@@|"):
+                    parts = clean_line.split("|", 3)
+                    if len(parts) >= 3 and parts[2].isdigit():
+                        commit_hash = parts[1]
 
                         if commit_hash in ignored_hashes:
                             skip_current_commit = True
                             continue
 
                         skip_current_commit = False
-                        current_ts = float(parts[1])
-                        current_author = parts[2].strip() if len(parts) > 2 else "Unknown"
+                        current_ts = float(parts[2])
+                        current_author = parts[3].strip() if len(parts) > 3 else "Unknown"
                         continue
 
                 if skip_current_commit:

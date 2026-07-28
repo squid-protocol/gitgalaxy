@@ -10782,8 +10782,30 @@ LANGUAGE_DEFINITIONS = {
             # (`[a-zA-Z_$][\w_$]*` with no \b anchor) got retried at every
             # position in a long `->`-less line -- O(n^2) (same bug found and
             # fixed in javascript's args). Bounded to {0,100}.
+            # BUG FIX: the return-type stepper required an uppercase first
+            # char, so lowercase primitive/void return types (`void foo()`,
+            # `int add()`) never matched at all. It also excluded `,`, so
+            # multi-param generic return types (`Map<String, Integer> foo()`)
+            # broke after the first type param. Added a primitive-keyword
+            # alternative and `,` to the class (same technique already used
+            # by C#'s func_start for this exact bug class).
+            # NESTED-DELIMITER FIX: the flat `[^)]*` param-list matcher broke
+            # on one-level-nested calls in default values (`int y =
+            # Math.max(3, 4)`), truncating at the inner `)`. Swapped for a
+            # bounded one-level-nesting form.
+            # BUG FIX (ambiguity sweep): despite the "CRITICAL FIX" comment's
+            # claim, this had no exclusion for control-flow keywords at all,
+            # so `if (x) {`, `while (x) {`, `switch (x) {`, `for (i in ...) {`,
+            # `catch (Exception e) {`, and `synchronized(lock) {` were all
+            # hallucinated as method parameter blocks (the condition
+            # misread as an argument list). Added the same style of negative
+            # lookahead func_start already uses.
             "args": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}[A-Za-z_$][\w_$]*\s*\([^)]*\)|(?:\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})\s*->",
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}"
+                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[A-Z][a-zA-Z0-9_<>\[\]?,]*)[ \t]+){0,3}"
+                r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
+                r"[A-Za-z_$][\w_$]*\s*\((?:[^()]|\([^()]*\))*\)"
+                r"|(?:\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})\s*->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -10793,8 +10815,21 @@ LANGUAGE_DEFINITIONS = {
             # 4. func_start (Executable Logic Anchors)
             # HIGHLY TUNED: Uses Negative Lookahead to explicitly ignore Gradle DSL keywords (implementation, api, task)
             # Uses Positive Lookahead (?=[ \t]*\() to stop exactly at the function name without consuming punctuation.
+            # BUG FIX: same return-type stepper bug as `args` above -- lowercase
+            # primitive/void return types and multi-param generic return types
+            # (`Map<String, Integer> foo()`) never matched. See `args` comment.
+            # BUG FIX (ambiguity sweep): `synchronized` was missing from the
+            # exclusion list, so a synchronized block (`synchronized(lock) {
+            # ... }`) had the identical `identifier(...) {` shape as a real
+            # method and was misclassified as a method declaration named
+            # "synchronized". Confirmed pre-existing (not introduced by the
+            # return-type fix above); added to the exclusion list alongside
+            # the other control-flow-shaped keywords.
             "func_start": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def)[ \t]+){0,5}(?:[A-Z][a-zA-Z0-9_<>\[\]?]*[ \t]+){0,2}(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)([A-Za-z_$][\w_$]*)(?=[ \t]*\()",
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def)[ \t]+){0,5}"
+                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[A-Z][a-zA-Z0-9_<>\[\]?,]*)[ \t]+){0,3}"
+                r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+                r"([A-Za-z_$][\w_$]*)(?=[ \t]*\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -10823,18 +10858,28 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(public)\b|@(RestController|Controller|Service|Component|Bean|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\b"
             ),
             # 11. flux (State Mutation)
-            "state_mutation": re.compile(r"^[ \t]*\w+(?:\.\w+)*[ \t]*=|@(?:Setter|Data)\b", re.M),
+            # BUG FIX: the trailing bare `=` matched the first `=` of `==`,
+            # miscounting every equality comparison (`result == expected`) as
+            # an assignment. Added a negative lookahead to exclude `==`.
+            "state_mutation": re.compile(r"^[ \t]*\w+(?:\.\w+)*[ \t]*=(?!=)|@(?:Setter|Data)\b", re.M),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Tuned to catch dead Gradle definitions and Groovy logic.
+            # BUG FIX (Rule 12): groovy is `standard_block` (both `//` and
+            # `/* */`), but this only ever fired on `//` -- every block-
+            # commented-out construct (`/* class Foo {} */`) silently never
+            # matched.
             "dead_code": re.compile(
-                r"//[ \t]*(?:def|class|void|if|for|while|import|implementation|compile|api|testImplementation)\b"
+                r"(?://|/\*)[ \t]*(?:def|class|void|if|for|while|import|implementation|compile|api|testImplementation)\b"
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@see"),
             # 14. test (Testing & Assertions)
             # Integrates Spock Framework keywords (given:, when:, then:, expect:) alongside JUnit.
+            # BUG FIX (Rule 5): `^\s*` matches newlines in re.M mode, so the
+            # Spock-label anchor could stretch across blank lines. Bounded to
+            # `[ \t]*` (same-line whitespace only).
             "test": re.compile(
-                r"@(?:Test|Before|After|BeforeEach|AfterEach|Mock)|assert\w*\s*\(|^\s*(?:given|when|then|expect|setup|cleanup|where):",
+                r"@(?:Test|Before|After|BeforeEach|AfterEach|Mock)|assert\w*\s*\(|^[ \t]*(?:given|when|then|expect|setup|cleanup|where):",
                 re.M,
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -10845,16 +10890,38 @@ LANGUAGE_DEFINITIONS = {
             # 16. ui_framework (UI / View Components)
             "ui_framework": re.compile(r"\b(SwingBuilder|JFrame|JPanel|ModelAndView|ModelMap|Model|UIComponent)\b"),
             # 17. closures (Closures / Anonymous Functions)
-            "closures": re.compile(r"->|\{\s*(?:it|[\w\s,]+)\s*->"),
+            # REDOS FIX: `[\w\s,]+` followed by a separate trailing `\s*`
+            # let both consume the same whitespace run -- an unclosed `{`
+            # followed by thousands of spaces caused catastrophic
+            # backtracking (confirmed hang at n=2000). Collapsed into one
+            # bounded, non-overlapping class before the required `->`
+            # (same technique as kotlin's closures fix).
+            # BUG FIX: idiomatic paren-less trailing closures (`list.each {
+            # it }`, `.collect { it * 2 }`) have no `->` at all and never
+            # matched either alternative, missing Groovy's single most
+            # common closure shape. Added a dot-method-call-into-brace form.
+            "closures": re.compile(r"\.\w+[ \t]*\{|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n,]{0,150}?->|->"),
             # 18. globals (Global / Shared State)
             "globals": re.compile(r"\b(System\.getProperty|System\.getenv|project\.ext)\b|@Value"),
             # 19. decorators (Decorators / Annotations)
-            "decorators": re.compile(r"^[ \t]*@[\w.]+(?:\([^)]*\))?", re.M),
+            # NESTED-DELIMITER FIX (Rule 11): the flat `[^)]*` broke on one-
+            # level-nested annotation args (`@Grab(..., version=resolve())`),
+            # truncating at the inner `)`. Swapped for a bounded
+            # one-level-nesting form.
+            "decorators": re.compile(r"^[ \t]*@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?", re.M),
             # 20. generics (Generics / Type Parameters)
-            "generics": re.compile(r"<\s*[A-Z?][^>]*>"),
+            # NESTED-DELIMITER FIX (Rule 11): the flat `[^>]*` broke on one-
+            # level-nested generics (`Map<String, List<Id>>`), truncating at
+            # the first `>` and leaving the real closing `>` unconsumed.
+            # Swapped for a bounded one-level-nesting form.
+            "generics": re.compile(r"<\s*[A-Z?][^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100})*>"),
             # 21. comprehensions (Iterators / Comprehensions)
+            # BUG FIX: required a literal `(` right after the method name,
+            # but Groovy's idiomatic call form for these is a paren-less
+            # trailing closure (`list.each { it }`, `.collect { it * 2 }`)
+            # -- the far more common shape never matched at all.
             "comprehensions": re.compile(
-                r"\.(?:collect|find|findAll|grep|inject|each|eachWithIndex|map|filter|reduce)\("
+                r"\.(?:collect|find|findAll|grep|inject|each|eachWithIndex|map|filter|reduce)[ \t]*[({]"
             ),
             # 22. scientific (Numerical / Compute Libraries)
             "scientific": re.compile(r"\b(Math\.|BigDecimal|BigInteger|Random|SecureRandom)\b"),
@@ -10865,6 +10932,13 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"^[ \t]*import\s+(?:static[ \t]+)?[\w.]+;?", re.M),
+            # BUG FIX: this key was entirely absent (not `None`), so Groovy
+            # imports never fed the dependency graph at all -- unlike every
+            # other JVM-family language here (e.g. java), which pairs
+            # `import` with a `_dependency_capture` group. Groovy imports
+            # follow the identical syntax, so this was a coverage gap, not
+            # an intentional Strict-Feature-Parity `None`.
+            "_dependency_capture": re.compile(r"^[ \t]*import[ \t]+(?:static[ \t]+)?([\w.]+)[ \t]*;?", re.M),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(r"@author\s+(.*)", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -10873,7 +10947,14 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # QUADRATIC BLOWUP FIX: `\d+` and the trailing `[^\]]*` both
+            # greedily match digits with no closing `]` ever present, so an
+            # unclosed `[SPEC-11111...` tag backtracks by re-scanning an
+            # ever-shrinking suffix -- O(n^2) (confirmed ~4x slowdown per
+            # input-size doubling; same bug class already fixed for shell
+            # and sqlite's spec_exposure elsewhere in this file). Bounded to
+            # {0,300}; real spec/audit tags don't get remotely that long.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -10892,8 +10973,13 @@ LANGUAGE_DEFINITIONS = {
             # Heavily captures Gradle plugin and dependency architecture.
             # BUG FIX: 7 of the 10 alternatives are `@`-prefixed Spring
             # annotations -- same bug, at scale.
+            # BUG FIX (Rule 9): `plugins\s*\{` and `dependencies\s*\{` both
+            # end on `{`, a non-word char, so the shared trailing `\b` could
+            # never fire (no word/non-word transition between `{` and
+            # whatever follows it) -- `plugins {` / `dependencies {` never
+            # matched at all, the two most common Gradle DSL entry points.
             "dependency_injection": re.compile(
-                r"\b(?:apply\s+plugin|plugins\s*\{|dependencies\s*\{)\b"
+                r"\bapply\s+plugin\b|\bplugins\s*\{|\bdependencies\s*\{"
                 r"|@Autowired|@Inject|@Component|@Service|@Repository|@Bean|@Configuration"
             ),
             # 34. macros

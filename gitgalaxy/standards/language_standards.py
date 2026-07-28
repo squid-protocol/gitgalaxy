@@ -9367,7 +9367,7 @@ LANGUAGE_DEFINITIONS = {
             # 4. func_start (Executable Logic Anchors)
             # Strict capture group and positive lookahead applied for both Obj-C methods and C-functions.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|PRECIOUS|INTERMEDIATE|SECONDARY|SECONDEXPANSION)\b)"
+                r"^[ \t]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
                 r"([a-zA-Z0-9_./%-]+)(?=[ \t]*::?)",
                 re.M,
             ),
@@ -9383,7 +9383,11 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # Bypassing safety: Prefixing recipes with `-` to swallow errors, or forcefully exiting true via shell logic.
-            "safety_bypasses": re.compile(r"^\t[ \t]*-[a-zA-Z0-9_./$]|\|\|[ \t]*(?:true|exit[ \t]+0)\b", re.M),
+            # NOTE: real recipes commonly separate the `-` modifier from the command with
+            # whitespace (e.g. "\t- rm -f build/"); GNU Make strips the modifier and any
+            # following whitespace before invoking the shell, so both "-rm" and "- rm" are
+            # valid, equally common ignore-errors forms.
+            "safety_bypasses": re.compile(r"^\t[ \t]*-[ \t]*[a-zA-Z0-9_./$]|\|\|[ \t]*(?:true|exit[ \t]+0)\b", re.M),
             # Heavily destructive sequence patterns or overriding permissions. (Eval is categorized under heat_triggers).
             "high_risk_execution": re.compile(r"\bsudo[ \t]+|\brm[ \t]+-[rR]?[fF][ \t]+(?:/|\$[{(])|\bkill[ \t]+-9\b"),
             # Interacting directly with outputs, networks, or the disk filesystem.
@@ -9463,12 +9467,23 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
             # --------------------------------------------------------------------------
             # Emitting pure, safe structural observability that does not risk halting or crashing the graph execution.
-            "telemetry": re.compile(r"\$\(info[ \t]+[^)\n]*\)"),
+            # NOTE: bounded to one level of nested $(...) (e.g. "$(info Building $(call name))")
+            # instead of a flat [^)\n]* class, which truncated at the first inner ")" and
+            # under-captured the real $(info ...) span on realistic nested-call messages.
+            "telemetry": re.compile(r"\$\(info[ \t]+(?:[^()\n]|\([^()\n]*\))*\)"),
             # Standard output commands echoing transient debris to the shell execution log.
-            "debug_prints": re.compile(r"^[ \t]*@?(?:echo|printf)[ \t]+|\$\(warning[ \t]+[^)\n]*\)", re.M),
+            # NOTE: also matches echo/printf immediately after a `;` (the common one-liner
+            # recipe form "target: deps; echo hi"), not just at true line start -- recipes are
+            # frequently written on the same physical line as the target when short.
+            "debug_prints": re.compile(
+                r"^[ \t]*@?(?:echo|printf)[ \t]+|;[ \t]*@?(?:echo|printf)[ \t]+|\$\(warning[ \t]+(?:[^()\n]|\([^()\n]*\))*\)",
+                re.M,
+            ),
             "explicit_casts": None,
             # System detonators specifically intended to abort the build flow if preconditions are failed natively or via shell.
-            "panics_and_aborts": re.compile(r"\$\(error[ \t]+[^)\n]*\)|\bexit[ \t]+[1-9][0-9]*\b|\bfalse\b"),
+            "panics_and_aborts": re.compile(
+                r"\$\(error[ \t]+(?:[^()\n]|\([^()\n]*\))*\)|\bexit[ \t]+[1-9][0-9]*\b|\bfalse\b"
+            ),
             # Temporal duct tape strictly applying forced pausing.
             "thread_sleeps": re.compile(r"\bsleep[ \t]+[0-9]+"),
             "bitwise_ops": None,  # Kept null as Bash pipe IPC limits logic math precision.
@@ -9491,10 +9506,17 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Makefile Specifics) ---
-            "serialization_parsing": re.compile(r"(?m)^\s*(?:@|-)?(?:tar|unzip|gunzip|jq|sed|awk)\b"),
-            "regex_execution": re.compile(r"(?m)\$\((?:filter|filter-out|patsubst)\b|^\s*(?:@|-)?(?:grep|egrep|sed)\b"),
-            "time_date_logic": re.compile(r"(?m)\$\(shell\s+date\b|^\s*(?:@|-)?(?:sleep|date)\b"),
-            "ipc_rpc_bridges": re.compile(r"(?m)\$\(shell\b|^\s*(?:@|-)?(?:curl|wget|ssh|scp|docker|kubectl)\b"),
+            # NOTE: `^\s*` (matching `\n` under re.M) is a confirmed real O(n^2) ReDoS on a
+            # long run of blank lines with no closing keyword -- each blank-line `^` position
+            # re-scans forward through the rest of the run before failing. Swapped for the
+            # engine's mandated `^[ \t]*` form (Rule 5), which cannot cross a newline and is
+            # therefore bounded to the current line.
+            "serialization_parsing": re.compile(r"(?m)^[ \t]*(?:@|-)?(?:tar|unzip|gunzip|jq|sed|awk)\b"),
+            "regex_execution": re.compile(
+                r"(?m)\$\((?:filter|filter-out|patsubst)\b|^[ \t]*(?:@|-)?(?:grep|egrep|sed)\b"
+            ),
+            "time_date_logic": re.compile(r"(?m)\$\(shell[ \t]+date\b|^[ \t]*(?:@|-)?(?:sleep|date)\b"),
+            "ipc_rpc_bridges": re.compile(r"(?m)\$\(shell\b|^[ \t]*(?:@|-)?(?:curl|wget|ssh|scp|docker|kubectl)\b"),
         },
     },
     "abap": {

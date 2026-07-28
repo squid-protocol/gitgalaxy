@@ -432,12 +432,18 @@ class StructuralExtractor:
 
         # 1. The Custom Unparsable Artifact Bypass & Prose Deflection
         # Rejects unverified artifacts AND Static Assets before wasting compute
-        if confidence < 0.42 or self.primary_lang_id in (
-            "plaintext",
-            "json",
-            "yaml",
-            "csv",
-        ):
+        # #694: yaml/json/csv used to sit here too, treated like pure prose --
+        # but unlike plaintext (empty rules dict, genuinely nothing to gain),
+        # they have real non-empty rules dicts AND prism.py already populates
+        # their code_stream correctly (none of the three go through prism.py's
+        # Prose Bypass, unlike markdown -- see #691). signal_processor.py's own
+        # doc_languages set already excludes all three, correctly treating them
+        # as real structured content that can carry genuine risk signal (a
+        # malicious package.json postinstall script, a `rm -rf /` in a CI
+        # yaml). This gate was the one place still treating them as prose;
+        # removing them lets them fall through to the normal code_stream path
+        # below, same as every real code language.
+        if confidence < 0.42 or self.primary_lang_id in ("plaintext",):
             self.logger.debug(
                 f"[DIAGNOSTIC] Bypass triggered (Conf: {confidence:.2f} | Lang: {self.primary_lang_id}). Relegating to Unparsable Artifacts."
             )

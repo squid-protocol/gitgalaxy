@@ -9882,20 +9882,26 @@ LANGUAGE_DEFINITIONS = {
             "branch": re.compile(r"\b(if|else|switch|case|for|while|do)\b|\|"),
             "args": re.compile(r"\$\d+|\$\$"),
             "structural_boundaries": re.compile(
-                r"\b(return|goto|break|continue|%token|%type|%left|%right|%nonassoc)\b"
+                r"\b(return|goto|break|continue)\b|%token\b|%type\b|%left\b|%right\b|%nonassoc\b"
             ),
             # Executable Logic Anchor: Anchors specifically onto Grammar Rules
-            # Matches "rule_name :" or "rule_name:" at the start of a line
-            "func_start": re.compile(r"^[ \t]*([a-zA-Z_]\w*)(?=[ \t]*:)", re.M),
+            # Matches "rule_name :" or "rule_name:" at the start of a line.
+            # Excludes C/C++ constructs that share the identical "identifier:" shape
+            # (switch-case default labels, C++ access specifiers in embedded .ypp code).
+            "func_start": re.compile(
+                r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=[ \t]*:)", re.M
+            ),
             "class_start": None,
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             "safety": re.compile(r"\b(assert|YYABORT|YYACCEPT|YYERROR)\b"),
-            "safety_bypasses": re.compile(r"\b(goto|void\s*\*)\b"),
+            "safety_bypasses": re.compile(r"\bgoto\b|\bvoid\s*\*"),
             "high_risk_execution": re.compile(r"\b(abort|exit|YYNOMEM)\b"),
             "io": re.compile(r"\b(fopen|fclose|fread|fwrite|yyin|yyout|fprintf)\b"),
-            "api": re.compile(r"\b(%define|%code|%provides|%requires)\b"),
+            "api": re.compile(r"%define\b|%code\b|%provides\b|%requires\b"),
             "state_mutation": re.compile(r"(?<![=!<>])=(?![=])|\+\+|--"),
-            "dead_code": re.compile(r"//[ \t]*(?:if|for|while|return|%token)\b|/\*[ \t]*(?:if|for|while|%token)"),
+            "dead_code": re.compile(
+                r"//[ \t]*(?:if|for|while|return|%token)\b|/\*[ \t]*(?:if|for|while|return|%token)"
+            ),
             "doc": re.compile(r"/\*\*|@param|@return"),
             "test": None,
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -9926,7 +9932,8 @@ LANGUAGE_DEFINITIONS = {
             "telemetry": re.compile(r"\b(?:syslog|openlog|log_info|YYDPRINTF)\b"),
             "debug_prints": re.compile(r"\b(printf|fprintf|vprintf|puts|yyerror)\b"),
             "explicit_casts": re.compile(
-                r"\(\s*(?:int|char|short|long|float|double|void|unsigned|signed|[A-Z]\w*)\s*\*?\s*\)\s*[a-zA-Z_$]"
+                r"\([ \t]{0,20}(?:int|char|short|long|float|double|void|unsigned|signed|[A-Z]\w*)"
+                r"[ \t]{0,20}\*?[ \t]{0,20}\)[ \t]{0,20}[a-zA-Z_$]"
             ),
             "panics_and_aborts": re.compile(r"\b(abort|exit|YYABORT)\b"),
             "thread_sleeps": None,

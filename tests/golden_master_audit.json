@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-28T14:05:43.524356+00:00",
-            "Total Scan Duration": "24.52 seconds"
+            "Analysis ISO Timestamp": "2026-07-28T16:39:00.658083+00:00",
+            "Total Scan Duration": "24.02 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -197,7 +197,7 @@
         },
         "health": {
             "avg_cognitive_load": 23.494,
-            "avg_safety_score": 23.263,
+            "avg_safety_score": 23.265,
             "avg_tech_debt": 25.419,
             "avg_documentation": 28.636
         },
@@ -1390,7 +1390,7 @@
                 "total_mass": 9802.71,
                 "avg_exposures": {
                     "cognitive_load": 45.11,
-                    "safety_score": 44.4,
+                    "safety_score": 44.64,
                     "tech_debt": 18.38,
                     "verification": 48.92,
                     "api_exposure": 4.81,
@@ -123343,7 +123343,7 @@
             },
             "Average Risk Exposures": {
                 "Cognitive Load Exposure": "45.11%",
-                "Error & Exception Exposure": "44.4%",
+                "Error & Exception Exposure": "44.64%",
                 "Tech Debt Exposure": "18.38%",
                 "Testing Exposure": "48.92%",
                 "API Exposure": "4.81%",
@@ -125306,26 +125306,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 12.707,
+                        "Repository Drift (Z-Score)": 12.708,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 13.415,
+                            "file_cluster_0": 13.412,
                             "file_cluster_1": 13.434,
-                            "file_cluster_2": 13.507,
-                            "file_cluster_3": 14.394,
-                            "file_cluster_4": 13.613,
+                            "file_cluster_2": 13.505,
+                            "file_cluster_3": 14.393,
+                            "file_cluster_4": 13.611,
                             "file_cluster_5": 13.97,
-                            "file_cluster_6": 13.581,
+                            "file_cluster_6": 13.579,
                             "file_cluster_7": 13.18,
-                            "file_cluster_8": 12.707,
-                            "file_cluster_9": 13.584,
-                            "file_cluster_10": 14.289,
-                            "file_cluster_11": 13.341,
-                            "file_cluster_12": 13.644,
-                            "file_cluster_13": 13.227,
-                            "file_cluster_14": 16.871,
-                            "file_cluster_15": 13.676,
-                            "file_cluster_16": 13.431,
-                            "file_cluster_17": 13.525
+                            "file_cluster_8": 12.708,
+                            "file_cluster_9": 13.581,
+                            "file_cluster_10": 14.287,
+                            "file_cluster_11": 13.339,
+                            "file_cluster_12": 13.642,
+                            "file_cluster_13": 13.225,
+                            "file_cluster_14": 16.869,
+                            "file_cluster_15": 13.675,
+                            "file_cluster_16": 13.43,
+                            "file_cluster_17": 13.522
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -125343,7 +125343,7 @@
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "70.13%",
-                        "Error & Exception Exposure": "69.39%",
+                        "Error & Exception Exposure": "70.6%",
                         "Tech Debt Exposure": "33.71%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "0.0%",
@@ -125392,7 +125392,7 @@
                         "Function/Method Declarations": 4,
                         "Class/Entity Declarations": 0,
                         "Defensive Programming Constructs": 0,
-                        "Type/Safety Bypasses": 20,
+                        "Type/Safety Bypasses": 25,
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 1,
                         "Exposed API / Public Exports": 0,

@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from unittest.mock import patch, MagicMock
 
 from gitgalaxy.metrics.chronometer import Chronometer
@@ -124,6 +125,10 @@ def test_scan_git_history_and_stream(mock_popen, mock_run, tmp_path):
         assert "src/utils.py" not in chrono.churn_map, (
             "Failed to skip ignored commit hash!"
         )
+
+        # Verify stderr deadlock guard (#705)
+        _, kwargs = mock_popen.call_args
+        assert kwargs.get("stderr") == subprocess.DEVNULL, "Popen must route stderr to DEVNULL to prevent deadlock!"
 
 
 # ==============================================================================

@@ -329,7 +329,7 @@ class Chronometer:
                 cmd,
                 cwd=self.root,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
                 text=True,
                 bufsize=1,
             )

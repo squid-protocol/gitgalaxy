@@ -8195,7 +8195,14 @@ LANGUAGE_DEFINITIONS = {
             # 8. danger (High-Risk Execution)
             # Extreme space debris. Destructive recursive removes targeting root, and dangerous dynamic eval.
             # CRITICAL GUARDRAIL: Raw terminal prints (`echo`) strictly routed to print_hits.
-            "high_risk_execution": re.compile(r"\b(?:rm[ \t]+-rf[ \t]+/(?![A-Za-z])|eval|exec)\b", re.M | re.I),
+            # CRITICAL GUARDRAIL (Rule 9): the `rm -rf /` alternative ends on the symbolic
+            # `/` character. A shared trailing `\b` wrapped around the whole group can only
+            # fire when a word char follows -- but the realistic real-world form is `rm -rf /`
+            # followed by nothing (end of instruction), whitespace, or `&&`, none of which are
+            # word chars, so the old pattern could never match the single most catastrophic
+            # command a Dockerfile could contain. Pulled out of the shared group, same as the
+            # Rule 9 playbook's canonical fix.
+            "high_risk_execution": re.compile(r"\brm[ \t]+-rf[ \t]+/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I),
             # 9. io (I/O & Network Boundaries)
             # Interaction with external networks, copying files from host, or executing package managers.
             "io": re.compile(
@@ -8232,10 +8239,22 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
             # Parallelism executed inside the build shell (e.g. compiling with all cores).
-            "concurrency": re.compile(r"&[ \t]*$|\b(?:nohup|parallel|make[ \t]+-j|xargs[ \t]+-P)\b", re.M),
+            # CRITICAL GUARDRAIL (Rule 9/10 variant): `make -j`/`xargs -P` end on a word char
+            # (`j`/`P`) that is very commonly followed directly by a digit in real usage
+            # (`make -j4`, `xargs -P4`) -- a shared trailing `\b` around the whole group can't
+            # fire between two adjacent word chars, so the old pattern missed the compact
+            # numeric-suffix form entirely (only the spaced-out `make -j 4` form worked).
+            # Pulled these two out of the shared trailing-`\b` group; `nohup`/`parallel` keep
+            # it since they legitimately end on whitespace/EOL in real usage.
+            "concurrency": re.compile(r"&[ \t]*$|\b(?:nohup|parallel)\b|make[ \t]+-j|xargs[ \t]+-P", re.M),
             # 16. ui_framework (UI / View Components)
             # Containerizing GUI applications (X11, Wayland, GTK).
-            "ui_framework": re.compile(r"\b(?:xvfb|x11|wayland|gtk|qt5?|libgl1-mesa)\b", re.I),
+            # CRITICAL GUARDRAIL: real Debian/Ubuntu package names for these libraries are
+            # almost always `lib`-prefixed (`libgtk-3-dev`, `libx11-6`, `libwayland-client0`)
+            # -- both "lib" and the tag itself are word characters, so the old pattern's
+            # leading `\b` could never fire inside the "lib...gtk"/"lib...x11" substring,
+            # meaning it silently missed the dominant real-world package-name form entirely.
+            "ui_framework": re.compile(r"\b(?:lib)?(?:xvfb|x11|wayland|gtk2?|qt5?)\b|libgl1-mesa", re.I),
             # 17. closures (Closures / Anonymous Functions)
             # Dockerfiles are purely declarative structurally; closures do not exist.
             "closures": None,
@@ -8333,7 +8352,11 @@ LANGUAGE_DEFINITIONS = {
             "sync_locks": re.compile(r"\bflock\b", re.I),
             # 45. immutability_locks (Immutability Constraints)
             # Pinning dependencies to immutable SHAs rather than mutable tags. .
-            "immutability_locks": re.compile(r"@[a-f0-9]{64}\b|--read-only|:ro\b", re.I),
+            # CRITICAL GUARDRAIL: real Docker/OCI digest references are ALWAYS written as
+            # `@sha256:<64 hex chars>` -- the algorithm prefix is mandatory syntax, never a
+            # bare `@<64 hex chars>`. The old pattern required the bare (invalid) form and
+            # so could never match a real pinned image reference at all.
+            "immutability_locks": re.compile(r"@sha256:[a-f0-9]{64}\b|--read-only|:ro\b", re.I),
             # 46. cleanup (Resource Cleanup / Teardown)
             # Explicitly purging apt/apk caches to reduce final container bloat. .
             "cleanup": re.compile(
@@ -8353,12 +8376,27 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (Dockerfile Specifics) ---
+            # CRITICAL GUARDRAIL: all four sensors below MUST carry re.M -- `(?i)` alone
+            # anchors `^` to the true start of the whole code_stream string (Python re
+            # default), not the start of each line, which silently broke every one of
+            # these on any real Dockerfile (FROM is always the literal first line, so
+            # e.g. ipc_rpc_bridges could never fire at all). The body-scanning sensors
+            # (serialization_parsing/regex_execution/time_date_logic) also now step over
+            # a bounded `\`-line-continuation run ({0,50} continued lines, each itself
+            # unboundedly-but-safely scanned via `[^\n]*`) so a classic multi-line
+            # `RUN a && \` / `    b && \` / `    grep ...` chain is still seen -- the
+            # plain `.*` version only ever looked at the first physical line.
             "serialization_parsing": re.compile(
-                r"(?i)^(?:ADD|COPY)\s+.*\.(?:tar\.gz|zip|tgz|tar)\b"
+                r"(?im)^(?:ADD|COPY)\s+[^\n]*(?:\\\r?\n[^\n]*){0,50}\.(?:tar\.gz|zip|tgz|tar)\b"
             ),  # ADD auto-extracts archives
-            "regex_execution": re.compile(r"(?i)^RUN\s+.*(?:grep|sed|awk)\b"),  # Catches shell-delegated regex
-            "time_date_logic": re.compile(r"(?i)^(?:HEALTHCHECK.*(?:--interval|--timeout)|RUN\s+.*sleep)\b"),
-            "ipc_rpc_bridges": re.compile(r"(?i)^(?:EXPOSE|VOLUME|ENTRYPOINT|CMD|STOPSIGNAL)\b"),
+            "regex_execution": re.compile(
+                r"(?im)^RUN\s+[^\n]*(?:\\\r?\n[^\n]*){0,50}(?:grep|sed|awk)\b"
+            ),  # Catches shell-delegated regex
+            "time_date_logic": re.compile(
+                r"(?im)^(?:HEALTHCHECK[^\n]*(?:\\\r?\n[^\n]*){0,50}(?:--interval|--timeout)"
+                r"|RUN\s+[^\n]*(?:\\\r?\n[^\n]*){0,50}sleep)\b"
+            ),
+            "ipc_rpc_bridges": re.compile(r"(?im)^(?:EXPOSE|VOLUME|ENTRYPOINT|CMD|STOPSIGNAL)\b"),
         },
     },
     "matlab": {

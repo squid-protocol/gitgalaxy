@@ -8589,8 +8589,11 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
+            # BUG FIX (#593): "constant" used to be listed here too, duplicating
+            # immutability_locks and violating this key's own documented EXCLUDES
+            # rule (immutability keywords belong in immutability_locks, not here).
             "structural_boundaries": re.compile(
-                r"\b(put|get|set|go|send|dispatch|pass|return|add|subtract|multiply|divide|constant|visual\s+effect|play|sort|find|replace)\b",
+                r"\b(put|get|set|go|send|dispatch|pass|return|add|subtract|multiply|divide|visual\s+effect|play|sort|find|replace)\b",
                 re.I,
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).
@@ -8599,8 +8602,20 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Stacks, Behaviors, Widgets).
+            # BUG FIX (#593, Rule 11 nested-delimiter/coverage class): the name
+            # class `["\'a-zA-Z_]\w*` stopped at the first non-word char, so it
+            # could never consume dotted reverse-DNS module names -- LiveCode
+            # Builder's real, dominant declaration form (`module
+            # com.livecode.string`, confirmed against the language-crucible
+            # corpus). The lookahead then required whitespace/EOL immediately
+            # after that partial match, which a `.` never satisfies, so the
+            # whole match failed outright. Widened to allow up to 10 dotted
+            # segments (numerically bounded per Rule 5) and dropped the
+            # never-functional leading quote-char option (a quote immediately
+            # after would break the same lookahead, so it never actually
+            # matched anything either).
             "class_start": re.compile(
-                r'^[ \t]*(?:script|behavior|widget|module|library)\s+(["\'a-zA-Z_]\w*)(?=[ \t\n]|$)',
+                r"^[ \t]*(?:script|behavior|widget|module|library)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t\n]|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8610,8 +8625,20 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 7. safety_neg: Safety Bypasses. Actively bypassing safety (disabling messages, raw do).
+            # BUG FIX (#593, Rule 9/10-class trailing-boundary bug): the "do"
+            # alternative's own negative lookahead exists specifically to
+            # target "do" followed by a NON-identifier (a raw string/
+            # expression -- the actual dynamic-eval bypass), yet the shared
+            # trailing `\b` on the outer group required a WORD character
+            # right after the consumed whitespace. Since the realistic target
+            # of this alternative is almost always a quote or paren (both
+            # non-word), that trailing boundary could essentially never be
+            # satisfied for the alternative's own intended match --
+            # `do "put 1 into x"` and `do (tExpr)` both silently never
+            # matched. Pulled "do\s+(?!...)" out of the group (the lookahead
+            # already fully delimits it; no trailing \b needed).
             "safety_bypasses": re.compile(
-                r"\b(disable\s+messages|unlock\s+(?:screen|messages)|global\s+|do\s+(?![a-zA-Z_]\w*\b))\b",
+                r"\b(disable\s+messages|unlock\s+(?:screen|messages)|global\s+)\b|\bdo\s+(?![a-zA-Z_]\w*\b)",
                 re.I,
             ),
             # 8. danger: High-Risk Execution. Process killers and blocking UI alerts in execution flow.
@@ -8620,8 +8647,15 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 9. io: I/O & Network Boundaries. Disk, Network, and URL fetching.
+            # BUG FIX (#593): "post" used `[^ \t\n]+?` to span the payload
+            # expression before "to url", which excludes spaces -- so any
+            # realistic multi-word payload (`post "action=" & tAction to url
+            # tURL`, string concatenation, function calls with args) never
+            # matched; only a single bare token did. Widened to `[^\n]{1,300}?`
+            # (bounded per Rule 5, still linear) so it spans the whole
+            # single-line expression instead of stopping at the first space.
             "io": re.compile(
-                r"\b(open\s+(?:file|socket|process)|read\s+from|write\s+to|close\s+(?:file|socket|process)|post\s+[^ \t\n]+?\s+to\s+url|get\s+url|put\s+url|load\s+url)\b",
+                r"\b(open\s+(?:file|socket|process)|read\s+from|write\s+to|close\s+(?:file|socket|process)|post\s+[^\n]{1,300}?\s+to\s+url|get\s+url|put\s+url|load\s+url)\b",
                 re.I,
             ),
             # 10. api: Public Surface Area. Exposed surface area (Any non-private handler).
@@ -8630,8 +8664,16 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 11. flux: State Mutation. State mutation (The 'put into' core of xTalk).
+            # BUG FIX (#593): the put/add/subtract source-expression matchers
+            # used `[^ \t\n]+?`, which excludes spaces -- so the dominant real
+            # form (`put the effective filename of this stack into tPath`,
+            # `add the number of lines of tList to tTotal`, any multi-word
+            # expression before the keyword) never matched; only a single bare
+            # token before "into"/"to"/"from" did. Widened to `[^\n]{1,300}?`
+            # (bounded per Rule 5, still linear) so it spans the whole
+            # single-line expression.
             "state_mutation": re.compile(
-                r"\b(?:put\s+[^ \t\n]+?\s+(?:into|after|before)|set\s+(?:the[ \t]+)?[a-zA-Z0-9_.]+\s+to|add\s+[^ \t\n]+?\s+to|subtract\s+[^ \t\n]+?\s+from)\b",
+                r"\b(?:put\s+[^\n]{1,300}?\s+(?:into|after|before)|set\s+(?:the[ \t]+)?[a-zA-Z0-9_.]+\s+to|add\s+[^\n]{1,300}?\s+to|subtract\s+[^\n]{1,300}?\s+from)\b",
                 re.I,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
@@ -8640,8 +8682,17 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 13. doc: Structured Documentation. Structured documentation (/** or --@ tags).
+            # BUG FIX (#593, Rule 9/10-class trailing-boundary bug): the
+            # `Description|Purpose|Author|Summary` alternation had a trailing
+            # `\b` placed immediately after the literal `:` it requires. `:`
+            # is a non-word character, so that `\b` only fires if the very
+            # next character is a word character -- but the near-universal
+            # real form is "Author: John Doe" (colon then a space), which is
+            # non-word on both sides of that position, so the boundary never
+            # fired and the tag never matched. `:` is already self-delimiting
+            # (same principle as Rule 10), so the trailing `\b` is dropped.
             "doc": re.compile(
-                r"^[ \t]*(?:--\||--@|/\*\*|//!).*(?:@param|@return|@author)|\b(?:Description|Purpose|Author|Summary):\b",
+                r"^[ \t]*(?:--\||--@|/\*\*|//!).*(?:@param|@return|@author)|\b(?:Description|Purpose|Author|Summary):",
                 re.I | re.M,
             ),
             # 14. test: Testing & Assertions. Unit testing framework markers.
@@ -8651,8 +8702,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Message scheduling and non-blocking waits.
+            # BUG FIX (#593): the "send X in Y seconds" target-message matcher
+            # used `[^ \t\n]+?`, which excludes spaces -- so the dominant real
+            # form (`send "myHandler" to me in 2 seconds`, any multi-word
+            # message/target expression) never matched; only a single bare
+            # token did. Widened to `[^\n]{1,300}?` (bounded per Rule 5, still
+            # linear).
             "concurrency": re.compile(
-                r"\b(send\s+[^ \t\n]+?\s+in\s+[^ \t\n]+?\s+(?:seconds|milliseconds|ticks)|wait\s+(?:for[ \t]+)?\d+\s+[^ \t\n]+?\s+with\s+messages|dispatch|pendingMessages|cancel)\b",
+                r"\b(send\s+[^\n]{1,300}?\s+in\s+[^\n]{1,300}?\s+(?:seconds|milliseconds|ticks)|wait\s+(?:for[ \t]+)?\d+\s+[^ \t\n]+?\s+with\s+messages|dispatch|pendingMessages|cancel)\b",
                 re.I,
             ),
             # 16. ui_framework: UI / View Components. HyperCard-descendant object hierarchy.
@@ -8663,8 +8720,13 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures: Closures / Anonymous Functions. (LiveCode Script lacks native lambdas).
             "closures": None,
             # 18. globals: Global / Shared State. Global state and environmental bindings.
+            # BUG FIX (#593, Rule 9): `$ENV` started with the symbolic `$`,
+            # which can never satisfy the shared leading `\b` -- real usage is
+            # always preceded by whitespace/line-start (non-word on both
+            # sides of that position), so it never matched. Pulled out of the
+            # group with only a trailing `\b` (the `$` is self-delimiting).
             "globals": re.compile(
-                r"\b(global\s+|the\s+global|the\s+environment|the\s+platform|\$ENV|it)\b",
+                r"\b(global\s+|the\s+global|the\s+environment|the\s+platform|it)\b|\$ENV\b",
                 re.I,
             ),
             # 19. decorators: Decorators / Annotations. LCB attributes.
@@ -8672,8 +8734,13 @@ LANGUAGE_DEFINITIONS = {
             # 20. generics: Generics / Type Parameters. (LCS is dynamically typed).
             "generics": None,
             # 21. comprehensions: Iterators / Comprehensions. Implicit list processing.
+            # BUG FIX (#593): the `filter` target matcher used `[^ \t\n]+?`,
+            # which excludes spaces -- so the common multi-word target form
+            # (`filter lines of tData with "*.txt"`) never matched; only a
+            # single bare token did. Widened to `[^\n]{1,300}?` (bounded per
+            # Rule 5, still linear).
             "comprehensions": re.compile(
-                r"\brepeat\s+for\s+each\s+(?:item|line|word|char|key|element)\b|\bfilter\s+[^ \t\n]+?\s+(?:with|without)\b",
+                r"\brepeat\s+for\s+each\s+(?:item|line|word|char|key|element)\b|\bfilter\s+[^\n]{1,300}?\s+(?:with|without)\b",
                 re.I,
             ),
             # 22. scientific: Numerical / Compute Libraries. Native math commands.
@@ -8682,8 +8749,20 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 23. heat_triggers: Metaprogramming & Reflection. Dynamic execution and path hijacking.
+            # BUG FIX (#593, Rule 10): `value(` and `evaluate(` end on the
+            # self-delimiting `(`, but the shared trailing `\b` required a
+            # word character immediately after it -- so the dominant real
+            # call shape (a quoted expression, e.g. `value("1+1")`) never
+            # matched; only an unquoted bare-identifier argument
+            # (`value(tExpr)`) did. Pulled both out of the group with the
+            # trailing `\b` dropped. Same defect hit `do\s+`: the dominant
+            # real form of dynamic script execution is `do "some script"`
+            # (a quoted string), but the shared trailing `\b` required a
+            # word character right after the consumed whitespace, which a
+            # quote never satisfies -- only `do <bareIdentifier>` matched.
+            # Pulled "do\s+" out too (already self-delimited by \s+).
             "reflection_metaprogramming": re.compile(
-                r"\b(do\s+|value\(|the\s+params|the\s+paramcount|evaluate\(|frontscripts|backscripts|insert\s+script)\b",
+                r"\b(the\s+params|the\s+paramcount|frontscripts|backscripts|insert\s+script)\b|\bdo\s+|value\(|evaluate\(",
                 re.I,
             ),
             # 24. import: Dependency Inclusions. Library and stack loading.
@@ -8733,7 +8812,14 @@ LANGUAGE_DEFINITIONS = {
             # 34. macros: Preprocessor Hooks.
             "macros": None,
             # 35. pointers: Memory Map. Pass by reference in params.
-            "pointers": re.compile(r"\b@[a-zA-Z_]\w*\b", re.I),
+            # BUG FIX (#593, Rule 9): the leading `\b` sat directly in front
+            # of the symbolic `@` sigil. Real pass-by-reference params are
+            # always preceded by whitespace/comma/paren (non-word on both
+            # sides of that position), so the leading boundary never fired --
+            # `@pList` never matched at all except in the contrived case of a
+            # word character glued directly onto the `@`. Dropped the leading
+            # `\b` (the `@` is self-delimiting); kept the trailing `\b`.
+            "pointers": re.compile(r"@[a-zA-Z_]\w*\b", re.I),
             # 36. memory_alloc: Manual Memory Management.
             "memory_alloc": None,
             # 37. inline_asm: Bare Metal.
@@ -8777,8 +8863,17 @@ LANGUAGE_DEFINITIONS = {
             "time_date_logic": re.compile(
                 r"(?i)\b(the\s+(?:seconds|ticks|time|date|internet date)|wait\s+(?:for|until))\b"
             ),
+            # BUG FIX (#593, Rule 10): `shell\s*\(` ends on the self-delimiting
+            # `(`, but the shared trailing `\b` required a word character
+            # immediately after it -- so the dominant real call shape (a
+            # quoted command string, e.g. `shell("ls -la")`) never matched;
+            # only an unquoted bare-identifier argument (`shell(tCmd)`) did.
+            # Pulled out of the group with the trailing `\b` dropped. Also
+            # bounded the unbounded `.*` in `post\s+.*to` per Rule 5 (was
+            # already empirically linear here, but bounding it removes the
+            # theoretical risk while this line was already being touched).
             "ipc_rpc_bridges": re.compile(
-                r"(?i)\b(open\s+socket|read\s+from\s+socket|post\s+.*to|get\s+url|shell\s*\(|open\s+process)\b"
+                r"(?i)\b(open\s+socket|read\s+from\s+socket|post\s+[^\n]{0,300}to|get\s+url|open\s+process)\b|shell\s*\("
             ),
         },
     },

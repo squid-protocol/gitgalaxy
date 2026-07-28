@@ -437,7 +437,15 @@ class SignalProcessor:
 
                 return {
                     "risk_vector": blanket_risk_vector,
-                    "hit_vector": [0] * len(self.SIGNAL_SCHEMA),
+                    # #691: was unconditionally [0] * len(SIGNAL_SCHEMA) -- correct
+                    # for plaintext/rst/text (no rules defined, so raw_signals is
+                    # always empty for them regardless), but this also zeroed
+                    # markdown's real lit_* structural signatures even after
+                    # detector.py started populating them. Deriving from
+                    # raw_signals (same shape as the non-doc path below) lets
+                    # markdown's signatures surface while staying a no-op for
+                    # the other doc_languages.
+                    "hit_vector": [raw_signals.get(key, 0) for key in self.SIGNAL_SCHEMA],
                     "file_impact": round(max(total_loc / 50.0, 1.0), 2),
                     "telemetry": {
                         "archetype": getattr(config, "STATIC_ARCHETYPES", {}).get(

@@ -1810,6 +1810,61 @@ def test_sarif_exact_loc_injection():
         # Extract the exact line number from the payload
         exact_line = results[0]["locations"][0]["physicalLocation"]["region"]["startLine"]
         assert exact_line == 42, f"SARIF fell back to start_line! Expected 42, got {exact_line}."
-        
+
     finally:
         os.remove(temp_path)
+
+
+# ==============================================================================
+# TEST: STATIC LITERATURE OVERRIDE -- hit_vector DERIVED FROM raw_signals (#691)
+# ==============================================================================
+def test_signal_processor_doc_bypass_hit_vector_reflects_raw_signals(processor):
+    """
+    Regression test for #691: the STATIC LITERATURE OVERRIDE previously
+    hardcoded hit_vector to all-zero for every doc_languages entry
+    (markdown/plaintext/rst/text), completely independent of raw_signals --
+    so even after detector.py started correctly populating markdown's
+    lit_* signatures in `equations`, they never survived into hit_vector
+    (and therefore never appeared in the "Structural Signatures" report
+    section, which reads hit_vector, not equations, directly).
+
+    risk_vector must stay untouched by this fix -- documentation still
+    correctly reports 0% logic risk. Only hit_vector changes.
+    """
+    lit_headers_idx = processor.SIGNAL_SCHEMA.index("lit_headers")
+    lit_links_idx = processor.SIGNAL_SCHEMA.index("lit_links")
+    documentation_idx = processor.RISK_SCHEMA.index("documentation")
+
+    meta_doc, sig_doc = create_synthetic_star(
+        processor, "readme", 500, {"lit_headers": 7, "lit_links": 3}
+    )
+    meta_doc["lang_id"] = "markdown"
+
+    result = processor.calculate_risk_vector(meta_doc, sig_doc)
+
+    assert result["hit_vector"][lit_headers_idx] == 7, (
+        "markdown's lit_headers count should survive into hit_vector, not get hardcoded to 0"
+    )
+    assert result["hit_vector"][lit_links_idx] == 3, (
+        "markdown's lit_links count should survive into hit_vector, not get hardcoded to 0"
+    )
+    # Logic-risk bypass must still hold -- this fix only touches hit_vector.
+    assert result["risk_vector"][documentation_idx] == 0.0, (
+        "Documentation risk bypass regressed -- markdown must still report 0% logic risk!"
+    )
+
+
+def test_signal_processor_doc_bypass_empty_signals_still_all_zero(processor):
+    """
+    Companion to the above: a doc_languages file with no real signals (e.g.
+    plaintext, which defines no rules at all in language_standards.py, so
+    raw_signals is always empty for it in practice) must still produce an
+    all-zero hit_vector -- proves the fix is a strict generalization of the
+    old hardcoded-zero behavior, not a change that invents non-zero hits
+    out of nothing.
+    """
+    meta_doc, sig_doc = create_synthetic_star(processor, "notes", 100, {})
+    meta_doc["lang_id"] = "plaintext"
+
+    result = processor.calculate_risk_vector(meta_doc, sig_doc)
+    assert not any(result["hit_vector"]), "empty raw_signals should still yield an all-zero hit_vector"

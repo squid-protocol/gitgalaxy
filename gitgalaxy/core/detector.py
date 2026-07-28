@@ -434,7 +434,6 @@ class StructuralExtractor:
         # Rejects unverified artifacts AND Static Assets before wasting compute
         if confidence < 0.42 or self.primary_lang_id in (
             "plaintext",
-            "markdown",
             "json",
             "yaml",
             "csv",
@@ -444,6 +443,29 @@ class StructuralExtractor:
             )
             return {
                 "equations": {},
+                "functions": [],
+                "logic_density": 0.0,
+                "sum_fxn_impact": 0.0,
+                "total_control_flow_ratio": 0.0,
+                "raw_imports": [],
+                "metadata": ghost_meta,
+            }
+
+        # 1b. Markdown Prose Deflection (Issue #691)
+        # Markdown has no functions/control-flow to run coding_analysis against
+        # (prism.py's Prose Bypass always routes its entire content into
+        # comment_stream, leaving code_stream empty), but it DOES have real
+        # structural signatures (lit_code_blocks/lit_diagrams/lit_headers/
+        # lit_links) that live in comment_stream. Route it through
+        # comment_analysis instead of the blanket empty-return the other
+        # prose/structured-data languages above still get -- this leaves
+        # coding_loc/doc_loc semantics (and everything downstream of them)
+        # completely untouched, since we never touch code_stream here.
+        if self.primary_lang_id == "markdown":
+            counts = dict.fromkeys(self.UNIVERSAL_METRICS_SCHEMA, 0)
+            counts = self.comment_analysis(comment_stream, self.primary_lang_id, counts)
+            return {
+                "equations": counts,
                 "functions": [],
                 "logic_density": 0.0,
                 "sum_fxn_impact": 0.0,
@@ -1070,6 +1092,13 @@ class StructuralExtractor:
             "planned_debt",
             "fragile_debt",
             "spec_exposure",
+            # Literate-Programming Extension Pack (#691): these only exist on
+            # markdown's rules dict today, so this is a no-op for every other
+            # language -- same graceful-fallback shape as the six keys above.
+            "lit_code_blocks",
+            "lit_diagrams",
+            "lit_headers",
+            "lit_links",
         ]
 
         for rule_name in comment_rules:

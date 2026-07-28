@@ -1889,3 +1889,94 @@ def test_detector_fallback_slice_by_braces_arguments(mock_slice_by_braces):
         99, 
         {"io": [5]}
     )
+
+
+# ==============================================================================
+# TEST 48: MARKDOWN PROSE-DEFLECTION FIX -- COMMENT-STREAM SIGNATURE COUNTING (#691)
+# ==============================================================================
+def test_detector_markdown_routes_through_comment_analysis():
+    """
+    Regression test for #691: markdown's structural signatures (lit_code_blocks/
+    lit_diagrams/lit_headers/lit_links) previously always counted zero, regardless
+    of regex correctness, because the Prose Deflection gate returned an empty
+    result before comment_analysis (the function that scans comment_stream) ever
+    ran. Uses the REAL LANGUAGE_DEFINITIONS (not MOCK_LANG_DEFS) so this proves
+    the actual production regexes fire, not just the wiring.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    # comment_stream is what prism.py's Prose Bypass actually produces for
+    # markdown -- the entire file content, since markdown has no native
+    # multi-line comment delimiter to strip. code_stream is always "".
+    comment_stream = (
+        "# Title\n\n"
+        "Some prose with a [link](https://example.com) and another "
+        "[Foo (bar)](https://en.wikipedia.org/wiki/Foo_(bar)).\n\n"
+        "```python\nprint('hi')\n```\n\n"
+        "```mermaid\ngraph TD;\n```\n\n"
+        "## Section 2\n"
+    )
+
+    md_detector = StructuralExtractor("markdown", LANGUAGE_DEFINITIONS)
+    result = md_detector.splice(code_stream="", comment_stream=comment_stream, confidence=1.0)
+
+    assert result["equations"]["lit_headers"] == 2, "should count both '# Title' and '## Section 2'"
+    assert result["equations"]["lit_links"] == 2, "should count both markdown links, including the paren-in-URL one"
+    assert result["equations"]["lit_code_blocks"] == 4, "should count both fence pairs (python + mermaid)"
+    assert result["equations"]["lit_diagrams"] == 1, "should count the mermaid fence"
+
+    # Function/complexity analysis correctly still doesn't apply to prose.
+    assert result["functions"] == []
+    assert result["logic_density"] == 0.0
+    assert result["total_control_flow_ratio"] == 0.0
+
+
+def test_detector_markdown_empty_comment_stream_still_safe():
+    """
+    Edge case: an empty markdown file (empty comment_stream) must not error --
+    comment_analysis's own `if not comment_stream: return counts` guard should
+    short-circuit cleanly, same as it already does for every other language.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    md_detector = StructuralExtractor("markdown", LANGUAGE_DEFINITIONS)
+    result = md_detector.splice(code_stream="", comment_stream="", confidence=1.0)
+    assert not any(result["equations"].values()), "empty comment_stream should yield an all-zero schema, not an error"
+
+
+def test_detector_prose_bypass_languages_other_than_markdown_unaffected():
+    """
+    Regression guard: #691's fix is scoped to markdown only (yaml/json/csv are
+    a separate, deferred investigation per the issue -- yaml's code_stream is
+    already correctly populated by prism.py, unlike markdown's, so it needs a
+    different fix). Proves yaml/json/csv/plaintext still return a fully empty
+    result even with high confidence and non-trivial comment_stream content --
+    i.e. confirms the markdown-specific branch didn't accidentally widen scope.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    comment_stream = "# a comment line with dead_code-shaped and TODO-shaped content\n"
+    for lang_id in ("yaml", "json", "csv", "plaintext"):
+        detector = StructuralExtractor(lang_id, LANGUAGE_DEFINITIONS)
+        result = detector.splice(code_stream="", comment_stream=comment_stream, confidence=1.0)
+        assert result["equations"] == {}, f"{lang_id} should still be fully bypassed, unlike markdown"
+
+
+def test_detector_comment_analysis_literate_keys_noop_for_non_markdown():
+    """
+    Regression guard: the 4 lit_* keys added to comment_analysis's whitelist
+    must be a no-op for languages that don't define them (every language
+    except markdown), not just for the 4 explicitly-bypassed prose languages
+    above -- proves the whitelist extension itself is safe for the general
+    (non-bypassed) comment_analysis call path every real code language goes
+    through.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    py_detector = StructuralExtractor("python", LANGUAGE_DEFINITIONS)
+    counts = dict.fromkeys(py_detector.UNIVERSAL_METRICS_SCHEMA, 0)
+    result = py_detector.comment_analysis("# a plain python comment, no markdown syntax\n", "python", dict(counts))
+    assert result.get("lit_headers", 0) == 0
+    assert result.get("lit_links", 0) == 0
+    assert result.get("lit_code_blocks", 0) == 0
+    assert result.get("lit_diagrams", 0) == 0

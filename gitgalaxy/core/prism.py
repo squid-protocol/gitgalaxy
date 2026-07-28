@@ -102,6 +102,12 @@ class Prism:
         # --- TIER 2: REGEX PRE-COMPILATION ---
         self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
 
+        # #697: _strip_single_line_comments() used to hardcode `#|--|;|//`
+        # regardless of what a given family's real delimiters are. Precompile
+        # the actual line_exclusive delimiter list (the only family currently
+        # routed to that function) once here, same pattern as REGEX_MATRIX.
+        self.SINGLE_LINE_DELIMITER_PATTERN: re.Pattern = self._compile_single_line_delimiter_pattern()
+
         # Phase 6.1 Handshake Registry (Synchronized securely via Language Standards)
         self.EMBEDDED_TRIGGERS = []
         for trigger_config in LENS_CONFIG.get("HANDSHAKE_REGISTRY", []):
@@ -393,6 +399,50 @@ class Prism:
 
         return matrix
 
+    def _compile_single_line_delimiter_pattern(self) -> re.Pattern:
+        """
+        Builds the real delimiter alternation for the "line_exclusive" family
+        (gitgalaxy_config.py's actual configured list -- currently
+        `["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%", "#|", "|#"]`),
+        replacing the hardcoded `#|--|;|//` _strip_single_line_comments()
+        used to carry regardless of what any given language's real delimiters
+        are (#697 -- that hardcoded set included `--`, which was never
+        configured as a line_exclusive delimiter, silently truncating any
+        line containing a literal `--` -- a common CLI double-dash argument
+        separator -- across all 22 line_exclusive languages).
+
+        Word-boundary-correct per Rule 9 (how_to_add_a_language.md): symbol-
+        only tokens (#, <#, #>, ;, %, #|, |#) are self-delimiting and get no
+        \\b. `dnl` is fully word-shaped and gets \\b on both sides. `=begin`/
+        `=end` start with a symbol but end in a word char -- a leading \\b
+        would never fire at a real line start (same trap as PowerShell's
+        `-Parallel` in the epic's recurring-bug-class list), so they only get
+        a trailing \\b.
+        """
+        delimiters = self.lexical_families.get("line_exclusive", {}).get("delimiters", [])
+        alternatives = []
+        for token in delimiters:
+            if not token:
+                continue
+            escaped = re.escape(token)
+            starts_word = token[0].isalnum() or token[0] == "_"
+            ends_word = token[-1].isalnum() or token[-1] == "_"
+            if starts_word and ends_word:
+                alternatives.append(rf"\b{escaped}\b")
+            elif ends_word:
+                alternatives.append(rf"{escaped}\b")
+            elif starts_word:
+                alternatives.append(rf"\b{escaped}")
+            else:
+                alternatives.append(escaped)
+
+        if not alternatives:
+            # Defensive fallback if config is ever empty -- matches nothing
+            # rather than silently reintroducing the old hardcoded set.
+            return re.compile(r"(?!)")
+
+        return re.compile("(" + "|".join(alternatives) + ")", re.IGNORECASE)
+
     def _strip_python_docstrings(self, text: str) -> tuple[str, list[str]]:
         """Extracts triple-quoted strings as documentation."""
         docs = []
@@ -655,10 +705,18 @@ class Prism:
         return "", content
 
     def _strip_single_line_comments(self, text: str) -> tuple[str, str]:
-        """Generic single-line comment stripper (for '#' or ';' or '--')."""
+        """
+        Single-line comment stripper for the "line_exclusive" family, driven
+        by the real configured delimiter list (see
+        _compile_single_line_delimiter_pattern) rather than a hardcoded
+        guess. #697: this used to hardcode `#|--|;|//`, which incorrectly
+        included `--` (never a configured line_exclusive delimiter) and
+        excluded most of the family's real tokens (<#, #>, =begin, =end,
+        dnl, %, #|, |#).
+        """
         lines = text.splitlines()
         code, comments = [], []
-        pattern = re.compile(r"(#|--|;|//)")
+        pattern = self.SINGLE_LINE_DELIMITER_PATTERN
 
         for line in lines:
             if pattern.search(line):

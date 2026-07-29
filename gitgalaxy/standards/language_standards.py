@@ -11203,13 +11203,23 @@ LANGUAGE_DEFINITIONS = {
             "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
             "args": None,
             # Structural boundaries (Any line starting with // and a command)
+            # BUG FIX (2 issues): (1) the name segment was required (`+`), missing
+            # the very common unnamed continuation-DD form (`//         DD DSN=...`,
+            # concatenating a dataset onto the preceding DD with no ddname of its
+            # own) -- a real, everyday JCL idiom, not an edge case. Name is now
+            # optional (`*`). (2) the gap before the keyword was `\s+`, which
+            # includes `\n` under re.M -- confirmed this lets a name on one line
+            # falsely bind to a keyword starting a *different* line with no `//`
+            # prefix of its own (e.g. "//STEP01\nEXEC PGM=FOO" incorrectly reads as
+            # a real EXEC step). JCL statements don't span a physical line via bare
+            # whitespace, so bounded to `[ \t]+` instead.
             "structural_boundaries": re.compile(
-                r"^[ \t]*//[A-Za-z0-9_#$@]+\s+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
             ),
-            # Functions (EXEC steps)
-            "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+EXEC\b", re.M | re.I),
-            # Classes/Entities (JOB cards)
-            "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+JOB\b", re.M | re.I),
+            # Functions (EXEC steps). Same `\s+` -> `[ \t]+` cross-line fix as above.
+            "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)[ \t]+EXEC\b", re.M | re.I),
+            # Classes/Entities (JOB cards). Same `\s+` -> `[ \t]+` cross-line fix as above.
+            "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)[ \t]+JOB\b", re.M | re.I),
             # Danger (Execution of arbitrary programs)
             "high_risk_execution": re.compile(r"\bPGM=[A-Za-z0-9_#$@]+\b", re.I),
             # I/O (Data Set Names and Sysouts)
@@ -11217,7 +11227,13 @@ LANGUAGE_DEFINITIONS = {
             # JCL doesn't have traditional code equivalents for these, keep them null to prevent crashes
             "safety": None,
             "api": None,
-            "state_mutation": re.compile(r"\bSET\s+[A-Za-z0-9_#$@]+=", re.I),
+            # BUG FIX: unanchored -- `\bSET\s+NAME=` matched "SET" anywhere in the
+            # file, including inline SYSIN card data (`//SYSIN DD *` ... `/*`) that
+            # isn't a JCL statement at all (e.g. an embedded SQL/shell/config
+            # payload that happens to contain "SET X=1"). Anchored to a real JCL
+            # statement line, mirroring structural_boundaries' own SET handling;
+            # both `\s+` gaps bounded to `[ \t]+` for the same cross-line reason.
+            "state_mutation": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+SET[ \t]+[A-Za-z0-9_#$@]+=", re.M | re.I),
             "concurrency": None,
             "ui_framework": None,
             "closures": None,
@@ -11227,8 +11243,23 @@ LANGUAGE_DEFINITIONS = {
             "comprehensions": None,
             "scientific": None,
             "reflection_metaprogramming": None,
-            "import": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]+\s+INCLUDE\b", re.M | re.I),
-            "ownership": re.compile(r"^//\*\s*(?:Author|Created by|Maintainer):\s+(.*)", re.I | re.M),
+            # BUG FIX: name segment was required (`+`); INCLUDE statements, like DD,
+            # are commonly written unnamed (`//         INCLUDE MEMBER=...`). Name
+            # now optional (`*`); `\s+` -> `[ \t]+` for the same cross-line reason as
+            # structural_boundaries/func_start/class_start above.
+            "import": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+INCLUDE\b", re.M | re.I),
+            # _dependency_capture was missing entirely for jcl (unlike nearly every
+            # other language with a non-None `import`), so the dependency graph never
+            # captured which member a JCL job/proc pulls in via INCLUDE. Captures the
+            # MEMBER= name for the network/blast-radius graph.
+            "_dependency_capture": re.compile(
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+INCLUDE[ \t]+MEMBER=([A-Za-z0-9_#$@]+)", re.M | re.I
+            ),
+            # BUG FIX: `\s+` before the capture group could cross a newline (re.M),
+            # so an Author line with the value wrapped to the next physical line
+            # captured garbage from that *different* line (including its own "//*"
+            # prefix) instead of correctly failing to match. Bounded to `[ \t]+`.
+            "ownership": re.compile(r"^//\*[ \t]*(?:Author|Created by|Maintainer):[ \t]+(.*)", re.I | re.M),
             "telemetry": None,
             "debug_prints": None,
         },

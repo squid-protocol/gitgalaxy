@@ -2,19 +2,16 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-**Metric:** Credential Leak Risk (Hardcoded Secrets Exposure)
+## Engineering Summary
+Evaluates the presence of exposed sensitive credentials (API keys, private tokens, passwords, database connections) and analyzes careless code handling (e.g., debug log statements, dead code, global variable assignments) that increases the likelihood of accidental credential leakage. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Hardcoded Secrets Exposure metric.
 
-**Summary:** Evaluates the presence of exposed sensitive credentials (API keys, private tokens, passwords, database connections) and analyzes careless code handling (e.g., debug log statements, dead code, global variable assignments) that increases the likelihood of accidental credential leakage.
+## Purpose
+The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-**Risk Classification:**
-* 🟦 **LOW (Score 0–19):** Secrets safely retrieved via environment variables or secret management vaults.
-* 🟨 **MODERATE (Score 40–59):** Low-entropy credentials or test environment secrets.
-* 🟥 **VERY HIGH (Score 80–100):** High-entropy secrets paired with debug logging, or inline API keys in modules lacking global configuration parameters.
+## Problem Being Solved
+Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
----
-
-## Inputs & Detection Signals
-
+## Design
 The analysis engine evaluates credential presence and careless code practice multipliers:
 
 | Variable | Signal Key | Weight | Description |
@@ -24,10 +21,6 @@ The analysis engine evaluates credential presence and careless code practice mul
 | `dead_code` | `dead_code` | **+1.0 Amplification** | Commented-out or unreachable code blocks containing hardcoded keys. |
 | `globals` | `globals` | **+1.0 Amplification** | Secrets assigned to global scope variables. |
 | `llm_api` | `llm_api` | **3.0x Multiplier** | Calling external APIs (`llm_api > 0`) without global config management (`globals == 0`). |
-
----
-
-## Metric Calculation
 
 ### 1. Base Leak & Amplification Mass
 $$\text{BaseLeak} = \text{sec\_hardcoded\_secrets} \times 10.0$$
@@ -48,12 +41,6 @@ Because leaked credentials represent high severity regardless of file size, dens
 $$\text{Density} = \left( \frac{\text{LeakMass}}{\max(\text{LOC} + 50, 1)} \right) \times 100.0$$
 
 Mapped via Sigmoid (Standard threshold = 3.0, slope = 1.0; Paranoid threshold = 0.5, slope = 2.0). Scores below $5.0$ are truncated to $0.0$.
-
----
-
-## Reference Implementation
-
-The following Python method from `gitgalaxy/metrics/signal_processor.py` implements the hardcoded secrets risk metric:
 
 ```python
 def _calc_secrets_risk(self, loc: int, raw_signals: dict[str, int], mp: float) -> float:
@@ -98,13 +85,37 @@ def _calc_secrets_risk(self, loc: int, raw_signals: dict[str, int], mp: float) -
     return min(score * mp, 100.0)
 ```
 
----
+**Risk Classification:**
+* 🟦 **LOW (Score 0–19):** Secrets safely retrieved via environment variables or secret management vaults.
+* 🟨 **MODERATE (Score 40–59):** Low-entropy credentials or test environment secrets.
+* 🟥 **VERY HIGH (Score 80–100):** High-entropy secrets paired with debug logging, or inline API keys in modules lacking global configuration parameters.
 
-### Ecosystem References
+## Pipeline Integration
+Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+```mermaid
+flowchart LR
+    A[AST Parser] --> B[Signal Processor]
+    B --> C[Hardcoded Secrets Exposure Metric]
+    C --> D[Risk Score Output]
+```
 
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)** - Metric implementation details.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository architecture dashboard.
+## Tradeoffs
+* Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
+* Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
----
+## Limitations
+* Detection is strictly reliant on recognized keywords and standard patterns.
+* Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
+* May produce false positives in non-standard or heavily abstracted codebases.
 
-**[⬅️ Back to Master Index](index.md)**
+## Performance Notes
+The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
+
+## Future Work
+* Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
+* Expand language support and framework-specific annotations.
+
+## Related Components
+* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[GitGalaxy Platform](https://gitgalaxy.io/)**
+* **[⬅️ Back to Master Index](index.md)**

@@ -11,137 +11,65 @@
 > * 🟨 **INTERMEDIATE (Score 40-59):** Moderate. Standard code complexity with acceptable inline comments.
 > * 🟥 **VERY HIGH (Score 80-100+):** Critical Exposure. Complex, highly-coupled, or single-author logic operating without documentation.
 
-## The 4 Pillars of Documentation Risk Analysis
+## Engineering Summary
+This subsystem measures the contextual knowledge debt of a codebase. It solves the problem of using naive comment-to-code ratios by structurally evaluating undocumented logic against high-level documentation defenses. The system exists to identify complex, undocumented, single-author hotspots that create institutional knowledge silos. By integrating blast radius and bus factor multipliers, it feeds directly into the GitGalaxy risk assessment pipeline.
 
-GitGalaxy evaluates documentation through four contextual dimensions:
+## Purpose
+To calculate the structural risk of undocumented code by weighing the complexity of unannotated functions against protective documentation layers (inline and directory-level), subsequently scaling by network centrality and author concentration.
 
-### 1. Undocumented Logic Complexity
-Instead of penalizing missing comments equally, the engine measures the structural complexity (`impact` score and `big_o_depth`) of undocumented functions. An undocumented monolithic $O(N^3)$ state machine generates high risk, whereas a simple 5-line utility function carries minimal risk.
+## Problem Being Solved
+Simple comment line counts fail to evaluate whether the comments actually explain complex logic. A 1000-line file of simple data structures needs no documentation, but a 100-line undocumented state machine creates massive risk. Furthermore, an undocumented file authored by a single developer creates a severe "bus factor" vulnerability.
 
-### 2. Directory Documentation Shield
-The directory resolver sweeps folders for "Knowledge Anchors" (such as `README.md` or `ARCHITECTURE.md`). If present, a `doc_umbrella` defense value is applied across the directory, accounting for high-level architectural documentation that explains lower-level inline code.
+## Design
+Evaluates four contextual dimensions:
+1. **Undocumented Logic Complexity:** Measures the structural `impact` and `big_o_depth` of unannotated functions.
+2. **Directory Documentation Shield:** Sweeps for "Knowledge Anchors" (`README.md`, `ARCHITECTURE.md`) applying a `doc_umbrella` defense value.
+3. **Markdown Formatting Density:** Parses structural indicators in markdown (code blocks, diagrams, headers, links).
+4. **Blast Radius & Bus Factor:** Scales risk if the file is heavily imported (network multiplier) or authored by one person (silo multiplier).
 
-### 3. Markdown Formatting Density
-Markdown files are parsed to evaluate instructional quality based on structural indicators:
-* Code blocks (`lit_code_blocks`)
-* Architecture diagrams (`lit_diagrams` e.g., Mermaid, PlantUML)
-* Header structure (`lit_headers`)
-* Cross-reference links (`lit_links`)
-
-### 4. Blast Radius & Bus Factor Multipliers
-The static analyzer integrates module coupling and author distribution metrics:
-* **Network Blast Radius:** If an undocumented file is heavily imported across the repository, documentation risk is scaled upward.
-* **Silo Risk (Bus Factor):** If a volatile, undocumented file is written primarily (e.g. $>95\%$) by a single author, the risk is further amplified to highlight single-developer knowledge silos.
-
-## Universal Framework Integration
-
-Documentation calculations incorporate standard language framework parameters:
-* **$Fc$ (Fidelity Coefficient):** Explicit languages (e.g., Rust, Java) receive higher documentation fidelity scores than implicit scripting languages (e.g., Shell, Groovy).
-* **$Irc$ (Implicit Risk Correction):** Added to baseline risk to account for higher syntactical ambiguity in implicit languages.
-
-## Mathematical Formulation
-
-### Step 1: Knowledge Shield Defense Calculation
-Defensive mass combines inline docstrings, ownership tags, line counts, and directory umbrella shields, scaled by the Fidelity Coefficient ($Fc$):
-
+**Mathematical Formulation**
+1. **Knowledge Shield Defense:**
 $$\text{UmbrellaDefense} = \text{doc\_umbrella} \times 50.0$$
-$$\text{DefenseHits} = \left( \text{InlineDocs} \times 1.0 + \text{Ownership} \times 0.5 + \text{DocLOC} \times 0.33 + \text{UmbrellaDefense} \right) \times Fc$$
-
-### Step 2: Undocumented Risk Calculation
-Raw risk sums exposed API endpoints, baseline opacity tax ($Irc$), and undocumented complex functions:
-
+$$\text{DefenseHits} = \left( \text{InlineDocs} + (\text{Ownership} \times 0.5) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense} \right) \times Fc$$
+2. **Undocumented Risk Calculation:**
 $$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + (\ln(\text{Impact}) \times (\text{BigO} \times 0.5)) \right)$$
 $$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc$$
-
-### Step 3: Net Exposure & Line Density
-Net exposure balances risk against defense, normalized per line of code:
-
+3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
 $$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 1)} \right) \times 100.0$$
-
-### Step 4: Systemic Multipliers
-Multipliers adjust for repository popularity (blast radius) and single-author concentration (bus factor):
-
-$$\text{NetworkMultiplier} = 1.0 + \left(\frac{\text{Popularity}}{10.0}\right)$$
-$$\text{SiloMultiplier} = 1.0 + \left(\frac{\text{SiloExposure}}{200.0}\right)$$
-$$\text{FinalMultiplier} = \text{NetworkMultiplier} \times \text{SiloMultiplier} \times Mp$$
-
-### Step 5: Sigmoidal Risk Mapping
-Density maps to a 0–100 risk score using a Sigmoid curve (threshold $= 10.0$, slope $= 0.2$), multiplied by the systemic modifiers:
-
+4. **Systemic Multipliers & Mapping:**
+$$\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp$$
 $$\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}$$
-$$\text{FinalRisk} = \min(\text{RawRisk} \times \text{FinalMultiplier}, 100.0)$$
 
-## Python Implementation Reference
-
-```python
-import math
-from typing import Dict, List, Any
-
-def _calc_documentation(
-    self,
-    loc: int,
-    doc_loc: int,
-    eq: Dict[str, int],
-    fc: float,
-    irc: int,
-    mp: float,
-    functions: List[Dict[str, Any]] = None,
-    doc_umbrella: float = 0.0,
-    popularity: int = 0,
-    silo_exposure: float = 0.0
-) -> float:
-    t = self.risk_tuning.get("documentation", {})
-    
-    # 1. Knowledge Shield Defense Calculation
-    umbrella_defense = doc_umbrella * 50.0 
-    
-    defense_hits = (
-        (eq.get("doc", 0) * t.get("doc_weight", 1.0))
-        + (eq.get("ownership", 0) * t.get("ownership_weight", 0.5))
-        + (doc_loc * t.get("doc_loc_weight", 0.33))
-        + umbrella_defense
-    ) * fc
-    
-    # 2. Undocumented Function Risk Calculation
-    kinetic_blindness = 0.0
-    api_exposure = eq.get("api", 0) * 2.0
-    
-    if functions:
-        for func in functions:
-            impact = func.get("impact", 0.0)
-            big_o = func.get("big_o_depth", 1)
-            
-            # Penalize undocumented complex functions
-            if (impact > 50.0 or big_o >= 3) and not func.get("docstring"):
-                kinetic_blindness += 5.0 + (math.log1p(impact) * (big_o * 0.5))
-
-    risk_hits = kinetic_blindness + api_exposure + irc
-
-    # 3. Density Calculation
-    net_exposure = max(0.0, risk_hits - (defense_hits / 2.0))
-    density = (net_exposure / max(loc, 1)) * 100.0
-
-    # 4. Systemic Multipliers (Blast Radius & Bus Factor)
-    network_multiplier = 1.0 + (popularity / 10.0)
-    silo_multiplier = 1.0 + (silo_exposure / 200.0)
-    
-    final_multiplier = network_multiplier * silo_multiplier * mp
-    threshold = t.get("threshold_base", 10.0)
-    
-    # 5. Sigmoid Risk Curve
-    try:
-        raw_risk = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.2) * (density - threshold)))
-    except OverflowError:
-        raw_risk = 100.0 if density > threshold else 0.0
-
-    return min(raw_risk * final_multiplier, 100.0)
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[AST/Structure Parser] -->|Function Impact| B[Risk Calculator]
+    C[Directory Resolver] -->|Umbrella Shield| B
+    D[Git Analytics] -->|Silo / Popularity| B
+    B -->|Density Map| E[Final Documentation Score]
 ```
+- **Inputs received:** Function metrics (`impact`, `big_o_depth`), documentation hits, directory shields (`doc_umbrella`), file popularity, and silo exposure.
+- **Outputs produced:** A normalized documentation risk score (0-100).
+- **Dependencies:** Relies heavily on the Directory Resolver for umbrella logic and Git Analytics for author concentration.
 
----
+## Tradeoffs
+- Valuing `README.md` files as a directory-wide "umbrella shield" assumes the documentation covers the local files accurately, which risks masking undocumented internal files if the README is superficial.
+- Dividing `DefenseHits` by 2.0 in the net exposure calculation structurally biases the metric to penalize complex undocumented code more heavily than it rewards documentation, prioritizing risk identification over perfect equilibrium.
+- Applying single-author penalties (Bus Factor) assumes collaboration is always necessary, which may unfairly penalize specialized domain experts working in isolated repositories.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- Cannot semantically read comments to confirm they explain the code (a comment saying "stuff happens here" provides defense weight).
+- Network multipliers (popularity) only track internal repository imports and cannot measure external library consumers.
+- Implicit languages with less rigid docstring structures might receive lower fidelity coefficients ($Fc$), unfairly elevating risk in Python or JavaScript projects lacking explicit type tags.
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Calculating the undocumented risk loop requires iterating over all functions within the file ($O(F)$ where $F$ is function count). Since $F$ is typically small, execution remains exceptionally fast and bounded.
 
-**[⬅️ Back to Master Index](index.md)**
+## Future Work
+Current behavior only checks for the presence of docstrings and calculates a bus factor. Planned improvements involve LLM-based semantic validation to ensure documentation aligns with actual logic behavior, and integrating with external dependency graphs to measure true public API blast radius.
+
+## Related Components
+- Git Analytics Engine (Bus Factor)
+- Directory Resolver (Umbrella Shield)
+- Path Context Modifier

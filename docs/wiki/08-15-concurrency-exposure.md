@@ -2,19 +2,16 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-**Metric:** Concurrency Exposure & Thread Starvation Risk
+## Engineering Summary
+Evaluates the density of asynchronous execution primitives, multithreading logic, and potential thread starvation within a source file. Concurrent programming increases non-deterministic execution paths, raising cognitive load and introducing risks such as race conditions, deadlocks, and resource contention. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Concurrency Exposure metric.
 
-**Summary:** Evaluates the density of asynchronous execution primitives, multithreading logic, and potential thread starvation within a source file. Concurrent programming increases non-deterministic execution paths, raising cognitive load and introducing risks such as race conditions, deadlocks, and resource contention.
+## Purpose
+The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-**Risk Classification:**
-* 🟦 **LOW (Score 0–19):** Sequential execution. Logic runs deterministically with minimal or no asynchronous branching.
-* 🟨 **MODERATE (Score 40–59):** Standard asynchronous operations (e.g., standard `async`/`await` patterns or thread management) with bounded execution.
-* 🟥 **VERY HIGH (Score 80–100):** High-density multithreading, unmitigated concurrency channels, or concurrent functions containing high algorithmic complexity (potential thread starvation).
+## Problem Being Solved
+Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
----
-
-## Inputs & Detection Signals
-
+## Design
 The static analysis engine extracts concurrency keywords and synchronization primitives across supported language standards:
 
 | Variable | Signal Category | Weight / Role | Description |
@@ -25,10 +22,6 @@ The static analysis engine extracts concurrency keywords and synchronization pri
 | `loc` | Denominator | **Base Density** | Meaningful lines of code, padded by `loc_padding` (default 150). |
 | `irc` | Language Modifier | **0.1x** | Implicit Risk Correction for dynamically typed or implicit concurrency models. |
 | `mp` | Path Modifier | **Threshold Modifier** | Context-specific modifier (e.g., `0.5` for UI components where race conditions trigger UI defects). |
-
----
-
-## Metric Calculation
 
 The calculation balances raw concurrency against synchronization locks, evaluates resource exhaustion risk, and applies a sigmoid transformation.
 
@@ -55,12 +48,6 @@ Maps density to a 0–100 score using a base threshold of $4.0$ and slope of $0.
 
 $$\text{RawScore} = \frac{1.0}{1.0 + e^{-0.4 \times (\text{Density} - 4.0)}}$$
 $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)$$
-
----
-
-## Reference Implementation
-
-The following Python method from `gitgalaxy/metrics/signal_processor.py` implements the concurrency exposure metric:
 
 ```python
 def _calc_concurrency(
@@ -109,13 +96,37 @@ def _calc_concurrency(
     return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 ```
 
----
+**Risk Classification:**
+* 🟦 **LOW (Score 0–19):** Sequential execution. Logic runs deterministically with minimal or no asynchronous branching.
+* 🟨 **MODERATE (Score 40–59):** Standard asynchronous operations (e.g., standard `async`/`await` patterns or thread management) with bounded execution.
+* 🟥 **VERY HIGH (Score 80–100):** High-density multithreading, unmitigated concurrency channels, or concurrent functions containing high algorithmic complexity (potential thread starvation).
 
-### Ecosystem References
+## Pipeline Integration
+Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+```mermaid
+flowchart LR
+    A[AST Parser] --> B[Signal Processor]
+    B --> C[Concurrency Exposure Metric]
+    C --> D[Risk Score Output]
+```
 
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)** - Metric implementation details.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository architecture dashboard.
+## Tradeoffs
+* Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
+* Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
----
+## Limitations
+* Detection is strictly reliant on recognized keywords and standard patterns.
+* Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
+* May produce false positives in non-standard or heavily abstracted codebases.
 
-**[⬅️ Back to Master Index](index.md)**
+## Performance Notes
+The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
+
+## Future Work
+* Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
+* Expand language support and framework-specific annotations.
+
+## Related Components
+* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[GitGalaxy Platform](https://gitgalaxy.io/)**
+* **[⬅️ Back to Master Index](index.md)**

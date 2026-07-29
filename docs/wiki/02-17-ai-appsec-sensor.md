@@ -1,53 +1,53 @@
-# The AI AppSec Sensor (Agentic Vulnerability Analyzer)
+# AI AppSec Sensor
 
 > **File Reference:** [`gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py)
 
-The AI AppSec Sensor (`ai_appsec_sensor.py`) analyzes application architectures for security vulnerabilities arising from generative AI and autonomous agent integrations. Integrating Large Language Models (LLMs) introduces non-deterministic control paths. When LLMs process unvalidated inputs while holding access to system shell execution, database write handles, or network sockets, prompt injections can escalate into critical security vulnerabilities.
+## Engineering Summary
+This subsystem analyzes application architectures for security vulnerabilities arising from generative AI and autonomous agent integrations. It evaluates structural overlaps between LLM Orchestration, Public API Routing, and Privileged System Operations. It solves the problem of detecting prompt injection and agentic escalation vectors in non-deterministic control paths. It exists to proactively flag unsafe architectural patterns before they can be exploited. Within the system, this module is known as the GitGalaxy AI AppSec Sensor.
 
----
+## Purpose
+The primary purpose is to scan codebases for Agentic Remote Code Execution (RCE) funnels, over-permissioned agent bindings, and unsanitized socket vectors associated with LLM integrations.
 
-## Threat Surface Analysis
+## Problem Being Solved
+Traditional SAST tools target standard vulnerabilities like SQL injection, but fail to evaluate agentic control flow risks where LLM outputs drive external user prompts into privileged system operations. This component identifies intersections of AI capabilities with risky API/IO operations.
 
-Traditional static application security testing (SAST) tools target standard vulnerability patterns like SQL injection or static credential exposures, but rarely evaluate agentic control flow risks. A function invoking a subprocess call may appear benign if inputs are statically validated; however, if inputs originate from LLM outputs driven by external user prompts, the attack surface changes dramatically.
+## Design
+### Current Behavior
+- **Agentic RCE Funnels:** Detects modules combining LLM API calls, public API routing, and OS command execution routines (`eval`, `exec`, `subprocess`).
+- **Over-Permissioned Agent Bindings:** Identifies modules where AI tool invocations bind to state modification operations in files with low defensive safety density (< 50%).
+- **Data Exfiltration Vectors:** Flags modules combining LLM integration, outbound network sockets, and environment secret access.
+- **Findings Generation:** Attaches an `ai_appsec` findings object to the file's central telemetry dictionary.
 
-The AppSec Sensor analyzes structural overlaps between **LLM Orchestration**, **Public API Routing**, and **Privileged System Operations**. It evaluates extracted structural signatures (`llm_orchestrator`, `llm_api`, `api`, `sec_high_risk_execution`, `io`, `sec_hardcoded_secrets`) to detect unsafe architectural patterns.
+### Planned Improvements
+- Support detection for specific agentic orchestrator models and proprietary RAG implementations.
 
----
+## Pipeline Integration
+- **Inputs Received:** Extracted structural signatures (`llm_orchestrator`, `llm_api`, `api`, `sec_high_risk_execution`, `io`, `sec_hardcoded_secrets`) and defensive safety metrics.
+- **Outputs Produced:** AI-specific application security findings, injected into the central telemetry map.
+- **Dependencies:** Relies on robust signature extraction from upstream syntax parsing.
 
-## Multi-Dimensional Vulnerability Classifications
+```mermaid
+graph LR
+    A[Structural Signatures] --> B[AI AppSec Sensor]
+    B --> C[ai_appsec Findings]
+    C --> D[Audit / LLM Recorders]
+```
 
-The sensor scans for three primary categories of AI application security vulnerabilities:
+## Tradeoffs
+- **Heuristic Overlaps vs. Flow Analysis:** Uses structural signature proximity (co-location of features in a file) rather than deep data-flow analysis, sacrificing exact execution path verification for speed and language-agnostic compatibility.
+- **False Positives vs. Security Coverage:** May flag benign files where AI logic and system logic coexist safely, prioritizing broad coverage over precision.
 
-### 1. Agentic Remote Code Execution (RCE) Funnels
-Detects modules that combine LLM API calls, public API routing (`api`), and OS command execution routines (`eval`, `exec`, `subprocess`).
-* **Security Risk:** Publicly exposed LLM logic directly triggers system command execution. An external prompt injection attack can induce the LLM to format and execute arbitrary shell commands, resulting in Remote Code Execution (RCE).
+## Limitations
+- **Data-Flow Ignorance:** Cannot determine if an LLM output explicitly feeds into an OS command; it only detects that both exist in the same module and lack sufficient defensive guardrails.
+- **Custom Agent Frameworks:** May miss proprietary or highly abstracted LLM integrations that do not match known orchestrator signatures.
 
-### 2. Over-Permissioned Agent Bindings
-Identifies modules where AI agent tool invocations bind to state modification operations (database writes or disk I/O) in files with low defensive safety density (< 50% safety guard coverage).
-* **Security Risk:** The AI agent possesses write handles without sufficient defensive validation routines (e.g., input sanitization, try/catch blocks, type constraints). Model hallucinations or adversarial prompts can trigger unauthorized database mutation or file deletion.
+## Performance Notes
+- Operates in $O(1)$ time per file by evaluating pre-computed structural signatures and safety density metrics, resulting in negligible runtime overhead.
 
-### 3. Data Exfiltration & Unsanitized Socket Vectors
-Flags modules combining LLM integration, outbound network sockets, and environment secret access (e.g., API keys or environment variables).
-* **Security Risk:** The LLM can access confidential system tokens while holding outbound network socket handles. A prompt injection attack could instruct the model to retrieve API keys and exfiltrate them via outbound HTTP requests (SSRF / exfiltration vector).
+## Future Work
+- Implement basic intra-file taint tracking to verify if LLM output variables flow directly into sensitive subprocess or socket arguments.
 
----
-
-## Telemetry & Report Integration
-
-When unsafe architectural overlaps are detected, the sensor generates an `ai_appsec` security findings object and attaches it to the file's central telemetry dictionary.
-
-Downstream reporting components—specifically the `AuditRecorder` (`audit_recorder.py`) and `LLMRecorder` (`llm_recorder.py`)—consume these findings to escalate AI application vulnerabilities as critical security findings in exported audit logs and LLM context manifests.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- Dev Agent Firewall
+- Audit Recorder
+- LLM Recorder

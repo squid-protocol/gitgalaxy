@@ -1,59 +1,43 @@
-# 2.1.H. Function Component Node Scaling
+# Function Component Node Scaling
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
 
-> **Metric: Parameter Count (`Args`)**
->
-> **Purpose:** Visualizes parameter mass and I/O signature complexity of individual functions.
->
-> **Rationale:** Functions accepting numerous arguments frequently carry high state complexity or tight parameter coupling. Compact utility functions typically require 1–2 parameters, whereas legacy controllers or un-factored methods often accept 8 or more parameters. Modulating component scale highlights parameter footprint visually across the codebase graph.
->
-> **Effect:** Controls the physical render scale (Radius) of function nodes in 3D layout space.
+## Engineering Summary
+This geometry processing subsystem calculates the visual scale of function nodes based on their input parameter count. It solves the problem of identifying high-coupling or high-state-complexity methods. It exists to create a visual footprint hierarchy that mirrors I/O signature weight. In GitGalaxy, this component dictates the 3D radius bounds of function meshes.
 
-## 2.1.H.1. Parameter Mass and Coupling Density
+## Purpose
+To visualize parameter mass and I/O signature complexity by controlling the physical render scale (Radius) of function nodes.
 
-The parser evaluates parameter signatures as input context vectors:
+## Problem Being Solved
+Functions with excessive parameters (5+) often carry high state complexity or tight parameter coupling, which is hard to spot in a file list. Modulating scale visually highlights these refactoring targets across the codebase graph.
 
-* **Compact Signatures (0–2 parameters):** Highly encapsulated, modular, and easy to isolate or test.
-* **Complex Signatures (5+ parameters):** Heavy parameter coupling, high context overhead, and potential candidates for refactoring into parameter objects or configuration options.
-
-## 2.1.H.2. Input Metrics
-
-* **`Args`:** The total count of positional and keyword parameters detected in the function definition header by the static analyzer.
-* **Range:** $0$ to $20+$ parameters.
-
-## 2.1.H.3. Logarithmic Scaling Formulation
-
-To prevent functions with exceptionally high parameter counts (e.g., 20+ args) from generating oversized, viewport-cluttering visual nodes, the layout engine applies logarithmic scaling. Logarithmic compression highlights meaningful variations between 0 and 5 parameters while dampening size growth across higher values.
-
+## Design
+The subsystem evaluates parameter signatures (`Args`). It applies a logarithmic scaling formulation to prevent oversized nodes from cluttering the viewport:
 $$\text{Scale} = 1.0 + \left( \log_2(\max(\text{Args}, 1)) \times 0.2 \right)$$
 
-* **Base Scale:** $1.0$ (Standard visual unit).
-* **Scaling Multiplier:** $0.2$ (Controlled logarithmic growth factor).
+Scale tiers range from 1.00 (0-1 args) to ~1.78+ (15+ args), dynamically resizing the mesh bounds.
 
-## 2.1.H.4. Visual Output and Node Scale Tiers
+## Pipeline Integration
+- **Inputs:** `Args` (parameter count) from the function definition parser.
+- **Outputs:** A floating-point scale multiplier.
+- **Dependencies:** Requires function parameter extraction and feeds into WebGL geometry generation.
 
-The calculated scale factor directly adjusts the 3D geometry bounds of rendered function components:
+Parser -> Node Scaling Subsystem -> WebGL Renderer
 
-| Parameter Count (`Args`) | Calculated Scale | Node Category | Software Architecture Implication |
-| :--- | :--- | :--- | :--- |
-| **0 – 1 Args** | $1.00$ | **Compact Node** | Minimal parameter overhead; modular utility function. |
-| **2 – 4 Args** | $\sim 1.20 - 1.40$ | **Standard Node** | Standard business logic with expected operational state. |
-| **5 – 10 Args** | $\sim 1.46 - 1.66$ | **Heavy Node** | Elevated parameter mass; high I/O binding. |
-| **15+ Args** | $\sim 1.78+$ | **Monolithic Node** | Excessive parameter coupling; high refactoring priority. |
+## Tradeoffs
+Logarithmic scaling was chosen over linear scaling to preserve viewport space for extreme outliers, sacrificing linear proportionality. This prevents a function with 30 parameters from occluding entire directories.
 
-<br><br>
+## Limitations
+- Treats all parameters equally regardless of type complexity (e.g., a primitive int vs. a complex object pointer).
+- Does not inspect `**kwargs` or object destructuring depth in dynamic languages.
 
----
+## Performance Notes
+The metric uses a standard base-2 logarithm, evaluating in $O(1)$ time per function, allowing near-instant layout calculations for thousands of nodes.
 
-### Powered by the blAST Engine
+## Future Work
+- Type-aware parameter weighting (e.g., increasing weight for complex generic types).
+- Adjusting scale based on local variable declarations in addition to parameters.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Planetary Rings](07-10-planetary-rings.md)
+- [Misc Equations](07-12-misc-equations.md)

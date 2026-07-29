@@ -13,71 +13,50 @@
 > * 🟦 **MIXED FORMATTING (Score 20 - 79):** Mixed Tabs and Spaces (50.0 represents maximum conflict).
 > * 🟨 **PURE SPACES (Score 80 - 100):** 100% Space Indentation.
 
-## Architectural Overview
+## Engineering Summary
+This subsystem measures the structural formatting consistency of source files by calculating the ratio of spaces to tabs. It solves the problem of identifying files with conflicting editor settings or mixed formatting conventions introduced by multiple contributors. It exists as an independent analytical component to surface formatting noise that causes merge conflicts and developer friction. Though functioning as a novelty metric, its output cleanly integrates into GitGalaxy UI visualizations.
 
-By mapping pure tab indentation to 0.0 and pure space indentation to 100.0, files with mixed indentation naturally center around 50.0.
+## Purpose
+To calculate the polarization of indentation types within a file, surfacing mixed layout formatting where conflicting standards are actively in use.
 
-This metric surfaces files where conflicting editor settings or multiple contributors have introduced inconsistent indentation standards within the same file. A score near 0 or 100 indicates unified formatting, whereas a score near 50 indicates mixed layout formatting.
+## Problem Being Solved
+Inconsistent formatting creates unnecessary code churn, Git blame noise, and merge conflicts. When multiple developers commit to the same file using different editor settings, the resulting mixed indentation decreases readability and disrupts standardized auto-formatting pipelines.
 
-## Metric Inputs (Indentation Scanning)
+## Design
+By mapping pure tab indentation to 0.0 and pure space indentation to 100.0, files with mixed indentation naturally center around 50.0. The scanner counts leading indentation tokens per line, summing lines that begin with `\t` versus spaces. 
 
-The scanner counts leading indentation tokens per line:
-
-| Input Variable | Data Source | Description |
-| :--- | :--- | :--- |
-| `indent_tabs` | Static Line Parser | Count of lines beginning with one or more tab characters (`\t`). |
-| `indent_spaces` | Static Line Parser | Count of lines beginning with one or more space characters (` `). |
-
-## Mathematical Formulation
-
-### Step 1: Count Indented Lines
-The engine sums all lines containing measurable indentation:
-
+**Mathematical Formulation**
+1. **Count Indented Lines:**
 $$\text{TotalIndentedLines} = \text{TabLines} + \text{SpaceLines}$$
-
-### Step 2: Calculate Space Ratio
-The ratio of space-indented lines to total indented lines is computed:
-
+2. **Calculate Space Ratio:**
 $$\text{SpaceRatio} = \frac{\text{SpaceLines}}{\max(\text{TotalIndentedLines}, 1)}$$
-
-* If $\text{TotalIndentedLines} == 0$ (unindented or empty file), the metric defaults to neutral $50.0$.
-
-### Step 3: Map Final Score
-The ratio is scaled onto a 0–100 range:
-
+*(Defaults to neutral $50.0$ if unindented or empty)*
+3. **Map Final Score:**
 $$\text{FinalScore} = \text{SpaceRatio} \times 100.0$$
 
-## Python Implementation Reference
-
-```python
-from typing import Dict
-
-def _calc_civil_war(self, raw_signals: Dict[str, int]) -> float:
-    """
-    Calculates Layout Uniformity (Tabs vs Spaces). 
-    0 = Pure Tabs, 100 = Pure Spaces, 50 = Mixed Indentation.
-    NOTE: Easter egg metric, excluded from risk calculations.
-    """
-    tab_lines = raw_signals.get("indent_tabs", 0)
-    space_lines = raw_signals.get("indent_spaces", 0)
-    
-    total_indented = tab_lines + space_lines
-    
-    # Handle files with zero indentation
-    if total_indented == 0:
-        return 50.0  # Default to neutral midpoint
-        
-    # Calculate Space Ratio
-    space_ratio = space_lines / float(total_indented)
-    
-    # Final Score Mapping (0 - 100)
-    return space_ratio * 100.0
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Static Line Parser] -->|Tab/Space Counts| B[Ratio Calculator]
+    B -->|Normalization| C[Diverging Layout Score]
 ```
+- **Inputs received:** Token counts for `indent_tabs` and `indent_spaces`.
+- **Outputs produced:** A diverging layout uniformity score (0-100).
+- **Dependencies:** Relies directly on the raw static line parser. Does NOT feed into risk aggregation vectors.
 
----
+## Tradeoffs
+- Pure spaces and pure tabs are evaluated as endpoints on a diverging spectrum rather than scoring "perfect consistency" as 0.0. This choice explicitly forces a visual distinction between space-heavy and tab-heavy files rather than just reporting the presence of conflict.
+- Empty files or files with no indentation default to exactly 50.0. This neutral baseline was chosen to prevent divide-by-zero errors without skewing the file towards either specific layout preference.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- Only inspects leading indentation on a per-line basis; it cannot detect mixed spaces and tabs occurring mid-line (e.g., alignment spacing after a tab indent).
+- Completely ignores the semantic structure of the language (e.g., Python relying critically on spacing vs C++ using curly braces).
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Runs continuously during the initial static line parsing phase, adding negligible $O(L)$ operational cost where $L$ is the number of lines. Arithmetic calculation is $O(1)$.
 
-**[⬅️ Back to Master Index](index.md)**
+## Future Work
+Currently serves strictly as an Easter egg metric isolated from architectural risk. Future considerations may involve extending the logic to detect inconsistent line endings (CRLF vs LF) to further reduce cross-platform structural noise.
+
+## Related Components
+- Static Line Parser

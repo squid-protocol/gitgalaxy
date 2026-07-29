@@ -1,36 +1,42 @@
-# 2.1.K Component Layout Clearance Formulas
+# Component Layout Clearance Formulas
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
 
-> **Metric: Component Orbital Clearance Radius**
->
-> **Purpose:** Dynamically computes child node orbital distances relative to parent file size.
->
-> **Rationale:** High-LOC modules occupy larger visual bounds in 3D space. Calculating a dynamic clearance boundary prevents child component nodes from colliding with or rendering inside parent file nodes.
->
-> **Effect:** Maintains structural visibility across large modules in the 3D graph view.
+## Engineering Summary
+This collision management subsystem calculates the orbital clearance radius for child nodes based on their parent's code volume. It solves the problem of child geometries colliding with or rendering inside oversized parent file nodes. It exists to maintain structural visibility across massively varying file sizes in the 3D view. In GitGalaxy, this equation is a foundational utility for spatial orchestration.
 
-## 2.1.K.1 Dynamic Clearance Formulation
+## Purpose
+To dynamically compute child node orbital distances relative to parent file size (LOC) to prevent geometric intersection.
 
-The spatial mapper calculates the child node orbit radius ($\text{OrbitRadius}$) as a function of the parent module's lines of code ($\text{LOC}$):
+## Problem Being Solved
+High-LOC modules occupy larger visual bounds. Without dynamic clearance, child components orbiting these massive parent nodes would render inside the parent mesh, completely obscuring their presence and breaking visual topology.
 
+## Design
+The orbit radius ($\text{OrbitRadius}$) is formulated as a logarithmic function of the parent's lines of code ($\text{LOC}$):
 $$\text{OrbitRadius} = 40 + \left( \log_2(\text{LOC}) \times 10 \right)$$
+This establishes a 40-unit base radius, expanding logarithmically to ensure large monoliths provide sufficient clearance without pushing child nodes entirely out of view.
 
-* **Base Radius:** $40$ units (Minimum clearance radius for small files).
-* **LOC Scaling:** $\log_2(\text{LOC}) \times 10$ (Logarithmic expansion ensuring large monoliths expand spatial clearance without pushing child nodes out of view).
+## Pipeline Integration
+- **Inputs:** Parent file `LOC` (lines of code).
+- **Outputs:** A floating-point offset distance.
+- **Dependencies:** Operates during the spatial layout phase, combining with angular positioning logic.
 
-<br><br>
+File Volume Metric -> Clearance Subsystem -> Layout Engine
 
----
+## Tradeoffs
+The logarithmic expansion limits the maximum clearance distance, which prevents child nodes from drifting too far but sacrifices strict boundary guarantees if the parent node's radius scales linearly rather than logarithmically.
 
-### Powered by the blAST Engine
+## Limitations
+- Does not account for the actual rendered bounding box of the parent, only its raw LOC.
+- May produce insufficient clearance if the parent node scale multiplier is overridden by other visual metrics.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+## Performance Notes
+Calculated using a fast logarithmic evaluation, achieving $O(1)$ constant time complexity per relationship edge during layout generation.
 
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+## Future Work
+- Switching to exact bounding box (AABB) intersection tests for precise clearance guarantees.
+- Supporting elliptical orbits for non-uniform parent node shapes.
 
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Spatial Layout](07-11-sequence-affinity.md)
+- [Angular Positioning](07-08-relative-positioning.md)

@@ -2,80 +2,64 @@
 
 > **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/network_auditing/full_api_network_map.py)
 
-The `full_api_network_map.py` module in `gitgalaxy/tools/network_auditing/` provides automated attack surface mapping for backend REST APIs. While internal dependency tools map file-to-file imports, the API Network Mapper evaluates the external network boundary of a repository. It compares executable router code signatures against official OpenAPI/Swagger documentation (`swagger.json`, `swagger.yaml`, `openapi.json`, `openapi.yaml`) to identify undocumented "Shadow APIs" and deprecated "Ghost APIs".
+## Engineering Summary
+While internal dependency tools map file-to-file imports, they do not track the external network boundary of a repository. Web API surfaces drift out of sync with official documentation, leaving undocumented endpoints exposed or deprecated endpoints cluttering specifications. To solve this, an automated attack surface mapping module evaluates executable router code signatures against official OpenAPI/Swagger documentation. By performing a set theory comparison, it identifies undocumented "Shadow APIs" and deprecated "Ghost APIs". This subsystem is the GitGalaxy API Network Mapper.
 
----
+## Purpose
+To automatically map backend REST APIs and detect drift between executable source code endpoints and their official OpenAPI/Swagger documentation.
 
-## Router Pattern Matching Across Frameworks
+## Problem Being Solved
+Web APIs frequently change during development, but API documentation updates are often missed. This results in "Shadow APIs" (undocumented endpoints in code that pose security risks because they bypass audits) and "Ghost APIs" (endpoints present in documentation that no longer exist in code). Discovering this manually or at runtime is error-prone.
 
+## Design
+### Router Pattern Matching Across Frameworks
 Rather than requiring a runtime environment or language-specific AST parsers, the mapper uses regular expression routing signatures (`FRAMEWORK_SIGNATURES`) to scan raw source files across major web frameworks:
+* **Python, Node.js, Java, Golang, C#, PHP, Rust, Ruby:** Scans for standard decorator, annotation, or function call patterns defining route registration.
 
-* **Python (FastAPI / Flask / Django):** Scans `.py` files for route decorators (e.g., `@app.get(...)`, `@router.post(...)`, `@bp.delete(...)`).
-* **Node.js (Express / Fastify / Koa):** Scans `.js` and `.ts` files for router registrations (e.g., `app.get(...)`, `router.post(...)`).
-* **Java (Spring Boot):** Scans `.java` files for mapping annotations (e.g., `@GetMapping(...)`, `@PostMapping(...)`).
-* **Golang (Gorilla Mux / Gin / Fiber):** Scans `.go` files for method handlers (e.g., `r.GET(...)`, `router.POST(...)`).
-* **C# (.NET Controllers & Minimal APIs):** Scans `.cs` files for HTTP attributes and map helpers (e.g., `[HttpGet(...)]`, `app.MapPost(...)`).
-* **PHP (Laravel / Symfony):** Scans `.php` files for route declarations (e.g., `Route::get(...)`, `Route::post(...)`).
-* **Rust (Actix / Rocket):** Scans `.rs` files for attribute macros (e.g., `#[get(...)]`, `#[post(...)]`).
-* **Ruby (Rails / Sinatra):** Scans `.rb` files for route directives (e.g., `get "..."`, `post "..."`).
+### Endpoint Normalization & Path Parameter Matching
+The `normalize_endpoint()` function standardizes all discovered endpoints to prevent false discrepancies:
+1. Strips query parameters and whitespace.
+2. Converts framework-specific path parameters (like `/users/:userId` or `/users/<int:user_id>`) to a universal `{var}` token.
+3. Ensures leading root slashes and strips non-root trailing slashes.
 
----
+### Set Theory Validation & API Drift Analysis
+The mapper compares the documented specification set ($A$) and physical code endpoint set ($P$):
+* **Shadow API Detection ($P \setminus A$):** Identifies endpoints present in source code but missing from documentation.
+* **Ghost API Detection ($A \setminus P$):** Identifies endpoints declared in documentation that no longer exist in code.
 
-## Endpoint Normalization & Path Parameter Matching
+### Specification Auto-Discovery
+If no explicit Swagger path is provided, `auto_discover_swagger()` probes the target directory, inspecting the initial 1000 characters of JSON/YAML files to verify schemas without loading massive files entirely into memory.
 
-To prevent false discrepancies caused by formatting differences or parameter naming, the `normalize_endpoint()` function standardizes all discovered endpoints:
+## Pipeline Integration
+Inputs received include raw source code files and OpenAPI/Swagger specification files (`swagger.json`, `openapi.yaml`). Outputs produced are structured dictionaries of detected frameworks, shadow counts, ghost counts, and endpoint lists. The component integrates natively via CLI or programmatically into CI/CD pipelines (`run_api_audit()`).
 
-1. **Query String & Whitespace Removal:** Strips query parameters (`?key=val`) and surrounding whitespace.
-2. **Dynamic Parameter Canonicalization:** Converts framework-specific path parameters to a universal `{var}` token:
-   * Express / Fastify (`/users/:userId`) $\rightarrow$ `GET /users/{var}`
-   * Flask (`/users/<int:user_id>`) $\rightarrow$ `GET /users/{var}`
-   * Swagger / Spring (`/users/{userId}`) $\rightarrow$ `GET /users/{var}`
-3. **Slash Uniformity:** Ensures leading root slashes and strips non-root trailing slashes.
-
-Outputs are formatted as normalized `METHOD /path` strings (e.g., `GET /api/users/{var}`).
-
----
-
-## Set Theory Validation & API Drift Analysis
-
-The mapper performs set comparison between the documented specification set ($A$) and physical code endpoint set ($P$):
-
-1. **Specification Parsing (`parse_official_swagger`):** Parses `swagger.json` or `openapi.yaml` to extract the set of approved endpoints ($A$).
-2. **Shadow API Detection ($P \setminus A$):** Identifies endpoints present in source code but missing from official documentation. Shadow APIs represent unmonitored attack vectors and unreviewed entry points.
-3. **Ghost API Detection ($A \setminus P$):** Identifies endpoints declared in Swagger documentation that no longer exist in executable code, flagging documentation decay.
-4. **Topological Suffix Matching (`calculate_api_drift`):** Resolves router path prefix mismatches (e.g., matching a controller route `/profile` against full spec path `/api/v1/users/profile`).
-
----
-
-## Specification Auto-Discovery & Test Guardrails
-
-When run without an explicit `--swagger` argument, `auto_discover_swagger()` probes the target directory:
-
-* Inspects filenames (`swagger.json`, `openapi.yaml`, etc.).
-* Inspects the initial 1000 characters of JSON/YAML files to verify OpenAPI/Swagger schema headers without allocating large file buffers in memory.
-* Segregates test directory specifications (`/test/`, `/tests/`) to avoid test-schema pollution.
-* Supports monorepos with multiple microservices via the `--merge-all` flag.
-
----
-
-## CLI & Programmatic Integration
-
-The mapper can be invoked via CLI or programmatically within the main pipeline via `run_api_audit()`:
-
-```bash
-python3 -m gitgalaxy.tools.network_auditing.full_api_network_map /path/to/repo --swagger swagger.json
+```mermaid
+graph LR
+    A[Source Code Routers] --> B[Endpoint Normalizer]
+    C[Swagger/OpenAPI Spec] --> D[Spec Parser]
+    B --> E[Set Comparison]
+    D --> E
+    E --> F[Shadow APIs]
+    E --> G[Ghost APIs]
 ```
 
-Programmatic callers receive a structured result dictionary containing audit status, detected frameworks, shadow counts, ghost counts, and endpoint lists.
+## Tradeoffs
+* **Regex Signatures vs. Runtime Reflection:** By using regex matching on raw source instead of runtime reflection or AST construction, the system is much faster and can run on uncompiled code. However, it sacrifices the ability to detect dynamically generated routes that are not statically analyzable.
+* **Static Tokenizing vs. Type Enforcement:** Normalizing all path parameters to `{var}` ignores type constraints (like `<int:user_id>`), simplifying comparison at the expense of ignoring parameter-type drift.
 
----
+## Limitations
+* Dynamic routes registered conditionally or inside loops may be missed by regex patterns.
+* Only supports REST API frameworks mapped in `FRAMEWORK_SIGNATURES`; GraphQL or gRPC endpoints require different structural checks.
+* Specifications located outside the scanned directory or in external registries cannot be auto-discovered.
 
-### Ecosystem References
+## Performance Notes
+The module processes files efficiently by reading only the first 1000 characters to auto-discover Swagger files, minimizing memory buffer allocation.
 
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source code for `full_api_network_map.py`.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - WebGPU repository visualization dashboard.
+## Future Work
+* **Current Behavior:** Identifies structural drift between code and specs.
+* **Planned Improvements:** Adding support for GraphQL schema drift detection and improving topological suffix matching for nested router prefixes.
 
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+* [GitGalaxy Platform](https://gitgalaxy.io/)
+* [⬅️ Back to Master Index](index.md)
 

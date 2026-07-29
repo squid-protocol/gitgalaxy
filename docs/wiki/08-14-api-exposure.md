@@ -11,79 +11,57 @@
 > * 🟨 **MODERATE (Score 40-59):** Balanced API. Balanced mix of public methods and internal private helpers.
 > * 🟥 **VERY HIGH (Score 80-100):** Public Entry Point. Exposes a large volume of public functions/classes to external consumers.
 
-## Metric Inputs (Surface Detection)
+## Engineering Summary
+This subsystem quantifies the public surface area of a given module. It solves the problem of structural ambiguity by algorithmically identifying whether a file functions as an internal utility vault or a heavily exposed public entry point. It exists to monitor API boundary permeability, highlighting modules that export too much logic. Integrated within GitGalaxy, it operates independently of language syntax by analyzing explicit export boundaries.
 
-The engine compares exported **Public Signatures** against **Total Entities** (functions + classes) to compute exposure:
+## Purpose
+To measure the ratio of exported public endpoints against total declared entities, evaluating the encapsulation and overall external surface area of a source file.
 
-| Input Variable | Regex Key / Target | Weight | Description |
-| :--- | :--- | :--- | :--- |
-| `api_hits` | `api` | **Numerator** | Export keywords (`export`, `public`, `module.exports`) or export conventions (Go/Python capitalization). |
-| `Entities` | `func_start` + `class_start` | **Denominator** | Total declared logical entities (Functions + Classes) ensuring accurate ratios across structural paradigms. |
+## Problem Being Solved
+Files that expose every internal function and class create highly coupled, brittle systems where changing internal implementation details breaks external consumers. Developers need visibility into which modules are leaking their internal state versus those properly encapsulating logic behind a narrow public interface.
 
-## Universal Framework Integration
+## Design
+The calculation combines a relative export ratio (40% weight) with an absolute logarithmic endpoint volume (60% weight).
+- **Numerator:** Export keywords (`export`, `public`, `module.exports`) or casing conventions (Go/Python).
+- **Denominator:** Total logical entities (functions + classes).
 
-* **$Fc$ (Fidelity Coefficient):** Not applied (public exports are language-agnostic syntactical facts).
-* **$Irc$ (Implicit Risk Correction):** Not applied.
-* **$Mp$ (Path Modifier):** Contextual multiplier applied to score:
-  * *Public API Endpoints (`api/`, `controllers/`, $Mp = 1.2$):* Amplified sensitivity to highlight intended public boundaries.
-  * *Internal Utilities (`internal/`, `helpers/`, $Mp = 0.8$):* Dampened sensitivity to reduce background noise unless exports leak unexpectedly.
-
-## Mathematical Formulation
-
-API exposure combines the public export ratio (40% weight) with logarithmic endpoint volume (60% weight):
-
-### Step 1: Encapsulation Short-Circuit
-If `api_hits == 0`, the file is fully internal/encapsulated and returns a score of `0.0`.
-
-### Step 2: Exposure Ratio Calculation (40% Weight)
-The proportion of exported entities relative to total declared entities is computed and clamped to $\le 1.0$:
-
+**Mathematical Formulation**
+1. **Encapsulation Short-Circuit:** If `api_hits == 0`, score is `0.0`.
+2. **Exposure Ratio Calculation (40% Weight):**
 $$\text{Entities} = \max(\text{func\_start} + \text{class\_start}, 1)$$
 $$\text{Ratio} = \min\left( \frac{\text{api\_hits}}{\text{Entities}}, 1.0 \right)$$
-
-### Step 3: Logarithmic Volume Calculation (60% Weight)
-To reflect the higher structural surface area of modules with dozens of endpoints, a logarithmic volume weight is computed and clamped to $\le 1.0$:
-
+3. **Logarithmic Volume Calculation (60% Weight):**
 $$\text{VolumeWeight} = \min\left( \frac{\log_{10}(\text{api\_hits} + 1)}{1.5}, 1.0 \right)$$
-
-### Step 4: Compound Score & Path Modifier
-Ratio and volume weights are combined (0.4 and 0.6 weights), scaled to 100.0, and multiplied by the Path Modifier ($Mp$):
-
+4. **Compound Score & Path Modifier:**
 $$\text{RawScore} = \left( (\text{Ratio} \times 0.4) + (\text{VolumeWeight} \times 0.6) \right) \times 100.0$$
 $$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 
-## Python Implementation Reference
-
-```python
-import math
-from typing import Dict
-
-def _calc_api_exposure(self, raw_signals: Dict[str, int], total_loc: int, popularity: int = 0) -> float:
-    # Step 1: Encapsulation Short-Circuit
-    api_hits = raw_signals.get("api", 0)
-    if api_hits == 0:
-        return 0.0
-
-    t = self.risk_tuning.get("api_exposure", {})
-    entities = max(raw_signals.get("func_start", 0) + raw_signals.get("class_start", 0), 1)
-
-    # Step 2: Exposure Ratio (40% Weight)
-    ratio = min(api_hits / float(entities), 1.0)
-
-    # Step 3: Logarithmic Volume (60% Weight)
-    volume_weight = min(math.log10(api_hits + 1) / t.get("log_divisor", 1.5), 1.0)
-
-    # Step 4: Compound Score Calculation
-    raw_score = ((ratio * t.get("ratio_weight", 0.4)) + (volume_weight * t.get("volume_weight", 0.6))) * 100.0
-
-    mp = raw_signals.get("multipliers", {}).get("api_exposure", 1.0)
-    return min(raw_score * mp, 100.0)
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Static Analyzer] -->|API hits, Entities| B[Exposure Calculator]
+    B -->|Ratio Calculation| C[Compound Scoring]
+    B -->|Volume Logarithm| C
+    C -->|Apply Multiplier| D[API Exposure Score]
 ```
+- **Inputs received:** Heuristic `api_hits`, function counts, class counts, and Path Modifier ($Mp$).
+- **Outputs produced:** A normalized API exposure score (0-100).
+- **Dependencies:** Relies upstream on structural entity counting from the static analysis engine.
 
----
+## Tradeoffs
+- Weighting absolute volume heavily (60%) over pure ratio (40%) ensures that a file exporting 1 public function out of 1 total (100% ratio) scores much lower than a file exporting 50 public functions out of 100 (50% ratio). This correctly flags massive API surfaces over tiny single-export scripts.
+- Logarithmic scaling for absolute volume ensures that scores do not scale infinitely, capping out reasonably as API sizes hit critical mass.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- Relies purely on keyword and syntax conventions; it cannot deduce if a weakly-typed language module technically allows external consumption of unexported properties via runtime reflection.
+- Cannot evaluate the semantic complexity of the exported API (e.g., exposing one massive god-object is scored lower in volume than exposing 10 tiny pure functions).
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Utilizes an immediate short-circuit for files with zero `api_hits`, returning $0.0$. Arithmetic calculations operate in $O(1)$ time based on pre-scanned token counts.
 
-**[⬅️ Back to Master Index](index.md)**
+## Future Work
+Current metrics evaluate intra-file API volume. Planned improvements involve analyzing inter-file dependency graphs to measure true consumer blast radius (how many other files actually import the exposed API).
+
+## Related Components
+- Static Analysis Engine
+- Path Context Modifier ($Mp$)

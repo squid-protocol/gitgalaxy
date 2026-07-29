@@ -2,39 +2,52 @@
 
 > **File Reference:** [`gitgalaxy/cobol_refractor_controller.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/cobol_refractor_controller.py)
 
-> **Architecture: Hybrid Intermediate Representation (IR) State Manager**
->
-> **Summary:** The COBOL Refactoring Controller is the primary orchestration engine for the legacy modernization suite. It scans procedural COBOL codebases, extracts deterministic business logic, and converts it into a standardized JSON Intermediate Representation (IR). 
->
-> **Memory Optimization:** To handle large enterprise legacy codebases efficiently, the controller utilizes an adaptive hybrid state manager. Upon launch, it scans repository size; if the volume exceeds safe memory thresholds (>2,000 files or >200 MB), it automatically shifts IR storage from RAM to a localized SQLite database to prevent Out-Of-Memory (OOM) failures.
+## Engineering Summary
+This subsystem is an orchestration engine that parses procedural legacy source code to extract deterministic business logic into a structured format. It solves the problem of analyzing massive monolithic codebases by converting source text into a machine-readable intermediate representation. It exists to provide the foundational data structures required for downstream code generation and architectural visualization. Within the ecosystem, it functions as the primary entry point for static analysis, producing artifacts consumed by the rest of GitGalaxy.
 
-## Three-Phase Extraction Pipeline
+## Purpose
+To parse COBOL source code, extract business logic and data structures, and output a standardized JSON Intermediate Representation (IR).
 
-The pipeline processes each legacy module through a shared-state architecture to ensure complete logic extraction during modernization.
+## Problem Being Solved
+Legacy codebases contain large amounts of monolithic procedural code, undocumented data dependencies, and unstructured control flow. Modernizing this code requires a structured way to analyze and extract the relevant logic without executing it.
 
-### Phase 0: Lexical Sanitization
-The engine runs lexical patcher rules to neutralize legacy syntax pitfalls (such as deprecated `NEXT SENTENCE` directives) before static analysis, ensuring clean syntax tree processing.
+## Design
+The controller uses a three-phase extraction pipeline:
+1. **Lexical Sanitization:** Neutralizes legacy syntax pitfalls, such as deprecated `NEXT SENTENCE` directives, to enable clean syntax tree processing.
+2. **Static Analysis & Code Audit:** 
+   - Uses `x_ray_dead_code` to identify orphaned variables and unreachable paragraphs.
+   - Maps program I/O relationships using `extract_lineage`.
+   - Scans for structural anomalies and unresolved dynamic `CALL` statements via `scan_system_limits`.
+3. **Context-Aware Code Generation:**
+   - Translates active variables into JSON and PostgreSQL DDL database schemas.
+   - Generates Job Control Language (JCL) execution scripts based on dataset lineage.
+   - Slices business logic around target variables to output isolated JSON business rules, skipping unreachable blocks.
 
-### Phase 1: Static Analysis & Code Audit
-* **Dead Code Analyzer:** Scans source code to identify orphaned variables and unreachable paragraphs (`x_ray_dead_code`). Identified dead code is recorded in the state manager so downstream code generators omit unused data.
-* **Data Lineage Analyzer:** Maps program Input/Output relationships (`extract_lineage`), referencing state data to bypass dead code dependencies.
-* **Compliance & Limits Audit:** Scans for structural anomalies, system limit overrides, and unresolved dynamic `CALL` statements (`scan_system_limits`), recording them in a central audit report for manual architectural review.
+## Pipeline Integration
+**Inputs received:** Procedural COBOL source code files.
+**Outputs produced:** JSON Intermediate Representation (IR), PostgreSQL DDL schemas, JCL scripts.
+**Dependencies:** Upstream file system readers; downstream consumers include the Java Translation Controller and code generation agents.
 
-### Phase 2: Context-Aware Code Generation
-* **Schema Generator:** Translates active variable maps into database schemas (JSON and PostgreSQL DDL), omitting orphaned variables to eliminate schema bloat.
-* **JCL Script Generator:** Uses dataset lineage to build restricted Job Control Language (JCL) execution scripts.
-* **Microservice Business Logic Slicer:** Slices business logic around specific target variables, skipping unreachable code blocks to output isolated JSON business rules.
+```mermaid
+graph TD
+    A[COBOL Source Files] --> B[COBOL Refactoring Controller]
+    B --> C[JSON IR / Schemas]
+    B --> D[Audit Reports]
+```
 
----
+## Tradeoffs
+- Uses a hybrid state manager instead of purely in-memory structures. Chosen to prevent Out-Of-Memory (OOM) failures on large repositories, sacrificing raw processing speed for stability by writing to SQLite when limits are reached.
 
-### Powered by GitGalaxy
+## Limitations
+- Relies on heuristics for dynamic `CALL` statements, which may not resolve at compile time.
+- Unresolved system limits and overrides require manual architectural review.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
+## Performance Notes
+The controller checks repository size on launch. If the volume exceeds 2,000 files or 200 MB, it shifts IR storage from RAM to a localized SQLite database. This limits memory usage to $O(1)$ for state storage, allowing processing of theoretically unbounded repository sizes at the cost of disk I/O latency.
 
-* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
-* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
+## Future Work
+- Implementation of more precise control flow graph analysis to eliminate edge cases in dynamic subroutine resolution.
 
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- `cobol_to_java_controller.py`
+- `cobol_dag_architect.py`

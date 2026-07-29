@@ -2,37 +2,47 @@
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py)
 
-> **Architecture: Dual-Paradigm Execution & Dependency Injection Auto-Wiring**
->
-> **Summary:** The API Contract Generator (`cobol_to_java_api_contract_forge.py`) and Service Generator (`cobol_to_java_service_forge.py`) translate structural static analysis into modern Spring Boot `@RestController` endpoints and `@Service` components. They automatically detect execution paradigms (Batch vs. Transactional) and establish dependency injection wiring.
+## Engineering Summary
+This subsystem constructs the network interfaces and dependency injection scaffolding for modernized microservices. It solves the problem of exposing legacy procedural entry points over modern HTTP protocols and wiring inter-module dependencies. It exists to provide the structural skeleton required before business logic can be injected. In GitGalaxy, this layer connects the web controllers to the underlying business services.
 
-## Execution Paradigm Detection
+## Purpose
+To translate structural static analysis into Spring Boot `@RestController` endpoints and `@Service` components.
 
-Legacy COBOL applications execute primarily as CICS transactional modules or JCL batch jobs. The API generator inspects file allocation requests and CICS indicators in the IR state to determine the appropriate REST interface pattern:
+## Problem Being Solved
+Legacy applications run as CICS transactional modules or JCL batch jobs. These paradigms must be mapped to appropriate REST interface patterns and Spring dependency injection graphs to function in a cloud-native environment.
 
-* **Transactional Paradigm:** When a module processes structured in-memory data structures without physical dataset requests, the generator produces a JSON POST endpoint (`/api/v1/{module}/execute`) accepting `@RequestBody` DTO objects.
-* **Batch Paradigm:** When dataset file bindings (`DD` allocations) are present, the generator produces a multipart POST endpoint (`/api/v1/{module}/execute-batch`) accepting `@RequestParam MultipartFile` arguments mapped to legacy dataset definitions.
+## Design
+- **Execution Paradigm Detection**: 
+  - **Transactional**: If processing in-memory data without file allocations, generates a JSON POST endpoint (`/api/v1/{module}/execute`) accepting `@RequestBody` DTOs.
+  - **Batch**: If dataset file bindings (`DD` allocations) exist, generates a multipart POST endpoint (`/api/v1/{module}/execute-batch`) accepting `@RequestParam MultipartFile` arguments.
+- **Service Layer Auto-Wiring**: Constructs `{ModuleName}Service.java`. External COBOL subroutines are injected via Lombok `@RequiredArgsConstructor`.
+- **Mock Service Generation**: For unresolved external module calls, generates inline interface stubs (`TODO: IMPLEMENT SUBROUTINE CALL`) and mock `@Service` classes that intercept calls, log warnings, and return execution to prevent context initialization failure on startup.
 
-## Service Layer Auto-Wiring
+## Pipeline Integration
+**Inputs received:** Execution paradigms and inter-module dependency graphs from the IR.
+**Outputs produced:** `@RestController` and `@Service` Java source files, Mock services.
+**Dependencies:** Upstream static analysis IR; downstream business logic insertion and compilation.
 
-The Service Generator constructs the `@Service` business logic skeleton (`{ModuleName}Service.java`) and maps cross-module dependencies:
-* **Resolved Subroutines:** References to external COBOL subroutines found in the repository scan are injected into the service constructor via Lombok `@RequiredArgsConstructor` for Spring Dependency Injection.
-* **Unresolved Subroutines:** When dynamic or external module calls cannot be statically resolved, the generator injects inline interface stubs (`TODO: IMPLEMENT SUBROUTINE CALL`) to preserve compilability.
+```mermaid
+graph TD
+    A[IR Dependency Graph] --> B[API Contract Generator]
+    B --> C[@RestController]
+    B --> D[@Service Skeletons]
+    B --> E[Mock Services]
+```
 
-## Mock Service Generation
+## Tradeoffs
+- Emitting mock services for unresolved dependencies rather than halting generation. Chosen to guarantee a compilable scaffolding state for the developer, sacrificing immediate runtime correctness for a smoother developer experience.
 
-To prevent missing subroutines from breaking Spring Application Context initialization on startup, the controller (`cobol_to_java_controller.py`) generates mock `@Service` classes for unresolved calls. These mock services intercept calls, log diagnostic warnings (`"Mock Service invoked. Implementation missing."`), and safely return execution to the caller.
+## Limitations
+- Detection between batch and transactional paradigms relies on heuristic inspection of CICS indicators and dataset definitions, which may misclassify hybrid modules.
 
----
+## Performance Notes
+Analyzes the pre-computed dependency graph from the IR in $O(E)$ time, where $E$ is the number of module edges, ensuring fast generation regardless of codebase size.
 
-### Powered by GitGalaxy
+## Future Work
+- Integration with OpenAPI/Swagger generation for the emitted `@RestController` endpoints.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
-
-* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
-* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- `cobol_to_java_service_forge.py`
+- `cobol_to_java_controller.py`

@@ -11,82 +11,56 @@
 > * 🟨 **INTERMEDIATE (Score 40-59):** Moderate Exposure. Core paths have basic tests, but some functions lack sufficient defensive assertions.
 > * 🟥 **VERY HIGH (Score 80-100+):** Unverified Execution. Complex functions and files operate with minimal or zero test verification.
 
-## Multi-Level Verification Hierarchy
+## Engineering Summary
+This subsystem measures the risk of unverified logic execution. It solves the problem of naive line-coverage metrics by structurally evaluating the actual logic complexity of a function against its specific defensive assertions and external test coverage. It exists to highlight brittle, complex logic that lacks testing safeguards, feeding this residual "Untested Impact" directly into the GitGalaxy multi-level risk aggregation pipeline.
 
-Verification risk is calculated across five structural levels:
+## Purpose
+To calculate verification risk by subtracting defensive testing mass (internal assertions and external test targets) from raw logic impact, providing a realistic assessment of untested complexity.
 
-### Level 1: Function Level (Untested Impact)
+## Problem Being Solved
+Standard line-coverage tools report high coverage if a file is simply imported and executed, even if the tests contain zero actual assertions (e.g., executing without validating outputs). This creates a false sense of security for highly complex state machines that are executed but fundamentally unverified.
 
-Starting with the raw structural impact score of a function, the engine reduces risk based on defensive assertions targeting that function:
+## Design
+Verification risk is calculated across a five-level hierarchy:
+- **Level 1 (Function):** Calculates `BaseImpact` by subtracting internal defenses (assertions, guards) from structural impact, applying a negative modifier for bypassed tests (`it.skip`). External tests dilute their defensive weight (`DefensiveRatio`) if they target multiple functions. An inverse decay formula yields the residual `UntestedImpact`.
+- **Level 2 (Class):** Aggregates function-level impact into `ClassUntestedImpact`.
+- **Level 3 (File):** Normalizes total impact per executable line of code (`CodingLOC`), applying a language Opacity Tax ($Ot$), Directory Test Dampener, and Blast Radius to calculate `AdjustedDensity`. A logistic Sigmoid function maps this to a 0–100 score.
+- **Level 4 (Directory):** Mass-weighted average using `CodingLOC` of child files.
+- **Level 5 (Repository):** Mass-weighted average across top-level directories.
 
-#### Step A: Base Impact Calculation
-Internal defenses within the function boundary are evaluated using three schema elements:
-* **Verification (`test`):** Inline assertions (`assert()`, `expect()`).
-* **Safety Controls (`safety`):** Guard clauses and type guards (`require()`).
-* **Bypassed Tests (`test_skip`):** Negative modifier subtracting defensive mass for explicitly skipped tests (`it.skip`).
-
+**Mathematical Formulation (Function Level)**
 $$\text{BaseImpact} = \max(\text{FunctionImpact} - ((\text{Verification} + \text{Safety} - (\text{Bypassed} \times 2.0)) \times Fc), 0.0)$$
-
-#### Step B: Defensive Ratio & Test Impact
-External test suites targeting the function contribute to `EffectiveTestImpact`. External tests must contain active assertions (zero assertion tests yield zero defensive weight) and must not be marked as skipped. The defensive ratio dilutes integration tests targeting multiple functions:
-
 $$\text{DefensiveRatio} = \frac{\sum (\text{EffectiveTestImpact} / \text{TargetCount})}{\text{FunctionImpact}}$$
-
-#### Step C: Asymptotic Risk Decay
-The `DefensiveRatio` feeds into an inverse decay formula to calculate residual **Untested Impact**:
-
 $$\text{UntestedImpact} = \text{BaseImpact} \times \left( \frac{1}{1 + (C_t \times \text{DefensiveRatio})} \right)$$
 
----
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Function Impact] --> B[Subtract Internal Defenses]
+    C[External Tests] --> B
+    B --> D[Decay to Untested Impact]
+    D --> E[Class/File Aggregation]
+    E --> F[Sigmoid Score & Path Modifier]
+```
+- **Inputs received:** Structural impact, internal assertions, skipped tests, external test targets, `CodingLOC`.
+- **Outputs produced:** Residual untested impact and a normalized verification score (0-100).
+- **Dependencies:** Relies upstream on structural AST-free logic parsing and test-file coupling analysis.
 
-### Level 2: Class Level (Aggregation Boundary)
+## Tradeoffs
+- Diluting external test impact by dividing by `TargetCount` (the number of functions targeted by a single test) assumes integration tests provide weaker specific verification than isolated unit tests.
+- Uses mass-weighted averaging (`CodingLOC`) at the directory and repository levels to prevent tiny untested scripts from skewing the aggregate score, prioritizing complex core logic.
+- Test files receive $Mp = 0.0$ to zero out their own risk, intentionally treating test code as structurally exempt from verification requirements.
 
-Classes act as containment boundaries. The class score sums residual Untested Impact from all encapsulated methods:
+## Limitations
+- Cannot evaluate if an assertion is actually meaningful (e.g., `assert true` provides defensive weight but verifies nothing).
+- Does not utilize dynamic execution or runtime tracing, meaning coverage is strictly inferred from static import graphs and testing patterns.
 
-$$\text{ClassUntestedImpact} = \sum \text{FunctionUntestedImpact}$$
+## Performance Notes
+The inverse decay computation at the function level and mass-weighted aggregation scale highly efficiently ($O(N)$ with respect to functions and files). 
 
----
+## Future Work
+Current behavior infers external test targeting via static import analysis. Planned improvements involve integrating dynamic coverage reports (e.g., LCOV files) to merge precise runtime hit counts with structural impact calculations.
 
-### Level 3: File Level (Normalized Risk Score: 0 - 100)
-
-File-level calculations normalize untested impact per executable line of code, applying ecosystem modifiers and a Sigmoidal curve:
-
-#### Step A: Executable Density Normalization
-Total untested impact is divided by `CodingLOC` (total lines minus comments and whitespace) and scaled by the language Opacity Tax ($Ot$):
-
-$$\text{RawDensity} = \left( \frac{\sum \text{ClassUntestedImpact}}{\max(\text{CodingLOC}, 1)} \right) \times Ot$$
-
-#### Step B: Ecosystem Modifiers
-Density is adjusted based on directory-level snapshot test dampeners (`DirectoryTestDampener`) and PageRank centrality (`BlastRadius`):
-
-$$\text{AdjustedDensity} = (\text{RawDensity} \times \text{DirectoryTestDampener}) \times \text{BlastRadius}$$
-
-#### Step C: Sigmoidal Normalization
-Adjusted density maps to a 0–100 score using a logistic Sigmoid function:
-
-$$\text{BaseScore} = \min\left( \frac{100.0}{1 + e^{-\text{Slope} \times (\text{AdjustedDensity} - \text{Threshold})}}, 100.0 \right)$$
-
-#### Step D: Path Modifiers & Breach Floor
-Test files (`.spec.js`, `tests/`) receive $Mp = 0.0$ to zero out risk. For production code ($Mp = 1.0$), a Breach Floor ensures heavily untested complex files maintain a minimum risk rating.
-
-$$\text{FinalFileScore} = \text{BaseScore} \times Mp$$
-
----
-
-### Level 4: Directory Level (Mass-Weighted Aggregation)
-
-Directory verification risk is calculated as a mass-weighted average using `CodingLOC` of each child file. A large, complex module scoring 95 will pull the folder aggregate significantly, whereas a tiny untested 15-line script will not distort local metrics.
-
----
-
-### Level 5: Repository Level (Global System Risk)
-
-Repository verification risk is computed as a mass-weighted average across all top-level directories. Highly complex core modules drag down global verification scores, whereas lightweight experimental folders are absorbed proportionally.
-
----
-
-### Powered by GitGalaxy Engine
-
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+- Function Structural Impact Calculator
+- Path Context Modifier ($Mp$)

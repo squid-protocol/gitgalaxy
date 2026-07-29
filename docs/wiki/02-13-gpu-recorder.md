@@ -1,63 +1,52 @@
-# The GPU Recorder (Columnar Data Exporter)
+# GPU Recorder
 
 > **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-The GPU Recorder (`gpu_recorder.py`) is the high-performance data transformation module of the GitGalaxy pipeline. It converts verbose, object-oriented JSON telemetry into a hypercompressed columnar format (Structure of Arrays / SoA) designed specifically for WebGL/WebGPU 3D rendering engines. The exporter prioritizes memory efficiency, low payload transfer size, and low-latency buffer loading over human readability.
+## Engineering Summary
+This subsystem is the high-performance data transformation module of the pipeline. It converts verbose, object-oriented JSON telemetry into a hypercompressed columnar format (Structure of Arrays / SoA) designed specifically for WebGL/WebGPU 3D rendering engines. It solves the problem of high latency and memory overhead when loading large codebase models into the browser. It exists to prioritize memory efficiency, low payload transfer size, and fast buffer loading over human readability. Within the system, this module is known as the GitGalaxy GPU Recorder.
 
----
+## Purpose
+The primary purpose is to generate a highly compressed, serialized payload suitable for direct ingestion by WebGL and WebGPU vertex buffers.
 
-## Memory Management & Garbage Collection
+## Problem Being Solved
+Object-oriented JSON structures consume excessive memory and network bandwidth, causing WebGL visualizers to crash or stall when rendering thousands of nodes. This component flattens the data and uses techniques like string interning and fixed-point quantization to minimize memory footprint and transfer times.
 
-To process large codebases without exhausting system RAM, the exporter executes an aggressive memory eviction strategy during final payload construction:
+## Design
+### Current Behavior
+- **Memory Management:** Iteratively evicts arrays from RAM-resident dictionaries using `.pop()` and explicit garbage collection (`gc.collect()`) during serialization.
+- **Columnar Layout:** Generates parallel arrays for spatial positions, file masses, and structural metrics.
+- **Dependency Resolution:** Pre-resolves string import declarations into numerical array index pointers for fast GPU vertex buffer rendering.
+- **String Dictionary Encoding:** Replaces repeated string values with integer dictionary keys (`ext_lookup`, `import_lookup`, etc.).
+- **Fixed-Point Quantization:** Multiplies floating-point values by fixed scaling factors and stores them as integers.
 
-* **Iterative Array Eviction:** As file records and anomaly structures are converted into columnar arrays, they are popped from RAM-resident dictionaries using `.pop()`, freeing memory incrementally as serialization progresses.
-* **Explicit Garbage Collection:** Object references are explicitly cleared (`del`), followed by manual Python garbage collection calls (`gc.collect()`) prior to disk serialization to minimize memory footprint.
+### Planned Improvements
+- Optimize fixed-point scaling dynamically per attribute range.
 
----
+## Pipeline Integration
+- **Inputs Received:** Verbose, nested dictionary hierarchies of JSON telemetry, metrics, and dependencies.
+- **Outputs Produced:** A hypercompressed, columnar format serialized payload suitable for WebGL/WebGPU rendering.
+- **Dependencies:** Relies on the core telemetry and dependency resolution output.
 
-## Columnar Layout & Dependency Resolution
+```mermaid
+graph LR
+    A[Nested JSON Telemetry] --> B[GPU Recorder]
+    B --> C[Compressed Columnar Payload]
+```
 
-The recorder converts nested dictionary hierarchies into parallel flat arrays (Structure of Arrays):
+## Tradeoffs
+- **Compression vs. Readability:** Flattens JSON data and serializes without formatting whitespace, making the output unreadable to humans but highly optimized for WebGL consumption.
+- **Precision vs. Format Compatibility:** Employs fixed-point quantization for floating-point values, sacrificing some mathematical precision to match graphics pipeline vertex buffer formats.
 
-* **Parallel Metric Columns:** Generates parallel arrays for spatial positions (`pos_x`, `pos_y`, `pos_z`), file masses, and structural code metrics (`cog_raw`, `raw_churn_freq`, `ownership_entropy`).
-* **Pre-Computed Dependency Edges:** Pre-resolves string import declarations into numerical array index pointers (`edges` and `outbound_edges`). This allows WebGL visualizers to draw Thousands of 3D dependency connections directly from GPU vertex buffers without performing expensive string searches at runtime.
-* **Flattened Function Offsets:** Flattens internal function/method records into a single 1D array (`satellite_data_flat`), using offset pointers (`satellite_offsets`) to maintain boundary lookups sorted by metric magnitude.
-* **ML Archetypes & Threat Scores:** Vectorizes Machine Learning archetype classifications and embeds XGBoost threat confidence percentages directly into numeric columns (`ai_threats`).
+## Limitations
+- **Format Rigidity:** The output format strictly adheres to the Structure of Arrays (SoA) layout, making it difficult to append new ad-hoc metadata fields without modifying the rendering engine.
+- **Memory Spikes:** Despite iterative eviction, large codebases can still cause temporary memory spikes during the final serialization step.
 
----
+## Performance Notes
+- Achieves high memory efficiency and low-latency buffer loading through iterative array eviction, explicit garbage collection, and minimal-byte payload serialization. Lookups and quantization execute in $O(N)$ time relative to telemetry node count.
 
-## String Dictionary Encoding & Fixed-Point Quantization
+## Future Work
+- Explore direct binary serialization formats (like FlatBuffers or Cap'n Proto) for even faster ingestion.
 
-To maximize compression ratios and decrease network transfer times, the exporter eliminates redundant text strings and floating-point precision overhead.
-
-### String Dictionary Encoding (Interning)
-Repeated string values (file extensions, directory paths, language names, import names, and archetype labels) are stored once in header lookup tables and replaced in columnar data with integer dictionary keys (`ext_lookup`, `import_lookup`, `const_lookup`, `archetype_lookup`).
-
-### Fixed-Point Quantization
-Floating-point values are multiplied by fixed scaling factors and stored as integers to match graphics pipeline vertex buffer formats:
-* **Position & Structural Mass Scaling (10x):** Applied to spatial coordinates, file masses, and function angles (e.g., `150.45` scales to `1505`).
-* **Metric & Threat Scaling (1000x):** Applied to threat probabilities, control flow ratios, ownership entropy, and author distribution percentages (e.g., `0.854` scales to `854`).
-
----
-
-## Output Packaging & Serialization
-
-Prior to disk export, the module finalizes the visualizer payload:
-
-* **Excluded Artifact Breakdown:** Summarizes file exclusion categories and diagnostics into flat array structures for frontend filter rendering.
-* **Metadata & Context Injection:** Includes project metadata, historical overview metrics, and highlighted analysis insights in the payload header.
-* **Compressed Serialization:** Serializes JSON output without formatting whitespace (`separators=(',', ':')`), generating minimal-byte payloads for WebGL consumption.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- Record Keeper
+- Audit Recorder

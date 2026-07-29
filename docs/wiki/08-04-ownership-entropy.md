@@ -2,74 +2,47 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-> **Metric: Shannon Entropy of Git Blame Data**
->
-> **Purpose:** Measures the distribution of commit contributions across authors within a module to identify knowledge siloing vs. shared maintenance.
->
-> **Rationale:** Module ownership is not about blaming individual contributors; it quantifies developer contribution concentration. Rather than relying on simple contributor headcounts, GitGalaxy uses Shannon Entropy to measure contribution dispersion. This entropy score maps to the Universal Risk Spectrum, highlighting single-author knowledge silos ("Bus Factor" risks) vs. highly distributed team maintenance.
+## Engineering Summary
+This statistical analysis component calculates the Shannon Entropy of Git blame data to measure contribution dispersion across modules. It solves the problem of identifying knowledge silos and bus-factor risks hidden behind simple contributor headcounts. It exists to map authorship concentration to the Universal Risk Spectrum. Within GitGalaxy, it highlights whether a module is a single-author bottleneck or a highly distributed community effort.
 
-## Contributor Concentration Principles
+## Purpose
+To measure the distribution of commit contributions across authors within a module using Shannon Entropy, highlighting knowledge siloing versus shared maintenance.
 
-Authorship structure is evaluated along a spectrum of architectural concentration versus multi-contributor diffusion:
+## Problem Being Solved
+Simple contributor headcounts fail to capture distribution. A file with 1 primary author (90%) and 10 minor contributors (1% each) has 11 authors but remains a knowledge silo. Shannon entropy correctly identifies this imbalance and penalizes high operational noise.
 
-* **Low Entropy (Individual Ownership):** Commit volume is heavily concentrated with a single author. This reflects unified design intent, but introduces knowledge silo risk if the primary maintainer leaves.
-* **High Entropy (Shared / Team Diffusion):** Commit volume is distributed across many authors. As multiple developers modify a module, architectural knowledge becomes shared across the team, indicating high-traffic community code.
+## Design
+Evaluates authorship structure:
+- **Low Entropy:** High concentration, individual ownership, high bus factor.
+- **High Entropy:** Shared maintenance, high diffusion.
 
-## Input Metrics
-
-* **`Authors`:** A map of author identifiers to commit counts for the target module.
-* **`TotalCommits`:** Aggregate count of all commits recorded for the module.
-* **`GlobalAuthorCount`:** Total number of unique contributors across the entire repository.
-
-## Mathematical Formulation: Shannon Entropy
-
-First, the analysis engine computes the proportion of total commits ($p_i$) made by contributor $i$:
-
+Calculation:
 $$p_i = \frac{\text{Commits}_i}{\text{TotalCommits}}$$
-
-The engine then computes the Shannon Entropy ($H$) of the author distribution:
-
 $$H = -\sum \left( p_i \times \log_2(p_i) \right)$$
-
-Finally, the entropy value is scaled into a normalized score ranging from $0$ to $100$:
-
 $$\text{OwnershipScore} = \min(H \times 32.0, 100.0)$$
 
-## Advantages of Entropy-Based Modeling
+Scores map to tiers: 0-20 (Single Owner), 21-60 (Team Collaboration), 61-100 (High Diffusion).
 
-Shannon Entropy resolves the "long tail" contributor anomaly:
-* A file with 1 primary author (90% commits) and 1 minor contributor (10% commits) exhibits low entropy and high ownership clarity.
-* A file with 1 primary author (90% commits) and 10 minor contributors (1% each) exhibits higher entropy due to frequent minor edits.
+## Pipeline Integration
+- **Inputs:** Git blame contribution maps and commit counts.
+- **Outputs:** A normalized scalar entropy score (0-100) and color classification.
+- **Dependencies:** Relies on upstream Git history extraction and feeds directly into the visualization shaders.
 
-Simple linear counters rate both scenarios identically based on headcount. The Shannon Entropy model correctly identifies the second file as experiencing higher operational noise by measuring uncertainty in authorship distribution.
+Git Blame Extractor -> Entropy Calculation Engine -> Visual Render Attributes
 
-## Visual Classification & Metric Tiers
+## Tradeoffs
+Using commit counts as the basis for entropy assumes all commits have equal weight. A massive refactoring commit is weighed identically to a one-line typo fix, sacrificing granular impact analysis for fast, aggregate historical processing.
 
-GitGalaxy maps the normalized ownership score across the standard 5-stop Universal Risk Spectrum:
+## Limitations
+- Git author email aliases (e.g., user@local vs user@company) will skew entropy unless deduplicated prior to analysis.
+- Extremely old legacy code may have high entropy from long-gone contributors, artificially inflating the diffusion score for the current active team.
 
-| Score Range | Classification | Indicator Color | Architectural Definition |
-| :--- | :--- | :--- | :--- |
-| **0 – 20** | **Single Owner** | 🟦 **Deep Blue** | High centralization. Logic is maintained by a single primary author. |
-| **21 – 60** | **Team Collaboration** | 🩵 **Cyan** $\rightarrow$ 🟨 **Yellow** | Core team maintenance. Responsibility is distributed among a small squad of maintainers. |
-| **61 – 100** | **High Diffusion** | 🟧 **Orange** $\rightarrow$ 🟥 **Red** | Collective maintenance. The module receives frequent commits from many contributors across the organization. |
+## Performance Notes
+Normalizing authorship into a scalar score ensures constant WebGPU rendering efficiency regardless of the number of unique contributors, guaranteeing 60 FPS performance on massive enterprise codebases.
 
-## Renderer Performance Scaling
+## Future Work
+- Time-decayed entropy weighting, prioritizing recent commit distribution over historical legacy authors.
+- Commit size weighting (lines changed) integrated into the probability $p_i$ variable.
 
-By normalizing authorship distribution into a single scalar score ($0.0 - 100.0$) in the backend metrics engine (`signal_processor.py`), frontend rendering efficiency remains constant. 
-
-Whether a module has 2 contributors or 2,000 contributors, the WebGPU engine translates the floating-point value into a color gradient without requiring multi-pass shaders or expensive per-author hash lookups, maintaining 60 FPS rendering performance across enterprise codebases.
-
-<br><br>
-
----
-
-### Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+- [Overview of Methodology](08-01-methodology.md)

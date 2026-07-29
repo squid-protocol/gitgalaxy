@@ -2,102 +2,58 @@
 
 > **File Reference:** [gitgalaxy/recorders/sbom_recorder.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/sbom_recorder.py)
 
-The `SbomRecorder` module in `gitgalaxy/recorders/sbom_recorder.py` generates enterprise-compliant CycloneDX 1.4 Software Bill of Materials (SBOM) documents backed by physical verification of installed third-party dependencies. Rather than relying solely on declarative package manifests, the recorder inspects installed packages on disk (`node_modules`, `vendor`, Python `venv`/`.venv`) to verify component integrity and flag potential package spoofing or hidden malware payloads.
+## Engineering Summary
+Software supply chains rely heavily on declarative package manifests (like `package.json` or `requirements.txt`) to determine the bill of materials. However, relying solely on manifests fails to confirm whether the deployed code on disk matches what was declared, exposing environments to malware payloads and dependency spoofing. A physical verification tool inspects installed packages on disk to ensure component integrity before generating CycloneDX 1.4 compliant records. This subsystem is the GitGalaxy SbomRecorder.
 
----
+## Purpose
+To generate enterprise-compliant CycloneDX 1.4 Software Bill of Materials (SBOM) documents backed by physical verification of installed third-party dependencies on disk.
 
-## Universal Manifest Parsing
+## Problem Being Solved
+Declarative package manifests can be easily modified or spoofed. Standard SBOM tools blindly trust these manifests without verifying the actual installed code. This creates a vulnerability gap where hidden malware payloads, spoofed packages, or encrypted blobs can bypass audits.
 
-The generator delegates manifest extraction to `UniversalManifestSlicer` (`gitgalaxy/security/manifest_parser.py`), supporting multiple package manager ecosystems within polyglot repositories:
+## Design
+### Universal Manifest Parsing
+The generator delegates manifest extraction to `UniversalManifestSlicer`, supporting multiple ecosystems (NPM, Packagist, PyPI, Cargo) within polyglot repositories.
 
-* **NPM (JavaScript / TypeScript):** Extracts production and development dependencies from `package.json`.
-* **Packagist (PHP Composer):** Extracts required packages from `composer.json`.
-* **PyPI (Python):** Parses `requirements.txt` declarations and version bounds.
-* **Cargo (Rust):** Extracts dependency blocks from `Cargo.toml`.
+### Physical Dependency Verification
+For every dependency, the tool locates the physical package on disk. It flags missing packages (`UNVERIFIED_MISSING_ON_DISK`).
+* **Candidate Sampling:** Candidate files are ordered by risk priority (common entry points like `index`, `main` first, shallow depth).
+* **Structural Anomaly Inspection:** Scanned files undergo dual evaluation:
+  * *High-Entropy Payload Check:* Identifies dense string blobs (Shannon Entropy > 4.8).
+  * *Language Anomaly Verification:* Verifies file extension against structural heuristics. Mismatches trigger `SPOOF_DETECTED` warnings.
+* **Stateful Caching:** File contents are hashed, and verdicts cached per file hash across scan sessions, respecting `fresh_scan_budget`.
 
-Manifest locations are ingested directly from the core pipeline census (`manifest_paths`), ensuring that excluded directories (such as vendor locks or distribution builds) are ignored during manifest discovery.
+### CycloneDX 1.4 Serialization
+The final report is a CycloneDX 1.4 JSON document enriched with custom properties representing the `gitgalaxy:trust_status` (e.g., `VERIFIED_SAFE`, `SPOOF_DETECTED`, `PARTIALLY_VERIFIED`).
 
----
+## Pipeline Integration
+Inputs received include pipeline census data (`manifest_paths`), parsed artifact graphs, and session metadata. Outputs produced are structured CycloneDX JSON files. The generator integrates with `UniversalManifestSlicer` upstream and downstream compliance aggregators.
 
-## Physical Dependency Verification Pipeline
-
-For every dependency declared in a manifest, `SbomRecorder` attempts to locate the physical package on disk and evaluate its code integrity:
-
-### 1. Package Location & Verification Status
-The engine searches local project paths (e.g., `./node_modules/<package>`, `./vendor/<package>`, `venv/lib/python*/site-packages/<package>`).
-* **Installed Packages:** Evaluated through integrity inspection routines.
-* **Missing Packages (`UNVERIFIED_MISSING_ON_DISK`):** Flagged when declared in manifests but absent from local disk storage.
-
-### 2. Candidate Sampling & Entry Point Prioritization (`_iter_candidate_files`)
-To ensure high-risk entry points are inspected first under time or budget constraints, candidate files (`.js`, `.py`, `.ts`, `.php`, `.rs`) are ordered by risk priority:
-1. Common entry point stems (`index`, `main`, `__init__`, `app`, `setup`).
-2. Shallow path depth before deep nested subdirectories.
-3. Lexicographical sorting.
-
-### 3. Structural Anomaly & Spoofing Inspection (`_scan_single_file`)
-Scanned candidate files undergo dual evaluation using core GitGalaxy sensors:
-* **High-Entropy Payload Check (`SecurityLens`):** Identifies mathematically dense or obfuscated string blobs (Shannon Entropy > 4.8), flagging potential hidden binaries or encrypted payloads.
-* **Language Anomaly Verification (`LanguageDetector`):** Verifies file extension against structural heuristics. Mismatches (e.g., JavaScript extensions containing non-JS structures) trigger `SPOOF_DETECTED` warnings.
-
-### 4. Stateful Caching (`_audit_with_cache`)
-When a `DependencyAuditCache` instance is provided, file contents are hashed (`SHA-256`). Verdicts are cached per file hash across scan sessions, allowing instant lookup on hits while restricting fresh scans to configured budgets (`fresh_scan_budget`).
-
----
-
-## CycloneDX 1.4 Serialization
-
-The final report is emitted as a fully compliant **CycloneDX 1.4 JSON** document. To provide security teams with deep visibility, GitGalaxy enriches the standard component metadata with custom property key-value pairs:
-
-```json
-{
-  "type": "library",
-  "name": "lodash",
-  "version": "4.17.21",
-  "purl": "pkg:npm/lodash@4.17.21",
-  "properties": [
-    { "name": "gitgalaxy:trust_status", "value": "VERIFIED_SAFE" },
-    { "name": "gitgalaxy:anomaly_notes", "value": "None" },
-    { "name": "gitgalaxy:audit_coverage", "value": "12/12 files (12 cached, 0 fresh)" }
-  ]
-}
+```mermaid
+graph LR
+    A[Manifest Declarations] --> B[Physical Path Locator]
+    B --> C[Entry Point Sampler]
+    C --> D[Entropy & Anomaly Scanners]
+    D --> E[CycloneDX 1.4 Serializer]
+    E --> F[SBOM.json Output]
 ```
 
-### Trust Status Classifications
+## Tradeoffs
+* **Physical Scanning vs. Generation Speed:** Scanning physical files adds overhead compared to simply parsing manifests. To mitigate this, stateful caching and prioritized entry point sampling (`fresh_scan_budget`) are used, trading exhaustive file scanning for timely feedback.
+* **Heuristics vs. Determinism:** Using Shannon Entropy (> 4.8) is a heuristic that can flag benign compressed or encrypted blobs as suspicious, requiring manual verification but increasing defense-in-depth against obfuscated malware.
 
-| Status Value | Condition |
-| :--- | :--- |
-| `VERIFIED_SAFE` | All inspected package files passed entropy and language signature checks. |
-| `SPOOF_DETECTED` | One or more files contained high entropy (> 4.8) or language structural anomalies. |
-| `UNVERIFIED_MISSING_ON_DISK` | Package declared in manifest but directory could not be located on disk. |
-| `PARTIALLY_VERIFIED` | Package files were deferred to future runs due to fresh scan budget limits. |
+## Limitations
+* If `fresh_scan_budget` is exceeded, deep nested files in large packages may be marked `PARTIALLY_VERIFIED` and left uninspected until subsequent runs.
+* Highly dynamic dependency loading that bypasses package managers cannot be tracked.
 
----
+## Performance Notes
+The implementation is optimized using a `DependencyAuditCache`. Hashing files and looking up verdicts enables $O(1)$ result retrieval for unmodified packages, drastically reducing I/O and CPU overhead on repeated CI runs.
 
-## Programmatic Execution & Telemetry
+## Future Work
+* **Current Behavior:** Inspects physical files and emits CycloneDX 1.4 metadata based on static and entropy checks.
+* **Planned Improvements:** Expand support to system-level package managers (e.g., APT, RPM) and integrate deeper binary artifact inspection.
 
-`SbomRecorder` integrates into the pipeline via `generate_report()`:
-
-```python
-recorder = SbomRecorder(version="2.4.0", dependency_cache=cache)
-recorder.generate_report(
-    parsed_files=parsed_files,
-    summary=summary,
-    session_meta=session_meta,
-    output_path="bom.json",
-    manifest_paths=manifest_paths
-)
-```
-
-The emitted JSON payload includes root metadata, tools telemetry, project context, and the verified array of CycloneDX components.
-
----
-
-### Ecosystem References
-
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `sbom_recorder.py`.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive WebGPU visualization dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+* [GitGalaxy Platform](https://gitgalaxy.io/)
+* [⬅️ Back to Master Index](index.md)
 

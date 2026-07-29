@@ -11,77 +11,53 @@
 > * 🟨 **SETTLED (Score 40-59):** Code modified near the midpoint of the repository timeline.
 > * 🟥 **ESTABLISHED BASELINE (Score 80-100):** The oldest, long-unmodified files in the repository.
 
-## Metric Inputs (File System & Version Control)
+## Engineering Summary
+This subsystem evaluates the relative age of source files based on modification timestamps. It solves the problem of treating older, stable code as inherently stale or problematic by shifting to a relative temporal distance model. It exists to provide a physical timeline context to other risk metrics, differentiating between active feature edges and established foundational baselines. This timestamp normalization integrates directly into the GitGalaxy temporal scaling pipeline.
 
-Using auto-scaling normalization, Phase 1 scans the entire codebase to establish the repository's active lifespan boundary (`RepoMinTime` to `RepoMaxTime`):
+## Purpose
+To calculate the relative time elapsed since a file was last modified, scaling it against the active lifespan boundary of the entire repository.
 
-| Variable | Data Source | Units | Description |
-| :--- | :--- | :--- | :--- |
-| `FileMTime` | `os.path.getmtime` / Git Commit | Epoch Timestamp | Last modified timestamp of the target file. |
-| `RepoMinTime` | Repository Scanner Phase 1 | Epoch Timestamp | Oldest modified timestamp observed in the repository. |
-| `RepoMaxTime` | Repository Scanner Phase 1 | Epoch Timestamp | Newest modified timestamp observed in the repository. |
+## Problem Being Solved
+Absolute file age is not actionable because a 3-year-old file in a 10-year-old repository is relatively recent, whereas a 3-year-old file in a 3-year-old repository is the foundational baseline. Simple timestamp lookups fail to provide repository-specific context.
 
-## Universal Framework Integration
+## Design
+Using auto-scaling normalization, Phase 1 scans the entire codebase to establish the repository's active lifespan boundary (`RepoMinTime` to `RepoMaxTime`). File stability is then calculated as a linear physical timestamp measurement.
 
-File stability is a linear physical timestamp measurement:
-
-* **$Fc$ (Fidelity Coefficient):** Not applied (timestamps are exact epoch values).
-* **$Irc$ (Implicit Risk Correction):** Not applied.
-* **$Mp$ (Path Modifier):** Not applied (file modification age is an absolute measurement).
-
-## Mathematical Formulation
-
-Stability measures relative temporal distance from the repository's newest modification point:
-
-### Step 1: Calculate Temporal Distance
-The elapsed time between the newest repository file (`RepoMaxTime`) and the target file's timestamp (`FileMTime`) is calculated and clamped to $\ge 0.0$:
-
+**Mathematical Formulation**
+1. **Calculate Temporal Distance:**
+The elapsed time between the newest repository file (`RepoMaxTime`) and the target file's timestamp (`FileMTime`) is clamped to $\ge 0.0$:
 $$\text{SecondsFromMax} = \max(\text{RepoMaxTime} - \text{FileMTime}, 0.0)$$
-
-### Step 2: Calculate Relative Ratio
-The distance is normalized against the total active time range of the repository ($\ge 1.0$ second floor to prevent division by zero):
-
+2. **Calculate Relative Ratio:**
+The distance is normalized against the total active time range of the repository:
 $$\text{TimeRange} = \max(\text{RepoMaxTime} - \text{RepoMinTime}, 1.0)$$
 $$\text{StabilityScore} = \min\left( \left( \frac{\text{SecondsFromMax}}{\text{TimeRange}} \right) \times 100.0, 100.0 \right)$$
+*(When Newest file, Score = 0.0; When Oldest file, Score = 100.0)*
 
-* When $\text{FileMTime} == \text{RepoMaxTime}$ (Newest file), $\text{StabilityScore} = 0.0$.
-* When $\text{FileMTime} == \text{RepoMinTime}$ (Oldest file), $\text{StabilityScore} = 100.0$.
-
-## Python Implementation Reference
-
-```python
-import math
-from typing import Dict, Any, Tuple
-
-def _calc_raw_temporal_signals(self, temp: Dict[str, Any]) -> Tuple[float, float]:
-    """Calculates File Stability (Age score) and Raw Churn (Commit frequency)."""
-    if not temp or not temp.get("is_git_tracked", False):
-        return 50.0, 0.0 
-
-    mtime = temp.get("mtime", 0.0)
-    repo_min = temp.get("repo_min_time", mtime)
-    repo_max = temp.get("repo_max_time", mtime)
-    commits = temp.get("commit_count", 0)
-
-    # Clamp the time difference to prevent negative values
-    seconds_from_max = max(repo_max - mtime, 0.0)
-    time_range = max(repo_max - repo_min, 1.0)
-
-    # 1. Stability Score (0 = Newest/Active, 100 = Oldest Baseline)
-    stability_ratio = seconds_from_max / time_range
-    stability_score = min(stability_ratio * 100.0, 100.0)
-
-    # 2. Raw Churn Frequency calculation
-    age_weeks = max(seconds_from_max / 604800.0, 1.0) 
-    raw_churn_freq = commits / math.sqrt(age_weeks)
-
-    return stability_score, raw_churn_freq
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Repo Scanner] -->|Min/Max Times| B[Temporal Normalizer]
+    C[File System/Git] -->|File MTime| B
+    B -->|Calculate Distance| D[Stability Score]
 ```
+- **Inputs received:** Target file modification time (`FileMTime`), repository oldest modified time (`RepoMinTime`), repository newest modified time (`RepoMaxTime`).
+- **Outputs produced:** A linear normalized stability score (0-100).
+- **Dependencies:** Relies upstream on physical file system data or Git commit epoch timestamps.
 
----
+## Tradeoffs
+- Uses a linear scale rather than a logarithmic one. This was chosen to preserve exact temporal proportionality, though it sacrifices the ability to group long tails of legacy files tightly together.
+- Operates independently of language or contextual path ($Fc$, $Irc$, $Mp$ are explicitly ignored) because a timestamp is an absolute physical measurement not influenced by syntax or directory structure.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- A single rogue commit (e.g., automated formatting across all files) will reset the `RepoMaxTime` and heavily skew the relative age of untouched files.
+- Relies on Git commit timestamps which can be manually spoofed or accidentally rewritten during interactive rebases.
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Requires a complete initial pass (Phase 1) over the codebase to determine global boundaries before calculating individual file scores. Once boundaries are established, the calculation is extremely fast $O(1)$ arithmetic.
 
-**[⬅️ Back to Master Index](index.md)**
+## Future Work
+Currently relies solely on raw commit epoch timestamps. Planned improvements include clustering algorithms to ignore massive automated formatting commits that artificially reset the active edge of the repository timeline.
+
+## Related Components
+- Deep Churn (Volatility normalizer)
+- Repository Scanner Phase 1

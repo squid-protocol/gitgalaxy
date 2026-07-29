@@ -2,19 +2,16 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-**Metric:** State Flux Exposure & Mutation Volatility
+## Engineering Summary
+Evaluates the density of variable mutations and state modifications within a module. State flux measures data volatility by tracking property reassignments, array mutations, and side effects. High state flux indicates unstable data structures where tracking state transitions increases cognitive load and defect probability. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the State Flux Exposure metric.
 
-**Summary:** Evaluates the density of variable mutations and state modifications within a module. State flux measures data volatility by tracking property reassignments, array mutations, and side effects. High state flux indicates unstable data structures where tracking state transitions increases cognitive load and defect probability.
+## Purpose
+The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-**Risk Classification:**
-* 🟦 **VERY LOW (Score 0–19):** Immutable or referentially transparent logic. Variables are initialized once and rarely modified.
-* 🟨 **MODERATE (Score 40–59):** Standard local mutation (e.g., loop counters, localized state changes).
-* 🟥 **VERY HIGH (Score 80–100):** High-frequency reassignments and shared state mutations lacking immutability protections.
+## Problem Being Solved
+Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
----
-
-## Inputs & Detection Signals
-
+## Design
 The static analysis engine counts mutation keywords and immutability controls:
 
 | Variable | Signal Category | Weight / Role | Description |
@@ -24,10 +21,6 @@ The static analysis engine counts mutation keywords and immutability controls:
 | `loc` | Denominator | **Base Density** | Meaningful lines of code (`loc_padding` defaults to 0 to ensure mutations immediately impact density). |
 | `irc` | Language Modifier | **0.15x** | Implicit Risk Correction (accounts for implicit mutability defaults in languages like JavaScript or Python). |
 | `mp` | Path Modifier | **Threshold Modifier** | Context modifier (e.g., `0.8` for UI components where state spaghetti introduces UI state bugs). |
-
----
-
-## Metric Calculation
 
 ### 1. Net Volatility Calculation
 Balance raw mutation signals against immutability markers:
@@ -46,12 +39,6 @@ Map density using a base threshold of $15.0$ and slope of $0.2$, scaled by the p
 
 $$\text{RawScore} = \frac{1.0}{1.0 + e^{-0.2 \times (\text{Density} - 15.0)}}$$
 $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)$$
-
----
-
-## Reference Implementation
-
-The following Python method from `gitgalaxy/metrics/signal_processor.py` implements the state flux exposure metric:
 
 ```python
 def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: float) -> float:
@@ -79,13 +66,37 @@ def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: 
     return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 ```
 
----
+**Risk Classification:**
+* 🟦 **VERY LOW (Score 0–19):** Immutable or referentially transparent logic. Variables are initialized once and rarely modified.
+* 🟨 **MODERATE (Score 40–59):** Standard local mutation (e.g., loop counters, localized state changes).
+* 🟥 **VERY HIGH (Score 80–100):** High-frequency reassignments and shared state mutations lacking immutability protections.
 
-### Ecosystem References
+## Pipeline Integration
+Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+```mermaid
+flowchart LR
+    A[AST Parser] --> B[Signal Processor]
+    B --> C[State Flux Exposure Metric]
+    C --> D[Risk Score Output]
+```
 
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)** - Metric implementation details.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository architecture dashboard.
+## Tradeoffs
+* Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
+* Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
----
+## Limitations
+* Detection is strictly reliant on recognized keywords and standard patterns.
+* Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
+* May produce false positives in non-standard or heavily abstracted codebases.
 
-**[⬅️ Back to Master Index](index.md)**
+## Performance Notes
+The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
+
+## Future Work
+* Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
+* Expand language support and framework-specific annotations.
+
+## Related Components
+* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[GitGalaxy Platform](https://gitgalaxy.io/)**
+* **[⬅️ Back to Master Index](index.md)**

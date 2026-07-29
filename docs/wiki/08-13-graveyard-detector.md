@@ -11,81 +11,58 @@
 > * 🟨 **INTERMEDIATE (Score 40-59):** Minor inactive snippets or temporary commented blocks.
 > * 🟥 **HIGH GRAVEYARD RISK (Score 80-100):** Heavily polluted with dead code blocks requiring cleanup.
 
-## Metric Inputs (Heuristic Dead Code Detection)
+## Engineering Summary
+This subsystem quantifies the density of commented-out programmatic logic. It solves the problem of code graveyards persisting indefinitely by differentiating natural language comments from syntactically dense inactive code. It exists to highlight files polluted with cognitive noise that slow down active maintenance and refactoring. Integrated with dynamic thresholding, it provides GitGalaxy with a clear indicator of codebase hygiene.
 
-The static analysis engine differentiates between natural language documentation (English docstrings) and commented-out program code (syntax-dense comment blocks):
+## Purpose
+To calculate dead code density against the total physical size of the file and map it to a risk score, exposing inactive logic retention.
 
-| Variable | Weight / Multiplier | Description |
-| :--- | :--- | :--- |
-| `graveyard_hits` | 3.0x lines / hit | Number of dead code block hits identified by the static analyzer. Estimated at 3 lines of inactive logic per hit. |
-| `total_loc` | Denominator Floor | Total physical line count of the file. Measured against a minimum safe floor of 50 LOC. |
+## Problem Being Solved
+Commented-out code causes significant cognitive friction. Developers reading the file must parse the dead logic, determine if it was temporarily disabled for debugging or permanently abandoned, and decide whether it is safe to delete. Standard linters ignore comment blocks entirely, allowing this noise to accumulate.
 
-## Universal Framework Integration
+## Design
+The static analysis engine specifically identifies syntax-dense comment blocks as opposed to English docstrings.
+- Each `graveyard_hits` is estimated to represent 3 lines of inactive logic.
+- Density is normalized against a minimum safe floor of 50 LOC to prevent small files from spiking in severity.
+- A baseline tolerance threshold (10%) is adjusted dynamically by the directory Path Modifier ($Mp$).
 
-* **$Fc$ (Fidelity Coefficient):** Not applied (dead code detection is language-agnostic).
-* **$Irc$ (Implicit Risk Correction):** Not applied.
-* **$Mp$ (Path Modifier):** Applied to the **Dynamic Tolerance Threshold**:
-  * *Prototypes / Scratchpad ($Mp = 2.0$):* High tolerance for keeping inactive snippets while experimenting ($Mp > 1.0$ raises threshold).
-  * *Legacy Archives ($Mp = 1.5$):* Moderate tolerance.
-  * *Core Production Infrastructure ($Mp = 0.5$):* Strict low tolerance ($Mp < 1.0$ lowers threshold).
-
-## Mathematical Formulation
-
-### Step 1: Clean File Short-Circuit
-If `graveyard_hits == 0`, the engine immediately returns a risk score of `0.0`.
-
-### Step 2: Calculate Dead Code Density
-Estimated inactive lines (`graveyard_hits` $\times 3.0$) are normalized against total LOC (using a safe minimum floor of 50 lines):
-
+**Mathematical Formulation**
+1. **Clean File Short-Circuit:** If `graveyard_hits == 0`, score is `0.0`.
+2. **Calculate Dead Code Density:**
 $$\text{GhostLines} = \text{graveyard\_hits} \times 3.0$$
 $$\text{Density} = \left( \frac{\text{GhostLines}}{\max(\text{TotalLOC}, 50.0)} \right) \times 100.0$$
-
-### Step 3: Compute Contextual Tolerance Threshold
-A base tolerance threshold of 10% dead code density is adjusted by the directory Path Modifier ($Mp$):
-
+3. **Compute Contextual Tolerance Threshold:**
 $$\text{Threshold} = \frac{10.0}{\max(Mp, 0.1)}$$
-
-### Step 4: Sigmoidal Score Mapping
-Density maps to a 0–100 risk score using a Sigmoid curve (slope $= 0.3$):
-
+4. **Sigmoidal Score Mapping:**
 $$\text{Score} = \frac{100.0}{1 + e^{-0.3 \times (\text{Density} - \text{Threshold})}}$$
 $$\text{FinalScore} = \min(\text{Score}, 100.0)$$
 
-## Python Implementation Reference
-
-```python
-import math
-from typing import Dict
-
-def _calc_graveyard(self, total_loc: float, raw_signals: Dict[str, int], mp: float) -> float:
-    # Step 1: Clean File Short-Circuit
-    hits = raw_signals.get("graveyard", 0)
-    if hits == 0:
-        return 0.0
-        
-    t = self.risk_tuning.get("graveyard", {})
-    
-    # Step 2: Calculate Dead Code Density
-    ghost_lines = hits * t.get("hit_mult", 3.0)
-    safe_floor = t.get("safe_mass_floor", 50.0)
-    density = (ghost_lines / max(total_loc, safe_floor)) * 100.0
-    
-    # Step 3: Compute Contextual Tolerance Threshold 
-    threshold = t.get("threshold_base", 10.0) / max(mp, 0.1) 
-    
-    # Step 4: Sigmoid Mapping
-    try:
-        score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.3) * (density - threshold)))
-    except OverflowError:
-        score = 100.0 if density > threshold else 0.0
-        
-    return min(score, 100.0)
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Static Analyzer] -->|Graveyard Hits| B[Density Calculation]
+    B -->|Contextual Threshold| C[Sigmoid Mapping]
+    C -->|Dead Code Score| D[Risk Output]
 ```
+- **Inputs received:** Heuristic `graveyard_hits` from static parser, `TotalLOC`, and Path Modifier ($Mp$).
+- **Outputs produced:** A normalized graveyard risk score (0-100).
+- **Dependencies:** Relies upstream on accurate regex differentiation between natural language comments and code-comments.
 
----
+## Tradeoffs
+- Implements a minimum safe floor of 50 LOC. This decision explicitly sacrifices mathematical purity for small files to prevent a single 3-line commented snippet from generating a 100.0 score in a 5-line script.
+- Uses an estimated multiplier (3.0x lines per hit) rather than tracking exact line-counts of the commented block. This drastically speeds up parsing logic but sacrifices exact volume precision.
+- Bypasses language opacity ($Irc$) and fidelity ($Fc$) because dead code causes equivalent cognitive friction regardless of the underlying language syntax.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- Heavily dependent on heuristic regex. Highly technical natural language comments (e.g., Markdown code blocks inside docstrings) may be falsely flagged as dead code.
+- Conversely, small, isolated variables commented out on a single line might not trigger the density heuristic and could be missed.
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Includes an immediate short-circuit for clean files (`graveyard_hits == 0`). Since the majority of production files have zero dead code, this avoids triggering floating-point math entirely, ensuring near-instantaneous execution.
 
-**[⬅️ Back to Master Index](index.md)**
+## Future Work
+Currently relies on static regex heuristics. Planned improvements involve utilizing AST parsers to attempt a dry compilation of the comment blocks to explicitly verify if the content is valid, compilable code rather than technical prose.
+
+## Related Components
+- Static Analysis Engine
+- Path Modifier ($Mp$)

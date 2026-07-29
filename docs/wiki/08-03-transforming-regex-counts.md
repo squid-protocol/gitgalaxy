@@ -1,58 +1,48 @@
-# Normalizing Heuristic Regex Counts (Universal Exposure Framework)
+# Transforming Regex Counts (Universal Exposure Framework)
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-> **The Universal Exposure Framework**
->
-> Raw static regex counts can be noisy or misleading if uncalibrated (for instance, being skewed by empty catch blocks or lacking full AST compiler context). To convert heuristic signals into actionable architecture metrics, GitGalaxy implements the Universal Exposure Framework (UEF), which processes raw occurrence counts through deterministic normalization transformations.
+## Engineering Summary
+This metric normalization subsystem, known as the Universal Exposure Framework (UEF), recalibrates raw static regex counts into stable architectural indicators. It solves the problem of raw hit counts being noisy, misleading, or skewed by codebase size. It exists to provide deterministic, language-aware filtering of heuristic signals. Within GitGalaxy, the UEF calculates final, tiered risk outputs from raw data variables.
 
-## The Four Stabilizing Principles
+## Purpose
+To process raw occurrence counts through deterministic normalization transformations, stabilizing signals and eliminating false positives across different language paradigms.
 
-To mitigate false positives and count instability, the static analysis engine applies four core normalization principles:
+## Problem Being Solved
+Uncalibrated static regex counts penalize large files for minor issues and treat structural risk and defensive logic as a flawed 1:1 offset. The UEF stabilizes these signals into actionable, normalized intelligence.
 
-* **Weighted Asymmetry (Defensive Multiplier):** Heuristic counters should not treat vulnerabilities and safeguards as equivalent 1:1 offsets ($1 - 1 = 0$). Securing complex logic requires greater effort than introducing flaws. The engine applies a **2.5x multiplier** to identified risk signals, requiring modules to exhibit strong defensive density before earning a "Defended" rating.
-* **The Breach Cap (Zero-Trust Guardrail):** High test coverage or defensive comments must not hide severe architectural defects. If raw **Risk Hits** exceed **Guardrail Hits**, the module's safety rating is capped at "Fragile," overriding standard mathematical averages with a strict risk threshold.
-* **Sigmoid Gating (Noise Suppression):** Linear counting penalizes large files for minor, isolated issues. The engine uses a logistic sigmoid function to filter out low-density noise (0–5% risk density) while scaling exponentially as risk density crosses critical thresholds (~20%).
-* **Quantized Metric Tiering:** Numerical scores like "87.4%" imply artificial precision in static regex scanning. Score outputs are binned into five qualitative operational tiers (**Unshielded, Fragile, Stable, Defended, Fortified**), giving teams a clear binary signal on module health.
+## Design
+Applies four stabilizing principles:
+1. **Weighted Asymmetry:** Defensive hits receive a 2.5x multiplier to demand strong defensive density.
+2. **The Breach Cap:** If raw risk hits exceed guardrail hits, the safety rating is severely capped, bypassing averages.
+3. **Sigmoid Gating:** Uses a logistic sigmoid function to filter low-density noise (0-5%) and scale exponentially as risk crosses thresholds.
+4. **Quantized Tiering:** Scores are binned into qualitative tiers (Unshielded to Fortified).
 
-## Metric Calibration and Language Risk Models
-
-Rather than applying a uniform formula across all source files, the engine instantiates calibrated risk models tailored to each risk domain and programming language paradigm.
-
-### Language Confidence Tiers
-
-Programming languages are categorized into confidence tiers that govern defensive dampening and risk penalties:
-
-| Confidence Tier | Classification | Example Languages | Normalization Treatment |
-| :--- | :--- | :--- | :--- |
-| **Tier 1** | Explicit / Strongly Typed | Rust, Go, C++ | Baseline calculations; maximum trust in type system and error handling keywords. |
-| **Tier 2** | Structured / Managed | Java, TypeScript | Standard calculations with minor defensive dampening. |
-| **Tier 3** | Implicit / Dynamic | Shell, Python, JavaScript | Elevated risk penalty ("Opacity Tax") and dampened defensive keyword confidence. |
-
-### Universal Model Variables
-
-* **$Fc$ (Fidelity Coefficient):** Scaling factor reducing confidence weight for defensive keywords in dynamic or weakly-typed languages.
-* **$Irc$ (Implicit Risk Correction):** Flat risk penalty added to dynamic languages to compensate for missing compile-time checks.
-* **$Mp$ (Path Multiplier):** Contextual weight modifier based on repository file location (e.g., Core vs. Utility vs. Test directories).
-
-### General Risk Equation
-
-All risk domain calculations conform to this unified mathematical structure:
-
+Language Confidence Tiers (1 to 3) apply Fidelity Coefficients ($Fc$) and Implicit Risk Corrections ($Irc$) based on language strictness.
+General Risk Equation:
 $$RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \times Fc)}{LOC} \right) \times Mp$$
 
-<br><br>
+## Pipeline Integration
+- **Inputs:** Raw regex counts, LOC, language metadata.
+- **Outputs:** Normalized, quantized risk tiers (1-5).
+- **Dependencies:** Receives input from the scanner extraction module and feeds into the knowledge graph and visual mapping layers.
 
----
+Scanner Extraction -> Universal Exposure Framework -> Quantized Tier Output
 
-### Powered by the blAST Engine
+## Tradeoffs
+The sigmoid gating principle aggressively suppresses minor risks in large files, intentionally sacrificing micro-level visibility to prevent "alert fatigue" on the macro level. Language confidence tiers generalize thousands of languages into three buckets, reducing precision for niche languages.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+## Limitations
+- The 2.5x defensive multiplier is empirically derived and may not perfectly align with specific internal security postures.
+- Path Multipliers ($Mp$) rely on standard directory naming conventions (`src/`, `test/`) which may fail in non-standard repositories.
 
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+## Performance Notes
+Processing utilizes constant-time floating-point math per file component, resulting in $O(1)$ metric transformation time per unit post-extraction.
 
----
+## Future Work
+- Machine learning parameter tuning for Fidelity Coefficients based on historical vulnerability tracking.
+- Configurable Breach Cap thresholds per repository.
 
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Overview of Methodology](08-01-methodology.md)
+- [Sub-Equations](08-02-sub-equations.md)

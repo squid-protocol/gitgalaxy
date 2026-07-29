@@ -2,71 +2,49 @@
 
 > **File Reference:** [`gitgalaxy/core/prism.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/prism.py)
 
-The `LogicSplicer` module in `gitgalaxy/core/prism.py` acts as the source code tokenizer and stream separator for GitGalaxy. Once a file's language identity (`lang_id`) is confirmed, the splicer applies language-specific regular expression rules (`LanguageSpec`) to split the source file into two isolated streams: an **Executable Code Stream** (`coding_stream`) and a **Comment & Documentation Stream** (`comment_stream`).
+## Engineering Summary
+This subsystem is the source code tokenizer and stream separator. It solves the problem of metric distortion caused by commented-out code blocks or documentation text intermingled with executable logic. It exists to split the source file into isolated executable code and comment streams using language-specific rules. Within the pipeline, this component functions as the structural lexical splicer for GitGalaxy.
 
-Separating executable code from comments eliminates metric distortion caused by commented-out code blocks or documentation text.
+## Purpose
+To securely mask string literals and separate a source file into two isolated streams (code and comments) to prevent analysis distortion.
 
----
+## Problem Being Solved
+Static analysis tools often yield false positives when they process commented-out code or string literals containing structural characters (e.g., `{`, `}`). Separating these streams ensures metrics reflect only actual executable logic.
 
-## Structural Viability & Deflection Gates
+## Design
+The splicer applies confidence threshold gates and prose deflection before parsing. It employs an Atomic Literal Shield to mask string sequences (e.g., C++ raw strings, heredocs, Ruby bracketed sequences) to prevent them from breaking bracket-tracking parsers. It generates two outputs:
+1. Executable Code Stream: Mapped with spatial coordinates for $O(N)$ correlation checks (taint, suppression, memory leaks) and token mass evaluation.
+2. Comment Stream: Parsed for technical debt markers (`TODO`, `FIXME`) and commented-out code (Graveyard Analysis).
+It uses 5 distinct parsing modes based on language family: Label-Based, Recursive Scope Tracking, Density Stratification, Semantic Keyword Stacking, and Terminator Cleaving.
 
-Before executing full regular expression parsing, the splicer enforces viability checks:
+## Pipeline Integration
+Inputs: Confirmed language IDs and raw source files.
+Outputs: Separate code stream and comment stream buffers.
+Dependencies: Upstream language identifier; downstream structural code analyzer (`detector.py`).
 
-* **Confidence Threshold Gate:** Files entering the splicer with confidence scores below `0.42` or belonging to declarative data formats (`json`, `yaml`, `csv`) bypass structural function slicing, registering as static file mass.
-* **Prose Deflection:** Markdown (`.md`) and plaintext (`.txt`) files bypass code stream analysis, routing content directly to documentation metrics.
-* **Header Override Gate:** Declarative C/C++ header files (`.h`) lacking traditional function braces often fail low-level confidence thresholds. If locked to a C-family language by `language_lens.py`, the splicer boosts parsing confidence to `1.0`, ensuring macro headers are fully analyzed.
+```mermaid
+flowchart LR
+    A[Raw Source & Lang ID] --> B[Stream Splicer]
+    B --> C[Executable Code Stream]
+    B --> D[Comment Stream]
+    C --> E[Structural Analyzer]
+```
 
----
+## Tradeoffs
+- **Masking vs AST Parsing**: Uses atomic literal shielding (regex-based masking) instead of full AST parsers to separate code and strings. This trades syntactic perfection for immense speed and resilience to broken/incomplete code.
+- **Timeouts for ReDoS**: Imposes a 0.5-second limit on string masking. This sacrifices the ability to cleanly parse pathologically complex obfuscated strings to guarantee system stability.
 
-## Atomic Literal Shielding
+## Limitations
+- Declarative data formats (`json`, `yaml`) bypass slicing.
+- Misclassified languages will cause the splicer to use incorrect scope tracking logic, leading to malformed code streams.
+- Relies on heuristics for heredoc isolation, which can fail on extremely unconventional formatting.
 
-String literals containing braces (`{}`), parentheses (`()`), or quotes (`"`) can desynchronize bracket-tracking scope parsers. The splicer applies an **Atomic Literal Shield** to mask string content while preserving exact line counts and character index alignments:
+## Performance Notes
+The atomic literal shield uses timed execution loops. Spatial coordinate mapping enables $O(N)$ correlation checks instead of $O(N^2)$ cross-comparisons. Uses `tiktoken` for fast LLM context token counting.
 
-* **Multi-Character Sequence Masking:** Processes complex string sequences prior to single quotes. Correctly masks C++ raw string literals (`R"EOF(...)EOF"`) and Python triple quotes (`"""`, `'''`) without prematurely triggering on internal double quotes.
-* **Heredoc Isolation:** Deploys a line-by-line state machine for scripting languages (Bash, Ruby, Elixir) to isolate multi-line heredoc blocks (`<<-EOF`), masking content that contains shell control characters.
-* **Ruby Sequence Masking:** Evaluates and masks Ruby bracketed string sequences (`%w[...]`, `%q{...}`, `%x(...)`), preventing internal brackets from corrupting keyword scope stacks.
-* **Performance Guard (ReDoS Monitoring):** Times regular expression execution during shielding. If string masking takes longer than 0.5 seconds on obfuscated files, diagnostic warnings are logged to isolate backtracking bottlenecks.
+## Future Work
+Adding support for more exotic string literal formats in niche languages and improving the speed of the heredoc state machine.
 
----
-
-## Code Stream vs. Comment Stream Separation
-
-### 1. Executable Code Stream (`coding_analysis`)
-Measures physical properties of executable logic:
-* **Spatial Coordinate Mapping:** Records index coordinates for every structural match, enabling $O(N)$ spatial correlation checks:
-  * **Taint Correlation:** Tracks untrusted I/O calls operating near dynamic execution calls (`eval`/`exec`).
-  * **Suppression Checking:** Verifies if error suppression directives exist near unsafe execution blocks.
-  * **Concurrency Checking:** Correlates state mutations against asynchronous thread spawns lacking mutex synchronization locks.
-  * **Memory Leak Identification:** Matches memory allocation calls against cleanup calls to flag unmitigated allocations.
-* **Orphan & Duplicate Function Detection:** Performs an $O(1)$ word-frequency tally across the file to flag unused or duplicated function declarations.
-* **Token Mass & Structural Archetype Classification:** Calculates exact token count via `tiktoken` (`cl100k_base`) to compute LLM context costs. Calculates cyclomatic depth, recursion, and structural complexity (Gini index) to classify functions into structural archetypes (e.g., God Function, State Mutator, I/O Bridge).
-
-### 2. Comment & Documentation Stream (`comment_analysis`)
-Parses documentation literature independently from executable code:
-* **Technical Debt Tracking:** Identifies planned debt markers (`TODO`, `FIXME`) and fragile debt markers (`HACK`, `XXX`).
-* **Commented Code Detection (Graveyard Analysis):** Identifies commented-out execution blocks or hidden URL structures inside comments.
-* **Documentation Density:** Measures documentation volume relative to code length to establish maintainability metrics.
-
----
-
-## Integration Modes (5 Language Parsing Algorithms)
-
-The Master Dispatcher selects one of five scope extraction modes based on language family:
-
-* **Mode A: Label-Based Slicing (Procedural Languages):** Used for Assembly, AGC, and COBOL. Captures logic from target labels until reaching explicit return statements (`RET`, `GOBACK`, `END-PERFORM`).
-* **Mode B: Recursive Scope Tracking (C-Family & Lisp):** Tracks nested braces (`{}`) or parentheses (`()`). Includes preprocessor shields to prevent floating macro braces (`#else {`) from corrupting scope stacks.
-* **Mode C: Density Stratification (Python & YAML):** Evaluates indentation levels. Identifies structural keywords (`def`, `class`), records baseline indentation, and captures logic until indentation drops back to baseline.
-* **Mode D: Semantic Keyword Stacking (Scripting Languages):** Used for Shell, Ruby, Lua, and Elixir. Tracks structural depth using keyword pairs (`if`/`fi`, `def`/`end`). Includes inline modifier guards to prevent single-line statements (`return if condition`) from corrupting depth counters.
-* **Mode E: Terminator Cleaving (Declarative Languages):** Used for SQL, Erlang, and Prolog. Begins block collection on igniter keywords (`SELECT`, `CREATE`) and closes blocks upon encountering statement terminators (`;` or `.`).
-
----
-
-### Ecosystem References
-
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `prism.py`.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository visualization engine.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Language Lens](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-05-language-lens.md)
+- [The Detector](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-08-the-detector.md)

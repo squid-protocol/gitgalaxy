@@ -2,53 +2,44 @@
 
 > **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/analysis_lens.py)
 
-The `analysis_lens.py` module defines the mathematical schemas, metric vectors, string translation maps, and security policy thresholds utilized throughout the GitGalaxy static analysis engine. 
+## Engineering Summary
+Mathematical schemas and normalization formulas for extracted source code metrics form the core of this module. It solves the problem of standardizing disparate telemetry data by flattening object-oriented syntax counts into contiguous numerical arrays. This subsystem transforms raw syntax hits into calculated risk vectors and visual attributes, acting as the mathematical normalization layer for GitGalaxy.
 
-While `language_standards.py` defines how to parse syntax across different languages, `analysis_lens.py` defines the mathematical meaning, array schemas, and risk normalization formulas applied to the extracted data.
+## Purpose
+To enforce strict schema layouts for metric vectors and apply standardized mathematical thresholds for security and risk evaluation.
 
-## Metric Schemas (`RECORDING_SCHEMAS`)
+## Problem Being Solved
+Exporting raw syntax counts directly to visualization or audit tools creates inconsistent payload structures. This registry normalizes data into contiguous arrays to ensure predictable ingestion by WebGL buffers and reporting systems.
 
-To flatten object-oriented analysis data into contiguous arrays for efficient processing, storage, and WebGL rendering, `analysis_lens.py` defines three primary vector schemas:
+## Design
+The module defines three core schemas:
+- `SIGNAL_SCHEMA`: A 60-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
+- `RISK_SCHEMA`: An 18-point vector representing normalized risk exposure (e.g., tech debt, secrets risk) on a 0-100 scale.
+- `SAT_SCHEMA`: A 10-element array for individual function metadata (e.g., LOC, complexity).
+It also includes string translation maps and security thresholds.
 
-### 1. `SIGNAL_SCHEMA` (60-Point Heuristic Vector)
-Defines the layout of raw syntax telemetry extracted during file parsing. Extracted regular expression hits are aggregated into this 60-element array, representing raw measures of active logic (e.g., `branch`, `memory_alloc`), structural indicators (e.g., `doc`, dead code markers), and security signals (e.g., `sec_danger`, `sec_io`).
+## Pipeline Integration
+- **Inputs**: Raw syntax counts extracted by the language parser.
+- **Outputs**: Flattened schema arrays (60-point, 18-point, 10-point) and mapped UI strings.
+- **Dependencies**: Consumes data from `language_standards`; outputs are passed to UI renderers and audit loggers.
+```text
+Raw Syntax Counts -> Analysis Lens & Schema Registry -> Normalized Risk and Signal Vectors
+```
 
-### 2. `RISK_SCHEMA` (18-Point Risk Exposure Vector)
-Defines the structure of processed risk exposure metrics computed by `SignalProcessor`. Raw 60-point signal vectors are transformed into 18 standardized risk metrics (e.g., `cognitive_load`, `tech_debt`, `secrets_risk`, `memory_corruption`), with each evaluated file receiving normalized risk scores from 0.0 to 100.0.
+## Tradeoffs
+Using contiguous flat arrays for schemas discards hierarchical metadata present in the original source code. This structural loss was accepted to optimize data serialization speed and minimize memory allocation overhead during bulk array processing.
 
-### 3. `SAT_SCHEMA` (Function Metadata Array)
-Defines the 10-element array structure used to represent individual function definitions within visualization payloads. Encodes function metrics such as Lines of Code (LOC), Control Flow Ratio, estimated algorithmic complexity, and parameter counts.
+## Limitations
+- Fixed-size schemas mean that adding a new metric requires a global schema update and pipeline restart.
+- Normalization formulas use static thresholds which may not suit all project risk profiles equally.
 
-## Translation Dictionaries
+## Performance Notes
+Contiguous numerical arrays align perfectly with WebGL memory buffers, enabling zero-copy or minimal-copy data transfers to the GPU renderer.
 
-For reporting tools, JSON audits, and LLM integrations, `analysis_lens.py` provides translation mappings from internal telemetry keys to human-readable strings and rendering codes:
+## Future Work
+- Enable dynamic schema extensions without requiring core engine restarts.
+- Implement machine-learning weights for risk normalization instead of static thresholding.
 
-* **`FRIENDLY_MAP`:** Translates raw metric keys into human-readable descriptions (e.g., mapping `sec_bitwise_hits` to "Bitwise Operations & Custom XOR Logic").
-* **`EXPOSURE_LABELS`:** Formats keys in the 18-point risk vector for audit output (e.g., mapping `secrets_risk` to "Secrets Risk Exposure").
-* **`GPU_TEXTURE_LOOKUPS`:** String-interning dictionary that maps functional archetypes (e.g., `io`, `mutation`, `event`, `logic`) to integer identifiers for WebGL shader material rendering.
-
-## Mathematical Constants and Risk Policies
-
-`analysis_lens.py` houses global numerical constants used across risk scoring and network centrality calculations:
-
-* **Dynamic Language Uncertainty Factors:** Weight multipliers applied to dynamically typed or shell scripting languages to reflect runtime unpredictability.
-* **Network Centrality Weights:** Defines PageRank and Betweenness Centrality coefficients used to calculate systemic risk and dependency exposure.
-* **Security Alert Thresholds:** Defines floating-point cutoff levels (e.g., > 60.0%) that trigger `ELEVATED_SURFACE_RISK` and `CRITICAL_THREATS_DETECTED` status flags in generated security reports.
-
-## Maintainability & Schema Integrity
-
-Centralizing schemas in `analysis_lens.py` ensures consistency across the pipeline. Adding a new analysis metric requires updating the schema definitions in this module, which automatically propagates through the parser, signal processor, export recorders, and visualization components.
-
----
-
-### Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Language Standards Registry](06-02-language-standards.md)
+- [GitGalaxy Configuration Registry](06-01-gitgalaxy-config.md)

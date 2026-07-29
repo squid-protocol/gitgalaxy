@@ -2,84 +2,57 @@
 
 > **File Reference:** [`gitgalaxy/galaxyscope.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/galaxyscope.py)
 
-The `Orchestrator` class defined in `galaxyscope.py` serves as the primary execution engine and process manager for the GitGalaxy static analysis framework. It coordinates data ingestion, worker process pools, multi-pass metric evaluations, network dependency mapping, and serialization exporters. The orchestrator ensures deterministic, sequential execution across all pipeline phases.
+## Engineering Summary
+This subsystem is the primary execution engine and process manager for the static analysis framework. It solves the problem of coordinating data ingestion, multi-pass metric evaluations, worker process pools, and serialization exporters in a deterministic sequence. It exists to ensure that all pipeline phases execute reliably, aggregating global repository properties and eliminating non-code noise early. Within the broader system, it functions as the central controller orchestrating GitGalaxy.
 
----
+## Purpose
+To control the flow of codebase artifacts through multi-stage sequential passes, applying dynamic configuration and runtime execution overrides.
 
-## Sequential Execution Pipeline
+## Problem Being Solved
+Managing a complex data pipeline requiring parallel execution, dependency resolution, and multi-format serialization requires a robust coordinator to prevent race conditions, memory bloat, and uncontrolled execution times.
 
-The analysis pipeline processes codebase artifacts through multi-stage sequential passes to eliminate non-code noise early and aggregate global repository properties across files.
+## Design
+The orchestrator executes a sequence of operations:
+1. Census & validation (Git index checking, quotas).
+2. Parallel map-reduce for lexical extraction (bypassing GIL).
+3. Dependency graph resolution (using an $O(1)$ pre-computed suffix hash map).
+4. Relational aggregation (directory ecosystems, test umbrella).
+5. Directed graph topology (PageRank, Betweenness).
+6. AI guardrails & AppSec assessment.
+7. Statistical quality audit (50/0 rule, Z-score).
+8. Spatial layout (ray-casting Fibonacci packing).
+9. Metrics synthesis, ML inference, and serialization.
 
-### Phase 0: Project Census & Pre-Flight Validation
-Initializes the scan by querying the Git index (or executing a filesystem walk if Git authority is unavailable). Performs path validation to purge broken symlinks or deleted references, tallies file extension distributions, and applies folder micro-file quotas to exclude low-value assets.
+Dynamic overrides like dialect pre-flight patching and runtime security switches (Zero-Trust Mode) modify policies dynamically.
 
-### Phase 1: Parallel Lexical Extraction (Map-Reduce)
-Spawns a multi-core `ProcessPoolExecutor` to analyze files concurrently across worker memory spaces, bypassing Python's Global Interpreter Lock (GIL). Worker processes pass each file through the File Filter (`aperture.py`), Language Identifier (`language_lens.py`), Lexical Splicer (`prism.py`), and Structural Analyzer (`detector.py`). A 15-second execution timeout guard is enforced per file to prevent Regular Expression Denial of Service (ReDoS) stalls.
+## Pipeline Integration
+Inputs: Codebase artifacts, dynamic configuration overrides, runtime flags.
+Outputs: Processed graph state, metadata-locked artifacts, multi-format serialization.
+Dependencies: Downstream modules like `aperture.py`, `prism.py`, `detector.py`, `NetworkRiskSensor`.
 
-### Phase 1.5: Dependency Graph Resolution & Security Checking
-Builds an $O(1)$ pre-computed suffix hash map to resolve raw import strings to physical repository file paths. Simultaneously executes Levenshtein distance checks on external dependencies to detect potential typosquatting or homoglyph library threats.
+```mermaid
+flowchart LR
+    A[Configuration & Git Index] --> B[Orchestrator]
+    B --> C[Worker Processes]
+    C --> D[Multi-Format Exporters]
+```
 
-### Phase 2: Relational Aggregation & Global Context
-Evaluates repository-wide relationships across directories:
-* **Directory Ecosystem Classification:** Tallies language distributions per folder to establish dominant ecosystem contexts (e.g., frontend vs. backend), penalizing anomalous cross-domain language placement.
-* **Repository Test Umbrella:** Calculates aggregate test code density to apply global defense score bonuses repository-wide.
+## Tradeoffs
+- **In-Memory Delta Scans**: Chose to rehydrate state into memory for incremental scans to maximize speed, sacrificing memory footprint for rapid re-computation of graph metrics.
+- **Timeout Guards vs Completeness**: Enforces a 15-second timeout on worker processes. This sacrifices full completeness on massive or complex files to ensure pipeline liveness and avoid ReDoS.
 
-### Phase 3: Directed Graph Topology & Centrality Metrics
-Constructs a directed dependency graph via `NetworkRiskSensor` using resolved imports. Computes PageRank (structural dependency mass), Betweenness centrality (architectural choke points), and Closeness centrality to define operational roles for every file.
+## Limitations
+- Scaling limits based on available memory for graph aggregation phases.
+- Heuristic mapping of dependencies may miss dynamic imports.
+- ReDoS timeouts will result in skipped files.
 
-### Phase 3.5: AI Guardrails & AppSec Threat Assessment
-Evaluates codebase agentic security via `DevAgentFirewall` and `AIAppSecSensor`. Identifies over-permissioned execution hooks, LLM context-window limits, and prompt injection attack vectors that could expose systems to Remote Code Execution (RCE).
+## Performance Notes
+Utilizes an $O(1)$ pre-computed suffix hash map to resolve import strings to physical paths rapidly. Bypasses the GIL using a `ProcessPoolExecutor`. Pre-warms regex caches to eliminate compilation overhead during map-reduce.
 
-### Phase 4: Statistical Quality Audit
-Runs Bayesian statistical quality checks via `StatisticalAuditor`. Enforces the 50/0 rule (flagging zero-signal code files over 50 lines) and robust Z-score density checks, excluding unparseable blobs from primary code metrics.
+## Future Work
+Enhancing the spatial layout algorithms for larger scale codebases and optimizing memory usage during delta rehydration.
 
-### Phase 5: Spatial Layout & Cartography
-Transforms verified file node data into 3D spatial layout coordinates using a ray-casting Fibonacci packing algorithm in `detector.py` and spatial layout mappers.
-
-### Phase 6: Metrics Synthesis & Drift Analysis
-Executes Pass 2 metric normalization via `SignalProcessor`. Scales modification metrics logarithmically against repository maximums and measures biaxial architectural drift (global repository norms vs. local language patterns).
-
-### Phase 7.8: Machine Learning Threat Inference
-Ingests file metric feature matrices into an XGBoost multiclass model in `SecurityAuditor` to predict probabilities of trojan payloads, botnet routines, and obfuscated executables.
-
-### Phase 8 & 9: Multi-Format Output Serialization
-Routes processed graph state to configured exporters (Audit JSON, LLM Markdown context, SQLite database, WebGL visualization payload).
-
----
-
-## Adaptive Configuration & Execution Overrides
-
-The orchestrator supports dynamic configuration adjustments and runtime execution controls based on repository context:
-
-### Domain Dialect Pre-Flight Patching
-Checks scanning configuration for registered project dialects (e.g., CPython, Ansible, Redis). Live-patches regular expression rules and path filters to match specific framework conventions without breaking global standards.
-
-### Worker Process Cache Pre-Warming
-Pre-loads regular expression rule dictionaries into worker processes upon initialization (`LogicSplicer` cache warming). Prevents redundant regex compilation logs and eliminates CPU throttling during process pool execution.
-
-### Runtime Security Policy Switches (Zero-Trust Mode)
-Allows runtime adjustment of security scanner thresholds. When executed with the `--paranoid` flag, the orchestrator injects strict threat policies, lowering detection thresholds for memory corruption, command injection, and logic bombs.
-
-### Critical Threat Asset Highlighting
-Ensures critical security findings (e.g., exposed private keys flagged by `SecurityLens` or binary model files parsed by `NeuralAuditor`) are explicitly injected into visualization outputs, guaranteeing visual representation even if structural parsing was bypassed.
-
-### Delta Scans via RAM Rehydration
-Supports incremental scans (`execute_delta_mission`). Rehydrates previous scan results into memory, re-analyzing only added or modified files through Phase 1 before instantly recalculating global graph metrics and ML inferences (Phases 2-7).
-
-### Selective Output Serialization
-Includes dedicated CLI output flags (`--gpu-only`, `--audit-only`, `--llm-only`, `--db-only`) that bypass unneeded formatting passes, reducing memory usage and disk I/O latency.
-
-### Immutable Session Metadata Locking
-Attaches an immutable `session_meta` dictionary to generated output artifacts, recording engine version, scan duration, Git commit SHA-1 hash, branch name, remote repository URL, and commit timestamp for regulatory and compliance tracking (SBOM).
-
----
-
-### Ecosystem References
-
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Pipeline source code and execution modules.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - WebGL graph cartography interface.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+- [Pipeline Overview](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-01-pipeline-overview.md)
+- [Aperture Filter](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-03-aperture-filter.md)
 

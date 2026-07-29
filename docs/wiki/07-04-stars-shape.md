@@ -2,54 +2,47 @@
 
 > **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-GitGalaxy morphs node mesh geometry in the 3D visualizer based on a file's **Control Flow Ratio** ($R_L$). This geometric transformation distinguishes declarative, data-structure code (smooth sphere primitives) from complex algorithmic code (sharp polyhedral wireframes) at a glance.
+## Engineering Summary
+A geometric classification system alters 3D mesh primitives based on the ratio of decision-making logic to structural data declarations within a file. It solves the problem of visually differentiating between data-heavy files and algorithmic routines. By morphing mesh shapes, this subsystem explicitly defines the functional archetype of code modules, known as the node geometry mapping in GitGalaxy.
 
-## Heuristic Inputs and Categorization
+## Purpose
+To visually classify files into structural archetypes (e.g., data models, controllers, algorithms) based on internal logic density.
 
-Extracted regular expression hits are classified into two structural buckets:
+## Problem Being Solved
+File size and popularity do not indicate the actual nature of the code. A massive JSON configuration and a mathematical parser might share similar sizes, but they require entirely different maintenance approaches.
 
-1. **Branch Hits (`BranchHits`):** Measures decision points and control flow complexity. Matches keywords such as `if`, `else`, `switch`, `case`, `for`, `while`, `catch`, logical operators (`&&`, `||`), and ternary operators (`?`).
-2. **Linear Hits (`LinearHits`):** Measures structural declarations and data definitions. Matches keywords such as `const`, `let`, `return`, `import`, `export`, `class`, `interface`, and `type`.
+## Design
+The system calculates a Control Flow Ratio ($R_L$):
+$$R_L = \frac{BranchHits}{BranchHits + LinearHits}$$
+Based on $R_L$, the node is assigned a specific geometric primitive:
+- `< 0.60`: Smooth Sphere (Declarative data)
+- `0.60 - 0.69`: 20-Facet Icosahedron (Lightweight utilities)
+- `0.70 - 0.79`: 12-Facet Dodecahedron (Business logic)
+- `0.80 - 0.89`: 8-Facet Octahedron (Algorithmic logic)
+- `>= 0.90`: 4-Facet Tetrahedron (Dense control flow, state machines)
 
-## Control Flow Ratio Formula
+## Pipeline Integration
+- **Inputs**: `BranchHits` and `LinearHits` extracted during syntax parsing.
+- **Outputs**: Selection of a WebGL `BufferGeometry` type.
+- **Dependencies**: Relies on metrics from `language_standards`; outputs are passed to the 3D instanced mesh renderer.
+```text
+Syntax Heuristic Counts -> Control Flow Ratio Calculation -> 3D Mesh Assignment
+```
 
-The **Control Flow Ratio** ($R_L$) represents the proportion of total syntax hits dedicated to decision branching:
+## Tradeoffs
+Using discrete geometry bins creates hard boundaries for continuous data. This was chosen over procedural mesh deformation to allow the use of efficient, pre-calculated geometry instancing in WebGL.
 
-$$\text{TotalFlow} = \text{BranchHits} + \text{LinearHits}$$
+## Limitations
+- Languages that merge declarations with control flow (e.g., functional languages) may generate skewed $R_L$ values.
+- Wireframe rendering for high-$R_L$ files can cause visual aliasing on low-resolution displays.
 
-$$R_L = \frac{\text{BranchHits}}{\text{TotalFlow}}$$
+## Performance Notes
+Reusing five static `BufferGeometry` definitions via Instanced Mesh rendering minimizes draw calls and GPU memory overhead, enabling the display of hundreds of thousands of files.
 
-* **$R_L = 0.0$:** Purely declarative code (e.g., JSON schemas, TypeScript interfaces, configuration files).
-* **$R_L = 0.5$:** Balanced application business logic (e.g., standard controllers and services).
-* **$R_L = 1.0$:** Pure decision-dense logic (e.g., parsing state machines, mathematical utilities, or recursive algorithms).
+## Future Work
+- Implement smooth procedural mesh blending in the vertex shader for continuous visual transitions.
+- Normalize $R_L$ baselines dynamically based on the specific programming language paradigm.
 
-## Geometric Morphing Thresholds
-
-Based on $R_L$, the WebGL visualizer selects one of five `BufferGeometry` mesh primitives:
-
-| Control Flow Ratio ($R_L$) | 3D Mesh Geometry | Rendering Style | Code Structural Archetype |
-| :--- | :--- | :--- | :--- |
-| **0.00 - 0.59** | **Sphere** | Solid Emissive Surface | Data structures, schemas, and static configuration files. |
-| **0.60 - 0.69** | **Icosahedron** | 20-Faceted Wireframe Mesh | Mostly declarative class modules and lightweight utilities. |
-| **0.70 - 0.79** | **Dodecahedron** | 12-Faceted Wireframe Mesh | Balanced application business logic. |
-| **0.80 - 0.89** | **Octahedron** | 8-Faceted Wireframe Mesh | Algorithmic modules with high decision density. |
-| **0.90 - 1.00** | **Tetrahedron** | 4-Faceted Sharp Wireframe | Complex control flow, recursive routines, and state machines. |
-
-## Material & Shading Behavior
-
-* **Declarative Code ($R_L < 0.60$):** Rendered with smooth emissive shading, representing stable, non-branching data structures.
-* **Algorithmic Code ($R_L \ge 0.60$):** Rendered as polyhedral wireframe meshes. Facets and sharp edges become visible, visually highlighting high decision complexity and control-flow density.
-
----
-
-### Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Visual Code Complexity Mapping](07-01-code-complexity.md)
+- [File Node Scaling & Structural Mass](07-02-stars-size.md)

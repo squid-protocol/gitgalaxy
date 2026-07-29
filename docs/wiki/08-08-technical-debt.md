@@ -11,87 +11,58 @@
 > * 🟨 **INTERMEDIATE (Score 40-59):** Active Development. A moderate density of planned task markers.
 > * 🟥 **VERY HIGH (Score 80-100):** High Risk. High density of fragile fixes (`HACK`, `FIXME`) and unfinished stubs (`TODO`).
 
-## Metric Inputs (Heuristic Comment Scanning)
+## Engineering Summary
+This subsystem quantifies explicit technical debt by analyzing developer code annotations. It solves the problem of unmanaged debt accumulation by converting qualitative comments (`TODO`, `FIXME`) into a measurable density metric. The system exists to distinguish between standard planned work and admitted structural fragility. By normalizing these markers per line of code, it integrates into GitGalaxy as a targeted indicator of code quality and maintenance backlog.
 
-The static analysis engine pre-scans comment tokens and passes hit counts to the Signal Processor:
+## Purpose
+To calculate the density of planned work versus admitted logic fragility and map this density into an actionable technical debt risk score.
 
-| Input Variable | Target Markers | Weight | Description |
-| :--- | :--- | :--- | :--- |
-| `planned_debt_hits` | `TODO`, `WIP`, `STUB`, `REFACTOR` | 1.0x | **Planned Work.** Tracked future tasks or temporary stubs. |
-| `fragile_debt_hits` | `HACK`, `FIXME`, `XXX`, `UGLY` | 3.0x | **Fragile Fixes.** Explicit admissions that current code is fragile or buggy. |
-| `irc` | Language Opacity Tax | 0.5x | **Implicit Language Penalty.** Baseline stress addition for implicit language syntax. |
+## Problem Being Solved
+Technical debt is often hidden in codebase comments, making it difficult to measure programmatically. While issue trackers capture macroscopic tasks, localized structural hacks and temporary stubs are frequently forgotten, silently increasing maintenance friction and defect probability.
 
-## Universal Framework Integration
+## Design
+The analysis engine categorizes comment tokens into two debt classes:
+- **Planned Work (1.0x Weight):** `TODO`, `WIP`, `STUB`, `REFACTOR`. Represents tracked future tasks.
+- **Fragile Fixes (3.0x Weight):** `HACK`, `FIXME`, `XXX`, `UGLY`. Explicit admissions of buggy or brittle logic.
 
-* **$Fc$ (Fidelity Coefficient):** Not applied (`TODO` comments carry equal semantic meaning across all languages).
-* **$Irc$ (Implicit Risk Correction):** Applied to baseline stress sum to account for implicit syntax opacity.
-* **$Mp$ (Path Modifier):** Contextual multiplier applied to final score:
-  * *Legacy / Archive ($Mp = 0.5$):* Lower sensitivity (debt is expected in legacy code).
-  * *Scratchpad / Prototypes ($Mp = 0.8$):* Moderate tolerance.
-  * *Core Architecture ($Mp = 1.2$):* Amplified sensitivity (debt in core paths poses higher system risk).
-
-## Mathematical Formulation
-
-Technical debt density is calculated in four steps:
-
-### Step 1: Stress Sum Calculation
-Planned work and fragile logic markers are weighted and combined with the implicit risk correction ($Irc \times 0.5$):
-
+**Mathematical Formulation**
+1. **Stress Sum Calculation:**
 $$\text{StressSum} = (\text{PlannedDebt} \times 1.0) + (\text{FragileDebt} \times 3.0) + (Irc \times 0.5)$$
-
-### Step 2: Density Normalization
-Stress is normalized per 100 lines of code to enable fair comparisons across files of varying size:
-
+2. **Density Normalization (per 100 LOC):**
 $$\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 1)} \right) \times 100.0$$
-
-### Step 3: Sigmoidal Threshold Mapping
-The density is evaluated against a tolerance threshold ($\approx 5.0$ stress points per 100 lines) using a Sigmoid curve (slope $= 0.5$):
-
+3. **Sigmoidal Threshold Mapping:**
 $$\text{RawScore} = \frac{100.0}{1 + e^{-0.5 \times (\text{Density} - 5.0)}}$$
-
-### Step 4: Apply Path Modifier
-The final score is adjusted by the directory Path Modifier ($Mp$) and clamped to 100.0:
-
+4. **Apply Path Modifier:**
 $$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 
-## Python Implementation Reference
-
-```python
-import math
-from typing import Dict
-
-def _calc_tech_debt(self, loc: int, eq: Dict[str, int], irc: int, mp: float) -> float:
-    t = self.risk_tuning.get("tech_debt", {})
-    good_debt = eq.get("planned_debt", 0)
-    bad_debt = eq.get("fragile_debt", 0)
-    
-    # Shortcut for clean files
-    if good_debt == 0 and bad_debt == 0:
-        return 0.0
-    
-    # Step A: Stress Sum
-    stress = (good_debt * t.get("good_debt_weight", 1.0)) + \
-             (bad_debt * t.get("bad_debt_weight", 3.0)) + \
-             (irc * t.get("irc_weight", 0.5))
-             
-    # Step B: Density Calculation (per 100 LOC)
-    density = (stress / max(loc, 1)) * 100.0
-    threshold = t.get("threshold", 5.0)
-    
-    # Step C: Sigmoid Curve Mapping
-    try:
-        raw_score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.5) * (density - threshold)))
-    except OverflowError:
-        raw_score = 100.0 if density > threshold else 0.0
-        
-    # Step D: Apply Context Path Modifier
-    return min(raw_score * mp, 100.0)
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Static Analyzer] -->|Debt Tokens| B[Stress Calculation]
+    B -->|Density Normalization| C[Sigmoid Curve]
+    C -->|Apply Path Multiplier| D[Tech Debt Score]
 ```
+- **Inputs received:** Heuristic comment token hits (`planned_debt`, `fragile_debt`), LOC, and environmental modifiers.
+- **Outputs produced:** A normalized technical debt score (0-100).
+- **Dependencies:** Relies upstream on the comment extraction phase of the static analysis engine.
 
----
+## Tradeoffs
+- Weighting `FIXME` at 3x the severity of `TODO` was chosen to heavily penalize admitted broken logic, sacrificing equality among debt markers to prioritize immediate bug risks.
+- Sigmoid thresholding around 5.0 stress points per 100 lines assumes a baseline tolerance for debt; this prevents hyper-penalization of standard development workflows, but may mask low-level chronic debt.
+- The language Fidelity Coefficient ($Fc$) is deliberately excluded because `TODO` carries identical semantic meaning regardless of language syntax.
 
-### Powered by GitGalaxy Engine
+## Limitations
+- Highly reliant on developer discipline. If a team does not use `TODO` or `FIXME` conventions, this metric will report a false 0.0 risk.
+- Does not interface with external issue trackers (e.g., Jira, GitHub Issues) to verify if a `TODO` is actually scheduled or abandoned.
+- Custom debt tags (e.g., `OPTIMIZE`, `TECHDEBT`) are not recognized unless explicitly added to the static scanner regex.
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Performance Notes
+Operates with $O(1)$ complexity using pre-computed token arrays. Incorporates an early exit shortcut: if no debt markers are present, the function immediately returns `0.0`, bypassing floating-point arithmetic.
 
-**[⬅️ Back to Master Index](index.md)**ter Index](index.md)**
+## Future Work
+Currently, the system is strictly lexical and static. Future iterations plan to integrate with Git history to calculate "Debt Age" (penalizing a 3-year-old `FIXME` more than a 3-day-old `TODO`) and to support custom dictionary definitions for team-specific debt tags.
+
+## Related Components
+- Static Analysis Engine
+- Path Modifier ($Mp$)
+- Implicit Risk Correction ($Irc$)

@@ -5055,8 +5055,16 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 2. args (Parameters / Coupling)
             # Signatures defining input coupling. Bounded to prevent ReDoS on massive calculations.
+            # BUG FIX (Rule 11): `[^)]*` is a flat negated class -- can't
+            # represent even one level of nesting. Modern CSS math functions
+            # nest constantly (`calc(var(--x) + 1px)`, `min(sin(45deg), .5)`)
+            # -- confirmed the old pattern truncated at the first inner `)`,
+            # matching only `calc(var(--x)` instead of the full call.
+            # Upgraded to the one-level-nesting bounded form (the two
+            # alternatives never match overlapping text, so it stays linear).
             "args": re.compile(
-                r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)\s*\([^)]*\)",
+                r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)"
+                r"\s*\((?:[^()]|\([^()]*\))*\)",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5075,8 +5083,18 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
+            # BUG FIX: confirmed O(n^2) ReDoS -- the lookahead's first
+            # quantifier `[ \t,>+~:]*` is a strict subset of the second's
+            # `[^{]*` (everything the first matches, the second also
+            # matches), so on a run of combinator/whitespace characters
+            # with no `{` ever appearing, the engine tries every possible
+            # split point between the two adjacent quantifiers before
+            # failing. Measured ~4x runtime per size doubling
+            # (n=500/1000/2000/4000 -> 0.006s/0.023s/0.092s/0.367s). The
+            # first quantifier is redundant -- `[^{]*` already matches
+            # everything it does -- so it's simply dropped.
             "class_start": re.compile(
-                r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[ \t,>+~:]*[^{]*\{)",
+                r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[^{]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -5117,8 +5135,23 @@ LANGUAGE_DEFINITIONS = {
             "state_mutation": None,
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out structural rules.
+            # BUG FIX (2 issues): (1) `\.[a-zA-Z]`/`#[a-zA-Z]` matched
+            # exactly ONE letter after the dot/hash with no continuation
+            # quantifier, so a realistic multi-character class/id name
+            # (`.old-class`, `#old-id`) never matched -- only ever a
+            # single-letter name would, via the shared trailing `\b`.
+            # (2) that same shared trailing `\b` also broke the
+            # `{`-ending tag-selector alternative: `{` is non-word, and
+            # the character immediately after a real opening brace is
+            # very commonly whitespace (`div { display: none; }`, also
+            # non-word) -- `\b` between two non-word chars can't fire, so
+            # only the no-space form (`div{display`) ever matched. Fixed
+            # by adding `[\w-]*` to the class/id alternatives and pulling
+            # the brace-ending alternative into its own branch with no
+            # shared trailing `\b` (self-delimiting on `{`).
             "dead_code": re.compile(
-                r"/\*[ \t]*(?:@media|@container|@supports|@keyframes|\.[a-zA-Z]|#[a-zA-Z]|[a-zA-Z][\w-]*[ \t]*{)\b",
+                r"/\*[ \t]*(?:@media|@container|@supports|@keyframes|\.[a-zA-Z][\w-]*|#[a-zA-Z][\w-]*)\b"
+                r"|/\*[ \t]*[a-zA-Z][\w-]*[ \t]*\{",
                 re.I,
             ),
             # 13. doc (Structured Documentation)
@@ -5151,8 +5184,12 @@ LANGUAGE_DEFINITIONS = {
             "comprehensions": None,
             # 22. scientific (Numerical / Compute Libraries)
             # Modern CSS trigonometry and rendering math.
+            # BUG FIX (Rule 11): same nested-call truncation as `args` above
+            # -- `round(var(--x), 1px)` truncated to `round(var(--x)`.
+            # Upgraded to the same one-level-nesting bounded form.
             "scientific": re.compile(
-                r"\b(?:sin|cos|tan|asin|acos|atan|atan2|hypot|abs|sign|mod|rem|round|pow|sqrt|exp|log)\s*\([^)]*\)",
+                r"\b(?:sin|cos|tan|asin|acos|atan|atan2|hypot|abs|sign|mod|rem|round|pow|sqrt|exp|log)"
+                r"\s*\((?:[^()]|\([^()]*\))*\)",
                 re.I,
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
@@ -5178,7 +5215,15 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I),
+            # BUG FIX: confirmed O(n^2) ReDoS -- the SPEC alternative's
+            # unbounded `\d+` sits directly adjacent to the also-unbounded
+            # `[^\]]*`, whose charset fully overlaps digits. Measured ~4x
+            # runtime per size doubling on "[SPEC-" + digits with no
+            # closing bracket. Bounded `\d+` to `\d{1,10}` (no realistic
+            # ticket ID needs more) and `[^\]]*` to `{0,300}`.
+            "spec_exposure": re.compile(
+                r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]|\bfigma\.com/file/", re.I
+            ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries

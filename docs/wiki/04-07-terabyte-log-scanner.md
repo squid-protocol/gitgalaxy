@@ -2,99 +2,61 @@
 
 > **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py)
 
-The `terabyte_log_scanner.py` module in `gitgalaxy/tools/terabyte_log_scanning/` provides single-pass log processing and execution verification. It bridges static security analysis and dynamic runtime telemetry by cross-referencing static code analysis hypotheses against live execution logs (such as mainframe SMF/JCL logs or application server logs). This enables security teams to validate whether suspected dead code or vulnerable modules are active in production environments.
+## Engineering Summary
+Static code analysis often flags legacy code as "dead" or unused, but removing it without runtime verification can cause catastrophic production outages. Validating execution requires scanning massive server or mainframe logs to find module invocation signatures. To accomplish this, a high-speed log processor streams multi-terabyte files in binary mode, matching dynamic telemetry against statically generated program lists to confirm execution state. This subsystem is the GitGalaxy Terabyte Log Scanner.
 
----
+## Purpose
+To provide single-pass log processing that cross-references static code analysis hypotheses against live execution logs, enabling security teams to confidently identify and decommission dead code.
 
-## Dual Target Discovery & Ingestion
+## Problem Being Solved
+Scanning multi-terabyte logs with standard string-processing tools creates memory exhaustion and extreme CPU overhead. Security and ops teams need a way to prove that a piece of suspected dead code (which is a liability) has completely zero execution hits in production over an extended timeframe, without waiting days for a query to finish.
 
-Scanning multi-terabyte log files requires surgical target definition. The scanner supports two targeting modes:
+## Design
+### Dual Target Discovery
+The scanner accepts explicit keywords via CLI (`-k PROG01`) or ingests a GitGalaxy Intermediate Representation JSON file (`ir_state.json`), parsing `analysis.known_programs` to extract target module names dynamically.
 
-### 1. Manual Keyword Targeting (`-k / --keywords`)
-Engineers can supply explicit target terms (e.g., `-k PROG01 PROG02`) to audit specific application modules or event signatures.
+### Binary Streaming & Performance
+To process massive files without memory bottlenecks:
+1. Compiles target keywords into binary byte patterns.
+2. Streams the log file line-by-line in binary mode (`open(..., "rb")`).
+3. Uses lazy line decoding: only matching lines are decoded into UTF-8 text and written to a filtered results log.
 
-### 2. Automated State Ingestion (`--input_state`)
-Ingests a GitGalaxy Intermediate Representation JSON file (`ir_state.json`). The scanner parses the `analysis.known_programs` array to extract target program names automatically:
+### Time-Series & Anomaly Filtering
+Extracts chronological timestamps and groups hits into hourly buckets. It displays the top 15 highest-volume spikes and flags volume anomalies where hits exceed $3\times$ the interval average.
 
-```json
-{
-  "analysis": {
-    "known_programs": ["PAYROLL01", "ACCTMAIN", "REPORTGEN"]
-  }
-}
+### Telemetry Sidecar
+Exports a `dynamic_telemetry.json` sidecar containing execution counts for each monitored module. A count of zero confirms the dead code hypothesis, while $> 0$ validates active use.
+
+## Pipeline Integration
+Inputs received are raw server/mainframe log files and GitGalaxy IR state files (`ir_state.json`). Outputs produced are filtered text logs, terminal time-series histograms, and a telemetry sidecar (`dynamic_telemetry.json`). The sidecar feeds back into the GitGalaxy static analysis engine to close the loop on dead code reporting.
+
+```mermaid
+graph LR
+    A[Terabyte Log File] --> C[Binary Stream Reader]
+    B[ir_state.json] --> C
+    C --> D{Byte-Level Match?}
+    D -- No --> E[Discard]
+    D -- Yes --> F[Decode & Record Timestamp]
+    F --> G[dynamic_telemetry.json]
+    F --> H[Filtered Output Log]
 ```
 
-This allows the scanner to dynamically extract and verify execution evidence across thousands of repository artifacts in a single log processing pass.
+## Tradeoffs
+* **Binary Matching vs. Log Parsing:** By treating logs as raw byte streams and matching flat strings, the scanner achieves extreme performance but cannot execute complex semantic queries (e.g., joining events across different log formats) like a structured SIEM or Elasticsearch cluster.
+* **Exact Keyword vs. Fuzzy Matching:** The tool relies on exact byte compilation of module names. It sacrifices fuzzy matching capabilities to maintain scanning velocity, meaning dynamic or heavily parameterized invocation strings may be missed.
 
----
+## Limitations
+* Execution counts represent log occurrences, which may overcount if a module logs multiple lines per invocation.
+* Assumes timestamps follow standard ISO or syslog formats; bespoke time structures may fail parsing.
 
-## Binary Streaming & Performance Engineering
+## Performance Notes
+The scanner operates at bare-metal disk read speeds by avoiding UTF-8 decoding on non-matching lines, allowing it to process terabytes of data on standard developer hardware without large memory footprints.
 
-To process multi-gigabyte and multi-terabyte log files without memory allocation bottlenecks:
+## Future Work
+* **Current Behavior:** Outputs static JSON counters and terminal histograms.
+* **Planned Improvements:** Support for streaming decompression of `.tar.gz` and `.zip` archives directly without requiring preliminary disk extraction.
 
-1. **Byte-Level Regex Patterns:** Compiles target keywords into binary byte patterns (`re.compile(kw.encode('utf-8'))`).
-2. **Single-Pass Binary Read Stream:** Streams the log file in binary mode (`open(..., "rb")`). Non-matching lines are evaluated without triggering UTF-8 string decoding overhead.
-3. **Lazy Line Decoding:** Lines matching target byte patterns are decoded into UTF-8 text and written to a filtered results log (`<target_stem>_results.txt`).
-
----
-
-## Time-Series Histograms & Spike Filtering
-
-The scanner extracts chronological timestamps (`ts_pattern`) and groups execution hits into hourly time buckets:
-
-```
- === TIME-SERIES: PAYROLL01 ===
- (Filtering to Top 15 Highest Volume Spikes)
- [2026-07-29 01:00] ████████████████████████████████████████ (24,500 hits)  <-- VOLUME ANOMALY DETECTED
- [2026-07-29 02:00] ███ (1,800 hits)
-```
-
-### Display Safeguards & Anomaly Thresholds
-* **Top 15 Volume Spike Filter:** When log spans cover extended periods with numerous time buckets, the terminal output isolates the **Top 15 highest-volume spikes**, re-sorted chronologically.
-* **Volume Anomaly Flagging:** Buckets exceeding $3\times$ the average hit rate across all intervals (with $> 10$ hits) trigger an `<-- VOLUME ANOMALY DETECTED` alert.
-
----
-
-## Telemetry Sidecar Generation (`dynamic_telemetry.json`)
-
-Beyond displaying terminal dashboards, `terabyte_log_scanner.py` exports a telemetry sidecar (`dynamic_telemetry.json`):
-
-```json
-{
-  "execution_counts": {
-    "PAYROLL01": 26300,
-    "ACCTMAIN": 0,
-    "REPORTGEN": 1420
-  },
-  "resolved_dynamic_calls": {}
-}
-```
-
-### Closed-Loop Pipeline Feedback
-The sidecar payload can be re-ingested by the main GitGalaxy pipeline:
-* **High Execution Counts ($> 0$):** Validates active production modules.
-* **Zero Hits ($0$):** Confirms static "dead code" candidates, allowing teams to safely decommission unused legacy modules.
-
----
-
-## CLI Command Interface
-
-```bash
-# Manual Keyword Mode
-python3 -m gitgalaxy.tools.terabyte_log_scanning.terabyte_log_scanner /var/log/smf_output.log -k PROG01 PROG02 --out /tmp/logs/
-
-# Automated IR State Mode
-python3 -m gitgalaxy.tools.terabyte_log_scanning.terabyte_log_scanner /var/log/smf_output.log --input_state ir_state.json --out /tmp/logs/
-```
-
----
-
-### Ecosystem References
-
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `terabyte_log_scanner.py`.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive WebGPU visualization dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+* [GitGalaxy Platform](https://gitgalaxy.io/)
+* [⬅️ Back to Master Index](index.md)
 

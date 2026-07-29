@@ -1,65 +1,43 @@
-# 2.1.J. Spatial Layout & Directory Sector Clustering
+# Spatial Layout & Directory Sector Clustering
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
 
-> **Metric: Semantic Affinity (Directory Hierarchy + Module Type + Coupling Impact)**
->
-> **Purpose:** Clusters related source files into distinct 3D directory sectors to produce an intuitive, navigable codebase topology map.
->
-> **Rationale:** Ordering nodes purely by sequential discovery or file list order places unrelated modules (e.g., test helpers next to auth controllers) arbitrarily. By sorting and offsetting nodes using folder metadata and architectural role, the layout engine creates clear spatial neighborhoods where components cluster deterministically by directory and file type.
->
-> **Effect:** Determines 3D Cartesian coordinates ($X, Y, Z$) for all repository file nodes using a tri-phase layout pipeline.
+## Engineering Summary
+This spatial engine subsystem clusters related source files into 3D directory sectors using a deterministic sorting algorithm. It solves the problem of arbitrary file placement producing chaotic, unreadable topology maps. It exists to create clear spatial neighborhoods driven by directory metadata and architectural role. In GitGalaxy, it generates the final $X, Y, Z$ Cartesian coordinates for the entire repository.
 
-## 2.1.J.1. The Tri-Phase Spatial Layout Pipeline
+## Purpose
+To calculate deterministic 3D layout coordinates for codebase components, grouping them by semantic affinity, directory hierarchy, and file type.
 
-Rather than relying on iterative $O(N^2)$ force-directed physics simulations, the spatial engine executes a deterministic **3-Pass Sort & Offset** algorithm. This guarantees that identical repository inputs yield identical, reproducible 3D graph topologies while maintaining clear visual separation between directory clusters.
+## Problem Being Solved
+Iterative physics simulations for graph layout are computationally expensive and produce non-deterministic results. Ordering nodes purely by sequential discovery places unrelated modules arbitrarily. This subsystem guarantees reproducible topologies while explicitly separating directory sectors.
 
-## 2.1.J.2. Phase 1: Structural Priority Sorting (Impact & Hierarchy)
+## Design
+Uses a Tri-Phase Spatial Layout Pipeline:
+1. **Structural Priority Sorting:** Sorts by Inbound Reference Count (descending) placing core utilities at the origin, then by Directory Path to group files.
+2. **Radial Packing:** Places nodes along a Golden Angle spiral ($\text{Angle} \mathrel{+}= 0.5 \text{ rad}$). Injects a 150.0 radius clearance step for directory boundaries, or 12.0 for intra-directory nodes.
+3. **Vertical Stratification:** Offsets the $Y$-axis based on file type: Asset Plane ($+60$), Logic Plane ($0$), Configuration Plane ($-60$).
 
-Before assigning spatial coordinates, the engine re-indexes the module list to position central infrastructure components at the origin of the 3D map:
+## Pipeline Integration
+- **Inputs:** Sorted file nodes, dependency reference counts, directory metadata.
+- **Outputs:** Absolute $X, Y, Z$ positions for all layout nodes.
+- **Dependencies:** Relies on the entire dependency graph resolution phase before execution.
 
-1. **Primary Key: Inbound Reference Count (Descending)**
-   * High-impact central modules and core utilities (modules referenced by many dependents) are positioned closest to the layout origin $(0,0,0)$.
-2. **Secondary Key: Directory Path**
-   * Files residing within the same directory path (e.g., `src/auth/`) remain adjacent in the sorted sequence, ensuring they render together as a unified directory sector.
+Graph Resolver -> Spatial Engine -> Coordinate Matrix Buffer
 
-## 2.1.J.3. Phase 2: Golden Angle Radial Packing and Sector Gaps
+## Tradeoffs
+Using a deterministic Golden Angle spiral instead of force-directed graphs sacrifices organic clustering capabilities for immense speed improvements and deterministic topology generation. The fixed 150.0 boundary clearance is an rigid heuristic that may look sparse for very small directories.
 
-The layout engine places nodes along a radial Golden Angle spiral, introducing explicit spatial clearance buffers when transitioning across directory boundaries:
+## Limitations
+- Deeply nested directories may eventually spread too far along the radial axis, creating large empty voids.
+- Pseudo-random jitter used to prevent clipping makes exact coordinate tests difficult.
 
-$$\text{Angle} \mathrel{+}= 0.5 \text{ rad}$$
+## Performance Notes
+The 3-pass sort and offset algorithm operates in $O(N \log N)$ time for sorting and $O(N)$ for layout assignment, making it significantly faster than $O(N^2)$ force-based physics models.
 
-**Directory Boundary Check:** If `CurrentFile.directory !== PreviousFile.directory`:
-* A radial clearance step is injected: $\text{Radius} \mathrel{+}= 150.0$
-* **Layout Result:** Creates distinct visual clearance zones between directory sectors (e.g., separating `src/auth/` from `src/ui/`), forming isolated module clusters across the layout plane.
+## Future Work
+- Implementing hierarchical bounding volume hierarchies (BVH) for tighter cluster packing.
+- Dynamic clearance scaling based on the total mass of the directory.
 
-**Intra-Directory Packing:** If the directory path is unchanged:
-* Dense node packing is applied: $\text{Radius} \mathrel{+}= 12.0$
-
-## 2.1.J.4. Phase 3: Vertical Stratification (Y-Axis Elevation by File Type)
-
-The vertical axis ($Y$-axis in WebGL/WebGPU coordinate systems) separates file roles into layered horizontal planes, preventing visual overlap between different software artifacts:
-
-| Elevation Layer | Y-Offset | File Types | Structural Role |
-| :--- | :--- | :--- | :--- |
-| **Asset Plane** | $+60$ units | `.css`, `.png`, `.svg`, `.html` | User interface assets and presentation templates float above application logic. |
-| **Logic Plane** | $0$ units | `.js`, `.ts`, `.py`, `.go`, `.rs` | Core executable source modules form the central, dense layer. |
-| **Configuration Plane** | $-60$ units | `.json`, `.yml`, `.dockerfile`, `.md` | Configuration manifests and documentation sink below source code as foundational layers. |
-
-*(Note: Deterministic pseudo-random jitter is added across all axes to maintain organic 3D volume while avoiding rigid coplanar clipping).*
-
-<br><br>
-
----
-
-### Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Component Layout Clearance Formulas](07-12-misc-equations.md)
+- [Angular Positioning](07-08-relative-positioning.md)

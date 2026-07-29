@@ -1,70 +1,55 @@
-# The Security Auditor (Machine Learning Inference Engine)
+# Security Auditor
 
 > **File Reference:** [`gitgalaxy/security/security_auditor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/security/security_auditor.py)
 
-The Security Auditor (`security_auditor.py`) executes a trained XGBoost multiclass classification model across extracted codebase feature vectors. While pattern-matching static rules identify explicit vulnerability signatures, the machine learning auditor evaluates structural metrics, code complexity distributions, and graph topology to predict malicious software patterns (such as Trojans, Stealers, Droppers, or Botnets) that utilize code obfuscation to evade traditional static analysis.
+## Engineering Summary
+This subsystem executes a trained XGBoost multiclass classification model across extracted codebase feature vectors. It evaluates structural metrics, code complexity distributions, and graph topology to predict malicious software patterns (such as Trojans, Stealers, Droppers, or Botnets). It solves the problem of detecting sophisticated code obfuscation and zero-day threats that evade traditional static analysis rules. It exists to provide machine learning-backed security intelligence and supply chain integrity verification. Within the system, this module is known as the GitGalaxy Security Auditor.
 
----
+## Purpose
+The primary purpose is to classify source files into a multiclass threat taxonomy and flag high-confidence malware detections based on structural heuristics rather than raw pattern matching.
 
-## Dependency Graph Feature Traversal
+## Problem Being Solved
+Traditional SAST tools rely on explicit signature hits, making them vulnerable to obfuscated malware and unknown attack vectors. This component utilizes the structural "shape" of the code (complexity distributions, orphan functions, graph placement) to identify malicious intent even when signatures are masked.
 
-Before executing model inference, the auditor computes topological dependency metrics across the import graph:
+## Design
+### Current Behavior
+- **Dependency Graph Features:** Traces import connections (BFS up to 10,000 nodes) to compute transitive coupling ratios (`total_upstream`, `total_downstream`).
+- **Feature Vector Sanitization:** Applies logarithmic scaling to structural counts, integrates Gini complexity coefficients, signature counts, and global architectural distances into a Pandas DataFrame.
+- **Multiclass Threat Taxonomy:** Uses `XGBClassifier` to predict probabilities across: Safe Code, Botnet/DDoS, Stealer/Trojan, Dropper/Webshell, and Native Infector.
+- **Supply Chain Integrity:** The `is_shadow_patch` flag overrides ML inference for unverified binary changes with executable logic, explicitly flagging them as critical threats.
+- **Fallback Mode:** Skips ML inference gracefully if `xgboost` or `pandas` are unavailable.
 
-* **Breadth-First Search (BFS) Traversal:** Traces upstream and downstream import connections using BFS traversal. Traversal depth is capped at 10,000 nodes to prevent infinite recursion on circular module dependencies.
-* **Transitive Coupling Ratios:** Computes `total_upstream` (total modules feeding into the file) and `total_downstream` (total modules dependent on the file) ratios relative to overall repository size, feeding normalized features to the ML classifier.
+### Planned Improvements
+- Optimize feature vector extraction to eliminate overhead from unused features.
 
----
+## Pipeline Integration
+- **Inputs Received:** Sanitized feature vectors, dependency graph topologies, and content hash mutation statuses.
+- **Outputs Produced:** AI Threat Class, AI Threat Confidence percentages, and `is_ml_threat` booleans attached to the file's telemetry dictionary.
+- **Dependencies:** Requires pre-computed structural metrics, pattern signature counts, and topological graph paths.
 
-## Feature Vector Sanitization
+```mermaid
+graph LR
+    A[Feature Vectors & Topology] --> B[Security Auditor]
+    B --> C[XGBoost Inference]
+    C --> D[Threat Classification Telemetry]
+```
 
-The auditor builds a feature matrix (Pandas DataFrame) matching the schema established during XGBoost model training:
+## Tradeoffs
+- **Statistical Inference vs. Determinism:** Machine learning classification introduces non-deterministic confidence scores (false positives/negatives), sacrificing strict boolean logic for the ability to detect unknown threats.
+- **Dependency Bloat vs. Functionality:** Integrating Pandas and XGBoost increases the engine's memory and disk footprint, mitigated slightly by the graceful fallback mode.
 
-* **Logarithmic Metric Scaling:** Structural counts (e.g., lines of code `logic_loc`, function complexity `max_func_complexity`, import counts) are log-transformed (`np.log1p`) to normalize skewed distributions across large codebases.
-* **Code Complexity & Distribution Heuristics:** Incorporates Gini complexity coefficients (`func_complexity_gini`), function density metrics, and orphan function ratios (`design_slop_orphans`).
-* **Signature & Structural Context:** Combines raw pattern signature counts alongside structural mitigation factors (e.g., `raw_sec_tainted_injection`).
-* **Global Architectural Distance:** Integrates global repository Z-scores and archetype cluster distances to measure individual file deviations from overall codebase patterns.
-* **Graceful Fallback Mode:** If `xgboost` or `pandas` dependencies are not installed, the auditor falls back gracefully, executing graph traversal while skipping ML inference without interrupting the scan.
+## Limitations
+- **Training Data Bias:** Model accuracy relies entirely on the quality and diversity of the malicious repositories used during the XGBoost training phase.
+- **Feature Obfuscation:** Highly advanced attackers might artificially balance code metrics to mimic the structural shape of "Safe Code".
 
----
+## Performance Notes
+- Feature sanitization and model inference are heavily optimized using vectorized Pandas and XGBoost C++ backends. Graph BFS traversal is capped at 10,000 nodes to prevent $O(N^2)$ execution times on circular dependencies.
 
-## Multiclass Threat Taxonomy
+## Future Work
+- Retrain the XGBoost model periodically with updated malware datasets.
+- Implement Shapley Additive Explanations (SHAP) to provide human-readable explanations of why the model flagged a specific file.
 
-Sanitized feature vectors are passed to the XGBoost classifier (`XGBClassifier`), which predicts probability distributions across five structural classifications:
-
-1. **Safe Code**
-2. **Botnet / DDoS**
-3. **Stealer / Trojan**
-4. **Dropper / Webshell**
-5. **Native Infector**
-
-Modules scoring above the configured confidence threshold (`AI_THREAT_THRESHOLD`, defaulting to 90.0%) in any hostile category are flagged as machine-learning-confirmed threats.
-
----
-
-## Supply Chain Integrity Check (`is_shadow_patch`)
-
-To detect stealth supply chain mutations, the auditor supports an `is_shadow_patch` validation flag:
-
-If a file's content hash mutates without a corresponding version bump in source control manifest files, and the file contains executable logic (`structural_mass > 0.5`), the auditor overrides standard ML inference. It classifies the file as a **"Stealer / Trojan"** with 100.0% confidence, flagging the unverified binary change as a critical security issue.
-
----
-
-## Telemetry & Security Audit Integration
-
-Classification findings—including `AI Threat Class`, `AI Threat Confidence` percentage, and the `is_ml_threat` boolean flag—are written into the file's central telemetry metadata dictionary.
-
-Downstream reporting modules (such as `AuditRecorder` and `LLMRecorder`) consume these fields to position high-confidence machine learning threat findings at the top of exported compliance manifests and AI context briefs.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- Network Risk Sensor
+- AI AppSec Sensor
+- Audit Recorder

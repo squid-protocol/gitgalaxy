@@ -1,56 +1,50 @@
-# The SQLite Record Keeper (Relational Graph Database Exporter)
+# Record Keeper
 
 > **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/record_keeper.py)
 
-The Record Keeper (`record_keeper.py`) is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (`_galaxy_graph.sqlite`).
+## Engineering Summary
+This subsystem is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (`_galaxy_graph.sqlite`). It solves the problem of persisting complex, relational dependency graph data without requiring external infrastructure. It exists to provide a normalized relational schema designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines. Within the system, this module is known as the GitGalaxy Record Keeper.
 
-While the GPU Recorder generates compressed array payloads for WebGL visualizers, the Record Keeper builds a normalized relational database designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines.
+## Purpose
+The primary purpose is to serialize in-memory telemetry, metrics, and bi-directional dependency graphs into a self-contained, queryable SQLite database.
 
----
+## Problem Being Solved
+Exporting dependency graphs into traditional graph databases (like Neo4j) requires containerized services and complex Cypher queries that LLMs often hallucinate. This component outputs native SQLite, which LLMs query reliably via Text-to-SQL, providing zero-infrastructure portability and strict schema integrity.
 
-## Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)
+## Design
+### Current Behavior
+- **Normalized Schema:** Constructs tables including `stars` (Source File Ledger), `constellations` (Directory Groups), `satellites` (Functions & Methods), and `dna_hits` (Pattern Trigger Ledger).
+- **Bi-directional Edges:** Creates `inbound_dependencies` and `outbound_dependencies` join tables to represent graph edges for blast radius and fragility queries.
+- **Foreign Key Mapping:** Maps extracted functions, methods, and edge connections to parent file IDs using strict relational constraints.
 
-Earlier code analysis tools often exported dependency graphs into graph databases (such as Neo4j) queried via domain-specific graph query languages (like Cypher). GitGalaxy utilizes native SQLite for three architectural reasons:
+### Planned Improvements
+- Normalize DNA hits to optimize table sizes on repositories with heavy signature matches.
 
-### 1. Superior LLM Synergy (Text-to-SQL vs. Text-to-Cypher)
-Large Language Models (such as GPT-4o or Claude 3.5) are trained on massive text corpora containing standard SQL syntax. LLMs generate relational JOINs, GROUP BY aggregations, and subqueries with high precision. Conversely, Cypher training samples are far sparser, leading to syntax hallucinations when agents attempt complex graph traversals. SQLite output allows RAG agents to write reliable SQL queries against codebase metadata.
+## Pipeline Integration
+- **Inputs Received:** Fully computed in-memory telemetry objects, extracted signatures, and dependency graph edge mappings.
+- **Outputs Produced:** A portable `.sqlite` database file (`_galaxy_graph.sqlite`).
+- **Dependencies:** Operates at the end of the analysis pipeline, requiring all sensors and metrics modules to complete execution.
 
-### 2. Zero-Infrastructure Portability
-Graph database servers require running containerized services, managing network ports, and provisioning storage volumes. GitGalaxy's SQLite output is a self-contained `.sqlite` file that can be committed, stored as a CI artifact, or queried by lightweight Python engines (`sqlite3`) and WASM browser runtimes without backend database servers.
+```mermaid
+graph LR
+    A[In-Memory Telemetry & Edges] --> B[Record Keeper]
+    B --> C[_galaxy_graph.sqlite]
+```
 
-### 3. Strict Relational Schema Integrity
-Code architecture exhibits structured relational properties. Mapping files to functions, and files to dependency edges via foreign keys eliminates property-graph schema ambiguity while enforcing data types and relational integrity.
+## Tradeoffs
+- **Relational vs. Graph Representation:** Flattening graph topologies into relational join tables makes deep path traversal queries (e.g., "find all paths between A and B") computationally heavier in SQL compared to native graph query languages like Cypher, but greatly increases AI compatibility and portability.
+- **Disk I/O vs. Speed:** Serializing thousands of nodes via batched inserts introduces disk I/O overhead at the end of the pipeline.
 
----
+## Limitations
+- **Query Complexity:** Complex, multi-hop architectural queries require intricate `INNER JOIN` logic that can become unwieldy for basic CI/CD shell scripts.
+- **Concurrent Writes:** SQLite restricts concurrent write operations, though this is mitigated since the Record Keeper operates as a single-threaded batch exporter.
 
-## Relational Database Schema
+## Performance Notes
+- Utilizes batched transaction inserts to process thousands of telemetry records in seconds. File-size footprint remains small due to SQLite's native compression and optimized column schemas.
 
-The Record Keeper extracts in-memory telemetry objects and constructs a normalized SQLite database schema (table names preserve schema compatibility):
+## Future Work
+- Implement optimized view layers within the SQLite schema to simplify common LLM architectural queries.
 
-* **`stars` (Source File Ledger):** Core table containing primary file metrics, including 18-point risk vector components, total/logic LOC, structural mass, churn frequency, XGBoost threat scores, and PageRank blast radius values.
-* **`constellations` (Directory Groups):** Directory-level aggregate metrics, allowing queries against module and package health.
-* **`satellites` (Functions & Methods):** Maps extracted functions, methods, and classes to parent file IDs via foreign keys, recording function lines of code, parameter counts, Control Flow ratios, and Big-O time complexity classifications.
-* **`dna_hits` (Pattern Trigger Ledger):** Flattened, indexed table recording every static regex pattern hit per file for security audit queries.
-* **`inbound_dependencies` & `outbound_dependencies` (Graph Edge Tables):** Bi-directional dependency tables representing graph edges. Allows agents to query blast radius ("who imports this file?") and fragility ("what does this file import?") using SQL `INNER JOIN` operations.
-
----
-
-## Autonomous Agent & CI/CD Query Workflows
-
-By structuring codebase telemetry into relational SQL tables, the Record Keeper allows automated tools and AI agents to query codebase structure. 
-
-Instead of traversing Abstract Syntax Trees with custom scripts, AI agents can execute SQL queries to retrieve architectural insights, such as identifying core modules with high blast radius metrics, high state volatility, and missing test coverage.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- LLM Recorder
+- State Rehydrator

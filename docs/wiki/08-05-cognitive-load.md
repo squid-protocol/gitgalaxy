@@ -8,79 +8,69 @@
 >
 > **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 **Deep Blue** (linear, straightforward code) to 🟥 **Intense Red** (dense, multi-state async logic).
 
-## Architectural Overview
+## Engineering Summary
+This subsystem calculates the mental overhead required for developers to comprehend a given source file. It solves the problem of misidentifying codebase maintainability by moving beyond raw line counts, which only measure code volume, to quantify the actual density of logic. The subsystem exists to highlight tangled control flows, state mutations, and temporal complexities that slow down developer velocity and increase the likelihood of defects. By synthesizing these factors into a single metric, this system fits into the broader risk assessment pipeline of GitGalaxy.
 
-Human working memory has finite capacity. When reading source code, nested conditionals, dynamic state mutations, concurrency, and reflection require developers to mentally track multiple states simultaneously.
+## Purpose
+To evaluate the density of decision-making and logic complexity within source files and map this density to a universal risk spectrum, enabling engineering teams to identify components that require refactoring or additional documentation to reduce developer friction.
 
-In GitGalaxy, cognitive load measures logic friction while treating structured documentation as mitigation:
+## Problem Being Solved
+Human working memory has finite capacity. When reading source code, nested conditionals, dynamic state mutations, concurrency, and reflection require developers to mentally track multiple states simultaneously. Traditional metrics like Lines of Code (LOC) fail to capture this mental friction.
 
-* **Low Cognitive Load (0 - 39):** Linear, predictable execution paths with low mental overhead.
-* **Moderate Cognitive Load (40 - 59):** Standard business or algorithmic logic operating within normal parameters.
-* **High Cognitive Load (60 - 100):** Dense, multi-branch or asynchronous logic requiring intensive focus and careful review.
+## Design
+The calculation processes heuristic counts from static analysis and weights them based on mental tax:
+- **Decision Density:** Baseline conditional branching (`if`/`else`, `switch`). Clamped to 0.5/line to handle flat switch blocks smoothly.
+- **State Flux:** Variable mutations and state reassignment.
+- **Temporal Complexity:** Asynchronous code and non-linear control flows.
+- **Abstraction Penalty:** Dynamic dispatch, reflection, and metaprogramming.
+- **Unsafe Operations:** Unsafe memory access or dynamic code execution.
 
-## Metric Inputs & Heuristics
-
-The Signal Processor evaluates pre-calculated heuristic counts from the static analysis engine, weighting them based on mental tax:
-
-| Input Variable | Metric Focus | Multiplier | Clamp Limit | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `branch` | Decision Density | 1.0x | 0.5 / line | Baseline conditional branching (`if`/`else`, `switch`). Clamped to handle flat switch blocks smoothly. |
-| `state_mutation` | State Flux | 2.0x | 0.75 / line | Variable mutations and state reassignment taxing short-term memory. |
-| `concurrency` | Temporal Complexity | 3.0x | None | Asynchronous code, promises, and goroutines that create non-linear control flow. |
-| `reflection_metaprogramming` | Abstraction Penalty | 5.0x | None | Dynamic dispatch, reflection, macros, and metaprogramming hiding explicit logic paths. |
-| `high_risk_execution` | Unsafe Operations | 5.0x | None | Unsafe memory access, `eval`, or dynamic code execution forcing manual verification. |
-| `doc` | Documentation Mitigation | 10.0x | None | Structured inline comments and docstrings providing context (acts as a cooling factor). |
-
-## Universal Framework Integration
-
-Standard environmental parameters adjust the metric across language families and project paths:
-
-* **$Irc$ (Implicit Risk Correction):** Added to total density to account for baseline syntactical opacity in implicit languages (e.g., Shell, Perl).
-* **$Fc$ (Fidelity Coefficient):** Scales the documentation mitigation factor based on language type expliciteness (e.g., trusting Java docstrings over implicit scripting comments).
-* **$Mp$ (Path Modifier):** Contextual multiplier based on directory location (e.g., dampening UI framework load, amplifying core database logic).
-
-## Mathematical Formulation
-
-Cognitive load calculation follows four primary steps:
-
-### Step 1: Calculate Clamped Line Densities
-Per-line densities for branches and state mutations are computed and clamped:
-
+**Mathematical Formulation**
+1. **Calculate Clamped Line Densities:**
 $$\text{BranchDensity} = \min\left(\frac{\text{branch}}{\text{LOC}}, 0.5\right)$$
 $$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{\text{LOC}} \times 2.0, 0.75\right)$$
 
-### Step 2: Sum Heavy Logic & Apply Gini Coefficient
-Heavy logic multipliers (concurrency, reflection, unsafe code) and baseline opacity ($Irc$) are aggregated. If function complexity is heavily concentrated in a single function (high Gini coefficient $> 0.7$), a Gini penalty multiplier is applied:
-
+2. **Sum Heavy Logic & Apply Gini Coefficient:**
 $$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)$$
 $$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{\text{LOC}} + \frac{Irc}{\text{LOC}}\right) \times \text{GiniMultiplier}$$
 
-### Step 3: Map Through Sigmoid Curve
-The total density is mapped onto a 0–100 scale using a logistic Sigmoid function (offset $= 0.75$, slope $= 4.0$):
-
+3. **Map Through Sigmoid Curve:**
 $$\text{RawScore} = \frac{100}{1 + e^{-4.0 \times (\text{TotalDensity} - 0.75)}}$$
 
-### Step 4: Apply Documentation Mitigation & Path Modifier
-Documentation coverage reduces the raw risk score by up to 50%, scaled by the Fidelity Coefficient ($Fc$) and Path Modifier ($Mp$):
-
+4. **Apply Documentation Mitigation & Path Modifier:**
 $$\text{DocCoverage} = \frac{\text{doc} \times 10.0}{\text{LOC}}$$
 $$\text{CoolingFactor} = \max\left(0.5, 1.0 - (\text{DocCoverage} \times Fc)\right)$$
 $$\text{FinalScore} = \min(\text{RawScore} \times \text{CoolingFactor} \times Mp, 100)$$
 
-## Risk Level Interpretation
+## Pipeline Integration
+```mermaid
+flowchart LR
+    A[Static Analysis Engine] -->|Heuristics| B[Signal Processor]
+    B -->|Densities| C[Sigmoid Mapping]
+    C -->|Mitigations| D[Risk Output]
+```
+- **Inputs received:** Pre-calculated heuristic counts (branching, state mutations, concurrency, reflection, unsafe code, documentation) and environmental parameters.
+- **Outputs produced:** A normalized cognitive load score (0-100).
+- **Dependencies:** Relies upstream on the static analysis engine for token counts and downstream on the GitGalaxy reporting dashboard.
 
-| Score Range | Color Code | Risk Rating | Architectural Description |
-| :--- | :--- | :--- | :--- |
-| **0 - 19** | 🟦 **Deep Blue** | **Very Low** | Flat data structures, configuration files, and simple linear code. |
-| **20 - 39** | 🩵 **Cyan** | **Low** | Standard UI components or simple utility functions with minimal branching. |
-| **40 - 59** | 🟨 **Yellow** | **Moderate** | Standard application logic and core algorithms operating within expected parameters. |
-| **60 - 89** | 🟧 **Orange** | **High** | Complex operational code featuring nested branching and state mutations. |
-| **90 - 100** | 🟥 **Bright Red** | **Very High** | Highly complex metaprogramming, async pipelines, or unsafe execution blocks. |
+## Tradeoffs
+- A logistic Sigmoid function was chosen for scoring to smoothly cap extreme outliers, sacrificing linear granularity at the high end for stable bounding.
+- Documentation is treated as a mitigating factor (up to 50% reduction). This choice assumes documentation accurately reflects the code, which risks masking overly complex logic with outdated comments.
+- Heuristic weights are statically defined rather than dynamically learned, prioritizing predictable and explainable scores over machine-learning adaptability.
 
----
+## Limitations
+- Does not semantically understand the quality of documentation, only its presence and structure.
+- Highly nested code that uses functional paradigms without explicit state mutations may be under-penalized.
+- Assumes explicit languages (e.g., Java) have more trustworthy documentation than implicit languages (e.g., Shell), which may not hold true for every project.
+- Heuristics are clamped (e.g., 0.5 per line for branches) to handle anomalies like flat switch blocks, which may artificially lower the score for exceptionally dense single-line logic.
 
-### Powered by GitGalaxy Engine
+## Performance Notes
+The calculation uses $O(1)$ arithmetic operations per file once the static analysis heuristics are provided, making the scoring process extremely fast and suitable for large-scale continuous integration pipelines. It avoids complex AST traversal during this phase, relying entirely on pre-computed token counts.
 
-This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
+## Future Work
+Currently, the system relies on fixed heuristic weights and limits documentation mitigation to a maximum of 50%. Future iterations aim to incorporate semantic analysis to verify that documentation actually aligns with the underlying logic. We also plan to introduce configurable heuristic weighting to allow teams to tailor the mental tax penalty to their specific domain.
 
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+- Static Analysis Engine
+- Path Modifier ($Mp$)
+- Universal Framework Parameters ($Irc$, $Fc$)

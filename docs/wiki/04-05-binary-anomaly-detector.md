@@ -2,76 +2,61 @@
 
 > **File Reference:** [gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py)
 
-The `binary_anomaly_detector.py` module in `gitgalaxy/tools/supply_chain_security/` performs high-speed triage of binary anomalies, magic byte mismatches, and obfuscated payloads within the build pipeline. While standard source code parsers drop binary assets to conserve memory, the Binary Anomaly Detector selectively inspects binary files (`.png`, `.zip`, `.dll`, `.exe`, etc.) using byte-level headers and Shannon entropy math to flag hidden malware and steganographic payloads.
+## Engineering Summary
+Standard source code parsers drop binary assets to conserve memory and avoid parsing errors. However, attackers exploit this blind spot by embedding malware, packed executables, or steganographic payloads inside seemingly benign files like images or archives. To combat this, a heuristic file integrity scanner explicitly targets binary files, inspecting byte-level headers and calculating mathematical entropy to flag hidden threats. This subsystem is the GitGalaxy Binary Anomaly Detector.
 
----
+## Purpose
+To perform high-speed triage of binary anomalies, magic byte mismatches, and obfuscated payloads within the build pipeline.
 
-## Selective Binary Ingestion Logic
+## Problem Being Solved
+Binary files (`.png`, `.zip`, `.dll`) are typically ignored by SAST tools. Attackers use this to bypass security checks by disguising executable payloads with benign file extensions. Discovering these threats requires byte-level inspection without loading massive gigabyte assets into memory.
 
-Most GitGalaxy scanning modules utilize the `ApertureFilter` to exclude binary assets and minified code. The Binary Anomaly Detector explicitly overrides this behavior to perform targeted file integrity audits:
+## Design
+### Selective Binary Ingestion Logic
+The module explicitly overrides the standard `ApertureFilter` binary exclusion rules. It enqueues binary files while automatically whitelisting test fixtures (`/test/`, `/tests/`) and compressed configuration formats (`XRAY_BYPASS_EXTENSIONS`) to prevent false positives.
 
-* **Binary Ingestion Exemption:** Bypasses standard binary path exclusion rules during queue generation, ensuring binary file types are enqueued for header inspection.
-* **Test Data Shield:** Automatically whitelists paths containing `/test/`, `/tests/`, or `phpunit` to prevent false positive alerts on mock data fixtures or synthetic binary test files.
-* **Configurable Bypasses:** Evaluates project-level configuration (`XRAY_BYPASS_EXTENSIONS` and `XRAY_BYPASS_PATHS`) to permit designated compressed formats (e.g., `.gz`, `.json` fixtures) without triggering pipeline failures.
+### 8KB Header Inspection
+To maintain throughput and avoid out-of-memory risks, the detector reads only the first $8\text{ KB}$ (8,192 bytes) of a file.
 
----
+### Mathematical Entropy & Header Checks
+The 8KB chunk undergoes several evaluations:
+1. **Magic Byte Mismatch:** Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a `.png`).
+2. **Expected Shebang Exemption:** Suppresses anomaly alerts for shell scripts (`.sh`, `.bash`) that legitimately contain executable header signatures.
+3. **Shannon Entropy Validation:** Calculates string entropy. If $\text{Entropy} > 4.8$, it flags the file as potentially containing packed executables or encrypted payloads.
+4. **Bitwise Operation Traps:** Inspects byte buffers for dense clusters of XOR operations, indicating potential unpacking routines.
 
-## 8KB Header Inspection & Mathematical Entropy
+## Pipeline Integration
+Inputs received include raw binary file paths and configuration settings. Outputs produced are anomaly alerts and execution blocks (exit code `1`). It runs alongside or immediately after standard source code static analysis.
 
-To maintain high throughput and eliminate out-of-memory risks on large assets, the detector reads only the first 8,192 bytes ($8\text{ KB}$) of target files:
-
-```python
-with open(file_path, "rb") as f:
-    head_bytes = f.read(8192)
+```mermaid
+graph LR
+    A[Binary File Path] --> B[Read First 8KB]
+    B --> C[Magic Byte Check]
+    B --> D[Shannon Entropy Calc]
+    B --> E[Bitwise XOR Search]
+    C --> F{Threshold Met?}
+    D --> F
+    E --> F
+    F -- Yes --> G[Block & Alert]
+    F -- No --> H[Allow]
 ```
 
-The 8KB chunk provides sufficient data for header signature verification, magic byte checks, and entropy calculation:
+## Tradeoffs
+* **8KB Truncation vs. Exhaustive Scanning:** By only reading the first 8KB of a file, the system achieves massive speed gains and zero out-of-memory crashes on large video or archive files. However, it sacrifices the ability to detect payloads appended to the very end of massive legitimate files.
+* **Heuristics vs. Signatures:** Relying on Shannon entropy (> 4.8) catches novel zero-day packed malware, but will generate false positives on heavily compressed benign files (like certain encrypted test fixtures or compressed data models).
 
-### 1. Magic Byte & Extension Matching (`scan_binary`)
-Inspects file magic bytes against declared file extensions. Mismatches—such as an executable payload disguised with a `.png` or `.jpg` extension—trigger `[ANOMALY DETECTED]` warnings.
+## Limitations
+* Steganographic payloads embedded deep within large files (past the 8KB header) will not be detected.
+* Heuristic thresholds for entropy require careful tuning via allowlists to avoid blocking legitimate binary data.
 
-### 2. Expected Shell Shebang Exception
-Shell scripts (`.sh`, `.bash`, `.zsh`, `.command`) legitimately contain executable header signatures (`#!/bin/bash`). If a binary threat flag matches an expected script shebang, the anomaly alert is safely suppressed.
+## Performance Notes
+Memory usage is capped at $O(1)$ per file (exactly 8,192 bytes allocated). Execution time is bound by raw disk read speed rather than CPU computation.
 
-### 3. Shannon Entropy & Encrypted Payload Detection
-Decodes the raw 8KB byte buffer to evaluate mathematical string entropy:
-$$\text{Entropy} > 4.8$$
-High Shannon entropy indicates packed executables, encrypted payloads, or high-density obfuscated arrays embedded within non-executable files.
+## Future Work
+* **Current Behavior:** Inspects 8KB headers and blocks based on magic byte and entropy math.
+* **Planned Improvements:** Implementing a dual-chunk read (first 8KB and last 8KB) to detect payloads appended to the EOF tail without loading the middle contents.
 
-### 4. Obfuscated Bitwise Operation Traps
-Inspects byte buffers for raw bitwise operations (`bitwise_ops`). Dense clusters of XOR math operations indicate potential unpacking routines or steganographic decryption loops.
-
----
-
-## Programmatic & CLI Execution
-
-The detector supports both standalone CLI invocation and programmatic execution within orchestrator runs (`run_xray_audit`):
-
-### Standalone CLI Execution
-
-```bash
-python3 -m gitgalaxy.tools.supply_chain_security.binary_anomaly_detector /path/to/repo --config .galaxyscope.yaml
-```
-
-### Programmatic Invocation (`run_xray_audit`)
-
-```python
-from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
-
-audit_results = run_xray_audit(target_path=repo_path, config=resolved_config)
-print(f"Anomalies detected: {audit_results['anomalies_found']}")
-```
-
-If unwhitelisted anomalies or magic byte mismatches are discovered (`anomalies_found > 0`), the CLI tool prints detailed evidence snippets and exits with status code `1`, preventing corrupted or weaponized assets from advancing in the build pipeline.
-
----
-
-### Ecosystem References
-
-* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `binary_anomaly_detector.py`.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive WebGPU visualization dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+* [GitGalaxy Platform](https://gitgalaxy.io/)
+* [⬅️ Back to Master Index](index.md)
 

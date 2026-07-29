@@ -2,19 +2,16 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-**Metric:** Injection Surface Risk (RCE, SQLi, XSS, Command Injection)
+## Engineering Summary
+Measures exposure to injection attack vectors by analyzing external input boundaries (network requests, user input, SSR parameters) operating near dynamic execution sinks (`eval`, `exec`, shell command execution, dynamic SQL execution) without safety validation. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Injection Surface Exposure metric.
 
-**Summary:** Measures exposure to injection attack vectors by analyzing external input boundaries (network requests, user input, SSR parameters) operating near dynamic execution sinks (`eval`, `exec`, shell command execution, dynamic SQL execution) without safety validation.
+## Purpose
+The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-**Risk Classification:**
-* 🟦 **LOW (Score 0–19):** Bounded and sanitized data flow. Network input is isolated from dynamic execution sinks.
-* 🟨 **MODERATE (Score 40–59):** Input operations operating near dynamic evaluation in standard framework routes with framework safety nets.
-* 🟥 **VERY HIGH (Score 80–100):** Unsanitized untrusted input directly reaching execution sinks (confirmed static taint path or direct SQL injection funnel).
+## Problem Being Solved
+Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
----
-
-## Inputs & Detection Signals
-
+## Design
 The analysis engine evaluates input vectors and execution vectors:
 
 | Signal Category | Signal Key | Weight | Description |
@@ -26,9 +23,7 @@ The analysis engine evaluates input vectors and execution vectors:
 | **Taint Confirmation** | `sec_tainted_injection` | **+500.0 Spike** | Verified data flow path from input source to dynamic execution sink. |
 | **SQLi Confirmation** | `sec_amplified_sql_injection` | **+500.0 Spike** | Spatial correlation ledger confirmation of public API invoking raw database sinks. |
 
----
-
-## Metric Calculation & Safeguards
+& Safeguards
 
 ### 1. Vector Formulation
 $$\text{InputVectors} = \text{sec\_io} + (\text{ssr\_boundaries} \times 2.0)$$
@@ -50,12 +45,6 @@ $$\text{InjectionMass} = (\text{InputVectors} \times \text{ExecutionVectors}) \t
 $$\text{Density} = \left( \frac{\text{InjectionMass}}{\max(\text{LOC} + 150, 1)} \right) \times 100.0$$
 
 Mapped via Sigmoid (Standard mode threshold = 40.0, slope = 0.4; Paranoid mode threshold = 3.0, slope = 1.2).
-
----
-
-## Reference Implementation
-
-The following Python method from `gitgalaxy/metrics/signal_processor.py` implements the injection surface metric:
 
 ```python
 def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: float, archetype: str) -> float:
@@ -125,13 +114,37 @@ def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: flo
     return min(score * mp, 100.0)
 ```
 
----
+**Risk Classification:**
+* 🟦 **LOW (Score 0–19):** Bounded and sanitized data flow. Network input is isolated from dynamic execution sinks.
+* 🟨 **MODERATE (Score 40–59):** Input operations operating near dynamic evaluation in standard framework routes with framework safety nets.
+* 🟥 **VERY HIGH (Score 80–100):** Unsanitized untrusted input directly reaching execution sinks (confirmed static taint path or direct SQL injection funnel).
 
-### Ecosystem References
+## Pipeline Integration
+Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+```mermaid
+flowchart LR
+    A[AST Parser] --> B[Signal Processor]
+    B --> C[Injection Surface Exposure Metric]
+    C --> D[Risk Score Output]
+```
 
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)** - Metric implementation details.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository architecture dashboard.
+## Tradeoffs
+* Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
+* Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
----
+## Limitations
+* Detection is strictly reliant on recognized keywords and standard patterns.
+* Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
+* May produce false positives in non-standard or heavily abstracted codebases.
 
-**[⬅️ Back to Master Index](index.md)**
+## Performance Notes
+The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
+
+## Future Work
+* Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
+* Expand language support and framework-specific annotations.
+
+## Related Components
+* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[GitGalaxy Platform](https://gitgalaxy.io/)**
+* **[⬅️ Back to Master Index](index.md)**

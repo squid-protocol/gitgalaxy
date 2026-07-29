@@ -2,40 +2,48 @@
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_java/batch_test_harness.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/batch_test_harness.py)
 
-> **Architecture: Automated Pipeline Validation & Maven Build Testing**
->
-> **Summary:** The Batch Test Harness (`batch_test_harness.py`) is an automated test validation tool designed to stress-test the modernization pipeline across multiple legacy repositories. It verifies that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications across an entire software repository corpus.
+## Engineering Summary
+This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. In GitGalaxy, it serves as the primary CI/CD integration testing tool.
 
-## Three-Phase Validation Pipeline
+## Purpose
+To stress-test the modernization pipeline and verify that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications.
 
-The test harness iterates through target legacy repositories, executing a three-stage validation sequence for each codebase:
+## Problem Being Solved
+Modifying code generation templates or parsing rules can introduce syntax errors in the generated output that are only discovered when developers attempt to compile the target application.
 
-1. **Structural Extraction Phase:** Runs `cobol_refractor_controller.py` to parse legacy source files and generate JSON Intermediate Representation (IR) state dumps.
-2. **Spring Boot Scaffolding Phase:** Runs `cobol_to_java_controller.py` to generate Java JPA entities, REST controllers, mock services, and Maven build configurations (`pom.xml`).
-3. **Compilation Verification Phase:** Spawns a localized Maven subprocess (`mvn clean compile`) to attempt a clean compilation of the generated Java codebase.
+## Design
+- **Three-Phase Pipeline**:
+  1. **Structural Extraction**: Runs `cobol_refractor_controller.py` to generate IR state.
+  2. **Spring Boot Scaffolding**: Runs `cobol_to_java_controller.py` to generate Java source and configuration.
+  3. **Compilation Verification**: Spawns a localized Maven subprocess (`mvn clean compile`) to verify the generated Java code.
+- **Environment Isolation**: Forces `JAVA_HOME` to Java 17 OpenJDK for deterministic compilation. Wraps subprocess executions with a 300-second timeout to terminate infinite loops cleanly.
+- **Test Logging**: Records summary metrics (passed, failed_refractor, failed_java_forge, failed_maven). Captures stdout/stderr into dedicated log files.
 
-## Environment Isolation & Process Controls
+## Pipeline Integration
+**Inputs received:** Raw legacy repository corpora.
+**Outputs produced:** Build success metrics and compilation error logs.
+**Dependencies:** Executes the entire pipeline; relies on a local Maven and JDK 17 environment.
 
-To ensure consistent execution across different CI/CD runners and environments:
-* **JDK Path Standardization:** Clones host environment variables and forces `JAVA_HOME` to Java 17 OpenJDK (`/usr/lib/jvm/java-17-openjdk-amd64`) for deterministic compilation.
-* **Process Timeout Enforcement:** Wraps subprocess executions with a 5-minute timeout (`timeout=300`) to terminate hung processes or infinite regex loops cleanly, logging failure states without blocking subsequent batch runs.
+```mermaid
+graph TD
+    A[Repository Corpus] --> B[Extraction Phase]
+    B --> C[Scaffolding Phase]
+    C --> D[Maven Compile Phase]
+    D --> E[Audit Report]
+```
 
-## Test Logging & Audit Reporting
+## Tradeoffs
+- Using full subprocess Maven compilation rather than AST validation. Chosen because it provides absolute ground-truth verification of the generated `pom.xml` and Java source, sacrificing test execution speed for accuracy.
 
-The harness records detailed telemetry to support CI/CD pipeline auditing:
-* **Batch Summary:** Tracks overall success and failure counts (`passed`, `failed_refractor`, `failed_java_forge`, `failed_maven`).
-* **Error Log Capture:** Captures stdout and stderr for any failed step into dedicated log files under `batch_test_reports/{repo}_error_{timestamp}.log`, allowing developers to inspect Maven compilation logs or static analysis errors directly.
+## Limitations
+- Only validates syntax and compilability; it does not execute functional unit tests on the translated business logic.
 
----
+## Performance Notes
+Test execution is bounded by the speed of Maven compilation and JDK startup overhead. Bounded by a 5-minute timeout per project to prevent blocking CI/CD runners.
 
-### Powered by GitGalaxy
+## Future Work
+- Integration with JUnit generation for functional validation testing.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
-
-* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
-* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- `cobol_refractor_controller.py`
+- `cobol_to_java_controller.py`

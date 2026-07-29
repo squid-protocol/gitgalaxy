@@ -1,127 +1,54 @@
-# The Audit Recorder
+# Audit Recorder
 
 > **File Reference:** [`gitgalaxy/recorders/audit_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/audit_recorder.py)
 
-The Audit Recorder (`audit_recorder.py`) is the final compliance and reporting module of the GitGalaxy static analysis pipeline. It extracts raw structural telemetry from memory and serializes it into a verbose, human-readable forensic JSON audit manifest. Designed for enterprise compliance, software supply chain auditing, and deep security inspection, it provides end-to-end traceability for every analyzed file.
+## Engineering Summary
+This subsystem is the final compliance and reporting module of the static analysis pipeline. It extracts raw structural telemetry from memory and serializes it into a verbose, human-readable forensic JSON audit manifest. It solves the problem of providing end-to-end traceability for every analyzed file, acting as an enhanced Software Bill of Materials (SBOM) that incorporates structural health telemetry. It exists to provide detailed mathematical metrics covering code quality, security exposure, and structural integrity across the repository for enterprise compliance, software supply chain auditing, and deep security inspection. Within the system, this module is known as the GitGalaxy Audit Recorder.
 
-The generated report acts as an enhanced Software Bill of Materials (SBOM) that incorporates structural health telemetry. Beyond listing existing files, it provides detailed mathematical metrics covering code quality, security exposure, and structural integrity across the repository.
+## Purpose
+The primary purpose is to generate a comprehensive structural JSON schema (`galaxy_audit.json`) that encapsulates Git source control metadata, hierarchical module mapping, security and vulnerability triage, network and AppSec posture, formatting and style metrics, and excluded artifact logging.
 
----
+## Problem Being Solved
+Traditional SBOMs lack deep structural health telemetry and traceability anchored to immutable repository states. This component addresses the need for a unified report that couples raw pattern signature hits with machine learning threat confidence scores, and explicitly breaks down code complexity and pattern archetypes per module, preventing audit blind spots.
 
-## Key Architectural Features
+## Design
+### Current Behavior
+- **Traceability Anchor:** Encapsulates exact Git source control metadata (active branch, SHA-1 commit hash, remote URL, and last commit timestamp) alongside the analysis execution timestamp in the manifest header.
+- **Hierarchical Module Mapping:** Groups analyzed source files by directory path and orders them by total structural mass. Generates directory-level Architectural Fingerprints.
+- **Security & Vulnerability Triage:** Integrates raw pattern signature hits with XGBoost Machine Learning Threat Confidence scores, decoupling active malware threats from general code quality risks.
+- **Network & AppSec Posture:** Injects directed dependency network graph metrics (PageRank, blast radius) and autonomous AI security findings into each file's profile.
+- **Excluded Artifact Logging:** Preserves excluded files (due to path filters, binary formats) with explicit diagnostic reasons and exact byte sizes.
 
-* **Traceability Anchor:** Encapsulates exact Git source control metadata (active branch, SHA-1 commit hash, remote URL, and last commit timestamp) alongside the analysis execution timestamp in the manifest header. This binds the audit log to a specific immutable repository commit state.
-* **Hierarchical Module Mapping:** Groups analyzed source files by directory path and orders them by total structural mass. It generates directory-level **Architectural Fingerprints**, providing an explicit breakdown of code complexity and pattern archetypes per module.
-* **Security & Vulnerability Triage:** Decouples active malware threats from general code quality risks. It integrates raw pattern signature hits with **XGBoost Machine Learning Threat Confidence** scores, assigning a repository-wide security posture status (`AI_CONFIRMED_MALWARE_DETECTED`, `CRITICAL_THREATS_DETECTED (Rule-Based)`, `ELEVATED_SURFACE_RISK`, or `SECURE_NO_MALWARE_DETECTED`).
-* **Network & AppSec Posture:** Injects directed dependency network graph metrics (PageRank, blast radius, upstream/downstream coupling) and autonomous AI security findings (such as unconstrained remote execution funnels) directly into each file's forensic profile.
-* **Formatting & Style Metrics:** Converts raw formatting metrics (such as tab vs. space indentation balances) into human-readable style classifications for code review auditing.
-* **Excluded Artifact Logging:** Files excluded during analysis (due to path filters, binary formats, or size constraints) are preserved in an excluded artifacts ledger with explicit diagnostic reasons (e.g., "Size Saturation", "Unrecognized Extension", "Git Ignored") and exact byte sizes to prevent audit blind spots.
+### Planned Improvements
+- Streamline the `galaxy_audit.json` schema for easier ingestion by external SIEM tools.
 
----
+## Pipeline Integration
+- **Inputs Received:** Raw structural telemetry, XGBoost threat confidence scores, dependency network graph metrics, and raw pattern signature hits.
+- **Outputs Produced:** A structured JSON manifest (`galaxy_audit.json`) detailing forensic traceability, global synthesis, security audits, high-value reports, and scanned/excluded artifacts.
+- **Dependencies:** Relies on upstream metrics from the network risk sensor and AI threat models.
 
-## Audit Manifest Schema (`galaxy_audit.json`)
-
-Below is the structural JSON schema produced by the Audit Recorder:
-
-```json
-{
-  "Audit Protocol": "GitGalaxy",
-  "1. Forensic Trail (Traceability)": {
-    "Analysis Context": {
-      "Engine Identity": "",
-      "Target Root Name": "",
-      "Absolute Project Path": "",
-      "Analysis ISO Timestamp": "",
-      "Total Scan Duration": ""
-    },
-    "Source Control Footprint (Immutable Anchor)": {
-      "Active Branch": "",
-      "Commit Hash (SHA-1)": "",
-      "Remote Origin URL": "",
-      "Last Code Integration Date": ""
-    }
-  },
-  "2. Global Synthesis Summary": {
-    "summary": {},
-    "Repository Macro-Architecture Patterns": {},
-    "singularity": {},
-    "health": {},
-    "composition": {},
-    "Global Architectural Fingerprint": {},
-    "ai_topology": {},
-    "constellations": {}
-  },
-  "3. Forensic Security & Vulnerability Audit": {
-    "Audit Status": "[AI_CONFIRMED_MALWARE_DETECTED | CRITICAL_THREATS_DETECTED | ELEVATED_SURFACE_RISK | SECURE]",
-    "AI Threat Intelligence (XGBoost)": {
-      "Infected Files Detected": 0,
-      "Critical Targets": []
-    },
-    "Scope": {},
-    "Exposed Secrets & Credentials (Quarantined Files)": [],
-    "Vulnerability Exposures (Rule-Based Threshold Breaches)": {},
-    "Raw Threat Signature Hits (Total Repository Occurrences)": {}
-  },
-  "4. High-Value Forensic Report": {
-    "exposures": {
-      "cognitive_load": { "highest": [], "lowest": [] },
-      "safety_score": { "highest": [], "lowest": [] },
-      "tech_debt": { "highest": [], "lowest": [] }
-    },
-    "file_impact": { "highest": [], "lowest": [] },
-    "function_impact": { "highest": [], "lowest": [] },
-    "systemic_bottlenecks": { "highest": [], "lowest": [] },
-    "cumulative_risk": { "highest": [], "lowest": [] }
-  },
-  "5. Dark Matter (Excluded Artifacts)": [
-    {
-      "Path": "",
-      "Forensic Category": "Dark Matter (Excluded Artifact)",
-      "Diagnostic Reason": "",
-      "Size": "",
-      "Identity Confidence": "",
-      "Discovery Proof": ""
-    }
-  ],
-  "6. Visible Matter (Scanned Artifacts)": {
-    "[Directory Path]": {
-      "Constellation Mass": 0.0,
-      "File Count": 0,
-      "Architectural Fingerprint (Archetypes)": {},
-      "Average Risk Exposures": {},
-      "Files": {
-        "[File Path]": {
-          "1. Identity": {},
-          "2. Spatial Coordinates": {},
-          "3. Architectural Profile": {},
-          "4. Risk Exposures": {},
-          "5. Function Analysis": [],
-          "6. Contextual Mitigations & Amplifications": {},
-          "7. Structural Signatures": {},
-          "8. Dependency Network": {
-             "Direct Upstream (Fragility)": 0,
-             "Direct Downstream (Blast Radius)": 0,
-             "Total Upstream (Absolute Fragility)": 0,
-             "Total Downstream (Absolute Blast Radius)": 0
-          },
-          "9. Extracted Dependencies": []
-        }
-      }
-    }
-  }
-}
+```mermaid
+graph LR
+    A[Raw Telemetry & ML Scores] --> B[Audit Recorder]
+    B --> C[galaxy_audit.json]
 ```
 
----
+## Tradeoffs
+- **Verbosity vs. Parsability:** The JSON manifest is highly verbose to ensure no audit blind spots, sacrificing compactness for comprehensive traceability.
+- **Rule-Based vs. AI Threat Scores:** Integrates both hardcoded signature hits and ML confidence scores to provide layered security triage, which increases the schema complexity.
 
-### Powered by GitGalaxy
+## Limitations
+- **Schema Rigidity:** The deep nested JSON structure can be overly large for standard parsers on massive repositories.
+- **Heuristic Boundaries:** The security posture relies heavily on XGBoost ML scores and heuristic boundaries, which may produce false positives.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+## Performance Notes
+- Operates purely on pre-computed in-memory structures, so execution time scales linearly $O(N)$ with the number of analyzed files. Memory consumption is proportional to the size of the repository.
 
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
+## Future Work
+- Enhance the AI threat intelligence capabilities to detect more subtle supply chain attacks and anomalous commit behaviors.
+- Optimize JSON serialization to handle larger repository manifests without high memory overhead.
 
----
-
-**[⬅️ Back to Master Index](index.md)**
-](index.md)**
+## Related Components
+- Network Risk Sensor
+- AI AppSec Sensor
+- LLM Recorder

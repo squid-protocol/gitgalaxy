@@ -2,19 +2,16 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-**Metric:** Logic Bomb & Sabotage Exposure
+## Engineering Summary
+Identifies potential logic bomb vulnerabilities where conditional triggers (branching logic, thread sleeps, execution delays) lead to destructive payloads (aborts, panics, memory cleanups, dynamic execution, or algorithmic DoS payloads).  This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Logic Bomb Exposure metric.
 
-**Summary:** Identifies potential logic bomb vulnerabilities where conditional triggers (branching logic, thread sleeps, execution delays) lead to destructive payloads (aborts, panics, memory cleanups, dynamic execution, or algorithmic DoS payloads). 
+## Purpose
+The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-**Risk Classification:**
-* 🟦 **LOW (Score 0–19):** Standard branching with structured exception handling and no unmitigated aborts or dynamic execution.
-* 🟨 **MODERATE (Score 40–59):** Bounded condition-heavy logic with standard fallback aborts in internal utilities.
-* 🟥 **VERY HIGH (Score 80–100):** High-branching logic coupled with system halts, dynamic code evaluation, or verified static taint paths.
+## Problem Being Solved
+Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
----
-
-## Inputs & Sabotage Mass Components
-
+## Design
 The metric measures the product of trigger frequency and payload severity:
 
 | Component | Signal Key | Weight | Description |
@@ -26,9 +23,7 @@ The metric measures the product of trigger frequency and payload severity:
 | **Payload** | `sec_high_risk_execution` | **4.0x** | Dynamic evaluation calls (`eval`, `exec`, process spawns). |
 | **Taint Confirmation**| `sec_tainted_injection` | **+500.0 Spike** | Confirmed data path from untrusted input to high-risk execution sink. |
 
----
-
-## Metric Calculation & Safeguards
+& Safeguards
 
 ### 1. Trigger & Payload Formulation
 $$\text{Trigger} = \text{branch} + (\text{thread\_sleeps} \times 3.0)$$
@@ -49,12 +44,6 @@ $$\text{Payload} = \frac{\text{Payload}}{\text{agent\_dampener} \times \text{har
 $$\text{Density} = \left( \frac{\text{SabotageMass}}{\max(\text{LOC} + 150, 1)} \right) \times 100.0$$
 
 Mapped via Sigmoid (Standard mode threshold = 75.0, slope = 0.2; Paranoid mode threshold = 10.0, slope = 0.5).
-
----
-
-## Reference Implementation
-
-The following Python method from `gitgalaxy/metrics/signal_processor.py` implements the logic bomb exposure metric:
 
 ```python
 def _calc_logic_bomb(
@@ -143,13 +132,37 @@ def _calc_logic_bomb(
     return min(score * mp, 100.0)
 ```
 
----
+**Risk Classification:**
+* 🟦 **LOW (Score 0–19):** Standard branching with structured exception handling and no unmitigated aborts or dynamic execution.
+* 🟨 **MODERATE (Score 40–59):** Bounded condition-heavy logic with standard fallback aborts in internal utilities.
+* 🟥 **VERY HIGH (Score 80–100):** High-branching logic coupled with system halts, dynamic code evaluation, or verified static taint paths.
 
-### Ecosystem References
+## Pipeline Integration
+Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+```mermaid
+flowchart LR
+    A[AST Parser] --> B[Signal Processor]
+    B --> C[Logic Bomb Exposure Metric]
+    C --> D[Risk Score Output]
+```
 
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)** - Metric implementation details.
-* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository architecture dashboard.
+## Tradeoffs
+* Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
+* Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
----
+## Limitations
+* Detection is strictly reliant on recognized keywords and standard patterns.
+* Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
+* May produce false positives in non-standard or heavily abstracted codebases.
 
-**[⬅️ Back to Master Index](index.md)**
+## Performance Notes
+The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
+
+## Future Work
+* Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
+* Expand language support and framework-specific annotations.
+
+## Related Components
+* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[GitGalaxy Platform](https://gitgalaxy.io/)**
+* **[⬅️ Back to Master Index](index.md)**

@@ -1,52 +1,52 @@
-# The State Rehydrator (Incremental State Restoration)
+# State Rehydrator
 
 > **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/state_rehydrator.py)
 
-The State Rehydrator (`state_rehydrator.py`) enables efficient incremental scans within Continuous Integration/Continuous Deployment (CI/CD) pipelines. 
+## Engineering Summary
+This subsystem enables efficient incremental scans within Continuous Integration/Continuous Deployment (CI/CD) pipelines. It solves the problem of high compute overhead caused by re-parsing large, unmodified codebases on every commit. It exists to load previously analyzed state from the SQLite database into memory, restoring the repository baseline and exclusively analyzing modified source files. Within the system, this module is known as the GitGalaxy State Rehydrator.
 
-Performing full static analysis across large codebases (e.g., 10,000 files) on every single commit introduces unnecessary compute overhead when a pull request only modifies a few files. The State Rehydrator addresses this by loading previously analyzed state from the SQLite database (`_galaxy_graph.sqlite`) into memory (`ram_cache`), restoring the repository baseline without re-parsing unchanged source files.
+## Purpose
+The primary purpose is to reconstruct the in-memory static analysis state (`ram_cache`) from a prior scan, enabling rapid Delta Scans and computing structural metric shifts across commits.
 
----
+## Problem Being Solved
+Performing full static analysis across 10,000+ files for a pull request modifying only three files is incredibly inefficient. This component bypasses full filesystem ingestion by reusing historical telemetry and selectively recalculating interdependent graph metrics.
 
-## State Extraction (SQLite to Memory)
+## Design
+### Current Behavior
+- **State Extraction:** Queries `_galaxy_graph.sqlite` to find the most recent complete analysis baseline. Reconstructs file telemetry, structural metrics, and signature counts into the `ram_cache` dictionary.
+- **Incremental Workflow:** Identifies delta targets (files added, modified, deleted) via Git, executes parsing on those specific files, and merges them into the rehydrated state.
+- **Topology Recalculation:** Re-triggers graph analysis modules across the merged state to ensure global centrality metrics (blast radius, PageRank) remain accurate.
+- **Structural Delta Reporting:** Compares baseline state against modified state to calculate technical debt progression, blast radius escalations, and security vulnerability deltas.
 
-When an incremental scan (Delta Scan) is triggered, the Rehydrator bypasses full filesystem ingestion and connects to `_galaxy_graph.sqlite`:
+### Planned Improvements
+- Partial topological recalculations to save computational overhead on large graphs.
 
-* **Commit Baseline Lookup:** Queries the database to identify the SHA-1 commit hash of the most recent complete analysis.
-* **State Reconstruction:** Pulls file telemetry, structural metrics (`file_impact`, `total_loc`, `control_flow_ratio`, `ai_threat_score`), and signature counts from database tables.
-* **Memory State Population:** Maps stored database records into an in-memory dictionary (`ram_cache`) structured identically to the full pipeline scan state.
+## Pipeline Integration
+- **Inputs Received:** An existing SQLite database (`_galaxy_graph.sqlite`) and the current commit's Git delta (modified file paths).
+- **Outputs Produced:** A populated in-memory `ram_cache` dictionary and calculated Structural Deltas for CI/CD gates.
+- **Dependencies:** Relies on the Record Keeper to have produced a valid SQLite baseline, and interfaces tightly with Git for delta tracking.
 
----
+```mermaid
+graph LR
+    A[_galaxy_graph.sqlite] --> B[State Rehydrator]
+    B --> C[Reconstructed ram_cache]
+    C --> D[Delta Parsing & Graph Merge]
+```
 
-## Incremental Analysis Workflow
+## Tradeoffs
+- **Stale State Risk vs. Speed:** Relies entirely on the accuracy of the baseline database. If the `.sqlite` file is corrupted or out of sync with the true parent commit, the resulting delta analysis will be flawed, sacrificing strict absolute correctness for speed.
+- **Memory Spikes:** Requires loading the entire previous repository state into RAM before parsing the new delta files.
 
-State rehydration establishes the foundation for high-speed incremental analysis:
+## Limitations
+- **Database Dependency:** Incremental analysis fails completely if the prior `_galaxy_graph.sqlite` artifact is not preserved and accessible by the CI runner.
+- **Global Metric Ripple:** Changes to a single foundational module force recalculation of the entire network graph topology, partially diminishing the speed benefits of the delta scan.
 
-1. **Delta Target Identification:** Queries Git to identify files added, modified, or deleted in the target commit. Executes regex parsing and signature extraction exclusively on modified files.
-2. **State Dictionary Merge:** Overwrites updated file records inside the rehydrated `ram_cache` dictionary.
-3. **Graph Topology Recalculation:** Triggers graph analysis modules (`NetworkRiskSensor`, `SecurityAuditor`) across the merged state. Because network topology (PageRank, blast radius) is globally interconnected, modifying key files recalculates global centrality metrics without re-parsing unmodified source code.
+## Performance Notes
+- Eliminates $O(N)$ string parsing overhead for unmodified files. The speed of incremental analysis is bound entirely by SQLite read speeds and the time required to recalculate network graph centrality.
 
----
+## Future Work
+- Implement partial graph recalculation to only update the blast radius of nodes immediately connected to modified files.
 
-## Structural Delta Reporting in CI/CD
-
-Comparing baseline state (restored from SQLite) against modified commit state enables automated CI/CD quality gates based on **Structural Deltas**:
-
-* **Technical Debt Progression:** Measures percentage changes in cumulative risk scores across commits.
-* **Blast Radius Escalations:** Identifies changes that shift a module into a system choke point.
-* **Security Vulnerability Delta:** Flags newly introduced vulnerabilities (such as unsanitized LLM command execution funnels or malware signature triggers).
-
-CI/CD pipelines enforce automated pull request gates based on objective metric deltas rather than subjective code review.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
+## Related Components
+- Record Keeper
+- Network Risk Sensor

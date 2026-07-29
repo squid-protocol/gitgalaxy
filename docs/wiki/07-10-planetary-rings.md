@@ -1,57 +1,44 @@
-# 2.1.I. External Dependency Rings
+# External Dependency Rings
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
 
-> **Metric: External Library Import Count (`ImportHits`)**
->
-> **Purpose:** Highlights modules with high external dependency counts.
->
-> **Rationale:** Standard utility modules maintain self-contained logic, whereas integration modules or framework controllers pull in multiple external packages. Visualizing dependency load as surround rings allows developers to spot heavy integration points and potential dependency coupling risks at a glance.
->
-> **Effect:** Renders dependency rings around file nodes in 3D visualization space.
+## Engineering Summary
+This visualization module generates dependency indicators around file nodes based on external import volumes. It solves the problem of identifying heavy integration modules and dependency coupling risks. It exists to separate self-contained utilities from orchestration layers visually. Within GitGalaxy, this subsystem renders translucent dependency rings in 3D space.
 
-## 2.1.I.1. Dependency Weight Thresholds
+## Purpose
+To highlight modules with high external dependency counts by rendering surround rings whose opacity and thickness scale with import volume.
 
-Self-contained files render as clean single nodes without surround rings. As a file imports external libraries, its dependency weight increases. To prevent visual noise from routine single imports, a threshold is enforced: surround rings only activate for high-dependency modules ("heavy lifters" and orchestration layers).
+## Problem Being Solved
+Integration points and heavy controllers often pull in numerous external packages, creating hidden coupling risks. Visualizing dependency load as surround rings allows developers to spot these heavy integration points instantly.
 
-## 2.1.I.2. Input Metrics
-
-* **`ImportHits`:** Total count of `import`, `require`, `include`, or package import directives identified by the static analyzer.
-* **Activation Threshold:** **> 5 Imports**. Modules with 5 or fewer imports do not spawn dependency rings.
-
-## 2.1.I.3. Mathematical Formulation: Ring Opacity and Thickness
-
-Dependency rings evolve dynamically in visual opacity and thickness as import counts rise:
-
-**1. Visual Opacity (Transparency)**
-Opacity scales linearly from $0.0$ to $0.6$ over the range of 6 to 26 imports, capping at a maximum value of $0.6$:
-
+## Design
+A threshold of >5 imports activates the rings.
+Opacity and tube radius scale dynamically:
 $$\text{Opacity} = \min\left( \left(\frac{\text{ImportHits}}{26}\right) \times 0.6,\ 0.6 \right)$$
-
-**2. Ring Width (Geometry Thickness)**
-Geometry radius expands progressively with additional imports to indicate cumulative external coupling:
-
 $$\text{TubeRadius} = \text{BaseWidth} + (\text{ImportHits} \times 0.1)$$
+Rings use `TorusGeometry` and are tilted across randomized Euler axes to avoid coplanar clipping.
 
-## 2.1.I.4. WebGL/WebGPU Rendering Specifications
+## Pipeline Integration
+- **Inputs:** `ImportHits` from the static analysis engine.
+- **Outputs:** Torus geometry parameters (radius, opacity, rotation).
+- **Dependencies:** Relies on import detection and feeds into the WebGPU render loop.
 
-* **Geometry Class:** `TorusGeometry`.
-* **Tube Radius:** Scaled linearly by `ImportHits`.
-* **Material Properties:** Translucent mesh material with `opacity` capped at $0.6$.
-* **Rotational Orientation:** Ring meshes are tilted across randomized Euler axes to prevent overlapping coplanar visual artifacting and ensure clear visibility from all 3D camera viewpoints.
+Static Analyzer -> Ring Geometry Subsystem -> WebGPU Renderer
 
-<br><br>
+## Tradeoffs
+The arbitrary >5 threshold prevents visual noise but sacrifices visibility for files with 3-4 heavy dependencies. Capping opacity at 0.6 prevents overlapping rings from becoming visually opaque solids, preserving depth perception at the cost of true linear scaling.
 
----
+## Limitations
+- Does not distinguish between standard library imports and heavy third-party framework imports.
+- Dynamic require statements inside execution blocks may not be captured.
 
-### Powered by the blAST Engine
+## Performance Notes
+Instanced rendering is used for the torus meshes, scaling efficiently on the GPU. Mathematical parameter derivation is $O(1)$ per file.
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+## Future Work
+- Integration with package manager lockfiles to weight imports by transitive dependency size.
+- Color coding rings based on external vs. internal mono-repo imports.
 
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Spatial Layout](07-11-sequence-affinity.md)
+- [Node Size Scaling](07-09-node-size.md)

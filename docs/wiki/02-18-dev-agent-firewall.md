@@ -1,49 +1,52 @@
-# The Dev Agent Firewall (AI Guardrail Engine)
+# Dev Agent Firewall
 
 > **File Reference:** [`gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py)
 
-The Dev Agent Firewall (`dev_agent_firewall.py`) evaluates codebase complexity and network graph metrics to determine safety boundaries for autonomous AI coding agents (such as Cursor, Claude, or Devin). Rather than enforcing syntax style rules, the firewall analyzes token mass, algorithmic complexity, graph topology, and documentation density to identify modules where autonomous code edits present high statistical probabilities of context window degradation, API hallucinations, or silent regressions.
+## Engineering Summary
+This subsystem evaluates codebase complexity and network graph metrics to determine safety boundaries for autonomous AI coding agents. It analyzes token mass, algorithmic complexity, graph topology, and documentation density. It solves the problem of AI agents causing silent regressions, context window degradation, or API hallucinations when editing critical architectural choke points. It exists to enforce statistical safety guardrails for autonomous code modifications. Within the system, this module is known as the GitGalaxy Dev Agent Firewall.
 
----
+## Purpose
+The primary purpose is to identify modules where autonomous code edits present high statistical probabilities of failure, generating an `ai_guardrails` object to constrain AI behavior.
 
-## Token Density & Architectural Guardrails
+## Problem Being Solved
+Autonomous AI agents frequently struggle with large files, highly coupled components, and dynamically typed logic. Without explicit guardrails, they can truncate code, hallucinate methods, or introduce subtle state corruption in core producers. This component provides the metadata needed to gate or warn agents before they modify these fragile structures.
 
-The firewall scans file telemetry, risk vectors, and dependency graph metrics to evaluate compatibility with LLM context windows and reasoning capacities. It enforces four primary safety guardrails:
+## Design
+### Current Behavior
+- **Context Window Exhaustion (`is_agentic_black_hole`):** Flags files with massive token footprints (`token_mass > 8000`) and severe algorithmic complexity ($O(N^3)$).
+- **Human-In-The-Loop (`requires_hitl`):** Triggers on files with high PageRank Blast Radius (`> 1.0`) and high technical debt (`> 200`).
+- **Dynamic Logic Warning (`hallucination_zone`):** Flags files relying on reflection or dynamic dispatch without sufficient documentation (`doc_density < 0.2`).
+- **Silent Mutation Risk (`silent_mutation_risk`):** Identifies foundational producers (`in_degree > 5`) with high state volatility and no unit test coverage.
 
-### 1. Context Window Exhaustion (`is_agentic_black_hole`)
-Flags files exhibiting massive token footprints (`token_mass > 8000`) combined with severe algorithmic complexity ($O(N^3)$ or worse).
-* **Engineering Risk:** Modifying these files inside an AI agent session consumes context window allocations, degrading LLM reasoning and leading to code truncation or structural omissions during refactoring.
+### Planned Improvements
+- Adjust context exhaustion thresholds dynamically based on target AI capabilities.
 
-### 2. Human-In-The-Loop Approval Gate (`requires_hitl`)
-Triggers when a file possesses a high PageRank Blast Radius (`normalized_blast_radius > 1.0`) combined with high technical debt (`cumulative_risk > 200`).
-* **Engineering Risk:** The module is both load-bearing and structurally fragile. Unvalidated autonomous edits present high risks of breaking downstream sub-systems. Automated modifications to these modules require explicit human code review.
+## Pipeline Integration
+- **Inputs Received:** File telemetry, risk vectors, token mass, and dependency graph metrics (in-degree, blast radius).
+- **Outputs Produced:** An `ai_guardrails` object injected into the central telemetry map, containing active guardrails and warning strings.
+- **Dependencies:** Relies heavily on the Network Risk Sensor for blast radius and centrality metrics.
 
-### 3. Dynamic Logic Warning Zone (`hallucination_zone`)
-Flags files relying heavily on reflection, dynamic dispatch, or metaprogramming (`heat_triggers > 2`) that lack sufficient documentation (`doc_density < 0.2`).
-* **Engineering Risk:** Runtime behaviors depend on dynamic resolution rather than static interface contracts. Without inline documentation, LLM code generators frequently hallucinate missing functions or incorrect method signatures.
+```mermaid
+graph LR
+    A[Telemetry & Metrics] --> B[Dev Agent Firewall]
+    B --> C[ai_guardrails Object]
+    C --> D[LLM Recorder]
+```
 
-### 4. Silent Mutation Risk (`silent_mutation_risk`)
-Identifies modules exhibiting high state volatility (`state_flux > 50`) that act as foundational producers (`in_degree > 5`) but lack unit test coverage.
-* **Engineering Risk:** Autonomous refactoring of un-tested stateful producers risks introducing subtle runtime state corruption. Without automated unit test suites, agents cannot verify code correctness, propagating silent errors to downstream consumers.
+## Tradeoffs
+- **Statistical Probability vs. Guaranteed Failure:** Relies on statistical heuristics to block or warn agents, potentially triggering human-in-the-loop requirements for modules an agent could technically handle, prioritizing safety over autonomy.
+- **Language-Agnostic Boundaries:** Uses universal metrics (token mass, structural complexity) rather than language-specific type system analysis.
 
----
+## Limitations
+- **Agent Capability Drift:** As LLM context windows and reasoning capabilities improve, the static threshold values (e.g., token mass > 8000) may become overly restrictive and require tuning.
+- **Test Coverage Blind Spots:** Cannot determine the quality of unit tests; it only verifies structural coverage.
 
-## Telemetry Integration
+## Performance Notes
+- Rule evaluations execute in $O(1)$ time per file using pre-computed telemetry attributes, adding zero latency to the overall scan pipeline.
 
-Upon completing evaluation, the firewall compiles active guardrails and descriptive warning strings into an `ai_guardrails` object injected into the file's central telemetry map.
+## Future Work
+- Introduce dynamic threshold scaling based on the specific LLM model being used (e.g., increasing token mass limits for models with larger context windows).
 
-This telemetry is consumed by downstream components—specifically the `LLMRecorder` (`llm_recorder.py`)—to insert explicit agent constraint warnings into generated prompt briefs and SQLite knowledge graphs.
-
----
-
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
-* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- Network Risk Sensor
+- LLM Recorder

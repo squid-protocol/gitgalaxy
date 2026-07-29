@@ -2,45 +2,44 @@
 
 > **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-In GitGalaxy's WebGL visualization engine, the **Orbital Radius** (3D distance of a function sub-node from its parent file node) is determined by the function's physical line count (Lines of Code / LOC). 
+## Engineering Summary
+A spatial sorting mechanism determines the 3D distance between a child function and its parent file node based on physical line count. It solves the challenge of visually identifying bloated functions by correlating spatial displacement with length. This subsystem explicitly visualizes code bloat by pushing large functions further out into space, operating as the sub-node orbital distance mapping in GitGalaxy.
 
-Visualizing function length through orbital distance allows developers to identify oversized or bloated methods at a glance without expanding text views.
+## Purpose
+To explicitly visualize function length and code bloat by pushing large functions further out into space, away from the parent file node.
 
-## Logarithmic Distance Scaling
+## Problem Being Solved
+Without expanding text views, it is difficult to identify oversized legacy methods buried inside standard modules. Mapping line count to orbital distance instantly flags monolithic functions as outliers positioned far from the file core.
 
-Functions within a repository vary widely in length, ranging from concise 5-line accessors to multi-thousand-line legacy methods. 
+## Design
+The orbital radius utilizes a base-2 logarithmic scaling formula:
+$$Orbital Radius = 60 + (\log_2(\max(LOC, 1)) \times 30)$$
+- 60: Baseline clearance to prevent intersecting the parent node mesh.
+- 30: Spatial multiplier to ensure adequate separation between sub-nodes of varying lengths.
+A 10 LOC function orbits near 160 units, while a 1,000 LOC method orbits around 360 units.
 
-Linear mapping of line count to 3D spatial distance would push long functions far outside the camera's viewport frustum. To maintain a coherent scene layout while representing broad metric ranges, the engine applies base-2 logarithmic scaling.
+## Pipeline Integration
+- **Inputs**: The physical Lines of Code (LOC) for a specific extracted function.
+- **Outputs**: A scalar radial distance used for 3D placement.
+- **Dependencies**: Depends on data from the function extraction engine; output consumed by the orbital placement calculations.
+```text
+Function LOC -> Logarithmic Distance Formula -> 3D Radial Coordinate
+```
 
-A baseline clearance distance of 60 units prevents child sub-nodes from intersecting the parent node's mesh geometry.
+## Tradeoffs
+Logarithmic scaling compresses massive differences in function length into relatively small spatial adjustments. We chose this over linear scaling to keep all child nodes within the camera's readable viewport frustum.
 
-## Mathematical Distance Formula
+## Limitations
+- Extremely small differences in function length produce indistinguishable orbital distances.
+- Does not account for code formatting styles which can skew the LOC metric.
 
-$$\text{Orbital Radius} = 60 + \left( \log_2(\max(\text{LOC}, 1)) \times 30 \right)$$
+## Performance Notes
+Applying a baseline clearance (60 units) prevents Z-fighting and mesh collision between the parent node and the child geometries, maintaining clean pixel shader execution.
 
-* **Base Clearance Offset (60 Units):** Minimum spatial clearance to ensure sub-node geometry clears the parent node mesh.
-* **Logarithmic Term ($\log_2(\text{LOC})$):** Compresses line count variation into manageable spatial increments.
-* **Spread Multiplier (30 Units):** Scales log-compressed values across renderable 3D coordinate space.
+## Future Work
+- Replace raw LOC with calculated AST tokens to eliminate formatting inconsistencies.
+- Allow dynamic adjustment of the spread multiplier based on the zoom level of the camera.
 
-## Distance Scale Representative Thresholds
-
-| Function Length (LOC) | Computed Orbital Radius | Visual Representation |
-| :--- | :--- | :--- |
-| **10 LOC** | ~160 units | **Concise Function / Stub:** Orbits close to parent node surface. |
-| **100 LOC** | ~260 units | **Standard Method:** Maintains standard orbital distance. |
-| **1,000 LOC** | ~360 units | **Large Method:** Orbits at a noticeably extended distance. |
-| **100,000 LOC** | ~560 units | **Monolithic Function:** Extended distance capped near viewport limit. |
-
----
-
-### Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- [Function Sub-Node Units](07-05-satellite-unit.md)
+- [Visual Code Complexity Mapping](07-01-code-complexity.md)

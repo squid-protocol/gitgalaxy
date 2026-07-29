@@ -2,41 +2,48 @@
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py)
 
-> **Architecture: Dialect Detection, Copybook Resolution, & JCL Compilation Scaffolding**
->
-> **Summary:** The Mainframe Compiler Generator (`cobol_compiler_forge.py`) dynamically produces Job Control Language (JCL) build scripts required to compile legacy COBOL modules on MVS mainframe platforms. It inspects source code constructs to detect language standard dialects (COBOL-74 vs. COBOL-85) and automatically routes build jobs to the compatible compiler utility (`COBUCL` or `IGYWCL`).
+## Engineering Summary
+This subsystem constructs Job Control Language (JCL) build scripts required to compile legacy modules on MVS mainframe architectures. It solves the problem of manually determining the correct compiler utility and dataset allocations based on source code dialects. It exists to automate the deployment process for legacy environments. In GitGalaxy, it supports in-place modernization and testing on legacy architectures.
 
-## Language Dialect Detection
+## Purpose
+To dynamically produce JCL build scripts for compiling COBOL modules, detecting language dialects, and routing to compatible compilers (`COBUCL` or `IGYWCL`).
 
-Mainframe compilers enforce strict syntax rules based on language standards. Attempting to compile post-1985 syntax features using a legacy 1974 compiler results in compilation failures.
+## Problem Being Solved
+Mainframe compilers enforce strict syntax rules based on standards (COBOL-74 vs. COBOL-85). Additionally, legacy codebases rely on external copybook files that must be resolved, and require explicit dataset allocation steps for compilation.
 
-The generator inspects source text for modern COBOL signatures (`detect_cobol_dialect`):
-* **Signatures:** Scans for keywords such as `EVALUATE`, `INITIALIZE`, explicit scope terminators (`END-IF`, `END-PERFORM`, `END-READ`), and inline comments (`*>`).
-* **Compiler Routing:** If modern signatures are detected, the build step targets the Enterprise COBOL compiler procedure (`IGYWCL`). If absent, the job defaults to the OS/VS COBOL compiler procedure (`COBUCL`).
+## Design
+- **Language Dialect Detection**: Scans for modern COBOL signatures (`EVALUATE`, `INITIALIZE`, explicit scope terminators, `*>` comments). Routes to `IGYWCL` if found, else defaults to `COBUCL`.
+- **Recursive Copybook Flattening**: Resolves and inlines external `COPY` statements. Enforces a maximum recursion depth of 10 to guard against cyclic dependency stack overflows.
+- **Dataset Allocation & JCL Scaffolding**: 
+  - Extracts `PROGRAM-ID` to assign job names and load module output locations.
+  - Parses `SELECT ... ASSIGN TO` to construct dataset allocation steps (`IEFBR14`).
+  - Configures linkage editor steps (`LKED`) to resolve system libraries and output binary load modules.
 
-## Recursive Copybook Flattening
+## Pipeline Integration
+**Inputs received:** Raw COBOL source files and associated copybooks.
+**Outputs produced:** Validated, flat COBOL source and JCL compilation scripts.
+**Dependencies:** Upstream file system access; downstream mainframe job submission endpoints.
 
-Legacy COBOL codebases separate record definitions into external copybook files (`COPY` statements). To build self-contained compilation payloads, the generator recursively resolves and inlines copybook contents (`flatten_copybooks`):
+```mermaid
+graph TD
+    A[COBOL Source] --> B[Dialect Detection]
+    B --> C[Copybook Flattening]
+    C --> D[JCL Scaffolding]
+    D --> E[Build Scripts]
+```
 
-* **Cyclic Dependency Guard:** Mainframe projects occasionally contain circular copybook references. The flattener enforces a maximum recursion depth (`MAX_RECURSION_DEPTH = 10`). If recursion exceeds this threshold, the branch is truncated to prevent stack overflow or memory exhaustion.
+## Tradeoffs
+- Inlining copybooks before compilation rather than relying on the compiler's library resolution. Chosen to guarantee self-contained payload submissions for remote compilation, sacrificing modularity in the final payload.
 
-## Dataset Allocation & Build JCL Scaffolding
+## Limitations
+- Maximum recursion depth of 10 for copybooks prevents resolution of deeply nested architectures.
+- Dependent on predefined system library mappings (e.g., `SYS1.COBLIB`).
 
-The generator extracts structural declarations to build the complete JCL compilation job (`generate_build_jcl`):
-1. **Program Identity:** Extracts `PROGRAM-ID` definitions to assign job names and load module output locations (`HERC01.LOADLIB`).
-2. **Dataset Provisioning:** Parses `SELECT ... ASSIGN TO` statements to construct Phase 1 dataset allocation steps using `IEFBR14`.
-3. **Linkage Editing:** Configures linkage editor steps (`LKED`) to resolve standard system libraries (`SYS1.COBLIB`) and output binary load modules.
+## Performance Notes
+Copybook flattening executes efficiently in memory. Cycle detection limits recursion strictly, ensuring $O(1)$ depth overhead and preventing exponential expansion in degenerate cases.
 
----
+## Future Work
+- Dynamic detection of required system libraries based on external CALL heuristics.
 
-### Powered by GitGalaxy
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
-
-* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
-* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
-
----
-
-**[⬅️ Back to Master Index](index.md)**
-
+## Related Components
+- `cobol_dag_architect.py`

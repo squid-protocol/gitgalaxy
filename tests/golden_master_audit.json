@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-29T13:51:11.735495+00:00",
-            "Total Scan Duration": "25.72 seconds"
+            "Analysis ISO Timestamp": "2026-07-29T14:16:38.932910+00:00",
+            "Total Scan Duration": "27.57 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -450,7 +450,7 @@
             "tcl": {
                 "files": 2,
                 "loc": 2213,
-                "impact": 1999.96
+                "impact": 1995.26
             },
             "td": {
                 "files": 4,
@@ -1012,7 +1012,7 @@
             },
             "tcl/sqlite": {
                 "file_count": 3,
-                "total_mass": 2008.48,
+                "total_mass": 2003.78,
                 "avg_exposures": {
                     "cognitive_load": 54.1,
                     "safety_score": 58.8,
@@ -221753,7 +221753,7 @@
             }
         },
         "tcl/sqlite": {
-            "Directory Group Magnitude": 2008.48,
+            "Directory Group Magnitude": 2003.78,
             "File Count": 3,
             "Ecosystem Fingerprint (Archetypes)": {
                 "Static: Literature & Documentation": "33.3%",
@@ -221795,8 +221795,8 @@
                     },
                     "2. Topological Coordinates": {
                         "X": 503.67,
-                        "Y": -200.56,
-                        "Z": -5446.71
+                        "Y": -200.55,
+                        "Z": -5446.63
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -221955,9 +221955,9 @@
                         "Identity Proof": "Single Indicator (Ext: .tcl)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 150.46,
-                        "Y": -101.14,
-                        "Z": -4902.07
+                        "X": 150.49,
+                        "Y": -101.15,
+                        "Z": -4902.06
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -222508,30 +222508,30 @@
                     "2. Topological Coordinates": {
                         "X": 396.43,
                         "Y": -98.31,
-                        "Z": -5117.29
+                        "Z": -5117.25
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_17",
-                        "Repository Drift (Z-Score)": 14.526,
+                        "Repository Drift (Z-Score)": 14.522,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.592,
-                            "file_cluster_1": 15.261,
-                            "file_cluster_2": 15.109,
-                            "file_cluster_3": 15.911,
-                            "file_cluster_4": 14.689,
-                            "file_cluster_5": 15.691,
-                            "file_cluster_6": 14.868,
-                            "file_cluster_7": 14.994,
-                            "file_cluster_8": 14.558,
-                            "file_cluster_9": 14.747,
-                            "file_cluster_10": 15.477,
-                            "file_cluster_11": 14.536,
-                            "file_cluster_12": 15.259,
-                            "file_cluster_13": 14.706,
-                            "file_cluster_14": 17.84,
-                            "file_cluster_15": 15.278,
-                            "file_cluster_16": 15.255,
-                            "file_cluster_17": 14.526
+                            "file_cluster_0": 14.586,
+                            "file_cluster_1": 15.257,
+                            "file_cluster_2": 15.105,
+                            "file_cluster_3": 15.906,
+                            "file_cluster_4": 14.682,
+                            "file_cluster_5": 15.687,
+                            "file_cluster_6": 14.864,
+                            "file_cluster_7": 14.988,
+                            "file_cluster_8": 14.554,
+                            "file_cluster_9": 14.742,
+                            "file_cluster_10": 15.473,
+                            "file_cluster_11": 14.53,
+                            "file_cluster_12": 15.255,
+                            "file_cluster_13": 14.701,
+                            "file_cluster_14": 17.837,
+                            "file_cluster_15": 15.273,
+                            "file_cluster_16": 15.25,
+                            "file_cluster_17": 14.522
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -222539,7 +222539,7 @@
                         "Total LOC": 2627,
                         "Coding LOC": 1791,
                         "Documentation LOC": 602,
-                        "Structural Magnitude": 1628.92,
+                        "Structural Magnitude": 1624.22,
                         "Control Flow Ratio": "68.3%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -222600,16 +222600,6 @@
                             "End Line": 2274
                         },
                         {
-                            "Function Name": "do_vmstep_test",
-                            "Structural Impact": 7.6,
-                            "Lines of Code (LOC)": 6,
-                            "Control Flow Branches": 2,
-                            "Input Parameters": 5,
-                            "Control Flow Ratio": "66.7%",
-                            "Start Line": 916,
-                            "End Line": 921
-                        },
-                        {
                             "Function Name": "do_ioerr_test",
                             "Structural Impact": 6.3,
                             "Lines of Code (LOC)": 23,
@@ -222621,10 +222611,10 @@
                         },
                         {
                             "Function Name": "ifcapable",
-                            "Structural Impact": 4.5,
+                            "Structural Impact": 5.3,
                             "Lines of Code (LOC)": 1,
                             "Control Flow Branches": 1,
-                            "Input Parameters": 4,
+                            "Input Parameters": 6,
                             "Control Flow Ratio": "50.0%",
                             "Start Line": 1725,
                             "End Line": 1725
@@ -222638,6 +222628,16 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 1469,
                             "End Line": 1473
+                        },
+                        {
+                            "Function Name": "do_vmstep_test",
+                            "Structural Impact": 3.3,
+                            "Lines of Code (LOC)": 6,
+                            "Control Flow Branches": 2,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "66.7%",
+                            "Start Line": 916,
+                            "End Line": 921
                         },
                         {
                             "Function Name": "memdebug_log_sql",
@@ -222668,16 +222668,6 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 593,
                             "End Line": 593
-                        },
-                        {
-                            "Function Name": "do_timed_execsql_test",
-                            "Structural Impact": 2.3,
-                            "Lines of Code (LOC)": 1,
-                            "Control Flow Branches": 0,
-                            "Input Parameters": 4,
-                            "Control Flow Ratio": "0.0%",
-                            "Start Line": 977,
-                            "End Line": 977
                         },
                         {
                             "Function Name": "append_graph",
@@ -223310,6 +223300,16 @@
                             "End Line": 637
                         },
                         {
+                            "Function Name": "do_timed_execsql_test",
+                            "Structural Impact": 1.1,
+                            "Lines of Code (LOC)": 1,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 977,
+                            "End Line": 977
+                        },
+                        {
                             "Function Name": "delete_all_data",
                             "Structural Impact": 1.1,
                             "Lines of Code (LOC)": 1,
@@ -223494,7 +223494,7 @@
                     "7. Structural Signatures (Net Mitigated Signals)": {
                         "Control Flow Branches": 394,
                         "Sequential Logic Declarations": 183,
-                        "Function Parameters": 109,
+                        "Function Parameters": 107,
                         "Function/Method Declarations": 109,
                         "Class/Entity Declarations": 0,
                         "Defensive Programming Constructs": 92,
@@ -223509,7 +223509,7 @@
                         "Asynchronous/Concurrent Execution": 9,
                         "UI / View Layer Components": 3,
                         "Closures and Anonymous Functions": 0,
-                        "Global State Dependencies": 10,
+                        "Global State Dependencies": 14,
                         "Decorators and Annotations": 0,
                         "Generic Type Abstractions": 0,
                         "Collection Iterators / Comprehensions": 0,
@@ -281262,9 +281262,9 @@
                         "Identity Proof": "Single Indicator (Ext: .php)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 791.91,
+                        "X": 791.89,
                         "Y": 4.24,
-                        "Z": -5704.53
+                        "Z": -5704.42
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",

@@ -10814,7 +10814,15 @@ LANGUAGE_DEFINITIONS = {
                 # across newlines.
                 # FIX: Upgraded horizontal `[ \t]+` constraints to vertical `[ \t\n]+`.
                 # =====================================================================
-                r"^[ \t]*proc[ \t\n]+[a-zA-Z0-9_:]+[ \t\n]+\{([^}]*)\}",
+                # BUG FIX (Rule 11, nested-delimiter): `[^}]*` is a flat
+                # negated class -- can't represent even one level of
+                # nesting. Tcl's optional-argument-with-default syntax
+                # nests braces directly inside the arg list
+                # (`proc foo {a {b 10}} {...}`, a routine idiom) --
+                # confirmed the old pattern truncated at the inner `}`
+                # instead of the true closing one. Upgraded to the
+                # one-level-nesting bounded form.
+                r"^[ \t]*proc[ \t\n]+[a-zA-Z0-9_:]+[ \t\n]+\{((?:[^{}]|\{[^{}]*\})*)\}",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -10874,7 +10882,12 @@ LANGUAGE_DEFINITIONS = {
             "closures": re.compile(r"\bapply[ \t]+\{"),
             # 18. globals (Global / Shared State)
             # Tcl relies heavily on global imports and environment arrays.
-            "globals": re.compile(r"\b(?:global|::env)\b|upvar[ \t]+#0"),
+            # BUG FIX: `::env` starts with `::` (non-word) inside the
+            # shared `\b(...)\b` group. Real usage (`$::env(HOME)`) always
+            # precedes it with `$`, also non-word -- `\b` between two
+            # non-word chars can never fire, so `::env` never matched.
+            # Pulled out with no leading `\b` (self-delimiting on `::`).
+            "globals": re.compile(r"\bglobal\b|::env\b|upvar[ \t]+#0"),
             # 19. decorators
             "decorators": None,
             # 20. generics
@@ -10903,7 +10916,14 @@ LANGUAGE_DEFINITIONS = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
-            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX: confirmed O(n^2) ReDoS -- the SPEC alternative's
+            # unbounded `\d+` sits directly adjacent to the also-unbounded
+            # `[^\]]*`, whose charset fully overlaps digits. Same bug shape
+            # already found and fixed in embedded_python's and css's
+            # independent copies of this pattern. Measured ~4x runtime per
+            # doubling. Bounded `\d+` to `\d{1,10}` and `[^\]]*` to
+            # `{0,300}`.
+            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Tcl standardizes on spaces. Tabs indicate formatter friction.
             "tabs_vs_spaces": None,

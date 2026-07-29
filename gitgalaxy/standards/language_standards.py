@@ -9744,7 +9744,8 @@ LANGUAGE_DEFINITIONS = {
         # UPGRADED: Maps to Family 7 (The Positional Ancients)
         # Rationale: Strictly fixed-format legacy constraints. The engine must monitor Column 1
         # for an asterisk '*' to identify line-level Commented / Non-Executable Text, while allowing '"' for inline.
-        "lexical_family": "positional_anchored",
+        # ABAP code uses " as inline comment, requiring a specialized positional family
+        "lexical_family": "positional_abap",
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes modern COND/SWITCH expressions.

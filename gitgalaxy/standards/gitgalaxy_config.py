@@ -522,8 +522,12 @@ LEXICAL_FAMILY_HEURISTICS = {
         "block_exclusive": {"delimiters": ["", "--!>"]},
         # 5. Positional Anchored
         # The engine must verify the token's physical column placement.
-        # Examples: Legacy COBOL, Legacy Fortran, ABAP.
+        # Examples: Legacy COBOL, Legacy Fortran.
         "positional_anchored": {"delimiters": ["*>", "!", "C", "*", "D"]},
+        # 5b. Positional ABAP (#746)
+        # Same as positional_anchored but also recognizes " as an inline comment.
+        # Examples: ABAP.
+        "positional_abap": {"delimiters": ["*>", "!", "C", "*", "D", '"']},
     }
 }
 

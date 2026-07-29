@@ -266,8 +266,8 @@ class Prism:
             lits.extend(nested_lits)
             return code, "\n".join(lits)
 
-        if family == "positional_anchored":
-            code, pos_lits = self._strip_positional_comments(text)
+        if family in ("positional_anchored", "positional_abap"):
+            code, pos_lits = self._strip_positional_comments(text, abap_mode=(family == "positional_abap"))
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)
@@ -325,7 +325,7 @@ class Prism:
         # see gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS. perl moved to
         # the existing "line_exclusive" family (needed no new family at all).
         for fam_key, data in self.lexical_families.items():
-            if fam_key in ("recursive_block", "recursive_block_haskell", "positional_anchored"):
+            if fam_key in ("recursive_block", "recursive_block_haskell", "positional_anchored", "positional_abap"):
                 continue
 
             delims = data.get("delimiters", [])
@@ -667,8 +667,8 @@ class Prism:
         # 4. Final Logic Unmasking
         return unmask(protected_code), lits
 
-    def _strip_positional_comments(self, text: str) -> tuple[str, str]:
-        """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran)."""
+    def _strip_positional_comments(self, text: str, abap_mode: bool = False) -> tuple[str, str]:
+        """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran/ABAP)."""
         code, lits = [], []
 
         for line in text.split("\n"):
@@ -679,11 +679,15 @@ class Prism:
                 lits.append(line)
                 continue
 
-            # 2. Modern Inline Fortran (!) and COBOL (*>) comments
+            # 2. Modern Inline Fortran (!), COBOL (*>), and ABAP (") comments
             if "*>" in line:
                 parts = line.split("*>", 1)
                 code.append(parts[0])
                 lits.append("*>" + parts[1])
+            elif abap_mode and '"' in line:
+                parts = line.split('"', 1)
+                code.append(parts[0])
+                lits.append('"' + parts[1])
             elif "!" in line:
                 parts = line.split("!", 1)
                 code.append(parts[0])

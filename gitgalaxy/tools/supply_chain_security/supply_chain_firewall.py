@@ -79,7 +79,7 @@ def run_firewall_audit(
     imports_whitelisted = 0
     imports_blacklisted = 0
     imports_unknown = 0
-    threats_found = 0
+    threats_found_files = set()
     threats_allowed = 0
 
     if not parsed_files:
@@ -87,7 +87,7 @@ def run_firewall_audit(
             "imports_whitelisted": imports_whitelisted,
             "imports_unknown": imports_unknown,
             "imports_blacklisted": imports_blacklisted,
-            "threats_found": threats_found,
+            "threats_found": len(threats_found_files),
             "threats_allowed": threats_allowed,
         }
 
@@ -143,7 +143,7 @@ def run_firewall_audit(
 
             if true_pkg in blacklisted_imports:
                 imports_blacklisted += 1
-                threats_found += 1
+                threats_found_files.add(rel_path_str)
                 # The Allowlist Loophole Fix: A blacklisted import is ALWAYS a threat. Never suppress it.
                 if true_pkg != pkg:
                     logger.critical(
@@ -156,7 +156,7 @@ def run_firewall_audit(
             else:
                 imports_unknown += 1
                 if strict_import_mode and not is_whitelisted:
-                    threats_found += 1
+                    threats_found_files.add(rel_path_str)
                     if true_pkg != pkg:
                         logger.warning(
                             f"⚠️ [POLICY VIOLATION] Spoofed alias '{pkg}' -> '{true_pkg}' blocked by Strict Mode in: {rel_path_str}"
@@ -252,13 +252,13 @@ def run_firewall_audit(
                 logger.warning(f"🚨 [THREAT DETECTED] Risk Threshold Breached in: {rel_path_str}")
                 for risk, score in exposures.items():
                     logger.warning(f"   -> {risk}: {score:.1f}%")
-                threats_found += 1
+                threats_found_files.add(rel_path_str)
 
     return {
         "imports_whitelisted": imports_whitelisted,
         "imports_unknown": imports_unknown,
         "imports_blacklisted": imports_blacklisted,
-        "threats_found": threats_found,
+        "threats_found": len(threats_found_files),
         "threats_allowed": threats_allowed,
     }
 

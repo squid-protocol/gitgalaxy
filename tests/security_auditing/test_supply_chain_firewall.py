@@ -104,6 +104,45 @@ def test_import_truncation_and_local_shield():
 
 
 # ==============================================================================
+# TEST 2.5: Semantic Miswiring Fix (Issue #711)
+# ==============================================================================
+def test_threats_found_counts_unique_files_only():
+    """
+    Validates that the threats_found counter increments exactly once per file,
+    even if the file contains multiple risk occurrences (e.g. multiple blacklisted
+    imports or a combination of blacklisted imports and a structural logic bomb).
+    """
+    config = _make_config(
+        BLACKLISTED_IMPORTS=["malware-one", "malware-two"],
+    )
+
+    mock_ram_graph = [
+        {
+            "path": "infected_file.js",
+            "raw_imports": ["malware-one", "malware-two"],
+            # Also add a structural threat to ensure it doesn't double count
+            "risk_vector": _risk_vector(logic_bomb=80.0),
+            "equations": {},
+            "coding_loc": 50,
+        },
+        {
+            "path": "another_infected_file.js",
+            "raw_imports": ["malware-one"],
+            "risk_vector": _risk_vector(),
+            "equations": {},
+            "coding_loc": 20,
+        }
+    ]
+
+    result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
+    
+    # 3 blacklisted imports were found
+    assert result["imports_blacklisted"] == 3
+    # But only 2 unique files contained threats
+    assert result["threats_found"] == 2, "threats_found counted per-occurrence rather than per-file!"
+
+
+# ==============================================================================
 # TEST 3: Alias Spoofing Detection
 # ==============================================================================
 def test_alias_spoofing_detection(caplog):

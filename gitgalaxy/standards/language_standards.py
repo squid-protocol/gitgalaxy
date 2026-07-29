@@ -9751,8 +9751,16 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines OO boundaries and RAP CDS Entities.
+            # BUG FIX: `VIEW` and `ENTITY` were mutually-exclusive alternatives,
+            # but the standard modern RAP syntax is `DEFINE VIEW ENTITY <name>`
+            # (both words together, exactly what this dict's target_version
+            # claims to cover) -- so the regex matched `VIEW` as the keyword
+            # and then captured the literal word `ENTITY` as if it were the
+            # entity name. `ENTITY` is now optional after `VIEW`/`PROJECTION
+            # VIEW` instead of a same-tier alternative.
             "class_start": re.compile(
-                r"^[ \t]*(?:CLASS|INTERFACE)\s+([a-zA-Z0-9_-]+)(?=[ \t]+DEFINITION|[ \t\n\.]|$)|^[ \t]*DEFINE\s+(?:ROOT[ \t]+)?(?:VIEW|ENTITY|PROJECTION\s+VIEW|BEHAVIOR)\s+([a-zA-Z0-9_-]+)",
+                r"^[ \t]*(?:CLASS|INTERFACE)\s+([a-zA-Z0-9_-]+)(?=[ \t]+DEFINITION|[ \t\n\.]|$)"
+                r"|^[ \t]*DEFINE\s+(?:ROOT[ \t]+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR)\s+([a-zA-Z0-9_-]+)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -9796,8 +9804,13 @@ LANGUAGE_DEFINITIONS = {
                 re.I | re.M,
             ),
             # 13. doc: Structured Documentation. ABAP Doc annotations and metadata headers.
+            # BUG FIX: the trailing `\b` sat right after a literal `:` (Rule 9,
+            # mirror case). Real headers are written as "AUTHOR: Jane Doe" --
+            # the space after `:` means both sides of that position are
+            # non-word, so `\b` never fired and the realistic form never
+            # matched. `:` is already self-delimiting; `\b` dropped.
             "doc": re.compile(
-                r'^"!\s*@(?:parameter|raising|return)|\b(?:AUTHOR|DESCRIPTION|PURPOSE|REMARKS):\b',
+                r'^"!\s*@(?:parameter|raising|return)|\b(?:AUTHOR|DESCRIPTION|PURPOSE|REMARKS):',
                 re.I | re.M,
             ),
             # 14. test: Testing & Assertions. ABAP Unit markers and test-injection.
@@ -9807,8 +9820,15 @@ LANGUAGE_DEFINITIONS = {
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Async RFCs and background tasks.
+            # BUG FIX (Rule 9, mirror case): ENQUEUE_/DEQUEUE_ end in `_`, a
+            # word character, and real function-module names always continue
+            # with more word characters right after (ENQUEUE_FOO) -- so the
+            # shared trailing `\b` could never fire for them (both sides of
+            # that position are word chars). Pulled out of the group with the
+            # trailing `\b` dropped, since the prefix is already unambiguous.
             "concurrency": re.compile(
-                r"\b(STARTING\s+NEW\s+TASK|ENQUEUE_|DEQUEUE_|WAIT\s+UP\s+TO)\b|CALL\s+FUNCTION\s+[^\n;]+\s+IN\s+BACKGROUND\s+TASK",
+                r"\b(?:STARTING\s+NEW\s+TASK|WAIT\s+UP\s+TO)\b|\b(?:ENQUEUE_|DEQUEUE_)"
+                r"|CALL\s+FUNCTION\s+[^\n;]+\s+IN\s+BACKGROUND\s+TASK",
                 re.I,
             ),
             # 16. ui_framework: UI / View Components. Screen programming and HTML viewers.
@@ -9902,7 +9922,11 @@ LANGUAGE_DEFINITIONS = {
             # 43. bitwise_ops (Bitwise Operations)
             "bitwise_ops": re.compile(r"\b(BIT-AND|BIT-OR|BIT-XOR|BIT-NOT)\b", re.I),
             # 44. sync_locks (Resource Management & Stability)
-            "sync_locks": re.compile(r"\b(ENQUEUE_|DEQUEUE_)\b", re.I),
+            # BUG FIX (Rule 9, mirror case): see the matching fix in
+            # `concurrency` above -- the trailing `\b` right after `_` could
+            # never fire since real function-module names always continue
+            # with more word characters (ENQUEUE_FOO).
+            "sync_locks": re.compile(r"\b(?:ENQUEUE_|DEQUEUE_)", re.I),
             # 45. immutability_locks (Immutability Constraints) Immutability (constants).
             "immutability_locks": re.compile(r"\b(CONSTANTS|FINAL|READ-ONLY)\b", re.I),
             # 46. cleanup (Resource Cleanup / Teardown)

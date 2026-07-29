@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-29T14:51:22.228130+00:00",
-            "Total Scan Duration": "24.66 seconds"
+            "Analysis ISO Timestamp": "2026-07-29T18:48:31.867238+00:00",
+            "Total Scan Duration": "24.04 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -210,7 +210,7 @@
             "abap": {
                 "files": 7,
                 "loc": 2789,
-                "impact": 463.96000000000004
+                "impact": 464.96000000000004
             },
             "agc_assembly": {
                 "files": 10,
@@ -537,9 +537,9 @@
         "directory_groups": {
             "abap/abapGit": {
                 "file_count": 8,
-                "total_mass": 474.48,
+                "total_mass": 475.48,
                 "avg_exposures": {
-                    "cognitive_load": 9.47,
+                    "cognitive_load": 9.52,
                     "safety_score": 4.0,
                     "tech_debt": 3.72,
                     "verification": 2.05,
@@ -263888,14 +263888,14 @@
             }
         },
         "abap/abapGit": {
-            "Directory Group Magnitude": 474.48,
+            "Directory Group Magnitude": 475.48,
             "File Count": 8,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_8": "87.5%",
                 "file_cluster_13": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "9.47%",
+                "Cognitive Load Exposure": "9.52%",
                 "Error & Exception Exposure": "4.0%",
                 "Tech Debt Exposure": "3.72%",
                 "Testing Exposure": "2.05%",
@@ -265149,32 +265149,32 @@
                         "Identity Proof": "Single Indicator (Ext: .abap)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 6933.54,
-                        "Y": 129.49,
-                        "Z": -24.65
+                        "X": 6933.03,
+                        "Y": 129.51,
+                        "Z": -25.64
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 6.769,
+                        "Repository Drift (Z-Score)": 6.741,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 8.73,
-                            "file_cluster_1": 8.141,
-                            "file_cluster_2": 8.642,
-                            "file_cluster_3": 10.068,
-                            "file_cluster_4": 9.204,
-                            "file_cluster_5": 9.142,
-                            "file_cluster_6": 9.09,
-                            "file_cluster_7": 7.907,
-                            "file_cluster_8": 6.769,
-                            "file_cluster_9": 8.84,
-                            "file_cluster_10": 10.079,
-                            "file_cluster_11": 9.382,
-                            "file_cluster_12": 9.209,
-                            "file_cluster_13": 8.697,
-                            "file_cluster_14": 13.422,
-                            "file_cluster_15": 9.545,
-                            "file_cluster_16": 8.763,
-                            "file_cluster_17": 8.944
+                            "file_cluster_0": 8.7,
+                            "file_cluster_1": 8.107,
+                            "file_cluster_2": 8.61,
+                            "file_cluster_3": 10.033,
+                            "file_cluster_4": 8.997,
+                            "file_cluster_5": 9.107,
+                            "file_cluster_6": 9.055,
+                            "file_cluster_7": 7.867,
+                            "file_cluster_8": 6.741,
+                            "file_cluster_9": 8.803,
+                            "file_cluster_10": 10.042,
+                            "file_cluster_11": 9.367,
+                            "file_cluster_12": 9.181,
+                            "file_cluster_13": 8.662,
+                            "file_cluster_14": 13.386,
+                            "file_cluster_15": 9.521,
+                            "file_cluster_16": 8.729,
+                            "file_cluster_17": 8.907
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -265182,16 +265182,16 @@
                         "Total LOC": 283,
                         "Coding LOC": 184,
                         "Documentation LOC": 33,
-                        "Structural Magnitude": 7.18,
+                        "Structural Magnitude": 8.18,
                         "Control Flow Ratio": "33.3%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.087
+                        "Raw Cognitive Density": 0.103
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "6.59%",
+                        "Cognitive Load Exposure": "7.0%",
                         "Error & Exception Exposure": "6.58%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.31%",
@@ -265239,7 +265239,7 @@
                         "Commented-out Code (Dead Logic)": 0,
                         "Structured Documentation Blocks": 0,
                         "Unit Test Assertions": 0,
-                        "Asynchronous/Concurrent Execution": 0,
+                        "Asynchronous/Concurrent Execution": 1,
                         "UI / View Layer Components": 0,
                         "Closures and Anonymous Functions": 0,
                         "Global State Dependencies": 6,
@@ -265267,7 +265267,7 @@
                         "Fatal Aborts & Exceptions": 1,
                         "Thread Sleeps & Blocking Waits": 0,
                         "Bitwise Operations": 0,
-                        "Thread Synchronization Locks": 0,
+                        "Thread Synchronization Locks": 1,
                         "Immutable Data Declarations": 3,
                         "Resource Deallocation & Cleanup": 0,
                         "Private / Encapsulated Scopes": 2,

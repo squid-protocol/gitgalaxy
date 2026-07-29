@@ -5903,8 +5903,15 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # Subroutine entry points anchoring logic blocks.
+            # BUG FIX: the lookahead's `\s+` can cross a newline (Rule 5),
+            # so a bare label on its own line (nothing else on that line)
+            # could get falsely bound to an unrelated opcode several blank
+            # lines later -- confirmed "MYLABEL\n\n\n\tTC INTERNAL\n"
+            # incorrectly captured MYLABEL. Real AGC label+opcode pairs are
+            # always on the same physical line (fixed-column YUL/GAP
+            # format); bounded to `[ \t]+`.
             "func_start": re.compile(
-                r"^([A-Z0-9_-]+)(?=\s+(?:TC|CA|CS|TS|DXCH|CCS|DLOAD|STORE|CALL|INDEX|EXTEND|INHINT|BZF|BZMF|BPL|BMI)\b)",
+                r"^([A-Z0-9_-]+)(?=[ \t]+(?:TC|CA|CS|TS|DXCH|CCS|DLOAD|STORE|CALL|INDEX|EXTEND|INHINT|BZF|BZMF|BPL|BMI)\b)",
                 re.M | re.I,
             ),
             # 5. class_start
@@ -6048,7 +6055,13 @@ LANGUAGE_DEFINITIONS = {
             "cleanup": re.compile(r"\b(ENDOFJOB|RESUME|EXIT)\b", re.I),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             # Internal task-local labels or non-global tags.
-            "encapsulation": re.compile(r"^[ \t]*[a-z0-9_][a-zA-Z0-9_.]*", re.M),
+            # BUG FIX: required a lowercase-starting label, but authentic
+            # AGC assembly source is uppercase-only (per this section's own
+            # convention -- every other rule here uses `re.I`, and
+            # func_start's own capture class is `[A-Z0-9_-]+`) -- confirmed
+            # a realistic label ("MYLABEL") never matched at all. Widened
+            # to accept any case.
+            "encapsulation": re.compile(r"^[ \t]*[A-Za-z0-9_][a-zA-Z0-9_.]*", re.M),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(EVENT\s+WAIT|TC\s+WAITLIST)\b", re.I),
             # 49. test_skip (Bypassed Tests / Ignored Specs)

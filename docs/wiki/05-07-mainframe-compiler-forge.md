@@ -1,34 +1,42 @@
-# Mainframe Compiler Forge
+# Mainframe Compiler Generator
 
-> **Architecture: Era-Aware JCL Generation & AST Flattening**
+> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py)
+
+> **Architecture: Dialect Detection, Copybook Resolution, & JCL Compilation Scaffolding**
 >
-> **Summary:** The MVS 3.8j COBOL Compiler Forge dynamically generates the exact Job Control Language (JCL) required to compile legacy payloads on IBM mainframes. It features a Dialect Sensor to prevent catastrophic compiler strokes by routing code to the correct compiler era (OS/VS vs. Enterprise).
+> **Summary:** The Mainframe Compiler Generator (`cobol_compiler_forge.py`) dynamically produces Job Control Language (JCL) build scripts required to compile legacy COBOL modules on MVS mainframe platforms. It inspects source code constructs to detect language standard dialects (COBOL-74 vs. COBOL-85) and automatically routes build jobs to the compatible compiler utility (`COBUCL` or `IGYWCL`).
 
-## The Dialect Sensor
-Mainframe compilers are notoriously fragile. Feeding post-1985 syntax into a 1974 compiler results in immediate ABENDs (Abnormal Ends). The forge scans the Abstract Syntax Tree (AST) for modern structural signatures (e.g., `EVALUATE`, `INITIALIZE`, inline `*>` comments, and explicit scope terminators like `END-IF`). 
-* If detected, it routes the build step to the modern Enterprise Compiler (`IGYWCL`). 
-* If absent, it conservatively routes to the legacy OS/VS Compiler (`COBUCL`).
+## Language Dialect Detection
 
-## The Copybook Flattener
-Legacy code frequently relies on external `COPY` statements, fragmenting the business logic across multiple files. To create a self-contained compilation payload, the forge recursively resolves and inlines all copybooks.
-* **Infinite Loop Protection:** Because legacy systems often contain cyclic copybook references (A calls B, B calls A), the flattener enforces a strict recursion depth limit (maximum 10 layers). If the limit is exceeded, it forcefully aborts the cyclic branch to prevent memory exhaustion.
+Mainframe compilers enforce strict syntax rules based on language standards. Attempting to compile post-1985 syntax features using a legacy 1974 compiler results in compilation failures.
 
-## Execution Intent Extraction
-The forge parses the structural boundaries of the file to extract the `PROGRAM-ID` and all physical file allocations (`SELECT ... ASSIGN TO`). It uses this data to automatically scaffold the Phase 1 infrastructure provisioning steps (`IEFBR14`) in the generated JCL, ensuring all required datasets are allocated before the compiler runs.
+The generator inspects source text for modern COBOL signatures (`detect_cobol_dialect`):
+* **Signatures:** Scans for keywords such as `EVALUATE`, `INITIALIZE`, explicit scope terminators (`END-IF`, `END-PERFORM`, `END-READ`), and inline comments (`*>`).
+* **Compiler Routing:** If modern signatures are detected, the build step targets the Enterprise COBOL compiler procedure (`IGYWCL`). If absent, the job defaults to the OS/VS COBOL compiler procedure (`COBUCL`).
 
-<br><br>
+## Recursive Copybook Flattening
+
+Legacy COBOL codebases separate record definitions into external copybook files (`COPY` statements). To build self-contained compilation payloads, the generator recursively resolves and inlines copybook contents (`flatten_copybooks`):
+
+* **Cyclic Dependency Guard:** Mainframe projects occasionally contain circular copybook references. The flattener enforces a maximum recursion depth (`MAX_RECURSION_DEPTH = 10`). If recursion exceeds this threshold, the branch is truncated to prevent stack overflow or memory exhaustion.
+
+## Dataset Allocation & Build JCL Scaffolding
+
+The generator extracts structural declarations to build the complete JCL compilation job (`generate_build_jcl`):
+1. **Program Identity:** Extracts `PROGRAM-ID` definitions to assign job names and load module output locations (`HERC01.LOADLIB`).
+2. **Dataset Provisioning:** Parses `SELECT ... ASSIGN TO` statements to construct Phase 1 dataset allocation steps using `IEFBR14`.
+3. **Linkage Editing:** Configures linkage editor steps (`LKED`) to resolve standard system libraries (`SYS1.COBLIB`) and output binary load modules.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

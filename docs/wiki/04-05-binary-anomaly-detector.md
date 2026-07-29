@@ -1,56 +1,77 @@
-# Binary Anomaly Detector (The X-Ray Inspector)
+# Binary Anomaly Detector (Heuristic File Integrity Scanner)
 
-> **Seeing Through the Disguise**
->
-> Advanced adversaries rarely drop plain-text malware into a repository. They use steganography, packing techniques, and high-entropy encryption to hide their payloads inside seemingly harmless files (like `.png` images, `.zip` archives, or compiled binaries). 
->
-> The Binary Anomaly Detector (`binary_anomaly_detector.py`), known internally as the X-Ray Inspector, is designed for the fast triage of these concealed threats. It scans the raw bytes and mathematical entropy of files to detect malicious execution headers and obfuscated payloads.
+> **File Reference:** [gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py)
 
-## The Funnel & The Binary Exception
-
-Most GitGalaxy tools (like the Optical Lenses) rely on the `ApertureFilter` to explicitly drop binary files from the scan queue to save memory. The X-Ray Inspector fundamentally reverses this logic.
-
-* **The Binary Exception:** During the initial Pass 1 Funnel, the X-Ray Inspector intentionally *bypasses* the standard path integrity checks. It actively wants to scan the binaries (`.png`, `.zip`) to verify that their internal structures actually match their file extensions.
-* **The Test Data Shield:** Because unit tests often generate highly randomized or encrypted mock data, the Inspector automatically whitelists any paths containing `/test/`, `/tests/`, or `phpunit` to prevent false positives.
-* **X-Ray Bypasses:** It utilizes dedicated `XRAY_BYPASS_EXTENSIONS` and `XRAY_BYPASS_PATHS` from the global config, allowing architects to explicitly whitelist known, safe dense data formats (like `.gz` or `.json` fixtures).
-
-## The Deep Scan (8KB Heuristics)
-
-To maintain hyper-scale velocity, the Inspector does not read massive binaries into memory. It reads only the first 8KB of every file as raw bytes, looking for structural anomalies:
-
-### 1. Magic Byte Mismatches
-The Inspector checks the file's Magic Bytes (the invisible signature at the very beginning of a file) against its claimed extension. If a file claims to be a `.jpg` but has the Magic Bytes of a compiled `.elf` Linux executable, the Inspector immediately flags it as a hidden threat.
-
-### 2. Shannon Entropy Math (Packed Payloads)
-The Inspector decodes the raw bytes into UTF-8 and evaluates the mathematical randomness of the strings. If the file contains mathematically dense or encrypted strings resulting in a Shannon Entropy score greater than 4.8, it flags the file as a potential packed payload or encrypted malware.
-
-### 3. Sub-Atomic Decryption Loops
-The Inspector hunts for specific Bitwise operations (`bitwise_hits`). High concentrations of custom XOR math are a primary indicator of a sub-atomic decryption routine, often used by malware to unpack itself dynamically in memory.
-
-## Speed Optimization & The Header Shield
-
-* **Neutered Lens:** To maximize speed, the Orchestrator instantiates a `SecurityLens` but heavily neuters it. It strips out all complex regex and AST parsing, restricting the engine to look *only* at `heat_triggers` and `bitwise_hits`.
-* **The Expected Header Shield:** Linux and macOS scripts (`.sh`, `.bash`, `.command`) legally contain execution strings like `#!/bin/bash`. If the binary scanner flags a threat but detects this exact pattern in a shell extension, it safely clears the threat to prevent false positives.
-
-## CI/CD Triage Alert
-
-When the scan is complete, the X-Ray Inspector prints a Mission Report detailing the scan velocity and the exact files containing structural anomalies. 
-
-If any encrypted payloads, Magic Byte mismatches, or parasitic execution headers are detected, it issues a `TRIAGE ALERT`, exiting with a status code of `1` to violently block the malicious commit or Pull Request.
-
-<br><br>
+The `binary_anomaly_detector.py` module in `gitgalaxy/tools/supply_chain_security/` performs high-speed triage of binary anomalies, magic byte mismatches, and obfuscated payloads within the build pipeline. While standard source code parsers drop binary assets to conserve memory, the Binary Anomaly Detector selectively inspects binary files (`.png`, `.zip`, `.dll`, `.exe`, etc.) using byte-level headers and Shannon entropy math to flag hidden malware and steganographic payloads.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Selective Binary Ingestion Logic
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+Most GitGalaxy scanning modules utilize the `ApertureFilter` to exclude binary assets and minified code. The Binary Anomaly Detector explicitly overrides this behavior to perform targeted file integrity audits:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Binary Ingestion Exemption:** Bypasses standard binary path exclusion rules during queue generation, ensuring binary file types are enqueued for header inspection.
+* **Test Data Shield:** Automatically whitelists paths containing `/test/`, `/tests/`, or `phpunit` to prevent false positive alerts on mock data fixtures or synthetic binary test files.
+* **Configurable Bypasses:** Evaluates project-level configuration (`XRAY_BYPASS_EXTENSIONS` and `XRAY_BYPASS_PATHS`) to permit designated compressed formats (e.g., `.gz`, `.json` fixtures) without triggering pipeline failures.
 
+---
 
+## 8KB Header Inspection & Mathematical Entropy
+
+To maintain high throughput and eliminate out-of-memory risks on large assets, the detector reads only the first 8,192 bytes ($8\text{ KB}$) of target files:
+
+```python
+with open(file_path, "rb") as f:
+    head_bytes = f.read(8192)
+```
+
+The 8KB chunk provides sufficient data for header signature verification, magic byte checks, and entropy calculation:
+
+### 1. Magic Byte & Extension Matching (`scan_binary`)
+Inspects file magic bytes against declared file extensions. Mismatches—such as an executable payload disguised with a `.png` or `.jpg` extension—trigger `[ANOMALY DETECTED]` warnings.
+
+### 2. Expected Shell Shebang Exception
+Shell scripts (`.sh`, `.bash`, `.zsh`, `.command`) legitimately contain executable header signatures (`#!/bin/bash`). If a binary threat flag matches an expected script shebang, the anomaly alert is safely suppressed.
+
+### 3. Shannon Entropy & Encrypted Payload Detection
+Decodes the raw 8KB byte buffer to evaluate mathematical string entropy:
+$$\text{Entropy} > 4.8$$
+High Shannon entropy indicates packed executables, encrypted payloads, or high-density obfuscated arrays embedded within non-executable files.
+
+### 4. Obfuscated Bitwise Operation Traps
+Inspects byte buffers for raw bitwise operations (`bitwise_ops`). Dense clusters of XOR math operations indicate potential unpacking routines or steganographic decryption loops.
+
+---
+
+## Programmatic & CLI Execution
+
+The detector supports both standalone CLI invocation and programmatic execution within orchestrator runs (`run_xray_audit`):
+
+### Standalone CLI Execution
+
+```bash
+python3 -m gitgalaxy.tools.supply_chain_security.binary_anomaly_detector /path/to/repo --config .galaxyscope.yaml
+```
+
+### Programmatic Invocation (`run_xray_audit`)
+
+```python
+from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
+
+audit_results = run_xray_audit(target_path=repo_path, config=resolved_config)
+print(f"Anomalies detected: {audit_results['anomalies_found']}")
+```
+
+If unwhitelisted anomalies or magic byte mismatches are discovered (`anomalies_found > 0`), the CLI tool prints detailed evidence snippets and exits with status code `1`, preventing corrupted or weaponized assets from advancing in the build pipeline.
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `binary_anomaly_detector.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive WebGPU visualization dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

@@ -1,49 +1,46 @@
-# 2.1.E. Satellite Orbital Distance
+# Sub-Node Orbital Distance & Logarithmic Scaling
 
-> **Metric: Lines of Code (LOC) in a specific function.**
->
-> **Purpose:** Visually separate functions by their physical volume to identify bloated methods at a glance.
->
-> **Effect:** The bigger the function, the further the satellite orbits from the central star. 
-> 
-> **Visual Output:** Modulates the 3D distance of the orbiting satellite from the core (Orbital Radius).
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-## 2.1.E.1. The Logic: Logarithmic Scaling
+In GitGalaxy's WebGL visualization engine, the **Orbital Radius** (3D distance of a function sub-node from its parent file node) is determined by the function's physical line count (Lines of Code / LOC). 
 
-We need to visually differentiate between small helper functions (10 lines), large algorithms (1,000 lines), and massive legacy functions (100,000 lines). 
+Visualizing function length through orbital distance allows developers to identify oversized or bloated methods at a glance without expanding text views.
 
-If we mapped distance linearly, massive functions would push their satellites infinitely off the screen, breaking the camera viewport. By applying a Logarithmic Scale, we compress the vast difference in line counts into a manageable physical space. A 100,000-line function is visually distant and imposing, but it remains anchored within the local star system.
+## Logarithmic Distance Scaling
 
-## 2.1.E.2. The Equation
+Functions within a repository vary widely in length, ranging from concise 5-line accessors to multi-thousand-line legacy methods. 
 
-We establish a base distance (60 units) so satellites don't clip into the parent star's mesh, and then add the log-scaled line count multiplied by a spread factor (30).
+Linear mapping of line count to 3D spatial distance would push long functions far outside the camera's viewport frustum. To maintain a coherent scene layout while representing broad metric ranges, the engine applies base-2 logarithmic scaling.
+
+A baseline clearance distance of 60 units prevents child sub-nodes from intersecting the parent node's mesh geometry.
+
+## Mathematical Distance Formula
 
 $$\text{Orbital Radius} = 60 + \left( \log_2(\max(\text{LOC}, 1)) \times 30 \right)$$
 
-## 2.1.E.3. The Scaling Examples
+* **Base Clearance Offset (60 Units):** Minimum spatial clearance to ensure sub-node geometry clears the parent node mesh.
+* **Logarithmic Term ($\log_2(\text{LOC})$):** Compresses line count variation into manageable spatial increments.
+* **Spread Multiplier (30 Units):** Scales log-compressed values across renderable 3D coordinate space.
 
-This equation produces a clean, readable spread of satellites based on their exact length:
+## Distance Scale Representative Thresholds
 
-| Lines of Code (LOC) | Orbital Radius | Visual Representation |
+| Function Length (LOC) | Computed Orbital Radius | Visual Representation |
 | :--- | :--- | :--- |
-| **10 LOC** | ~160 units | **Visible Stub:** Hugs the parent star closely. |
-| **100 LOC** | ~260 units | **Standard Branch:** A normal, healthy distance. |
-| **1,000 LOC** | ~360 units | **Major Limb:** A noticeably distant, heavy function. |
-| **100,000 LOC** | ~560 units | **Megastructure Reach:** Pushed to the far edges of the local system. |
-
-<br><br>
+| **10 LOC** | ~160 units | **Concise Function / Stub:** Orbits close to parent node surface. |
+| **100 LOC** | ~260 units | **Standard Method:** Maintains standard orbital distance. |
+| **1,000 LOC** | ~360 units | **Large Method:** Orbits at a noticeably extended distance. |
+| **100,000 LOC** | ~560 units | **Monolithic Function:** Extended distance capped near viewport limit. |
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

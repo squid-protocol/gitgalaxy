@@ -1,50 +1,53 @@
-# 2.1.G. Satellite's Relative Positioning in a Unit
+# 2.1.G. Angular Positioning of Child Nodes in Function Units
+
+> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
 
 > **Metric: Control Flow Ratio ($R_L$)**
 >
-> **Purpose:** Give every function (satellite cluster) a distinctive spatial arrangement based on its ratio of logical statements to declarative statements.
+> **Purpose:** Configures the spatial angular distribution of sub-nodes within a function unit based on its ratio of control flow logic statements to declarative statements.
 >
-> **Why:** A uniform galaxy is not only boring and repetitive to look at, but it also wastes a dimension of data communication. By altering the layout, we allow the user to instantly recognize the behavioral pattern of a function based purely on the geometric shape of its satellite cluster.
+> **Rationale:** Providing uniform visual spacing across all code blocks obscures structural behavioral differences. By modulating layout angles based on code composition, the visualization engine allows developers to quickly differentiate algorithmic routing logic from declarative structures.
 >
-> **Effect:** Alters the angular arrangement of satellites in 3D space.
+> **Effect:** Controls the divergence angles of child nodes in the 3D rendering space.
 
-## 2.1.G.1. The Philosophy: Thinking vs. Speaking
+## 2.1.G.1. Categorization: Algorithmic Logic vs. Declarative Structure
 
-Code does two things: it either **computes** (makes decisions) or it **declares** (defines structures). We visualize this tension physically in how the satellites arrange themselves around the parent.
+Source code statements are divided into two fundamental operational categories:
 
-* **Computing (Logic):** "If X happens, do Y." This represents the thinking brain. Functions that "think" a lot (heavy algorithms) arrange their satellites in jagged, non-linear, and energetic patterns.
-* **Defining (Structure):** "Let X equal 5." This represents the memory of the system. Functions that "remember" a lot (configs, interfaces) arrange their satellites in flat, linear, and stable patterns.
+* **Algorithmic Logic (Conditional Branching):** Operations that direct execution paths based on dynamic states (e.g., conditional checks and iteration loops). Functions dominated by algorithmic logic split into tighter, acute visual divergence angles.
+* **Declarative Structure (Data & Configuration):** Statements that define static data, import references, or assign constants. Functions dominated by declarative declarations split into wide, right-angle layout grids.
 
-## 2.1.G.2. The Visual Translation (The Lerp)
+## 2.1.G.2. Linear Interpolation (Lerp) Mapping
 
-We map the abstract Control Flow Ratio ($R_L$) to physical 3D angles using **Linear Interpolation (Lerp)**. 
+The static analysis engine computes the Control Flow Ratio ($R_L$) as:
 
-To calculate the divergence angle between satellites, we interpolate between a minimum sharp angle ($22.5^\circ$) and a maximum right angle ($90^\circ$), driven by the inverse of the logic ratio.
+$$R_L = \frac{\text{BranchHits}}{\text{BranchHits} + \text{LinearHits}}$$
 
-$$\text{Angle} = 22.5^\circ + \left( (1.0 - R_L) \times (90^\circ - 22.5^\circ) \right)$$
+The 3D layout engine maps $R_L$ to an angular divergence range between $22.5^\circ$ (sharp divergence) and $90.0^\circ$ (orthogonal layout) using linear interpolation:
 
-## 2.1.G.3. The Structural Archetypes
+$$\text{Angle} = 22.5^\circ + \left( (1.0 - R_L) \times (90.0^\circ - 22.5^\circ) \right)$$
 
-These calculated angles are then used to build the final 3D position of the satellites, resulting in two distinct visual extremes:
+## 2.1.G.3. Structural Archetypes
 
-| Control Flow ($R_L$) | Divergence Angle | Visual Style | Spatial Arrangement |
-| :--- | :--- | :--- | :--- |
-| **High Logic** ($R_L \approx 1.0$) | $\approx 22.5^\circ$ | **"The Lightning Bolt"** | Branches diverge sharply. The satellites cluster in aggressive, jagged, tight formations indicating heavy algorithmic routing. |
-| **High Structure** ($R_L \approx 0.0$) | $\approx 90.0^\circ$ | **"The Circuit Board"** | Branches diverge at perfect right angles. The satellites form a clean, highly organized grid indicating stable, declarative data. |
+The resulting divergence angle determines the visual arrangement of child nodes in 3D space:
+
+| Control Flow Ratio ($R_L$) | Divergence Angle | Layout Pattern | Visual Characteristics | Code Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| **High Logic** ($R_L \approx 1.0$) | $\approx 22.5^\circ$ | **Acute Branching** | Tightly grouped, acute divergence pathways | Heavy decision logic, complex routing algorithms, state evaluation routines. |
+| **High Structure** ($R_L \approx 0.0$) | $\approx 90.0^\circ$ | **Orthogonal Grid** | Standard right-angle grid layout | Declarative data structures, configuration maps, constant definitions. |
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

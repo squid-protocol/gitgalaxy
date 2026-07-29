@@ -1,32 +1,37 @@
-# Lexical Patcher
+# Lexical Control Flow Preprocessor
 
-> **Architecture: Pre-Processing Trap Neutralization**
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py)
 >
-> **Summary:** Legacy COBOL frequently relies on outdated control flow structures that break modern Abstract Syntax Tree (AST) parsers. The Lexical Patcher acts as a pre-processor, safely restructuring these traps into deterministic modern equivalents before the main analysis engine engages.
+> **Architecture: Preprocessing & Control Flow Normalization**
+>
+> **Summary:** The Lexical Patcher is a source code preprocessor that identifies legacy control flow constructs (such as `NEXT SENTENCE`) and safely refactors them into explicit scope terminators (`CONTINUE`) prior to Abstract Syntax Tree (AST) parsing or static analysis.
 
-## The Dialect Sensor
-Because altering mainframe source code carries extreme risk, the patcher first executes a Dialect Sensor to determine the compiler era of the file. It scans for post-1985 structural keywords (e.g., `EVALUATE`, explicit scope terminators like `END-IF`). 
-* If the code targets a modern compiler (COBOL-85+), the patcher is cleared to inject modern equivalents.
-* If the code is constrained to COBOL-74, the patcher engages "ultra-conservative punch-card mode," bypassing modern injections to prevent `0C1` compiler crashes.
+## Compiler Dialect Detection
 
-## Neutralizing NEXT SENTENCE
-The `NEXT SENTENCE` directive is a notoriously dangerous legacy construct that acts as an implicit, invisible `GO TO` jumping past the next period. This breaks deterministic control flow.
-* **COBOL-85 Mode:** The patcher safely rewrites the trap into a localized, block-scoped `CONTINUE` statement, appending a traceable `*>` inline comment to document the automated remediation.
-* **COBOL-74 Mode:** The patcher leaves the `NEXT SENTENCE` command intact but cleans the surrounding whitespace to ensure the downstream AST slicer can accurately track the statement without crashing.
+Because altering legacy source code can introduce compiler incompatibilities, the patcher includes a dialect sensor (`detect_cobol_dialect`) to inspect the target source file for modern structural features.
+
+* **Modern Language Signatures:** Scans for COBOL-85 features such as `EVALUATE`, `INITIALIZE`, explicit scope terminators (`END-IF`, `END-PERFORM`, `END-READ`, `END-EVALUATE`, `CONTINUE`), or inline comments (`*>`).
+* **Dialect Classification:** Classifies the source file as `COBOL-85` (modern dialect) or `COBOL-74` (legacy dialect) to govern transformation safety.
+
+## Control Flow Refactoring
+
+The `NEXT SENTENCE` directive skips execution forward to the statement following the next period (`.`), creating implicit control flow branches that complicate static dependency extraction and AST generation. The `patch_lexical_traps` function remediates this as follows:
+
+* **COBOL-85 Mode:** Refactors `NEXT SENTENCE` into a block-scoped `CONTINUE` statement and inserts an inline tracking comment (`CONTINUE *> GitGalaxy Patch: Neutralized Flow Control Anomaly`).
+* **COBOL-74 Mode:** Leaves the `NEXT SENTENCE` syntax intact to preserve strict compiler compatibility, but standardizes surrounding whitespace to ensure predictable parsing by downstream extraction engines.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Ecosystem Integration
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and heuristic dependency mapping engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

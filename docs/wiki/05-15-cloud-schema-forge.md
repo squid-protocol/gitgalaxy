@@ -1,36 +1,44 @@
-# Cloud Schema Forge
+# Relational Database & JSON Schema Generator
 
-> **Architecture: Multi-Target DDL & Schema Generation**
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py)
 >
-> **Summary:** The Cloud Schema Forge translates the raw byte-maps of the COBOL Data Division into modern, relational data structures. It outputs both strict PostgreSQL Data Definition Language (DDL) statements and REST-compliant JSON Schemas simultaneously.
+> **Architecture: Multi-Target DDL & Schema Mapping**
+>
+> **Summary:** The Cloud Schema Generator converts COBOL `DATA DIVISION` byte-mapped definitions (`PIC` clauses and usage specifiers) into modern relational database structures. It outputs PostgreSQL Data Definition Language (DDL) scripts and REST-compliant JSON Schemas.
 
-## PIC Clause Translation
-The forge parses legacy `PIC` (Picture) constraints and translates them into modern relational bounds:
-* **String Allocation:** Translates `PIC X(50)` directly into `VARCHAR(50)`.
-* **Integer Mapping:** Analyzes numeric length to intelligently map to `SMALLINT`, `INTEGER`, or `BIGINT` to optimize cloud database storage.
-* **Decimal Precision:** Splits clauses like `PIC S9(7)V99` into their base and fractional components, mapping them to strict `DECIMAL(9, 2)` SQL bounds.
+## Picture (`PIC`) Clause Data Type Translation
 
-## The Bloat Cutter (IR Synergy)
-Before generating a column for a detected variable, the Schema Forge queries the IR State Manager. If the Graveyard Reaper previously flagged the variable as orphaned or unused memory, the forge instantly drops it. This ensures the resulting PostgreSQL tables are lean and free of the legacy memory bloat that accumulates over decades of maintenance.
+The parser inspects COBOL `PIC` declarations (`parse_cobol_picture`) and maps legacy memory bounds to SQL and JSON data types:
 
-## Honesty Sensors (Dynamic Memory)
-The forge scans for complex mainframe-specific memory behaviors and injects architectural warnings directly into the generated SQL as comments:
-* **Dynamic Arrays:** If it detects an `OCCURS DEPENDING ON` clause (an array whose length changes dynamically at runtime), it flags the column with a critical warning to utilize a `JSONB` data type, as strict relational columns cannot handle dynamic array allocation.
-* **Packed Decimals:** It flags `COMP-3` variables to alert downstream engineering teams that the original data source is binary-compressed.
+* **Alphanumeric & Text:** Converts `PIC X(n)` or `PIC A(n)` to SQL `VARCHAR(n)` and JSON `string`.
+* **Integer Types:** Analyzes numeric string lengths (`PIC 9(n)`):
+  * $n \le 4$: Maps to `SMALLINT` and JSON `integer`.
+  * $5 \le n \le 9$: Maps to `INTEGER` and JSON `integer`.
+  * $n \ge 10$: Maps to `BIGINT` and JSON `integer`.
+* **Fixed-Point Decimal Types:** Splits clauses containing `V` or `.` (e.g., `PIC S9(7)V99`) into integer and fractional digit counts, mapping them to SQL `DECIMAL(precision, scale)` and JSON `number`.
+
+## Dead Code Filtering & Data Structure Parsing
+
+The generator processes files (`forge_schemas`) to build relational tables:
+
+* **Structural Noise Filtering:** Ignores `FILLER` declarations (unnamed byte allocations) and `88`-level condition names (boolean expressions).
+* **Unused Variable Exclusion:** Checks variable names against static analysis dead memory results (`ignore_vars`) to drop unused fields, preventing unnecessary columns in generated database tables.
+* **Specialized Storage Annotations:** 
+  * **Dynamic Arrays:** Detects `OCCURS DEPENDING ON` clauses (variable-length arrays) and appends warning comments recommending PostgreSQL `JSONB` data types.
+  * **Packed Decimals:** Identifies binary-compressed fields (`COMP-3` / `PACKED-DECIMAL`) and adds inline SQL comments to inform downstream developers of packed storage origins.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Ecosystem Integration
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and heuristic dependency mapping engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

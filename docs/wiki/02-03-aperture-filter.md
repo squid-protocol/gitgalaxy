@@ -1,63 +1,55 @@
-# The Aperture Filter (Filter and Focus)
+# File Filtering and Ingestion Shield
 
-> **The Solar Shield**
->
-> To prevent "Radio Noise" from blinding the telescope, the pipeline initiates the Solar Shield. In modern repositories, artifacts like massive `node_modules` folders, compiled binaries, or minified data dumps create enough radiation to obscure the actual logic of the system. By applying a strict perimeter gate, we ensure that only high-quality, maintainable source code enters the refraction pipeline. If an artifact isn't something a human actively manages, it is treated as out-of-scope, protecting the Physics Engine from wasting cycles on "Junk Matter."
+> **File Reference:** [`gitgalaxy/core/aperture.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/aperture.py)
 
-## Blocking the Radio Noise (The Lead Shield)
-
-The Solar Shield operates through a strict, multi-tiered hierarchy of suppression, moving from physical constraints and security risks down to logical intent.
-
-* **The Phantom Check**
-  Before any intense I/O operations occur, the filter performs a zero-overhead check to ensure the file physically exists on the disk, instantly evaporating "phantom" files (e.g., broken symlinks or git-tracked deletions) to prevent pipeline anomalies.
-* **Resource Guarding**
-  The file's physical mass is measured. Any artifact exceeding the absolute size limit is rejected immediately. These are classified as saturated signals to prevent memory overflow during the multiprocessing refraction phase.
-* **The Neighborhood Micro-Mass Quota**
-  To prevent "space dust" from cluttering the visual map, the filter tracks the density of micro-files (< 50 bytes) within individual folders. If a neighborhood exceeds its grace limit of micro-debris, subsequent tiny files are evaporated. (Legacy mainframe files like COBOL copybooks are explicitly exempted from this quota).
-* **The Secrets Radar (Highest Priority)**
-  Before evaluating system paths, the shield checks the filename and extension against a critical security registry. If the artifact is a known credential file, private key, or exposed database, it triggers a **CRITICAL LEAK** alert and routes the file to the Orchestrator to be injected onto the 3D map as a "Secrets Supernova."
-* **Path & Black Hole Suppression**
-  We calibrate the field of view using Path Integrity Evaluation. The shield integrates `.gitignore` patterns and a hard-coded `BLACK_HOLES` registry to block known debris. Any folder starting with a period (like `.git/` or `.vscode/`) is masked as administrative noise.
-* **Bayesian Intent Overrides & Stateful Caching**
-  If the GuideStar Protocol identifies an artifact as structurally critical during the Radar Walk, it grants an "Intent Lock." The filter utilizes Stateful Caching to remember these locks, allowing specific, high-priority "Dark Matter" (like `.hooks/` or custom config files) to safely bypass the Solar Shield, ensuring vital logic is captured in the census.
-
-## The Visible Spectrum (Linguistic & Integrity Gates)
-
-Once the scope is clear, we tune the sensors to the Visible Spectrum. We use the language registry as a primary whitelist for ecosystem anchors (like `package.json`) or known extensions.
-
-* **Missing Extensions (The Shebang Check)**
-  To handle artifacts without a trailing extension (such as executable scripts or unique configurations), the filter allows these "Deep Space Remnants" through for secondary evaluation. These are eventually identified by the Language Lens rather than simple extension matching.
-* **The X-Ray Binary Sensor**
-  When a file is flagged as a binary or blacklisted asset, it isn't simply discarded. The X-Ray sensor intercepts the first 8KB of the payload and scans for embedded execution headers, magic byte mismatches, or extreme cryptographic entropy. If the binary is weaponized or contains AI model weights, it is promoted to a "Supernova" on the 3D map. If it is inert, it is relegated to Dark Matter.
-* **The Minified & Vendor Shield**
-  We inspect the "Photon Buffer" for minification and vendor sprawl. If a line exceeds the maximum line length constraint (indicating compression) or matches contraband patterns (like `.min.js` or `/vendor/`), the file bypasses the heavy structural splicer. Instead of being discarded entirely, it is mapped as an inert "Static Mass," allowing the architect to see the physical footprint of their dependencies without bogging down the physics engine.
-
-## Data Classification Matrix
-
-Filtering categorizes project data by its "Wavelength." The engine routes the artifact based on its physical properties and threat level.
-
-| Wavelength | Target Material | Action | Visual Output |
-| :--- | :--- | :--- | :--- |
-| **Quarantine (Radioactive)** | Private Keys, Credentials, DBs | Alert | Forced onto 3D map as a "Secrets Supernova" |
-| **X-Ray Anomalies** | Weaponized Binaries, AI Model Weights | Alert | Forced onto 3D map as a "Neural/Threat Supernova" |
-| **Radio** | `.gitignore`, Black Holes, `node_modules` | Block | Not Rendered |
-| **Microwave** | Inert Binaries, Assets, Fonts, Null Bytes | Discard | Sent to Dark Matter Singularity |
-| **Infrared** | Minified Code, Vendor Bundles | Bypass Regex | Rendered as Inert Static Mass |
-| **Visible** | Whitelisted Source Code | Process | Active Star Mass / Galaxy Body |
-
-<br><br>
+The `ApertureFilter` module in `gitgalaxy/core/aperture.py` serves as the primary file filtering and perimeter security gate for the GitGalaxy analysis engine. Prior to sending files to heavy regular expression parsing and metric evaluation, the filter strips out noise such as compiled binaries, minified bundles, vendor packages (`node_modules`), and excluded directories (`.git`). By enforcing strict ingestion boundaries, the engine focuses computational resources strictly on actionable source code logic.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Multilevel Ingestion Rules
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+The filter enforces a multi-tiered evaluation hierarchy to determine file processing eligibility:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Existence Verification (Phantom Check):** Executes zero-overhead filesystem checks to ensure files exist on disk, instantly dropping dangling symlinks or deleted file references.
+* **File Size Guarding:** Measures file byte size against max threshold limits. Files exceeding size thresholds are excluded from full parsing to prevent worker memory allocation failures.
+* **Folder Micro-File Quota:** Tracks the frequency of micro-files (< 50 bytes) within individual directories. If a directory exceeds its micro-file limit, subsequent tiny files are suppressed from primary analysis. (Legacy mainframe files, such as COBOL copybooks, are explicitly exempted).
+* **Secrets Detection Radar (Priority Gate):** Inspects filenames and extensions against high-risk security registries prior to path checks. If a file matches credential patterns (e.g., `.pem`, `.key`, `id_rsa`, `.env`), it triggers a high-severity leak alert and is flagged for security highlights.
+* **Directory Blacklisting & GitIgnore Integration:** Integrates project `.gitignore` rules and a built-in `BLACK_HOLES` directory registry (`node_modules`, `.git`, `.vscode`, `dist`, `build`). System administrative folders and hidden directories starting with dots are excluded by default.
+* **Stateful Caching & Intent Locks:** Preserves file whitelist locks registered by project manifests (`package.json`, `Cargo.toml`) or `.gitattributes` via `guidestar_lens.py`, allowing explicitly referenced configuration assets (e.g., custom hooks or build scripts) to bypass standard exclusion filters.
 
+---
 
+## Asset Classification & Inspection Gates
+
+Files surviving path blacklists pass through secondary content gates:
+
+* **Missing Extensions & Shebang Processing:** Files lacking traditional extensions (e.g., executable scripts without `.sh` or `.py`) are passed to the language detection engine (`language_lens.py`) for shebang header evaluation (`#!/bin/bash`).
+* **Binary File Header Inspection (X-Ray Gate):** Intercepts the initial 8KB chunk of binary assets. Inspects binary magic bytes, execution headers (e.g., ELF, PE, Mach-O), and Shannon entropy to detect weaponized payloads or embedded AI model weights (`.safetensors`, `.gguf`).
+* **Minified Code & Vendor Library Shield:** Analyzes line length density. If average line length breaches compression thresholds (> 250 characters per line) or matches vendor patterns (e.g., `.min.js`, `/vendor/`), regular expression parsing is bypassed. The asset is registered as a static dependency footprint without incurring heavy parsing latency.
+
+---
+
+## Ingestion Classification Matrix
+
+The filter categorizes repository assets into operational ingestion buckets based on file content and security status:
+
+| Ingestion Category | Target File Types | Filter Handling | Pipeline Output |
+| :--- | :--- | :--- | :--- |
+| **Security Risk (Leaked Credential)** | Private keys, `.env` files, credentials, DB dumps | Flag Leak Alert | Injected as High-Severity Security Alert |
+| **Binary Vulnerability / ML Model** | Weaponized executables, ML weight binaries (`.safetensors`) | Flag Binary Threat | Injected as Model/Threat Highlight |
+| **Excluded Directory Noise** | `.gitignore` matches, `node_modules`, `.git` | Block Path | Excluded from scan inventory |
+| **Inert Media Asset** | Compiled binaries, image assets, fonts, null byte files | Discard File | Routed to Unclassified Asset Store |
+| **Minified / Vendor Library** | Minified JavaScript (`.min.js`), vendor bundles | Bypass Regex | Registered as Inert Dependency Footprint |
+| **Valid Source Code** | Whitelisted language source files | Full Processing | Active Repository Node in Graph |
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `aperture.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository visualization engine.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

@@ -1,66 +1,45 @@
-# 2.1.D. Satellite Unit
+# Function Sub-Node Units & Impact Ranking
 
-> **Metric: Function Declaration (e.g., `function`, `=>`, `def`, class method)**
->
-> **Purpose:** Represents a discrete unit of logic—a "Tool"—contained within the file (the Toolbox). 
->
-> **Why:** Files are rarely monolithic blocks of text; they are collections of distinct functions. We visualize these as moons orbiting the planet to show the granularity and inventory of the file at a glance. 
->
-> **Effect:** Spawns a small spherical geometry orbiting the central parent.
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-## 2.1.D.1. The Philosophy: The Toolkit
+In GitGalaxy's 3D visualization, individual function declarations (e.g., `def`, `function`, class methods, arrow functions) are materialized as child sub-nodes orbiting their parent file node. This provides an instant visual inventory of a file's internal modularity and function count.
 
-We treat the file as a container.
+## Default Sub-Node Rendering Attributes
 
-* **The Star:** The Box (Class/Module).
-* **The Satellites:** The Tools (Functions/Methods). 
+Each function sub-node initializes with the following default properties before complexity and line-count metrics are applied:
 
-A star with no moons is likely a static data configuration. A star with 50 moons is a heavy utility class with many diverse tools.
-
-## 2.1.D.2. The Inputs: Identification
-
-* **Regex Hits:** `function`, `=>`, `def`, `func`, etc.
-* **Cap:** ~12 satellites (To prevent rendering swarming clouds of visual noise, we visualize a representative sample of the heaviest functions).
-
-## 2.1.D.3. Basal Values (The Standard Model)
-
-Every satellite begins with these default physical properties before other metrics (like complexity or churn) warp them:
-
-| Property | Default Value | Visual Purpose |
+| Render Property | Default Setting | Technical Purpose |
 | :--- | :--- | :--- |
-| **Geometry** | `SphereGeometry(2, 4, 4)` | Renders as a low-poly "Moon". |
-| **Radius** | 2 Units | Keeps the satellite fixed and small. |
-| **Color** | Inherits Parent | Maintains visual cohesion with the central star. |
-| **Opacity** | 0.8 | Slightly ghosted to indicate subservience to the parent. |
-| **Orbit** | Basal Speed | Rotates uniformly around the parent unless modified by "Heat" metrics. |
+| **Geometry Primitive** | `SphereGeometry(2, 4, 4)` | Renders as a low-polygon spherical mesh. |
+| **Base Radius** | 2 Units | Establishes uniform baseline dimensions. |
+| **Color Palette** | Inherits Parent Node Color | Maintains visual cohesion with the enclosing file module. |
+| **Material Opacity** | 0.8 | Subtly translucent to denote child-to-parent hierarchy. |
+| **Orbital Path** | Uniform Angular Velocity | Rotates smoothly around the parent node center. |
 
-## 2.1.D.4. The Function Impact Score
+## Function Impact Ranking and Display Capping
 
-Not all moons are equal. A one-line "getter" is a pebble; a 500-line algorithm is a massive moon. To ensure the visualization is honest, we calculate an Impact Score for every function found. This score determines which 12 satellites are actually rendered (we always show the heaviest) and how "large" they appear.
+Files frequently contain dozens or hundreds of internal functions. To maintain rendering performance and prevent visual clutter, the 3D visualizer caps rendering at a maximum sample of 12 child sub-nodes per file, prioritizing functions with the highest **Function Impact Score**.
 
-**The Logic:** We combine Complexity (Branches), Connectivity (Arguments), and Volume (Lines of Code) into a single weight metric.
+The engine combines decision density (`BranchHits`), parameter coupling (`Args`), and line length (`LOC`) into a single weighted score:
 
 $$\text{Impact Score} = \left( (\text{BranchHits} + 1) \times (\text{Args} + 1) + (0.05 \times \text{LOC}) \right) \times 10$$
 
-**The Variables:**
-* **BranchHits:** The density of decision making inside the function.
-* **Args:** The weight of inputs and coupling.
-* **LOC:** The physical length of the function (scaled down by $0.05$ to prioritize logic over verbosity).
-* **Multiplier (10):** Scales the integer up for storage efficiency in vectorized formats.
-
-<br><br>
+### Metric Components:
+* **`BranchHits`:** Decision points (`if`, `switch`, loops) within the function boundary.
+* **`Args`:** Function parameter count, measuring input coupling.
+* **`LOC`:** Physical line count of the function (scaled by $0.05$ to prioritize branching logic over verbose formatting).
+* **Multiplier (10):** Integer scaling factor for storage efficiency in vectorized output buffers.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

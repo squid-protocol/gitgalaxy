@@ -1,55 +1,56 @@
-# The SQLite Record Keeper (Relational Graphing)
+# The SQLite Record Keeper (Relational Graph Database Exporter)
 
-> **The Portable Source of Truth**
->
-> The Record Keeper (`record_keeper.py`) is the serialization engine responsible for translating GitGalaxy's multi-dimensional RAM state into a highly portable, relational SQLite database (`_galaxy_graph.sqlite`). 
->
-> While the GPU Recorder creates compressed payloads for visual rendering, the Record Keeper builds a structured, queryable knowledge graph designed specifically to empower Autonomous AI Agents and custom CI/CD analytics pipelines.
+> **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/record_keeper.py)
 
-## The Architectural Pivot: SQLite vs. Neo4j / Cypher
+The Record Keeper (`record_keeper.py`) is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (`_galaxy_graph.sqlite`).
 
-In earlier iterations of code-graphing tools, the industry standard was to export dependency maps into dedicated Graph Databases (like Neo4j) and query them using Graph Query Languages (like Cypher), often requiring heavy Node.js backend drivers. 
-
-GitGalaxy fundamentally rejects this approach in favor of native SQLite for three critical reasons:
-
-### 1. Superior LLM Synergy (Text-to-SQL vs. Text-to-Cypher)
-Large Language Models (like GPT-4o or Claude 3.5) are trained on billions of lines of standard SQL. They understand relational joins, aggregations, and subqueries with near-perfect accuracy. In contrast, LLM training data for Cypher is vastly smaller. When autonomous agents attempt to write complex graph traversals in Cypher, they frequently hallucinate syntax or misinterpret node/edge property mappings. By providing a clean SQLite schema, GitGalaxy guarantees that RAG (Retrieval-Augmented Generation) agents can natively write flawless queries against the codebase.
-
-### 2. Zero-Infrastructure Portability
-A Neo4j or Node.js-backed architecture requires standing up Docker containers, managing network ports, and maintaining persistent storage volumes. GitGalaxy's SQLite output is a single, isolated `.sqlite` file. It can be attached to an email, dropped into an S3 bucket, or instantly queried by lightweight Python agents (via `sqlite3`) and WASM-based browser environments without spinning up a single server.
-
-### 3. Schema Simplicity
-Code architecture is inherently relational. By mapping files to functions, and files to dependencies using strict Foreign Keys, we eliminate the ambiguous property-graph bloat. The relational structure forces strict typing and mathematical integrity.
-
-## The Relational Schema
-
-The Record Keeper extracts the live object state and constructs a highly normalized database schema optimized for fast analytical queries:
-
-* **`stars` (The Core Ledger):** The master table containing the primary telemetry for every file. It includes pre-calculated columns for the 18-point Risk Vector, Structural Mass, Volatility, AI Threat Confidence, and Network Centrality (PageRank).
-* **`constellations` (Neighborhoods):** Folder-level aggregate metrics, allowing agents to query the health of entire architectural domains rather than just isolated files.
-* **`satellites` (Internal Logic):** Maps every extracted function, class, or method back to its parent `star_id`. It includes specific function-level metrics like Big-O complexity, argument counts, and Control Flow Ratios.
-* **`dna_hits` (The Regex Ledger):** A flattened, highly indexed table containing every single regex pattern triggered by a file. This allows security agents to instantly query, for example, "Show me all files that contain `sec_danger` hits."
-* **`inbound_dependencies` & `outbound_dependencies` (The Edge Tables):** The bi-directional graph represented as relational join tables. This dual-table approach allows an agent to easily query "Blast Radius" (who imports me?) and "Fragility" (who do I import?) using standard `INNER JOIN` logic.
-
-## Empowering Autonomous Workflows
-
-By bridging the gap between raw file parsing and standard SQL, the Record Keeper turns a repository into a queryable dataset. 
-
-Instead of writing brittle Python scripts to traverse abstract syntax trees, an LLM agent can now simply execute a SQL query to answer complex architectural questions, such as: *"Find all files with a PageRank greater than 1.0, that have high State Flux, and are imported by the authentication module."*
-
-<br><br>
+While the GPU Recorder generates compressed array payloads for WebGL visualizers, the Record Keeper builds a normalized relational database designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+Earlier code analysis tools often exported dependency graphs into graph databases (such as Neo4j) queried via domain-specific graph query languages (like Cypher). GitGalaxy utilizes native SQLite for three architectural reasons:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+### 1. Superior LLM Synergy (Text-to-SQL vs. Text-to-Cypher)
+Large Language Models (such as GPT-4o or Claude 3.5) are trained on massive text corpora containing standard SQL syntax. LLMs generate relational JOINs, GROUP BY aggregations, and subqueries with high precision. Conversely, Cypher training samples are far sparser, leading to syntax hallucinations when agents attempt complex graph traversals. SQLite output allows RAG agents to write reliable SQL queries against codebase metadata.
 
+### 2. Zero-Infrastructure Portability
+Graph database servers require running containerized services, managing network ports, and provisioning storage volumes. GitGalaxy's SQLite output is a self-contained `.sqlite` file that can be committed, stored as a CI artifact, or queried by lightweight Python engines (`sqlite3`) and WASM browser runtimes without backend database servers.
 
+### 3. Strict Relational Schema Integrity
+Code architecture exhibits structured relational properties. Mapping files to functions, and files to dependency edges via foreign keys eliminates property-graph schema ambiguity while enforcing data types and relational integrity.
+
+---
+
+## Relational Database Schema
+
+The Record Keeper extracts in-memory telemetry objects and constructs a normalized SQLite database schema (table names preserve schema compatibility):
+
+* **`stars` (Source File Ledger):** Core table containing primary file metrics, including 18-point risk vector components, total/logic LOC, structural mass, churn frequency, XGBoost threat scores, and PageRank blast radius values.
+* **`constellations` (Directory Groups):** Directory-level aggregate metrics, allowing queries against module and package health.
+* **`satellites` (Functions & Methods):** Maps extracted functions, methods, and classes to parent file IDs via foreign keys, recording function lines of code, parameter counts, Control Flow ratios, and Big-O time complexity classifications.
+* **`dna_hits` (Pattern Trigger Ledger):** Flattened, indexed table recording every static regex pattern hit per file for security audit queries.
+* **`inbound_dependencies` & `outbound_dependencies` (Graph Edge Tables):** Bi-directional dependency tables representing graph edges. Allows agents to query blast radius ("who imports this file?") and fragility ("what does this file import?") using SQL `INNER JOIN` operations.
+
+---
+
+## Autonomous Agent & CI/CD Query Workflows
+
+By structuring codebase telemetry into relational SQL tables, the Record Keeper allows automated tools and AI agents to query codebase structure. 
+
+Instead of traversing Abstract Syntax Trees with custom scripts, AI agents can execute SQL queries to retrieve architectural insights, such as identifying core modules with high blast radius metrics, high state volatility, and missing test coverage.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

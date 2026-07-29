@@ -1,52 +1,51 @@
-# The State Rehydrator (RAM Rehydration)
+# The State Rehydrator (Incremental State Restoration)
 
-> **The Fast-Track for CI/CD**
->
-> The State Rehydrator (`state_rehydrator.py`) is the engine that enables GitGalaxy to run efficiently in Continuous Integration/Continuous Deployment (CI/CD) pipelines. 
->
-> Scanning a massive 10,000-file repository from scratch takes compute time. However, in a standard CI pipeline, a developer might only modify three files in a single commit. The State Rehydrator bridges this gap by querying the SQLite Record Keeper and instantly "thawing" the repository's previous historical state directly back into live Python RAM.
+> **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/state_rehydrator.py)
 
-## State Extraction (SQLite to RAM)
+The State Rehydrator (`state_rehydrator.py`) enables efficient incremental scans within Continuous Integration/Continuous Deployment (CI/CD) pipelines. 
 
-When a Delta Mission is initiated, the Rehydrator bypasses the Optical Pipeline entirely and interfaces directly with the `_galaxy_graph.sqlite` database.
-
-* **Commit Targeting:** The engine queries the `repo_data` table to find the absolute most recent `commit_hash` that GitGalaxy successfully scanned for the target repository. 
-* **State Reconstruction:** It extracts the structural metrics of every file (e.g., `file_impact`, `total_loc`, `control_flow_ratio`, `ai_threat_score`) from the `file_data` table.
-* **The State Payload:** It maps these static database rows back into a live Python dictionary schema (the `ram_cache`), perfectly mimicking the RAM state that the Orchestrator would have generated during a full scan.
-
-## Temporal Diffs and Delta Scans
-
-This rehydration process is the strict mechanical foundation that makes temporal scans, diffs, and deltas computationally viable. 
-
-Instead of re-running regex math on the entire universe, GitGalaxy leverages the rehydrated state to execute a **Delta Mission**:
-
-1. **Surgical Extraction:** The pipeline asks Git which specific files were modified or added in the new commit. It runs the heavy optical scanners (Language Lens, Security Lens) *only* on those isolated files.
-2. **State Merging:** The newly calculated file states overwrite their older counterparts inside the rehydrated `ram_cache` dictionary.
-3. **Dependency Graph Recalculation:** With the merged state living in RAM, the Orchestrator instantly triggers the downstream analysis engines (Network Graph, XGBoost Security Auditor). Because network topology (Blast Radius, PageRank) is globally interconnected, modifying even one file can shift the gravity of the entire system. 
-
-## Structural Delta Reporting
-
-By having immediate access to both the "Old State" (via SQLite) and the "New State" (via the Delta Mission), GitGalaxy can instantly calculate exact structural diffs. 
-
-Instead of a standard Git diff showing *text* changes, the engine outputs **Structural Deltas**:
-* *"This commit increased the system's Tech Debt by 14%."*
-* *"This commit shifted the Blast Radius of `auth.py`, making it a system bottleneck."*
-* *"This commit introduced a new Agentic RCE vulnerability."*
-
-This allows security and architecture teams to establish hard CI/CD quality gates based on mathematical structural drift rather than subjective code reviews.
-
-<br><br>
+Performing full static analysis across large codebases (e.g., 10,000 files) on every single commit introduces unnecessary compute overhead when a pull request only modifies a few files. The State Rehydrator addresses this by loading previously analyzed state from the SQLite database (`_galaxy_graph.sqlite`) into memory (`ram_cache`), restoring the repository baseline without re-parsing unchanged source files.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## State Extraction (SQLite to Memory)
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+When an incremental scan (Delta Scan) is triggered, the Rehydrator bypasses full filesystem ingestion and connects to `_galaxy_graph.sqlite`:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Commit Baseline Lookup:** Queries the database to identify the SHA-1 commit hash of the most recent complete analysis.
+* **State Reconstruction:** Pulls file telemetry, structural metrics (`file_impact`, `total_loc`, `control_flow_ratio`, `ai_threat_score`), and signature counts from database tables.
+* **Memory State Population:** Maps stored database records into an in-memory dictionary (`ram_cache`) structured identically to the full pipeline scan state.
 
+---
 
+## Incremental Analysis Workflow
+
+State rehydration establishes the foundation for high-speed incremental analysis:
+
+1. **Delta Target Identification:** Queries Git to identify files added, modified, or deleted in the target commit. Executes regex parsing and signature extraction exclusively on modified files.
+2. **State Dictionary Merge:** Overwrites updated file records inside the rehydrated `ram_cache` dictionary.
+3. **Graph Topology Recalculation:** Triggers graph analysis modules (`NetworkRiskSensor`, `SecurityAuditor`) across the merged state. Because network topology (PageRank, blast radius) is globally interconnected, modifying key files recalculates global centrality metrics without re-parsing unmodified source code.
+
+---
+
+## Structural Delta Reporting in CI/CD
+
+Comparing baseline state (restored from SQLite) against modified commit state enables automated CI/CD quality gates based on **Structural Deltas**:
+
+* **Technical Debt Progression:** Measures percentage changes in cumulative risk scores across commits.
+* **Blast Radius Escalations:** Identifies changes that shift a module into a system choke point.
+* **Security Vulnerability Delta:** Flags newly introduced vulnerabilities (such as unsanitized LLM command execution funnels or malware signature triggers).
+
+CI/CD pipelines enforce automated pull request gates based on objective metric deltas rather than subjective code review.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 

@@ -1,64 +1,66 @@
 # Structural Fortification (Safety Exposure)
 
-> **Metric: Ratio of Defensive Structures to Execution Risks**
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 >
-> **Summary:** Visualizes the "Load-Bearing Capacity" of the code within the knowledge graph. We treat code like physical infrastructure. A bridge is safe not because it has no cars (complexity), but because it has enough support pillars (guardrails) to hold the traffic.
+> **Metric:** Ratio of Defensive Controls to Execution Stressors
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum.
-> * 🟦 **VERY LOW (Score 0-19):** Fortified. Defensive structures (`try/catch`, guards) vastly outnumber the risks.
-> * 🟨 **INTERMEDIATE (Score 40-59):** Stable. Risks and defenses are roughly balanced.
-> * 🟥 **VERY HIGH (Score 80-100):** Fragile. The structural load (Risk) exceeds the support capacity (Defenses). The code is liable to collapse under edge cases.
+> **Summary:** Evaluates how well source files are protected by defensive programming practices. It balances risk triggers (such as unsafe execution, type-suppression, and mutable state) against defensive controls (such as `try/catch` error handling, type guards, and test assertions).
+>
+> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> * 🟦 **VERY LOW (Score 0-19):** Highly Fortified. Defensive controls (`try/catch`, type guards) comfortably exceed execution stressors.
+> * 🟨 **INTERMEDIATE (Score 40-59):** Stable. Execution stressors and defensive controls are in equilibrium.
+> * 🟥 **VERY HIGH (Score 80-100):** Fragile / High Exposure. Execution stressors significantly exceed defensive controls, leaving code vulnerable to runtime failures.
 
-## The Inputs (Attackers vs. Defenders)
+## Metric Inputs (Risk Triggers vs. Defensive Controls)
 
-We classify heuristics into **Attackers** (Risk) and **Defenders** (Safety), assigning a specific structural weight to each based on their impact.
+Heuristic signals are categorized into **Execution Stressors** (Risk Signals) and **Defensive Controls** (Safety Signals), weighted by their structural impact:
 
-| Variable | Target Syntax | Weight | Classification | Structural Role |
+| Input Variable | Syntax Patterns | Weight | Category | Structural Role |
 | :--- | :--- | :--- | :--- | :--- |
-| `danger_hits` | `eval`, `exec` | 4.0x | **Attacker** | **The Heavy Load.** Critical vulnerabilities that exert massive stress. |
-| `safety_neg_hits` | `any`, `@ts-ignore` | 1.5x | **Attacker** | **The Rust.** Anti-patterns that weaken the type system or structure. |
-| `flux_hits` | Mutated variables | 0.5x | **Attacker** | **The Vibration.** Mutable state introduces ongoing entropy. |
-| `safety_hits` | `try/catch`, guards | 1.0x | **Defender** | **The Pillars.** Explicit runtime protection and boundary management. |
-| `test_hits` | `describe`, `assert` | 0.5x | **Defender** | **The Blueprint.** Proximity to tests implies verification. |
-| `doc_hits` | JSDoc, comments | 0.1x | **Defender** | **The Warning Labels.** Provides a minor structural defense bonus. |
+| `danger_hits` | `eval`, `exec`, unsafe pointer math | 4.0x | **Stressor** | **High Impact Risk.** Critical execution points exerting major runtime stress. |
+| `safety_neg_hits` | `any`, `@ts-ignore`, explicit bypasses | 1.5x | **Stressor** | **Type Evasions.** Anti-patterns that bypass type-checking or safety mechanisms. |
+| `flux_hits` | Mutated global/local state | 0.5x | **Stressor** | **State Friction.** Mutable state operations that increase runtime variability. |
+| `safety_hits` | `try/catch`, guard clauses, bounds checks | 1.0x | **Control** | **Runtime Safety.** Explicit exception handling and input validation boundaries. |
+| `test_hits` | `describe`, `assert`, `expect` | 0.5x | **Control** | **Test Proximity.** Inline assertions or test coverage providing verification. |
+| `doc_hits` | JSDoc, docstrings, typed comments | 0.1x | **Control** | **Contextual Documentation.** Inline documentation offering mild clarity value. |
 
 ## Universal Framework Integration
 
-* **$Fc$ (Fidelity Coefficient):** Applied to **Defenders**. We trust a `try/catch` in Java (Explicit) more than a check in Shell (Implicit).
-* **$Irc$ (Implicit Risk Correction):** Added to **Attackers**. Implicit languages start with a "Phantom Load"—a baseline risk inherent to the medium.
-* **$Mp$ (Path Modifier):** Applied to **Attackers**. We keep the discount small to ensure risks are exposed everywhere.
-  * *Experiments/Tests ($Mp = 0.9$):* **Minor Discount.** Risks are slightly forgiven, but unsafe code will still flash Red.
-  * *Core/Auth ($Mp = 1.2$):* **Amplified.** Risks are punished heavily. Fragility here is unacceptable.
+Standard environmental parameters govern safety calculations:
 
-## The Equation: The Structural Integrity Sigmoid
+* **$Fc$ (Fidelity Coefficient):** Applied to **Defensive Controls**. Explicit languages (e.g., Java, Rust) receive higher defensive fidelity weighting than implicit scripting languages (e.g., Shell, Perl).
+* **$Irc$ (Implicit Risk Correction):** Added to **Execution Stressors**. Implicit languages start with a baseline opacity risk tax.
+* **$Mp$ (Path Modifier):** Contextual directory multiplier applied to stressors:
+  * *Test/Experimental Files ($Mp = 0.9$):* Slight discount, though high danger signals remain highlighted.
+  * *Core Infrastructure ($Mp = 1.2$):* Amplified penalty where lack of defensive controls is unacceptable.
 
-We calculate **Net Exposure** rather than Integrity Density, utilizing Laplace Smoothing to prevent tiny files from aggressively skewing the spectrum.
+## Mathematical Formulation
 
-**Step A: Zero-Risk Bypass**
-If the weighted sum of all Attackers equals exactly `0`, the calculation short-circuits and immediately returns a score of `0.0`. If there is no structural load, the file is perfectly fortified by default.
+The metric evaluates Net Exposure using Laplace Smoothing ($LOC + 20.0$) to stabilize scores for small files:
 
-**Step B: Calculate Smoothed Attack & Defense Densities**
-We sum the weighted risks and fortifications. Instead of dividing strictly by LOC, we use **Laplace Smoothing** ($LOC + 20.0$). This prevents a 5-line file with a single `try/catch` from registering as infinitely safe.
+### Step 1: Zero-Risk Shortcut
+If total weighted execution stressors equal `0`, the calculation immediately short-circuits and returns a score of `0.0`.
 
-$$SmoothedLOC=\max(LOC, 1)+20.0$$
-$$AttackDensity=\left(\frac{WeightedAttackers+Irc}{SmoothedLOC}\right)\times Mp$$
-$$DefenseDensity=\left(\frac{WeightedDefenders}{SmoothedLOC}\right)\times Fc$$
+### Step 2: Calculate Laplace-Smoothed Densities
+Stressors and controls are normalized using a smoothed line count ($LOC + 20.0$):
 
-**Step C: Calculate Net Exposure**
-We subtract defense from attack. We also subtract a minor `SystemsBuffer` for implicit languages ($Fc < 1.0$) to account for their naturally looser structures.
-* **Positive Exposure:** Risks outweigh Defenses (Fragile / Red).
-* **Negative Exposure:** Defenses outweigh Risks (Fortified / Blue).
+$$\text{SmoothedLOC} = \max(\text{LOC}, 1) + 20.0$$
+$$\text{StressorDensity} = \left(\frac{\text{WeightedStressors} + Irc}{\text{SmoothedLOC}}\right) \times Mp$$
+$$\text{ControlDensity} = \left(\frac{\text{WeightedControls}}{\text{SmoothedLOC}}\right) \times Fc$$
 
-$$NetExposure=(AttackDensity-DefenseDensity)-SystemsBuffer$$
+### Step 3: Net Exposure & Systems Buffer
+Defensive controls are subtracted from execution stressors. An additional system buffer is subtracted for implicit languages ($Fc < 1.0$):
 
-**Step D: The Sigmoid Score & Breach Floor**
-We map the exposure to a $0-100$ scale using a steep Sigmoid slope ($12.0$). 
+$$\text{NetExposure} = (\text{StressorDensity} - \text{ControlDensity}) - \text{SystemsBuffer}$$
 
-$$Score=\frac{100}{1+e^{-12.0\times NetExposure}}$$
+### Step 4: Sigmoid Scoring & Breach Floor
+Net Exposure is mapped through a Sigmoid function (slope $= 12.0$):
 
-If the code has a high density of explicit `danger` or `safety_neg` hits (evaluated against the raw $LOC$, bypassing the Laplace smoother) and Attack outpaces Defense, the file is subject to a hard **Breach Floor** (scaling up to a maximum of $80.0$). This mathematically guarantees that catastrophic structural weaknesses cannot be masked by simply adding empty `try/catch` blocks.
+$$\text{RawScore} = \frac{100.0}{1 + e^{-12.0 \times \text{NetExposure}}}$$
 
-## Implementation (Python Reference)
+If danger signals (`danger_hits` or `safety_neg_hits`) exceed a minimum threshold density ($> 0.03$) and stressors outpace controls, a hard **Breach Floor** (up to 80.0) is enforced. This ensures high-risk execution cannot be masked simply by adding superficial comments.
+
+## Python Implementation Reference
 
 ```python
 import math
@@ -68,7 +70,7 @@ def _calc_safety(self, loc: int, eq: Dict[str, int], irc: int, fc: float, mp: fl
     safe_loc = max(loc, 1)
     t = self.risk_tuning.get("safety", {})
 
-    # 1. Weighted Sums
+    # 1. Calculate Weighted Sums
     attack_hits = (eq.get("danger", 0) * t.get("danger_weight", 4.0)) + \
                   (eq.get("safety_neg", 0) * t.get("safety_neg_weight", 1.5)) + \
                   (eq.get("flux", 0) * t.get("flux_weight", 0.5))
@@ -77,11 +79,11 @@ def _calc_safety(self, loc: int, eq: Dict[str, int], irc: int, fc: float, mp: fl
                    (eq.get("test", 0) * t.get("test_weight", 0.5)) + \
                    (eq.get("doc", 0) * t.get("doc_weight", 0.1))
 
-    # Zero-Risk Bypass
+    # Zero-Risk Shortcut
     if attack_hits == 0:
         return 0.0
 
-    # 2. Laplace Smoothing (+20 LOC) to prevent tiny-file explosions
+    # 2. Laplace Smoothing (+20 LOC)
     smoothed_loc = safe_loc + t.get("laplace_smoothing", 20.0)
 
     attack = ((attack_hits + irc) / smoothed_loc) * mp
@@ -97,29 +99,19 @@ def _calc_safety(self, loc: int, eq: Dict[str, int], irc: int, fc: float, mp: fl
     except OverflowError:
         score = 100.0 if net_exposure > 0 else 0.0
 
-    # 5. The Breach Floor (Punishing undefended danger)
-    # Note: Evaluated against true safe_loc to ensure pure density mapping
+    # 5. Breach Floor Enforcer for Undefended Risks
     danger_density = (eq.get("danger", 0) + eq.get("safety_neg", 0)) / safe_loc
-    
     if danger_density > t.get("breach_density_min", 0.03) and attack > defense:
         floor = min(t.get("breach_floor_max", 80.0), 30.0 + (danger_density * t.get("breach_floor_mult", 500.0)))
         score = max(score, floor)
 
     return max(score, 0.0)
-
-<br><br>
-
----
-
-### 🌌 Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+```
 
 ---
+
+### Powered by GitGalaxy Engine
+
+This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
 
 **[⬅️ Back to Master Index](index.md)**

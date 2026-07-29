@@ -1,40 +1,47 @@
-# Graveyard Reaper (Dead Code Analysis)
+# Dead Code & Unused Data Analysis
 
-> **Architecture: AST Resolution & Dead Logic Isolation**
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py)
 >
-> **Summary:** The Graveyard Reaper performs static analysis on the COBOL Abstract Syntax Tree (AST) to isolate orphaned data and mathematically unreachable code. By identifying this structural necrosis early, it prevents downstream forges from generating bloated cloud schemas or hallucinated microservices.
+> **Architecture: Static Analysis & Unreachable Logic Isolation**
+>
+> **Summary:** The Deprecated Trails Analyzer performs static analysis on COBOL source files to isolate unused variable declarations in memory and unreachable execution logic in control flow. Identifying unused data structures and dead paragraphs early prevents downstream tools from generating unnecessary database columns or unneeded microservices.
 
-## The Inline Copybook Expander
-Legacy COBOL frequently hides its variable declarations inside external `.cpy` files. Before the Reaper can accurately map memory usage, it must assemble the full execution context. 
-* It recursively hunts for `COPY` statements and injects the target file's contents directly into the local memory string.
-* **Dynamic Variable Swapping:** It actively parses `REPLACING ==OLD== BY ==NEW==` clauses during the injection phase, executing word-boundary regex substitutions to ensure the resulting AST perfectly matches what the mainframe compiler would see.
+## Inline Copybook Expansion
 
-## Phase 1: Hunting Orphaned Data
-The Reaper splits the code into the `DATA DIVISION` and `PROCEDURE DIVISION`. 
-1. It scans the Data Division to build a master set of all declared variables (ignoring structural noise like `FILLER` or boolean `88` levels).
-2. It executes a strict word-boundary scan against the Procedure Division.
-3. Any variable that is declared in memory but never explicitly referenced in the execution logic is flagged as **Orphaned Memory**. This list is passed to the Schema Forge to prevent useless columns from being created in the PostgreSQL database.
+COBOL variable declarations and record layouts are frequently stored in external copybook files (`.cpy`). Before performing static analysis, the analyzer expands copybooks to obtain the full execution context.
 
-## Phase 2: Hunting Phantom Paragraphs
-To identify dead execution logic, the Reaper maps the control flow of the program:
-1. It catalogs every paragraph (code block) defined in the file.
-2. It assumes the very first paragraph is the "Main Entry Point" and is always executed.
-3. It scans the entire file for explicit jump commands (`PERFORM` and `GO TO`) to build a set of all "Reached" targets.
-4. Any paragraph that is declared but never reached by a jump command from the main execution tree is flagged as a **Phantom Paragraph**. This list is passed to the DAG Architect and Microservice Slicer so they know to completely ignore those lines of code.
+* **Recursive Processing:** Recursively searches for `COPY` statements (up to 3 nesting levels deep) and injects the contents of target copybook files into the source memory buffer.
+* **Variable Substitution:** Parses `REPLACING ==OLD== BY ==NEW==` clauses during copybook expansion, performing word-boundary regex substitutions (`re.sub` with negative lookarounds) so the expanded source code matches compiled behavior.
+
+## Phase 1: Unused Memory Variable Analysis
+
+The analyzer splits the COBOL program at the `PROCEDURE DIVISION` header to inspect memory usage:
+
+1. **Declaration Parsing:** Scans the `DATA DIVISION` for variable declarations across level numbers `01` through `49`, `77`, and `88`, while filtering structural noise such as `FILLER` declarations.
+2. **Usage Verification:** Performs word-boundary regex scans against the `PROCEDURE DIVISION` to check if declared variables are ever referenced.
+3. **Orphaned Memory Isolation:** Flags variables declared in memory but never referenced in execution logic as orphaned variables. This list is passed to downstream schema generators to prevent unused database columns from being created in SQL DDL statements.
+
+## Phase 2: Unreachable Execution Logic Analysis
+
+To identify dead code blocks in the procedural logic, the analyzer evaluates control flow topology:
+
+1. **Paragraph Cataloging:** Scans the `PROCEDURE DIVISION` to record all declared paragraph headers (`^[ \t]{0,11}([A-Z0-9\-]+)\.`).
+2. **Entry Point Identification:** Designates the first paragraph in the `PROCEDURE DIVISION` as the main execution entry point.
+3. **Control Flow Mapping:** Scans the file for explicit transfer-of-control statements (`PERFORM` and `GO TO`) to map all reachable targets.
+4. **Dead Paragraph Detection:** Flags any declared paragraph that is not reachable from the main entry point or jump statements as unreachable logic. Common loop exit labels (such as `*-EXIT`) are excluded. The analyzer also calculates estimated Lines of Code (LOC) saved: `(dead_paragraphs * 10) + orphaned_variables`.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Ecosystem Integration
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and heuristic dependency mapping engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

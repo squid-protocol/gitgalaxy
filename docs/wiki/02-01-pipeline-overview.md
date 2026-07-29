@@ -1,104 +1,98 @@
-# Data Analysis Pipeline (The Optical Pipeline)
+# Static Analysis Pipeline Overview
 
-Sometimes code is art. Right now, it's data, and it’s gotta be cleaned up to be meaningful. Basically, we need to assess what to assess, find what language it's in, strip out the comments, regex count, and then calculate risk based on standardization metrics. 
+> **File Reference:** [`gitgalaxy/galaxyscope.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/galaxyscope.py)
 
-The GalaxyScope is a modular computational instrument designed to resolve raw source code into intuitive 3D physical structures. Rather than a standard "scanner," the system operates as an optical pipeline where each module serves as a discrete component housed within the GalaxyScope Chassis. 
+The GitGalaxy analysis engine provides automated, deterministic static analysis and dependency mapping for multi-language software repositories. The pipeline ingests raw source files, filters out non-code assets and minified dependencies, identifies programming languages, separates executable logic from comments, extracts structural metrics via regular expressions, computes multi-dimensional risk exposures, validates statistical integrity, and serializes the resulting repository graph into structured data formats (SQLite, JSON, Markdown, and WebGL node-graph arrays).
 
-Just as light flows through a telescope, data flows through our GalaxyScope. We adjust the aperture (what files are blocked), we use guidestars (creator’s READMEs), each file’s language is brought into focus, the data stream is sent through a prism to split the `coding_stream` from the `comment_stream` (comment parsing), each info stream is fed to a detector (regex count data), analyzed by a signal processor (2nd pass calculations, equations), and then validated by a spectral auditor (statistical anomaly analysis), where it is finally packaged by a record keeper (saved into a vectorized JSON). 
+Rather than relying on fragile Abstract Syntax Tree (AST) compilation or non-deterministic LLM inference, the pipeline operates as a high-speed, modular analysis workflow executed by the main pipeline orchestrator (`galaxyscope.py`).
 
-Just as different telescopes can have different lenses and prisms to see different things, I hope this architecture inspires people to build better versions of these things and view data analysis through the lens of scientific instrumentation.
+---
 
-Incoming data is treated as raw light. To resolve a clear image of the codebase, it must pass through the following interchangeable parts:
+## Pipeline Component Architecture
 
-| The Component | Digital Module (`.py`) | Operational Function | "Optical" Result |
+The analysis workflow is divided into specialized engine modules responsible for specific stages of data extraction and transformation:
+
+| Component Name | Source Module (`.py`) | Operational Responsibility | Engine Output |
 | :--- | :--- | :--- | :--- |
-| **The Adaptive Light Path System** | `galaxyscope.py` | **Orchestrator.** Parses data through specific files and functions during the analysis. | The adaptive light path is able to swap lenses on the fly to ensure focus and visibility. |
-| **The Aperture Filter** | `aperture.py` | **Noise reduction.** Strips `.gitignore` noise, binaries, and minified artifacts. | **Clear Field:** Eliminates "Radio Noise" before it hits the sensors. |
-| **The GuideStar Protocol** | `guidestar_lens.py` | **Calibration and indexing.** Ensures the instrument is focused on core architectural importance. Reads git lists, `package.json`, etc. | **Alignment:** Establishes the coordinate center of the survey. |
-| **The Language Lens** | `language_lens.py` | **Language identification.** Compares lines of evidence (ext/shebang, system context) to assign a language to each file along with a confidence score. | **Focus:** Spectral identification; determines if we have a lens to best focus that wavelength of light. |
-| **The Prism** | `prism.py` | Once the language has been identified, the correct comment style can be applied to parse comments from code. | **Spectral Splitting:** Splits the wavelength of light into two streams that can be analyzed separately. |
-| **The Primary Detector** | `detector.py` | **Heuristic sensor.** Performs high-speed regex counting to detect functional intent and algorithmic complexity. | **Raw Signal:** Captures the discrete counts of logic hits. Where the photons hit the EMCCD chip. |
-| **The Signal Processor** | `signal_processor.py` | **Equation engine.** Converts raw counts into non-linear risk exposures and physical mass. | **Analyzed Signal:** Transforms hits into meaningful 0-100 exposure vectors. |
-| **The Spectral Auditor** | `spectral_auditor.py` | **Bayesian Quality control.** Performs statistical Z-score checks to assess if files with low confidence determinations have evidence supporting that label. | **Integrity:** Relegates mysterious signals to the Singularity of Ambiguity to highlight unanalyzable signals. |
-| **The Chronometer** | `chronometer.py` | **Temporal sensor.** Analyzes Git commit history and filesystem metadata to measure code churn and stability. | **Temporal Telemetry:** Measures the volatility of artifacts over time, adding history to the map. |
-| **The Network Risk Sensor** | `network_risk_sensor.py` | **Graph Topology.** Wires the universe into a Directed Graph to calculate systemic threats. | **Blast Radius:** Determines PageRank, choke points (Betweenness), and ecosystem roles. |
-| **The Security Lens** | `security_lens.py` | **Threat detection physics.** Scans raw structural realities for adversarial behaviors (logic bombs, exfiltration, hardcoded secrets). | **Threat Hunting:** Applies a specialized high-contrast filter to illuminate hostile anomalies. |
-| **The AI AppSec Sensor** | `ai_appsec_sensor.py` | **Agentic Vulnerability Hunter.** Scans for weaponized AI architectures and LLM prompt injection surfaces. | **The RCE Funnel:** Identifies where LLMs possess unsafe access to OS commands or databases. |
-| **The Dev Agent Firewall** | `dev_agent_firewall.py` | **AI Guardrails.** Evaluates if the codebase is safe for autonomous AI agents to modify. | **Token Physics:** Flags context-window black holes and hallucination zones requiring human-in-the-loop. |
-| **The Neural Auditor** | `neural_auditor.py` | **Weight Inspection.** Surgically parses massive AI model binaries (.safetensors, .gguf) without RAM bloat. | **Model Metadata:** Extracts architecture, parameters, and quantization from binary headers. |
-| **The Security Auditor** | `security_auditor.py` | **Machine Learning Inference.** Executes XGBoost multiclass threat inference across the entire resolved graph. | **AI Threat Confidence:** Predicts the probability of Trojans, Botnets, and Native Infectors. |
-| **The Audit Recorder** | `audit_recorder.py` | Full level audit record of every file scanned, results and hits, saved into a large JSON archive. To make your lawyers happy. | **The SHBOM:** A permanent "Black Box" record (Structural Health Bill of Materials). |
-| **The Record Keeper** | `record_keeper.py` | **Native SQLite.** Transforms the live RAM state directly into a highly relational SQLite database. | **Master Aggregation:** Bypasses intermediate JSON parsing for advanced SQL analysis. |
-| **The LLM Recorder** | `llm_recorder.py` | **AI Translation Layer.** Compresses the galaxy into a high-density Markdown brief. | **Agent Context:** Provides standard LLMs with architectural context windows. |
-| **The GPU Recorder** | `gpu_recorder.py` | **Vectorization.** Seals the processed signal into a lightweight, high-density JSON archive. | **The Starmap:** Converts analyzed data into galaxy format for the 3D WebGPU rendering engine. |
+| **Pipeline Orchestrator** | `galaxyscope.py` | Executable entry point and process manager. Controls parallel execution, phase transitions, and IPC data transfers. | Coordinated analysis pipeline execution. |
+| **File Filter Engine** | `aperture.py` | Ingestion filter. Enforces `.gitignore` patterns, file size limits, binary detection, and path exclusions. | Filtered list of analyzable source files. |
+| **Project Metadata Parser** | `guidestar_lens.py` | Context resolver. Parses build manifests (`package.json`, `Cargo.toml`), `.gitattributes`, and directory paths to assign language priors. | Pre-configured confidence vectors and language hints. |
+| **Language Identification Engine** | `language_lens.py` | Language detector. Evaluates file extensions, shebangs, structural heuristics, and directory context to lock language IDs. | Deterministic language classification per file. |
+| **Lexical Stream Splicer** | `prism.py` | Code/comment separator. Masks string literals and heredocs, then splits files into isolated code and comment streams. | Separate code stream and comment stream buffers. |
+| **Structural Code Analyzer** | `detector.py` | Heuristic metric extractor. Executes regular expression rules to count functions, parameters, and control-flow structures. | Raw 51-element metric schema per file. |
+| **Metrics Normalization Engine** | `signal_processor.py` | Metric calculator. Transforms raw structural hits into 0-100 normalized risk exposure scores (cognitive complexity, safety, debt). | Scaled risk vectors and forensic metric reports. |
+| **Statistical Quality Auditor** | `statistical_auditor.py` | Bayesian data validator. Executes Z-score and Median Absolute Deviation (MAD) checks to filter out false positives and unparseable assets. | Validated codebase metrics with outlier exclusion. |
+| **Version Control & Churn Analyzer** | `chronometer.py` | Temporal analyzer. Evaluates Git commit history and filesystem metadata to measure file age and modification churn. | File churn rates and historical stability scores. |
+| **Dependency Topology Analyzer** | `network_risk_sensor.py` | Directed graph builder. Maps file import relationships to compute PageRank, Betweenness centrality, and blast radius. | Centrality metrics and dependency topology graph. |
+| **Vulnerability & Threat Scanner** | `security_lens.py` | AppSec scanner. Detects obfuscation, raw socket usage, dynamic code execution, memory manipulation, secrets, and injection points. | Security exposure scores and vulnerability flags. |
+| **AI Vulnerability Sensor** | `ai_appsec_sensor.py` | Agentic security auditor. Identifies unmitigated LLM integration points and prompt injection surfaces. | Remote Code Execution (RCE) risk vector flags. |
+| **Agent Guardrail Evaluator** | `dev_agent_firewall.py` | Safety evaluator. Assesses file complexity to flag risk zones before automated modifications by AI dev agents. | Risk boundaries and context-window limitations. |
+| **Binary Model Inspector** | `neural_auditor.py` | Machine learning weight auditor. Reads header metadata from binary model weights (`.safetensors`, `.gguf`) without full memory load. | Structural model parameters and architecture metadata. |
+| **ML Threat Classifier** | `security_auditor.py` | Machine learning inference engine. Evaluates feature matrices against XGBoost models to predict malware probabilities. | Malicious payload probability scores. |
+| **Audit Trail Exporter** | `audit_recorder.py` | Comprehensive report generator. Serializes all scan telemetry, metrics, and rule hits into a master JSON archive. | Structural Health Bill of Materials (SHBOM) JSON. |
+| **Relational Database Exporter** | `record_keeper.py` | Database persistence engine. Writes analysis results directly into a structured SQLite database. | Queryable relational SQLite database file. |
+| **AI Context Brief Exporter** | `llm_recorder.py` | LLM context generator. Formats codebase architecture and key metric summaries into compressed Markdown briefs. | High-density LLM context document. |
+| **Topology Graph Exporter** | `gpu_recorder.py` | Visualization serializer. Outputs spatial coordinates, node dimensions, and edge connections for 3D WebGL rendering. | WebGL-compatible JSON graph payload. |
 
 ---
 
-## The GalaxyScope Chassis – Optical Orchestration
+## Sequential Execution Phases
 
-The GalaxyScope (implemented as the `Orchestrator` class in `galaxyscope.py`) is the primary structural frame of the GitGalaxy engine. It serves as the physical chassis that houses and synchronizes every optical module, ensuring that raw source code flows through the system in a deterministic, scientific sequence. Without a central chassis, the individual sensors and lenses would lack the synchronization required to build a cohesive 3D map; the Orchestrator ensures that data is refracted, analyzed, and recorded with perfect temporal alignment.
+The `Orchestrator` class in `galaxyscope.py` executes analysis across distinct sequential phases:
 
-### The Adaptive Lightpath System
+1. **Phase 0: Project Discovery & Census Ignition**  
+   Discovers files using Git index inspection (or filesystem walking as a fallback). Validates file existence, tallies file extension distributions, and applies minimum file size quotas.
 
-The analysis is executed as a series of "Lightpath Phases." By organizing the pipeline into distinct sequential passes, the system can discard noise early, allowing the high-compute detectors to focus exclusively on verified logical matter, while enabling complex relational math (like dependency mapping and network topology) to be calculated globally.
+2. **Phase 1: Parallel Lexical Extraction (Map-Reduce)**  
+   Distributes files across a multi-core `ProcessPoolExecutor`. Each worker process executes the file filter, language detector, lexical stream splicer, and structural code analyzer. A 15-second execution timeout prevents regular expression backtracking (ReDoS) stalls.
 
-* **Phase 0: The Radar Scan (Ignition)**
-    The engine initiates by building a project "Census" using Git Authority (or a standard filesystem walk as a fallback). The Radar Scan identifies every artifact, tallies extension frequencies, and enforces the Neighborhood Micro-Mass Quota to eliminate micro-debris. This creates the global context needed to calculate "Ecosystem Gravity."
-* **Phase 1: Workers & IPC Transfer (Map-Reduce)**
-    The chassis utilizes a multi-core ProcessPoolExecutor to scatter artifacts into isolated worker memory spaces for concurrent analysis. This bypasses the Python GIL, passing files through the Aperture Filter, Language Lens, Prism, and Primary Detector. To prevent Catastrophic Backtracking (ReDoS) from freezing the thread pool, a hardware-level Guillotine interrupt (15-second fuse) is attached to the regex engine.
-* **Phase 1.5: Dependency Resolution & Typosquatting Radar**
-    Before calculating relational physics, the engine must map the dependency graph. 
-    * *The Optimization:* The chassis builds an O(1) Pre-computed Suffix Hash Map to instantly resolve raw import strings to their exact physical files.
-    * *The Air-Gapped Radar:* It simultaneously executes a Levenshtein-distance Typosquatting check on external dependencies, injecting "Homoglyph" threats into the pipeline before Phase 2.
-* **Phase 2: Relational Physics**
-    The chassis executes a global pass to calculate project-wide relationships. It evaluates Domain Ontologies (determining the dominant ecosystem of a folder to apply Alien/Trojan penalties) and calculates the Global Test Umbrella (applying defensive density bonuses repository-wide).
-* **Phase 3: Network Topology & Blast Radius**
-    The `NetworkRiskSensor` wires the universe into a Directed Graph using the resolved imports. It calculates PageRank (absolute load-bearing gravity), Betweenness (choke points), and Closeness (ripple effects), defining each file's exact Ecosystem Role.
-* **Phase 3.5: AI Guardrails & AppSec Threat Hunting**
-    The `DevAgentFirewall` and `AIAppSecSensor` evaluate the entire ecosystem for agentic vulnerabilities, hunting for over-permissioned "God-Mode" agents, context-window black holes, and prompt injection surfaces.
-* **Phase 4: Audit Verification**
-    The `SpectralAuditor` executes Bayesian quality control, relegating mathematically hollow or misidentified files into the Dark Matter Singularity.
-* **Phase 5: 3D Cartography**
-    The `Cartographer` transforms the verified flat list into a deterministic 3D star map utilizing a Ray-Casting Dynamic Mask to spatially hash and layout constellations.
-* **Phase 6: Metrics Synthesis**
-    The `SignalProcessor` executes Pass 2 Normalization, generating the forensic report and evaluating Biaxial Anomalies (Global vs Local architectural drift).
-* **Phase 7.8: Advanced ML Threat Hunting**
-    The `SecurityAuditor` ingests the fully resolved feature matrix into an XGBoost Multiclass inference model, predicting the probability of malicious payloads (Trojans, Botnets, Native Infectors) natively in RAM.
-* **Phase 8-9: Multi-Format Recording**
-    The mission concludes by routing the finalized state through the designated Recorders (Audit, LLM, SQLite, GPU) based on the operator's output parameters.
+3. **Phase 1.5: Dependency Graph Resolution & Typosquatting Analysis**  
+   Resolves raw import statements to absolute file paths using a suffix hash map. Evaluates external package dependencies against Levenshtein distance rules to detect potential typosquatting or homoglyph attacks.
 
-### Adaptive Features and Hardware Overrides
+4. **Phase 2: Relational Aggregation & Ecosystem Scoring**  
+   Aggregates folder-level statistics to determine dominant programming languages across directories. Applies context penalties for mismatched language files and calculates global repository test coverage ratios.
 
-The GalaxyScope is designed as an "Open Chassis," capable of swapping lenses and patching logic on the fly based on the specific "Atmospheric Conditions" of the target repository.
+5. **Phase 3: Directed Graph Analysis & Centrality Metrics**  
+   Constructs a directed dependency graph via `NetworkRiskSensor`. Computes PageRank (architectural importance), Betweenness (choke points), and Closeness centrality to define file operational roles.
 
-* **The Domain Dialect Pre-Flight Patch**
-    Before ignition, the chassis checks for "Project Overrides" in the scanning configuration. If a project name matches a registered Dialect (e.g., CPython, Ansible, Redis), the engine live-patches the language regex geometry and custom Aperture shields to match the local reality of the project without breaking global standards.
-* **Splicer Pre-loading**
-    To prevent severe performance lag during parallel multiprocessing, the chassis "Force-Warms" the workers by pre-loading the `LogicSplicer` cache as soon as the worker process initializes, preventing redundant regex compilation logs and CPU throttling on standard text files.
-* **The Smart Threat Switch (Zero-Trust Mode)**
-    If the orchestrator is booted in `--paranoid` mode, the chassis injects a maximum-sensitivity threat policy into the engine. This dynamically lowers the tolerance thresholds for logic bombs and memory corruption, allowing security teams to audit high-risk environments with a "Zero-Trust" posture.
-* **Neural Supernova Injection**
-    As a final safety measure before graphing, the Orchestrator checks the "Dark Matter" pile. If the `NeuralAuditor` or `SecurityLens` flagged a filtered file (like a 4GB `.safetensors` model or a leaked `.pem` key), the chassis artificially injects a "Supernova" onto the map—forcing the massive localized threat to render in the UI despite being structurally inert.
-* **Delta Missions (RAM Rehydration)**
-    For continuous integration, the GalaxyScope supports `execute_delta_mission`. Rather than re-scanning 10,000 files, the chassis rehydrates the previous scan's state directly into RAM, surgically processes only the modified files through the Optical Pipeline (Pass 1), and then instantly recalculates the entire Network Graph and ML Inference (Passes 2-7) in a fraction of the time.
-* **Exclusive Recorder Routing**
-    Because the final stage of processing requires destructively clearing RAM, the chassis features an intelligent output router. By passing exclusive flags (`--gpu-only`, `--audit-only`, `--llm-only`, `--db-only`), the chassis can bypass unneeded formatting steps (like the SQLite schema construction or Markdown parsing) to save memory and I/O latency.
-* **Shared Metadata Locking (The Session Lock)**
-    As the mission concludes, the chassis generates a `session_meta` payload containing the Engine Identity, Scan Duration, and an immutable Git Audit (including Branch, SHA-1 Hash, Remote URL, and Latest Commit Date). The Session Lock ensures that every architectural map is permanently anchored to a specific point in the project's history.
+6. **Phase 3.5: AI Integration & Agent Security Assessment**  
+   Scans for autonomous agent integration risks, identifying over-permissioned execution hooks, prompt injection paths, and LLM context limits via `DevAgentFirewall` and `AIAppSecSensor`.
 
-<br><br>
+7. **Phase 4: Statistical Quality Audit**  
+   Runs Bayesian statistical checks via `StatisticalAuditor`. Excludes mathematically improbable or unparseable files from primary code metrics and routes them to an unclassified asset store.
+
+8. **Phase 5: Spatial Layout & Graph Cartography**  
+   Generates deterministic 3D layout coordinates for repository visualization via a ray-casting Fibonacci spiral layout algorithm.
+
+9. **Phase 6: Metrics Normalization & Biaxial Anomaly Detection**  
+   Normalizes file modification metrics logarithmically across the repository. Evaluates structural drift by comparing global file behavior against local language standards.
+
+10. **Phase 7.8: Machine Learning Threat Inference**  
+    Ingests file feature matrices into an XGBoost classifier to compute probabilities of malicious code patterns (trojans, botnet agents, obfuscated payloads).
+
+11. **Phase 8-9: Serialization & Data Recording**  
+    Routes processed repository data to selected output writers (JSON audit logs, SQLite database, Markdown briefs, WebGL graph files).
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Runtime Configuration & Performance Controls
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+* **Language Dialect Customization:** Allows pre-flight regular expression adjustments for specific framework conventions (e.g., CPython, Ansible, Redis) without altering global rules.
+* **Worker Process Cache Pre-Warming:** Pre-compiles regular expression dictionaries when worker processes initialize, preventing runtime compilation overhead during parallel analysis.
+* **Zero-Trust Security Sensitivity Mode:** Enables high-sensitivity vulnerability policies via the `--paranoid` CLI flag, lowering threat score trigger thresholds.
+* **High-Risk Asset Highlighting:** Ensures flagged security threats (e.g., leaked private keys or binary AI models) are explicitly included in spatial graph outputs regardless of parsing status.
+* **Incremental Delta Analysis:** Supports `execute_delta_mission` to rehydrate previous scan state from RAM, processing only modified files while recomputing graph dependencies and ML inference.
+* **Selective Serialization Routing:** Supports flags like `--gpu-only`, `--audit-only`, `--llm-only`, and `--db-only` to skip unnecessary formatting stages and reduce memory usage.
+* **Session Metadata Locking:** Binds immutable session metadata (Git commit SHA, active branch, remote repository URL, scan timestamp) to generated analysis artifacts.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+---
 
+### Ecosystem References
 
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Core static analysis source code and CLI tools.
+* **[GitGalaxy Visualization Platform](https://gitgalaxy.io/)** - Interactive 3D WebGL repository cartography dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

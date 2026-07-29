@@ -1,41 +1,39 @@
-# The Chronometer (Temporal Telemetry)
+# Chronometer (Git History Analysis)
 
-> **Adding History to the Map**
->
-> The Chronometer (`chronometer.py`) acts as GitGalaxy's high-fidelity Temporal Sensor. While the rest of the pipeline analyzes the static, physical structure of the code at a single point in time, the Chronometer measures Git churn and physical file-system stability. 
->
-> By extracting these temporal signals, it provides the "redshift" and volatility of artifacts over time, providing raw telemetry to the Signal Processor for exposure calculations.
+> **File Reference:** [`gitgalaxy/metrics/chronometer.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/chronometer.py)
 
-## The Melded Protocol (Survey-First Logic)
+The Chronometer component measures code churn (frequency of changes) and file stability by analyzing Git history. While the rest of the pipeline performs static analysis on the codebase at a single point in time, the Chronometer provides the historical context required by the Signal Processor to calculate risk exposure metrics.
 
-If the engine attempted to query Git history for every single file during the parallel multiprocessing phase, it would create a catastrophic I/O bottleneck. 
+## Batch Processing Strategy
 
-To achieve hyper-scale velocity, the Chronometer utilizes **Survey-First Logic**. It performs a bulk metadata sweep during initialization, caching the results in internal state maps (`entropy_map`, `mtime_map`, `author_map`). When the worker threads later request temporal data for a specific file, the handover is a lightning-fast, zero-I/O $O(1)$ memory lookup.
+If the engine queried Git history for every individual file during parallel multiprocessing, it would create a massive I/O bottleneck. 
 
-## Boundary Locks & The Museum Demo Protocol
+To ensure high performance, the Chronometer utilizes a **batch caching strategy**. It performs a bulk metadata sweep during initialization, caching the results in internal state maps (`churn_map`, `mtime_map`, `author_map`). When worker threads later request temporal data for a specific file, the retrieval is a fast $O(1)$ memory lookup.
 
-To accurately calculate how "old" or "stable" a file is, the engine must first establish the absolute boundaries of the universe.
+## Commit Boundaries & Historical Sweep
 
-* **Boundary Lock:** The sensor queries the Git `rev-list` and log heads to establish the absolute minimum (first commit) and maximum (latest commit) timestamps of the entire project.
-* **Cosmetic Filter:** Before sweeping for churn, the Chronometer automatically loads `.git-blame-ignore-revs` if it exists, filtering out non-functional cosmetic commits (like mass code-formatting) from the volatility math.
-* **The Museum Demo Protocol:** Rather than grinding through decades of Git history, the sensor executes a 1-year historical sweep. This guarantees deep churn data for modern volatility without getting bogged down in ancient bedrock.
-* **Dynamic Thresholds:** To save RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files.
+To accurately calculate the age and stability of files, the engine must first establish the boundaries of the repository.
 
-## Process Management (Kill Switches & Fallbacks)
+* **Boundary Discovery:** The component queries `git rev-list` and `git log` to find the timestamps of the first commit and the latest commit across the entire project.
+* **Cosmetic Commit Filtering:** The Chronometer automatically loads `.git-blame-ignore-revs` (if available), filtering out cosmetic commits (e.g., mass code-formatting by Prettier or Black) from the churn calculations.
+* **1-Year Sweep:** Rather than parsing the entire history of older repositories, the component limits its churn scan to the past 12 months. This guarantees that metrics reflect recent development activity without wasting resources on older, stable code.
+* **Dynamic Halting:** To conserve RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files.
 
-Streaming Git logs via `Popen` can be dangerous; if the stream hangs, it creates zombie processes that leak file descriptors. The Chronometer enforces strict resource guards.
+## Process Management & Fallbacks
 
-* **Dual Kill Switches:** The Git stream escalator is bound by two strict kill switches: a hard compute timeout (defaulting to 15.0 seconds) and the dynamic file coverage target. If either is breached, the loop breaks early.
-* **Zombie Prevention:** If the stream is broken early, the Chronometer violently kills the `Popen` process and explicitly closes the `stdout`/`stderr` pipes to prevent OS-level zombie processes.
-* **OS-Level Fallback:** If the repository is not tracked by Git (or Git is missing from the host machine), the Chronometer falls back to standard operating system `stat` calls to check file modification times (`mtime`). This fallback is capped at 25,000 files to protect disk I/O performance.
+Streaming large Git logs via `subprocess.Popen` can be resource-intensive. If the stream hangs, it can create zombie processes that leak file descriptors. The Chronometer enforces strict resource management:
 
-## Temporal Outputs (The Handover)
+* **Timeout Controls:** The Git streaming process is bound by two limits: a hard compute timeout (defaulting to 15.0 seconds) and the dynamic file coverage target mentioned above. If either is reached, the loop breaks early.
+* **Zombie Process Prevention:** If the stream exits early, the Chronometer terminates the `Popen` process and explicitly clears out `stdout`/`stderr` buffers to prevent OS-level zombie processes. (For example, `stderr` is routed to `DEVNULL` to prevent deadlocks from noisy Git warnings).
+* **OS-Level Fallback:** If the repository is not tracked by Git or if `git ls-files` fails, the Chronometer gracefully falls back to standard operating system `stat` calls to check file modification times (`mtime`). This fallback is capped at 25,000 files to protect disk I/O performance.
 
-The Chronometer does not calculate final risk scores; it acts as a raw sensor, extracting the temporal data required by the `SignalProcessor` to calculate the final metrics:
+## Output Metrics
 
-* **Stability (Age):** Hands over the exact modification time (`mtime`) and the repository's minimum/maximum timestamps.
-* **Raw Churn Frequency:** Captures the total commit count within the historical sweep.
-* **Ownership Mapping:** Captures every author who modified the file and their respective commit counts. This powers the downstream **Ownership Entropy** and **Silo Risk** calculations.
+The Chronometer acts as a raw data collection layer. It extracts the following data for the `SignalProcessor` to use in final metric calculations:
+
+* **Stability (Age):** The exact modification time (`mtime`) of each file, along with the repository's minimum and maximum timestamps.
+* **Raw Churn Frequency:** The total commit count for each file within the historical sweep window.
+* **Ownership Mapping:** A dictionary mapping every author who modified a file to their respective commit counts. This powers downstream ownership entropy and silo risk calculations.
 
 <br><br>
 
@@ -47,8 +45,6 @@ This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid
 
 * 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
 * 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
 
 ---
 

@@ -1,73 +1,61 @@
-# 2.1.B. Star's Pulse Rate
+# Node Emissive Intensity & Pulse Rate Mapping
 
-> **Metric: Inbound Reference Count (Popularity)**
->
-> **Purpose:** See how popular or highly referenced a file is, which is a fundamental measure of its importance in the system.
-> 
-> **Effect:** Modulates the Emissive Intensity (Bloom Strength) and Pulse Floor. Pulses should feel powerful and stately, never blinky and annoying. Instead of deadening the colors with opacity fades, we use Bioluminescence. A "God Class" file that is imported by many other files shouldn't just blink faster; it should burn hotter and overwhelm the surrounding atmosphere.
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-## 2.1.B.1. The Philosophy: Bioluminescence
+To highlight central architectural dependencies, GitGalaxy maps a file's **Inbound Reference Count** (graph in-degree or popularity) directly to node emissive shader intensity and pulse frequency in the WebGL renderer. 
 
-We treat the codebase as a living, deep-sea organism:
+Files imported by many downstream modules emit a high-brightness bloom effect, allowing system architects to instantly identify critical dependency hubs across the codebase.
 
-* **Hot (High Gravity):** Core utilities or "God Objects." These are the nuclear reactors of the system. They burn with a high-intensity, white-hot core that never fully dims.
-* **Cold (Low Gravity):** Leaf nodes or standalone configs. They emit a gentle, shallow phosphorescence.
+## Metrics and Inputs
 
-## 2.1.B.2. The Inputs: Measuring Gravity
+* **`Ref` (Inbound Reference Count):** The number of distinct repository files that import or reference the module.
+* **`MaxRef` (Maximum Reference Ceiling):** The highest inbound reference count found across the repository, serving as the normalization cap.
 
-* **Ref (Inbound References):** The count of *other* files that import this specific file.
-* **MaxRef:** The highest reference count found in the entire repository. This sets the global "Ceiling" for the simulation.
+## Mathematical Mapping Formulas
 
-## 2.1.B.3. The Equation: Intensity Mapping
-
-We don't just change the speed of the pulse; we change the **Dynamic Range** of the glow.
-
-* **Frequency (Speed):** Capped between 0.5Hz and 1.5Hz. We keep the pulse "Stately" and "Breathing" to avoid rapid, fatiguing strobing.
-* **Amplitude (Intensity):** Mapped directly to popularity.
-* **Floor:** The minimum brightness. Popular files *never* go completely dark.
-* **Ceiling:** The maximum brightness. Popular files bloom into pure white at their peak.
-
-## 2.1.B.4. The Math: Calculating Emissive Intensity
-
-First, we normalize the popularity ($P$) into a clean scale from $0.0$ to $1.0$.
+The popularity metric $P$ is first normalized into a continuous range from $0.0$ to $1.0$:
 
 $$P = \min\left(\frac{\text{Ref}}{\text{MaxRef}}, 1.0\right)$$
 
-Next, we establish the boundaries for speed, the bloom floor, and the bloom ceiling based on that popularity.
+Using normalized popularity $P$, the shader computes pulse frequency (speed) and emissive intensity bounds (floor and ceiling):
 
-**1. Stately Speed:** Prevents the "Hazard Strobe" effect.
+### 1. Pulse Frequency (Hz)
+Maintains controlled pulse dynamics between 0.5 Hz and 1.5 Hz to ensure visual stability without excessive strobing:
+
 $$\text{Speed} = 0.5 + (P \times 1.0)$$
 
-**2. The Bloom Floor:** Important files never fade below $1.0$ (Full Brightness).
+### 2. Emissive Floor (Minimum Intensity)
+Highly referenced modules retain a high baseline emissive glow and never dim completely:
+
 $$\text{MinIntensity} = 0.2 + (P \times 0.8)$$
 
-**3. The Bloom Ceiling:** Important files burst into blinding white ($4.0$) at the peak.
+### 3. Emissive Ceiling (Maximum Intensity)
+Peak emissive output scales up to 4.0 for heavily referenced hub modules:
+
 $$\text{MaxIntensity} = 1.5 + (P \times 2.5)$$
 
-Finally, we apply a sine wave over time to calculate the exact shader value for the current frame.
+### 4. Frame-Level Shader Intensity Calculation
+In the WebGL shader, a sinusoidal function evaluates the final frame intensity:
 
 $$\text{EmissiveIntensity} = \text{MinIntensity} + \left( \sin(\text{Time} \times \text{Speed}) \times (\text{MaxIntensity} - \text{MinIntensity}) \right)$$
 
-## 2.1.B.5. The Visual Thresholds (The Resonance)
+## Visual Rendering Tiers
 
-| Classification | Pulse Frequency | Dynamic Range | Visual Effect |
-| :--- | :--- | :--- | :--- |
-| **The Firefly** (Low Refs) | 0.5 Hz *(Slow)* | 0.2 $\rightarrow$ 1.5 | A gentle, rhythmic shimmer. The object retains its rich theme color (e.g., Deep Cyan) and occasionally brightens. |
-| **The Reactor** (High Refs) | 1.5 Hz *(Stately)* | 1.0 $\rightarrow$ 4.0 | A powerful, "Core Saturation" effect. The center burns white-hot due to Bloom overload while the edges retain the theme color. It feels "heavy" and anchors the scene. |
-
-<br><br>
+| Module Classification | Inbound Reference Range | Pulse Frequency | Dynamic Emissive Range | Visual Effect |
+| :--- | :--- | :--- | :--- | :--- |
+| **Standard Module / Leaf Node** | Low In-Degree | 0.5 Hz | 0.2 $\rightarrow$ 1.5 | Gentle rhythmic shimmer. Retains primary category color with soft intensity variations. |
+| **Central Architectural Hub** | High In-Degree | 1.5 Hz | 1.0 $\rightarrow$ 4.0 | High-intensity bloom saturation. Central core remains continuously bright, highlighting critical dependency bottlenecks. |
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

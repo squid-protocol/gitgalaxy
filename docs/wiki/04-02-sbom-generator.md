@@ -1,59 +1,103 @@
-# SBOM Generator (Zero-Trust Supply Chain)
+# Software Bill of Materials (SBOM) Generator
 
-> **Physical Verification of Dependencies**
->
-> Standard Software Bill of Materials (SBOM) generators blindly trust configuration files. If `package.json` claims to install "React", a standard generator logs it as safe. 
->
-> The GitGalaxy SBOM Generator (`sbom_generator.py`) operates on a **Zero-Trust** model. It does not just read the manifest; it physically hunts down the installed dependency on disk, scans its structural DNA for anomalies, and verifies that the code hasn't been spoofed or infected.
+> **File Reference:** [gitgalaxy/recorders/sbom_recorder.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/sbom_recorder.py)
 
-## The Universal Manifest Slicer
-
-Modern repositories are often polyglots, utilizing multiple package managers simultaneously. The `UniversalManifestSlicer` handles this by natively parsing the standard manifests of four major ecosystems:
-
-* **NPM (JavaScript/TypeScript):** Parses `package.json` for `dependencies` and `devDependencies`.
-* **Packagist (PHP Composer):** Parses `composer.json` for `require` and `require-dev`.
-* **PyPI (Python):** Uses regex to parse `requirements.txt`, safely extracting version bounds.
-* **Cargo (Rust):** Uses universal regex to extract dependency blocks from `Cargo.toml`.
-
-## The Zero-Trust Physical Audit
-
-Once the dependencies are claimed by the manifests, the engine executes a physical audit to verify their integrity.
-
-### 1. Locating the Payload
-The engine hunts for the physical package within the local project bounds (e.g., `node_modules`, `vendor`, or a Python `venv`/`.venv` directory). 
-* If the package is declared but cannot be found locally, it is flagged as `UNVERIFIED_MISSING_ON_DISK`.
-
-### 2. The Micro-Scan (Max 5 Files)
-To maintain velocity, the generator does not scan every single file in massive dependencies. It extracts a sample of up to 5 core files (`.js`, `.py`, `.ts`, `.php`, `.rs`) from the package directory.
-* **Entropy Check:** It runs the file through the `SecurityLens`. If the dependency contains mathematically dense/encrypted strings (Shannon Entropy > 4.8), it is flagged as a potential hidden payload.
-* **Spoof Detection:** It runs the file through the `LanguageDetector`. If the file claims to be JavaScript but triggers structural anomalies, it flags the package as spoofed.
-
-### 3. Trust Assignment
-Dependencies that fail the micro-scan are flagged as `SPOOF_DETECTED` and their specific anomaly notes are recorded. Packages that pass are marked `VERIFIED_SAFE`.
-
-## CycloneDX 1.4 Serialization
-
-The final output is not a proprietary JSON structure, but a fully compliant **CycloneDX 1.4 JSON** file, ensuring it can be ingested by standard enterprise compliance tools.
-
-However, GitGalaxy enriches this standard by injecting its physical audit data as custom properties on every component:
-* `"name": "gitgalaxy:trust_status"`
-* `"name": "gitgalaxy:anomaly_notes"`
-
-This creates a hyper-accurate SBOM that tells compliance teams not only what open-source libraries are installed, but exactly which ones have been physically compromised.
-
-<br><br>
+The `SbomRecorder` module in `gitgalaxy/recorders/sbom_recorder.py` generates enterprise-compliant CycloneDX 1.4 Software Bill of Materials (SBOM) documents backed by physical verification of installed third-party dependencies. Rather than relying solely on declarative package manifests, the recorder inspects installed packages on disk (`node_modules`, `vendor`, Python `venv`/`.venv`) to verify component integrity and flag potential package spoofing or hidden malware payloads.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Universal Manifest Parsing
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+The generator delegates manifest extraction to `UniversalManifestSlicer` (`gitgalaxy/security/manifest_parser.py`), supporting multiple package manager ecosystems within polyglot repositories:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **NPM (JavaScript / TypeScript):** Extracts production and development dependencies from `package.json`.
+* **Packagist (PHP Composer):** Extracts required packages from `composer.json`.
+* **PyPI (Python):** Parses `requirements.txt` declarations and version bounds.
+* **Cargo (Rust):** Extracts dependency blocks from `Cargo.toml`.
 
+Manifest locations are ingested directly from the core pipeline census (`manifest_paths`), ensuring that excluded directories (such as vendor locks or distribution builds) are ignored during manifest discovery.
 
+---
+
+## Physical Dependency Verification Pipeline
+
+For every dependency declared in a manifest, `SbomRecorder` attempts to locate the physical package on disk and evaluate its code integrity:
+
+### 1. Package Location & Verification Status
+The engine searches local project paths (e.g., `./node_modules/<package>`, `./vendor/<package>`, `venv/lib/python*/site-packages/<package>`).
+* **Installed Packages:** Evaluated through integrity inspection routines.
+* **Missing Packages (`UNVERIFIED_MISSING_ON_DISK`):** Flagged when declared in manifests but absent from local disk storage.
+
+### 2. Candidate Sampling & Entry Point Prioritization (`_iter_candidate_files`)
+To ensure high-risk entry points are inspected first under time or budget constraints, candidate files (`.js`, `.py`, `.ts`, `.php`, `.rs`) are ordered by risk priority:
+1. Common entry point stems (`index`, `main`, `__init__`, `app`, `setup`).
+2. Shallow path depth before deep nested subdirectories.
+3. Lexicographical sorting.
+
+### 3. Structural Anomaly & Spoofing Inspection (`_scan_single_file`)
+Scanned candidate files undergo dual evaluation using core GitGalaxy sensors:
+* **High-Entropy Payload Check (`SecurityLens`):** Identifies mathematically dense or obfuscated string blobs (Shannon Entropy > 4.8), flagging potential hidden binaries or encrypted payloads.
+* **Language Anomaly Verification (`LanguageDetector`):** Verifies file extension against structural heuristics. Mismatches (e.g., JavaScript extensions containing non-JS structures) trigger `SPOOF_DETECTED` warnings.
+
+### 4. Stateful Caching (`_audit_with_cache`)
+When a `DependencyAuditCache` instance is provided, file contents are hashed (`SHA-256`). Verdicts are cached per file hash across scan sessions, allowing instant lookup on hits while restricting fresh scans to configured budgets (`fresh_scan_budget`).
+
+---
+
+## CycloneDX 1.4 Serialization
+
+The final report is emitted as a fully compliant **CycloneDX 1.4 JSON** document. To provide security teams with deep visibility, GitGalaxy enriches the standard component metadata with custom property key-value pairs:
+
+```json
+{
+  "type": "library",
+  "name": "lodash",
+  "version": "4.17.21",
+  "purl": "pkg:npm/lodash@4.17.21",
+  "properties": [
+    { "name": "gitgalaxy:trust_status", "value": "VERIFIED_SAFE" },
+    { "name": "gitgalaxy:anomaly_notes", "value": "None" },
+    { "name": "gitgalaxy:audit_coverage", "value": "12/12 files (12 cached, 0 fresh)" }
+  ]
+}
+```
+
+### Trust Status Classifications
+
+| Status Value | Condition |
+| :--- | :--- |
+| `VERIFIED_SAFE` | All inspected package files passed entropy and language signature checks. |
+| `SPOOF_DETECTED` | One or more files contained high entropy (> 4.8) or language structural anomalies. |
+| `UNVERIFIED_MISSING_ON_DISK` | Package declared in manifest but directory could not be located on disk. |
+| `PARTIALLY_VERIFIED` | Package files were deferred to future runs due to fresh scan budget limits. |
+
+---
+
+## Programmatic Execution & Telemetry
+
+`SbomRecorder` integrates into the pipeline via `generate_report()`:
+
+```python
+recorder = SbomRecorder(version="2.4.0", dependency_cache=cache)
+recorder.generate_report(
+    parsed_files=parsed_files,
+    summary=summary,
+    session_meta=session_meta,
+    output_path="bom.json",
+    manifest_paths=manifest_paths
+)
+```
+
+The emitted JSON payload includes root metadata, tools telemetry, project context, and the verified array of CycloneDX components.
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `sbom_recorder.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive WebGPU visualization dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

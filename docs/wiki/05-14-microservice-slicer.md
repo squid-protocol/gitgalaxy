@@ -1,34 +1,39 @@
-# Microservice Slicer
+# Microservice Business Logic Extractor
 
-> **Architecture: Recursive Taint-Tracking & Logic Extraction**
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py)
 >
-> **Summary:** The Microservice Slicer isolates specific business rules from massive monolithic files. By tracking a target variable through the AST, it extracts only the mathematically relevant lines of code, creating a perfectly isolated logic slice ready for autonomous LLM translation.
+> **Architecture: Recursive Data Flow Taint Tracking & Logic Extraction**
+>
+> **Summary:** The Microservice Logic Extractor isolates specific business rules from monolithic procedural programs. By recursively tracking a target variable through data assignment and computation statements, it extracts only the executable statements relevant to that variable, creating isolated rule slices for microservice refactoring.
 
-## The Alias Engine (Taint Tracking)
-Variables in COBOL constantly change names as they move through different paragraphs. The slicer executes a multi-pass taint-tracking algorithm to map these aliases:
-* It scans for assignment operators (`MOVE`, `ADD`, `SUBTRACT`). If a tainted variable touches a clean variable, the clean variable becomes tainted.
-* It parses complex math formulas (`COMPUTE X = Y * Z`). If the target variable is part of the equation, all interacting variables are added to the alias map.
-* It loops through the execution tree multiple times to ensure deeply chained aliases (e.g., Variable A mutates B, which later mutates C) are fully captured.
+## Recursive Data Flow Taint Tracking
 
-## Shared IR State Synergies
-The Slicer heavily utilizes the global Intermediate Representation (IR) State Manager to enforce strict deterministic boundaries and prevent hallucinated dependencies:
-* **Orphaned Memory Abort:** Before scanning, the slicer checks the target variable against the Graveyard Reaper's state. If the target is known to be dead memory, the slicer aborts immediately, saving heavy compute cycles.
-* **The Ghost Deflector:** While mapping aliases, the slicer actively checks its current paragraph against the IR state. If the paragraph is flagged as mathematically unreachable, the slicer skips it. This prevents dead code from creating false-positive variable taints.
-* **Extraction Shield:** During the final code extraction phase, the slicer physically refuses to extract lines of code that reside inside dead paragraphs, guaranteeing the resulting microservice payload contains 100% active, executable logic.
+Variables in legacy COBOL programs pass state through multiple intermediate variables across different procedural paragraphs. The extractor's `slice_business_logic` function maps these dependencies using multi-pass taint tracking:
+
+* **Assignment Tracking:** Scans procedural statements for assignments (`MOVE`, `ADD`, `SUBTRACT`). If a tainted variable interacts with another variable, the second variable is added to the tainted set.
+* **Mathematical Operations:** Parses `COMPUTE` statements (e.g., `COMPUTE X = Y * Z`). If the target variable appears on either side of the assignment, all participating variables are added to the alias set.
+* **Multi-Pass Iteration:** Executes multiple passes (default: 3 passes) over the procedural lines to capture multi-level variable aliasing (e.g., Variable A mutates B, which subsequently mutates C).
+
+## Control Flow Context & Dead Code Filtering
+
+The extractor integrates with dead code analysis results (`dead_paras` and `orphaned_vars`) to enforce boundary constraints during extraction:
+
+* **Unused Variable Early Abort:** Checks if the target variable is flagged as dead memory (`orphaned_vars`). If so, the operation aborts immediately (`ORPHANED_MEMORY`) without spending processing cycles.
+* **Unreachable Control Flow Masking:** During both taint tracking and code extraction, statements contained within paragraphs identified as unreachable (`dead_paras`) are ignored. This prevents dead code from generating false-positive variable associations.
+* **Extracted Statement Generation:** Isolates and returns executable statements referencing any tainted variable, pairing each statement with its line number and containing paragraph name.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Ecosystem Integration
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and heuristic dependency mapping engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

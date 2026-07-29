@@ -1,94 +1,89 @@
 # API Exposure
 
-> **Metric: The Surface Area of Logic (Public Endpoints vs. Total Entities)**
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 >
-> **Summary:** Visualizes "The Event Horizon" within the knowledge graph. Every module has an Event Horizon: the boundary between its internal mechanics and the outside world. API Exposure measures how permeable this boundary is. This metric allows developers to instantly distinguish heavily exposed interfaces from internal utility code.
+> **Metric:** Public API Surface Area & Export Ratio
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum.
-> * 🟦 **VERY LOW (Score 0-19):** Internal Vault. The logic is encapsulated. It exists to support other code but does not offer a public face.
-> * 🟨 **MODERATE (Score 40-59):** Standard exposure. A healthy mix of public and private methods.
-> * 🟥 **VERY HIGH (Score 80-100):** Public Quasar. The module exists primarily to be consumed by others. It broadcasts a massive volume of functionality to the galaxy.
+> **Summary:** Measures the permeability of a module's public boundary by comparing exported public endpoints to total declared entities (functions + classes). It allows developers to distinguish encapsulated internal helpers from heavily exposed public interfaces.
+>
+> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> * 🟦 **VERY LOW (Score 0-19):** Encapsulated Vault. Internal utility module with no public export surface.
+> * 🟨 **MODERATE (Score 40-59):** Balanced API. Balanced mix of public methods and internal private helpers.
+> * 🟥 **VERY HIGH (Score 80-100):** Public Entry Point. Exposes a large volume of public functions/classes to external consumers.
 
-## The Inputs (Surface Detection)
+## Metric Inputs (Surface Detection)
 
-We compare the count of **Public Signatures** against the **Total Definitions** to calculate the ratio of exposure. We explicitly sum Functions and Classes to get the total "Entity Count."
+The engine compares exported **Public Signatures** against **Total Entities** (functions + classes) to compute exposure:
 
-| Variable | Regex Key | Weight | Structural Definition |
+| Input Variable | Regex Key / Target | Weight | Description |
 | :--- | :--- | :--- | :--- |
-| `ApiHits` | `api` | **Numerator** | **The Broadcast.** Keywords that explicitly expose logic: `export`, `public`, `module.exports`, or capitalization rules (Go/Python). |
-| `TotalDeclarations` | `func_start` + `class_start` | **Denominator** | **The Mass.** The total count of logical units (Functions + Classes). We sum both to ensure we don't undercount files that define many classes/structs but few methods. |
+| `api_hits` | `api` | **Numerator** | Export keywords (`export`, `public`, `module.exports`) or export conventions (Go/Python capitalization). |
+| `Entities` | `func_start` + `class_start` | **Denominator** | Total declared logical entities (Functions + Classes) ensuring accurate ratios across structural paradigms. |
 
 ## Universal Framework Integration
 
-* **$Fc$ (Fidelity Coefficient):** **Not Applied.** Public is public.
-* **$Irc$ (Implicit Risk Correction):** **Not Applied.** The concept of "Public Ratio" is language-agnostic.
-* **$Mp$ (Path Modifier):** **Applied to Score (Amplifier).**
-  * *API/Public ($Mp = 1.2$):* **Amplify.** We want these files to shine brighter. They are the intended entry points.
-  * *Internal/Private ($Mp = 0.8$):* **Dampen.** We want these to remain background noise unless they are egregiously leaking.
+* **$Fc$ (Fidelity Coefficient):** Not applied (public exports are language-agnostic syntactical facts).
+* **$Irc$ (Implicit Risk Correction):** Not applied.
+* **$Mp$ (Path Modifier):** Contextual multiplier applied to score:
+  * *Public API Endpoints (`api/`, `controllers/`, $Mp = 1.2$):* Amplified sensitivity to highlight intended public boundaries.
+  * *Internal Utilities (`internal/`, `helpers/`, $Mp = 0.8$):* Dampened sensitivity to reduce background noise unless exports leak unexpectedly.
 
-## The Equation: Linear Surface Density
+## Mathematical Formulation
 
-We calculate a compound score that balances the direct percentage of public logic (Ratio) with the sheer quantity of exposed endpoints (Volume).
+API exposure combines the public export ratio (40% weight) with logarithmic endpoint volume (60% weight):
 
-**Step A: The Encapsulation Bypass**
-If the file has zero `api` hits, it is perfectly encapsulated. The engine returns $0.0$ immediately.
+### Step 1: Encapsulation Short-Circuit
+If `api_hits == 0`, the file is fully internal/encapsulated and returns a score of `0.0`.
 
-**Step B: Calculate Exposure Ratio (40% Weight)**
-We determine what percentage of the file's defined logic is accessible from the outside. We clamp the ratio to $1.0$ to handle rare edge cases where heuristics might over-count exports.
+### Step 2: Exposure Ratio Calculation (40% Weight)
+The proportion of exported entities relative to total declared entities is computed and clamped to $\le 1.0$:
 
-$$Entities = \max(func\_start + class\_start, 1)$$
-$$Ratio = \min\left( \frac{api\_hits}{Entities}, 1.0 \right)$$
+$$\text{Entities} = \max(\text{func\_start} + \text{class\_start}, 1)$$
+$$\text{Ratio} = \min\left( \frac{\text{api\_hits}}{\text{Entities}}, 1.0 \right)$$
 
-**Step C: Calculate Logarithmic Volume (60% Weight)**
-A file exposing 100 endpoints is structurally more impactful than a file exposing 1 endpoint. We calculate $\log_{10}(api\_hits + 1)$ divided by a dampening divisor ($1.5$) to curve the volume impact, clamping it at $1.0$.
+### Step 3: Logarithmic Volume Calculation (60% Weight)
+To reflect the higher structural surface area of modules with dozens of endpoints, a logarithmic volume weight is computed and clamped to $\le 1.0$:
 
-$$VolumeWeight = \min\left( \frac{\log_{10}(api\_hits + 1)}{1.5}, 1.0 \right)$$
+$$\text{VolumeWeight} = \min\left( \frac{\log_{10}(\text{api\_hits} + 1)}{1.5}, 1.0 \right)$$
 
-**Step D: Compound Score & Context Adjustment**
-We blend the Ratio and Volume using their respective weights ($0.4$ and $0.6$), scale to $100.0$, and apply the Path Modifier ($Mp$) to highlight intended APIs and dampen internal utilities.
+### Step 4: Compound Score & Path Modifier
+Ratio and volume weights are combined (0.4 and 0.6 weights), scaled to 100.0, and multiplied by the Path Modifier ($Mp$):
 
-$$RawScore = \left( (Ratio \times 0.4) + (VolumeWeight \times 0.6) \right) \times 100.0$$
-$$FinalScore = \min(RawScore \times Mp, 100.0)$$
+$$\text{RawScore} = \left( (\text{Ratio} \times 0.4) + (\text{VolumeWeight} \times 0.6) \right) \times 100.0$$
+$$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 
-## Implementation (Python Reference)
+## Python Implementation Reference
 
 ```python
 import math
 from typing import Dict
 
-def _calc_api_exposure(self, eq: Dict[str, int], mp: float) -> float:
-    # Step A: Encapsulation Bypass
-    api_hits = eq.get("api", 0)
+def _calc_api_exposure(self, raw_signals: Dict[str, int], total_loc: int, popularity: int = 0) -> float:
+    # Step 1: Encapsulation Short-Circuit
+    api_hits = raw_signals.get("api", 0)
     if api_hits == 0:
         return 0.0
 
     t = self.risk_tuning.get("api_exposure", {})
-    entities = max(eq.get("func_start", 0) + eq.get("class_start", 0), 1)
+    entities = max(raw_signals.get("func_start", 0) + raw_signals.get("class_start", 0), 1)
 
-    # Step B: Exposure Ratio
+    # Step 2: Exposure Ratio (40% Weight)
     ratio = min(api_hits / float(entities), 1.0)
 
-    # Step C: Logarithmic Volume
+    # Step 3: Logarithmic Volume (60% Weight)
     volume_weight = min(math.log10(api_hits + 1) / t.get("log_divisor", 1.5), 1.0)
 
-    # Step D: Compound Score & Modifier
+    # Step 4: Compound Score Calculation
     raw_score = ((ratio * t.get("ratio_weight", 0.4)) + (volume_weight * t.get("volume_weight", 0.6))) * 100.0
 
+    mp = raw_signals.get("multipliers", {}).get("api_exposure", 1.0)
     return min(raw_score * mp, 100.0)
-
-<br><br>
-
----
-
-### 🌌 Powered by the blAST Engine
-
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+```
 
 ---
+
+### Powered by GitGalaxy Engine
+
+This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
 
 **[⬅️ Back to Master Index](index.md)**

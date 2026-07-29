@@ -1,47 +1,81 @@
-# Full API Network Map (The Boundary Cartographer)
+# Full API Network Map (Shadow & Ghost API Audit)
 
-> **Mapping the Attack Surface**
->
-> While the core GitGalaxy engine maps the internal structural dependencies of the codebase (file-to-file), the Full API Network Map (`full_api_network_map.py`) is a standalone spoke designed to map the **external boundaries** of the repository. 
->
-> It acts as the Boundary Cartographer, comparing the actual physical router code against official OpenAPI/Swagger documentation to hunt down undocumented "Shadow APIs" and exposed entry points.
+> **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/network_auditing/full_api_network_map.py)
 
-## The Router Physics (Framework Traps)
-
-Rather than simply reading configuration files, the tool utilizes specialized Regex Traps to parse the raw logic streams of multiple backend frameworks:
-
-* **Python:** Scans `.py` files for FastAPI and Flask decorators (e.g., `@app.get` or `@router.post`).
-* **Node.js:** Scans `.js` and `.ts` files for Express routes (e.g., `app.get` or `router.delete`).
-* **Java:** Scans `.java` files for Spring Boot annotations (e.g., `@GetMapping` or `@PostMapping`).
-* **Golang:** Scans `.go` files for Gorilla Mux and Gin router configurations.
-
-The parser normalizes every discovered route into a standard `METHOD /path` string (e.g., `GET /api/users`).
-
-## The Math (Set Theory Validation)
-
-To determine the true security posture of the API boundary, the tool performs a Set Theory analysis comparing the "Physical Reality" (the code) against the "Approved Truth" (the documentation):
-
-1. **The Baseline:** It parses the official `swagger.json` or `swagger.yaml` file to build a Set of Approved APIs.
-2. **Shadow APIs (Critical Risk):** The tool subtracts the Approved Set from the Physical Set (`physical_endpoints - approved_apis`). This isolates APIs that are actively compiled and listening in the code but are hidden from the official documentation, creating a massive blind spot for security teams and penetration testers.
-3. **Ghost APIs (Documentation Bloat):** It subtracts the Physical Set from the Approved Set (`approved_apis - physical_endpoints`). This isolates endpoints that are explicitly documented in Swagger but no longer physically exist in the source code, helping engineering teams clean up rotting documentation.
-
-## The Presentation Dashboard
-
-Because this tool is built for security and compliance teams, it prints a clean terminal dashboard. It explicitly lists the total counts for documented vs. physical endpoints, and clearly prints out the exact paths and files where any Shadow or Ghost APIs were discovered.
-
-<br><br>
+The `full_api_network_map.py` module in `gitgalaxy/tools/network_auditing/` provides automated attack surface mapping for backend REST APIs. While internal dependency tools map file-to-file imports, the API Network Mapper evaluates the external network boundary of a repository. It compares executable router code signatures against official OpenAPI/Swagger documentation (`swagger.json`, `swagger.yaml`, `openapi.json`, `openapi.yaml`) to identify undocumented "Shadow APIs" and deprecated "Ghost APIs".
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Router Pattern Matching Across Frameworks
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+Rather than requiring a runtime environment or language-specific AST parsers, the mapper uses regular expression routing signatures (`FRAMEWORK_SIGNATURES`) to scan raw source files across major web frameworks:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Python (FastAPI / Flask / Django):** Scans `.py` files for route decorators (e.g., `@app.get(...)`, `@router.post(...)`, `@bp.delete(...)`).
+* **Node.js (Express / Fastify / Koa):** Scans `.js` and `.ts` files for router registrations (e.g., `app.get(...)`, `router.post(...)`).
+* **Java (Spring Boot):** Scans `.java` files for mapping annotations (e.g., `@GetMapping(...)`, `@PostMapping(...)`).
+* **Golang (Gorilla Mux / Gin / Fiber):** Scans `.go` files for method handlers (e.g., `r.GET(...)`, `router.POST(...)`).
+* **C# (.NET Controllers & Minimal APIs):** Scans `.cs` files for HTTP attributes and map helpers (e.g., `[HttpGet(...)]`, `app.MapPost(...)`).
+* **PHP (Laravel / Symfony):** Scans `.php` files for route declarations (e.g., `Route::get(...)`, `Route::post(...)`).
+* **Rust (Actix / Rocket):** Scans `.rs` files for attribute macros (e.g., `#[get(...)]`, `#[post(...)]`).
+* **Ruby (Rails / Sinatra):** Scans `.rb` files for route directives (e.g., `get "..."`, `post "..."`).
 
+---
 
+## Endpoint Normalization & Path Parameter Matching
+
+To prevent false discrepancies caused by formatting differences or parameter naming, the `normalize_endpoint()` function standardizes all discovered endpoints:
+
+1. **Query String & Whitespace Removal:** Strips query parameters (`?key=val`) and surrounding whitespace.
+2. **Dynamic Parameter Canonicalization:** Converts framework-specific path parameters to a universal `{var}` token:
+   * Express / Fastify (`/users/:userId`) $\rightarrow$ `GET /users/{var}`
+   * Flask (`/users/<int:user_id>`) $\rightarrow$ `GET /users/{var}`
+   * Swagger / Spring (`/users/{userId}`) $\rightarrow$ `GET /users/{var}`
+3. **Slash Uniformity:** Ensures leading root slashes and strips non-root trailing slashes.
+
+Outputs are formatted as normalized `METHOD /path` strings (e.g., `GET /api/users/{var}`).
+
+---
+
+## Set Theory Validation & API Drift Analysis
+
+The mapper performs set comparison between the documented specification set ($A$) and physical code endpoint set ($P$):
+
+1. **Specification Parsing (`parse_official_swagger`):** Parses `swagger.json` or `openapi.yaml` to extract the set of approved endpoints ($A$).
+2. **Shadow API Detection ($P \setminus A$):** Identifies endpoints present in source code but missing from official documentation. Shadow APIs represent unmonitored attack vectors and unreviewed entry points.
+3. **Ghost API Detection ($A \setminus P$):** Identifies endpoints declared in Swagger documentation that no longer exist in executable code, flagging documentation decay.
+4. **Topological Suffix Matching (`calculate_api_drift`):** Resolves router path prefix mismatches (e.g., matching a controller route `/profile` against full spec path `/api/v1/users/profile`).
+
+---
+
+## Specification Auto-Discovery & Test Guardrails
+
+When run without an explicit `--swagger` argument, `auto_discover_swagger()` probes the target directory:
+
+* Inspects filenames (`swagger.json`, `openapi.yaml`, etc.).
+* Inspects the initial 1000 characters of JSON/YAML files to verify OpenAPI/Swagger schema headers without allocating large file buffers in memory.
+* Segregates test directory specifications (`/test/`, `/tests/`) to avoid test-schema pollution.
+* Supports monorepos with multiple microservices via the `--merge-all` flag.
+
+---
+
+## CLI & Programmatic Integration
+
+The mapper can be invoked via CLI or programmatically within the main pipeline via `run_api_audit()`:
+
+```bash
+python3 -m gitgalaxy.tools.network_auditing.full_api_network_map /path/to/repo --swagger swagger.json
+```
+
+Programmatic callers receive a structured result dictionary containing audit status, detected frameworks, shadow counts, ghost counts, and endpoint lists.
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source code for `full_api_network_map.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - WebGPU repository visualization dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

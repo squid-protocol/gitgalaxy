@@ -5418,8 +5418,14 @@ LANGUAGE_DEFINITIONS = {
             # 6. safety (Defensive Programming)
             # Fortification markers establishing strict boundaries: explicit typing (`IMPLICIT NONE`),
             # explicit intent (`INTENT(IN)`), bounds safety (`ALLOCATABLE`), and fatal assertions (`ERROR STOP`).
+            # BUG FIX: the shared trailing `\b` broke the INTENT(...) alternative,
+            # which ends in a literal `)` (non-word) -- `\b` right after can only
+            # fire if the very next char is a word character, never true for the
+            # realistic form ("INTENT(IN) :: x", followed by whitespace). INTENT(...)
+            # never actually matched in practice. Split it out of the shared group.
             "safety": re.compile(
-                r"\b(IMPLICIT\s+NONE|INTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|ALLOCATABLE|SAVE|PARAMETER|VALUE|ERROR\s+STOP|ASYNCHRONOUS|ASSOCIATED|ALLOCATED|PRESENT)\b",
+                r"\bIMPLICIT\s+NONE\b|\bINTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|"
+                r"\b(?:ALLOCATABLE|SAVE|PARAMETER|VALUE|ERROR\s+STOP|ASYNCHRONOUS|ASSOCIATED|ALLOCATED|PRESENT)\b",
                 re.I,
             ),
             # 7. safety_neg (Safety Bypasses)
@@ -5436,8 +5442,17 @@ LANGUAGE_DEFINITIONS = {
             # 9. io (I/O & Network Boundaries)
             # File operations, hardware inquiries, and disk boundaries.
             # Negatively asserts `*` or `6` to ensure raw standard-out terminal prints do not trigger IO.
+            # BUG FIX: the shared trailing `\b` broke the WRITE alternative, which
+            # ends in a literal comma (non-word) -- `\b` right after can only fire
+            # if the very next char is a word character, never true for the
+            # overwhelmingly common realistic forms ("WRITE(10,*)", "WRITE(10,
+            # '(I5)')", "WRITE(10, x)" -- all followed by `*`, `'`, or whitespace).
+            # This made the file-unit-WRITE detection almost never fire in
+            # practice. Split WRITE out of the shared-boundary group; it's already
+            # unambiguously delimited by its own literal `(` and trailing `,`.
             "io": re.compile(
-                r"\b(OPEN|CLOSE|READ|WRITE\s*\(\s*(?!\*|6\b)[^,]+,|INQUIRE|REWIND|BACKSPACE|ENDFILE|FLUSH|FORMAT)\b",
+                r"\b(?:OPEN|CLOSE|READ|INQUIRE|REWIND|BACKSPACE|ENDFILE|FLUSH|FORMAT)\b|"
+                r"\bWRITE\s*\(\s*(?!\*|6\b)[^,]+,",
                 re.I,
             ),
             # 10. api (Public Surface Area)
@@ -5505,12 +5520,25 @@ LANGUAGE_DEFINITIONS = {
             "globals": re.compile(r"\b(COMMON|SAVE|EXTERNAL)\b", re.I),
             # 19. decorators (Decorators / Annotations)
             # Fortran does not have Python-style decorators, but compiler directives heavily modify block execution behaviors.
-            "decorators": re.compile(r"^[ \t]*(?:!DIR\$|cDEC\$|!\$OMP|!\$ACC)\b", re.I | re.M),
+            # BUG FIX: the shared trailing `\b` after the `$`-ending alternatives
+            # (!DIR$/cDEC$) is a no-op in the realistic form -- real directives are
+            # always written with a space after the `$` ("!DIR$ SIMD"), and `\b`
+            # can never fire between two non-word characters. Only the OMP/ACC
+            # alternatives (which end in a word character) legitimately need it.
+            "decorators": re.compile(r"^[ \t]*(?:!DIR\$|cDEC\$|!\$OMP\b|!\$ACC\b)", re.I | re.M),
             # 20. generics (Generics / Type Parameters)
             # Fortran Generic Interfaces overriding operators/assignments, and Parameterized Derived Types (PDTs).
             # CRITICAL GUARDRAIL: Safely bounds `<[^>]*>` and parentheses `\([^)]*\)` to avoid ReDoS.
+            # BUG FIX: the shared trailing `\b` applied to every alternative broke
+            # 3 of 5 -- GENERIC::, TYPE name(...), and EXTENDS(...) all end in a
+            # non-word character (`:` or `)`), so a `\b` immediately after can only
+            # fire if the very next character is a word character, never true for
+            # realistic code ("GENERIC :: foo", "TYPE point(k, n)", "EXTENDS(base)"
+            # followed by whitespace/newline/EOF). Moved the boundary onto only the
+            # two alternatives that actually end in a word character.
             "generics": re.compile(
-                r"\b(INTERFACE\s+ASSIGNMENT|INTERFACE\s+OPERATOR|GENERIC\s*::|TYPE\s+[A-Za-z_]\w*\s*\([^)]*\)|EXTENDS\s*\([^)]*\))\b",
+                r"\b(?:INTERFACE\s+ASSIGNMENT\b|INTERFACE\s+OPERATOR\b|GENERIC\s*::|"
+                r"TYPE\s+[A-Za-z_]\w*\s*\([^)]*\)|EXTENDS\s*\([^)]*\))",
                 re.I,
             ),
             # 21. comprehensions (Iterators / Comprehensions)
@@ -5608,7 +5636,11 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 45. immutability_locks (Immutability Constraints)
             # Explicit locking of data to prevent mutation .
-            "immutability_locks": re.compile(r"(?i)\b(?:parameter|intent[ \t]*\([ \t]*in[ \t]*\))\b"),
+            # BUG FIX: the shared trailing `\b` broke the intent(...) alternative,
+            # which ends in a literal `)` (non-word) -- same defect class as the
+            # `safety` rule's INTENT(...) alternative above. Dropped the trailing
+            # boundary for it; `)` is already unambiguous.
+            "immutability_locks": re.compile(r"(?i)\bparameter\b|\bintent[ \t]*\([ \t]*in[ \t]*\)"),
             # 46. cleanup (Resource Cleanup / Teardown)
             # Explicit destruction of state or closing of streams .
             "cleanup": re.compile(r"(?i)\b(?:close|deallocate|nullify)\b"),
@@ -5627,7 +5659,15 @@ LANGUAGE_DEFINITIONS = {
                 r"(?i)\b(SCAN|INDEX|VERIFY|ADJUSTL|ADJUSTR)\b"
             ),  # Relies on intrinsic string processing
             "time_date_logic": re.compile(r"(?i)\b(DATE_AND_TIME|SYSTEM_CLOCK|CPU_TIME)\b"),
-            "ipc_rpc_bridges": re.compile(r"(?i)\b(MPI_Init|MPI_Send|MPI_Recv|MPI_Bcast|EXECUTE_COMMAND_LINE|OMP_)\b"),
+            # BUG FIX: the shared trailing `\b` made the `OMP_` prefix alternative
+            # unreachable -- `OMP_` ends in `_` (a word char), and real OpenMP
+            # runtime calls always continue with more word characters right after
+            # (`OMP_GET_THREAD_NUM`), so the boundary could never fire (both sides
+            # word chars). `OMP_` was clearly meant as a prefix match, not an
+            # exact-token match -- dropped the trailing boundary for it.
+            "ipc_rpc_bridges": re.compile(
+                r"(?i)\b(?:MPI_Init|MPI_Send|MPI_Recv|MPI_Bcast|EXECUTE_COMMAND_LINE)\b|\bOMP_"
+            ),
         },
     },
     "assembly": {

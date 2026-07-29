@@ -6768,7 +6768,16 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc (Structured Documentation)
             "doc": re.compile(r'"""|\'\'\'|:param|:return|:raises|:type|#\s*Pin[ \t]*=|#\s*GPIO'),
             # 14. test (Testing & Assertions)
-            "test": re.compile(r"\b(unittest|pytest|assert|test_|setUp|tearDown|Mock)\b"),
+            # BUG FIX: `test_` was wrapped inside the shared `\b(...)\b` group.
+            # `_` is a word character, so the trailing `\b` after `test_` demands
+            # a NON-word character immediately follow -- never true for the
+            # standard pytest convention (`test_login`, `test_parse_url`), where
+            # more word characters always continue the name. Only a bare,
+            # standalone trailing "test_" (unrealistic) ever matched. Anchored
+            # as `def[ \t]+test_` instead (matches python's own fix for the
+            # identical trap), dropping the trailing `\b` so it fires on the
+            # realistic `def test_<name>` shape.
+            "test": re.compile(r"\b(unittest|pytest|assert|setUp|tearDown|Mock)\b|def[ \t]+test_"),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
             "concurrency": re.compile(
@@ -6790,8 +6799,18 @@ LANGUAGE_DEFINITIONS = {
                 re.M,
             ),
             # 20. generics (Generics / Type Parameters)
+            # QUADRATIC BLOWUP FIX: `[^\]]*` was unbounded. On a run of
+            # repeated unclosed openers (e.g. "List[List[List[..."), each
+            # "List[" occurrence is a fresh search start; at every one the
+            # engine greedily consumes to end-of-string then backtracks
+            # character-by-character looking for a "]" that never appears,
+            # O(n) work per start position across O(n) start positions, for
+            # O(n^2) total. Confirmed empirically (~4x runtime per size
+            # doubling at n=2000/4000/8000/16000 on a "List[" * n payload).
+            # Bounded to {0,300}; real generic parameter lists don't get
+            # remotely that long. Post-fix scaling is linear (~2x/doubling).
             "generics": re.compile(
-                r"\b(?:List|Dict|Set|Tuple|Optional|Union|Any|Callable|Sequence|Iterable)\[[^\]]*\]|->"
+                r"\b(?:List|Dict|Set|Tuple|Optional|Union|Any|Callable|Sequence|Iterable)\[[^\]]{0,300}\]|->"
             ),
             # 21. comprehensions (Iterators / Comprehensions)
             # QUADRATIC BLOWUP FIX: the 3 negated-class quantifiers were
@@ -6824,7 +6843,19 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # QUADRATIC BLOWUP FIX: the SPEC alternative's `\d+` was
+            # unbounded and directly precedes `[^\]]*`, an ALSO-unbounded
+            # class whose character set overlaps it (digits satisfy both).
+            # On a long run of digits with no closing "]" (e.g.
+            # "[SPEC-" + "1" * n), `\d+` greedily consumes them all, then
+            # backtracks one digit at a time while `[^\]]*` re-consumes the
+            # released digit and re-fails to find "]" -- classic adjacent
+            # overlapping-quantifier O(n^2). Confirmed empirically (~4x
+            # runtime per size doubling at n=2000/4000/8000/16000). Bounded
+            # `\d+` to `\d{1,10}` (no realistic ticket ID needs more digits)
+            # and `[^\]]*` to `{0,300}`; post-fix scaling is immeasurably
+            # fast even at n=32000.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)

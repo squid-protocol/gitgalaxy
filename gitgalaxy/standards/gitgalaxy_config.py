@@ -519,7 +519,7 @@ LEXICAL_FAMILY_HEURISTICS = {
         # 4. Block Exclusive
         # The language possesses no native single-line comment syntax. All text must be enclosed.
         # Examples: HTML, XML.
-        "block_exclusive": {"delimiters": ["", "--!>"]},
+        "block_exclusive": {"delimiters": ["<!--", "-->"]},
         # 5. Positional Anchored
         # The engine must verify the token's physical column placement.
         # Examples: Legacy COBOL, Legacy Fortran.

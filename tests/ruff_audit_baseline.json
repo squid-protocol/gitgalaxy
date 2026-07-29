@@ -19,7 +19,7 @@
   "gitgalaxy/core/guidestar_lens.py:139: C401": "Unnecessary generator (rewrite as a set comprehension)",
   "gitgalaxy/core/network_risk_sensor.py:183: C419": "Unnecessary list comprehension",
   "gitgalaxy/core/network_risk_sensor.py:282: PERF401": "Use a list comprehension to create a transformed list",
-  "gitgalaxy/core/prism.py:510: PERF401": "Use `list.extend` to create a transformed list",
+  "gitgalaxy/core/prism.py:512: PERF401": "Use `list.extend` to create a transformed list",
   "gitgalaxy/core/state_rehydrator.py:54: W291": "Trailing whitespace",
   "gitgalaxy/core/state_rehydrator.py:55: W291": "Trailing whitespace",
   "gitgalaxy/core/state_rehydrator.py:73: W291": "Trailing whitespace",

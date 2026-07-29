@@ -579,45 +579,39 @@ def test_prism_block_exclusive_and_non_lexical_real_config():
     assert "a secret comment" in result["comment_stream"]
 
 
-def test_prism_block_exclusive_and_non_lexical_have_no_compiled_pattern():
+def test_prism_non_lexical_has_no_compiled_pattern():
     """
-    Part of #622: documents a latent gap, not a live bug. block_exclusive
-    and non_lexical are NOT in _compile_regex_matrix()'s branch list at all
-    (unlike standard_block/line_exclusive/multi_style_dash/embedded_syntax),
-    so REGEX_MATRIX has no entry for either family. This is harmless TODAY
-    only because xml and plaintext -- the sole real member of each family --
-    are also hardcoded into split_streams()'s "prose bypass" list, which
-    intercepts them before family dispatch is ever consulted.
+    Part of #622/#733: non_lexical is NOT in _compile_regex_matrix()'s branch list
+    at all (unlike standard_block/line_exclusive/multi_style_dash/embedded_syntax/block_exclusive),
+    so REGEX_MATRIX has no entry for it. This is harmless TODAY
+    only because plaintext -- the sole real member of this family --
+    is also hardcoded into split_streams()'s "prose bypass" list, which
+    intercepts it before family dispatch is ever consulted.
 
-    If a FUTURE language is assigned block_exclusive or non_lexical without
+    If a FUTURE language is assigned non_lexical without
     also being added to that bypass list, it would silently fall through to
-    "no pattern registered" and get zero comment stripping -- the same
-    silent-failure shape as #386 and #621. This test exercises that exact
-    fallthrough directly (bypassing the prose-bypass shortcut) so it's
-    documented and will fail loudly if someone "fixes" it by accident in a
-    way that changes the fallthrough's behavior without updating this test.
+    "no pattern registered" and get zero comment stripping.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
-    assert "block_exclusive" not in real_prism.REGEX_MATRIX
     assert "non_lexical" not in real_prism.REGEX_MATRIX
 
-    # Call the family stripper directly for a hypothetical language in each
-    # family that ISN'T in the prose-bypass list, proving today's actual
-    # fallthrough behavior: the text passes through completely unstripped.
-    code, comments = real_prism._strip_segment_comments(
-        "some content <!-- not actually stripped --> more content", "hypothetical_lang", "block_exclusive"
-    )
-    assert code == "some content <!-- not actually stripped --> more content"
-    assert comments == ""
+    # The fallback handles it by leaving everything in code_stream
+    code, comment = real_prism._strip_segment_comments("some text", "fake_lang", "non_lexical")
+    assert code == "some text"
+    assert comment == ""
 
+    # Prove block_exclusive IS registered now
+    assert "block_exclusive" in real_prism.REGEX_MATRIX
+
+    # Prove that block_exclusive DOES strip comments now
     code, comments = real_prism._strip_segment_comments(
-        "some plain content, never stripped", "hypothetical_lang", "non_lexical"
+        "some content <!-- actually stripped --> more content", "hypothetical_lang", "block_exclusive"
     )
-    assert code == "some plain content, never stripped"
-    assert comments == ""
+    assert code == "some content  more content"
+    assert "actually stripped" in comments
 
 
 # ==============================================================================

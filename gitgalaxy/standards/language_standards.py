@@ -4762,7 +4762,7 @@ LANGUAGE_DEFINITIONS = {
         "shebangs": [],
         # UPGRADED: Maps to Family 8 (Singular/Unique)
         # Rationale: Uses SGML-style block delimiters () exclusively; no single-line anchor.
-        "lexical_family": "line_exclusive",
+        "lexical_family": "block_exclusive",
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)

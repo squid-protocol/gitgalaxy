@@ -62,6 +62,11 @@ def ensure_venv(mode_key: str) -> Path:
         print(f"[{mode_key}] Creating venv at {mode_dir} (first run only) ...")
         venv_module.create(mode_dir, with_pip=True)
         subprocess.run([str(py), "-m", "pip", "install", "-q", "--upgrade", "pip"], check=True)
+        # Full (non --no-deps) install once, so pyproject.toml's core dependencies (e.g.
+        # PyYAML, a hard requirement, not a "full-precision" extra) are actually present --
+        # "zero-dependency" only means the optional networkx/tiktoken/pandas/xgboost stack
+        # is absent, not that core deps are stripped too.
+        subprocess.run([str(py), "-m", "pip", "install", "-q", "-e", str(REPO_ROOT)], check=True)
         if extra_deps:
             subprocess.run([str(py), "-m", "pip", "install", "-q", *extra_deps], check=True)
         subprocess.run([str(py), "-m", "pip", "install", "-q", "pytest"], check=True)

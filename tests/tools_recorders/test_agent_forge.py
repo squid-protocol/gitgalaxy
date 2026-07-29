@@ -63,9 +63,6 @@ def test_llm_hallucination_prevention():
     # We must prove this strip logic works so the LLM doesn't get confused by internal bracket tags
     assert len(context["architectural_warnings"]) == 2
     assert (
-        context["architectural_warnings"][0]
-        == "Do not use Java floats for currency, use BigDecimal."
+        context["architectural_warnings"][0] == "Do not use Java floats for currency, use BigDecimal."
     )  # The [CRITICAL] tag should be stripped!
-    assert (
-        context["architectural_warnings"][1] == "This module assumes EBCDIC encoding."
-    )
+    assert context["architectural_warnings"][1] == "This module assumes EBCDIC encoding."

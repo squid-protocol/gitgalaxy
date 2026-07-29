@@ -60,30 +60,33 @@ $$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 import math
 from typing import Dict
 
+
 def _calc_tech_debt(self, loc: int, eq: Dict[str, int], irc: int, mp: float) -> float:
     t = self.risk_tuning.get("tech_debt", {})
     good_debt = eq.get("planned_debt", 0)
     bad_debt = eq.get("fragile_debt", 0)
-    
+
     # Shortcut for clean files
     if good_debt == 0 and bad_debt == 0:
         return 0.0
-    
+
     # Step A: Stress Sum
-    stress = (good_debt * t.get("good_debt_weight", 1.0)) + \
-             (bad_debt * t.get("bad_debt_weight", 3.0)) + \
-             (irc * t.get("irc_weight", 0.5))
-             
+    stress = (
+        (good_debt * t.get("good_debt_weight", 1.0))
+        + (bad_debt * t.get("bad_debt_weight", 3.0))
+        + (irc * t.get("irc_weight", 0.5))
+    )
+
     # Step B: Density Calculation (per 100 LOC)
     density = (stress / max(loc, 1)) * 100.0
     threshold = t.get("threshold", 5.0)
-    
+
     # Step C: Sigmoid Curve Mapping
     try:
         raw_score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.5) * (density - threshold)))
     except OverflowError:
         raw_score = 100.0 if density > threshold else 0.0
-        
+
     # Step D: Apply Context Path Modifier
     return min(raw_score * mp, 100.0)
 ```

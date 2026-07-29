@@ -11,10 +11,7 @@ def recorder():
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "cognitive_load", "state_flux"],
         "SIGNAL_SCHEMA": ["high_risk_execution", "io", "prompt_injection"],
-        "EXPOSURE_LABELS": {
-            "tech_debt": "Tech Debt Exposure",
-            "cognitive_load": "Cognitive Load Exposure"
-        }
+        "EXPOSURE_LABELS": {"tech_debt": "Tech Debt Exposure", "cognitive_load": "Cognitive Load Exposure"},
     }
     with patch("gitgalaxy.recorders.llm_recorder.config.RECORDING_SCHEMAS", mock_schemas):
         yield LLMRecorder()
@@ -42,10 +39,7 @@ def mock_pipeline_state():
                 "ownership": "BackendTeam",
                 "popularity": 5,
                 "archetype": "API Controller",
-                "domain_context": {
-                    "purpose": "Routes external traffic",
-                    "AI Threat Score": "95.5%"
-                }
+                "domain_context": {"purpose": "Routes external traffic", "AI Threat Score": "95.5%"},
             },
             "is_ml_threat": True,
             "risk_vector": [80.0, 60.0, 10.0],  # debt, cog_load, flux
@@ -60,9 +54,9 @@ def mock_pipeline_state():
                     "is_recursive": False,
                     "db_complexity": 3,
                     "docstring": "Handles incoming API requests.",
-                    "calls_out_to": ["validate_token"]
+                    "calls_out_to": ["validate_token"],
                 }
-            ]
+            ],
         },
         {
             "path": "src/db/models.py",
@@ -74,22 +68,16 @@ def mock_pipeline_state():
             "coding_loc": 40,
             "file_impact": 10.0,
             "raw_imports": [],
-            "telemetry": {
-                "popularity": 1
-            },
+            "telemetry": {"popularity": 1},
             "is_ml_threat": False,
             "risk_vector": [10.0, 10.0, 5.0],
             "hit_vector": [0, 0, 0],
-            "functions": []
-        }
+            "functions": [],
+        },
     ]
 
     unparsable_files = [
-        {
-            "path": "assets/logo.png",
-            "reason": "Security Shielding (Format Excluded)",
-            "size_bytes": 1024
-        }
+        {"path": "assets/logo.png", "reason": "Security Shielding (Format Excluded)", "size_bytes": 1024}
     ]
 
     summary = {
@@ -99,30 +87,25 @@ def mock_pipeline_state():
             "total_loc": 250,
             "volatility_index": 1.5,
             "Percent_Visible": 66.6,
-            "dominant_language": "python"
+            "dominant_language": "python",
         },
-        "composition": {
-            "python": {"files": 2, "loc": 250}
-        },
-        "repo_macro_species": {
-            "name": "Web Service",
-            "z_score": 1.2
-        },
+        "composition": {"python": {"files": 2, "loc": 250}},
+        "repo_macro_species": {"name": "Web Service", "z_score": 1.2},
         "directory_groups": {
             "src/api": {"total_mass": 45.5, "file_count": 1, "avg_exposures": {"cognitive_load": 60.0}},
-            "src/db": {"total_mass": 10.0, "file_count": 1, "avg_exposures": {"cognitive_load": 10.0}}
+            "src/db": {"total_mass": 10.0, "file_count": 1, "avg_exposures": {"cognitive_load": 10.0}},
         },
         "ecosystem_fingerprint": {
             "ml_clusters": {"Controller": {"count": 1, "pct": 50.0}},
-            "static_mass": {"Data Model": {"count": 1, "pct": 50.0}}
+            "static_mass": {"Data Model": {"count": 1, "pct": 50.0}},
         },
         "network_macro": {
             "modularity": 0.8,
             "assortativity": 0.5,
             "cyclic_density": 0.0,
             "avg_path_length": 1.0,
-            "articulation_points": 1
-        }
+            "articulation_points": 1,
+        },
     }
 
     session_meta = {
@@ -132,11 +115,7 @@ def mock_pipeline_state():
         "timestamp": "2026-06-18T12:00:00Z",
         "duration_seconds": 2.5,
         "zero_dependency_mode": True,
-        "git_audit": {
-            "branch": "main",
-            "commit_hash": "a1b2c3d4",
-            "remote_url": "git@github.com:test/repo.git"
-        }
+        "git_audit": {"branch": "main", "commit_hash": "a1b2c3d4", "remote_url": "git@github.com:test/repo.git"},
     }
 
     return parsed_files, unparsable_files, summary, session_meta
@@ -162,11 +141,9 @@ def test_parse_threat_score(recorder):
 def test_build_markdown_generates_context(recorder, mock_pipeline_state):
     """Proves the Markdown builder successfully weaves data into LLM context chunks."""
     parsed, unparsable, summary, session = mock_pipeline_state
-    
+
     # Updated to match the new 6-parameter signature
-    md_text = recorder._build_markdown(
-        parsed, unparsable, summary, session, {}
-    )
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
 
     # 1. Verify Zero-Dependency Warning Injection
     assert "ZERO-DEPENDENCY MODE ACTIVE" in md_text
@@ -271,11 +248,7 @@ def test_llm_recorder_empty_state(recorder, tmp_path):
 
     # Passing empty lists/dicts
     recorder.generate_artifacts(
-        parsed_files=[],
-        unparsable_files=[],
-        summary={},
-        session_meta=session,
-        output_dir=str(tmp_path)
+        parsed_files=[], unparsable_files=[], summary={}, session_meta=session, output_dir=str(tmp_path)
     )
 
     assert output_md.exists()
@@ -294,14 +267,14 @@ def test_llm_recorder_empty_state(recorder, tmp_path):
 def test_generate_artifacts_integration(recorder, mock_pipeline_state, tmp_path):
     """Proves the main entry point orchestrates both artifact generation sequences."""
     parsed, unparsable, summary, session = mock_pipeline_state
-    
+
     recorder.generate_artifacts(
         parsed_files=parsed,
         unparsable_files=unparsable,
         summary=summary,
         session_meta=session,
         output_dir=str(tmp_path),
-        forensic_report={"systemic_bottlenecks": {}}
+        forensic_report={"systemic_bottlenecks": {}},
     )
 
     assert (tmp_path / "TestProject_galaxy_llm.md").exists()

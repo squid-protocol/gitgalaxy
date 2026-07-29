@@ -22,9 +22,7 @@ def test_dialect_router_jcl_generation():
 
     # 2. COBOL-85 Path (Modern)
     jcl_85 = forge_module.generate_build_jcl(mock_source, "PGM2", set(), "COBOL-85")
-    assert "EXEC IGYWCL" in jcl_85, (
-        "Failed to route COBOL-85 to the modern enterprise compiler!"
-    )
+    assert "EXEC IGYWCL" in jcl_85, "Failed to route COBOL-85 to the modern enterprise compiler!"
     assert "EXEC COBUCL" not in jcl_85
 
 
@@ -51,9 +49,7 @@ def test_flatten_copybooks_cyclic_failsafe(tmp_path):
 
     # If the test finishes without crashing with a RecursionError, the failsafe worked.
     # We verify it successfully nested multiple times before pulling the emergency brake.
-    assert inlined_code.count("INLINED COPYBOOK: CYCLE-A") >= 1, (
-        "Failed to recurse at all!"
-    )
+    assert inlined_code.count("INLINED COPYBOOK: CYCLE-A") >= 1, "Failed to recurse at all!"
     assert "PROGRAM-ID. BOOM." in inlined_code, "Root AST was destroyed by the cycle!"
 
 
@@ -99,17 +95,11 @@ def test_compiler_forge_e2e(tmp_path):
 
     # A) Verify Infrastructure Provisioning
     assert "EXEC PGM=IEFBR14" in jcl_content
-    assert "//INPUT01 DD DSN=HERC01.DATA.INPUT01" in jcl_content, (
-        "Failed to map SELECT ASSIGN to DSN!"
-    )
+    assert "//INPUT01 DD DSN=HERC01.DATA.INPUT01" in jcl_content, "Failed to map SELECT ASSIGN to DSN!"
 
     # B) Verify Dialect Routing
-    assert "EXEC IGYWCL" in jcl_content, (
-        "Failed to dynamically route to modern compiler!"
-    )
+    assert "EXEC IGYWCL" in jcl_content, "Failed to dynamically route to modern compiler!"
 
     # C) Verify Copybook Inlining
     assert "INLINED COPYBOOK: MYDATA" in jcl_content
-    assert "01 MY-VAR PIC X." in jcl_content, (
-        "Failed to inline the actual copybook data!"
-    )
+    assert "01 MY-VAR PIC X." in jcl_content, "Failed to inline the actual copybook data!"

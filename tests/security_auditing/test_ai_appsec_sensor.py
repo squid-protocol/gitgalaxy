@@ -27,9 +27,7 @@ def test_autonomous_execution_vector_detection():
     appsec_report = result[0]["telemetry"]["ai_appsec"]
 
     assert appsec_report["is_rce_funnel"] is True, "Failed to detect the Autonomous Execution Vector!"
-    assert any(
-        "Autonomous Execution Vector" in warning for warning in appsec_report["critical_warnings"]
-    )
+    assert any("Autonomous Execution Vector" in warning for warning in appsec_report["critical_warnings"])
 
 
 # ==============================================================================
@@ -61,12 +59,8 @@ def test_over_permissioned_agent_detection():
     result = sensor.hunt_threats(mock_files)
     appsec_report = result[0]["telemetry"]["ai_appsec"]
 
-    assert appsec_report["over_permissioned_agent"] is True, (
-        "Failed to detect the Over-Permissioned Agent!"
-    )
-    assert any(
-        "Over-Permissioned Agent" in warning for warning in appsec_report["critical_warnings"]
-    )
+    assert appsec_report["over_permissioned_agent"] is True, "Failed to detect the Over-Permissioned Agent!"
+    assert any("Over-Permissioned Agent" in warning for warning in appsec_report["critical_warnings"])
 
 
 # ==============================================================================
@@ -125,13 +119,8 @@ def test_exfiltration_vector_detection():
     result = sensor.hunt_threats(mock_files)
     appsec_report = result[0]["telemetry"]["ai_appsec"]
 
-    assert appsec_report["agentic_exfiltration_risk"] is True, (
-        "Failed to detect the Agentic Exfiltration Vector!"
-    )
-    assert any(
-        "Agentic Exfiltration Vector" in warning
-        for warning in appsec_report["critical_warnings"]
-    )
+    assert appsec_report["agentic_exfiltration_risk"] is True, "Failed to detect the Agentic Exfiltration Vector!"
+    assert any("Agentic Exfiltration Vector" in warning for warning in appsec_report["critical_warnings"])
 
 
 # ==============================================================================
@@ -166,6 +155,4 @@ def test_safe_baseline():
     assert appsec_report["is_rce_funnel"] is False
     assert appsec_report["over_permissioned_agent"] is False
     assert appsec_report["agentic_exfiltration_risk"] is False
-    assert len(appsec_report["critical_warnings"]) == 0, (
-        "False positive triggered on a safe file!"
-    )
+    assert len(appsec_report["critical_warnings"]) == 0, "False positive triggered on a safe file!"

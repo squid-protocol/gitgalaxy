@@ -33,21 +33,15 @@ def test_ghost_deflector_lineage(tmp_path):
     # 1. Test without dead code context (Base baseline)
     raw_lineage = dag_module.extract_lineage(mock_cobol)
     assert "INPUT01" in raw_lineage["inputs"]
-    assert (
-        "OUTPUT01" in raw_lineage["outputs"]
-    )  # Without Ghost Deflector, it hallucinates this output
+    assert "OUTPUT01" in raw_lineage["outputs"]  # Without Ghost Deflector, it hallucinates this output
 
     # 2. Test WITH the Ghost Deflector activated
     safe_lineage = dag_module.extract_lineage(mock_cobol, dead_paras={"DEAD-PARA"})
     assert "INPUT01" in safe_lineage["inputs"]
-    assert "OUTPUT01" not in safe_lineage["outputs"], (
-        "Ghost Deflector failed! It hallucinated dead code dependencies."
-    )
+    assert "OUTPUT01" not in safe_lineage["outputs"], "Ghost Deflector failed! It hallucinated dead code dependencies."
 
     # 3. Test the Honesty Sensor
-    assert "WS-DYN-PGM" in safe_lineage["unresolved_calls"], (
-        "Failed to catch the dynamic jump!"
-    )
+    assert "WS-DYN-PGM" in safe_lineage["unresolved_calls"], "Failed to catch the dynamic jump!"
     assert "STATIC-PGM" not in safe_lineage["unresolved_calls"]
 
 

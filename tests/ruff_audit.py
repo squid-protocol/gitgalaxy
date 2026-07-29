@@ -62,6 +62,7 @@ that didn't touch lint-relevant code trips `--ci`, regenerate the
 baseline (`python tests/ruff_audit.py` and copy its output into
 ruff_audit_baseline.json) rather than treating it as a real regression.
 """
+
 import argparse
 import json
 import subprocess
@@ -128,7 +129,7 @@ def run_full_report() -> int:
     print(
         "\nTo accept this as the new baseline (e.g. after a cleanup PR), regenerate it with:\n"
         '  python -c "from tests.ruff_audit import run_ruff_check; import json; '
-        'json.dump(run_ruff_check(), open(\'tests/ruff_audit_baseline.json\', \'w\'), indent=2, sort_keys=True)"'
+        "json.dump(run_ruff_check(), open('tests/ruff_audit_baseline.json', 'w'), indent=2, sort_keys=True)\""
     )
     return 1
 

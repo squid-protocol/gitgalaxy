@@ -12,16 +12,17 @@ def parser():
     logger = logging.getLogger("test_manifest_parser")
     logger.addHandler(logging.NullHandler())
     p = ManifestParser(parent_logger=logger)
-    
+
     # Intercept and flatten the nested alias map so legacy unit tests don't need to be rewritten
     original_build = p.build_resolution_map
+
     def flat_build_wrapper(manifest_paths):
         nested_map = original_build(manifest_paths)
         flat_map = {}
         for local_map in nested_map.values():
             flat_map.update(local_map)
         return flat_map
-        
+
     p.build_resolution_map = flat_build_wrapper
     return p
 
@@ -117,12 +118,8 @@ def test_package_lock_registry_spoofing(parser, tmp_path):
         json.dumps(
             {
                 "packages": {
-                    "node_modules/clean-pkg": {
-                        "resolved": "https://registry.npmjs.org/clean-pkg.tgz"
-                    },
-                    "node_modules/dirty-pkg": {
-                        "resolved": "https://evil-registry.com/dirty-pkg.tgz"
-                    },
+                    "node_modules/clean-pkg": {"resolved": "https://registry.npmjs.org/clean-pkg.tgz"},
+                    "node_modules/dirty-pkg": {"resolved": "https://evil-registry.com/dirty-pkg.tgz"},
                 }
             }
         )
@@ -143,7 +140,7 @@ def test_package_lock_registry_spoofing(parser, tmp_path):
 # ==============================================================================
 def test_requirements_txt_direct_uri_references(parser, tmp_path):
     """
-    Verifies standard python packages are indexed and Direct URI references 
+    Verifies standard python packages are indexed and Direct URI references
     (which bypass PyPI registry verification) are captured exactly as written.
     """
     req_file = tmp_path / "requirements.txt"
@@ -168,15 +165,11 @@ def test_requirements_txt_direct_uri_references(parser, tmp_path):
 
 def test_requirements_txt_complex_constraints(parser, tmp_path):
     """
-    Proves the Regex engine correctly extracts the base package name even when 
+    Proves the Regex engine correctly extracts the base package name even when
     mixed with complex version constraints or environment markers.
     """
     req_file = tmp_path / "requirements.txt"
-    req_file.write_text(
-        "Django>=3.0,<4.0\n"
-        "pytest~=7.0\n"
-        "urllib3==1.26.15; python_version >= '3.6'\n"
-    )
+    req_file.write_text("Django>=3.0,<4.0\npytest~=7.0\nurllib3==1.26.15; python_version >= '3.6'\n")
 
     resolution_map = parser.build_resolution_map([str(req_file)])
 
@@ -190,7 +183,7 @@ def test_requirements_txt_complex_constraints(parser, tmp_path):
 # ==============================================================================
 def test_pip_conf_insecure_registry(parser, tmp_path):
     """
-    Verifies that HTTP (MitM vulnerable) or ngrok tunnel registries are instantly flagged 
+    Verifies that HTTP (MitM vulnerable) or ngrok tunnel registries are instantly flagged
     to prevent Dependency Confusion vulnerabilities.
     """
     pip_file = tmp_path / "pip.conf"
@@ -210,10 +203,7 @@ def test_pip_conf_insecure_registry(parser, tmp_path):
 def test_pip_conf_trusted_registry(parser, tmp_path):
     """Ensures legitimate HTTPS internal registries (like Artifactory) do not trigger false positives."""
     pip_file = tmp_path / "pip.conf"
-    pip_file.write_text(
-        "[global]\n"
-        "index-url = https://artifactory.internal.company.com/api/pypi/simple\n"
-    )
+    pip_file.write_text("[global]\nindex-url = https://artifactory.internal.company.com/api/pypi/simple\n")
 
     resolution_map = parser.build_resolution_map([str(pip_file)])
 
@@ -228,10 +218,7 @@ def test_pip_conf_insecure_registry_url_with_query_string_equals(parser, tmp_pat
     check silently skipped the line entirely.
     """
     pip_file = tmp_path / "pip.conf"
-    pip_file.write_text(
-        "[global]\n"
-        "index-url = http://example.com/simple?token=abc123\n"
-    )
+    pip_file.write_text("[global]\nindex-url = http://example.com/simple?token=abc123\n")
 
     resolution_map = parser.build_resolution_map([str(pip_file)])
 
@@ -248,18 +235,14 @@ def test_pip_conf_insecure_registry_url_with_multiple_equals(parser, tmp_path):
     captured in full, not truncated at the first extra one.
     """
     pip_file = tmp_path / "pip.conf"
-    pip_file.write_text(
-        "[global]\n"
-        "extra-index-url = http://example.com/path?a=1&b=2&sig=deadbeef\n"
-    )
+    pip_file.write_text("[global]\nextra-index-url = http://example.com/path?a=1&b=2&sig=deadbeef\n")
 
     resolution_map = parser.build_resolution_map([str(pip_file)])
 
     assert "INSECURE_REGISTRY_pip.conf" in resolution_map
-    assert (
-        resolution_map["INSECURE_REGISTRY_pip.conf"]
-        == "http://example.com/path?a=1&b=2&sig=deadbeef"
-    ), "URL was truncated instead of captured whole."
+    assert resolution_map["INSECURE_REGISTRY_pip.conf"] == "http://example.com/path?a=1&b=2&sig=deadbeef", (
+        "URL was truncated instead of captured whole."
+    )
 
 
 def test_pip_conf_repository_keyword_with_equals_in_value(parser, tmp_path):
@@ -271,10 +254,7 @@ def test_pip_conf_repository_keyword_with_equals_in_value(parser, tmp_path):
     """
     pypirc_file = tmp_path / ".pypirc"
     pypirc_file.write_text(
-        "[distutils]\n"
-        "index-servers = internal\n\n"
-        "[internal]\n"
-        "repository = http://example.com/simple?token=abc123\n"
+        "[distutils]\nindex-servers = internal\n\n[internal]\nrepository = http://example.com/simple?token=abc123\n"
     )
 
     resolution_map = parser.build_resolution_map([str(pypirc_file)])
@@ -288,6 +268,7 @@ def test_pip_conf_repository_keyword_with_equals_in_value(parser, tmp_path):
 # ==============================================================================
 # 5. Global Monorepo Tests
 # ==============================================================================
+
 
 def test_multiple_manifests_simultaneously(parser, tmp_path):
     """Verifies the parser can handle a monorepo setup with multiple manifest formats at once."""
@@ -310,8 +291,9 @@ def test_unsupported_manifest_bypass(parser, tmp_path):
     random_file.write_text("version: '3.8'\nservices:\n  app:\n    image: node:18")
 
     resolution_map = parser.build_resolution_map([str(random_file)])
-    
+
     assert resolution_map == {}, "Parser hallucinated resolutions from an unsupported file type!"
+
 
 def test_manifest_parser_scope_is_npm_and_pypi_only(parser, tmp_path):
     """

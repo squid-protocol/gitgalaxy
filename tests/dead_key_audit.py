@@ -49,6 +49,7 @@ External-schema keys (parsed YAML/JSON config, third-party API responses,
 lockfile fields, etc.) are real reads with no producer *in this repo* by
 design -- those go in ALLOWLIST below, with a comment saying why.
 """
+
 import argparse
 import ast
 import json
@@ -80,7 +81,6 @@ ALLOWLIST = {
     "bin": "package.json field (guidestar_lens.py)",
     "main": "package.json field (guidestar_lens.py)",
     "scripts": "package.json field (guidestar_lens.py)",
-
     # --- External model/tensor files ---
     # tensor_scanner.py json.loads()'s a .safetensors file's own header; these
     # are that format's reserved/per-tensor keys, not ours.
@@ -92,14 +92,12 @@ ALLOWLIST = {
     # if the model dictionary forgets them" per signal_processor.py's own
     # comment -- absence is the designed case, not a bug.
     "cluster_names": "optional ML archetype-model field, has an explicit fallback (signal_processor.py)",
-
     # --- External YAML/env config ---
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",
     "vulnerability_density_min": "optional risk_tuning YAML key (signal_processor.py._calc_injection_surface-style tuning)",
     "asymptotic_dampener": "optional risk_tuning YAML key (signal_processor.py)",
     "quarantine": "STATIC_ARCHETYPES app-config constant, read with a graceful string fallback",
-
     # --- Explicit dual/legacy-schema compatibility shims ---
     # spatial_mapper.py's own docstring: "Safely extracts structural magnitude
     # regardless of which JSON version the pipeline is using."
@@ -107,7 +105,6 @@ ALLOWLIST = {
     # Defensive SECONDARY key in a.get("primary", a.get("filename", default))
     # fallback chain -- "path"/"name" is the real, always-written key.
     "filename": "defensive fallback alt-key, not the primary key (spatial_mapper.py)",
-
     # --- SQLite Row column access ---
     # state_rehydrator.py reads sqlite3.Row objects like dicts; these column
     # names live in record_keeper.py's CREATE TABLE schema (confirmed present
@@ -115,7 +112,6 @@ ALLOWLIST = {
     "author": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
     "file_path": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
     "src/hacked.py": "test fixture value inside state_rehydrator.py's own embedded test, not a real key",
-
     # --- Dynamically-keyed dicts (walker can't trace the indirection) ---
     # audit_recorder.py builds a dict keyed by each entry's own "label" value
     # (e.g. {"secrets_risk": {"label": "Secrets Risk Exposure", ...}}), so
@@ -134,7 +130,6 @@ ALLOWLIST = {
     "obscured": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "secrets": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "spec": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
-
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
 }
@@ -319,7 +314,7 @@ def run_full_report() -> int:
     _print_dead_keys(dead)
     print(
         "Each hit above is a LEAD, not a confirmed bug -- see the module docstring's "
-        "\"SCOPE & LIMITATIONS\" section before filing an issue."
+        '"SCOPE & LIMITATIONS" section before filing an issue.'
     )
     return 1
 
@@ -351,7 +346,7 @@ def run_ci_check() -> int:
     _print_dead_keys(new_keys)
     print(
         "Each hit above is a LEAD, not a confirmed bug -- see the module docstring's "
-        "\"SCOPE & LIMITATIONS\" section. From here:\n"
+        '"SCOPE & LIMITATIONS" section. From here:\n'
         "  - Confirmed false positive (walker limitation)? Add it to ALLOWLIST with a reason.\n"
         "  - Confirmed real instance of #325's pattern, not fixing it in this PR? Add it to\n"
         "    dead_key_audit_baseline.json with a reason, and consider filing an issue.\n"

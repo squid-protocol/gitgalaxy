@@ -87,9 +87,7 @@ def test_zero_trust_jcl_generation():
 
     # 3. File Dispositions
     assert "//INPUT01  DD DSN=HERC01.DATA.INPUT01" in jcl_output
-    assert (
-        "DISP=(NEW,CATLG,DELETE)" in jcl_output
-    )  # Because it was passed in the 'outputs' lineage
+    assert "DISP=(NEW,CATLG,DELETE)" in jcl_output  # Because it was passed in the 'outputs' lineage
 
 
 # ==============================================================================
@@ -115,12 +113,8 @@ def test_hygienic_cli_defaults(tmp_path):
 
     # 3. Verify the Hygienic Output Directory
     # Look for a directory matching 'legacy_src_generated_YYYYMMDD_HHMMSS'
-    directories = [
-        d for d in tmp_path.iterdir() if d.is_dir() and "legacy_src_generated_" in d.name
-    ]
-    assert len(directories) == 1, (
-        "The engine failed to create the isolated output directory!"
-    )
+    directories = [d for d in tmp_path.iterdir() if d.is_dir() and "legacy_src_generated_" in d.name]
+    assert len(directories) == 1, "The engine failed to create the isolated output directory!"
 
     hygienic_dir = directories[0]
 

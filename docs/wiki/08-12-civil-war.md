@@ -52,24 +52,25 @@ $$\text{FinalScore} = \text{SpaceRatio} \times 100.0$$
 ```python
 from typing import Dict
 
+
 def _calc_civil_war(self, raw_signals: Dict[str, int]) -> float:
     """
-    Calculates Layout Uniformity (Tabs vs Spaces). 
+    Calculates Layout Uniformity (Tabs vs Spaces).
     0 = Pure Tabs, 100 = Pure Spaces, 50 = Mixed Indentation.
     NOTE: Easter egg metric, excluded from risk calculations.
     """
     tab_lines = raw_signals.get("indent_tabs", 0)
     space_lines = raw_signals.get("indent_spaces", 0)
-    
+
     total_indented = tab_lines + space_lines
-    
+
     # Handle files with zero indentation
     if total_indented == 0:
         return 50.0  # Default to neutral midpoint
-        
+
     # Calculate Space Ratio
     space_ratio = space_lines / float(total_indented)
-    
+
     # Final Score Mapping (0 - 100)
     return space_ratio * 100.0
 ```

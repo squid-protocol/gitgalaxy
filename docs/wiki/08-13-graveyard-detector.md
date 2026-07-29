@@ -57,28 +57,29 @@ $$\text{FinalScore} = \min(\text{Score}, 100.0)$$
 import math
 from typing import Dict
 
+
 def _calc_graveyard(self, total_loc: float, raw_signals: Dict[str, int], mp: float) -> float:
     # Step 1: Clean File Short-Circuit
     hits = raw_signals.get("graveyard", 0)
     if hits == 0:
         return 0.0
-        
+
     t = self.risk_tuning.get("graveyard", {})
-    
+
     # Step 2: Calculate Dead Code Density
     ghost_lines = hits * t.get("hit_mult", 3.0)
     safe_floor = t.get("safe_mass_floor", 50.0)
     density = (ghost_lines / max(total_loc, safe_floor)) * 100.0
-    
-    # Step 3: Compute Contextual Tolerance Threshold 
-    threshold = t.get("threshold_base", 10.0) / max(mp, 0.1) 
-    
+
+    # Step 3: Compute Contextual Tolerance Threshold
+    threshold = t.get("threshold_base", 10.0) / max(mp, 0.1)
+
     # Step 4: Sigmoid Mapping
     try:
         score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.3) * (density - threshold)))
     except OverflowError:
         score = 100.0 if density > threshold else 0.0
-        
+
     return min(score, 100.0)
 ```
 

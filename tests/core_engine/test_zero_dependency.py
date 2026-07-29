@@ -24,7 +24,7 @@ class TestZeroDependencyMode(unittest.TestCase):
                 "lang_id": "python",
                 "coding_loc": 100,
                 "raw_imports": [],
-                "hit_vector": [1, 0, 0, 0, 0, 0, 0, 0, 0], 
+                "hit_vector": [1, 0, 0, 0, 0, 0, 0, 0, 0],
                 "risk_vector": [0.0] * 18,
                 "telemetry": {},
             }
@@ -93,12 +93,11 @@ class TestZeroDependencyMode(unittest.TestCase):
         preventing dataset poisoning with false 0 values.
         """
         sample_text = "def secure_function():\n    pass"
-        
+
         try:
             result = get_token_mass(sample_text)
             self.assertIsNone(
-                result, 
-                "Missing tiktoken should explicitly return None to ensure strict data provenance."
+                result, "Missing tiktoken should explicitly return None to ensure strict data provenance."
             )
         except Exception as e:
             self.fail(f"Missing tiktoken crashed the token mass calculator! Error: {e}")
@@ -112,12 +111,12 @@ class TestZeroDependencyMode(unittest.TestCase):
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", False)
     def test_orchestrator_session_meta_flags(self):
         """
-        Proves the Orchestrator successfully detects all missing dependencies 
+        Proves the Orchestrator successfully detects all missing dependencies
         and flags the session_meta object for the downstream translation layer.
         """
         # Emulate the start of execute_pipeline where the flags are evaluated
-        is_zero_dep = not all([False, False, False, False]) 
-        
+        is_zero_dep = not all([False, False, False, False])
+
         # We manually structure the dictionary exactly as phase 11 does
         session_meta = {
             "missing_dependencies": {
@@ -128,7 +127,7 @@ class TestZeroDependencyMode(unittest.TestCase):
             },
             "zero_dependency_mode": is_zero_dep,
         }
-        
+
         self.assertTrue(session_meta["zero_dependency_mode"], "Failed to flag Zero-Dependency Mode.")
         self.assertTrue(session_meta["missing_dependencies"]["tiktoken"], "Failed to detect missing tiktoken.")
         self.assertTrue(session_meta["missing_dependencies"]["xgboost"], "Failed to detect missing xgboost.")
@@ -141,11 +140,11 @@ class TestZeroDependencyMode(unittest.TestCase):
     def test_vacuum_pipeline_schema_survival(self):
         """
         DEVIOUS EDGE CASE: If BOTH NetworkX and XGBoost are missing, the pipeline
-        routes the RAM state through two successive fallback methods. This proves 
+        routes the RAM state through two successive fallback methods. This proves
         the dictionary schema survives the multi-stage vacuum without mutating or crashing.
         """
         from gitgalaxy.security.security_auditor import SecurityAuditor
-        
+
         sensor = NetworkRiskSensor()
         auditor = SecurityAuditor(model_path="dummy_path.json")
 
@@ -161,7 +160,7 @@ class TestZeroDependencyMode(unittest.TestCase):
 
         # Pass 1: Through the blind network sensor
         mapped_stars, macro_metrics = sensor.build_dependency_graph(mock_stars)
-        
+
         # Pass 2: Through the blind ML auditor
         final_stars = auditor.audit_repository(mapped_stars)
 
@@ -176,23 +175,23 @@ class TestZeroDependencyMode(unittest.TestCase):
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", True)
     def test_corrupted_yaml_graceful_bypass(self):
         """
-        DEVIOUS EDGE CASE: The user HAS pyyaml installed, but the `.galaxyscope.yaml` 
-        file is completely corrupted (invalid YAML syntax). The engine must catch 
+        DEVIOUS EDGE CASE: The user HAS pyyaml installed, but the `.galaxyscope.yaml`
+        file is completely corrupted (invalid YAML syntax). The engine must catch
         the parsing exception and boot with default settings rather than fatally crashing.
         """
         import tempfile
         import os
         import yaml
-        
+
         # Create a physically corrupted YAML file
         fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, "w") as f:
             f.write("galaxyscope:\n  max-risk-exposure: [Unclosed Array\n  fail-on-secrets: ???")
-            
+
         config_file_data = {}
         try:
             # Replicate the exact interceptor logic from galaxyscope.py
-            with open(temp_yaml_path, 'r') as f:
+            with open(temp_yaml_path, "r") as f:
                 config_file_data = yaml.safe_load(f) or {}
             self.fail("yaml.safe_load should have raised a YAMLError on corrupted syntax.")
         except yaml.YAMLError:
@@ -200,7 +199,7 @@ class TestZeroDependencyMode(unittest.TestCase):
             config_file_data = {}
         except Exception as e:
             self.fail(f"YAML parser threw an unexpected fatal error: {e}")
-            
+
         self.assertEqual(config_file_data, {}, "Failed to isolate the corrupted YAML configuration.")
         os.remove(temp_yaml_path)
 
@@ -210,14 +209,14 @@ class TestZeroDependencyMode(unittest.TestCase):
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", True)
     def test_yaml_billion_laughs_bomb(self):
         """
-        DEVIOUS EDGE CASE: An attacker submits a `.galaxyscope.yaml` containing a 
-        recursive 'Billion Laughs' anchor bomb designed to consume gigabytes of RAM 
+        DEVIOUS EDGE CASE: An attacker submits a `.galaxyscope.yaml` containing a
+        recursive 'Billion Laughs' anchor bomb designed to consume gigabytes of RAM
         during the parsing phase.
         """
         import tempfile
         import os
         import yaml
-        
+
         # The classic YAML anchor expansion bomb
         bomb_payload = """
         a: &a ["lol","lol","lol","lol","lol","lol","lol","lol","lol"]
@@ -227,22 +226,22 @@ class TestZeroDependencyMode(unittest.TestCase):
         galaxyscope:
             max-risk-exposure: *d
         """
-        
+
         fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, "w") as f:
             f.write(bomb_payload)
-            
+
         config_file_data = {}
         try:
             # Replicate the YAML ingest
-            with open(temp_yaml_path, 'r') as f:
+            with open(temp_yaml_path, "r") as f:
                 # safe_load is inherently protected against arbitrary code execution,
                 # but we must ensure it also rejects recursive alias expansion limits.
                 config_file_data = yaml.safe_load(f) or {}
         except Exception as e:
             # PyYAML should throw a ConstructorError due to max alias depth
             pass
-            
+
         # The engine must either reject the bomb or safely parse it without OOMing the runner
         assert isinstance(config_file_data, dict), "YAML bomb crashed the parser context!"
         os.remove(temp_yaml_path)

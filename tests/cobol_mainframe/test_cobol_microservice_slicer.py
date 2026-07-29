@@ -60,15 +60,11 @@ def test_slicer_ghost_deflector(tmp_path):
     )
     pgm.write_text(cobol_code, encoding="utf-8")
 
-    logic, taints = slicer_module.slice_business_logic(
-        pgm, "TARGET-VAR", dead_paras={"DEAD-PARA"}
-    )
+    logic, taints = slicer_module.slice_business_logic(pgm, "TARGET-VAR", dead_paras={"DEAD-PARA"})
 
     # 1. Verify the deflector blocked the taint
     assert "ALIAS-1" in taints
-    assert "ALIAS-2" not in taints, (
-        "Ghost Deflector failed! ALIAS-2 was tainted by dead code."
-    )
+    assert "ALIAS-2" not in taints, "Ghost Deflector failed! ALIAS-2 was tainted by dead code."
 
     # 2. Verify the deflector blocked the extraction
     assert len(logic) == 1
@@ -90,15 +86,11 @@ def test_slicer_orphaned_memory_abort(tmp_path):
         encoding="utf-8",
     )
 
-    logic, taints = slicer_module.slice_business_logic(
-        pgm, "DEAD-VAR", orphaned_vars={"DEAD-VAR"}
-    )
+    logic, taints = slicer_module.slice_business_logic(pgm, "DEAD-VAR", orphaned_vars={"DEAD-VAR"})
 
     assert logic == [], "Orphaned memory abort failed to return an empty logic slice!"
     assert isinstance(taints, dict)
-    assert taints["DEAD-VAR"] == "ORPHANED_MEMORY", (
-        "Failed to return the abort payload!"
-    )
+    assert taints["DEAD-VAR"] == "ORPHANED_MEMORY", "Failed to return the abort payload!"
 
 
 # ==============================================================================

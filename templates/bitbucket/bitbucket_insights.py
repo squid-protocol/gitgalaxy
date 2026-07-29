@@ -10,6 +10,7 @@ import json
 import urllib.request
 import urllib.error
 
+
 def publish_insights(sarif_path: str):
     # 1. Extract Bitbucket Pipeline Environment Variables
     workspace = os.environ.get("BITBUCKET_WORKSPACE")
@@ -26,7 +27,7 @@ def publish_insights(sarif_path: str):
 
     # 2. Parse the SARIF File
     try:
-        with open(sarif_path, 'r', encoding='utf-8') as f:
+        with open(sarif_path, "r", encoding="utf-8") as f:
             sarif_data = json.load(f)
     except Exception as e:
         print(f"❌ Failed to parse SARIF: {e}")
@@ -47,11 +48,11 @@ def publish_insights(sarif_path: str):
         rule_id = finding.get("ruleId", "GG-UNKNOWN")
         message = finding.get("message", {}).get("text", "Unknown structural threat detected.")
         level = finding.get("level", "warning")
-        
+
         locations = finding.get("locations", [])
         if not locations:
             continue
-            
+
         region = locations[0].get("physicalLocation", {})
         path = region.get("artifactLocation", {}).get("uri", "")
         line = region.get("region", {}).get("startLine", 1)
@@ -60,35 +61,36 @@ def publish_insights(sarif_path: str):
         bb_severity = "HIGH" if level == "error" else "MEDIUM"
         bb_type = "VULNERABILITY" if "SAST" in rule_id or "ML" in rule_id else "CODE_SMELL"
 
-        bitbucket_annotations.append({
-            "external_id": f"{rule_id}-{idx}",
-            "title": "GitGalaxy Zero-Trust Audit",
-            "annotation_type": bb_type,
-            "summary": message,
-            "severity": bb_severity,
-            "path": path,
-            "line": line
-        })
+        bitbucket_annotations.append(
+            {
+                "external_id": f"{rule_id}-{idx}",
+                "title": "GitGalaxy Zero-Trust Audit",
+                "annotation_type": bb_type,
+                "summary": message,
+                "severity": bb_severity,
+                "path": path,
+                "line": line,
+            }
+        )
 
     report_id = "gitgalaxy-audit-report"
     # Bitbucket's proxy requires HTTP (not HTTPS) to automatically inject the Auth header
     base_url = f"http://api.bitbucket.org/2.0/repositories/{workspace}/{repo}/commit/{commit}/reports/{report_id}"
-    
+
     # 4. Set up the Proxy Handler for Bitbucket Pipelines
-    proxy_handler = urllib.request.ProxyHandler({
-        'http': 'http://localhost:29418',
-        'https': 'http://localhost:29418'
-    })
+    proxy_handler = urllib.request.ProxyHandler({"http": "http://localhost:29418", "https": "http://localhost:29418"})
     opener = urllib.request.build_opener(proxy_handler)
     urllib.request.install_opener(opener)
-    
+
     # Create the Parent Report (PUT)
-    report_payload = json.dumps({
-        "title": "GitGalaxy Spectral Audit",
-        "details": f"GitGalaxy mapped {len(bitbucket_annotations)} architectural threats.",
-        "report_type": "SECURITY",
-        "result": "FAILED" if any(a["severity"] == "HIGH" for a in bitbucket_annotations) else "PASSED"
-    }).encode("utf-8")
+    report_payload = json.dumps(
+        {
+            "title": "GitGalaxy Spectral Audit",
+            "details": f"GitGalaxy mapped {len(bitbucket_annotations)} architectural threats.",
+            "report_type": "SECURITY",
+            "result": "FAILED" if any(a["severity"] == "HIGH" for a in bitbucket_annotations) else "PASSED",
+        }
+    ).encode("utf-8")
 
     # Enforce API destination boundaries to neutralize remote protocol exploits
     if not base_url.startswith("http://api.bitbucket.org/"):
@@ -97,7 +99,7 @@ def publish_insights(sarif_path: str):
 
     req = urllib.request.Request(base_url, data=report_payload, method="PUT")
     req.add_header("Content-Type", "application/json")
-    
+
     try:
         # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
         urllib.request.urlopen(req)
@@ -109,19 +111,19 @@ def publish_insights(sarif_path: str):
 
     # 5. Bulk Upload Annotations in Chunks of 100 (POST)
     annotations_url = f"{base_url}/annotations"
-    
+
     chunk_size = 100
     for i in range(0, len(bitbucket_annotations), chunk_size):
-        chunk = bitbucket_annotations[i:i + chunk_size]
+        chunk = bitbucket_annotations[i : i + chunk_size]
         chunk_payload = json.dumps(chunk).encode("utf-8")
-        
+
         if not annotations_url.startswith("http://api.bitbucket.org/"):
             print("❌ Security Violation: Invalid API destination.")
             sys.exit(1)
-            
+
         req = urllib.request.Request(annotations_url, data=chunk_payload, method="POST")
         req.add_header("Content-Type", "application/json")
-        
+
         try:
             # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
             urllib.request.urlopen(req)
@@ -131,9 +133,10 @@ def publish_insights(sarif_path: str):
 
     print("🚀 Code Insights sync complete.")
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python bitbucket_insights.py <path_to_sarif.json>")
         sys.exit(1)
-        
+
     publish_insights(sys.argv[1])

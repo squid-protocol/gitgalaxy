@@ -45,17 +45,11 @@ def mock_db(tmp_path):
 
     # Insert Mock Data: Repo History
     # Older commit
-    cursor.execute(
-        "INSERT INTO repo_data VALUES ('test_repo', 'hash_old_123', 1600000000)"
-    )
+    cursor.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_old_123', 1600000000)")
     # Newer commit (This should be the one selected!)
-    cursor.execute(
-        "INSERT INTO repo_data VALUES ('test_repo', 'hash_new_456', 1700000000)"
-    )
+    cursor.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_new_456', 1700000000)")
     # Different repo entirely
-    cursor.execute(
-        "INSERT INTO repo_data VALUES ('other_repo', 'hash_other_789', 1800000000)"
-    )
+    cursor.execute("INSERT INTO repo_data VALUES ('other_repo', 'hash_other_789', 1800000000)")
 
     # Insert Mock Data: File Physics for the newer commit
     cursor.execute("""
@@ -107,9 +101,7 @@ def test_rehydrator_successful_load(mock_db):
 
     # 1. Assert Temporal Accuracy
     assert result is not None
-    assert result["commit_hash"] == "hash_new_456", (
-        "Failed to select the most recent commit!"
-    )
+    assert result["commit_hash"] == "hash_new_456", "Failed to select the most recent commit!"
 
     # 2. Assert the ram_cache dictionary structure is perfectly mapped
     ram_cache = result["ram_cache"]
@@ -130,36 +122,38 @@ def test_rehydrator_successful_load(mock_db):
     assert isinstance(file_node["raw_imports"], set)
     assert file_node["hit_vector"] == []
 
+
 # ==============================================================================
 # TEST 4: THE POISONED WELL (Corrupted SQLite Database)
 # ==============================================================================
 def test_rehydrator_poisoned_db(tmp_path):
     """
-    DEVIOUS EDGE CASE: The CI/CD runner downloads a corrupted or 0-byte file 
-    and passes it to --incremental. The rehydrator must catch the sqlite3.Error 
+    DEVIOUS EDGE CASE: The CI/CD runner downloads a corrupted or 0-byte file
+    and passes it to --incremental. The rehydrator must catch the sqlite3.Error
     and fail gracefully rather than crashing the GitHub Action.
     """
     poisoned_db_path = tmp_path / "poisoned_master.db"
-    
+
     # Write garbage string data into what should be a binary SQLite file
-    with open(poisoned_db_path, 'w') as f:
+    with open(poisoned_db_path, "w") as f:
         f.write("This is not a database file. It's a trap.")
 
     rehydrator = StateRehydrator(str(poisoned_db_path))
-    
+
     try:
         result = rehydrator.load_latest_state("test_repo")
         assert result is None, "Failed to reject a poisoned/corrupted database gracefully!"
     except sqlite3.DatabaseError:
         pytest.fail("The StateRehydrator failed to catch the DatabaseError internally!")
 
+
 # ==============================================================================
 # TEST 5: SCHEMA DRIFT ATTACK (Missing Legacy Columns)
 # ==============================================================================
 def test_rehydrator_legacy_schema_drift(tmp_path):
     """
-    DEVIOUS EDGE CASE: The user is rehydrating from an older version of GitGalaxy 
-    (e.g., before the 'silo_risk' column existed. The dictionary builder 
+    DEVIOUS EDGE CASE: The user is rehydrating from an older version of GitGalaxy
+    (e.g., before the 'silo_risk' column existed. The dictionary builder
     must not throw an IndexError.
     """
     db_path = tmp_path / "legacy_master.db"
@@ -190,7 +184,7 @@ def test_rehydrator_legacy_schema_drift(tmp_path):
     conn.close()
 
     rehydrator = StateRehydrator(str(db_path))
-    
+
     try:
         # If this throws an IndexError, the Rehydrator isn't resilient to schema drift!
         rehydrator.load_latest_state("test_repo")
@@ -243,4 +237,6 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
     rehydrator = StateRehydrator(str(db_path))
     result = rehydrator.load_latest_state("test_repo")
 
-    assert result is None, "Failed to reject a type-spoofed database gracefully -- crashed instead of falling back to a cold start!"
+    assert result is None, (
+        "Failed to reject a type-spoofed database gracefully -- crashed instead of falling back to a cold start!"
+    )

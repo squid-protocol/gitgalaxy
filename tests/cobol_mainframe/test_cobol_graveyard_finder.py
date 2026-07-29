@@ -18,15 +18,11 @@ def test_copybook_shapeshifter(tmp_path):
 
     # 1. The main program
     main_pgm = repo_dir / "MAIN.cbl"
-    main_pgm.write_text(
-        "       COPY MYDATA REPLACING ==OLD-VAR== BY ==NEW-VAR==.", encoding="utf-8"
-    )
+    main_pgm.write_text("       COPY MYDATA REPLACING ==OLD-VAR== BY ==NEW-VAR==.", encoding="utf-8")
 
     # 2. The external copybook
     copybook = repo_dir / "MYDATA.cpy"
-    copybook.write_text(
-        "       01 OLD-VAR PIC X(10).\n       01 OLD-VAR-X PIC X(5).", encoding="utf-8"
-    )
+    copybook.write_text("       01 OLD-VAR PIC X(10).\n       01 OLD-VAR-X PIC X(5).", encoding="utf-8")
 
     # 3. Execute the resolver
     raw_content = main_pgm.read_text(encoding="utf-8")
@@ -38,9 +34,7 @@ def test_copybook_shapeshifter(tmp_path):
     # B) Ensure the strict boundary replacement worked (OLD-VAR became NEW-VAR)
     assert "01 NEW-VAR PIC" in resolved_content
     # C) ZERO-TRUST GUARD: Ensure partial matches were NOT replaced (OLD-VAR-X stays OLD-VAR-X)
-    assert "01 OLD-VAR-X PIC" in resolved_content, (
-        "The Shapeshifter destroyed a partial word match!"
-    )
+    assert "01 OLD-VAR-X PIC" in resolved_content, "The Shapeshifter destroyed a partial word match!"
 
 
 # ==============================================================================
@@ -73,19 +67,13 @@ def test_ast_dead_code_math(tmp_path):
     # 1. Variable Assertions
     assert "ORPHAN-VAR" in metrics["orphaned_vars"]
     assert "USED-VAR" not in metrics["orphaned_vars"]
-    assert "FILLER" not in metrics["orphaned_vars"], (
-        "Engine failed to filter out FILLER noise!"
-    )
+    assert "FILLER" not in metrics["orphaned_vars"], "Engine failed to filter out FILLER noise!"
 
     # 2. Paragraph Assertions
     assert "DEAD-PARA" in metrics["dead_paras"]
-    assert "MAIN-PARA" not in metrics["dead_paras"], (
-        "Engine flagged the entry point as dead!"
-    )
+    assert "MAIN-PARA" not in metrics["dead_paras"], "Engine flagged the entry point as dead!"
     assert "USED-PARA" not in metrics["dead_paras"]
-    assert "DEAD-EXIT" not in metrics["dead_paras"], (
-        "Engine failed to filter out *-EXIT paragraphs!"
-    )
+    assert "DEAD-EXIT" not in metrics["dead_paras"], "Engine failed to filter out *-EXIT paragraphs!"
 
     # 3. Math (1 orphaned var + 1 dead para * 10 lines = 11 LOC saved)
     assert metrics["loc_saved"] == 11

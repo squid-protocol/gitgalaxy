@@ -58,6 +58,7 @@ $$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 import math
 from typing import Dict
 
+
 def _calc_api_exposure(self, raw_signals: Dict[str, int], total_loc: int, popularity: int = 0) -> float:
     # Step 1: Encapsulation Short-Circuit
     api_hits = raw_signals.get("api", 0)

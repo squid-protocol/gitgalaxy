@@ -68,9 +68,7 @@ def test_scanner_json_ingestion_and_extraction(tmp_path):
     counts = telemetry.get("execution_counts", {})
 
     # PGM_ALPHA appeared twice, PGM_BETA appeared once
-    assert counts.get("PGM_ALPHA") == 2, (
-        "Execution count aggregation failed for PGM_ALPHA."
-    )
+    assert counts.get("PGM_ALPHA") == 2, "Execution count aggregation failed for PGM_ALPHA."
     assert counts.get("PGM_BETA") == 1, "Execution count aggregation failed for PGM_BETA."
 
 
@@ -148,7 +146,7 @@ def test_missing_target_argument(capsys):
             scanner_module.main()
         # argparse default exit code for missing arguments is 2
         assert exc_info.value.code == 2
-        
+
     captured = capsys.readouterr()
     assert "the following arguments are required: target" in captured.err
 
@@ -160,12 +158,12 @@ def test_invalid_target_path(tmp_path, capsys):
     """Ensures the tool exits cleanly when provided a non-existent file."""
     invalid_path = tmp_path / "does_not_exist.log"
     test_args = ["terabyte_log_scanner.py", str(invalid_path), "-k", "TEST"]
-    
+
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as exc_info:
             scanner_module.main()
         assert exc_info.value.code == 1
-        
+
     captured = capsys.readouterr()
     assert "Target log file does not exist or is not a file" in captured.out
 
@@ -177,24 +175,19 @@ def test_missing_state_file(tmp_path, capsys):
     """Ensures the tool exits cleanly when the specified --input_state file is missing."""
     work_dir = tmp_path / "missing_state_repo"
     work_dir.mkdir()
-    
+
     dummy_log = work_dir / "dummy.log"
     dummy_log.write_text("empty", encoding="utf-8")
-    
+
     missing_state = work_dir / "missing.json"
-    
-    test_args = [
-        "terabyte_log_scanner.py", 
-        str(dummy_log), 
-        "--input_state", 
-        str(missing_state)
-    ]
-    
+
+    test_args = ["terabyte_log_scanner.py", str(dummy_log), "--input_state", str(missing_state)]
+
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as exc_info:
             scanner_module.main()
         assert exc_info.value.code == 1
-        
+
     captured = capsys.readouterr()
     assert "Input state JSON file not found" in captured.out
 
@@ -224,10 +217,10 @@ def test_empty_known_programs(tmp_path, capsys):
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as exc_info:
             scanner_module.main()
-        
+
         # An empty target list is not a crash, just a clean exit because there's nothing to do
         assert exc_info.value.code == 0
-        
+
     captured = capsys.readouterr()
     assert "array is empty or invalid. Nothing to search." in captured.out
 
@@ -241,18 +234,18 @@ def test_custom_output_directory(tmp_path):
     log_dir.mkdir()
     target_log = log_dir / "app.log"
     target_log.write_text("2026-05-11T10:00 [DEBUG] ERROR 500\n", encoding="utf-8")
-    
+
     custom_out = tmp_path / "analysis_results"
     test_args = ["terabyte_log_scanner.py", str(target_log), "-k", "ERROR", "--out", str(custom_out)]
-    
+
     with patch.object(sys, "argv", test_args):
         scanner_module.main()
-        
+
     assert custom_out.exists(), "Custom output directory was not created."
-    
+
     results_file = custom_out / "app_results.txt"
     sidecar_file = custom_out / "dynamic_telemetry.json"
-    
+
     assert results_file.exists(), "Results log not found in custom output directory."
     assert sidecar_file.exists(), "Telemetry JSON not found in custom output directory."
     assert "ERROR 500" in results_file.read_text(encoding="utf-8")

@@ -15,12 +15,7 @@ def _visit(source: str) -> "dead_key_audit.KeyVisitor":
 # TEST 1: READ DETECTION
 # ==============================================================================
 def test_detects_get_and_pop_and_subscript_reads():
-    v = _visit(
-        "x.get('a')\n"
-        "x.get('b', 1)\n"
-        "x.pop('c')\n"
-        "y = x['d']\n"
-    )
+    v = _visit("x.get('a')\nx.get('b', 1)\nx.pop('c')\ny = x['d']\n")
     assert set(v.reads.keys()) == {"a", "b", "c", "d"}
 
 
@@ -34,13 +29,7 @@ def test_variable_keyed_reads_are_invisible_not_guessed():
 # TEST 2: WRITE DETECTION
 # ==============================================================================
 def test_detects_subscript_store_and_dict_literal_and_setdefault_writes():
-    v = _visit(
-        "x['a'] = 1\n"
-        "y = {'b': 1, 'c': 2}\n"
-        "x.setdefault('d', [])\n"
-        "x.update(e=1)\n"
-        "z = dict(f=1)\n"
-    )
+    v = _visit("x['a'] = 1\ny = {'b': 1, 'c': 2}\nx.setdefault('d', [])\nx.update(e=1)\nz = dict(f=1)\n")
     assert v.writes == {"a", "b", "c", "d", "e", "f"}
 
 

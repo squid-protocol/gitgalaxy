@@ -33,8 +33,7 @@ if is_pytest and not is_compound and not has_verbosity_flag:
                     "hookEventName": "PreToolUse",
                     "permissionDecision": "allow",
                     "permissionDecisionReason": (
-                        "Auto-added -q to keep a green pytest run from dumping "
-                        "per-test scaffolding into context."
+                        "Auto-added -q to keep a green pytest run from dumping per-test scaffolding into context."
                     ),
                     "updatedInput": {"command": command + " -q"},
                 }

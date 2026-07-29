@@ -11,14 +11,10 @@ from gitgalaxy.metrics.statistical_auditor import StatisticalAuditor
 # have active logic sensors (preventing them from passing through the Inert Gate).
 
 MOCK_LANG_DEFS = {
-    "cpp": {
-        "rules": {"branch": 1, "args": 1, "structural_boundaries": 1, "pointers": 1, "memory_alloc": 1}
-    },
-    "c": {
-        "rules": {"branch": 1, "args": 1, "structural_boundaries": 1, "pointers": 1, "memory_alloc": 1}
-    },
+    "cpp": {"rules": {"branch": 1, "args": 1, "structural_boundaries": 1, "pointers": 1, "memory_alloc": 1}},
+    "c": {"rules": {"branch": 1, "args": 1, "structural_boundaries": 1, "pointers": 1, "memory_alloc": 1}},
     "python": {"rules": {"branch": 1, "args": 1, "structural_boundaries": 1}},
-    "json": {"rules": {}}  # Inert data format (0 logic signals)
+    "json": {"rules": {}},  # Inert data format (0 logic signals)
 }
 
 
@@ -59,12 +55,8 @@ def test_auditor_consensus_engine(auditor):
 
     mystery_file = next((f for f in verified if f["path"] == "mystery.cpp"), None)
     assert mystery_file is not None
-    assert mystery_file["lang_id"] == "cpp", (
-        "Failed to inherit the ecosystem consensus!"
-    )
-    assert mystery_file["telemetry"]["identity_lock_tier"] == 2, (
-        "Failed to elevate the lock tier!"
-    )
+    assert mystery_file["lang_id"] == "cpp", "Failed to inherit the ecosystem consensus!"
+    assert mystery_file["telemetry"]["identity_lock_tier"] == 2, "Failed to elevate the lock tier!"
 
 
 # ==============================================================================
@@ -108,9 +100,7 @@ def test_auditor_packed_payload_guard(auditor):
             "lang_id": "cpp",
             "coding_loc": 40,
             "equations": {"branch": 200, "structural_boundaries": 100},
-            "telemetry": {
-                "identity_lock_tier": 0
-            },  # <--- CHANGE TO 0 (Bypass Low-Sample Guard)
+            "telemetry": {"identity_lock_tier": 0},  # <--- CHANGE TO 0 (Bypass Low-Sample Guard)
         }
     ]
 
@@ -118,9 +108,7 @@ def test_auditor_packed_payload_guard(auditor):
 
     assert len(verified) == 0
     assert len(unparsable) == 1
-    assert "Packed Payload Guard" in unparsable[0]["reason"], (
-        "Failed to trigger the Packed Payload Guard!"
-    )
+    assert "Packed Payload Guard" in unparsable[0]["reason"], "Failed to trigger the Packed Payload Guard!"
 
 
 # ==============================================================================
@@ -146,9 +134,7 @@ def test_auditor_threat_quarantine_guard(auditor):
 
     assert len(verified) == 1, "Threat Quarantine failed to save the malicious file!"
     assert len(unparsable) == 0
-    assert verified[0].get("is_quarantined") is True, (
-        "Failed to inject the quarantine flag!"
-    )
+    assert verified[0].get("is_quarantined") is True, "Failed to inject the quarantine flag!"
 
 
 # ==============================================================================
@@ -166,9 +152,7 @@ def test_auditor_low_sample_threshold_guard(auditor):
             "lang_id": "python",
             "coding_loc": 10,
             "equations": {"branch": 5},
-            "telemetry": {
-                "identity_lock_tier": 3
-            },  # <--- CHANGE TO 3 (Survives Gate 0, Dies to Low-Sample Guard)
+            "telemetry": {"identity_lock_tier": 3},  # <--- CHANGE TO 3 (Survives Gate 0, Dies to Low-Sample Guard)
         }
     ]
 
@@ -176,9 +160,7 @@ def test_auditor_low_sample_threshold_guard(auditor):
         verified, unparsable = auditor.audit(files)
 
     assert len(verified) == 1
-    assert verified[0]["lang_id"] == "plaintext", (
-        "Low-Sample Guard failed to strip the hallucinated language!"
-    )
+    assert verified[0]["lang_id"] == "plaintext", "Low-Sample Guard failed to strip the hallucinated language!"
     assert "Low-Sample Guard Fallback" in verified[0]["telemetry"]["identity_source_proof"]
 
 
@@ -196,8 +178,8 @@ def test_auditor_dead_code_bypass(auditor):
             "name": "graveyard.cpp",
             "lang_id": "cpp",
             "coding_loc": 100,
-            "equations": {"branch": 0, "structural_boundaries": 0}, # Would normally fail Zero-Density
-            "doc_loc": 600, # Massive comment-to-code ratio triggers dead code bypass
+            "equations": {"branch": 0, "structural_boundaries": 0},  # Would normally fail Zero-Density
+            "doc_loc": 600,  # Massive comment-to-code ratio triggers dead code bypass
             "telemetry": {"identity_lock_tier": 0},
         }
     ]
@@ -223,7 +205,7 @@ def test_auditor_statistical_mad_outliers(auditor):
             "name": f"normal_{i}.cpp",
             "lang_id": "cpp",
             "coding_loc": 10,
-            "equations": {"branch": 25}, # 25 / 10 = 2.5 rho
+            "equations": {"branch": 25},  # 25 / 10 = 2.5 rho
             "telemetry": {"identity_lock_tier": 0, "identity_confidence": 0.95},
         }
         for i in range(50)
@@ -231,14 +213,16 @@ def test_auditor_statistical_mad_outliers(auditor):
 
     # Inject 1 hollow outlier (rho = 0.1).
     # Bypasses 50/0 Law (loc < 50, rho > 0), but is mathematically anomalous.
-    files.append({
-        "path": "outlier.cpp",
-        "name": "outlier.cpp",
-        "lang_id": "cpp",
-        "coding_loc": 10,
-        "equations": {"branch": 1}, # 1 / 10 = 0.1 rho
-        "telemetry": {"identity_lock_tier": 0, "identity_confidence": 0.95},
-    })
+    files.append(
+        {
+            "path": "outlier.cpp",
+            "name": "outlier.cpp",
+            "lang_id": "cpp",
+            "coding_loc": 10,
+            "equations": {"branch": 1},  # 1 / 10 = 0.1 rho
+            "telemetry": {"identity_lock_tier": 0, "identity_confidence": 0.95},
+        }
+    )
 
     with patch.object(auditor, "_is_highly_blended", return_value=False):
         verified, unparsable = auditor.audit(files)
@@ -258,12 +242,11 @@ def test_auditor_c_family_header_fallback(auditor):
     it falls back to the dominant C-Family language in the global repository.
     """
     files = [
-        # Establish a global macro-state dominated by 'c'. 
+        # Establish a global macro-state dominated by 'c'.
         # Tier 0 locks ensure the tiny population survives the Low-Sample Guard.
         {"path": "1.c", "lang_id": "c", "telemetry": {"identity_lock_tier": 0}},
         {"path": "2.c", "lang_id": "c", "telemetry": {"identity_lock_tier": 0}},
         {"path": "3.cpp", "lang_id": "cpp", "telemetry": {"identity_lock_tier": 1}},
-        
         # Ambiguous header file
         {
             "path": "shared.h",
@@ -287,7 +270,7 @@ def test_auditor_c_family_header_fallback(auditor):
 # ==============================================================================
 def test_auditor_inert_data_bypass(auditor):
     """
-    Proves that data formats with no active logic signals (like JSON) 
+    Proves that data formats with no active logic signals (like JSON)
     skip all statistical density checks entirely.
     """
     files = [
@@ -295,7 +278,7 @@ def test_auditor_inert_data_bypass(auditor):
             "path": "data.json",
             "name": "data.json",
             "lang_id": "json",  # Configured in MOCK_LANG_DEFS with 0 signals
-            "coding_loc": 1000, 
+            "coding_loc": 1000,
             "equations": {},
             "telemetry": {"identity_lock_tier": 0},
         }

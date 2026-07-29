@@ -18,21 +18,15 @@ def test_scale_sensor_calibration(tmp_path):
 
     # Create 3 small mock COBOL files
     for i in range(3):
-        (repo_dir / f"PGM{i}.cbl").write_text(
-            "IDENTIFICATION DIVISION.", encoding="utf-8"
-        )
+        (repo_dir / f"PGM{i}.cbl").write_text("IDENTIFICATION DIVISION.", encoding="utf-8")
 
     # 1. Test RAM Mode (Thresholds are higher than the payload)
-    mode, files = controller_module.calibrate_ir_medium(
-        repo_dir, max_files=5, max_mb=10
-    )
+    mode, files = controller_module.calibrate_ir_medium(repo_dir, max_files=5, max_mb=10)
     assert mode == "RAM", "Failed to default to high-speed RAM!"
     assert len(files) == 3
 
     # 2. Test SQLite Mode (Threshold tripped by file count)
-    mode, files = controller_module.calibrate_ir_medium(
-        repo_dir, max_files=2, max_mb=10
-    )
+    mode, files = controller_module.calibrate_ir_medium(repo_dir, max_files=2, max_mb=10)
     assert mode == "SQLITE", "Scale sensor failed to trip the SQLite safety switch!"
 
 
@@ -46,21 +40,15 @@ def test_ir_state_manager_parity(tmp_path):
     """
     # 1. Initialize RAM Manager
     ram_mgr = controller_module.IRStateManager("RAM", tmp_path)
-    ram_mgr.record_dead_code(
-        "PGM-ALPHA", dead_paras={"GHOST-PARA"}, orphaned_vars={"DEAD-VAR"}
-    )
+    ram_mgr.record_dead_code("PGM-ALPHA", dead_paras={"GHOST-PARA"}, orphaned_vars={"DEAD-VAR"})
 
     # 2. Initialize SQLite Manager
     sql_mgr = controller_module.IRStateManager("SQLITE", tmp_path)
-    sql_mgr.record_dead_code(
-        "PGM-ALPHA", dead_paras={"GHOST-PARA"}, orphaned_vars={"DEAD-VAR"}
-    )
+    sql_mgr.record_dead_code("PGM-ALPHA", dead_paras={"GHOST-PARA"}, orphaned_vars={"DEAD-VAR"})
 
     # 3. Assert Parity
     assert ram_mgr.get_dead_paras("PGM-ALPHA") == sql_mgr.get_dead_paras("PGM-ALPHA")
-    assert ram_mgr.get_orphaned_vars("PGM-ALPHA") == sql_mgr.get_orphaned_vars(
-        "PGM-ALPHA"
-    )
+    assert ram_mgr.get_orphaned_vars("PGM-ALPHA") == sql_mgr.get_orphaned_vars("PGM-ALPHA")
 
     # 4. Verify SQLite strictly wrote to disk
     assert (tmp_path / "gitgalaxy_ir.db").exists()
@@ -101,9 +89,7 @@ def test_process_payload_integration(tmp_path):
     assert "schemas" in ir_state["generation"]
 
     # 4. Verify IR State Manager persistence
-    assert mgr.get_orphaned_vars("MAINPGM") == {"DEAD-VAR"}, (
-        "Orchestrator failed to sync with global IR State Manager!"
-    )
+    assert mgr.get_orphaned_vars("MAINPGM") == {"DEAD-VAR"}, "Orchestrator failed to sync with global IR State Manager!"
 
 
 # ==============================================================================
@@ -133,9 +119,7 @@ def test_process_payload_corporate_header_and_exception(tmp_path):
     # 2. Test Exception block (File Read Error)
     with patch("pathlib.Path.read_text", side_effect=PermissionError("Locked file!")):
         ir_fail = controller_module.process_payload(cbl_file, mgr)
-        assert "loc" not in ir_fail["metadata"], (
-            "Orchestrator failed to gracefully catch the read exception!"
-        )
+        assert "loc" not in ir_fail["metadata"], "Orchestrator failed to gracefully catch the read exception!"
 
 
 # ==============================================================================
@@ -241,65 +225,44 @@ def test_main_full_orchestration(tmp_path, capsys):
 
     # Find the dynamically generated clean_dir (timestamped)
     clean_dirs = list(tmp_path.glob("*_gitgalaxy_clean_*"))
-    assert len(clean_dirs) == 1, (
-        "Orchestrator failed to create the Clean Room directory!"
-    )
+    assert len(clean_dirs) == 1, "Orchestrator failed to create the Clean Room directory!"
     clean_dir = clean_dirs[0]
 
     # Verify all 5 Architectural Pillars were written to disk
-    assert (clean_dir / "01_zero_trust_jcls" / "PRG1.jcl").exists(), (
-        "Failed to write JCL artifacts!"
-    )
-    assert (clean_dir / "02_cloud_schemas" / "PRG1_schema.sql").exists(), (
-        "Failed to write SQL schema artifacts!"
-    )
-    assert (clean_dir / "02_cloud_schemas" / "PRG1_schema.json").exists(), (
-        "Failed to write JSON schema artifacts!"
-    )
-    assert (clean_dir / "04_ir_state_dumps" / "PRG1_ir.json").exists(), (
-        "Failed to write IR State dumps!"
-    )
-    assert (clean_dir / "05_microservice_slices" / "PRG1_slice.json").exists(), (
-        "Failed to write Microservice Slices!"
-    )
+    assert (clean_dir / "01_zero_trust_jcls" / "PRG1.jcl").exists(), "Failed to write JCL artifacts!"
+    assert (clean_dir / "02_cloud_schemas" / "PRG1_schema.sql").exists(), "Failed to write SQL schema artifacts!"
+    assert (clean_dir / "02_cloud_schemas" / "PRG1_schema.json").exists(), "Failed to write JSON schema artifacts!"
+    assert (clean_dir / "04_ir_state_dumps" / "PRG1_ir.json").exists(), "Failed to write IR State dumps!"
+    assert (clean_dir / "05_microservice_slices" / "PRG1_slice.json").exists(), "Failed to write Microservice Slices!"
 
     # Verify the Master Audit Report aggregated all the mocked telemetry
     audit_file = clean_dir / "03_audit_reports" / "master_refraction_audit.txt"
-    assert audit_file.exists(), (
-        "Orchestrator failed to generate the Master Audit Report!"
-    )
+    assert audit_file.exists(), "Orchestrator failed to generate the Master Audit Report!"
 
     audit_text = audit_file.read_text(encoding="utf-8")
-    assert "HONESTY FLAG: Hardcoded IP" in audit_text, (
-        "Failed to aggregate System Limit honesty flags!"
-    )
-    assert "Unresolved Dynamic CALL to: EXTERNAL_CALL" in audit_text, (
-        "Failed to aggregate Lineage honesty flags!"
-    )
-    assert "AI Agent Job Tickets Generated : 3" in audit_text, (
-        "Failed to aggregate Agent Job counts!"
-    )
-    assert "Bloat Removed: ~50 Lines" in audit_text, (
-        "Failed to aggregate Graveyard Reaper stats!"
-    )
+    assert "HONESTY FLAG: Hardcoded IP" in audit_text, "Failed to aggregate System Limit honesty flags!"
+    assert "Unresolved Dynamic CALL to: EXTERNAL_CALL" in audit_text, "Failed to aggregate Lineage honesty flags!"
+    assert "AI Agent Job Tickets Generated : 3" in audit_text, "Failed to aggregate Agent Job counts!"
+    assert "Bloat Removed: ~50 Lines" in audit_text, "Failed to aggregate Graveyard Reaper stats!"
+
 
 # ==============================================================================
 # TEST 8: IRStateManager Unsafe Connection & Fallback Returns
 # ==============================================================================
 def test_ir_state_manager_unsafe_conn_and_fallback(tmp_path):
     """
-    Proves the IRStateManager safely handles an unexpected None connection 
+    Proves the IRStateManager safely handles an unexpected None connection
     and invalid modes without crashing, returning empty sets as required.
     """
     # 1. Test invalid mode (Missing returns fix)
     invalid_mgr = controller_module.IRStateManager("UNKNOWN_MODE", tmp_path)
     assert invalid_mgr.get_dead_paras("PGM") == set(), "Failed to return empty set on invalid mode!"
     assert invalid_mgr.get_orphaned_vars("PGM") == set(), "Failed to return empty set on invalid mode!"
-    
+
     # 2. Test SQLITE mode but connection drops/is None (Unsafe connection fix)
     sql_mgr = controller_module.IRStateManager("SQLITE", tmp_path)
-    sql_mgr.conn = None # Force the connection to drop
-    
+    sql_mgr.conn = None  # Force the connection to drop
+
     # Should not raise an AttributeError
     sql_mgr.record_dead_code("PGM", {"PARA"}, {"VAR"})
     assert sql_mgr.get_dead_paras("PGM") == set(), "Failed to return empty set on dropped connection!"

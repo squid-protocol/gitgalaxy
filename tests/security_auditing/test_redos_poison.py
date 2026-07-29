@@ -107,9 +107,7 @@ class TestProductionRegexSecurity:
             p.join()
 
         if vulnerable:
-            pytest.fail(
-                f"🔥 SECURITY BREACH: ReDoS vulnerability detected! Regex hung on:\n{vulnerable}"
-            )
+            pytest.fail(f"🔥 SECURITY BREACH: ReDoS vulnerability detected! Regex hung on:\n{vulnerable}")
 
 
 if __name__ == "__main__":

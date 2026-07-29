@@ -17,21 +17,18 @@ def _write_config_yaml(tmp_path, **overrides):
     yaml_path.write_text(yaml.dump({"galaxyscope": overrides}))
     return str(yaml_path)
 
+
 # ==============================================================================
 # TEST 1: Denylist Path Evaluation (Immediate Blocking)
 # ==============================================================================
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.ApertureFilter")
-def test_sentinel_denylist_blocking(
-    mock_aperture_class, mock_security_class, tmp_path
-):
+def test_sentinel_denylist_blocking(mock_aperture_class, mock_security_class, tmp_path):
     """
     Proves that files matching the DENYLIST_PATTERNS are instantly blocked
     and trigger a pipeline failure without requiring a deep content scan.
     """
-    config_path = _write_config_yaml(
-        tmp_path, DENYLIST_PATTERNS=["*.pem", "id_rsa*"], ALLOWLIST_PATHS=[]
-    )
+    config_path = _write_config_yaml(tmp_path, DENYLIST_PATTERNS=["*.pem", "id_rsa*"], ALLOWLIST_PATHS=[])
 
     mock_aperture = mock_aperture_class.return_value
     mock_aperture._check_ignore_rules.return_value = True
@@ -46,14 +43,13 @@ def test_sentinel_denylist_blocking(
             sentinel_module.main()
         assert exc.value.code == 1, "Sentinel failed to block a denylisted file pattern."
 
+
 # ==============================================================================
 # TEST 2: Deep Content Inspection (Hardcoded Credential Leaks)
 # ==============================================================================
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.ApertureFilter")
-def test_sentinel_content_breach(
-    mock_aperture_class, mock_security_class, tmp_path
-):
+def test_sentinel_content_breach(mock_aperture_class, mock_security_class, tmp_path):
     """
     Proves that seemingly benign files are deeply scanned, and if the SAST engine
     detects private_info signatures, it successfully halts the pipeline.
@@ -78,34 +74,27 @@ def test_sentinel_content_breach(
 
     repo_dir = tmp_path / "deepscan_repo"
     repo_dir.mkdir()
-    (repo_dir / "database_config.py").write_text(
-        "AWS_KEY = 'AKIAIOSFODNN7EXAMPLE'", encoding="utf-8"
-    )
+    (repo_dir / "database_config.py").write_text("AWS_KEY = 'AKIAIOSFODNN7EXAMPLE'", encoding="utf-8")
 
     test_args = ["vault_sentinel.py", str(repo_dir), "--config", config_path]
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as exc:
             sentinel_module.main()
 
-        assert exc.value.code == 1, (
-            "Sentinel failed to halt the pipeline on a hardcoded credential detection."
-        )
+        assert exc.value.code == 1, "Sentinel failed to halt the pipeline on a hardcoded credential detection."
+
 
 # ==============================================================================
 # TEST 3: Allowlist Path Exclusions (Test Key Suppression)
 # ==============================================================================
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.ApertureFilter")
-def test_sentinel_allowlist_bypass(
-    mock_aperture_class, mock_security_class, tmp_path, capsys
-):
+def test_sentinel_allowlist_bypass(mock_aperture_class, mock_security_class, tmp_path, capsys):
     """
     Proves that if a file resides explicitly inside an ALLOWLIST_PATH, it completely
     bypasses both Denylist path checks and Deep Content scanning triggers.
     """
-    config_path = _write_config_yaml(
-        tmp_path, DENYLIST_PATTERNS=["*.pem"], ALLOWLIST_PATHS=["mock_keys/"]
-    )
+    config_path = _write_config_yaml(tmp_path, DENYLIST_PATTERNS=["*.pem"], ALLOWLIST_PATHS=["mock_keys/"])
 
     mock_aperture = mock_aperture_class.return_value
     mock_aperture._check_ignore_rules.return_value = True
@@ -131,22 +120,19 @@ def test_sentinel_allowlist_bypass(
         with patch.object(sys, "argv", test_args):
             sentinel_module.main()
     except SystemExit:
-        pytest.fail(
-            "The Allowlist evaluation failed. A designated test credential triggered a pipeline failure."
-        )
+        pytest.fail("The Allowlist evaluation failed. A designated test credential triggered a pipeline failure.")
 
     captured = capsys.readouterr()
     assert "[ALLOWLIST BYPASS]" in captured.out
     assert "[SUCCESS] No unauthorized secrets detected." in captured.out
+
 
 # ==============================================================================
 # TEST 4: Root Traversal Ignore Rules (Skipping .git / node_modules)
 # ==============================================================================
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.ApertureFilter")
-def test_ignore_rules_traversal(
-    mock_aperture_class, mock_security_class, tmp_path, capsys
-):
+def test_ignore_rules_traversal(mock_aperture_class, mock_security_class, tmp_path, capsys):
     """
     Ensures that os.walk is properly mutated to completely skip directories
     like .git or node_modules that fail the ApertureFilter check.
@@ -187,14 +173,13 @@ def test_ignore_rules_traversal(
     captured = capsys.readouterr()
     assert "Files Evaluated    : 1" in captured.out, "Failed to skip the .git directory contents during traversal."
 
+
 # ==============================================================================
 # TEST 5: Exception Handling (Unreadable Files)
 # ==============================================================================
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.SecurityLens")
 @patch("gitgalaxy.tools.supply_chain_security.vault_sentinel.ApertureFilter")
-def test_unreadable_file_handling(
-    mock_aperture_class, mock_security_class, tmp_path
-):
+def test_unreadable_file_handling(mock_aperture_class, mock_security_class, tmp_path):
     """
     Validates that a file generating an I/O or Permission error during reading
     is gracefully skipped without crashing the Sentinel.
@@ -218,6 +203,7 @@ def test_unreadable_file_handling(
     except SystemExit as exc:
         pytest.fail(f"Sentinel failed to gracefully handle file read exception. Exited with {exc.code}")
 
+
 # ==============================================================================
 # TEST 6: CLI Main - Missing Target Validation
 # ==============================================================================
@@ -230,6 +216,7 @@ def test_main_missing_target(capsys):
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
     assert "Error: Target" in captured.out
+
 
 # ==============================================================================
 # TEST 7: #335 -- .galaxyscope.yaml ACTUALLY REACHES STANDALONE MAIN()

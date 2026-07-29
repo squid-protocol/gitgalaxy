@@ -26,12 +26,7 @@ def test_defaults_only_does_not_mutate_source_module(tmp_path):
     # would permanently pollute the process-wide default for every run
     # after it (import-time singletons are shared across the whole process).
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  APERTURE_CONFIG:\n"
-        "    IGNORED_DIRECTORIES:\n"
-        "      - some_totally_new_dir\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  APERTURE_CONFIG:\n    IGNORED_DIRECTORIES:\n      - some_totally_new_dir\n")
     before = set(defaults.APERTURE_CONFIG["IGNORED_DIRECTORIES"])
 
     resolved = resolve_config(yaml_path=str(yaml_path))
@@ -81,12 +76,7 @@ def test_cli_overrides_default_with_no_yaml():
 
 def test_yaml_extends_set_valued_key_instead_of_replacing(tmp_path):
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  APERTURE_CONFIG:\n"
-        "    IGNORED_DIRECTORIES:\n"
-        "      - my_custom_build_dir\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  APERTURE_CONFIG:\n    IGNORED_DIRECTORIES:\n      - my_custom_build_dir\n")
 
     resolved = resolve_config(yaml_path=str(yaml_path))
     merged = resolved.APERTURE_CONFIG["IGNORED_DIRECTORIES"]
@@ -99,11 +89,7 @@ def test_yaml_extends_set_valued_key_instead_of_replacing(tmp_path):
 
 def test_yaml_extends_list_valued_key(tmp_path):
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  BLACKLISTED_IMPORTS:\n"
-        "    - evil-pkg\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  BLACKLISTED_IMPORTS:\n    - evil-pkg\n")
 
     resolved = resolve_config(yaml_path=str(yaml_path))
 
@@ -112,11 +98,7 @@ def test_yaml_extends_list_valued_key(tmp_path):
 
 def test_yaml_replaces_scalar_valued_key(tmp_path):
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  APERTURE_CONFIG:\n"
-        "    MAX_LINE_LENGTH: 123\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  APERTURE_CONFIG:\n    MAX_LINE_LENGTH: 123\n")
 
     resolved = resolve_config(yaml_path=str(yaml_path))
 
@@ -126,12 +108,7 @@ def test_yaml_replaces_scalar_valued_key(tmp_path):
 
 def test_yaml_extends_dict_valued_key(tmp_path):
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  GUIDESTAR_CONFIG:\n"
-        "    MANIFEST_MAP:\n"
-        "      mix.exs: elixir\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  GUIDESTAR_CONFIG:\n    MANIFEST_MAP:\n      mix.exs: elixir\n")
 
     resolved = resolve_config(yaml_path=str(yaml_path))
     manifest_map = resolved.GUIDESTAR_CONFIG["MANIFEST_MAP"]
@@ -170,12 +147,7 @@ def test_unknown_nested_yaml_key_raises(tmp_path):
 def test_internal_only_key_rejected_from_yaml(tmp_path):
     # BANDS is an internal label taxonomy, deliberately not overridable.
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  APERTURE_CONFIG:\n"
-        "    BANDS:\n"
-        "      IGNORED: nope\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  APERTURE_CONFIG:\n    BANDS:\n      IGNORED: nope\n")
 
     with pytest.raises(ConfigError, match="BANDS"):
         resolve_config(yaml_path=str(yaml_path))
@@ -253,11 +225,7 @@ def test_no_default_key_defaults_to_empty_list():
 
 def test_no_default_key_extends_from_yaml(tmp_path):
     yaml_path = tmp_path / ".galaxyscope.yaml"
-    yaml_path.write_text(
-        "galaxyscope:\n"
-        "  SARIF_IGNORED_RULES:\n"
-        "    - GH-1022\n"
-    )
+    yaml_path.write_text("galaxyscope:\n  SARIF_IGNORED_RULES:\n    - GH-1022\n")
 
     resolved = resolve_config(yaml_path=str(yaml_path))
 

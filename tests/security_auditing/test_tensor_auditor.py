@@ -50,9 +50,7 @@ def test_tensor_scanner_safetensors_success(scanner, tmp_path):
     # 16,777,216 + 4,096 = 16,781,312 total parameters
     assert result["architecture"] == "LlamaForCausalLM"
     assert result["raw_param_count"] == 16781312
-    assert result["parameters"] == "16.8M", (
-        "Failed to properly format the parameter count!"
-    )
+    assert result["parameters"] == "16.8M", "Failed to properly format the parameter count!"
 
 
 # ==============================================================================
@@ -65,9 +63,7 @@ def test_tensor_scanner_gguf_success(scanner, tmp_path):
     """
     # 1. Create a mock GGUF file (Magic 'GGUF' followed by random binary noise and our ASCII clues)
     binary_payload = (
-        b"GGUF\x02\x00\x00\x00"
-        + b"\x88\x99\xaa\xbb"
-        + b"model.architecture...mistral...quantization...Q4_K"
+        b"GGUF\x02\x00\x00\x00" + b"\x88\x99\xaa\xbb" + b"model.architecture...mistral...quantization...Q4_K"
     )
 
     gguf_file = tmp_path / "mock_mistral.gguf"
@@ -111,9 +107,7 @@ def test_tensor_scanner_safetensors_massive_header(scanner, tmp_path):
 
     result = scanner.audit_model(str(st_file))
 
-    assert result["architecture"] == "Corrupted/Unknown", (
-        "Failed to block the massive Memory Bomb trap!"
-    )
+    assert result["architecture"] == "Corrupted/Unknown", "Failed to block the massive Memory Bomb trap!"
     assert result["parameters"] == "Error"
 
 

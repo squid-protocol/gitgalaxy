@@ -56,6 +56,7 @@ one baseline entry each, so fixing some-but-not-all of them on such a
 line won't show up as partial progress. Real, but rare (5/235 initially)
 and not worth a more fragile per-occurrence key scheme to fully solve.
 """
+
 import argparse
 import json
 import re
@@ -115,7 +116,7 @@ def run_full_report() -> int:
     print(
         "\nTo accept this as the new baseline (e.g. after a cleanup PR), regenerate it with:\n"
         '  python -c "from tests.mypy_audit import run_mypy; import json; '
-        'json.dump(run_mypy(), open(\'tests/mypy_audit_baseline.json\', \'w\'), indent=2, sort_keys=True)"'
+        "json.dump(run_mypy(), open('tests/mypy_audit_baseline.json', 'w'), indent=2, sort_keys=True)\""
     )
     return 1
 

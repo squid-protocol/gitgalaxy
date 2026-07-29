@@ -1,10 +1,12 @@
 import pytest
 from gitgalaxy.recorders.gpu_recorder import GPURecorder
 
+
 @pytest.fixture
 def recorder():
     """Initializes the GPURecorder for WebGL payload generation testing."""
     return GPURecorder(version="6.3.2")
+
 
 @pytest.fixture
 def mock_pipeline_state():
@@ -36,7 +38,7 @@ def mock_pipeline_state():
                     "start_line": 10,
                     "end_line": 60,
                 }
-            ]
+            ],
         },
         {
             "path": "src/db/models.py",
@@ -52,8 +54,8 @@ def mock_pipeline_state():
                 "archetype_fingerprint": {"Data Model": 0.1},
                 "domain_context": {"AI Threat Score": "10.0%"},
             },
-            "functions": []
-        }
+            "functions": [],
+        },
     ]
 
     excluded_artifacts = [
@@ -101,7 +103,7 @@ def test_destructive_ram_eviction(recorder, mock_pipeline_state):
 # ==============================================================================
 def test_string_interning_compression(recorder, mock_pipeline_state):
     """
-    Proves that repetitive strings (like languages and authors) are correctly 
+    Proves that repetitive strings (like languages and authors) are correctly
     interned into O(1) integer IDs to compress the final JSON payload.
     """
     artifacts, excluded, summary = mock_pipeline_state
@@ -125,7 +127,7 @@ def test_string_interning_compression(recorder, mock_pipeline_state):
 # ==============================================================================
 def test_dependency_edge_mapping(recorder, mock_pipeline_state):
     """
-    Proves that inbound and outbound edges are perfectly mapped, 
+    Proves that inbound and outbound edges are perfectly mapped,
     accounting for the reverse-index processing caused by the .pop() loop.
     """
     artifacts, excluded, summary = mock_pipeline_state
@@ -152,7 +154,7 @@ def test_dependency_edge_mapping(recorder, mock_pipeline_state):
 # ==============================================================================
 def test_ai_threat_score_quantization(recorder, mock_pipeline_state):
     """
-    Proves that XGBoost AI Threat Scores are safely stripped of their percentage 
+    Proves that XGBoost AI Threat Scores are safely stripped of their percentage
     signs and quantized into integer arrays for WebGL processing.
     """
     artifacts, excluded, summary = mock_pipeline_state
@@ -172,8 +174,8 @@ def test_ai_threat_score_quantization(recorder, mock_pipeline_state):
 # ==============================================================================
 def test_function_csr_flattening(recorder, mock_pipeline_state):
     """
-    Proves the nested functions dictionary is correctly flattened into the 
-    `satellite_data_flat` array (groups of 10 data points), and that 
+    Proves the nested functions dictionary is correctly flattened into the
+    `satellite_data_flat` array (groups of 10 data points), and that
     `satellite_offsets` accurately tracks the boundaries for the WebGL shader.
     """
     artifacts, excluded, summary = mock_pipeline_state
@@ -183,23 +185,24 @@ def test_function_csr_flattening(recorder, mock_pipeline_state):
 
     # models.py (Idx 0) has 0 functions.
     # router.py (Idx 1) has 1 function (10 flattened parameters).
-    
+
     assert len(galaxy["satellite_data_flat"]) == 10
-    assert galaxy["satellite_data_flat"][0] == "process_request" # The name
-    assert galaxy["satellite_data_flat"][1] == 50 # The LOC
+    assert galaxy["satellite_data_flat"][0] == "process_request"  # The name
+    assert galaxy["satellite_data_flat"][1] == 50  # The LOC
 
     # The offsets array tracks the *cumulative* function count at each file index.
     # Start: [0]
     # After models.py (0 funcs): [0, 0]
     # After router.py (1 func): [0, 0, 1]
     assert galaxy["satellite_offsets"] == [0, 0, 1]
-    
+
+
 # ==============================================================================
 # TEST 6: UNSCANNED ARTIFACT FALLBACK (ISSUE #100)
 # ==============================================================================
 def test_unscanned_risk_vector_fallback(recorder, mock_pipeline_state):
     """
-    Proves that artifacts missing a risk_vector (due to parser bypass or 
+    Proves that artifacts missing a risk_vector (due to parser bypass or
     Zero-Dependency mode) default to -1.0 (quantized to -10) rather than 0.0.
     This prevents the WebGL engine from fabricating a 'Safe' visual state.
     """
@@ -212,10 +215,11 @@ def test_unscanned_risk_vector_fallback(recorder, mock_pipeline_state):
     result = recorder.record_mission(artifacts, excluded, summary, "test")
     galaxy = result["galaxy"]
 
-    # Since both files lack a risk vector, EVERY entry in the flattened risk 
+    # Since both files lack a risk vector, EVERY entry in the flattened risk
     # array must be exactly -10 (which represents -1.0 in the WebGPU shader).
     risks_flat = galaxy["risks_flat"]
-    
+
     assert len(risks_flat) > 0, "Flat risk array should not be empty!"
-    assert all(val == -10 for val in risks_flat), \
+    assert all(val == -10 for val in risks_flat), (
         "FATAL: Recorder injected 0.0 instead of -10 for missing risk vectors!"
+    )

@@ -112,7 +112,7 @@ def run_check(mode_key: str) -> bool:
         marker = "Structural drift detected"
         idx = combined.find(marker)
         if idx != -1:
-            print(combined[idx:idx + 4000])
+            print(combined[idx : idx + 4000])
         else:
             print("\n".join(combined.splitlines()[-40:]))
     return passed
@@ -129,7 +129,9 @@ def run_update(mode_key: str, yes: bool) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--mode", choices=["full", "zero", "both"], default="both")
-    parser.add_argument("--update", action="store_true", help="Regenerate (bless) the fixture(s) instead of just checking.")
+    parser.add_argument(
+        "--update", action="store_true", help="Regenerate (bless) the fixture(s) instead of just checking."
+    )
     parser.add_argument("--yes", action="store_true", help="Skip update_golden_master.py's confirmation prompt.")
     args = parser.parse_args()
 

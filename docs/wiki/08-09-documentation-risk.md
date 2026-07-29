@@ -78,6 +78,7 @@ $$\text{FinalRisk} = \min(\text{RawRisk} \times \text{FinalMultiplier}, 100.0)$$
 import math
 from typing import Dict, List, Any
 
+
 def _calc_documentation(
     self,
     loc: int,
@@ -89,29 +90,29 @@ def _calc_documentation(
     functions: List[Dict[str, Any]] = None,
     doc_umbrella: float = 0.0,
     popularity: int = 0,
-    silo_exposure: float = 0.0
+    silo_exposure: float = 0.0,
 ) -> float:
     t = self.risk_tuning.get("documentation", {})
-    
+
     # 1. Knowledge Shield Defense Calculation
-    umbrella_defense = doc_umbrella * 50.0 
-    
+    umbrella_defense = doc_umbrella * 50.0
+
     defense_hits = (
         (eq.get("doc", 0) * t.get("doc_weight", 1.0))
         + (eq.get("ownership", 0) * t.get("ownership_weight", 0.5))
         + (doc_loc * t.get("doc_loc_weight", 0.33))
         + umbrella_defense
     ) * fc
-    
+
     # 2. Undocumented Function Risk Calculation
     kinetic_blindness = 0.0
     api_exposure = eq.get("api", 0) * 2.0
-    
+
     if functions:
         for func in functions:
             impact = func.get("impact", 0.0)
             big_o = func.get("big_o_depth", 1)
-            
+
             # Penalize undocumented complex functions
             if (impact > 50.0 or big_o >= 3) and not func.get("docstring"):
                 kinetic_blindness += 5.0 + (math.log1p(impact) * (big_o * 0.5))
@@ -125,10 +126,10 @@ def _calc_documentation(
     # 4. Systemic Multipliers (Blast Radius & Bus Factor)
     network_multiplier = 1.0 + (popularity / 10.0)
     silo_multiplier = 1.0 + (silo_exposure / 200.0)
-    
+
     final_multiplier = network_multiplier * silo_multiplier * mp
     threshold = t.get("threshold_base", 10.0)
-    
+
     # 5. Sigmoid Risk Curve
     try:
         raw_risk = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.2) * (density - threshold)))

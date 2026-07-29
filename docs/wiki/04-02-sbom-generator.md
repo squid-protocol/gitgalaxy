@@ -84,7 +84,7 @@ recorder.generate_report(
     summary=summary,
     session_meta=session_meta,
     output_path="bom.json",
-    manifest_paths=manifest_paths
+    manifest_paths=manifest_paths,
 )
 ```
 

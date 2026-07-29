@@ -22,6 +22,7 @@ Updates whichever fixture matches the CURRENT environment (full-precision
 if networkx/tiktoken/pandas/xgboost are installed, zero-dependency-mode
 otherwise) -- run it once per mode if both fixtures need updating.
 """
+
 import argparse
 import os
 import subprocess
@@ -36,9 +37,7 @@ from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_TIKTOKEN, HAS_PYYAML  # noqa
 from gitgalaxy.security.security_auditor import ML_AVAILABLE  # noqa: E402
 
 REPO_ROOT = Path(__file__).parent.parent.parent
-CRUCIBLE_DATA_PATH = Path(
-    os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")
-) / "data"
+CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"
 
 
 def zero_dependency_mode() -> bool:
@@ -121,7 +120,7 @@ def main():
 
     print(f"\n✅ Updated {golden_master_path.relative_to(REPO_ROOT)}.")
     print("   Commit it as part of this PR, and explain in the PR description WHY the output")
-    print("   changed (e.g. \"improved X parser, now correctly detects Y\") -- see CONTRIBUTING.md.")
+    print('   changed (e.g. "improved X parser, now correctly detects Y") -- see CONTRIBUTING.md.')
 
 
 if __name__ == "__main__":

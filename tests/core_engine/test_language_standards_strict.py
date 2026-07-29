@@ -5937,6 +5937,7 @@ def test_livecode_ipc_rpc_bridges_shell_trailing_boundary_regression():
 # COMMENT-STYLE COMPLETENESS (Rule 12)
 # ==============================================================================
 
+
 def test_livecode_dead_code_comment_style_completeness():
     pattern = LIVECODE_RULES["dead_code"]
     assert pattern.search("-- put 1 into x"), "'--' style regressed"
@@ -9991,9 +9992,7 @@ def test_abap_redos_immunity_sweep():
     assert_redos_immune(ABAP_RULES["dead_code"], "*" + " " * 100000, timeout_sec=3.0)
     assert_redos_immune(ABAP_RULES["ownership"], "AUTHOR: " + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(ABAP_RULES["_dependency_capture"], "INCLUDE " + " " * 100000, timeout_sec=3.0)
-    assert_redos_immune(
-        ABAP_RULES["reflection_metaprogramming"], "ASSIGN (" + "a" * 100000, timeout_sec=3.0
-    )
+    assert_redos_immune(ABAP_RULES["reflection_metaprogramming"], "ASSIGN (" + "a" * 100000, timeout_sec=3.0)
 
     # sanity: all still match their real positive cases after the sweep
     assert ABAP_RULES["func_start"].search("METHOD do_thing.")

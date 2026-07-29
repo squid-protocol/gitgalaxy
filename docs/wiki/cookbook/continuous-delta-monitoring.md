@@ -50,11 +50,11 @@ ram_cache = rehydrator.load_latest_state("my_enterprise_repo")
 # 2. Ignite the Delta Engine
 scope = Orchestrator("/path/to/repo", config)
 scope.execute_delta_mission(
-    ram_cache=ram_cache['cryolink'],
+    ram_cache=ram_cache["cryolink"],
     added=["src/api/new_route.py"],
     modified=["src/core/auth.py"],
     deleted=["src/legacy/old_auth.py"],
-    db_output_path="repo_master.db"
+    db_output_path="repo_master.db",
 )
 ```
 

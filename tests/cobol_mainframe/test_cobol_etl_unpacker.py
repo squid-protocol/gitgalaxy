@@ -19,12 +19,8 @@ def test_calculate_byte_layout():
         "properties": {
             "FIRST_NAME": {"description": "Legacy PIC: X(10)"},  # 10 bytes text
             "AGE": {"description": "Legacy PIC: 999"},  # 3 bytes numeric (zoned)
-            "BALANCE": {
-                "description": "Legacy PIC: 9(5)V9(2) COMP-3"
-            },  # 7 digits COMP-3 = 4 bytes
-            "DEBT": {
-                "description": "Legacy PIC: 9(4)V99 COMP-3"
-            },  # 6 digits COMP-3 = 4 bytes
+            "BALANCE": {"description": "Legacy PIC: 9(5)V9(2) COMP-3"},  # 7 digits COMP-3 = 4 bytes
+            "DEBT": {"description": "Legacy PIC: 9(4)V99 COMP-3"},  # 6 digits COMP-3 = 4 bytes
         }
     }
 

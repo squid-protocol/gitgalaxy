@@ -9,7 +9,7 @@ def keeper():
     """Initializes the RecordKeeper with a controlled schema for deterministic testing."""
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "cognitive_load"],
-        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "prompt_injection"]
+        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "prompt_injection"],
     }
     with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
         return RecordKeeper()
@@ -42,17 +42,17 @@ def mock_pipeline_state():
                 "domain_context": {
                     "parent_entity": "AuthService",
                     "AI Threat Score": "95.5%",
-                    "AI Threat Class": "Botnet / DDoS"
+                    "AI Threat Class": "Botnet / DDoS",
                 },
                 "network_metrics": {
                     "pagerank_score": 0.05,
                     "normalized_blast_radius": 1.2,
-                    "ecosystem_role": "Core Hub"
+                    "ecosystem_role": "Core Hub",
                 },
                 "ai_guardrails": {
                     "is_agentic_black_hole": True,  # Maps to agentic_isolation_risk
-                    "hallucination_zone": False
-                }
+                    "hallucination_zone": False,
+                },
             },
             "is_ml_threat": True,
             "equations": {
@@ -61,13 +61,7 @@ def mock_pipeline_state():
             },
             "risk_vector": [80.0, 60.0],  # debt, cog_load
             "hit_vector": [2, 5, 1],  # danger, io, prompt_injection
-            "classes": [
-                {
-                    "name": "APIRouter",
-                    "inheritance": ["BaseRouter"],
-                    "method_count": 5
-                }
-            ],
+            "classes": [{"name": "APIRouter", "inheritance": ["BaseRouter"], "method_count": 5}],
             "functions": [
                 {
                     "name": "process_request",
@@ -79,31 +73,20 @@ def mock_pipeline_state():
                     "db_complexity": 3,
                     "docstring": "Handles incoming API requests.",
                     "calls_out_to": ["validate_token"],
-                    "hit_vector": {"high_risk_execution": 1, "io": 2}
+                    "hit_vector": {"high_risk_execution": 1, "io": 2},
                 }
-            ]
+            ],
         }
     ]
 
     unparsable_files = [
-        {
-            "path": "assets/logo.png",
-            "reason": "Security Shielding (Format Excluded)",
-            "size_bytes": 1024
-        }
+        {"path": "assets/logo.png", "reason": "Security Shielding (Format Excluded)", "size_bytes": 1024}
     ]
 
     summary = {
-        "summary": {
-            "typosquat_hits": 2
-        },
-        "composition": {
-            "python": {"files": 1, "loc": 200}
-        },
-        "repo_macro_species": {
-            "name": "Web Service",
-            "z_score": 1.2
-        },
+        "summary": {"typosquat_hits": 2},
+        "composition": {"python": {"files": 1, "loc": 200}},
+        "repo_macro_species": {"name": "Web Service", "z_score": 1.2},
         "directory_groups": {
             "src/api": {"total_mass": 45.5, "file_count": 1, "avg_exposures": {"cognitive_load": 60.0}}
         },
@@ -112,11 +95,9 @@ def mock_pipeline_state():
             "assortativity": 0.5,
             "cyclic_density": 0.0,
             "avg_path_length": 1.0,
-            "articulation_points": 1
+            "articulation_points": 1,
         },
-        "ecosystem_audits": {
-            "xray": {"anomalies_found": 1}
-        }
+        "ecosystem_audits": {"xray": {"anomalies_found": 1}},
     }
 
     session_meta = {
@@ -125,11 +106,7 @@ def mock_pipeline_state():
         "target_directory": "/mock/path",
         "timestamp": "2026-06-18T12:00:00Z",
         "duration_seconds": 2.5,
-        "git_audit": {
-            "branch": "main",
-            "commit_hash": "a1b2c3d4",
-            "latest_commit_date": "2026-06-18T10:00:00Z"
-        }
+        "git_audit": {"branch": "main", "commit_hash": "a1b2c3d4", "latest_commit_date": "2026-06-18T10:00:00Z"},
     }
 
     return parsed_files, unparsable_files, summary, session_meta
@@ -157,17 +134,17 @@ def test_record_keeper_schema_creation(keeper, mock_pipeline_state, tmp_path):
     assert "file_data" in tables
     assert "function_data" in tables
     assert "excluded_artifacts" in tables  # Updated Terminology
-    assert "folder_data" in tables    # Updated Terminology
+    assert "folder_data" in tables  # Updated Terminology
 
     # 2. Verify File Column Mapping (Terminology Updates)
     cursor.execute("PRAGMA table_info(file_data)")
     columns = {row[1] for row in cursor.fetchall()}
-    
+
     assert "ecosystem_baseline" in columns
     assert "agentic_isolation_risk" in columns
     assert "obfuscation_flag" in columns
     assert "risk_tech_debt" in columns  # Dynamically generated from RISK_SCHEMA
-    assert "state_danger" in columns    # Mapped dynamically from SIGNAL_SCHEMA -> SHORT_KEY_MAP
+    assert "state_danger" in columns  # Mapped dynamically from SIGNAL_SCHEMA -> SHORT_KEY_MAP
 
     conn.close()
 
@@ -228,7 +205,7 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     assert func_row["func_name"] == "process_request"
     assert func_row["big_o_depth"] == 2
     assert "validate_token" in func_row["calls_out_to"]
-    
+
     # Verify the specific signal mapped properly in the function table
     assert func_row["arch_io"] == 2  # The hit_vector value for io inside the function dict
 
@@ -250,7 +227,7 @@ def test_record_keeper_idempotency(keeper, mock_pipeline_state, tmp_path):
 
     # 1. Run the first time
     keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
-    
+
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM file_data")
@@ -283,10 +260,10 @@ def test_record_keeper_empty_state(keeper, tmp_path):
     assert db_path.exists()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
+
     cursor.execute("SELECT COUNT(*) FROM file_data")
     assert cursor.fetchone()[0] == 0
-    
+
     cursor.execute("SELECT COUNT(*) FROM repo_data")
     assert cursor.fetchone()[0] == 1  # The repo row should exist, just filled with 0s
 

@@ -50,23 +50,17 @@ PRINTIFY_MAP = {
 app = Flask(__name__, static_folder=".", static_url_path="")
 
 # Standard console logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
 # DEAD-LETTER LOGGING: Save critical dropped orders to a dedicated file
 file_handler = logging.FileHandler("gitgalaxy_dropped_orders.log")
 file_handler.setLevel(logging.ERROR)
-file_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-)
+file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 logger.addHandler(file_handler)
 
 # Pull the path from the .env file. Fallback directly to your new museum folder!
-BACKEND_DATA_PATH = os.getenv(
-    "GALAXY_DATA_PATH", "/srv/storage_16tb/projects/gitgalaxy/museum"
-)
+BACKEND_DATA_PATH = os.getenv("GALAXY_DATA_PATH", "/srv/storage_16tb/projects/gitgalaxy/museum")
 os.makedirs(BACKEND_DATA_PATH, exist_ok=True)
 
 
@@ -149,9 +143,7 @@ def create_checkout_session():
         else:
             base64_str = image_data_url
 
-        logger.info(
-            "Uploading custom high-res image to Printify. This may take a few seconds..."
-        )
+        logger.info("Uploading custom high-res image to Printify. This may take a few seconds...")
 
         # Use our robust session to upload the image!
         printify = get_printify_session()
@@ -176,9 +168,7 @@ def create_checkout_session():
                 {
                     "price_data": {
                         "currency": "usd",
-                        "product_data": {
-                            "name": f"GitGalaxy Custom Print ({mapped_item['name']})"
-                        },
+                        "product_data": {"name": f"GitGalaxy Custom Print ({mapped_item['name']})"},
                         "unit_amount": mapped_item["price"],
                     },
                     "quantity": 1,  # 👈 This is the default starting amount
@@ -210,9 +200,7 @@ def create_checkout_session():
         # Keep the raw error in YOUR logs, but give the user a sanitized message
         logger.error(f"Stripe Session Error: {str(e)}")
         return (
-            jsonify(
-                error="An internal payment processing error occurred. Please contact support."
-            ),
+            jsonify(error="An internal payment processing error occurred. Please contact support."),
             500,
         )
 
@@ -223,9 +211,7 @@ def stripe_webhook():
     sig_header = request.headers.get("Stripe-Signature")
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, STRIPE_WEBHOOK_SECRET
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
     except ValueError:
         return "Invalid payload", 400
     except stripe.error.SignatureVerificationError:
@@ -234,25 +220,17 @@ def stripe_webhook():
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
 
-        logger.info(
-            "Webhook caught checkout.session.completed! Processing Printify order..."
-        )
+        logger.info("Webhook caught checkout.session.completed! Processing Printify order...")
 
         # Safely extract data
-        shipping = (
-            session.get("shipping_details") or session.get("customer_details") or {}
-        )
+        shipping = session.get("shipping_details") or session.get("customer_details") or {}
         address = shipping.get("address") or {}
         metadata = session.get("metadata") or {}
 
         poster_size = metadata.get("poster_size", "5400x3600")
         image_id = metadata.get("image_id")
 
-        first_name = (
-            shipping.get("name", "Valued").split()[0]
-            if shipping.get("name")
-            else "Valued"
-        )
+        first_name = shipping.get("name", "Valued").split()[0] if shipping.get("name") else "Valued"
         last_name = (
             " ".join(shipping.get("name", "Customer").split()[1:])
             if len(shipping.get("name", " ").split()) > 1
@@ -317,9 +295,7 @@ def stripe_webhook():
                 ],
             }
 
-            create_url = (
-                f"https://api.printify.com/v1/shops/{PRINTIFY_SHOP_ID}/products.json"
-            )
+            create_url = f"https://api.printify.com/v1/shops/{PRINTIFY_SHOP_ID}/products.json"
             create_res = printify.post(create_url, json=new_product_payload, timeout=20)
             create_res.raise_for_status()
 
@@ -327,9 +303,7 @@ def stripe_webhook():
             logger.info(f"Successfully generated custom Product ID: {new_product_id}")
 
             # --- PHASE 3: PLACE THE ORDER ---
-            printify_order_url = (
-                f"https://api.printify.com/v1/shops/{PRINTIFY_SHOP_ID}/orders.json"
-            )
+            printify_order_url = f"https://api.printify.com/v1/shops/{PRINTIFY_SHOP_ID}/orders.json"
             order_data = {
                 "external_id": session.get("id", "test_id"),
                 # 👇 NEW: Pass the dynamic quantity to the printer!
@@ -356,9 +330,7 @@ def stripe_webhook():
             response = printify.post(printify_order_url, json=order_data, timeout=20)
             response.raise_for_status()
 
-            logger.info(
-                f"SUCCESS! Printify order created for Product {new_product_id} with Quantity {final_quantity}!"
-            )
+            logger.info(f"SUCCESS! Printify order created for Product {new_product_id} with Quantity {final_quantity}!")
 
         except (requests.exceptions.RequestException, ValueError, Exception) as e:
             # ==========================================
@@ -390,9 +362,7 @@ def capture_enterprise_lead():
         generic_domains = ["@gmail.com", "@yahoo.com", "@hotmail.com", "@outlook.com"]
         if any(domain in email for domain in generic_domains):
             return (
-                jsonify(
-                    error="Please provide a valid corporate email address for commercial licensing."
-                ),
+                jsonify(error="Please provide a valid corporate email address for commercial licensing."),
                 400,
             )
 
@@ -420,9 +390,7 @@ def capture_enterprise_lead():
         safe_error = str(e).replace("\n", " ")
         logger.error(f"Lead Capture Error: {safe_error}")
         return (
-            jsonify(
-                error="Failed to submit inquiry. Please email commercial@gitgalaxy.io directly."
-            ),
+            jsonify(error="Failed to submit inquiry. Please email commercial@gitgalaxy.io directly."),
             500,
         )
 

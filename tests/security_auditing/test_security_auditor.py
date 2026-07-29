@@ -3,7 +3,16 @@ import numpy as np
 from unittest.mock import patch
 
 # We patch the schemas before importing so the Auditor doesn't fail on boot
-MOCK_SCHEMAS = {"SIGNAL_SCHEMA": ["high_risk_execution", "io", "state_mutation", "safety", "dead_code", "structural_tab_indentations"]}
+MOCK_SCHEMAS = {
+    "SIGNAL_SCHEMA": [
+        "high_risk_execution",
+        "io",
+        "state_mutation",
+        "safety",
+        "dead_code",
+        "structural_tab_indentations",
+    ]
+}
 
 with patch("gitgalaxy.security.security_auditor.RECORDING_SCHEMAS", MOCK_SCHEMAS):
     from gitgalaxy.security.security_auditor import SecurityAuditor
@@ -113,9 +122,7 @@ def test_audit_repository_ml_inference(mock_xgb_class, mock_artifacts):
     # Predict probabilities for 2 files across 5 classes (0=Safe, 1=Botnet, 2=Trojan, etc)
     # File 1: 99% confident it's a Botnet (Class 1)
     # File 2: 99% confident it's Safe Code (Class 0)
-    mock_model.predict_proba.return_value = np.array(
-        [[0.01, 0.99, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]]
-    )
+    mock_model.predict_proba.return_value = np.array([[0.01, 0.99, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]])
 
     auditor = SecurityAuditor()
     auditor.model = mock_model  # Inject the mock model
@@ -130,14 +137,8 @@ def test_audit_repository_ml_inference(mock_xgb_class, mock_artifacts):
     # 3. Assert Shadow Patch Override (main.py has structural_mass > 0.5)
     # Even though the model predicted Class 1 (Botnet), the Shadow Patch forces it to Class 2 (Trojan/Stealer)
     assert main_artifact["is_ml_threat"] is True
-    assert (
-        main_artifact["telemetry"]["domain_context"]["AI Threat Class"]
-        == "Stealer / Trojan"
-    )
-    assert (
-        "SHADOW PATCH: Hash mutated"
-        in main_artifact["telemetry"]["domain_context"]["alert"]
-    )
+    assert main_artifact["telemetry"]["domain_context"]["AI Threat Class"] == "Stealer / Trojan"
+    assert "SHADOW PATCH: Hash mutated" in main_artifact["telemetry"]["domain_context"]["alert"]
 
     # 4. Assert Safe File (utils.py)
     assert utils_artifact["is_ml_threat"] is False
@@ -166,9 +167,7 @@ def test_ai_threat_score_survives_from_auditor_into_recorders(mock_xgb_class, mo
     """
     mock_model = mock_xgb_class.return_value
     mock_model.feature_names_in_ = ["log_logic_loc", "log_density_hit_high_risk_execution"]
-    mock_model.predict_proba.return_value = np.array(
-        [[0.01, 0.99, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]]
-    )
+    mock_model.predict_proba.return_value = np.array([[0.01, 0.99, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]])
 
     auditor = SecurityAuditor()
     auditor.model = mock_model
@@ -228,9 +227,7 @@ def test_audit_repository_threshold_gating(mock_xgb_class, mock_artifacts):
     mock_model.feature_names_in_ = ["log_logic_loc"]
 
     # Predict Class 1 (Botnet) with 85% confidence
-    mock_model.predict_proba.return_value = np.array(
-        [[0.15, 0.85, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0]]
-    )
+    mock_model.predict_proba.return_value = np.array([[0.15, 0.85, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0]])
 
     auditor = SecurityAuditor()
     auditor.model = mock_model
@@ -251,7 +248,7 @@ def test_construct_feature_matrix_exclusion_list(mock_artifacts):
     """Ensures noisy signals (like indentation factions) are stripped before ML evaluation."""
     auditor = SecurityAuditor()
     auditor.SIGNAL_SCHEMA = ["high_risk_execution", "structural_tab_indentations"]
-    
+
     # Inject the excluded signal into the mock artifact
     mock_artifacts[0]["hit_vector"] = [5, 100]
 
@@ -270,31 +267,32 @@ def test_construct_feature_matrix_exclusion_list(mock_artifacts):
 def test_audit_repository_empty_state():
     """Proves the auditor safely exits without crashing if the repository has 0 artifacts."""
     auditor = SecurityAuditor()
-    
+
     # Passing an empty array should instantly return an empty array
     result = auditor.audit_repository([])
     assert result == [], "Empty state handling failed!"
+
 
 # ==============================================================================
 # TEST 8: PANDAS NaN SPARSITY HANDLING (ZERO-DEPENDENCY MODE)
 # ==============================================================================
 def test_construct_feature_matrix_nan_handling(mock_artifacts):
     """
-    Proves that missing columns (from Zero-Dependency mode) and Inf values 
-    are properly converted to np.nan, preserving the native sparsity required 
+    Proves that missing columns (from Zero-Dependency mode) and Inf values
+    are properly converted to np.nan, preserving the native sparsity required
     by XGBoost and preventing artificial data poisoning (Issue #98).
     """
     auditor = SecurityAuditor()
-    
+
     # 1. Define a schema that includes a feature completely missing from the artifacts
     auditor.SIGNAL_SCHEMA = ["high_risk_execution"]
     auditor.feature_names = [
         "log_logic_loc",
         "log_density_hit_high_risk_execution",
         "missing_ml_feature",  # This column does NOT exist in the artifact data
-        "ownership_entropy"    # Added so Pandas doesn't drop it during reindex
+        "ownership_entropy",  # Added so Pandas doesn't drop it during reindex
     ]
-    
+
     # 2. Inject an intentional Infinity value to trigger the sanitization block
     # (e.g. simulating a division by zero that slipped through log1p)
     mock_artifacts[0]["telemetry"]["ownership_entropy"] = np.inf
@@ -316,34 +314,34 @@ def test_construct_feature_matrix_nan_handling(mock_artifacts):
     assert np.isnan(X.iloc[0]["ownership_entropy"]), (
         "Data Poisoning Bug! Infinity values were forced to 0 instead of NaN."
     )
-    
+
     # Assert 3: Valid data remained perfectly intact
     assert X.iloc[0]["log_logic_loc"] > 0.0, "Valid data was accidentally wiped!"
-    
+
+
 # ==============================================================================
 # TEST 9: SHADOW PATCH WHITESPACE GUARD (UNHAPPY PATH)
 # ==============================================================================
 @patch("gitgalaxy.security.security_auditor.xgb.XGBClassifier")
 def test_shadow_patch_whitespace_guard(mock_xgb_class, mock_artifacts):
     """
-    Proves that a file with a mutated hash (Shadow Patch) does NOT trigger 
+    Proves that a file with a mutated hash (Shadow Patch) does NOT trigger
     the malware override if its structural impact is too low (e.g., a simple whitespace change).
     """
     mock_model = mock_xgb_class.return_value
     mock_model.feature_names_in_ = ["log_logic_loc"]
     # Predict Safe Code (Class 0)
     mock_model.predict_proba.return_value = np.array([[0.99, 0.01, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]])
-    
+
     auditor = SecurityAuditor()
     auditor.model = mock_model
     auditor.feature_names = ["log_logic_loc"]
-    
+
     # Modify main.py to have almost zero structural mass (e.g., a whitespace change)
     mock_artifacts[0]["file_impact"] = 0.1
-    
+
     # Run the audit with the Shadow Patch flag engaged
     audited = auditor.audit_repository(mock_artifacts, is_shadow_patch=True)
-    
+
     # Because file_impact < 0.5, it should remain Safe Code, bypassing the Trojan override
     assert audited[0]["is_ml_threat"] is False, "Whitespace change was falsely flagged as a Shadow Patch Trojan!"
-

@@ -59,6 +59,7 @@ $$\text{FinalScore} = \min(\text{BaseScore} \times Mp, 100.0)$$
 import math
 from typing import List, Dict, Any
 
+
 def _normalize_temporal_metrics(self, stars: List[Dict[str, Any]]):
     """Normalizes commit churn using a Logarithmic Curve for smooth relative scaling."""
     if not stars:

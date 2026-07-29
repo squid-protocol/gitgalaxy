@@ -12,6 +12,7 @@ Opt-in via the `golden_crucible` marker (excluded from the default
 language-crucible corpus checked out locally and takes real wall-clock time
 -- CI invokes it explicitly with `pytest -m golden_crucible`.
 """
+
 import os
 import subprocess
 import sys
@@ -28,9 +29,7 @@ import golden_diff  # noqa: E402
 pytestmark = pytest.mark.golden_crucible
 
 REPO_ROOT = Path(__file__).parent.parent
-CRUCIBLE_DATA_PATH = Path(
-    os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")
-) / "data"
+CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"
 
 
 def _zero_dependency_mode() -> bool:

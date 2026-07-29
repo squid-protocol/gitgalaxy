@@ -72,8 +72,7 @@ def test_correlate_scoped_rejects_cross_function_mitigation():
 
     scoped_unmit, scoped_mit = correlate_scoped(targets, dampeners, satellites, max_distance=500)
     assert (scoped_unmit, scoped_mit) == (1, 0), (
-        "Scoped correlation must NOT let a dampener in a different function "
-        "silently cancel real risk in this one"
+        "Scoped correlation must NOT let a dampener in a different function silently cancel real risk in this one"
     )
 
 

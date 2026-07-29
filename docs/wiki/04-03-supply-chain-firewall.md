@@ -71,11 +71,7 @@ The firewall supports both programmatic integration and standalone CLI execution
 ```python
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import run_firewall_audit
 
-results = run_firewall_audit(
-    parsed_files=repository_graph,
-    alias_map=manifest_aliases,
-    config=resolved_config
-)
+results = run_firewall_audit(parsed_files=repository_graph, alias_map=manifest_aliases, config=resolved_config)
 ```
 
 ### Standalone CLI Execution

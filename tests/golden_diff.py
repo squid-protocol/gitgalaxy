@@ -12,11 +12,12 @@ from typing import Any, Dict
 FLOAT_REL_TOL = 1e-6
 FLOAT_ABS_TOL = 1e-6
 
+
 def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     """Loads JSON and strips volatile execution metadata."""
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
+
     # Strip out volatile metadata that changes every run
     if "1. Forensic Trail (Traceability)" in data:
         context = data["1. Forensic Trail (Traceability)"].get("Analysis Context", {})
@@ -38,6 +39,7 @@ def load_and_sanitize(filepath: str) -> Dict[str, Any]:
 
     return data
 
+
 def _normalize_floats(data: Any) -> Any:
     """Rounds floats to FLOAT_ABS_TOL's precision so summation-order noise
     doesn't change the deterministic hash between two structurally-identical runs."""
@@ -49,16 +51,19 @@ def _normalize_floats(data: Any) -> Any:
         return [_normalize_floats(v) for v in data]
     return data
 
+
 def generate_deterministic_hash(data: Dict[str, Any]) -> str:
     """Creates a stable MD5 hash of a dictionary regardless of key insertion order."""
     # sort_keys=True guarantees the JSON string is always structurally identical
     normalized = _normalize_floats(data)
-    sanitized_string = json.dumps(normalized, sort_keys=True, separators=(',', ':'))
-    return hashlib.md5(sanitized_string.encode('utf-8')).hexdigest()
+    sanitized_string = json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+    return hashlib.md5(sanitized_string.encode("utf-8")).hexdigest()
+
 
 def _is_real_number(value: Any) -> bool:
     # bool is a subclass of int in Python -- True/False must still compare exactly.
     return isinstance(value, (int, float)) and not isinstance(value, bool)
+
 
 def deep_compare(expected: Any, actual: Any, path: str = "") -> list:
     """Recursive diffing engine. Only runs if hashes mismatch."""
@@ -80,6 +85,7 @@ def deep_compare(expected: Any, actual: Any, path: str = "") -> list:
         differences.append(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}")
 
     return differences
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -112,7 +118,7 @@ if __name__ == "__main__":
     # =========================================================
     print(f"⚠️ STAGE 1 FAIL: Hash mismatch. Expected {golden_hash}, got {actual_hash}.")
     print("⏳ Initiating Stage 2 Deep Diagnostic Scan (This may take a moment for large telemetry)...")
-    
+
     diffs = deep_compare(golden_data, actual_data)
 
     if diffs:
@@ -120,10 +126,10 @@ if __name__ == "__main__":
         # Cap the output at 50 differences so we don't crash the GitHub Actions log limit
         for diff in diffs[:50]:
             print(diff)
-        
+
         if len(diffs) > 50:
             print(f"\n... and {len(diffs) - 50} more differences.")
-            
+
         print("\nIf this change is intentional (e.g., you improved a parser), update the Golden Master.")
         sys.exit(1)
 

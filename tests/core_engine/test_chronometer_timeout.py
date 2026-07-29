@@ -9,9 +9,7 @@ from gitgalaxy.metrics.chronometer import Chronometer
 
 class TestChronometerTimeout(unittest.TestCase):
     @patch("gitgalaxy.metrics.chronometer.subprocess.Popen")
-    @patch.object(
-        Chronometer, "_initialize_history_scan"
-    )  # Skip the heavy init sequence
+    @patch.object(Chronometer, "_initialize_history_scan")  # Skip the heavy init sequence
     def test_zombie_process_kill_switch(self, mock_calibrate, mock_popen):
         """
         Simulates an infinite, hanging Git stream.

@@ -17,9 +17,7 @@ MOCK_LANG_DEFS = {
     "python": {
         "lexical_family": "single_line_only",
         "rules": {
-            "func_start": re.compile(
-                r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M
-            ),
+            "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
             "branch": re.compile(r"\b(if|elif|for|while)\b"),
             "structural_boundaries": re.compile(r"\b(print|return|assign)\b"),
             "ownership": re.compile(r"#\s*Architect:\s*(.*)"),
@@ -37,9 +35,7 @@ MOCK_LANG_DEFS = {
     "c": {
         "lexical_family": "c_style_comment",
         "rules": {
-            "func_start": re.compile(
-                r"^[ \t]*\w+\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{", re.M
-            ),
+            "func_start": re.compile(r"^[ \t]*\w+\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{", re.M),
             "memory_scraping": re.compile(r"\b(memcpy|VirtualRead)\b"),
             "exfiltration_camouflage": re.compile(r"\b(send|socket)\b"),
             "high_risk_execution": re.compile(r"\b(strcpy|gets|system)\b"),
@@ -122,12 +118,8 @@ def test_detector_spatial_appsec_correlation():
 
     # A single memory_scraping hit normally = 1.
     # The AppSec multiplier adds 100 if correlated. Total should be >= 100.
-    assert result["equations"]["memory_scraping"] >= 100, (
-        "Spatial correlation failed to multiply the threat penalty!"
-    )
-    assert result["mitigation_telemetry"]["amplified_leaks"] == 1, (
-        "Failed to log the active leak mitigation stat!"
-    )
+    assert result["equations"]["memory_scraping"] >= 100, "Spatial correlation failed to multiply the threat penalty!"
+    assert result["mitigation_telemetry"]["amplified_leaks"] == 1, "Failed to log the active leak mitigation stat!"
 
 
 def test_detector_exfiltration_check_does_not_cross_function_boundaries():
@@ -175,9 +167,7 @@ def test_detector_silencer_region():
     result = opt_detector.splice(code, "")
     # The raw string "strcpy" is inside "strncpy", so both trigger in a naive regex.
     # The spatial math should subtract the danger hit.
-    assert result["equations"]["high_risk_execution"] == 0, (
-        "Silencer region failed to dampen the danger signal!"
-    )
+    assert result["equations"]["high_risk_execution"] == 0, "Silencer region failed to dampen the danger signal!"
     assert result["mitigation_telemetry"]["mitigated_danger"] >= 1
 
 
@@ -200,9 +190,7 @@ def test_detector_anti_redos_line_limiter():
 
     assert len(result["functions"]) == 1
     assert result["functions"][0]["name"] == "parse_blob"
-    assert result["functions"][0]["coding_loc"] == 3, (
-        "Anti-ReDoS shield destroyed the physical line count!"
-    )
+    assert result["functions"][0]["coding_loc"] == 3, "Anti-ReDoS shield destroyed the physical line count!"
 
 
 # ==============================================================================
@@ -214,32 +202,17 @@ def test_detector_terminator_cleaving():
     braces or indentation scopes.
     """
     opt_detector = StructuralExtractor("sql", MOCK_LANG_DEFS)
-    code = (
-        "SELECT * FROM users\n"
-        "WHERE active = 1;\n"
-        "\n"
-        "UPDATE audit_log\n"
-        "SET viewed = 1\n"
-        "WHERE id = 55;\n"
-    )
+    code = "SELECT * FROM users\nWHERE active = 1;\n\nUPDATE audit_log\nSET viewed = 1\nWHERE id = 55;\n"
 
     # Mode E requires specific handshake routing inside the engine
-    with patch(
-        "gitgalaxy.core.detector.ScopeParsingRegistry.get_mode", return_value="mode_e"
-    ):
+    with patch("gitgalaxy.core.detector.ScopeParsingRegistry.get_mode", return_value="mode_e"):
         result = opt_detector.splice(code, "")
 
-        assert len(result["functions"]) >= 2, (
-            "Mode E failed to cleave the file into distinct blocks!"
-        )
+        assert len(result["functions"]) >= 2, "Mode E failed to cleave the file into distinct blocks!"
 
         func_names = [f["name"] for f in result["functions"]]
-        assert any("SELECT" in name for name in func_names), (
-            "Failed to ignite the SELECT block!"
-        )
-        assert any("UPDATE" in name for name in func_names), (
-            "Failed to ignite the UPDATE block!"
-        )
+        assert any("SELECT" in name for name in func_names), "Failed to ignite the SELECT block!"
+        assert any("UPDATE" in name for name in func_names), "Failed to ignite the UPDATE block!"
 
 
 def test_detector_class_extraction_and_lcom():
@@ -266,13 +239,9 @@ def test_detector_class_extraction_and_lcom():
 
     cls = result["classes"][0]
     assert cls["name"] == "UserManager"
-    assert cls["method_count"] == 2, (
-        "Failed to spatially link methods to the parent class!"
-    )
+    assert cls["method_count"] == 2, "Failed to spatially link methods to the parent class!"
     assert cls["lcom_score"] < 100.0, "LCOM calculation failed or defaulted to 100!"
-    assert cls["state_entanglement"] > 0.0, (
-        "State entanglement failed to register mutations!"
-    )
+    assert cls["state_entanglement"] > 0.0, "State entanglement failed to register mutations!"
 
 
 def test_detector_atomic_literal_shield():
@@ -294,12 +263,8 @@ def test_detector_atomic_literal_shield():
     # Access the shield directly
     safe_code = opt_detector._apply_literal_shield(code, "ruby")
 
-    assert "def fake_function_inside_string" not in safe_code, (
-        "Shield failed to mask heredoc contents!"
-    )
-    assert safe_code.count("\n") == code.count("\n"), (
-        "Shield altered the physical line count!"
-    )
+    assert "def fake_function_inside_string" not in safe_code, "Shield failed to mask heredoc contents!"
+    assert safe_code.count("\n") == code.count("\n"), "Shield altered the physical line count!"
 
 
 def test_detector_orphan_and_duplicate_logic():
@@ -333,15 +298,9 @@ def test_detector_orphan_and_duplicate_logic():
     orphans = [f["name"] for f in result["functions"] if f.get("usage_status") == 1]
     duplicates = [f["name"] for f in result["functions"] if f.get("usage_status") == 2]
 
-    assert "forgotten_orphan" in orphans, (
-        "Failed to flag the unused function as an orphan!"
-    )
-    assert "active_helper" not in orphans, (
-        "Falsely flagged an active function as an orphan!"
-    )
-    assert duplicates.count("repeated_name") == 2, (
-        "Failed to flag both definitions of the duplicated function name!"
-    )
+    assert "forgotten_orphan" in orphans, "Failed to flag the unused function as an orphan!"
+    assert "active_helper" not in orphans, "Falsely flagged an active function as an orphan!"
+    assert duplicates.count("repeated_name") == 2, "Failed to flag both definitions of the duplicated function name!"
 
     # forgotten_orphan and main_process (never called, name > 3 chars) both flag as orphans.
     assert result["equations"].get("orphaned_logic", 0) == len(orphans), (
@@ -372,9 +331,7 @@ def test_detector_c_macro_dead_branch_shield():
 
     # Because 'high_risk_execution' is in the dead branch, it should be scrubbed by the preprocessor shield
     # before the regex engine even sees it.
-    assert result["equations"]["high_risk_execution"] == 0, (
-        "Failed to scrub dead preprocessor branches!"
-    )
+    assert result["equations"]["high_risk_execution"] == 0, "Failed to scrub dead preprocessor branches!"
 
 
 # ==============================================================================
@@ -399,9 +356,7 @@ def test_detector_mode_d_shell_handshake():
 
     result = opt_detector.splice(code, "")
 
-    assert len(result["functions"]) == 1, (
-        "Failed to extract the shell function as a single block!"
-    )
+    assert len(result["functions"]) == 1, "Failed to extract the shell function as a single block!"
 
     func = result["functions"][0]
     assert func["name"] == "backup_db"
@@ -428,9 +383,7 @@ def test_detector_mode_d_ruby_inline_modifier():
 
     result = opt_detector.splice(code, "")
 
-    assert len(result["functions"]) == 2, (
-        "Inline modifiers corrupted the stack depth and swallowed the file!"
-    )
+    assert len(result["functions"]) == 2, "Inline modifiers corrupted the stack depth and swallowed the file!"
 
     names = [f["name"] for f in result["functions"]]
     assert "calculate_risk" in names
@@ -458,15 +411,11 @@ def test_detector_mode_c_indentation():
 
     result = opt_detector.splice(code, "")
 
-    assert len(result["functions"]) == 2, (
-        "Mode C failed to separate Python functions by indentation!"
-    )
+    assert len(result["functions"]) == 2, "Mode C failed to separate Python functions by indentation!"
 
     parent = result["functions"][0]
     assert parent["name"] == "parent_process"
-    assert parent["loc"] == 4, (
-        "Mode C failed to accurately count lines inside the indentation block!"
-    )
+    assert parent["loc"] == 4, "Mode C failed to accurately count lines inside the indentation block!"
 
 
 # ==============================================================================
@@ -478,15 +427,7 @@ def test_detector_mode_a_labels():
     label matching until the next label or termination instruction.
     """
     opt_detector = StructuralExtractor("assembly", MOCK_LANG_DEFS)
-    code = (
-        "INIT_SYSTEM:\n"
-        "    MOV EAX, 1\n"
-        "    PUSH EAX\n"
-        "    CALL SETUP\n"
-        "ERROR_HANDLER:\n"
-        "    POP EAX\n"
-        "    RET\n"
-    )
+    code = "INIT_SYSTEM:\n    MOV EAX, 1\n    PUSH EAX\n    CALL SETUP\nERROR_HANDLER:\n    POP EAX\n    RET\n"
 
     result = opt_detector.splice(code, "")
 
@@ -506,25 +447,14 @@ def test_detector_classification_and_wiring():
     topology wiring and accurately classifies function types based on naming heuristics.
     """
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def save_user_data(user_id):\n"
-        "    validate_id(user_id)\n"
-        "    db_insert(user_id)\n"
-        "    return True\n"
-    )
+    code = "def save_user_data(user_id):\n    validate_id(user_id)\n    db_insert(user_id)\n    return True\n"
 
     result = opt_detector.splice(code, "")
     func = result["functions"][0]
 
-    assert "validate_id" in func["calls_out_to"], (
-        "Failed to extract Level 3 outbound calls!"
-    )
-    assert "db_insert" in func["calls_out_to"], (
-        "Failed to extract Level 3 outbound calls!"
-    )
-    assert func["type_id"] == "mutation", (
-        "Failed to classify 'save_user_data' as a mutation!"
-    )
+    assert "validate_id" in func["calls_out_to"], "Failed to extract Level 3 outbound calls!"
+    assert "db_insert" in func["calls_out_to"], "Failed to extract Level 3 outbound calls!"
+    assert func["type_id"] == "mutation", "Failed to classify 'save_user_data' as a mutation!"
 
 
 # ==============================================================================
@@ -544,20 +474,14 @@ def test_detector_ghost_tether_and_metadata():
         "    return True\n"
     )
 
-    comment_stream = (
-        "# Architect: Ada Lovelace\n# Purpose: Handles core cryptographic operations.\n"
-    )
+    comment_stream = "# Architect: Ada Lovelace\n# Purpose: Handles core cryptographic operations.\n"
 
     # We must pass raw_content to allow the Ghost Tether to search coordinates
     result = opt_detector.splice(code, comment_stream, raw_content=code)
 
     # Check File Metadata
-    assert result["metadata"]["ownership"] == "Ada Lovelace", (
-        "Failed to decode ownership from comment stream!"
-    )
-    assert "cryptographic operations" in result["metadata"]["purpose"], (
-        "Failed to decode purpose from comment stream!"
-    )
+    assert result["metadata"]["ownership"] == "Ada Lovelace", "Failed to decode ownership from comment stream!"
+    assert "cryptographic operations" in result["metadata"]["purpose"], "Failed to decode purpose from comment stream!"
 
     # Check Ghost Tether (Function-level docstring)
     func = result["functions"][0]
@@ -581,16 +505,11 @@ def test_detector_cpp_objc_name_extraction():
     opt_detector = StructuralExtractor("cpp", MOCK_LANG_DEFS)
 
     # Objective-C
-    assert (
-        opt_detector._extract_name("- (void)initWithObjects:(NSArray *)objects {")
-        == "initWithObjects"
-    )
+    assert opt_detector._extract_name("- (void)initWithObjects:(NSArray *)objects {") == "initWithObjects"
     assert opt_detector._extract_name("+ (instancetype)sharedInstance;") == "sharedInstance"
 
     # C++ Operators
-    assert (
-        opt_detector._extract_name("MyClass::operator<<(std::ostream& os)") == "operator<<"
-    )
+    assert opt_detector._extract_name("MyClass::operator<<(std::ostream& os)") == "operator<<"
     assert opt_detector._extract_name("operator bool() const") == "operator bool"
     assert opt_detector._extract_name("operator()()") == "operator()"
 
@@ -619,22 +538,14 @@ def test_detector_advanced_appsec_sensors():
     mits = result["mitigation_telemetry"]
 
     # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
-    assert eqs.get("sec_tainted_injection", 0) >= 1, (
-        "Failed to spatially correlate Tainted RCE Injection!"
-    )
+    assert eqs.get("sec_tainted_injection", 0) >= 1, "Failed to spatially correlate Tainted RCE Injection!"
 
     # 2. Race Conditions: concurrency overlapping with unlocked flux (multiplies by 5)
-    assert eqs.get("concurrency", 0) >= 5, (
-        "Failed to detect and amplify the Race Condition penalty!"
-    )
-    assert mits.get("amplified_race_conditions", 0) >= 1, (
-        "Failed to log the Race Condition telemetry!"
-    )
+    assert eqs.get("concurrency", 0) >= 5, "Failed to detect and amplify the Race Condition penalty!"
+    assert mits.get("amplified_race_conditions", 0) >= 1, "Failed to log the Race Condition telemetry!"
 
     # 3. Memory Leaks: unmitigated alloc
-    assert eqs.get("memory_alloc", 0) >= 1, (
-        "Failed to flag the unmitigated Memory Leak!"
-    )
+    assert eqs.get("memory_alloc", 0) >= 1, "Failed to flag the unmitigated Memory Leak!"
 
 
 # ==============================================================================
@@ -650,13 +561,7 @@ def test_detector_dampeners_do_not_cross_function_boundaries():
     """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
     code = (
-        "void dangerous_one() {\n"
-        "    strcpy(buf, input);\n"
-        "}\n"
-        "\n"
-        "void safe_two() {\n"
-        "    strncpy(buf2, input2, 10);\n"
-        "}\n"
+        "void dangerous_one() {\n    strcpy(buf, input);\n}\n\nvoid safe_two() {\n    strncpy(buf2, input2, 10);\n}\n"
     )
 
     result = opt_detector.splice(code, "")
@@ -675,20 +580,13 @@ def test_detector_dampeners_do_not_cross_function_boundaries():
 def test_detector_dampeners_still_apply_within_same_function():
     """The same safety/cleanup call, when it's genuinely inside the SAME function, still mitigates."""
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    code = (
-        "void guarded() {\n"
-        "    strcpy(buf, input);\n"
-        "    strncpy(buf2, input2, 10);\n"
-        "}\n"
-    )
+    code = "void guarded() {\n    strcpy(buf, input);\n    strncpy(buf2, input2, 10);\n}\n"
 
     result = opt_detector.splice(code, "")
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    assert eqs.get("high_risk_execution", 0) == 0, (
-        "Same-function safety call should still mitigate this danger signal"
-    )
+    assert eqs.get("high_risk_execution", 0) == 0, "Same-function safety call should still mitigate this danger signal"
     assert mits.get("mitigated_danger", 0) == 1
 
 
@@ -711,15 +609,9 @@ def test_detector_catastrophic_fallbacks():
         side_effect=ValueError("Catastrophic parsing failure"),
     ):
         result = opt_detector.splice("def foo(): pass", "# Architect: Joe")
-        assert result["equations"] == {}, (
-            "Fallback did not return an empty equations dict!"
-        )
-        assert result["logic_density"] == 0.0, (
-            "Fallback did not zero out logic density!"
-        )
-        assert result["metadata"]["ownership"] == "Joe", (
-            "Fallback destroyed the Ghost Mass metadata!"
-        )
+        assert result["equations"] == {}, "Fallback did not return an empty equations dict!"
+        assert result["logic_density"] == 0.0, "Fallback did not zero out logic density!"
+        assert result["metadata"]["ownership"] == "Joe", "Fallback destroyed the Ghost Mass metadata!"
 
     # 2. TimeoutError -> Hardware Guillotine drops cleanly
     with patch.object(
@@ -819,9 +711,7 @@ def test_spatial_mapper_ray_casting_collision_avoidance(spatial_mapper):
 
     # Because of the step_factor (1.5x) in the math engine, the distance between them
     # MUST be significantly larger than a single footprint to prevent a visual crash.
-    assert distance > footprint * 1.5, (
-        "Ray-Caster failed! Massive constellations are overlapping in 3D space."
-    )
+    assert distance > footprint * 1.5, "Ray-Caster failed! Massive constellations are overlapping in 3D space."
 
 
 def test_spatial_mapper_uses_parent_logger_when_provided():
@@ -871,9 +761,7 @@ def test_detector_prose_and_empty_bypass():
 
     # 1. Prose/Confidence Bypass
     res_prose = opt_detector.splice("## Header", "comment", confidence=0.40)
-    assert res_prose["logic_density"] == 0.0, (
-        "Prose bypass failed to abort on low confidence!"
-    )
+    assert res_prose["logic_density"] == 0.0, "Prose bypass failed to abort on low confidence!"
 
     # 2. Empty Code Stream Bypass
     splicer_py = StructuralExtractor("python", MOCK_LANG_DEFS)
@@ -897,19 +785,11 @@ def test_detector_function_classification():
     res = opt_detector.splice(code, "")
 
     types = {f["name"]: f["type_id"] for f in res["functions"]}
-    assert types.get("handle_click_event") == "event", (
-        "Failed to classify 'handle' as event!"
-    )
-    assert types.get("parse_raw_text") == "logic", (
-        "Failed to classify 'parse' as logic!"
-    )
+    assert types.get("handle_click_event") == "event", "Failed to classify 'handle' as event!"
+    assert types.get("parse_raw_text") == "logic", "Failed to classify 'parse' as logic!"
     assert types.get("is_valid_user") == "check", "Failed to classify 'is_' as check!"
-    assert types.get("test_identity") == "verification", (
-        "Failed to classify 'test' as verification!"
-    )
-    assert types.get("generate_uuid") == "standard", (
-        "Failed to fallback to standard taxonomy!"
-    )
+    assert types.get("test_identity") == "verification", "Failed to classify 'test' as verification!"
+    assert types.get("generate_uuid") == "standard", "Failed to fallback to standard taxonomy!"
 
 
 # ==============================================================================
@@ -944,9 +824,7 @@ def test_detector_missing_tiktoken_fallback():
     res = opt_detector.splice("def foo(): pass", "")
 
     assert res["token_mass"] is None, "Fallback failed to return None for token mass!"
-    assert res["financial_read_cost"] is None, (
-        "Fallback failed to neutralize financial cost!"
-    )
+    assert res["financial_read_cost"] is None, "Fallback failed to neutralize financial cost!"
 
 
 # ==============================================================================
@@ -957,24 +835,14 @@ def test_detector_mode_e_erlang_cleaving():
     # Inject temporary Erlang config into the mock
     MOCK_LANG_DEFS["erlang"] = {
         "lexical_family": "c_style_comment",
-        "rules": {
-            "func_start": re.compile(r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)", re.M)
-        }
+        "rules": {"func_start": re.compile(r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)", re.M)},
     }
     opt_detector = StructuralExtractor("erlang", MOCK_LANG_DEFS)
-    code = (
-        "server_loop() ->\n"
-        "    receive\n"
-        "        msg -> ok\n"
-        "    end.\n"
-        "\n"
-        "shutdown() ->\n"
-        "    halt.\n"
-    )
-    
+    code = "server_loop() ->\n    receive\n        msg -> ok\n    end.\n\nshutdown() ->\n    halt.\n"
+
     with patch("gitgalaxy.core.detector.ScopeParsingRegistry.get_mode", return_value="mode_e"):
         result = opt_detector.splice(code, "")
-        
+
     assert len(result["functions"]) == 2, "Mode E failed to cleave Erlang blocks!"
     names = [f["name"] for f in result["functions"]]
     assert "server_loop" in names
@@ -989,17 +857,12 @@ def test_detector_appsec_rce_funnel_amplification():
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     # Inject the AppSec sensor rule dynamically
     opt_detector.primary_rules["rce_funnel"] = re.compile(r"\b(eval|exec)\b")
-    
-    code = (
-        "def malicious_funnel(user_input):\n"
-        "    eval(user_input)\n"
-    )
+
+    code = "def malicious_funnel(user_input):\n    eval(user_input)\n"
     result = opt_detector.splice(code, "")
-    
+
     # A single hit is multiplied by 50 in the spatial correlation matrix
-    assert result["equations"].get("rce_funnel", 0) >= 50, (
-        "AppSec Sensor failed to amplify the RCE Funnel penalty!"
-    )
+    assert result["equations"].get("rce_funnel", 0) >= 50, "AppSec Sensor failed to amplify the RCE Funnel penalty!"
 
 
 # ==============================================================================
@@ -1008,23 +871,25 @@ def test_detector_appsec_rce_funnel_amplification():
 def test_detector_regex_execution_catch_block():
     """Proves the engine survives a catastrophic regex execution failure during coding analysis."""
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Create a mock regex object that natively explodes to bypass C-immutability limits
     class ExplodingRegex:
         pattern = "explode"
+
         def finditer(self, text):
             raise ValueError("Simulated C-Engine Crash")
 
     # Inject the exploding regex into the primary rules
     opt_detector.languages["python"]["rules"]["branch"] = ExplodingRegex()
-    
+
     # Run a splice that would normally trigger the 'branch' and 'func_start' rules
     result = opt_detector.splice("def foo():\n    if True:\n        pass\n", "")
-    
+
     # The engine should catch the crash on the 'branch' rule, log it, and gracefully continue.
     # It shouldn't crash the pipeline, and other rules (like func_start) should still process perfectly.
     assert len(result["functions"]) == 1, "Engine failed to continue parsing after a single regex rule crashed!"
     assert result["equations"].get("branch", 0) == 0, "Exploded rule somehow returned hits!"
+
 
 # ==============================================================================
 # TEST 20: MODE B LISP-FAMILY PARSING (Parenthesis Scoping)
@@ -1033,21 +898,13 @@ def test_detector_mode_b_lisp_family():
     """Proves Mode B correctly swaps from {} to () for Lisp/Scheme/Clojure languages."""
     MOCK_LANG_DEFS["lisp"] = {
         "lexical_family": "lisp_style",
-        "rules": {
-            "func_start": re.compile(r"^\s*\(\s*defun\s+([a-zA-Z0-9_.-]+)", re.M)
-        }
+        "rules": {"func_start": re.compile(r"^\s*\(\s*defun\s+([a-zA-Z0-9_.-]+)", re.M)},
     }
     opt_detector = StructuralExtractor("lisp", MOCK_LANG_DEFS)
-    code = (
-        "(defun calculate-total (x y)\n"
-        "  (+ x y))\n"
-        "\n"
-        "(defun isolate-logic ()\n"
-        "  (print 'done'))\n"
-    )
-    
+    code = "(defun calculate-total (x y)\n  (+ x y))\n\n(defun isolate-logic ()\n  (print 'done'))\n"
+
     result = opt_detector.splice(code, "")
-    
+
     assert len(result["functions"]) == 2, "Failed to cleave Lisp-family parenthesis scopes!"
     names = [f["name"] for f in result["functions"]]
     assert "calculate-total" in names
@@ -1060,17 +917,13 @@ def test_detector_mode_b_lisp_family():
 def test_detector_comment_analysis_math():
     """Proves the engine accurately tallies structural debt from the isolated comment stream."""
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject comment rules
     opt_detector.primary_rules["planned_debt"] = re.compile(r"\bTODO\b")
     opt_detector.primary_rules["dead_code"] = re.compile(r"^#\s*def\s", re.M)
 
-    comment_stream = (
-        "# TODO: Refactor this entire class\n"
-        "# def old_abandoned_function():\n"
-        "#     pass\n"
-    )
-    
+    comment_stream = "# TODO: Refactor this entire class\n# def old_abandoned_function():\n#     pass\n"
+
     # Pass an empty equations dict to simulate the handoff from coding_analysis
     equations = {"planned_debt": 0, "dead_code": 0}
     result = opt_detector.comment_analysis(comment_stream, "python", equations)
@@ -1085,15 +938,11 @@ def test_detector_comment_analysis_math():
 def test_detector_explicit_type_override():
     """Proves the @gal_type decorator overrides standard naming heuristics."""
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def fetch_data():\n"
-        "    # @gal_type: cryptography\n"
-        "    return encrypt(data)\n"
-    )
-    
+    code = "def fetch_data():\n    # @gal_type: cryptography\n    return encrypt(data)\n"
+
     result = opt_detector.splice(code, "")
     func = result["functions"][0]
-    
+
     # 'fetch' normally classifies as 'io', but the tag should force it to 'cryptography'
     assert func["type_id"] == "cryptography", "Failed to apply explicit @gal_type override!"
 
@@ -1136,16 +985,17 @@ def test_detector_active_hemorrhage_leak_no_longer_lives_in_detector():
     )
     assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
 
+
 # ==============================================================================
 # TEST 24: HARVEST ABOVE (GHOST TETHER) & CLASS LINEAGE
 # ==============================================================================
 def test_detector_harvest_above_and_lineage():
     """Proves the engine can harvest comments sitting ABOVE a function/class, and extract inheritance."""
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    
+
     # Inject a 2-group regex to trigger the inheritance lineage extractor
     opt_detector.languages["c"]["rules"]["class_start"] = re.compile(r"class\s+(\w+)(?:\s*:\s*public\s+(\w+))?")
-    
+
     code = (
         "// Architect: Bob\n"
         "class MyDerivedClass : public MyBaseClass {\n"
@@ -1155,15 +1005,13 @@ def test_detector_harvest_above_and_lineage():
         "void do_something() {\n"
         "}\n"
     )
-    
+
     # Pass raw_content to enable spatial Ghost Tether mapping
     result = opt_detector.splice(code, code, raw_content=code)
-    
+
     # Verify Lineage Extraction (Capture Group 2)
-    assert "MyBaseClass" in result["metadata"].get("parent_entity", ""), (
-        "Failed to extract class inheritance lineage!"
-    )
-    
+    assert "MyBaseClass" in result["metadata"].get("parent_entity", ""), "Failed to extract class inheritance lineage!"
+
     # Verify Harvest Above
     # We must find the extracted function block and check its docstring
     extracted_docs = [f["docstring"] for f in result["functions"] if "C++ function comment" in f.get("docstring", "")]
@@ -1179,15 +1027,15 @@ def test_detector_mode_b_multiline_macros():
     code = (
         "#define COMPLICATED_MACRO(x) \\\n"
         "    if (x) { \\\n"
-        "        printf(\"Unbalanced brace!\"); \\\n"
+        '        printf("Unbalanced brace!"); \\\n'
         "\n"
         "void normal_function() {\n"
         "    int y = 1;\n"
         "}\n"
     )
-    
+
     result = opt_detector.splice(code, "")
-    
+
     # If the preprocessor shield fails, the unbalanced '{' inside the macro
     # will destroy the structural parsing of 'normal_function'.
     names = [f["name"] for f in result["functions"]]
@@ -1201,30 +1049,22 @@ def test_detector_global_dust_and_unterminated():
     """Proves the engine captures trailing/floating code outside of valid scope boundaries."""
     # 1. Mode D: Global Dust (Ruby)
     opt_detector_rb = StructuralExtractor("ruby", MOCK_LANG_DEFS)
-    ruby_code = (
-        "puts 'This is global dust'\n"
-        "def standard_func\n"
-        "    x = 1\n"
-        "end\n"
-        "puts 'This is trailing dust'\n"
-    )
+    ruby_code = "puts 'This is global dust'\ndef standard_func\n    x = 1\nend\nputs 'This is trailing dust'\n"
     res_rb = opt_detector_rb.splice(ruby_code, "")
     names_rb = [f["name"] for f in res_rb["functions"]]
-    
+
     assert "__global_context__" in names_rb, "Mode D failed to aggregate global dust into a block!"
     assert "standard_func" in names_rb
 
     # 2. Mode E: Unterminated Block (SQL without a semicolon)
     opt_detector_sql = StructuralExtractor("sql", MOCK_LANG_DEFS)
     sql_code = "SELECT * FROM forgotten_table WHERE id = 1"
-    
+
     with patch("gitgalaxy.core.detector.ScopeParsingRegistry.get_mode", return_value="mode_e"):
         res_sql = opt_detector_sql.splice(sql_code, "")
-        
+
     names_sql = [f["name"] for f in res_sql["functions"]]
-    assert any("[Unterminated]" in n for n in names_sql), (
-        "Mode E failed to rescue an unterminated SQL block!"
-    )
+    assert any("[Unterminated]" in n for n in names_sql), "Mode E failed to rescue an unterminated SQL block!"
 
 
 # ==============================================================================
@@ -1233,21 +1073,17 @@ def test_detector_global_dust_and_unterminated():
 def test_detector_metadata_block_parsing():
     """Proves the comment decoder handles multi-line purpose blocks using boundaries."""
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject block-level rules
     opt_detector.primary_rules["_meta_purpose_block"] = re.compile(r"^Purpose:")
     opt_detector.primary_rules["_meta_boundary"] = re.compile(r"^\-\-\-")
-    
+
     comment_stream = (
-        "# Purpose:\n"
-        "# This is line 1 of the purpose.\n"
-        "# This is line 2.\n"
-        "# ---\n"
-        "# Some other ignored comment.\n"
+        "# Purpose:\n# This is line 1 of the purpose.\n# This is line 2.\n# ---\n# Some other ignored comment.\n"
     )
-    
+
     meta = opt_detector._decode_comment_stream(comment_stream)
-    
+
     assert "line 1" in meta.get("purpose", ""), "Failed to read block metadata!"
     assert "line 2" in meta.get("purpose", ""), "Failed to continue reading block metadata!"
     assert "ignored" not in meta.get("purpose", ""), "Failed to stop at the boundary marker!"
@@ -1267,7 +1103,9 @@ def test_detector_metadata_block_terminates_on_trailing_blank_line():
     meta = opt_detector._decode_comment_stream(comment_stream)
 
     assert "Real purpose text" in meta.get("purpose", "")
-    assert "ignored" not in meta.get("purpose", ""), "A trailing blank line should end the block, not just the boundary marker!"
+    assert "ignored" not in meta.get("purpose", ""), (
+        "A trailing blank line should end the block, not just the boundary marker!"
+    )
 
 
 def test_detector_metadata_block_skips_leading_blank_lines():
@@ -1336,7 +1174,8 @@ def test_detector_auto_heal_bootloader():
         )
     except Exception as e:
         pytest.fail(f"Auto-heal bootloader crashed instead of healing: {e}")
-        
+
+
 # ==============================================================================
 # TEST 29: EMBEDDED LANGUAGE PARTITIONING (THE HANDSHAKE STACK)
 # ==============================================================================
@@ -1345,15 +1184,12 @@ def test_detector_embedded_language_partitioning():
     # Inject a temporary mock definition for javascript
     MOCK_LANG_DEFS["javascript"] = {
         "lexical_family": "c_style_comment",
-        "rules": {
-            "func_start": re.compile(r"function\s+([a-zA-Z0-9_]+)\s*\("),
-            "branch": re.compile(r"\bif\b")
-        }
+        "rules": {"func_start": re.compile(r"function\s+([a-zA-Z0-9_]+)\s*\("), "branch": re.compile(r"\bif\b")},
     }
-    
+
     # We scan an HTML file, but the handshake should route the <script> block to JS
     opt_detector = StructuralExtractor("html", MOCK_LANG_DEFS)
-    
+
     code = (
         "<html>\n"
         "<body>Hello</body>\n"
@@ -1364,9 +1200,9 @@ def test_detector_embedded_language_partitioning():
         "</script>\n"
         "</html>"
     )
-    
+
     result = opt_detector.splice(code, "")
-    
+
     # The detector should have found the JS function inside the HTML file
     assert len(result["functions"]) == 1, "Failed to partition and extract embedded language logic!"
     assert result["functions"][0]["name"] == "hidden_alien_logic", "Failed to extract embedded function name!"
@@ -1379,15 +1215,15 @@ def test_detector_embedded_language_partitioning():
 def test_detector_exotic_semantic_names():
     """Proves the semantic name extractor correctly parses Lua, Elixir, and Visual Basic signatures."""
     opt_detector = StructuralExtractor("unknown", MOCK_LANG_DEFS)
-    
+
     # Lua
     lua_name = opt_detector._extract_semantic_name("function calculate_physics()", "lua")
     assert lua_name == "calculate_physics", "Failed to extract Lua function name!"
-    
+
     # Elixir
     elixir_name = opt_detector._extract_semantic_name("defmodule Galaxy.Engine do", "elixir")
     assert elixir_name == "Galaxy.Engine", "Failed to extract Elixir module name!"
-    
+
     # Visual Basic
     vb_name = opt_detector._extract_semantic_name("Public Sub ExecuteMission()", "vb")
     assert vb_name == "ExecuteMission", "Failed to extract Visual Basic Sub name!"
@@ -1399,11 +1235,11 @@ def test_detector_exotic_semantic_names():
 def test_detector_correlation_edge_cases():
     """Proves the AppSec correlation engine safely handles empty threat vectors without crashing."""
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    
+
     # Case 1: Empty Targets (No initial threat found)
     unmitigated, mitigated = opt_detector._correlate_signals(targets=[], dampeners=[100, 200])
     assert unmitigated == 0 and mitigated == 0, "Correlation failed on empty targets!"
-    
+
     # Case 2: Empty Dampeners (Threat found, but no safety mechanism exists)
     unmitigated, mitigated = opt_detector._correlate_signals(targets=[50, 150], dampeners=[])
     assert unmitigated == 2 and mitigated == 0, "Correlation failed to flag unmitigated threats!"
@@ -1416,19 +1252,17 @@ def test_detector_unregistered_rule_handling(caplog):
     """Proves the engine safely ignores unregistered regex rules without polluting the schema."""
     MOCK_LANG_DEFS["alien_lang"] = {
         "lexical_family": "single_line_only",
-        "rules": {
-            "rogue_unregistered_rule": re.compile(r"alien_syntax")
-        }
+        "rules": {"rogue_unregistered_rule": re.compile(r"alien_syntax")},
     }
-    
+
     opt_detector = StructuralExtractor("alien_lang", MOCK_LANG_DEFS)
-    
+
     with caplog.at_level(logging.WARNING):
         result = opt_detector.splice("alien_syntax is here", "")
-        
+
     # The rule should NOT exist in the final equations output, preserving schema integrity
     assert "rogue_unregistered_rule" not in result["equations"], "Schema polluted by unregistered rule!"
-    
+
     # The engine should have logged a diagnostic warning
     assert "Unregistered rule" in caplog.text, "Failed to log diagnostic warning for alien rule!"
 
@@ -1439,18 +1273,19 @@ def test_detector_unregistered_rule_handling(caplog):
 def test_spatial_mapper_empty_states_and_fallbacks():
     """Proves the 3D geometry engine handles missing files and zero-magnitude states safely."""
     mapper = SpatialMapper()
-    
+
     # Case 1: Empty Repository
     assert mapper.map_repository([]) == [], "Spatial Mapper crashed on an empty repository!"
-    
+
     # Case 2: Empty Hash Jitter
     assert mapper._hash_jitter("", 100.0) == 0.0, "Jitter failed to neutralize empty seeds!"
-    
+
     # Case 3: Zero Magnitude Fallback
     assert mapper._get_magnitude({}) == 0.0, "Magnitude extraction crashed on an empty node dictionary!"
-    
+
     # Case 4: Deep Fallback (Using total_control_flow_ratio as a mock fallback if needed)
     assert mapper._get_magnitude({"sum_fxn_impact": 0.0}) == 0.0, "Magnitude extraction failed on zero-impact nodes!"
+
 
 # ==============================================================================
 # TEST 34: UTILITY & EMPTY STATE FALLBACKS
@@ -1458,6 +1293,7 @@ def test_spatial_mapper_empty_states_and_fallbacks():
 def test_detector_utility_empty_states():
     """Proves utility functions safely handle None/empty values."""
     from gitgalaxy.core.detector import get_token_mass
+
     assert get_token_mass(None) == 0
     assert get_token_mass("") == 0
 
@@ -1471,7 +1307,7 @@ def test_detector_utility_empty_states():
 def test_detector_unbalanced_and_extreme_shields(caplog):
     """Proves the engine handles unbalanced braces and massive file warnings."""
     opt = StructuralExtractor("c", MOCK_LANG_DEFS)
-    
+
     # 1. Unbalanced End (No closing brace available in the string)
     idx = opt._find_balanced_end("int main() { printf('hi'); ", 11, "{", "}")
     assert idx == len("int main() { printf('hi'); "), "Failed to break on missing closer!"
@@ -1489,30 +1325,31 @@ def test_detector_unbalanced_and_extreme_shields(caplog):
 def test_detector_defensive_catch_blocks(caplog):
     """Proves the deep regex exception catch blocks prevent pipeline crashes."""
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # 1. coding_analysis catch block
     class ExplodingPattern:
         pattern = "explode"
+
         def finditer(self, text):
             raise RuntimeError("Coding Analysis Crash")
-    
+
     opt.languages["python"]["rules"]["branch"] = ExplodingPattern()
-    
+
     with caplog.at_level(logging.ERROR):
         opt.coding_analysis([("python", "if True:", 0)])
-        
+
     assert "Regex failure in rule" in caplog.text, "Engine failed to catch and log coding analysis crash!"
-    
+
     # 2. comment_analysis catch block
     class ExplodingCommentPattern:
         def findall(self, text):
             raise RuntimeError("Comment Analysis Crash")
-            
+
     opt.languages["python"]["rules"]["planned_debt"] = ExplodingCommentPattern()
-    
+
     with caplog.at_level(logging.ERROR):
         opt.comment_analysis("TODO: fix", "python", {"planned_debt": 0})
-        
+
     assert "Comment stream regex failure" in caplog.text, "Engine failed to catch and log comment analysis crash!"
 
 
@@ -1522,15 +1359,15 @@ def test_detector_defensive_catch_blocks(caplog):
 def test_detector_empty_pattern_continuations():
     """Proves that empty or malformed regex patterns are skipped safely."""
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject explicitly empty and null patterns
     opt.languages["python"]["rules"]["empty_rule_1"] = re.compile(r"")
     opt.languages["python"]["rules"]["empty_rule_2"] = re.compile(r"()")
     opt.languages["python"]["rules"]["none_rule"] = None
-    
+
     # This should run without accumulating any hits and without crashing
     counts, _, _, _, _ = opt.coding_analysis([("python", "code", 0)])
-    
+
     assert counts.get("empty_rule_1", 0) == 0, "Empty rule falsely triggered a hit!"
 
 
@@ -1540,7 +1377,7 @@ def test_detector_empty_pattern_continuations():
 def test_detector_ruby_inline_assignment_branch():
     """Proves the Ruby mode D scanner handles inline modifiers attached to assignments."""
     opt = StructuralExtractor("ruby", MOCK_LANG_DEFS)
-    
+
     code = (
         "def test_assignment\n"
         "  x = if condition\n"  # This specific assignment syntax triggers a distinct IF-branch in Mode D
@@ -1549,7 +1386,7 @@ def test_detector_ruby_inline_assignment_branch():
         "end\n"
     )
     result = opt.splice(code, "")
-    
+
     assert len(result["functions"]) == 1, "Failed to parse inline assignment modifier block!"
     assert result["functions"][0]["name"] == "test_assignment"
 
@@ -1562,41 +1399,34 @@ def test_detector_memory_alloc_no_cleanup():
     opt = StructuralExtractor("c", MOCK_LANG_DEFS)
     code = (
         "void leak_memory() {\n"
-        "    void* ptr = malloc(100);\n" # Trigger memory_alloc, but no free()
+        "    void* ptr = malloc(100);\n"  # Trigger memory_alloc, but no free()
         "}\n"
     )
     result = opt.splice(code, "")
-    
+
     # Verify the memory leak is registered and NOT mitigated
     assert result["equations"].get("memory_alloc", 0) == 1, "Failed to flag unmitigated memory allocation!"
-    assert result["mitigation_telemetry"].get("mitigated_memory_allocs", 0) == 0, "Falsely mitigated a true memory leak!"
-    
+    assert result["mitigation_telemetry"].get("mitigated_memory_allocs", 0) == 0, (
+        "Falsely mitigated a true memory leak!"
+    )
+
+
 # ==============================================================================
 # TEST 40: GHOST TETHER - HARVEST BELOW (PYTHON DOCSTRINGS)
 # ==============================================================================
 def test_detector_harvest_below_docstrings():
     """Proves the Ghost Tether correctly harvests comments sitting BELOW the definition (Python)."""
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def process_data():\n"
-        "    '''\n"
-        "    This is a python docstring below the def.\n"
-        "    '''\n"
-        "    pass\n"
-    )
+    code = "def process_data():\n    '''\n    This is a python docstring below the def.\n    '''\n    pass\n"
     result = opt.splice(code, "", raw_content=code)
 
     assert len(result["functions"]) == 1
     docstring = result["functions"][0]["docstring"]
-    assert "docstring below the def" in docstring, (
-        "Ghost Tether failed to harvest docstrings below the function!"
-    )
+    assert "docstring below the def" in docstring, "Ghost Tether failed to harvest docstrings below the function!"
     # Regression guard for #246: the bare closing "'''" was previously
     # misclassified as an opening marker, letting the scan run past it
     # and swallow subsequent code into the docstring field.
-    assert "pass" not in docstring, (
-        "Docstring extraction ran past the closing delimiter and swallowed code!"
-    )
+    assert "pass" not in docstring, "Docstring extraction ran past the closing delimiter and swallowed code!"
 
 
 # ==============================================================================
@@ -1605,13 +1435,14 @@ def test_detector_harvest_below_docstrings():
 def test_detector_tiktoken_mass_success():
     """Proves get_token_mass works when tiktoken is natively available."""
     from gitgalaxy.core.detector import get_token_mass
-    
+
     # Mock the globals in detector.py to simulate a successful tiktoken import
     with patch("gitgalaxy.core.detector.HAS_TIKTOKEN", True):
+
         class MockEncoder:
             def encode(self, text, disallowed_special=()):
                 return [1, 2, 3, 4, 5]  # Simulate 5 tokens
-                
+
         with patch("gitgalaxy.core.detector.ENCODER", MockEncoder()):
             mass = get_token_mass("def mock_func(): pass")
             assert mass == 5, "Token mass calculation failed to use the encoder!"
@@ -1623,17 +1454,17 @@ def test_detector_tiktoken_mass_success():
 def test_detector_metadata_decoder_exceptions(caplog):
     """Proves the metadata decoder survives malformed regex matches."""
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject a broken regex that crashes on .match()
     class ExplodingMatch:
         def match(self, text):
             raise ValueError("Metadata Match Crash")
-            
+
     opt.primary_rules["_meta_purpose_line"] = ExplodingMatch()
-    
+
     # The decoder should catch the ValueError and silently ignore the line
     meta = opt._decode_comment_stream("Purpose: This should crash but survive.")
-    
+
     assert "purpose" not in meta, "Decoder somehow extracted purpose despite the crash!"
     assert meta["ownership"] == "Unknown Architect", "Decoder completely failed instead of continuing safely!"
 
@@ -1644,39 +1475,39 @@ def test_detector_metadata_decoder_exceptions(caplog):
 def test_spatial_mapper_missing_keys():
     """Proves the spatial mapper handles stars with missing path/filename keys."""
     mapper = SpatialMapper()
-    
+
     # Provide a node with NO path and NO filename
     files = [{"file_impact": 100.0}]
-    
+
     mapped = mapper.map_repository(files)
-    
+
     assert len(mapped) == 1
     assert mapped[0]["directory_group"] == "__monolith__", "Failed to default missing paths to the monolith!"
-    
+
 
 # ==============================================================================
 # TEST 44: APPSEC OOM BOMB (SPATIAL CASCADING FLUX)
 # ==============================================================================
 def test_detector_spatial_oom_bomb_correlation():
     """
-    Proves the Spatial Map correctly amplifies State Flux when mutations 
+    Proves the Spatial Map correctly amplifies State Flux when mutations
     occur within the blast radius of heavy algorithmic branching (OOM Bomb).
     """
     from gitgalaxy.core.detector import StructuralExtractor
-    
+
     # 1. Happy Path: Mutation trapped inside a loop (Should Amplify)
     opt_oom = StructuralExtractor("python", MOCK_LANG_DEFS)
     # Inject temporary mock rules
     opt_oom.primary_rules["state_mutation"] = re.compile(r"global_list\.append")
     opt_oom.primary_rules["branch"] = re.compile(r"\bwhile\b")
-    
+
     code_oom = (
         "def memory_leak():\n"
         "    while True:              # Trigger: branch\n"
         "        global_list.append(x) # Trigger: state_mutation (inside branch)\n"
     )
     res_oom = opt_oom.splice(code_oom, "")
-    
+
     # A single state_mutation hit normally = 1.
     # The AppSec multiplier adds (cascading_flux * 2). Total should be >= 3.
     assert res_oom["equations"].get("state_mutation", 0) >= 3, (
@@ -1685,12 +1516,12 @@ def test_detector_spatial_oom_bomb_correlation():
     assert res_oom["mitigation_telemetry"].get("amplified_cascading_flux", 0) >= 1, (
         "Failed to log the OOM Bomb telemetry!"
     )
-    
+
     # 2. Unhappy Path: Mutation far away from the loop (Should NOT Amplify)
     opt_safe = StructuralExtractor("python", MOCK_LANG_DEFS)
     opt_safe.primary_rules["state_mutation"] = re.compile(r"global_list\.append")
     opt_safe.primary_rules["branch"] = re.compile(r"\bwhile\b")
-    
+
     # Put 200 lines of safe padding between them to exceed the 150-char blast radius
     padding = "    pass\n" * 200
     code_safe = (
@@ -1701,7 +1532,7 @@ def test_detector_spatial_oom_bomb_correlation():
         "        pass\n"
     )
     res_safe = opt_safe.splice(code_safe, "")
-    
+
     # Because they are spatially separated, no amplification should occur. Total = 1.
     assert res_safe["equations"].get("state_mutation", 0) == 1, (
         "Spatial correlation falsely amplified an isolated state mutation!"
@@ -1710,27 +1541,29 @@ def test_detector_spatial_oom_bomb_correlation():
         "Falsely logged OOM Bomb telemetry on safe code!"
     )
 
+
 # ==============================================================================
 # TEST 45: ZERO-BRANCH MASSIVE STATE (OOM BOMB BYPASS)
 # ==============================================================================
 def test_detector_zero_branch_massive_state():
     """
-    Proves that a file with massive state mutations but ZERO algorithmic branches 
+    Proves that a file with massive state mutations but ZERO algorithmic branches
     safely bypasses the spatial OOM Bomb radar without throwing KeyErrors.
     """
     from gitgalaxy.core.detector import StructuralExtractor
+
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject mock rules
     opt_detector.primary_rules["state_mutation"] = re.compile(r"global_list\.append")
     opt_detector.primary_rules["branch"] = re.compile(r"\b(while|for)\b")
-    
+
     # Generate 100 state mutations with no loops
     mutations = "    global_list.append(x)\n" * 100
     code = f"def init_massive_data():\n{mutations}"
-    
+
     result = opt_detector.splice(code, "")
-    
+
     # The raw mutations should be counted, but the OOM Bomb telemetry must be exactly 0
     assert result["equations"].get("state_mutation", 0) == 100, (
         "Detector failed to count the raw, unamplified state mutations!"
@@ -1739,35 +1572,40 @@ def test_detector_zero_branch_massive_state():
         "Detector falsely amplified an OOM Bomb in a file with no algorithmic loops!"
     )
 
+
 # ==============================================================================
 # TEST 46: EXACT LOC MAPPING (Offset to LOC)
 # ==============================================================================
 def test_detector_exact_loc_mapping():
     """Proves the coding_analysis phase accurately converts regex offsets to line numbers."""
     from gitgalaxy.core.detector import StructuralExtractor
+
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    
+
     # Inject rules for testing
     opt_detector.primary_rules["sec_hardcoded_secrets"] = re.compile(r"password")
     opt_detector.primary_rules["high_risk_execution"] = re.compile(r"eval")
 
     code = (
-        "def safe_func():\n"               # Line 1
-        "    pass\n"                       # Line 2
-        "\n"                               # Line 3
-        "def bad_func():\n"                # Line 4
-        "    x = 'password'\n"             # Line 5 (sec_hardcoded_secrets)
-        "    eval(x)\n"                    # Line 6 (high_risk_execution)
+        "def safe_func():\n"  # Line 1
+        "    pass\n"  # Line 2
+        "\n"  # Line 3
+        "def bad_func():\n"  # Line 4
+        "    x = 'password'\n"  # Line 5 (sec_hardcoded_secrets)
+        "    eval(x)\n"  # Line 6 (high_risk_execution)
     )
-    
+
     # Manually run coding analysis
     segments = [("python", code, 0)]
     counts, mitigations, spatial_maps, parents, threat_locations = opt_detector.coding_analysis(segments)
-    
+
     # Verify the exact line numbers were captured
     assert "sec_hardcoded_secrets" in threat_locations, "Failed to map threat location!"
-    assert threat_locations["sec_hardcoded_secrets"][0] == 5, f"Expected line 5, got {threat_locations['sec_hardcoded_secrets'][0]}"
+    assert threat_locations["sec_hardcoded_secrets"][0] == 5, (
+        f"Expected line 5, got {threat_locations['sec_hardcoded_secrets'][0]}"
+    )
     assert threat_locations["high_risk_execution"][0] == 6, "Failed to map subsequent line threat!"
+
 
 # ==============================================================================
 # TEST: DOCSTRING EXTRACTION STOPS AT A STAND-ALONE CLOSING """ (#246)
@@ -1779,20 +1617,12 @@ def test_detector_docstring_stops_at_standalone_closing_triple_quote():
     the scan run past the closing line into subsequent code.
     """
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def foo():\n"
-        '    """\n'
-        "    Summary line.\n"
-        '    """\n'
-        "    return 1\n"
-    )
+    code = 'def foo():\n    """\n    Summary line.\n    """\n    return 1\n'
     result = opt.splice(code, "", raw_content=code)
 
     docstring = result["functions"][0]["docstring"]
     assert "Summary line." in docstring
-    assert "return 1" not in docstring, (
-        "Docstring extraction swallowed the function body past the closing delimiter!"
-    )
+    assert "return 1" not in docstring, "Docstring extraction swallowed the function body past the closing delimiter!"
 
 
 def test_detector_single_line_docstring_still_terminates_correctly():
@@ -1803,11 +1633,7 @@ def test_detector_single_line_docstring_still_terminates_correctly():
     and not bleed into the next line.
     """
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def bar():\n"
-        '    """Summary on one line."""\n'
-        "    return 2\n"
-    )
+    code = 'def bar():\n    """Summary on one line."""\n    return 2\n'
     result = opt.splice(code, "", raw_content=code)
 
     docstring = result["functions"][0]["docstring"]
@@ -1823,21 +1649,13 @@ def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
     OPENING line, not misclassified as a continuation of unrelated content.
     """
     opt = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "# Architect: Ada Lovelace\n"
-        "def baz():\n"
-        '    """\n'
-        "    Summary line.\n"
-        '    """\n'
-        "    return 3\n"
-    )
+    code = '# Architect: Ada Lovelace\ndef baz():\n    """\n    Summary line.\n    """\n    return 3\n'
     result = opt.splice(code, "", raw_content=code)
 
     docstring = result["functions"][0]["docstring"]
     assert "Summary line." in docstring
-    assert "return 3" not in docstring, (
-        "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
-    )
+    assert "return 3" not in docstring, "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
+
 
 # ==============================================================================
 # TEST 47: FALLBACK SIGNATURE ALIGNMENT (_slice_by_braces)
@@ -1857,16 +1675,12 @@ def test_detector_fallback_slice_by_braces_arguments(mock_slice_by_braces):
         lang_id="unregistered_alien_lang",
         rules={"mock": "rule"},
         offset=42,
-        spatial_map={"branch": [10, 20]}
+        spatial_map={"branch": [10, 20]},
     )
-    
+
     # Assert all 5 arguments were passed in the exact correct order
     mock_slice_by_braces.assert_called_with(
-        "def test(): pass", 
-        "unregistered_alien_lang", 
-        {"mock": "rule"}, 
-        42, 
-        {"branch": [10, 20]}
+        "def test(): pass", "unregistered_alien_lang", {"mock": "rule"}, 42, {"branch": [10, 20]}
     )
 
     # Reset the mock for the next test
@@ -1878,16 +1692,12 @@ def test_detector_fallback_slice_by_braces_arguments(mock_slice_by_braces):
         lang_id="unregistered_sql_dialect",
         rules={"io": "rule"},
         offset=99,
-        spatial_map={"io": [5]}
+        spatial_map={"io": [5]},
     )
-    
+
     # Assert all 5 arguments were passed in the exact correct order
     mock_slice_by_braces.assert_called_with(
-        "SELECT * FROM table;", 
-        "unregistered_sql_dialect", 
-        {"io": "rule"}, 
-        99, 
-        {"io": [5]}
+        "SELECT * FROM table;", "unregistered_sql_dialect", {"io": "rule"}, 99, {"io": [5]}
     )
 
 
@@ -1961,8 +1771,7 @@ def test_detector_yaml_json_csv_now_flow_through_normally():
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
     yaml_sample = (
-        "name: CI\non:\n  schedule:\n    - cron: '0 0 * * *'\n"
-        "jobs:\n  build:\n    steps:\n      - run: rm -rf /\n"
+        "name: CI\non:\n  schedule:\n    - cron: '0 0 * * *'\njobs:\n  build:\n    steps:\n      - run: rm -rf /\n"
     )
     result = prism.split_streams(yaml_sample, "yaml")
     detector = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
@@ -1999,7 +1808,9 @@ def test_detector_plaintext_still_fully_bypassed():
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     detector = StructuralExtractor("plaintext", LANGUAGE_DEFINITIONS)
-    result = detector.splice(code_stream="some non-empty plaintext content\nwith multiple lines\n", comment_stream="", confidence=1.0)
+    result = detector.splice(
+        code_stream="some non-empty plaintext content\nwith multiple lines\n", comment_stream="", confidence=1.0
+    )
     assert result["equations"] == {}, "plaintext should still be fully bypassed"
 
 

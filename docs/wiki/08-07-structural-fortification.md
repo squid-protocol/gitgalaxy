@@ -66,18 +66,23 @@ If danger signals (`danger_hits` or `safety_neg_hits`) exceed a minimum threshol
 import math
 from typing import Dict
 
+
 def _calc_safety(self, loc: int, eq: Dict[str, int], irc: int, fc: float, mp: float) -> float:
     safe_loc = max(loc, 1)
     t = self.risk_tuning.get("safety", {})
 
     # 1. Calculate Weighted Sums
-    attack_hits = (eq.get("danger", 0) * t.get("danger_weight", 4.0)) + \
-                  (eq.get("safety_neg", 0) * t.get("safety_neg_weight", 1.5)) + \
-                  (eq.get("flux", 0) * t.get("flux_weight", 0.5))
+    attack_hits = (
+        (eq.get("danger", 0) * t.get("danger_weight", 4.0))
+        + (eq.get("safety_neg", 0) * t.get("safety_neg_weight", 1.5))
+        + (eq.get("flux", 0) * t.get("flux_weight", 0.5))
+    )
 
-    defense_hits = (eq.get("safety", 0) * self.WEIGHT_DEFENSE) + \
-                   (eq.get("test", 0) * t.get("test_weight", 0.5)) + \
-                   (eq.get("doc", 0) * t.get("doc_weight", 0.1))
+    defense_hits = (
+        (eq.get("safety", 0) * self.WEIGHT_DEFENSE)
+        + (eq.get("test", 0) * t.get("test_weight", 0.5))
+        + (eq.get("doc", 0) * t.get("doc_weight", 0.1))
+    )
 
     # Zero-Risk Shortcut
     if attack_hits == 0:

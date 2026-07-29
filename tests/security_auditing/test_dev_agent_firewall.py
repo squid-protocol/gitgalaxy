@@ -11,7 +11,7 @@ def firewall():
     """
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "state_flux", "cognitive_load"],
-        "SIGNAL_SCHEMA": ["io", "reflection_metaprogramming"]
+        "SIGNAL_SCHEMA": ["io", "reflection_metaprogramming"],
     }
     with patch("gitgalaxy.tools.ai_guardrails.dev_agent_firewall.RECORDING_SCHEMAS", mock_schemas):
         yield DevAgentFirewall()
@@ -28,7 +28,7 @@ def test_black_hole_detection(firewall):
     mock_files = [
         {
             "token_mass": 8500,  # ☢️ Exceeds 8k limit
-            "max_big_o": 3,      # ☢️ High algorithmic complexity
+            "max_big_o": 3,  # ☢️ High algorithmic complexity
             "telemetry": {},
             "risk_vector": [],
         }
@@ -89,8 +89,8 @@ def test_hitl_mandate_detection(firewall):
             "max_big_o": 1,
             "risk_vector": [100, 50, 60],  # ☢️ Sum = 210 (> 200 threshold)
             "telemetry": {
-                "network_metrics": {"normalized_blast_radius": 1.5} # ☢️ > 1.0 threshold
-            }
+                "network_metrics": {"normalized_blast_radius": 1.5}  # ☢️ > 1.0 threshold
+            },
         }
     ]
 
@@ -183,7 +183,7 @@ def test_hallucination_zone_ignores_documentation_in_a_different_function(firewa
 # ==============================================================================
 def test_silent_mutation_risk_detection(firewall):
     """
-    Proves that files with high state flux (pulled from risk_vector), high inbound 
+    Proves that files with high state flux (pulled from risk_vector), high inbound
     dependencies, and zero test coverage are flagged as a Silent Mutation Risk.
     """
     mock_files = [
@@ -192,7 +192,7 @@ def test_silent_mutation_risk_detection(firewall):
             "test_coverage_map": {},  # ☢️ Zero test coverage (#373: real signal, not telemetry["has_tests"])
             "telemetry": {
                 "network_metrics": {"in_degree": 6},  # ☢️ > 5 dependencies rely on this
-            }
+            },
         }
     ]
 
@@ -218,7 +218,7 @@ def test_silent_mutation_risk_dampened_by_real_test_coverage(firewall):
             "test_coverage_map": {"process_payment": [{"impact": 5.0}]},  # Real coverage
             "telemetry": {
                 "network_metrics": {"in_degree": 6},
-            }
+            },
         }
     ]
 
@@ -243,7 +243,7 @@ def test_safe_agentic_baseline(firewall):
             "token_mass": 2000,
             "max_big_o": 1,
             "risk_vector": [10, 5, 0],  # ✅ Low risk debt
-            "hit_vector": [0, 0],       # ✅ No dynamic execution
+            "hit_vector": [0, 0],  # ✅ No dynamic execution
             "test_coverage_map": {"handler": [{"impact": 1.0}]},  # ✅ Real test coverage
             "telemetry": {
                 "doc_density": 0.85,
@@ -270,7 +270,7 @@ def test_safe_agentic_baseline(firewall):
 # ==============================================================================
 def test_survives_missing_vectors(firewall):
     """
-    Proves the firewall does not crash with KeyErrors or TypeErrors if the 
+    Proves the firewall does not crash with KeyErrors or TypeErrors if the
     artifact entirely lacks a risk_vector or hit_vector (e.g., bypassed assets).
     """
     mock_files = [
@@ -278,7 +278,7 @@ def test_survives_missing_vectors(firewall):
             "token_mass": 100,
             # No hit_vector
             # No risk_vector
-            "telemetry": {}
+            "telemetry": {},
         }
     ]
 
@@ -295,26 +295,23 @@ def test_survives_missing_vectors(firewall):
 # ==============================================================================
 def test_survives_short_vectors(firewall):
     """
-    Proves the firewall avoids IndexError if an upstream bug truncates the 
+    Proves the firewall avoids IndexError if an upstream bug truncates the
     arrays before they reach the expected schema indices.
     """
     mock_files = [
         {
             # Schema says state_flux is at index 1, but we only pass index 0
-            "risk_vector": [99.0], 
+            "risk_vector": [99.0],
             # Schema says metaprogramming is at index 1, but we only pass index 0
             "hit_vector": [5],
-            "telemetry": {
-                "network_metrics": {"in_degree": 10},
-                "doc_density": 0.1
-            }
+            "telemetry": {"network_metrics": {"in_degree": 10}, "doc_density": 0.1},
         }
     ]
 
     result = firewall.evaluate_ecosystem(mock_files)
     guardrails = result[0]["telemetry"]["ai_guardrails"]
 
-    # Even though conditions for flags were met in telemetry, the short arrays 
+    # Even though conditions for flags were met in telemetry, the short arrays
     # should safely abort the checks rather than crash the engine.
     assert guardrails["silent_mutation_risk"] is False
     assert guardrails["hallucination_zone"] is False

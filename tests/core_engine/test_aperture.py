@@ -76,16 +76,12 @@ def test_aperture_semantic_path_and_intent(filter_engine, tmp_path):
     vendor_file.write_text("def run(): pass", encoding="utf-8")
 
     # 1. Default Behavior: Blocked by infra_path_shield
-    is_valid, _, reason = filter_engine.evaluate_path_integrity(
-        vendor_file, has_intent=False
-    )
+    is_valid, _, reason = filter_engine.evaluate_path_integrity(vendor_file, has_intent=False)
     assert is_valid is False
     assert "Blocked" in reason
 
     # 2. GuideStar Intent Lock: Bypassed!
-    is_valid, _, reason = filter_engine.evaluate_path_integrity(
-        vendor_file, has_intent=True
-    )
+    is_valid, _, reason = filter_engine.evaluate_path_integrity(vendor_file, has_intent=True)
     assert is_valid is True
     assert "GuideStar Intent Lock" in reason
 
@@ -129,19 +125,13 @@ def test_aperture_auto_gen_shield(filter_engine, tmp_path):
 # ==============================================================================
 # TEST 4: THE EMBEDDED HEX ARRAY SHIELD
 # ==============================================================================
-@pytest.mark.xfail(
-    reason="Engine currently allows hex arrays if has_intent=True. Pending engine patch."
-)
+@pytest.mark.xfail(reason="Engine currently allows hex arrays if has_intent=True. Pending engine patch.")
 def test_aperture_embedded_hex_shield(filter_engine, tmp_path):
     """
     Proves that massive C-header data payloads (hex arrays) are dropped to protect
     the regex engine, EVEN IF the file has a VIP intent lock.
     """
-    hex_lines = (
-        ["const int data[] = {"]
-        + ["    0x00, 0x01, 0x02, 0x03, 0x04," for _ in range(300)]
-        + ["};"]
-    )
+    hex_lines = ["const int data[] = {"] + ["    0x00, 0x01, 0x02, 0x03, 0x04," for _ in range(300)] + ["};"]
     hex_content = "\n".join(hex_lines)
 
     c_file = tmp_path / "data_payload.c"
@@ -246,9 +236,7 @@ def test_aperture_tiered_mass_ceiling(filter_engine, tmp_path):
     #    the zero-I/O pre-read gate (evaluate_path_integrity), not is_in_scope.
     with patch("pathlib.Path.stat") as mock_stat:
         mock_stat.return_value.st_size = 150 * 1024 * 1024  # 150MB
-        is_valid, _, reason = filter_engine.evaluate_path_integrity(
-            mid_file, has_intent=True
-        )
+        is_valid, _, reason = filter_engine.evaluate_path_integrity(mid_file, has_intent=True)
         assert is_valid is False
         assert "absolute 100MB safety ceiling" in reason
 
@@ -418,8 +406,15 @@ def test_aperture_ignored_directories_case_insensitive(tmp_path):
     mixed_case_config = {
         **MOCK_CONFIG,
         "IGNORED_DIRECTORIES": {
-            "CVS", "Pods", "Carthage", "Release", "Debug",
-            "CMakeFiles", "TestResults", "DerivedData", "__MACOSX",
+            "CVS",
+            "Pods",
+            "Carthage",
+            "Release",
+            "Debug",
+            "CMakeFiles",
+            "TestResults",
+            "DerivedData",
+            "__MACOSX",
         },
     }
     engine = ApertureFilter(tmp_path, MOCK_REGISTRY, mixed_case_config)

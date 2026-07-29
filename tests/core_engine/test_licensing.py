@@ -82,9 +82,7 @@ def test_validate_key_missing_or_malformed():
 
     # 2. Malformed Format
     assert _validate_offline_key("TOO-SHORT") == "MALFORMED"
-    assert (
-        _validate_offline_key("WRONG-TIER-CUSTOMER-DATE-SIG") == "MALFORMED"
-    )  # Missing GG prefix
+    assert _validate_offline_key("WRONG-TIER-CUSTOMER-DATE-SIG") == "MALFORMED"  # Missing GG prefix
 
     # 3. Invalid Hex Signature (Throws ValueError internally)
     assert _validate_offline_key("GG-TIER-CUST-20991231-NOTHEX") == "MALFORMED"
@@ -99,9 +97,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     import hashlib
 
     payload = "ENTERPRISE-ACME-20991231".encode("utf-8")
-    expected_hash_int = int.from_bytes(
-        hashlib.sha256(payload).digest(), byteorder="big"
-    )
+    expected_hash_int = int.from_bytes(hashlib.sha256(payload).digest(), byteorder="big")
 
     # 1. VALID KEY (Future Date)
     mock_pow.return_value = expected_hash_int
@@ -110,9 +106,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
 
     # 2. EXPIRED KEY (Authentic math, but date is in the past)
     payload_exp = "ENTERPRISE-ACME-20000101".encode("utf-8")
-    expected_hash_int_exp = int.from_bytes(
-        hashlib.sha256(payload_exp).digest(), byteorder="big"
-    )
+    expected_hash_int_exp = int.from_bytes(hashlib.sha256(payload_exp).digest(), byteorder="big")
     mock_pow.return_value = expected_hash_int_exp
 
     expired_key = "GG-ENTERPRISE-ACME-20000101-1A2B"  # gitleaks:allow
@@ -125,9 +119,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     # 4. CORRUPTED DATE FORMAT (signature checks out, but the payload itself
     # is broken -- still not tampering evidence, so it's MALFORMED not FORGED)
     payload_bad_date = "ENTERPRISE-ACME-BAD_DATE".encode("utf-8")
-    expected_hash_bad = int.from_bytes(
-        hashlib.sha256(payload_bad_date).digest(), byteorder="big"
-    )
+    expected_hash_bad = int.from_bytes(hashlib.sha256(payload_bad_date).digest(), byteorder="big")
     mock_pow.return_value = expected_hash_bad
 
     corrupted_date_key = "GG-ENTERPRISE-ACME-BAD_DATE-1A2B"  # gitleaks:allow

@@ -1,4 +1,3 @@
-
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge as forge_module
 
@@ -76,9 +75,7 @@ def test_forge_schemas_bloat_cutter(tmp_path):
 
     # Assertions
     assert "USED_VAR" in sql_ddl
-    assert "DEAD_VAR" not in sql_ddl, (
-        "Bloat Cutter failed! Dead memory was migrated to the cloud."
-    )
+    assert "DEAD_VAR" not in sql_ddl, "Bloat Cutter failed! Dead memory was migrated to the cloud."
     assert "FILLER" not in sql_ddl, "Engine hallucinated a FILLER column!"
     assert "FLAG_VAR" not in sql_ddl, "Engine hallucinated an 88-level column!"
 
@@ -108,18 +105,12 @@ def test_forge_schemas_e2e(tmp_path):
     json_schema = schemas["json"]
 
     # 1. SQL DDL Verification
-    assert "CREATE TABLE ACCOUNT_RECORD" in sql_ddl, (
-        "Failed to name the table from the 01-level!"
-    )
+    assert "CREATE TABLE ACCOUNT_RECORD" in sql_ddl, "Failed to name the table from the 01-level!"
     assert "ACCT_ID" in sql_ddl and "ACCT_NAME" in sql_ddl
 
     # 2. Honesty Sensor Verification
-    assert "COMP-3 (Packed Decimal)" in sql_ddl, (
-        "Failed to tag the legacy COMP-3 footprint!"
-    )
-    assert "WARNING: OCCURS DEPENDING ON detected. Use JSONB." in sql_ddl, (
-        "Failed to trap the dynamic array!"
-    )
+    assert "COMP-3 (Packed Decimal)" in sql_ddl, "Failed to tag the legacy COMP-3 footprint!"
+    assert "WARNING: OCCURS DEPENDING ON detected. Use JSONB." in sql_ddl, "Failed to trap the dynamic array!"
 
     # 3. JSON REST API Schema Verification
     assert json_schema["title"] == "ACCOUNT_RECORD"

@@ -53,10 +53,11 @@ $$\text{StabilityScore} = \min\left( \left( \frac{\text{SecondsFromMax}}{\text{T
 import math
 from typing import Dict, Any, Tuple
 
+
 def _calc_raw_temporal_signals(self, temp: Dict[str, Any]) -> Tuple[float, float]:
     """Calculates File Stability (Age score) and Raw Churn (Commit frequency)."""
     if not temp or not temp.get("is_git_tracked", False):
-        return 50.0, 0.0 
+        return 50.0, 0.0
 
     mtime = temp.get("mtime", 0.0)
     repo_min = temp.get("repo_min_time", mtime)
@@ -72,7 +73,7 @@ def _calc_raw_temporal_signals(self, temp: Dict[str, Any]) -> Tuple[float, float
     stability_score = min(stability_ratio * 100.0, 100.0)
 
     # 2. Raw Churn Frequency calculation
-    age_weeks = max(seconds_from_max / 604800.0, 1.0) 
+    age_weeks = max(seconds_from_max / 604800.0, 1.0)
     raw_churn_freq = commits / math.sqrt(age_weeks)
 
     return stability_score, raw_churn_freq

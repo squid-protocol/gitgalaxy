@@ -1,4 +1,3 @@
-
 # Import your Forge generators
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge import (
     generate_rest_controller,

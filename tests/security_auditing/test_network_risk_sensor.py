@@ -78,12 +78,8 @@ def test_network_isolated_island(sensor, parsed_files_universe):
 
     assert telemetry["in_degree"] == 0
     assert telemetry["out_degree"] == 0
-    assert telemetry["ecosystem_role"] == "Isolated/Orphan", (
-        "Failed to identify the isolated island!"
-    )
-    assert telemetry["producer_ratio"] == 0.0, (
-        "Divide by zero occurred on producer_ratio!"
-    )
+    assert telemetry["ecosystem_role"] == "Isolated/Orphan", "Failed to identify the isolated island!"
+    assert telemetry["producer_ratio"] == 0.0, "Divide by zero occurred on producer_ratio!"
 
 
 # ==============================================================================
@@ -101,9 +97,7 @@ def test_network_cyclic_loop_resilience(sensor, parsed_files_universe):
     # Prove the cycle was mathematically registered
     assert telemetry["in_degree"] == 1
     assert telemetry["out_degree"] == 1
-    assert metrics["cyclic_density"] > 0.0, (
-        "Failed to register macro-level cyclic density!"
-    )
+    assert metrics["cyclic_density"] > 0.0, "Failed to register macro-level cyclic density!"
 
 
 # ==============================================================================
@@ -115,26 +109,13 @@ def test_network_ecosystem_roles(sensor, parsed_files_universe):
     mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
 
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
-    assert (
-        foundation["telemetry"]["network_metrics"]["ecosystem_role"]
-        == "Pure Producer (Foundation)"
-    )
+    assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
 
-    orchestrator = next(
-        f for f in mapped_files if f["path"] == "/src/main/orchestrator.py"
-    )
-    assert (
-        orchestrator["telemetry"]["network_metrics"]["ecosystem_role"]
-        == "Pure Consumer (Orchestrator)"
-    )
+    orchestrator = next(f for f in mapped_files if f["path"] == "/src/main/orchestrator.py")
+    assert orchestrator["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Consumer (Orchestrator)"
 
-    transceiver = next(
-        f for f in mapped_files if f["path"] == "/src/utils/transceiver.py"
-    )
-    assert (
-        transceiver["telemetry"]["network_metrics"]["ecosystem_role"]
-        == "Transceiver (Middle-Tier)"
-    )
+    transceiver = next(f for f in mapped_files if f["path"] == "/src/utils/transceiver.py")
+    assert transceiver["telemetry"]["network_metrics"]["ecosystem_role"] == "Transceiver (Middle-Tier)"
 
 
 # ==============================================================================
@@ -155,16 +136,12 @@ def test_network_algorithmic_bottleneck(sensor, parsed_files_universe):
     # 1. Foundation has high gravity (PageRank), but simple internal logic (Big O 1). Should be False.
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
     assert foundation["telemetry"]["network_metrics"]["normalized_blast_radius"] > 1.0
-    assert (
-        foundation["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is False
-    )
+    assert foundation["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is False
 
     # 2. Heavy Calc has high gravity AND extreme logic (Big O 4 + Recursive). Should be True!
     heavy_calc = next(f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py")
     assert heavy_calc["telemetry"]["network_metrics"]["normalized_blast_radius"] > 1.0
-    assert (
-        heavy_calc["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is True
-    )
+    assert heavy_calc["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is True
 
     # 3. #372: max_big_o itself must be copied onto the file dict, not just used
     # internally to compute is_algorithmic_bottleneck -- dev_agent_firewall.py
@@ -183,22 +160,13 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
 
         # It should still calculate basic in/out degrees and roles using pure Python dicts
-        foundation = next(
-            f for f in mapped_files if f["path"] == "/src/core/foundation.py"
-        )
-        assert (
-            foundation["telemetry"]["network_metrics"]["ecosystem_role"]
-            == "Pure Producer (Foundation)"
-        )
-        assert (
-            foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0
-        )  # Math is disabled
+        foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
+        assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
+        assert foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0  # Math is disabled
 
         # #372: max_big_o computation is pure Python (off "functions"), so it
         # must still work in Zero-Dependency Mode, not just the networkx path.
-        heavy_calc = next(
-            f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py"
-        )
+        heavy_calc = next(f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py")
         assert foundation["max_big_o"] == 1
         assert heavy_calc["max_big_o"] == 4
 
@@ -271,9 +239,7 @@ def ambiguous_only_universe():
 # TEST 6: DUPLICATE FILENAME — AMBIGUOUS BARE IMPORT IS SKIPPED, NOT GUESSED (#261)
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_network_duplicate_filename_ambiguous_import_skipped(
-    sensor, ambiguous_only_universe
-):
+def test_network_duplicate_filename_ambiguous_import_skipped(sensor, ambiguous_only_universe):
     """
     Regression test for #261: when a bare import token ("utils") matches
     multiple files sharing that stem across directories, the resolver must
@@ -297,9 +263,7 @@ def test_network_duplicate_filename_ambiguous_import_skipped(
 # TEST 7: DUPLICATE FILENAME — PATH-QUALIFIED IMPORT DISAMBIGUATES CORRECTLY (#261)
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_network_duplicate_filename_path_qualified_import_resolves(
-    sensor, duplicate_filename_universe
-):
+def test_network_duplicate_filename_path_qualified_import_resolves(sensor, duplicate_filename_universe):
     """
     Regression test for #261: when the import token carries enough path
     context ("service_b/utils"), the resolver must wire the edge to the
@@ -330,12 +294,8 @@ def test_network_duplicate_filename_fallback_mode(sensor, duplicate_filename_uni
     with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
         mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
 
-        service_a_utils = next(
-            f for f in mapped_files if f["path"] == "/src/service_a/utils.py"
-        )
-        service_b_utils = next(
-            f for f in mapped_files if f["path"] == "/src/service_b/utils.py"
-        )
+        service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
+        service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")
 
         assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0
         assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 1
@@ -525,7 +485,9 @@ def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_un
     ):
         _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-    assert macro_metrics["assortativity"] is None, "A failed assortativity computation must stay None, not 0.0 or crash."
+    assert macro_metrics["assortativity"] is None, (
+        "A failed assortativity computation must stay None, not 0.0 or crash."
+    )
     assert macro_metrics["avg_path_length"] is None
     assert macro_metrics["articulation_points"] is None
     # Modularity and cyclic_density weren't patched to fail -- they should
@@ -541,7 +503,9 @@ def test_cyclic_density_failure_stays_isolated(sensor, parsed_files_universe):
         _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
     assert macro_metrics["cyclic_density"] is None
-    assert macro_metrics["modularity"] is not None, "An unrelated metric's failure shouldn't take modularity down with it."
+    assert macro_metrics["modularity"] is not None, (
+        "An unrelated metric's failure shouldn't take modularity down with it."
+    )
 
 
 def test_modularity_falls_back_to_greedy_when_louvain_unavailable(sensor, parsed_files_universe):

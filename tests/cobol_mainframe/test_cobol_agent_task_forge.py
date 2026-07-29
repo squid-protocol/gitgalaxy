@@ -28,9 +28,7 @@ def test_generate_agent_ticket_merging(tmp_path):
         }
     }
 
-    ticket = forge_module.generate_agent_ticket(
-        "PGM1.cbl", mock_file, mock_anomalies, mock_ir
-    )
+    ticket = forge_module.generate_agent_ticket("PGM1.cbl", mock_file, mock_anomalies, mock_ir)
 
     # 1. Base Ticket Structure
     assert ticket["job_id"] == "PGM1_REMEDIATION"
@@ -39,9 +37,7 @@ def test_generate_agent_ticket_merging(tmp_path):
 
     # 2. Anomaly Stripping
     assert "CRITICAL LIMIT - ALTER detected" in ticket["context"]["detected_anomalies"]
-    assert "[PGM1.cbl" not in ticket["context"]["detected_anomalies"][0], (
-        "Failed to strip the prefix!"
-    )
+    assert "[PGM1.cbl" not in ticket["context"]["detected_anomalies"][0], "Failed to strip the prefix!"
 
     # 3. IR Lineage Merging
     assert ticket["context"]["inputs_required"] == ["FILE-IN"]
@@ -112,9 +108,5 @@ def test_forge_agent_jobs_graceful_degradation(tmp_path):
 
     # Ensure it gracefully degraded the missing IR context to empty arrays
     payload = json.loads(job_file.read_text(encoding="utf-8"))
-    assert payload["context"]["inputs_required"] == [], (
-        "Graceful fallback for missing IR inputs failed!"
-    )
-    assert payload["context"]["outputs_produced"] == [], (
-        "Graceful fallback for missing IR outputs failed!"
-    )
+    assert payload["context"]["inputs_required"] == [], "Graceful fallback for missing IR inputs failed!"
+    assert payload["context"]["outputs_produced"] == [], "Graceful fallback for missing IR outputs failed!"

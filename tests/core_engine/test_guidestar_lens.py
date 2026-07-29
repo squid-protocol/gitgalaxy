@@ -97,9 +97,7 @@ def test_guidestar_gitignore_evasion_tactics(guidestar, tmp_path):
     a max-priority evasion alarm (1.0 confidence).
     """
     ignore_path = tmp_path / ".gitignore"
-    ignore_path.write_text(
-        "node_modules/\nbuild/\n!malicious_payload.so\n", encoding="utf-8"
-    )
+    ignore_path.write_text("node_modules/\nbuild/\n!malicious_payload.so\n", encoding="utf-8")
 
     guidestar.scan_project_config()
 
@@ -281,10 +279,10 @@ def test_guidestar_toml_style_manifest_parsing(guidestar, tmp_path):
     """
     pyproject_path = tmp_path / "pyproject.toml"
     pyproject_path.write_text(
-        '[tool.poetry.dependencies]\n'
+        "[tool.poetry.dependencies]\n"
         'mylib = { path = "libs/mylib" }\n'
-        '\n'
-        '[project.scripts]\n'
+        "\n"
+        "[project.scripts]\n"
         'mycli = "mypackage.cli:main"\n',
         encoding="utf-8",
     )
@@ -331,9 +329,7 @@ def test_guidestar_package_json_bin_as_string(guidestar, tmp_path):
 def test_guidestar_package_json_bin_as_dict_multiple_entries(guidestar, tmp_path):
     """A package.json with multiple named bin entries must lock every target."""
     pkg_path = tmp_path / "package.json"
-    pkg_path.write_text(
-        json.dumps({"bin": {"tool-a": "bin/tool-a.js", "tool-b": "bin/tool-b.js"}}), encoding="utf-8"
-    )
+    pkg_path.write_text(json.dumps({"bin": {"tool-a": "bin/tool-a.js", "tool-b": "bin/tool-b.js"}}), encoding="utf-8")
 
     guidestar.scan_project_config()
 
@@ -352,10 +348,7 @@ def test_guidestar_gitattributes_skips_comments_and_malformed_lines(guidestar, t
     """
     attr_path = tmp_path / ".gitattributes"
     attr_path.write_text(
-        "# this is a comment\n"
-        "\n"
-        "*.h linguist-language=C++\n"
-        "just_a_pattern_with_no_attrs\n",
+        "# this is a comment\n\n*.h linguist-language=C++\njust_a_pattern_with_no_attrs\n",
         encoding="utf-8",
     )
 

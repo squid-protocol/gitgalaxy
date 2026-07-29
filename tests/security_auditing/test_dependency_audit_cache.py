@@ -155,24 +155,23 @@ def test_sbom_no_cache_preserves_legacy_behavior(mock_det, mock_sec, tmp_path):
     props = {p["name"]: p["value"] for p in bom["components"][0]["properties"]}
     assert "5/7" in props["gitgalaxy:audit_coverage"]
     assert "no dependency cache configured" in props["gitgalaxy:audit_coverage"]
-    
+
+
 def test_candidate_files_entry_points_first(tmp_path):
     """Ordering contract: entry-point stems before others, shallow before
     deep, alphabetical last — regardless of os.walk's natural order."""
     pkg = tmp_path / "pkg"
     deep = pkg / "lib" / "internal"
     deep.mkdir(parents=True)
-    (pkg / "aaa_helper.js").write_text("1")   # sorts first alphabetically
-    (pkg / "index.js").write_text("2")        # entry point — must win anyway
-    (deep / "main.js").write_text("3")        # entry point, but deeper
+    (pkg / "aaa_helper.js").write_text("1")  # sorts first alphabetically
+    (pkg / "index.js").write_text("2")  # entry point — must win anyway
+    (deep / "main.js").write_text("3")  # entry point, but deeper
     (deep / "zz_util.js").write_text("4")
 
     recorder = SbomRecorder()
     ordered = [p.name for p in recorder._iter_candidate_files(pkg)]
 
-    assert ordered == ["index.js", "main.js", "aaa_helper.js", "zz_util.js"], (
-        f"Priority ordering violated: {ordered}"
-    )
+    assert ordered == ["index.js", "main.js", "aaa_helper.js", "zz_util.js"], f"Priority ordering violated: {ordered}"
 
 
 @patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
@@ -202,10 +201,9 @@ def test_budget_spends_on_entry_point_not_alphabetical_first(mock_det, mock_sec,
 
     scanned_paths = [str(c.args[0]) for c in mock_det.return_value.inspect.call_args_list]
     assert len(scanned_paths) == 1
-    assert scanned_paths[0].endswith("index.js"), (
-        f"Budget was spent on {scanned_paths[0]} instead of the entry point!"
-    )
+    assert scanned_paths[0].endswith("index.js"), f"Budget was spent on {scanned_paths[0]} instead of the entry point!"
     cache.close()
+
 
 @patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
 @patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
@@ -233,7 +231,10 @@ def test_sbom_discovers_nested_monorepo_manifests(mock_det, mock_sec, tmp_path):
     recorder = SbomRecorder()
     out = tmp_path / "bom.json"
     recorder.generate_report(
-        [], {}, {"target_directory": str(project)}, str(out),
+        [],
+        {},
+        {"target_directory": str(project)},
+        str(out),
         manifest_paths=manifest_paths,
     )
 
@@ -243,6 +244,7 @@ def test_sbom_discovers_nested_monorepo_manifests(mock_det, mock_sec, tmp_path):
     assert props["gitgalaxy:trust_status"] != "UNVERIFIED_MISSING_ON_DISK", (
         "Package was located via repo root instead of the manifest's own directory!"
     )
+
 
 # ADD these two in its place:
 def test_sbom_root_fallback_does_not_recurse_into_vendored_dirs(tmp_path):
@@ -263,9 +265,7 @@ def test_sbom_root_fallback_does_not_recurse_into_vendored_dirs(tmp_path):
     recorder.generate_report([], {}, {"target_directory": str(project)}, str(out))
 
     bom = json.loads(out.read_text())
-    assert bom["components"] == [], (
-        "Root-only fallback found a manifest outside the repo root!"
-    )
+    assert bom["components"] == [], "Root-only fallback found a manifest outside the repo root!"
 
 
 @patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
@@ -294,12 +294,14 @@ def test_sbom_trusts_manifest_paths_without_revalidating_them(mock_det, mock_sec
     recorder = SbomRecorder()
     out = tmp_path / "bom.json"
     recorder.generate_report(
-        [], {}, {"target_directory": str(project)}, str(out),
+        [],
+        {},
+        {"target_directory": str(project)},
+        str(out),
         manifest_paths=[str(dep / "package.json")],
     )
 
     bom = json.loads(out.read_text())
     assert len(bom["components"]) == 1, (
-        "SbomRecorder should trust manifest_paths as given -- filtering is "
-        "galaxyscope's job now, not SbomRecorder's."
+        "SbomRecorder should trust manifest_paths as given -- filtering is galaxyscope's job now, not SbomRecorder's."
     )

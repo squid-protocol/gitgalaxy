@@ -42,6 +42,7 @@ def _write_config_yaml(tmp_path, **overrides):
     yaml_path.write_text(yaml.dump({"galaxyscope": overrides}))
     return str(yaml_path)
 
+
 # ==============================================================================
 # TEST 1: Dependency Graph Import Verification
 # ==============================================================================
@@ -76,6 +77,7 @@ def test_zero_trust_import_verification():
     assert result["imports_unknown"] == 1, "Failed to identify unknown package."
     assert result["threats_found"] == 1, "Blacklisted package did not increment threat counter."
 
+
 # ==============================================================================
 # TEST 2: Local Path and Sub-Module Truncation Shield
 # ==============================================================================
@@ -99,6 +101,7 @@ def test_import_truncation_and_local_shield():
     result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
     assert result["imports_whitelisted"] == 2, "Failed to truncate and match scoped/nested dependencies."
     assert result["imports_unknown"] == 0, "Local relative import was erroneously evaluated."
+
 
 # ==============================================================================
 # TEST 3: Alias Spoofing Detection
@@ -129,6 +132,7 @@ def test_alias_spoofing_detection(caplog):
     assert result["threats_found"] == 1, "Spoofed alias did not increment threat counter."
     assert "Spoofed alias blocked" in caplog.text, "Missing spoofed alias log output."
 
+
 # ==============================================================================
 # TEST 4: Strict Policy Enforcement Mode (Updated Schema)
 # ==============================================================================
@@ -141,15 +145,7 @@ def test_strict_mode_enforcement(tmp_path):
 
     mock_ram_graph = {
         "6. Parsed Files (Scanned Artifacts)": {
-            "root": {
-                "Files": {
-                    "server.js": {
-                        "raw_imports": ["shadow-library"],
-                        "equations": {},
-                        "coding_loc": 50
-                    }
-                }
-            }
+            "root": {"Files": {"server.js": {"raw_imports": ["shadow-library"], "equations": {}, "coding_loc": 50}}}
         }
     }
 
@@ -161,6 +157,7 @@ def test_strict_mode_enforcement(tmp_path):
         with pytest.raises(SystemExit) as exc:
             firewall_module.main()
         assert exc.value.code == 1, "Strict import policy enforcement failed to block an unknown package."
+
 
 # ==============================================================================
 # TEST 5: Behavioral Threat Score Evaluation (risk_vector Schema)
@@ -199,6 +196,7 @@ def test_behavioral_threat_evaluation(tmp_path):
             firewall_module.main()
         assert exc.value.code == 1, "Behavioral threat score evaluation failed to trigger pipeline failure."
 
+
 # ==============================================================================
 # TEST 6: Build-Time Execution Multiplier (Static Sandbox)
 # ==============================================================================
@@ -228,11 +226,12 @@ def test_build_time_execution_multiplier():
             "raw_imports": [],
             "risk_vector": _risk_vector(injection_surface=8.0),
             "coding_loc": 1000,
-        }
+        },
     ]
 
     result = firewall_module.run_firewall_audit(mock_ram_graph)
     assert result["threats_found"] == 1, "Build-time multiplier failed to amplify threat in setup.py."
+
 
 # ==============================================================================
 # TEST 7: CLI Main - Missing Target Validation
@@ -246,6 +245,7 @@ def test_main_missing_target(capsys):
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
     assert "Error: Target" in captured.out
+
 
 # ==============================================================================
 # TEST 8: CLI Main - Corrupted JSON Handling
@@ -263,6 +263,7 @@ def test_main_corrupted_json(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "Failed to parse RAM graph:" in captured.out
 
+
 # ==============================================================================
 # TEST 9: Monorepo Contextual Alias Resolution
 # ==============================================================================
@@ -277,7 +278,7 @@ def test_monorepo_contextual_alias_resolution(caplog):
     mock_alias_map = {
         "frontend": {"lodash": "rogue-ui"},
         "backend/src": {"lodash": "malicious-core"},
-        "backend": {"express": "safe-express"}
+        "backend": {"express": "safe-express"},
     }
 
     mock_ram_graph = [
@@ -285,7 +286,7 @@ def test_monorepo_contextual_alias_resolution(caplog):
         {"path": "backend/src/server.js", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10},
         {"path": "backend/src/utils/helper.js", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10},
         {"path": "backend/src/utils/router.js", "raw_imports": ["express"], "equations": {}, "coding_loc": 10},
-        {"path": "scripts/deploy.js", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10}
+        {"path": "scripts/deploy.js", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10},
     ]
 
     result = firewall_module.run_firewall_audit(mock_ram_graph, alias_map=mock_alias_map, config=config)
@@ -294,6 +295,7 @@ def test_monorepo_contextual_alias_resolution(caplog):
     assert result["threats_found"] == 3, "Failed to increment threats for contextually spoofed packages!"
     assert "'lodash' -> 'rogue-ui'" in caplog.text, "Failed to resolve exact directory alias (Frontend)!"
     assert "'lodash' -> 'malicious-core'" in caplog.text, "Failed to traverse upwards to authoritative manifest!"
+
 
 # ==============================================================================
 # TEST 10: THE ALLOWLIST LOOPHOLE GUARD (UNHAPPY PATH)
@@ -359,6 +361,7 @@ def test_behavioral_threat_evaluation_strips_prefix(tmp_path):
         with pytest.raises(SystemExit):
             firewall_module.main()
 
+
 # ==============================================================================
 # TEST 12: ISSUE #157 - THE TUPLE CRASH
 # ==============================================================================
@@ -371,7 +374,7 @@ def test_tuple_import_handling(tmp_path):
                     "app.py": {
                         "raw_imports": [("express", "Router"), "normal-string"],
                         "equations": {},
-                        "coding_loc": 100
+                        "coding_loc": 100,
                     }
                 }
             }
@@ -386,6 +389,7 @@ def test_tuple_import_handling(tmp_path):
             firewall_module.main()
         except SystemExit:
             pytest.fail("Firewall triggered SystemExit on safe tuple imports.")
+
 
 # ==============================================================================
 # TEST 13: ISSUES #158 & #162 - STANDALONE DIRECTORY CRASH & GLOB MISMATCH
@@ -404,9 +408,7 @@ def test_directory_execution_and_globbing(mock_subprocess_run, tmp_path):
 
         mock_audit_content = {
             "6. Parsed Files (Scanned Artifacts)": {
-                "root": {
-                    "Files": {"app.js": {"raw_imports": [], "equations": {}, "coding_loc": 10}}
-                }
+                "root": {"Files": {"app.js": {"raw_imports": [], "equations": {}, "coding_loc": 10}}}
             }
         }
         audit_file.write_text(json.dumps(mock_audit_content))
@@ -425,6 +427,7 @@ def test_directory_execution_and_globbing(mock_subprocess_run, tmp_path):
     output_target = called_args[called_args.index("--output") + 1]
     assert output_target.endswith("firewall_temp.json")
 
+
 # ==============================================================================
 # TEST 14: ISSUE #159 - SILENT "0 FILES SCANNED" FAILURE (SCHEMA MISMATCH)
 # ==============================================================================
@@ -432,16 +435,8 @@ def test_directory_group_schema_parsing(tmp_path, capsys):
     """Proves the firewall iterates nested directory groups to extract files."""
     mock_ram_graph = {
         "6. Parsed Files (Scanned Artifacts)": {
-            "src/backend": {
-                "Files": {
-                    "server.py": {"raw_imports": [], "equations": {}, "coding_loc": 10}
-                }
-            },
-            "src/frontend": {
-                "Files": {
-                    "ui.jsx": {"raw_imports": [], "equations": {}, "coding_loc": 10}
-                }
-            }
+            "src/backend": {"Files": {"server.py": {"raw_imports": [], "equations": {}, "coding_loc": 10}}},
+            "src/frontend": {"Files": {"ui.jsx": {"raw_imports": [], "equations": {}, "coding_loc": 10}}},
         }
     }
 
@@ -456,6 +451,7 @@ def test_directory_group_schema_parsing(tmp_path, capsys):
 
     captured = capsys.readouterr()
     assert "Files Evaluated      : 2" in captured.out
+
 
 # ==============================================================================
 # TEST 15: BUILD-TIME MULTIPLIER ON A SMALL BUILD SCRIPT (END-TO-END)
@@ -493,6 +489,7 @@ def test_density_dilution_fix_for_build_scripts(tmp_path):
         with pytest.raises(SystemExit):
             firewall_module.main()
 
+
 # ==============================================================================
 # TEST 16: ISSUE #161 - MISSING THREAT VECTORS (MEMORY CORRUPTION)
 # ==============================================================================
@@ -518,6 +515,7 @@ def test_memory_corruption_detection(tmp_path):
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
         with pytest.raises(SystemExit):
             firewall_module.main()
+
 
 # ==============================================================================
 # TEST 17: NETWORK-CENTRALITY WEIGHTING IS OFF BY DEFAULT
@@ -547,6 +545,7 @@ def test_network_weighting_disabled_by_default():
 
     result = firewall_module.run_firewall_audit(mock_ram_graph)
     assert result["threats_found"] == 0, "Network weighting fired despite being disabled by default."
+
 
 # ==============================================================================
 # TEST 18: NETWORK-CENTRALITY WEIGHTING AMPLIFIES HUB FILES (OPT-IN)
@@ -585,6 +584,7 @@ def test_network_weighting_amplifies_high_centrality_hub():
     result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
     assert result["threats_found"] == 1, "Hub-file amplification failed to isolate the high-centrality file."
 
+
 # ==============================================================================
 # TEST 19: NETWORK-CENTRALITY WEIGHTING - BETWEENNESS BONUS (OPT-IN)
 # ==============================================================================
@@ -620,6 +620,7 @@ def test_network_weighting_betweenness_bonus():
 
     result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
     assert result["threats_found"] == 1, "Betweenness bonus failed to isolate the high-betweenness bridge file."
+
 
 # ==============================================================================
 # TEST 20: #335 -- .galaxyscope.yaml ACTUALLY REACHES STANDALONE MAIN()
@@ -659,9 +660,7 @@ def test_yaml_config_flag_actually_changes_standalone_firewall_behavior(tmp_path
 
     # AFTER: identical graph, identical CLI entrypoint, but a .galaxyscope.yaml
     # now blacklists the exact package -- must hard-block via SystemExit(1).
-    config_path = _write_config_yaml(
-        tmp_path, BLACKLISTED_IMPORTS=["totally-innocuous-package"]
-    )
+    config_path = _write_config_yaml(tmp_path, BLACKLISTED_IMPORTS=["totally-innocuous-package"])
     with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file), "--config", config_path]):
         with pytest.raises(SystemExit) as exc:
             firewall_module.main()

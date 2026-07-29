@@ -298,15 +298,11 @@ class TestClassExtraction:
 
         for payload, expected_name in cases["valid"]:
             match = pattern.search(payload)
-            assert match is not None, (
-                f"[{lang_id}] Iron Wall Blocked Valid Entity: '{payload}'"
-            )
+            assert match is not None, f"[{lang_id}] Iron Wall Blocked Valid Entity: '{payload}'"
 
             if pattern.groups > 0:
                 captured_groups = [g for g in match.groups() if g is not None]
-                assert len(captured_groups) > 0, (
-                    f"[{lang_id}] Regex matched but captured nothing!"
-                )
+                assert len(captured_groups) > 0, f"[{lang_id}] Regex matched but captured nothing!"
                 assert expected_name in captured_groups, (
                     f"[{lang_id}] Captured dirty modifiers {captured_groups} instead of clean name '{expected_name}' from '{payload}'"
                 )
@@ -352,15 +348,11 @@ class TestClassExtraction:
 
         for payload, expected_name in cases["pathological"]:
             match = pattern.search(payload)
-            assert match is not None, (
-                f"[{lang_id}] 💥 Engine choked on pathological formatting: '{payload}'"
-            )
+            assert match is not None, f"[{lang_id}] 💥 Engine choked on pathological formatting: '{payload}'"
 
             if pattern.groups > 0:
                 captured_groups = [g for g in match.groups() if g is not None]
-                assert len(captured_groups) > 0, (
-                    f"[{lang_id}] Matched but captured nothing!"
-                )
+                assert len(captured_groups) > 0, f"[{lang_id}] Matched but captured nothing!"
                 assert expected_name in captured_groups, (
                     f"[{lang_id}] Captured dirty modifiers {captured_groups} instead of clean name '{expected_name}'"
                 )

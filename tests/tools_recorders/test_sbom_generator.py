@@ -147,10 +147,10 @@ def test_sbom_generator_graceful_fallbacks(tmp_path, caplog):
     empty_dir = tmp_path / "empty_project"
     empty_dir.mkdir()
     out_file = tmp_path / "empty_bom.json"
-    
+
     with caplog.at_level(logging.WARNING):
         recorder.generate_report([], {}, {"target_directory": str(empty_dir)}, str(out_file))
-        
+
     assert "No supported manifests found" in caplog.text
     # Proves it still successfully dumps the standard CycloneDX shell!
     assert out_file.exists()
@@ -161,9 +161,7 @@ def test_sbom_generator_graceful_fallbacks(tmp_path, caplog):
 # ==============================================================================
 @patch("gitgalaxy.recorders.sbom_recorder.SecurityLens")
 @patch("gitgalaxy.recorders.sbom_recorder.LanguageDetector")
-def test_zero_trust_sbom_generation_anomalies(
-    mock_detector_class, mock_security_class, tmp_path
-):
+def test_zero_trust_sbom_generation_anomalies(mock_detector_class, mock_security_class, tmp_path):
     """Proves the physical audit detects malware, missing files, and survives OS exceptions."""
     project_dir = tmp_path / "target_project"
     project_dir.mkdir()
@@ -247,13 +245,14 @@ def test_zero_trust_sbom_clean_run(mock_detector_class, mock_security_class, tmp
 
     out_file = tmp_path / "clean_bom.json"
     recorder = SbomRecorder()
-    
+
     recorder.generate_report([], {}, {"target_directory": str(project_dir)}, str(out_file))
 
     bom_data = json.loads(out_file.read_text(encoding="utf-8"))
 
     props = {p["name"]: p["value"] for p in bom_data["components"][0]["properties"]}
     assert props["gitgalaxy:trust_status"] == "VERIFIED_SAFE"
+
 
 # ==============================================================================
 # TEST 6: MANIFEST REGISTRY SYNC (drift guard)
@@ -291,6 +290,7 @@ def test_manifest_names_match_slicer_support(tmp_path):
             f"{filename} is in _MANIFEST_NAMES but slice_manifest identified it as "
             f"'{ecosystem}' instead of '{expected_eco}' -- the two are out of sync!"
         )
+
 
 def test_locate_physical_package_hoisted_dependency(tmp_path):
     """Regression: npm/yarn/pnpm workspaces hoist shared deps to the

@@ -11,9 +11,7 @@ def processor():
 # ==============================================================================
 # SYNTHETIC GALAXY DATA (MOCKING THE DETECTOR PAYLOADS)
 # ==============================================================================
-def create_synthetic_star(
-    processor, name, loc, raw_signals=None, forensics=None, functions=None
-):
+def create_synthetic_star(processor, name, loc, raw_signals=None, forensics=None, functions=None):
     """Generates a perfectly structured raw detector payload."""
     base_signals = {
         "branch": 0,
@@ -51,10 +49,9 @@ def create_synthetic_star(
         "lang_id": "python",
         "coding_loc": loc,
         "telemetry": {},
-        "functions": functions
-        or [{"name": "mock_func", "loc": loc, "branch": base_signals["branch"]}],
+        "functions": functions or [{"name": "mock_func", "loc": loc, "branch": base_signals["branch"]}],
         "raw_imports": ["os", "sys"],
-        "equations": base_signals, # Keep key backwards compatible for legacy passes if needed
+        "equations": base_signals,  # Keep key backwards compatible for legacy passes if needed
         "dependency_network": {
             "direct_upstream": 2,
             "direct_downstream": 5,
@@ -75,9 +72,7 @@ def create_synthetic_star(
 # ==============================================================================
 def test_signal_processor_perfect_baseline(processor):
     """Proves a file with perfect safety/docs results in 0.0% risk exposures."""
-    meta, sig = create_synthetic_star(
-        processor, "perfect", 50, {"safety": 10, "doc": 20, "test": 5}
-    )
+    meta, sig = create_synthetic_star(processor, "perfect", 50, {"safety": 10, "doc": 20, "test": 5})
     res = processor.calculate_risk_vector(meta, sig)
 
     assert res["risk_vector"][0] < 10.0, "Perfect file failed Cog Load baseline!"
@@ -190,9 +185,7 @@ def test_signal_processor_error_risk_floor(processor):
 # ==============================================================================
 def test_signal_processor_api_and_concurrency(processor):
     """Proves the engine accurately calculates API and Concurrency risks."""
-    meta, sig = create_synthetic_star(
-        processor, "api_gw", 10, {"api": 500, "concurrency": 500}
-    )
+    meta, sig = create_synthetic_star(processor, "api_gw", 10, {"api": 500, "concurrency": 500})
     meta["functions"] = [{"name": "mock_func", "loc": 10, "branch": 0}]
 
     res = processor.calculate_risk_vector(meta, sig)
@@ -207,9 +200,7 @@ def test_signal_processor_civil_war(processor):
     """Proves the Civil War exposure accurately measures Tab vs Space purity."""
     mt, sigt = create_synthetic_star(processor, "t", 100, {"indent_tabs": 100})
     ms, sigs = create_synthetic_star(processor, "s", 100, {"indent_spaces": 100})
-    mm, sigm = create_synthetic_star(
-        processor, "m", 100, {"indent_tabs": 50, "indent_spaces": 50}
-    )
+    mm, sigm = create_synthetic_star(processor, "m", 100, {"indent_tabs": 50, "indent_spaces": 50})
 
     rt = processor.calculate_risk_vector(mt, sigt)
     rs = processor.calculate_risk_vector(ms, sigs)
@@ -235,9 +226,7 @@ def test_signal_processor_sibling_test_bonus(processor):
     low_risk = processor.calculate_risk_vector(m2, sig2, umbrella_bonus=50.0)
 
     idx_test = processor.RISK_SCHEMA.index("verification")
-    assert low_risk["risk_vector"][idx_test] < high_risk["risk_vector"][idx_test], (
-        "Sibling Test Bonus failed to apply!"
-    )
+    assert low_risk["risk_vector"][idx_test] < high_risk["risk_vector"][idx_test], "Sibling Test Bonus failed to apply!"
 
 
 # ==============================================================================
@@ -283,9 +272,7 @@ def test_signal_processor_git_forensics(processor):
 
     assert m1["risk_vector"][9] > 0.0, "Failed to calculate Instability!"
     assert m1["risk_vector"][10] > 0.0, "Failed to calculate Deep Churn!"
-    assert m1["telemetry"]["author_distribution"] == 100.0, (
-        "Failed to calculate Silo Risk!"
-    )
+    assert m1["telemetry"]["author_distribution"] == 100.0, "Failed to calculate Silo Risk!"
 
 
 # ==============================================================================
@@ -301,9 +288,7 @@ def test_signal_processor_math_overflow_shield(processor):
         res = processor.calculate_risk_vector(meta, sig)
         assert "risk_vector" in res
     except OverflowError:
-        pytest.fail(
-            "Signal Processor crashed with an OverflowError on extreme density!"
-        )
+        pytest.fail("Signal Processor crashed with an OverflowError on extreme density!")
 
 
 # ==============================================================================
@@ -333,9 +318,7 @@ def test_signal_processor_aggregations(processor):
 
     forensics = processor.generate_forensic_report(parsed)
     assert "cumulative_risk" in forensics, "Forensic report missing cumulative risk!"
-    assert "highest" in forensics["cumulative_risk"], (
-        "Forensic report missing highest risk array!"
-    )
+    assert "highest" in forensics["cumulative_risk"], "Forensic report missing highest risk array!"
 
 
 # ==============================================================================
@@ -343,25 +326,17 @@ def test_signal_processor_aggregations(processor):
 # ==============================================================================
 def test_signal_processor_minified_tripwire(processor):
     """Proves minified files bypass standard math and trigger explicit risk spikes."""
-    meta, sig = create_synthetic_star(
-        processor, "vendor_bundle", 1000, {"sec_high_risk_execution": 50}
-    )
+    meta, sig = create_synthetic_star(processor, "vendor_bundle", 1000, {"sec_high_risk_execution": 50})
     meta["is_minified"] = True  # Trigger the tripwire
 
     res = processor.calculate_risk_vector(meta, sig)
 
     # Standard cognitive load should be 0.0, and the file impact forced to 1.0
-    assert res["risk_vector"][0] == 0.0, (
-        "Standard cognitive load should be bypassed for minified files!"
-    )
-    assert res["file_impact"] == 1.0, (
-        "Minified files should have an impact of exactly 1.0!"
-    )
+    assert res["risk_vector"][0] == 0.0, "Standard cognitive load should be bypassed for minified files!"
+    assert res["file_impact"] == 1.0, "Minified files should have an impact of exactly 1.0!"
 
     # We don't know the exact index, but the 100.0 spike MUST exist in the array
-    assert 100.0 in res["risk_vector"], (
-        "Minified tripwire failed to spike the malicious exposure vector!"
-    )
+    assert 100.0 in res["risk_vector"], "Minified tripwire failed to spike the malicious exposure vector!"
 
 
 # ==============================================================================
@@ -370,24 +345,18 @@ def test_signal_processor_minified_tripwire(processor):
 def test_signal_processor_doc_and_secrets_bypass(processor):
     """Proves markdown files skip logic math, and exposed secrets spike risk."""
     # 1. Test Documentation Bypass
-    meta_doc, sig_doc = create_synthetic_star(
-        processor, "readme", 500, {"branch": 500}
-    )
+    meta_doc, sig_doc = create_synthetic_star(processor, "readme", 500, {"branch": 500})
     meta_doc["lang_id"] = "markdown"  # Claim to be docs
 
     res_doc = processor.calculate_risk_vector(meta_doc, sig_doc)
-    assert res_doc["risk_vector"][0] == 0.0, (
-        "Documentation shouldn't calculate logic cognitive load!"
-    )
+    assert res_doc["risk_vector"][0] == 0.0, "Documentation shouldn't calculate logic cognitive load!"
 
     # 2. Test Critical Secrets Leak
     meta_sec, sig_sec = create_synthetic_star(processor, "keys", 10)
     meta_sec["metadata"] = {"reason": "CRITICAL LEAK"}  # #374: real key is "reason", not "aperture_reason"
 
     res_sec = processor.calculate_risk_vector(meta_sec, sig_sec)
-    assert 100.0 in res_sec["risk_vector"], (
-        "Critical Leak failed to spike the Secrets Risk to 100%!"
-    )
+    assert 100.0 in res_sec["risk_vector"], "Critical Leak failed to spike the Secrets Risk to 100%!"
 
 
 def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor):
@@ -419,12 +388,9 @@ def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor
         meta["telemetry"] = res["telemetry"]
         meta["risk_vector"] = res["risk_vector"]
         meta["file_impact"] = res["file_impact"]
-        assert meta["risk_vector"][churn_idx] > 0.0, (
-            "Override branch failed to compute an initial churn score!"
-        )
+        assert meta["risk_vector"][churn_idx] > 0.0, "Override branch failed to compute an initial churn score!"
         assert "raw_churn_freq" in meta["telemetry"], (
-            "Override branch must publish raw_churn_freq so Pass 2 "
-            "normalization doesn't clobber it back to 0.0!"
+            "Override branch must publish raw_churn_freq so Pass 2 normalization doesn't clobber it back to 0.0!"
         )
 
     processor.summarize_galaxy_metrics([meta_doc, meta_sec], [])
@@ -446,31 +412,28 @@ def test_signal_processor_memory_exhaustion_spatial(processor):
     into severe State Flux risk exposures, bypassing the old probabilistic guessing.
     """
     # 1. Baseline: Normal function with safe, isolated state mutation
-    meta_safe, sig_safe = create_synthetic_star(
-        processor, "safe_flux", 100, {"state_mutation": 5}
-    )
+    meta_safe, sig_safe = create_synthetic_star(processor, "safe_flux", 100, {"state_mutation": 5})
 
     # 2. Memory Exhaustion: The upstream detector found a loop and multiplied the signal
     meta_bomb, sig_bomb = create_synthetic_star(
-        processor, "oom_flux", 100, {"state_mutation": 50}  # Signal was amplified upstream
+        processor,
+        "oom_flux",
+        100,
+        {"state_mutation": 50},  # Signal was amplified upstream
     )
 
     res_safe = processor.calculate_risk_vector(meta_safe, sig_safe)
     res_bomb = processor.calculate_risk_vector(meta_bomb, sig_bomb)
 
     idx_flux = processor.RISK_SCHEMA.index("state_flux")
-    
+
     safe_score = res_safe["risk_vector"][idx_flux]
     bomb_score = res_bomb["risk_vector"][idx_flux]
 
     assert bomb_score > safe_score, (
         "Processor failed to convert the spatially amplified signal into a higher State Flux risk!"
     )
-    assert bomb_score > 60.0, (
-        "Processor failed to trigger a severe risk exposure on the OOM Bomb!"
-    )
-
-
+    assert bomb_score > 60.0, "Processor failed to trigger a severe risk exposure on the OOM Bomb!"
 
 
 # ==============================================================================
@@ -510,14 +473,10 @@ def test_signal_processor_ai_topology(processor):
     summary = processor.summarize_galaxy_metrics([m1], [])
 
     topology = summary.get("ai_topology", {})
-    assert topology["classification"] == "Framework-Heavy Orchestration", (
-        "Failed to classify orchestration-heavy repo!"
-    )
+    assert topology["classification"] == "Framework-Heavy Orchestration", "Failed to classify orchestration-heavy repo!"
 
     insights = " ".join(topology["insights"])
-    assert "catastrophically across the system" in insights, (
-        "Failed to detect high PageRank blast radius!"
-    )
+    assert "catastrophically across the system" in insights, "Failed to detect high PageRank blast radius!"
     assert "Cognitive Choke Point" in insights, "Failed to detect high Betweenness!"
 
 
@@ -541,9 +500,7 @@ def test_signal_processor_algorithmic_dos(processor):
     ]
 
     # 2. API DoS Bomb: O(N^3) + DB Complexity + Exposed to API
-    m_bomb, sig_bomb = create_synthetic_star(
-        processor, "exposed_bomb", 500, {"api": 4}
-    )
+    m_bomb, sig_bomb = create_synthetic_star(processor, "exposed_bomb", 500, {"api": 4})
     m_bomb["popularity"] = 2
     m_bomb["functions"] = [
         {
@@ -556,9 +513,7 @@ def test_signal_processor_algorithmic_dos(processor):
     ]
 
     # 3. Guarded DoS Bomb: Same as above but mitigated by safety bailouts
-    m_guard, sig_guard = create_synthetic_star(
-        processor, "guarded_bomb", 500, {"api": 4}
-    )
+    m_guard, sig_guard = create_synthetic_star(processor, "guarded_bomb", 500, {"api": 4})
     m_guard["popularity"] = 2
     m_guard["functions"] = [
         {
@@ -579,12 +534,8 @@ def test_signal_processor_algorithmic_dos(processor):
     bomb_score = res_bomb["risk_vector"][13]
     guard_score = res_guard["risk_vector"][13]
 
-    assert iso_score < bomb_score, (
-        "Isolated loop should have significantly lower risk than exposed bomb!"
-    )
-    assert guard_score < bomb_score, (
-        "Safety guardrails failed to dampen the Algorithmic DoS threat!"
-    )
+    assert iso_score < bomb_score, "Isolated loop should have significantly lower risk than exposed bomb!"
+    assert guard_score < bomb_score, "Safety guardrails failed to dampen the Algorithmic DoS threat!"
     assert bomb_score > 50.0, "API DoS bomb failed to spike the risk exposure!"
 
 
@@ -616,9 +567,7 @@ def test_signal_processor_security_lenses(processor):
     )
 
     # 3. Injection Surface
-    m_inj, sig_inj = create_synthetic_star(
-        processor, "injection", 100, {"sec_io": 30, "sec_high_risk_execution": 30}
-    )
+    m_inj, sig_inj = create_synthetic_star(processor, "injection", 100, {"sec_io": 30, "sec_high_risk_execution": 30})
 
     # 4. Memory Corruption (Requires native memory language like 'c' + malicious intent to bypass the 95% shield)
     m_mem, sig_mem = create_synthetic_star(
@@ -639,24 +588,16 @@ def test_signal_processor_security_lenses(processor):
     idx_inj = processor.RISK_SCHEMA.index("injection_surface")
     idx_mem = processor.RISK_SCHEMA.index("memory_corruption")
 
-    assert isinstance(r_lb["risk_vector"][idx_lb], float), (
-        "Logic bomb must return a float!"
-    )
+    assert isinstance(r_lb["risk_vector"][idx_lb], float), "Logic bomb must return a float!"
     assert r_lb["risk_vector"][idx_lb] > 10.0, "Logic bomb failed to register!"
 
-    assert isinstance(r_ob["risk_vector"][idx_ob], float), (
-        "Obscured payload must return a float!"
-    )
+    assert isinstance(r_ob["risk_vector"][idx_ob], float), "Obscured payload must return a float!"
     assert r_ob["risk_vector"][idx_ob] > 10.0, "Obscured payload failed to register!"
 
-    assert isinstance(r_inj["risk_vector"][idx_inj], float), (
-        "Injection surface must return a float!"
-    )
+    assert isinstance(r_inj["risk_vector"][idx_inj], float), "Injection surface must return a float!"
     assert r_inj["risk_vector"][idx_inj] > 10.0, "Injection surface failed to register!"
 
-    assert isinstance(r_mem["risk_vector"][idx_mem], float), (
-        "Memory corruption must return a float!"
-    )
+    assert isinstance(r_mem["risk_vector"][idx_mem], float), "Memory corruption must return a float!"
     assert r_mem["risk_vector"][idx_mem] >= 9.0, "Memory corruption failed to register!"
 
 
@@ -674,9 +615,7 @@ def test_signal_processor_db_injection_funnel(processor):
     idx_inj = processor.RISK_SCHEMA.index("injection_surface")
 
     m_bare, sig_bare = create_synthetic_star(processor, "bare", 100, {})
-    m_funnel, sig_funnel = create_synthetic_star(
-        processor, "funnel", 100, {"sec_amplified_sql_injection": 1}
-    )
+    m_funnel, sig_funnel = create_synthetic_star(processor, "funnel", 100, {"sec_amplified_sql_injection": 1})
 
     r_bare = processor.calculate_risk_vector(m_bare, sig_bare)
     r_funnel = processor.calculate_risk_vector(m_funnel, sig_funnel)
@@ -697,14 +636,10 @@ def test_signal_processor_structural_metrics(processor):
     """Ensures Graveyard and Spec Match exposures calculate correctly."""
 
     # Graveyard (High dead code)
-    m_grave, sig_grave = create_synthetic_star(
-        processor, "dead_code", 100, {"dead_code": 80}
-    )
+    m_grave, sig_grave = create_synthetic_star(processor, "dead_code", 100, {"dead_code": 80})
 
     # Spec Match (0 specs for 10 functions = 100% risk)
-    m_spec, sig_spec = create_synthetic_star(
-        processor, "spec", 100, {"func_start": 10, "spec_exposure": 0}
-    )
+    m_spec, sig_spec = create_synthetic_star(processor, "spec", 100, {"func_start": 10, "spec_exposure": 0})
 
     r_grave = processor.calculate_risk_vector(m_grave, sig_grave)
     r_spec = processor.calculate_risk_vector(m_spec, sig_spec)
@@ -712,9 +647,7 @@ def test_signal_processor_structural_metrics(processor):
     idx_grave = processor.RISK_SCHEMA.index("dead_code")
     idx_spec = processor.RISK_SCHEMA.index("spec_match")
 
-    assert r_grave["risk_vector"][idx_grave] > 50.0, (
-        "Graveyard risk failed to register!"
-    )
+    assert r_grave["risk_vector"][idx_grave] > 50.0, "Graveyard risk failed to register!"
     assert r_spec["risk_vector"][idx_spec] == 100.0, (
         "Spec match risk failed to register maximum exposure on undocumented functions!"
     )
@@ -727,9 +660,7 @@ def test_signal_processor_design_slop(processor):
     """Proves that silent design slop (orphans/duplicates) exponentially spikes Tech Debt."""
 
     # 1. Clean Debt: Only explicit TODOs
-    m_clean, sig_clean = create_synthetic_star(
-        processor, "clean_debt", 100, {"planned_debt": 10}
-    )
+    m_clean, sig_clean = create_synthetic_star(processor, "clean_debt", 100, {"planned_debt": 10})
 
     # 2. Sloppy Debt: Explicit TODOs + Invisible Slop
     m_slop, sig_slop = create_synthetic_star(
@@ -747,9 +678,7 @@ def test_signal_processor_design_slop(processor):
     assert r_slop["risk_vector"][idx_debt] > r_clean["risk_vector"][idx_debt], (
         "Design Slop failed to amplify Tech Debt!"
     )
-    assert r_slop["risk_vector"][idx_debt] > 50.0, (
-        "Severe slop failed to trigger high exposure!"
-    )
+    assert r_slop["risk_vector"][idx_debt] > 50.0, "Severe slop failed to trigger high exposure!"
 
 
 # ==============================================================================
@@ -760,9 +689,7 @@ def test_signal_processor_verification_mitigation_balance(processor):
 
     # 1. Safe: High impact, lots of tests
     m_safe, sig_safe = create_synthetic_star(processor, "safe_logic", 100)
-    m_safe["functions"] = [
-        {"name": "func", "impact": 5000.0, "hit_vector": {"test": 2500, "test_skip": 0}}
-    ]
+    m_safe["functions"] = [{"name": "func", "impact": 5000.0, "hit_vector": {"test": 2500, "test_skip": 0}}]
 
     # 2. Bypassed: High impact, tests neutralized by skips
     m_skip, sig_skip = create_synthetic_star(processor, "skip_logic", 100)
@@ -776,9 +703,7 @@ def test_signal_processor_verification_mitigation_balance(processor):
 
     # 3. Breached: Almost entirely unverified logic
     m_breach, sig_breach = create_synthetic_star(processor, "breach_logic", 100)
-    m_breach["functions"] = [
-        {"name": "func", "impact": 5000.0, "hit_vector": {"test": 50, "test_skip": 0}}
-    ]
+    m_breach["functions"] = [{"name": "func", "impact": 5000.0, "hit_vector": {"test": 50, "test_skip": 0}}]
 
     r_safe = processor.calculate_risk_vector(m_safe, sig_safe)
     r_skip = processor.calculate_risk_vector(m_skip, sig_skip)
@@ -790,9 +715,7 @@ def test_signal_processor_verification_mitigation_balance(processor):
     assert r_safe["risk_vector"][idx_test] < r_skip["risk_vector"][idx_test], (
         "Test skips failed to neutralize assertions!"
     )
-    assert r_breach["risk_vector"][idx_test] >= 80.0, (
-        "Overwhelmingly unverified file failed to hit the breach cap!"
-    )
+    assert r_breach["risk_vector"][idx_test] >= 80.0, "Overwhelmingly unverified file failed to hit the breach cap!"
 
 
 # ==============================================================================
@@ -804,9 +727,7 @@ def test_signal_processor_god_object_gini(processor):
     # Both files have 100 LOC and 20 Branches total.
 
     # 1. Flat Distribution (4 functions, 5 branches each) -> Low Gini
-    m_flat, sig_flat = create_synthetic_star(
-        processor, "flat_dist", 100, {"branch": 20}
-    )
+    m_flat, sig_flat = create_synthetic_star(processor, "flat_dist", 100, {"branch": 20})
     m_flat["functions"] = [
         {"name": "f1", "branch": 5, "loc": 25},
         {"name": "f2", "branch": 5, "loc": 25},
@@ -815,9 +736,7 @@ def test_signal_processor_god_object_gini(processor):
     ]
 
     # 2. God Object (1 massive function, 3 empty) -> High Gini
-    m_god, sig_god = create_synthetic_star(
-        processor, "god_func", 100, {"branch": 20}
-    )
+    m_god, sig_god = create_synthetic_star(processor, "god_func", 100, {"branch": 20})
     m_god["functions"] = [
         {"name": "god", "branch": 20, "loc": 90},
         {"name": "f2", "branch": 0, "loc": 3},
@@ -842,19 +761,13 @@ def test_signal_processor_concurrency_mitigation_balance(processor):
     """Proves sync locks mitigate async risk, and high Big-O spikes thread starvation."""
 
     # 1. High Async, No Locks
-    m_async, sig_async = create_synthetic_star(
-        processor, "pure_async", 100, {"concurrency": 20}
-    )
+    m_async, sig_async = create_synthetic_star(processor, "pure_async", 100, {"concurrency": 20})
 
     # 2. High Async, Mitigated by Locks (1 lock mitigates 1.5 async hits)
-    m_sync, sig_sync = create_synthetic_star(
-        processor, "locked_async", 100, {"concurrency": 20, "sync_locks": 15}
-    )
+    m_sync, sig_sync = create_synthetic_star(processor, "locked_async", 100, {"concurrency": 20, "sync_locks": 15})
 
     # 3. Thread Starvation (Async + High Big-O)
-    m_starve, sig_starve = create_synthetic_star(
-        processor, "starved_async", 100, {"concurrency": 20}
-    )
+    m_starve, sig_starve = create_synthetic_star(processor, "starved_async", 100, {"concurrency": 20})
     m_starve["functions"] = [
         {
             "name": "heavy_thread",
@@ -885,15 +798,11 @@ def test_signal_processor_api_isolated_node(processor):
     """Proves that APIs with no inbound network connections receive a massive risk dampener."""
 
     # 1. Orphaned API (Exposes 50 APIs, but 0 popularity)
-    m_orphan, sig_orphan = create_synthetic_star(
-        processor, "orphan_api", 100, {"api": 50}
-    )
+    m_orphan, sig_orphan = create_synthetic_star(processor, "orphan_api", 100, {"api": 50})
     m_orphan["popularity"] = 0
 
     # 2. Networked API (Exposes 50 APIs, highly popular)
-    m_network, sig_network = create_synthetic_star(
-        processor, "network_api", 100, {"api": 50}
-    )
+    m_network, sig_network = create_synthetic_star(processor, "network_api", 100, {"api": 50})
     m_network["popularity"] = 20
 
     r_orphan = processor.calculate_risk_vector(m_orphan, sig_orphan)
@@ -901,9 +810,9 @@ def test_signal_processor_api_isolated_node(processor):
 
     idx_api = processor.RISK_SCHEMA.index("api_exposure")
 
-    assert r_orphan["risk_vector"][idx_api] < (
-        r_network["risk_vector"][idx_api] * 0.5
-    ), "Isolated node adjustment failed: Orphaned APIs were not properly dampened!"
+    assert r_orphan["risk_vector"][idx_api] < (r_network["risk_vector"][idx_api] * 0.5), (
+        "Isolated node adjustment failed: Orphaned APIs were not properly dampened!"
+    )
 
 
 # ==============================================================================
@@ -913,9 +822,7 @@ def test_signal_processor_flux_immutability(processor):
     """Proves that immutable data declarations (freeze_hits) neutralize state flux."""
 
     # 1. Pure Flux (High mutation)
-    m_flux, sig_flux = create_synthetic_star(
-        processor, "high_flux", 100, {"state_mutation": 30}
-    )
+    m_flux, sig_flux = create_synthetic_star(processor, "high_flux", 100, {"state_mutation": 30})
 
     # 2. Frozen Flux (High mutation, but heavily mitigated by freeze/const/final)
     m_frozen, sig_frozen = create_synthetic_star(
@@ -944,9 +851,7 @@ def test_signal_processor_extension_deception(processor):
     r_dec = processor.calculate_risk_vector(m_dec, sig_dec)
 
     idx_mismatch = processor.SIGNAL_SCHEMA.index("sec_extension_mismatch")
-    assert r_dec["hit_vector"][idx_mismatch] == 1, (
-        "Extension Deception Sensor failed to flag the mismatch!"
-    )
+    assert r_dec["hit_vector"][idx_mismatch] == 1, "Extension Deception Sensor failed to flag the mismatch!"
 
 
 # ==============================================================================
@@ -990,9 +895,7 @@ def test_signal_processor_contextual_mismatch(processor):
 def test_signal_processor_science_shield(processor):
     """Proves that Scientific/Math logic dampens the false-positive threat of Logic Bombs."""
     # 1. Standard executable with dangerous triggers
-    m_std, sig_std = create_synthetic_star(
-        processor, "standard", 100, {"branch": 30, "sec_high_risk_execution": 20}
-    )
+    m_std, sig_std = create_synthetic_star(processor, "standard", 100, {"branch": 30, "sec_high_risk_execution": 20})
 
     # 2. Scientific executable with the exact same triggers
     m_sci, sig_sci = create_synthetic_star(
@@ -1023,18 +926,14 @@ def test_signal_processor_catastrophic_fallbacks(processor):
 
     r_crash = processor.calculate_risk_vector(m_crash, sig_crash)
 
-    assert "error" in r_crash["telemetry"], (
-        "Engine failed to catch and log the catastrophic physics failure!"
-    )
+    assert "error" in r_crash["telemetry"], "Engine failed to catch and log the catastrophic physics failure!"
     assert r_crash["risk_vector"] == [0.0] * len(processor.RISK_SCHEMA), (
         "Crash fallback did not safely zero out the risk vector!"
     )
 
     # 2. Force an empty global synthesis
     empty_summary = processor.summarize_galaxy_metrics([], [])
-    assert empty_summary == {}, (
-        "Summarizer failed to safely exit on an empty repository!"
-    )
+    assert empty_summary == {}, "Summarizer failed to safely exit on an empty repository!"
 
 
 # ==============================================================================
@@ -1042,16 +941,12 @@ def test_signal_processor_catastrophic_fallbacks(processor):
 # ==============================================================================
 def test_signal_processor_civil_war_void(processor):
     """Proves the Civil War exposure safely defaults to 50.0 (Neutral) if a file has no indentation."""
-    m_void, sig_void = create_synthetic_star(
-        processor, "void_file", 10, {"indent_tabs": 0, "indent_spaces": 0}
-    )
+    m_void, sig_void = create_synthetic_star(processor, "void_file", 10, {"indent_tabs": 0, "indent_spaces": 0})
 
     r_void = processor.calculate_risk_vector(m_void, sig_void)
     idx_civil = processor.RISK_SCHEMA.index("tabs_vs_spaces")
 
-    assert r_void["risk_vector"][idx_civil] == 50.0, (
-        "Void state failed to default to 50.0% neutral exposure!"
-    )
+    assert r_void["risk_vector"][idx_civil] == 50.0, "Void state failed to default to 50.0% neutral exposure!"
 
 
 # ==============================================================================
@@ -1060,9 +955,7 @@ def test_signal_processor_civil_war_void(processor):
 def test_signal_processor_llm_execution_vulnerability(processor):
     """Proves that pairing an LLM Orchestrator with dynamic execution creates a massive Injection Surface spike."""
     # 1. Standard dynamic execution
-    m_std, sig_std = create_synthetic_star(
-        processor, "std_exec", 100, {"sec_high_risk_execution": 10}
-    )
+    m_std, sig_std = create_synthetic_star(processor, "std_exec", 100, {"sec_high_risk_execution": 10})
 
     # 2. Agentic dynamic execution
     # #323: ai_tools removed here -- it was removed from SIGNAL_SCHEMA
@@ -1214,7 +1107,9 @@ def test_signal_processor_secrets_risk_low_score_floors_to_zero(processor):
     meta, sig = create_synthetic_star(processor, "diluted_leak", 50000, {"sec_hardcoded_secrets": 1})
     result = processor.calculate_risk_vector(meta, sig)
     idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
-    assert result["risk_vector"][idx_sec] == 0.0, "A sub-5.0 raw score should floor to exactly 0.0, not a noisy near-zero value."
+    assert result["risk_vector"][idx_sec] == 0.0, (
+        "A sub-5.0 raw score should floor to exactly 0.0, not a noisy near-zero value."
+    )
 
 
 # ==============================================================================
@@ -1222,20 +1117,13 @@ def test_signal_processor_secrets_risk_low_score_floors_to_zero(processor):
 # ==============================================================================
 def test_signal_processor_safe_minified(processor):
     """Proves that minified files with zero malicious intent safely bypass the tripwire."""
-    m_safe, sig_safe = create_synthetic_star(
-        processor, "jquery_min", 100, {"branch": 50, "state_mutation": 20}
-    )
+    m_safe, sig_safe = create_synthetic_star(processor, "jquery_min", 100, {"branch": 50, "state_mutation": 20})
     m_safe["is_minified"] = True
 
     r_safe = processor.calculate_risk_vector(m_safe, sig_safe)
 
-    assert r_safe["risk_vector"] == [0.0] * len(processor.RISK_SCHEMA), (
-        "Safe minified file failed to zero out risks!"
-    )
-    assert r_safe["telemetry"]["domain_context"]["alert"] == "MINIFIED VENDOR BYPASS", (
-        "Minified bypass flag missing!"
-    )
-
+    assert r_safe["risk_vector"] == [0.0] * len(processor.RISK_SCHEMA), "Safe minified file failed to zero out risks!"
+    assert r_safe["telemetry"]["domain_context"]["alert"] == "MINIFIED VENDOR BYPASS", "Minified bypass flag missing!"
 
 
 # ==============================================================================
@@ -1244,16 +1132,12 @@ def test_signal_processor_safe_minified(processor):
 def test_signal_processor_ai_topology_dl_ml(processor):
     """Ensures the AI topology summarizer correctly identifies Deep Learning and Traditional ML."""
     # Deep Learning
-    m_dl, sig_dl = create_synthetic_star(
-        processor, "pytorch_model", 100, {"dl_frameworks": 10}
-    )
+    m_dl, sig_dl = create_synthetic_star(processor, "pytorch_model", 100, {"dl_frameworks": 10})
     r_dl = processor.calculate_risk_vector(m_dl, sig_dl)
     m_dl.update(r_dl)
 
     # Traditional ML
-    m_ml, sig_ml = create_synthetic_star(
-        processor, "xgboost_model", 100, {"ml_traditional": 10}
-    )
+    m_ml, sig_ml = create_synthetic_star(processor, "xgboost_model", 100, {"ml_traditional": 10})
     r_ml = processor.calculate_risk_vector(m_ml, sig_ml)
     m_ml.update(r_ml)
 
@@ -1302,31 +1186,24 @@ def test_signal_processor_paranoid_mode(processor):
 def test_signal_processor_ai_topology_rag_cloud(processor):
     """Ensures the AI topology summarizer correctly identifies RAG pipelines and Cloud wrappers."""
     # RAG Pipeline
-    m_rag, sig_rag = create_synthetic_star(
-        processor, "rag_bot", 100, {"llm_vector_store": 10, "llm_api": 5}
-    )
+    m_rag, sig_rag = create_synthetic_star(processor, "rag_bot", 100, {"llm_vector_store": 10, "llm_api": 5})
     r_rag = processor.calculate_risk_vector(m_rag, sig_rag)
     m_rag.update(r_rag)
 
     # Cloud API Wrapper
-    m_cloud, sig_cloud = create_synthetic_star(
-        processor, "cloud_bot", 100, {"llm_api": 10}
-    )
+    m_cloud, sig_cloud = create_synthetic_star(processor, "cloud_bot", 100, {"llm_api": 10})
     r_cloud = processor.calculate_risk_vector(m_cloud, sig_cloud)
     m_cloud.update(r_cloud)
 
     # Summarize RAG
     sum_rag = processor.summarize_galaxy_metrics([m_rag], [])
-    assert (
-        sum_rag["ai_topology"]["classification"]
-        == "RAG Pipeline (Retrieval-Augmented Generation)"
-    ), "Failed to classify RAG Pipeline!"
+    assert sum_rag["ai_topology"]["classification"] == "RAG Pipeline (Retrieval-Augmented Generation)", (
+        "Failed to classify RAG Pipeline!"
+    )
 
     # Summarize Cloud
     sum_cloud = processor.summarize_galaxy_metrics([m_cloud], [])
-    assert sum_cloud["ai_topology"]["classification"] == "Cloud API Wrapper", (
-        "Failed to classify Cloud API Wrapper!"
-    )
+    assert sum_cloud["ai_topology"]["classification"] == "Cloud API Wrapper", "Failed to classify Cloud API Wrapper!"
 
 
 # ==============================================================================
@@ -1357,9 +1234,7 @@ def test_signal_processor_sigmoid_overflow(processor):
     idx_saf = processor.RISK_SCHEMA.index("safety_score")
 
     # The OverflowError should gracefully return either 0.0 or 100.0 depending on the threat trajectory
-    assert r_safe["risk_vector"][idx_saf] == 0.0, (
-        "Overflow fallback failed to zero out the mathematically safe file!"
-    )
+    assert r_safe["risk_vector"][idx_saf] == 0.0, "Overflow fallback failed to zero out the mathematically safe file!"
     assert r_danger["risk_vector"][idx_saf] == 100.0, (
         "Overflow fallback failed to max out the mathematically dangerous file!"
     )
@@ -1374,9 +1249,7 @@ def test_signal_processor_standalone_init_and_silo():
 
     # Test standalone initialization
     standalone_engine = SignalProcessor(parent_logger=None)
-    assert standalone_engine is not None, (
-        "SignalProcessor failed to initialize without a parent logger!"
-    )
+    assert standalone_engine is not None, "SignalProcessor failed to initialize without a parent logger!"
 
     # Test the silo math directly on a 0-commit developer void state
     zero_silo = standalone_engine._calculate_silo_risk({"dev_a": 0, "dev_b": 0})
@@ -1414,20 +1287,12 @@ def test_signal_processor_load_bearer_penalty(processor):
 def test_signal_processor_opaque_execution_risk(processor):
     """Proves that deeply nested/heavy functions lacking docstrings spike documentation risk."""
     # 1. Complex function WITH a docstring
-    m_doc, sig_doc = create_synthetic_star(
-        processor, "documented_heavy", 100, {"doc": 10}
-    )
-    m_doc["functions"] = [
-        {"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": True}
-    ]
+    m_doc, sig_doc = create_synthetic_star(processor, "documented_heavy", 100, {"doc": 10})
+    m_doc["functions"] = [{"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": True}]
 
     # 2. Complex function WITHOUT a docstring
-    m_blind, sig_blind = create_synthetic_star(
-        processor, "blind_heavy", 100, {"doc": 10}
-    )
-    m_blind["functions"] = [
-        {"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": False}
-    ]
+    m_blind, sig_blind = create_synthetic_star(processor, "blind_heavy", 100, {"doc": 10})
+    m_blind["functions"] = [{"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": False}]
 
     r_doc = processor.calculate_risk_vector(m_doc, sig_doc)
     r_blind = processor.calculate_risk_vector(m_blind, sig_blind)
@@ -1445,9 +1310,7 @@ def test_signal_processor_opaque_execution_risk(processor):
 def test_signal_processor_tech_debt_slop(processor):
     """Proves that unacknowledged slop multiplies the severity of fragile debt."""
     # 1. Just fragile debt
-    m_debt, sig_debt = create_synthetic_star(
-        processor, "fragile_only", 500, {"fragile_debt": 2}
-    )
+    m_debt, sig_debt = create_synthetic_star(processor, "fragile_only", 500, {"fragile_debt": 2})
 
     # 2. Fragile debt PLUS orphans/duplicates
     m_slop, sig_slop = create_synthetic_star(
@@ -1490,15 +1353,11 @@ def test_signal_processor_report_fallback(processor):
     # Should execute smoothly without raising a KeyError, TypeError, or IndexError
     report = processor.generate_forensic_report(malformed_files)
 
-    assert "exposures" in report, (
-        "Report generator completely failed on malformed data!"
-    )
+    assert "exposures" in report, "Report generator completely failed on malformed data!"
 
     # The lowest/highest rankings should have safely defaulted the values to 0.0
     for exposure_key, ranking in report["exposures"].items():
-        assert ranking["highest"][0]["value"] == 0.0, (
-            f"Fallback failed to zero out invalid data for {exposure_key}!"
-        )
+        assert ranking["highest"][0]["value"] == 0.0, f"Fallback failed to zero out invalid data for {exposure_key}!"
 
 
 # ==============================================================================
@@ -1514,12 +1373,8 @@ def test_signal_processor_critical_leak_bypass(processor):
 
     idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
 
-    assert r_leak["file_impact"] == 150.0, (
-        "Critical leak failed to trigger the 150.0 mass spike!"
-    )
-    assert r_leak["risk_vector"][idx_sec] == 100.0, (
-        "Critical leak failed to max out secrets risk!"
-    )
+    assert r_leak["file_impact"] == 150.0, "Critical leak failed to trigger the 150.0 mass spike!"
+    assert r_leak["risk_vector"][idx_sec] == 100.0, "Critical leak failed to max out secrets risk!"
     assert r_leak["telemetry"]["domain_context"]["alert"] == "CRITICAL LEAK BYPASS", (
         "Bypass alert missing from telemetry!"
     )
@@ -1541,9 +1396,7 @@ def test_signal_processor_critical_leak_via_reason_text_alone(processor):
     r_leak = processor.calculate_risk_vector(m_leak, sig_leak)
 
     idx_sec = processor.RISK_SCHEMA.index("secrets_risk")
-    assert r_leak["risk_vector"][idx_sec] == 100.0, (
-        "The reason-text-only critical leak path failed to fire!"
-    )
+    assert r_leak["risk_vector"][idx_sec] == 100.0, "The reason-text-only critical leak path failed to fire!"
 
 
 # ==============================================================================
@@ -1556,16 +1409,10 @@ def test_signal_processor_darkness_ratio(processor):
     # 0 parsed files, 10 unparsable files
     summary = processor.summarize_galaxy_metrics([], unparsable_files)
 
-    assert summary["summary"]["total_files"] == 10, (
-        "Failed to count unparsable files in total!"
-    )
+    assert summary["summary"]["total_files"] == 10, "Failed to count unparsable files in total!"
     assert summary["summary"]["verified_files"] == 0, "Verified files should be 0!"
-    assert summary["summary"]["Percent_Visible"] == 0.0, (
-        "Darkness ratio failed to calculate 0% visibility!"
-    )
-    assert summary["unparsable_files"]["ambig_file_count"] == 10, (
-        "Failed to aggregate unparsable file count!"
-    )
+    assert summary["summary"]["Percent_Visible"] == 0.0, "Darkness ratio failed to calculate 0% visibility!"
+    assert summary["unparsable_files"]["ambig_file_count"] == 10, "Failed to aggregate unparsable file count!"
 
 
 # ==============================================================================
@@ -1574,9 +1421,7 @@ def test_signal_processor_darkness_ratio(processor):
 def test_signal_processor_hardware_bridge_shield(processor):
     """Proves that Hardware Bridges (Serial/USB I/O) are forgiven for dynamic execution."""
     # 1. Raw Execution (Malicious)
-    m_raw, sig_raw = create_synthetic_star(
-        processor, "raw_exec", 100, {"sec_high_risk_execution": 10, "sec_io": 10}
-    )
+    m_raw, sig_raw = create_synthetic_star(processor, "raw_exec", 100, {"sec_high_risk_execution": 10, "sec_io": 10})
 
     # 2. Hardware Execution (Expected Arduino/Serial behavior)
     m_hw, sig_hw = create_synthetic_star(
@@ -1601,21 +1446,15 @@ def test_signal_processor_hardware_bridge_shield(processor):
 # ==============================================================================
 def test_signal_processor_algorithmic_dos_linear_bypass(processor):
     """Ensures O(N) linear loops are ignored by the Algorithmic DoS equations."""
-    m_linear, sig_linear = create_synthetic_star(
-        processor, "linear_loop", 100, {"api": 10}
-    )
+    m_linear, sig_linear = create_synthetic_star(processor, "linear_loop", 100, {"api": 10})
     # big_o_depth = 1 is standard O(N)
-    m_linear["functions"] = [
-        {"name": "safe_loop", "loc": 50, "big_o_depth": 1, "db_complexity": 5}
-    ]
+    m_linear["functions"] = [{"name": "safe_loop", "loc": 50, "big_o_depth": 1, "db_complexity": 5}]
 
     r_linear = processor.calculate_risk_vector(m_linear, sig_linear)
     idx_dos = processor.RISK_SCHEMA.index("algorithmic_dos")
 
     # Because depth is < 2, the loop `continue` triggers and mass remains 0.0
-    assert r_linear["risk_vector"][idx_dos] == 0.0, (
-        "O(N) linear loops should not trigger Algorithmic DoS!"
-    )
+    assert r_linear["risk_vector"][idx_dos] == 0.0, "O(N) linear loops should not trigger Algorithmic DoS!"
 
 
 # ==============================================================================
@@ -1686,6 +1525,7 @@ def test_signal_processor_external_test_coverage(processor):
         "Parameterization multiplier failed to increase defensive mass!"
     )
 
+
 # ==============================================================================
 # TEST 49: CONCURRENCY THRESHOLD SCALING (REGRESSION TEST)
 # ==============================================================================
@@ -1694,26 +1534,20 @@ def test_signal_processor_concurrency_threshold_scaling(processor):
     Proves the (* 100.0) mathematical scalar correctly converts low-ratio concurrency
     signals into valid density percentages, catching thread starvation.
     """
-    # 5 threads in a 100-line file = 0.05 ratio. 
-    # Scaled to percentage = 5.0%. Threshold is 4.0%. 
+    # 5 threads in a 100-line file = 0.05 ratio.
+    # Scaled to percentage = 5.0%. Threshold is 4.0%.
     # This MUST trigger a high risk exposure.
-    meta, sig = create_synthetic_star(
-        processor, "thread_router", 100, {"concurrency": 5}
-    )
-    
+    meta, sig = create_synthetic_star(processor, "thread_router", 100, {"concurrency": 5})
+
     # Give it a heavy O(N^3) big_o_depth to spike the thread starvation multiplier
-    meta["functions"] = [
-        {"name": "heavy_thread", "loc": 50, "big_o_depth": 3, "hit_vector": {"concurrency": 5}}
-    ]
+    meta["functions"] = [{"name": "heavy_thread", "loc": 50, "big_o_depth": 3, "hit_vector": {"concurrency": 5}}]
 
     res = processor.calculate_risk_vector(meta, sig)
     idx_async = processor.RISK_SCHEMA.index("concurrency")
-    
+
     score = res["risk_vector"][idx_async]
-    
-    assert score > 50.0, (
-        f"Concurrency scaling bug regression! Expected a high risk score, but got {score}%."
-    )
+
+    assert score > 50.0, f"Concurrency scaling bug regression! Expected a high risk score, but got {score}%."
 
 
 # ==============================================================================
@@ -1732,7 +1566,7 @@ def test_signal_processor_inline_suppressions(processor):
         "suppression_test",
         100,
         {
-            "branch": 5000, 
+            "branch": 5000,
             "high_risk_execution": 5000,
             "sec_high_risk_execution": 5000,
             "sec_io": 5000,
@@ -1742,9 +1576,9 @@ def test_signal_processor_inline_suppressions(processor):
 
     # Inject the developer suppressions
     meta["mitigations"] = [
-        "logic_bomb",         # Valid override
-        "tech_debt",          # Valid override
-        "made_up_phantom_123" # Schema drift / fake risk
+        "logic_bomb",  # Valid override
+        "tech_debt",  # Valid override
+        "made_up_phantom_123",  # Schema drift / fake risk
     ]
 
     res = processor.calculate_risk_vector(meta, sig)
@@ -1779,34 +1613,32 @@ def test_sarif_exact_loc_injection():
     import json
     import tempfile
     import os
-    
+
     recorder = SarifRecorder()
-    
+
     mock_file = {
         "path": "src/vulnerable.py",
         "start_line": 1,
         "telemetry": {
-            "threat_snippets": {
-                "hardcoded_secrets": ["password='123'"]
-            },
+            "threat_snippets": {"hardcoded_secrets": ["password='123'"]},
             "threat_locations": {
                 "sec_hardcoded_secrets": [42]  # The exact line number
-            }
-        }
+            },
+        },
     }
-    
+
     fd, temp_path = tempfile.mkstemp(suffix=".json")
     os.close(fd)
-    
+
     try:
         recorder.generate_report([mock_file], {}, {}, temp_path)
-        
+
         with open(temp_path, "r") as f:
             sarif_output = json.load(f)
-            
+
         results = sarif_output["runs"][0]["results"]
         assert len(results) == 1, "Failed to generate SARIF result!"
-        
+
         # Extract the exact line number from the payload
         exact_line = results[0]["locations"][0]["physicalLocation"]["region"]["startLine"]
         assert exact_line == 42, f"SARIF fell back to start_line! Expected 42, got {exact_line}."
@@ -1835,9 +1667,7 @@ def test_signal_processor_doc_bypass_hit_vector_reflects_raw_signals(processor):
     lit_links_idx = processor.SIGNAL_SCHEMA.index("lit_links")
     documentation_idx = processor.RISK_SCHEMA.index("documentation")
 
-    meta_doc, sig_doc = create_synthetic_star(
-        processor, "readme", 500, {"lit_headers": 7, "lit_links": 3}
-    )
+    meta_doc, sig_doc = create_synthetic_star(processor, "readme", 500, {"lit_headers": 7, "lit_links": 3})
     meta_doc["lang_id"] = "markdown"
 
     result = processor.calculate_risk_vector(meta_doc, sig_doc)

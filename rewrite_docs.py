@@ -49,7 +49,6 @@ The composite calculation is $O(1)$ per function since it performs basic arithme
 - [Relative Positioning](07-08-relative-positioning.md)
 - [Node Size Scaling](07-09-node-size.md)
 """,
-    
     "07-08-relative-positioning.md": r"""# Angular Positioning of Child Nodes
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
@@ -96,7 +95,6 @@ The linear interpolation step operates in $O(1)$ time per node, ensuring zero ph
 - [Function Node Scaling](07-09-node-size.md)
 - [Child Component Density](07-07-number-of-satellites.md)
 """,
-
     "07-09-node-size.md": r"""# Function Component Node Scaling
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
@@ -141,7 +139,6 @@ The metric uses a standard base-2 logarithm, evaluating in $O(1)$ time per funct
 - [Planetary Rings](07-10-planetary-rings.md)
 - [Misc Equations](07-12-misc-equations.md)
 """,
-
     "07-10-planetary-rings.md": r"""# External Dependency Rings
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
@@ -187,7 +184,6 @@ Instanced rendering is used for the torus meshes, scaling efficiently on the GPU
 - [Spatial Layout](07-11-sequence-affinity.md)
 - [Node Size Scaling](07-09-node-size.md)
 """,
-
     "07-11-sequence-affinity.md": r"""# Spatial Layout & Directory Sector Clustering
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
@@ -232,7 +228,6 @@ The 3-pass sort and offset algorithm operates in $O(N \log N)$ time for sorting 
 - [Component Layout Clearance Formulas](07-12-misc-equations.md)
 - [Angular Positioning](07-08-relative-positioning.md)
 """,
-
     "07-12-misc-equations.md": r"""# Component Layout Clearance Formulas
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
@@ -276,7 +271,6 @@ Calculated using a fast logarithmic evaluation, achieving $O(1)$ constant time c
 - [Spatial Layout](07-11-sequence-affinity.md)
 - [Angular Positioning](07-08-relative-positioning.md)
 """,
-
     "08-01-methodology.md": r"""# Overview of Methodology & Risk Exposure Index
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
@@ -318,7 +312,6 @@ The signal processor utilizes vectorized numpy operations to normalize millions 
 - [Sub-Equations](08-02-sub-equations.md)
 - [Transforming Regex Counts](08-03-transforming-regex-counts.md)
 """,
-
     "08-02-sub-equations.md": r"""# Sub-Equations & Scanner Variables
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
@@ -366,7 +359,6 @@ The extraction uses optimized compiled regex engines running concurrently, achie
 - [Overview of Methodology](08-01-methodology.md)
 - [Transforming Regex Counts](08-03-transforming-regex-counts.md)
 """,
-
     "08-03-transforming-regex-counts.md": r"""# Transforming Regex Counts (Universal Exposure Framework)
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
@@ -416,7 +408,6 @@ Processing utilizes constant-time floating-point math per file component, result
 - [Overview of Methodology](08-01-methodology.md)
 - [Sub-Equations](08-02-sub-equations.md)
 """,
-
     "08-04-ownership-entropy.md": r"""# Authorship Distribution (Ownership Entropy)
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
@@ -465,12 +456,12 @@ Normalizing authorship into a scalar score ensures constant WebGPU rendering eff
 
 ## Related Components
 - [Overview of Methodology](08-01-methodology.md)
-"""
+""",
 }
 
 for filename, content in docs.items():
-    filepath = os.path.join('/home/joe/nyx_projects/gitgalaxy/docs/wiki', filename)
-    with open(filepath, 'w') as f:
+    filepath = os.path.join("/home/joe/nyx_projects/gitgalaxy/docs/wiki", filename)
+    with open(filepath, "w") as f:
         f.write(content)
 
 print("Files rewritten successfully without escape sequences.")

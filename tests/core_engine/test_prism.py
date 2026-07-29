@@ -470,6 +470,31 @@ def test_prism_haskell_block_comments_actually_nest():
     assert "outer secret" in result["comment_stream"]
 
 
+def test_prism_livecode_multi_style_live_comments():
+    """
+    Regression test for #708: livecode uses both classic xTalk line comments (--),
+    modern script server comments (#), LiveCode Builder comments (//), and 
+    C-style blocks (/* */).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    code = "put 1 into x\n-- secret dash comment\n# secret hash comment\n// secret slash comment\n/* secret block comment */\nput 2 into x"
+    result = real_prism.split_streams(code, "livecode")
+    
+    assert "secret dash comment" not in result["code_stream"]
+    assert "secret hash comment" not in result["code_stream"]
+    assert "secret slash comment" not in result["code_stream"]
+    assert "secret block comment" not in result["code_stream"]
+
+    assert "secret dash comment" in result["comment_stream"]
+    assert "secret hash comment" in result["comment_stream"]
+    assert "secret slash comment" in result["comment_stream"]
+    assert "secret block comment" in result["comment_stream"]
+
+
 def test_prism_standard_block_c_family_unaffected_by_sub_family_split():
     """
     Regression guard for #621: splitting sqlite/lua/haskell/powershell/perl

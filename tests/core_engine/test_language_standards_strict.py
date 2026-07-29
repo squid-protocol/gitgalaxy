@@ -5612,37 +5612,6 @@ def test_yacc_lexical_family_dead_code_fires_under_both_comment_styles():
 # ==============================================================================
 # LIVECODE: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #593)
 # ==============================================================================
-# CROSS-CUTTING FINDING (NOT fixed here -- reported, per the #593 scope
-# boundary, since a full fix needs shared-config changes outside
-# language_standards.py's livecode rules dict):
-#
-# livecode declares `"lexical_family": "standard_block"`, whose real
-# delimiter set in gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS is only
-# `["//", "/*", "*/"]`. Real LiveCode/HyperTalk code overwhelmingly uses
-# `--` (classic xTalk line comments) and `#` (common in LiveCode Server
-# scripts -- confirmed directly against the language-crucible corpus's
-# data/livecode/core/revsaveasstandalone.livecodescript, where `#` is by far
-# the dominant comment prefix) neither of which "standard_block" recognizes.
-# Reproduced directly against prism.py's real `_strip_segment_comments`:
-# feeding it a snippet with `#`, `--`, and `//` comments only strips the
-# `//` line -- the `#` and `--` lines are left inside the CODE stream (fully
-# exposed to branch/io/state_mutation/etc.) and never reach the COMMENT
-# stream at all, so dead_code/doc/ownership/planned_debt/fragile_debt/
-# spec_exposure (all of which run only against the comment stream, per
-# detector.py's `comment_analysis`) can never fire on `--`/`#`-prefixed
-# text in the live pipeline, no matter how correct their own regexes are.
-#
-# No existing family is a clean fix: "multi_style_dash" covers `--`+`/* */`
-# but not `#`/`//` (breaking LiveCode Builder's `//` comments instead);
-# "embedded_syntax" covers `#`+`<# #>` but not `--`/`//`. A correct fix
-# needs a new family recognizing all of `--`, `#`, `//`, and `/* */`
-# together, which means changes to the shared LEXICAL_FAMILY_HEURISTICS
-# table and prism.py's `_compile_regex_matrix()` -- both out of scope for
-# this issue's "livecode rules dict only" boundary. See the PR/issue report
-# for the full repro. The tests below verify each rule's own regex behavior
-# directly (matching this suite's existing convention, e.g. SQLITE's
-# dead_code comment-style test), which is unaffected by this gap.
-# ==============================================================================
 LIVECODE_RULES = LANGUAGE_DEFINITIONS["livecode"]["rules"]
 
 _LIVECODE_SIMPLE_CASES = [
@@ -5967,14 +5936,6 @@ def test_livecode_ipc_rpc_bridges_shell_trailing_boundary_regression():
 # ==============================================================================
 # COMMENT-STYLE COMPLETENESS (Rule 12)
 # ==============================================================================
-# NOTE: see the cross-cutting finding documented at the top of this section --
-# these verify each regex's own documented multi-style behavior in isolation,
-# matching this suite's existing convention (e.g. SQLITE's dead_code test).
-# Whether prism.py's live comment-stream extraction actually delivers
-# '--'/'#'-prefixed text to these regexes in the real pipeline is a separate,
-# unresolved gap (livecode's declared "standard_block" family only recognizes
-# '//' and '/* */').
-
 
 def test_livecode_dead_code_comment_style_completeness():
     pattern = LIVECODE_RULES["dead_code"]

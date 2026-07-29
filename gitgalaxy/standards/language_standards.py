@@ -8780,9 +8780,9 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".lc", ".livecode", ".lcb", ".livecodescript"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for LiveCode Server environments.
         "shebangs": ["livecode-server"],
-        # UPGRADED: Maps to Family 6 (Polyglot)
+        # UPGRADED: Maps to Family 1d (multi_style_live)
         # Rationale: Accepts '--', '//', '#', and '/* */' to support both its legacy HyperTalk roots and modern C-style syntax.
-        "lexical_family": "standard_block",
+        "lexical_family": "multi_style_live",
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes English-like loops and try-catch.

@@ -499,6 +499,10 @@ LEXICAL_FAMILY_HEURISTICS = {
         # Hash-prefixed line comments with a <# ... #> block form.
         # Examples: powershell.
         "embedded_syntax": {"delimiters": ["#", "<#", "#>"]},
+        # 1d. Multi-Style Live (#708)
+        # Line comments starting with #, --, or //, plus C-style /* */ blocks.
+        # Examples: livecode.
+        "multi_style_live": {"delimiters": ["#", "--", "//", "/*", "*/"]},
         # 2. Recursive Block
         # The language allows block comments to be safely nested inside one another.
         # Examples: Rust, Swift, Dart, Scala.

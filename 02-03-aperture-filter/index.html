@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-aperture-filter-filter-and-focus" class="md-skip">
+        <a href="#file-filtering-and-ingestion-shield" class="md-skip">
           Skip to content
         </a>
       
@@ -5669,10 +5669,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#blocking-the-radio-noise-the-lead-shield" class="md-nav__link">
+  <a href="#multilevel-ingestion-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Blocking the Radio Noise (The Lead Shield)
+        Multilevel Ingestion Rules
       
     </span>
   </a>
@@ -5680,10 +5680,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-visible-spectrum-linguistic-integrity-gates" class="md-nav__link">
+  <a href="#asset-classification-inspection-gates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Visible Spectrum (Linguistic &amp; Integrity Gates)
+        Asset Classification &amp; Inspection Gates
       
     </span>
   </a>
@@ -5691,22 +5691,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-classification-matrix" class="md-nav__link">
+  <a href="#ingestion-classification-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Classification Matrix
+        Ingestion Classification Matrix
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Data Classification Matrix">
+    <nav class="md-nav" aria-label="Ingestion Classification Matrix">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem References
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#blocking-the-radio-noise-the-lead-shield" class="md-nav__link">
+  <a href="#multilevel-ingestion-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Blocking the Radio Noise (The Lead Shield)
+        Multilevel Ingestion Rules
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-visible-spectrum-linguistic-integrity-gates" class="md-nav__link">
+  <a href="#asset-classification-inspection-gates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Visible Spectrum (Linguistic &amp; Integrity Gates)
+        Asset Classification &amp; Inspection Gates
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-classification-matrix" class="md-nav__link">
+  <a href="#ingestion-classification-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Classification Matrix
+        Ingestion Classification Matrix
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Data Classification Matrix">
+    <nav class="md-nav" aria-label="Ingestion Classification Matrix">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem References
       
     </span>
   </a>
@@ -8702,94 +8702,86 @@
   
 
 
-<h1 id="the-aperture-filter-filter-and-focus">The Aperture Filter (Filter and Focus)</h1>
+<h1 id="file-filtering-and-ingestion-shield">File Filtering and Ingestion Shield</h1>
 <blockquote>
-<p><strong>The Solar Shield</strong></p>
-<p>To prevent "Radio Noise" from blinding the telescope, the pipeline initiates the Solar Shield. In modern repositories, artifacts like massive <code>node_modules</code> folders, compiled binaries, or minified data dumps create enough radiation to obscure the actual logic of the system. By applying a strict perimeter gate, we ensure that only high-quality, maintainable source code enters the refraction pipeline. If an artifact isn't something a human actively manages, it is treated as out-of-scope, protecting the Physics Engine from wasting cycles on "Junk Matter."</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/aperture.py"><code>gitgalaxy/core/aperture.py</code></a></p>
 </blockquote>
-<h2 id="blocking-the-radio-noise-the-lead-shield">Blocking the Radio Noise (The Lead Shield)</h2>
-<p>The Solar Shield operates through a strict, multi-tiered hierarchy of suppression, moving from physical constraints and security risks down to logical intent.</p>
+<p>The <code>ApertureFilter</code> module in <code>gitgalaxy/core/aperture.py</code> serves as the primary file filtering and perimeter security gate for the GitGalaxy analysis engine. Prior to sending files to heavy regular expression parsing and metric evaluation, the filter strips out noise such as compiled binaries, minified bundles, vendor packages (<code>node_modules</code>), and excluded directories (<code>.git</code>). By enforcing strict ingestion boundaries, the engine focuses computational resources strictly on actionable source code logic.</p>
+<hr />
+<h2 id="multilevel-ingestion-rules">Multilevel Ingestion Rules</h2>
+<p>The filter enforces a multi-tiered evaluation hierarchy to determine file processing eligibility:</p>
 <ul>
-<li><strong>The Phantom Check</strong>
-  Before any intense I/O operations occur, the filter performs a zero-overhead check to ensure the file physically exists on the disk, instantly evaporating "phantom" files (e.g., broken symlinks or git-tracked deletions) to prevent pipeline anomalies.</li>
-<li><strong>Resource Guarding</strong>
-  The file's physical mass is measured. Any artifact exceeding the absolute size limit is rejected immediately. These are classified as saturated signals to prevent memory overflow during the multiprocessing refraction phase.</li>
-<li><strong>The Neighborhood Micro-Mass Quota</strong>
-  To prevent "space dust" from cluttering the visual map, the filter tracks the density of micro-files (&lt; 50 bytes) within individual folders. If a neighborhood exceeds its grace limit of micro-debris, subsequent tiny files are evaporated. (Legacy mainframe files like COBOL copybooks are explicitly exempted from this quota).</li>
-<li><strong>The Secrets Radar (Highest Priority)</strong>
-  Before evaluating system paths, the shield checks the filename and extension against a critical security registry. If the artifact is a known credential file, private key, or exposed database, it triggers a <strong>CRITICAL LEAK</strong> alert and routes the file to the Orchestrator to be injected onto the 3D map as a "Secrets Supernova."</li>
-<li><strong>Path &amp; Black Hole Suppression</strong>
-  We calibrate the field of view using Path Integrity Evaluation. The shield integrates <code>.gitignore</code> patterns and a hard-coded <code>BLACK_HOLES</code> registry to block known debris. Any folder starting with a period (like <code>.git/</code> or <code>.vscode/</code>) is masked as administrative noise.</li>
-<li><strong>Bayesian Intent Overrides &amp; Stateful Caching</strong>
-  If the GuideStar Protocol identifies an artifact as structurally critical during the Radar Walk, it grants an "Intent Lock." The filter utilizes Stateful Caching to remember these locks, allowing specific, high-priority "Dark Matter" (like <code>.hooks/</code> or custom config files) to safely bypass the Solar Shield, ensuring vital logic is captured in the census.</li>
+<li><strong>Existence Verification (Phantom Check):</strong> Executes zero-overhead filesystem checks to ensure files exist on disk, instantly dropping dangling symlinks or deleted file references.</li>
+<li><strong>File Size Guarding:</strong> Measures file byte size against max threshold limits. Files exceeding size thresholds are excluded from full parsing to prevent worker memory allocation failures.</li>
+<li><strong>Folder Micro-File Quota:</strong> Tracks the frequency of micro-files (&lt; 50 bytes) within individual directories. If a directory exceeds its micro-file limit, subsequent tiny files are suppressed from primary analysis. (Legacy mainframe files, such as COBOL copybooks, are explicitly exempted).</li>
+<li><strong>Secrets Detection Radar (Priority Gate):</strong> Inspects filenames and extensions against high-risk security registries prior to path checks. If a file matches credential patterns (e.g., <code>.pem</code>, <code>.key</code>, <code>id_rsa</code>, <code>.env</code>), it triggers a high-severity leak alert and is flagged for security highlights.</li>
+<li><strong>Directory Blacklisting &amp; GitIgnore Integration:</strong> Integrates project <code>.gitignore</code> rules and a built-in <code>BLACK_HOLES</code> directory registry (<code>node_modules</code>, <code>.git</code>, <code>.vscode</code>, <code>dist</code>, <code>build</code>). System administrative folders and hidden directories starting with dots are excluded by default.</li>
+<li><strong>Stateful Caching &amp; Intent Locks:</strong> Preserves file whitelist locks registered by project manifests (<code>package.json</code>, <code>Cargo.toml</code>) or <code>.gitattributes</code> via <code>guidestar_lens.py</code>, allowing explicitly referenced configuration assets (e.g., custom hooks or build scripts) to bypass standard exclusion filters.</li>
 </ul>
-<h2 id="the-visible-spectrum-linguistic-integrity-gates">The Visible Spectrum (Linguistic &amp; Integrity Gates)</h2>
-<p>Once the scope is clear, we tune the sensors to the Visible Spectrum. We use the language registry as a primary whitelist for ecosystem anchors (like <code>package.json</code>) or known extensions.</p>
+<hr />
+<h2 id="asset-classification-inspection-gates">Asset Classification &amp; Inspection Gates</h2>
+<p>Files surviving path blacklists pass through secondary content gates:</p>
 <ul>
-<li><strong>Missing Extensions (The Shebang Check)</strong>
-  To handle artifacts without a trailing extension (such as executable scripts or unique configurations), the filter allows these "Deep Space Remnants" through for secondary evaluation. These are eventually identified by the Language Lens rather than simple extension matching.</li>
-<li><strong>The X-Ray Binary Sensor</strong>
-  When a file is flagged as a binary or blacklisted asset, it isn't simply discarded. The X-Ray sensor intercepts the first 8KB of the payload and scans for embedded execution headers, magic byte mismatches, or extreme cryptographic entropy. If the binary is weaponized or contains AI model weights, it is promoted to a "Supernova" on the 3D map. If it is inert, it is relegated to Dark Matter.</li>
-<li><strong>The Minified &amp; Vendor Shield</strong>
-  We inspect the "Photon Buffer" for minification and vendor sprawl. If a line exceeds the maximum line length constraint (indicating compression) or matches contraband patterns (like <code>.min.js</code> or <code>/vendor/</code>), the file bypasses the heavy structural splicer. Instead of being discarded entirely, it is mapped as an inert "Static Mass," allowing the architect to see the physical footprint of their dependencies without bogging down the physics engine.</li>
+<li><strong>Missing Extensions &amp; Shebang Processing:</strong> Files lacking traditional extensions (e.g., executable scripts without <code>.sh</code> or <code>.py</code>) are passed to the language detection engine (<code>language_lens.py</code>) for shebang header evaluation (<code>#!/bin/bash</code>).</li>
+<li><strong>Binary File Header Inspection (X-Ray Gate):</strong> Intercepts the initial 8KB chunk of binary assets. Inspects binary magic bytes, execution headers (e.g., ELF, PE, Mach-O), and Shannon entropy to detect weaponized payloads or embedded AI model weights (<code>.safetensors</code>, <code>.gguf</code>).</li>
+<li><strong>Minified Code &amp; Vendor Library Shield:</strong> Analyzes line length density. If average line length breaches compression thresholds (&gt; 250 characters per line) or matches vendor patterns (e.g., <code>.min.js</code>, <code>/vendor/</code>), regular expression parsing is bypassed. The asset is registered as a static dependency footprint without incurring heavy parsing latency.</li>
 </ul>
-<h2 id="data-classification-matrix">Data Classification Matrix</h2>
-<p>Filtering categorizes project data by its "Wavelength." The engine routes the artifact based on its physical properties and threat level.</p>
+<hr />
+<h2 id="ingestion-classification-matrix">Ingestion Classification Matrix</h2>
+<p>The filter categorizes repository assets into operational ingestion buckets based on file content and security status:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Wavelength</th>
-<th style="text-align: left;">Target Material</th>
-<th style="text-align: left;">Action</th>
-<th style="text-align: left;">Visual Output</th>
+<th style="text-align: left;">Ingestion Category</th>
+<th style="text-align: left;">Target File Types</th>
+<th style="text-align: left;">Filter Handling</th>
+<th style="text-align: left;">Pipeline Output</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Quarantine (Radioactive)</strong></td>
-<td style="text-align: left;">Private Keys, Credentials, DBs</td>
-<td style="text-align: left;">Alert</td>
-<td style="text-align: left;">Forced onto 3D map as a "Secrets Supernova"</td>
+<td style="text-align: left;"><strong>Security Risk (Leaked Credential)</strong></td>
+<td style="text-align: left;">Private keys, <code>.env</code> files, credentials, DB dumps</td>
+<td style="text-align: left;">Flag Leak Alert</td>
+<td style="text-align: left;">Injected as High-Severity Security Alert</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>X-Ray Anomalies</strong></td>
-<td style="text-align: left;">Weaponized Binaries, AI Model Weights</td>
-<td style="text-align: left;">Alert</td>
-<td style="text-align: left;">Forced onto 3D map as a "Neural/Threat Supernova"</td>
+<td style="text-align: left;"><strong>Binary Vulnerability / ML Model</strong></td>
+<td style="text-align: left;">Weaponized executables, ML weight binaries (<code>.safetensors</code>)</td>
+<td style="text-align: left;">Flag Binary Threat</td>
+<td style="text-align: left;">Injected as Model/Threat Highlight</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Radio</strong></td>
-<td style="text-align: left;"><code>.gitignore</code>, Black Holes, <code>node_modules</code></td>
-<td style="text-align: left;">Block</td>
-<td style="text-align: left;">Not Rendered</td>
+<td style="text-align: left;"><strong>Excluded Directory Noise</strong></td>
+<td style="text-align: left;"><code>.gitignore</code> matches, <code>node_modules</code>, <code>.git</code></td>
+<td style="text-align: left;">Block Path</td>
+<td style="text-align: left;">Excluded from scan inventory</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Microwave</strong></td>
-<td style="text-align: left;">Inert Binaries, Assets, Fonts, Null Bytes</td>
-<td style="text-align: left;">Discard</td>
-<td style="text-align: left;">Sent to Dark Matter Singularity</td>
+<td style="text-align: left;"><strong>Inert Media Asset</strong></td>
+<td style="text-align: left;">Compiled binaries, image assets, fonts, null byte files</td>
+<td style="text-align: left;">Discard File</td>
+<td style="text-align: left;">Routed to Unclassified Asset Store</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Infrared</strong></td>
-<td style="text-align: left;">Minified Code, Vendor Bundles</td>
+<td style="text-align: left;"><strong>Minified / Vendor Library</strong></td>
+<td style="text-align: left;">Minified JavaScript (<code>.min.js</code>), vendor bundles</td>
 <td style="text-align: left;">Bypass Regex</td>
-<td style="text-align: left;">Rendered as Inert Static Mass</td>
+<td style="text-align: left;">Registered as Inert Dependency Footprint</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Visible</strong></td>
-<td style="text-align: left;">Whitelisted Source Code</td>
-<td style="text-align: left;">Process</td>
-<td style="text-align: left;">Active Star Mass / Galaxy Body</td>
+<td style="text-align: left;"><strong>Valid Source Code</strong></td>
+<td style="text-align: left;">Whitelisted language source files</td>
+<td style="text-align: left;">Full Processing</td>
+<td style="text-align: left;">Active Repository Node in Graph</td>
 </tr>
 </tbody>
 </table>
-<p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-references">Ecosystem References</h3>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">GitHub Repository</a></strong> - Source module for <code>aperture.py</code>.</li>
+<li><strong><a href="https://gitgalaxy.io/">GitGalaxy Platform</a></strong> - Interactive repository visualization engine.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

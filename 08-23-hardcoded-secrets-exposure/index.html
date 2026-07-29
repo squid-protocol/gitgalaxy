@@ -8539,22 +8539,83 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-equation-the-careless-amplifiers" class="md-nav__link">
+  <a href="#inputs-detection-signals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Equation: The Careless Amplifiers
+        Inputs &amp; Detection Signals
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Equation: The Careless Amplifiers">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Calculation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#1-base-leak-amplification-mass" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        1. Base Leak &amp; Amplification Mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-leak-mass-formulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Leak Mass Formulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-sigmoid-normalization-with-reduced-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Sigmoid Normalization with Reduced Padding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ecosystem-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem References
       
     </span>
   </a>
@@ -8609,22 +8670,83 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-equation-the-careless-amplifiers" class="md-nav__link">
+  <a href="#inputs-detection-signals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Equation: The Careless Amplifiers
+        Inputs &amp; Detection Signals
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Equation: The Careless Amplifiers">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Calculation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#1-base-leak-amplification-mass" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        1. Base Leak &amp; Amplification Mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-leak-mass-formulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Leak Mass Formulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-sigmoid-normalization-with-reduced-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Sigmoid Normalization with Reduced Padding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ecosystem-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem References
       
     </span>
   </a>
@@ -8658,29 +8780,122 @@
 
 <h1 id="hardcoded-secrets-exposure">Hardcoded Secrets Exposure</h1>
 <blockquote>
-<p><strong>Metric: Data Hemorrhage Risk</strong></p>
-<p><strong>Summary:</strong> A core Security Lens metric. It detects exposed private info (API keys, passwords, tokens) and evaluates the surrounding logic to determine how likely that secret is to leak into logs or external networks.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 </blockquote>
-<h2 id="the-equation-the-careless-amplifiers">The Equation: The Careless Amplifiers</h2>
-<p><strong>Step A: Base Leak Mass</strong>
-We rely heavily on the static scanner's regex detection for credentials.
-$<span class="arithmatex">\(BaseLeak = private\_info \times 10.0\)</span>$</p>
-<p><strong>Step B: The Amplifiers</strong>
-A hardcoded secret is bad. A hardcoded secret being <code>console.log</code>'d is catastrophic. We calculate a multiplier based on careless handling.
-$<span class="arithmatex">\(Amplifiers = 1.0 + print\_hits + graveyard\_hits + globals\_hits\)</span>$</p>
-<p><strong>Step C: The LLM API Spike</strong>
-If the file is calling external LLM APIs (<code>llm_api &gt; 0</code>) but has zero global configurations (<code>globals == 0</code>), it strongly implies the API keys are hardcoded directly inline with the fetch logic.
-* If True, <span class="arithmatex">\(Amplifiers\)</span> are multiplied by <span class="arithmatex">\(3.0\)</span>.</p>
-<p><strong>Step D: Final Calculation</strong>
-$<span class="arithmatex">\(LeakMass = BaseLeak \times Amplifiers\)</span>$
-Because a leaked secret is dangerous regardless of file size, we use a much smaller Laplace pad (+50) before mapping the density to the final 0-100 risk score.</p>
-<p><br><br></p>
+<p><strong>Metric:</strong> Credential Leak Risk (Hardcoded Secrets Exposure)</p>
+<p><strong>Summary:</strong> Evaluates the presence of exposed sensitive credentials (API keys, private tokens, passwords, database connections) and analyzes careless code handling (e.g., debug log statements, dead code, global variable assignments) that increases the likelihood of accidental credential leakage.</p>
+<p><strong>Risk Classification:</strong>
+* 🟦 <strong>LOW (Score 0–19):</strong> Secrets safely retrieved via environment variables or secret management vaults.
+* 🟨 <strong>MODERATE (Score 40–59):</strong> Low-entropy credentials or test environment secrets.
+* 🟥 <strong>VERY HIGH (Score 80–100):</strong> High-entropy secrets paired with debug logging, or inline API keys in modules lacking global configuration parameters.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="inputs-detection-signals">Inputs &amp; Detection Signals</h2>
+<p>The analysis engine evaluates credential presence and careless code practice multipliers:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Signal Key</th>
+<th style="text-align: left;">Weight</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>sec_hardcoded_secrets</code></td>
+<td style="text-align: left;">Static Pattern</td>
+<td style="text-align: left;"><strong>10.0x Base</strong></td>
+<td style="text-align: left;">Regex matches for private API keys, tokens, or passwords.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>debug_prints</code></td>
+<td style="text-align: left;"><code>debug_prints</code></td>
+<td style="text-align: left;"><strong>+1.0 Amplification</strong></td>
+<td style="text-align: left;">Print/log statements (<code>console.log</code>, <code>print</code>, <code>logger.info</code>) near secrets.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dead_code</code></td>
+<td style="text-align: left;"><code>dead_code</code></td>
+<td style="text-align: left;"><strong>+1.0 Amplification</strong></td>
+<td style="text-align: left;">Commented-out or unreachable code blocks containing hardcoded keys.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>globals</code></td>
+<td style="text-align: left;"><code>globals</code></td>
+<td style="text-align: left;"><strong>+1.0 Amplification</strong></td>
+<td style="text-align: left;">Secrets assigned to global scope variables.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>llm_api</code></td>
+<td style="text-align: left;"><code>llm_api</code></td>
+<td style="text-align: left;"><strong>3.0x Multiplier</strong></td>
+<td style="text-align: left;">Calling external APIs (<code>llm_api &gt; 0</code>) without global config management (<code>globals == 0</code>).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="metric-calculation">Metric Calculation</h2>
+<h3 id="1-base-leak-amplification-mass">1. Base Leak &amp; Amplification Mass</h3>
+<div class="arithmatex">\[\text{BaseLeak} = \text{sec\_hardcoded\_secrets} \times 10.0$$
+$$\text{Amplifiers} = 1.0 + \text{debug\_prints} + \text{dead\_code} + \text{globals}\]</div>
+<p>If external API calls are detected without global configuration structures, amplifiers spike by <span class="arithmatex">\(3.0\times\)</span>:</p>
+<div class="arithmatex">\[\text{Amplifiers} = \text{Amplifiers} \times 3.0\]</div>
+<p>In standard non-paranoid mode without reflection/metaprogramming signals, amplifiers are capped at <span class="arithmatex">\(2.0\)</span>.</p>
+<h3 id="2-leak-mass-formulation">2. Leak Mass Formulation</h3>
+<div class="arithmatex">\[\text{LeakMass} = \text{BaseLeak} \times \text{Amplifiers}\]</div>
+<h3 id="3-sigmoid-normalization-with-reduced-padding">3. Sigmoid Normalization with Reduced Padding</h3>
+<p>Because leaked credentials represent high severity regardless of file size, density uses a reduced Laplace padding (<span class="arithmatex">\(\text{LOC} + 50\)</span>):</p>
+<div class="arithmatex">\[\text{Density} = \left( \frac{\text{LeakMass}}{\max(\text{LOC} + 50, 1)} \right) \times 100.0\]</div>
+<p>Mapped via Sigmoid (Standard threshold = 3.0, slope = 1.0; Paranoid threshold = 0.5, slope = 2.0). Scores below <span class="arithmatex">\(5.0\)</span> are truncated to <span class="arithmatex">\(0.0\)</span>.</p>
+<hr />
+<h2 id="reference-implementation">Reference Implementation</h2>
+<p>The following Python method from <code>gitgalaxy/metrics/signal_processor.py</code> implements the hardcoded secrets risk metric:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_secrets_risk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">    Calculates Secrets Risk Exposure (Credential Exposure).</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">base_leak</span> <span class="o">=</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sec_hardcoded_secrets&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.0</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">if</span> <span class="n">base_leak</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="k">return</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">careless_amplifiers</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="mf">1.0</span> <span class="o">+</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;debug_prints&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dead_code&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;globals&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">if</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llm_api&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;globals&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="n">careless_amplifiers</span> <span class="o">*=</span> <span class="mf">3.0</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;is_paranoid&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sec_reflection_metaprogramming&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="n">careless_amplifiers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">careless_amplifiers</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">leak_mass</span> <span class="o">=</span> <span class="n">base_leak</span> <span class="o">*</span> <span class="n">careless_amplifiers</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;secrets_risk&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">leak_mass</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loc_padding&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;is_paranoid&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="n">threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;paranoid_threshold&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">slope</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;paranoid_slope&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="n">threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;std_threshold&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="n">slope</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;std_slope&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">density</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)))</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="k">if</span> <span class="n">density</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="mf">5.0</span><span class="p">:</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">score</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="ecosystem-references">Ecosystem References</h3>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py">Signal Processor Module</a></strong> - Metric implementation details.</li>
+<li><strong><a href="https://gitgalaxy.io/">GitGalaxy Platform</a></strong> - Interactive repository architecture dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

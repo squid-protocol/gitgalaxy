@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#21k-misc-equations" class="md-skip">
+        <a href="#21k-component-layout-clearance-formulas" class="md-skip">
           Skip to content
         </a>
       
@@ -7871,24 +7871,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#22-color-labeling-equations" class="md-nav__link">
+  <a href="#21k1-dynamic-clearance-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Color Labeling Equations
+        2.1.K.1 Dynamic Clearance Formulation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.K.1 Dynamic Clearance Formulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by the blAST Engine
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🌌 Powered by the blAST Engine
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -8605,24 +8611,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#22-color-labeling-equations" class="md-nav__link">
+  <a href="#21k1-dynamic-clearance-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Color Labeling Equations
+        2.1.K.1 Dynamic Clearance Formulation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1.K.1 Dynamic Clearance Formulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by the blAST Engine
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🌌 Powered by the blAST Engine
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -8646,21 +8658,28 @@
   
 
 
-<h1 id="21k-misc-equations">2.1.K Misc Equations</h1>
-<p><strong>The code implements a dynamic orbitRadius formula: 40 + (log2(loc) *
-10). This establishes an \"Event Horizon\" for functional moons,
-ensuring that high-mass files (Tier 4) do not physically intersect with
-their orbiting satellites, maintaining structural legibility at extreme
-scales.</strong></p>
-<p>**</p>
-<h3 id="22-color-labeling-equations">2.2 Color Labeling Equations</h3>
+<h1 id="21k-component-layout-clearance-formulas">2.1.K Component Layout Clearance Formulas</h1>
+<blockquote>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py"><code>gitgalaxy/core/spatial_mapper.py</code></a></p>
+<p><strong>Metric: Component Orbital Clearance Radius</strong></p>
+<p><strong>Purpose:</strong> Dynamically computes child node orbital distances relative to parent file size.</p>
+<p><strong>Rationale:</strong> High-LOC modules occupy larger visual bounds in 3D space. Calculating a dynamic clearance boundary prevents child component nodes from colliding with or rendering inside parent file nodes.</p>
+<p><strong>Effect:</strong> Maintains structural visibility across large modules in the 3D graph view.</p>
+</blockquote>
+<h2 id="21k1-dynamic-clearance-formulation">2.1.K.1 Dynamic Clearance Formulation</h2>
+<p>The spatial mapper calculates the child node orbit radius (<span class="arithmatex">\(\text{OrbitRadius}\)</span>) as a function of the parent module's lines of code (<span class="arithmatex">\(\text{LOC}\)</span>):</p>
+<div class="arithmatex">\[\text{OrbitRadius} = 40 + \left( \log_2(\text{LOC}) \times 10 \right)\]</div>
+<ul>
+<li><strong>Base Radius:</strong> <span class="arithmatex">\(40\)</span> units (Minimum clearance radius for small files).</li>
+<li><strong>LOC Scaling:</strong> <span class="arithmatex">\(\log_2(\text{LOC}) \times 10\)</span> (Logarithmic expansion ensuring large monoliths expand spatial clearance without pushing child nodes out of view).</li>
+</ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
 <p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mainframe-compiler-forge" class="md-skip">
+        <a href="#mainframe-compiler-generator" class="md-skip">
           Skip to content
         </a>
       
@@ -7063,10 +7063,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-dialect-sensor" class="md-nav__link">
+  <a href="#language-dialect-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Dialect Sensor
+        Language Dialect Detection
       
     </span>
   </a>
@@ -7074,10 +7074,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-copybook-flattener" class="md-nav__link">
+  <a href="#recursive-copybook-flattening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Copybook Flattener
+        Recursive Copybook Flattening
       
     </span>
   </a>
@@ -7085,22 +7085,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-intent-extraction" class="md-nav__link">
+  <a href="#dataset-allocation-build-jcl-scaffolding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Intent Extraction
+        Dataset Allocation &amp; Build JCL Scaffolding
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Execution Intent Extraction">
+    <nav class="md-nav" aria-label="Dataset Allocation &amp; Build JCL Scaffolding">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-dialect-sensor" class="md-nav__link">
+  <a href="#language-dialect-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Dialect Sensor
+        Language Dialect Detection
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-copybook-flattener" class="md-nav__link">
+  <a href="#recursive-copybook-flattening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Copybook Flattener
+        Recursive Copybook Flattening
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-intent-extraction" class="md-nav__link">
+  <a href="#dataset-allocation-build-jcl-scaffolding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Intent Extraction
+        Dataset Allocation &amp; Build JCL Scaffolding
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Execution Intent Extraction">
+    <nav class="md-nav" aria-label="Dataset Allocation &amp; Build JCL Scaffolding">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8702,27 +8702,33 @@
   
 
 
-<h1 id="mainframe-compiler-forge">Mainframe Compiler Forge</h1>
+<h1 id="mainframe-compiler-generator">Mainframe Compiler Generator</h1>
 <blockquote>
-<p><strong>Architecture: Era-Aware JCL Generation &amp; AST Flattening</strong></p>
-<p><strong>Summary:</strong> The MVS 3.8j COBOL Compiler Forge dynamically generates the exact Job Control Language (JCL) required to compile legacy payloads on IBM mainframes. It features a Dialect Sensor to prevent catastrophic compiler strokes by routing code to the correct compiler era (OS/VS vs. Enterprise).</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py"><code>gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py</code></a></p>
+<p><strong>Architecture: Dialect Detection, Copybook Resolution, &amp; JCL Compilation Scaffolding</strong></p>
+<p><strong>Summary:</strong> The Mainframe Compiler Generator (<code>cobol_compiler_forge.py</code>) dynamically produces Job Control Language (JCL) build scripts required to compile legacy COBOL modules on MVS mainframe platforms. It inspects source code constructs to detect language standard dialects (COBOL-74 vs. COBOL-85) and automatically routes build jobs to the compatible compiler utility (<code>COBUCL</code> or <code>IGYWCL</code>).</p>
 </blockquote>
-<h2 id="the-dialect-sensor">The Dialect Sensor</h2>
-<p>Mainframe compilers are notoriously fragile. Feeding post-1985 syntax into a 1974 compiler results in immediate ABENDs (Abnormal Ends). The forge scans the Abstract Syntax Tree (AST) for modern structural signatures (e.g., <code>EVALUATE</code>, <code>INITIALIZE</code>, inline <code>*&gt;</code> comments, and explicit scope terminators like <code>END-IF</code>). 
-* If detected, it routes the build step to the modern Enterprise Compiler (<code>IGYWCL</code>). 
-* If absent, it conservatively routes to the legacy OS/VS Compiler (<code>COBUCL</code>).</p>
-<h2 id="the-copybook-flattener">The Copybook Flattener</h2>
-<p>Legacy code frequently relies on external <code>COPY</code> statements, fragmenting the business logic across multiple files. To create a self-contained compilation payload, the forge recursively resolves and inlines all copybooks.
-* <strong>Infinite Loop Protection:</strong> Because legacy systems often contain cyclic copybook references (A calls B, B calls A), the flattener enforces a strict recursion depth limit (maximum 10 layers). If the limit is exceeded, it forcefully aborts the cyclic branch to prevent memory exhaustion.</p>
-<h2 id="execution-intent-extraction">Execution Intent Extraction</h2>
-<p>The forge parses the structural boundaries of the file to extract the <code>PROGRAM-ID</code> and all physical file allocations (<code>SELECT ... ASSIGN TO</code>). It uses this data to automatically scaffold the Phase 1 infrastructure provisioning steps (<code>IEFBR14</code>) in the generated JCL, ensuring all required datasets are allocated before the compiler runs.</p>
-<p><br><br></p>
-<hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="language-dialect-detection">Language Dialect Detection</h2>
+<p>Mainframe compilers enforce strict syntax rules based on language standards. Attempting to compile post-1985 syntax features using a legacy 1974 compiler results in compilation failures.</p>
+<p>The generator inspects source text for modern COBOL signatures (<code>detect_cobol_dialect</code>):
+* <strong>Signatures:</strong> Scans for keywords such as <code>EVALUATE</code>, <code>INITIALIZE</code>, explicit scope terminators (<code>END-IF</code>, <code>END-PERFORM</code>, <code>END-READ</code>), and inline comments (<code>*&gt;</code>).
+* <strong>Compiler Routing:</strong> If modern signatures are detected, the build step targets the Enterprise COBOL compiler procedure (<code>IGYWCL</code>). If absent, the job defaults to the OS/VS COBOL compiler procedure (<code>COBUCL</code>).</p>
+<h2 id="recursive-copybook-flattening">Recursive Copybook Flattening</h2>
+<p>Legacy COBOL codebases separate record definitions into external copybook files (<code>COPY</code> statements). To build self-contained compilation payloads, the generator recursively resolves and inlines copybook contents (<code>flatten_copybooks</code>):</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong>Cyclic Dependency Guard:</strong> Mainframe projects occasionally contain circular copybook references. The flattener enforces a maximum recursion depth (<code>MAX_RECURSION_DEPTH = 10</code>). If recursion exceeds this threshold, the branch is truncated to prevent stack overflow or memory exhaustion.</li>
+</ul>
+<h2 id="dataset-allocation-build-jcl-scaffolding">Dataset Allocation &amp; Build JCL Scaffolding</h2>
+<p>The generator extracts structural declarations to build the complete JCL compilation job (<code>generate_build_jcl</code>):
+1. <strong>Program Identity:</strong> Extracts <code>PROGRAM-ID</code> definitions to assign job names and load module output locations (<code>HERC01.LOADLIB</code>).
+2. <strong>Dataset Provisioning:</strong> Parses <code>SELECT ... ASSIGN TO</code> statements to construct Phase 1 dataset allocation steps using <code>IEFBR14</code>.
+3. <strong>Linkage Editing:</strong> Configures linkage editor steps (<code>LKED</code>) to resolve standard system libraries (<code>SYS1.COBLIB</code>) and output binary load modules.</p>
+<hr />
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
+<ul>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#21h-node-size" class="md-skip">
+        <a href="#21h-function-component-node-scaling" class="md-skip">
           Skip to content
         </a>
       
@@ -7787,10 +7787,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
+  <a href="#21h1-parameter-mass-and-coupling-density" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.1. The Philosophy: Heavy vs. Light
+        2.1.H.1. Parameter Mass and Coupling Density
       
     </span>
   </a>
@@ -7798,10 +7798,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
+  <a href="#21h2-input-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.2. The Inputs: Measuring Args
+        2.1.H.2. Input Metrics
       
     </span>
   </a>
@@ -7809,10 +7809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
+  <a href="#21h3-logarithmic-scaling-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.3. The Equation: Logarithmic Scaling
+        2.1.H.3. Logarithmic Scaling Formulation
       
     </span>
   </a>
@@ -7820,22 +7820,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h4-the-visual-output" class="md-nav__link">
+  <a href="#21h4-visual-output-and-node-scale-tiers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.4. The Visual Output
+        2.1.H.4. Visual Output and Node Scale Tiers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.1.H.4. The Visual Output">
+    <nav class="md-nav" aria-label="2.1.H.4. Visual Output and Node Scale Tiers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21h1-the-philosophy-heavy-vs-light" class="md-nav__link">
+  <a href="#21h1-parameter-mass-and-coupling-density" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.1. The Philosophy: Heavy vs. Light
+        2.1.H.1. Parameter Mass and Coupling Density
       
     </span>
   </a>
@@ -8655,10 +8655,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h2-the-inputs-measuring-args" class="md-nav__link">
+  <a href="#21h2-input-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.2. The Inputs: Measuring Args
+        2.1.H.2. Input Metrics
       
     </span>
   </a>
@@ -8666,10 +8666,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h3-the-equation-logarithmic-scaling" class="md-nav__link">
+  <a href="#21h3-logarithmic-scaling-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.3. The Equation: Logarithmic Scaling
+        2.1.H.3. Logarithmic Scaling Formulation
       
     </span>
   </a>
@@ -8677,22 +8677,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21h4-the-visual-output" class="md-nav__link">
+  <a href="#21h4-visual-output-and-node-scale-tiers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.H.4. The Visual Output
+        2.1.H.4. Visual Output and Node Scale Tiers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.1.H.4. The Visual Output">
+    <nav class="md-nav" aria-label="2.1.H.4. Visual Output and Node Scale Tiers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8724,71 +8724,77 @@
   
 
 
-<h1 id="21h-node-size">2.1.H. Node Size</h1>
+<h1 id="21h-function-component-node-scaling">2.1.H. Function Component Node Scaling</h1>
 <blockquote>
-<p><strong>Metric: Argument Count (Args)</strong></p>
-<p><strong>Purpose:</strong> Visualizes the "State Heaviness" or I/O weight of a function.</p>
-<p><strong>Why:</strong> Functions with many arguments often carry significant state or context. A clean utility usually takes 1-2 arguments, while a legacy handler might take 10. We visualize this physically to differentiate sleek tools from heavy machinery.</p>
-<p><strong>Effect:</strong> Modulates the physical size (Scale) of the orbiting satellite.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py"><code>gitgalaxy/core/detector.py</code></a></p>
+<p><strong>Metric: Parameter Count (<code>Args</code>)</strong></p>
+<p><strong>Purpose:</strong> Visualizes parameter mass and I/O signature complexity of individual functions.</p>
+<p><strong>Rationale:</strong> Functions accepting numerous arguments frequently carry high state complexity or tight parameter coupling. Compact utility functions typically require 1–2 parameters, whereas legacy controllers or un-factored methods often accept 8 or more parameters. Modulating component scale highlights parameter footprint visually across the codebase graph.</p>
+<p><strong>Effect:</strong> Controls the physical render scale (Radius) of function nodes in 3D layout space.</p>
 </blockquote>
-<h2 id="21h1-the-philosophy-heavy-vs-light">2.1.H.1. The Philosophy: Heavy vs. Light</h2>
-<p>We view arguments as "Inputs" or "Cables" plugged into the function.</p>
+<h2 id="21h1-parameter-mass-and-coupling-density">2.1.H.1. Parameter Mass and Coupling Density</h2>
+<p>The parser evaluates parameter signatures as input context vectors:</p>
 <ul>
-<li><strong>Lightweight (0-2 arguments):</strong> Sharp, encapsulated, easy to move and test.</li>
-<li><strong>Heavyweight (5+ arguments):</strong> Bloated, carrying too much context, and harder to maintain.</li>
+<li><strong>Compact Signatures (0–2 parameters):</strong> Highly encapsulated, modular, and easy to isolate or test.</li>
+<li><strong>Complex Signatures (5+ parameters):</strong> Heavy parameter coupling, high context overhead, and potential candidates for refactoring into parameter objects or configuration options.</li>
 </ul>
-<h2 id="21h2-the-inputs-measuring-args">2.1.H.2. The Inputs: Measuring Args</h2>
+<h2 id="21h2-input-metrics">2.1.H.2. Input Metrics</h2>
 <ul>
-<li><strong>Args:</strong> The count of arguments in the function signature, as found by the scanner.</li>
-<li><strong>Range:</strong> Typically <span class="arithmatex">\(0\)</span> to <span class="arithmatex">\(20+\)</span>.</li>
+<li><strong><code>Args</code>:</strong> The total count of positional and keyword parameters detected in the function definition header by the static analyzer.</li>
+<li><strong>Range:</strong> <span class="arithmatex">\(0\)</span> to <span class="arithmatex">\(20+\)</span> parameters.</li>
 </ul>
-<h2 id="21h3-the-equation-logarithmic-scaling">2.1.H.3. The Equation: Logarithmic Scaling</h2>
-<p>We use logarithmic scaling to prevent functions with many arguments (e.g., 20+) from spawning massive, screen-obscuring orbs. A linear scale would make them visually overwhelming. A logarithmic scale highlights the crucial difference between 0 and 5 arguments, but gently compresses the difference between 10 and 20.</p>
+<h2 id="21h3-logarithmic-scaling-formulation">2.1.H.3. Logarithmic Scaling Formulation</h2>
+<p>To prevent functions with exceptionally high parameter counts (e.g., 20+ args) from generating oversized, viewport-cluttering visual nodes, the layout engine applies logarithmic scaling. Logarithmic compression highlights meaningful variations between 0 and 5 parameters while dampening size growth across higher values.</p>
 <div class="arithmatex">\[\text{Scale} = 1.0 + \left( \log_2(\max(\text{Args}, 1)) \times 0.2 \right)\]</div>
 <ul>
-<li><strong>Base Scale:</strong> <span class="arithmatex">\(1.0\)</span> (Standard Unit).</li>
-<li><strong>Factor:</strong> <span class="arithmatex">\(0.2\)</span> (Gentle growth multiplier).</li>
+<li><strong>Base Scale:</strong> <span class="arithmatex">\(1.0\)</span> (Standard visual unit).</li>
+<li><strong>Scaling Multiplier:</strong> <span class="arithmatex">\(0.2\)</span> (Controlled logarithmic growth factor).</li>
 </ul>
-<h2 id="21h4-the-visual-output">2.1.H.4. The Visual Output</h2>
-<p>This calculated scale directly modulates the 3D radius of the orbiting moon particles. </p>
+<h2 id="21h4-visual-output-and-node-scale-tiers">2.1.H.4. Visual Output and Node Scale Tiers</h2>
+<p>The calculated scale factor directly adjusts the 3D geometry bounds of rendered function components:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Argument Count</th>
+<th style="text-align: left;">Parameter Count (<code>Args</code>)</th>
 <th style="text-align: left;">Calculated Scale</th>
-<th style="text-align: left;">Visual Representation</th>
+<th style="text-align: left;">Node Category</th>
+<th style="text-align: left;">Software Architecture Implication</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>0 - 1 Args</strong></td>
+<td style="text-align: left;"><strong>0 – 1 Args</strong></td>
 <td style="text-align: left;"><span class="arithmatex">\(1.00\)</span></td>
-<td style="text-align: left;"><strong>Standard Moon:</strong> Sleek, highly encapsulated utility.</td>
+<td style="text-align: left;"><strong>Compact Node</strong></td>
+<td style="text-align: left;">Minimal parameter overhead; modular utility function.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>2 - 4 Args</strong></td>
+<td style="text-align: left;"><strong>2 – 4 Args</strong></td>
 <td style="text-align: left;"><span class="arithmatex">\(\sim 1.20 - 1.40\)</span></td>
-<td style="text-align: left;"><strong>Swollen Moon:</strong> Normal business logic, carrying standard state.</td>
+<td style="text-align: left;"><strong>Standard Node</strong></td>
+<td style="text-align: left;">Standard business logic with expected operational state.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>5 - 10 Args</strong></td>
+<td style="text-align: left;"><strong>5 – 10 Args</strong></td>
 <td style="text-align: left;"><span class="arithmatex">\(\sim 1.46 - 1.66\)</span></td>
-<td style="text-align: left;"><strong>Heavy Moon:</strong> Bloated function, heavy I/O weight.</td>
+<td style="text-align: left;"><strong>Heavy Node</strong></td>
+<td style="text-align: left;">Elevated parameter mass; high I/O binding.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>15+ Args</strong></td>
 <td style="text-align: left;"><span class="arithmatex">\(\sim 1.78+\)</span></td>
-<td style="text-align: left;"><strong>Gas Giant:</strong> Visually burdensome, signaling a prime target for refactoring.</td>
+<td style="text-align: left;"><strong>Monolithic Node</strong></td>
+<td style="text-align: left;">Excessive parameter coupling; high refactoring priority.</td>
 </tr>
 </tbody>
 </table>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
 <p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

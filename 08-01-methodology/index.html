@@ -7986,22 +7986,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#expanding-the-physics-framework" class="md-nav__link">
+  <a href="#static-analysis-framework-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Expanding the Physics Framework
+        Static Analysis Framework Reference
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Expanding the Physics Framework">
+    <nav class="md-nav" aria-label="Static Analysis Framework Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8677,22 +8677,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#expanding-the-physics-framework" class="md-nav__link">
+  <a href="#static-analysis-framework-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Expanding the Physics Framework
+        Static Analysis Framework Reference
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Expanding the Physics Framework">
+    <nav class="md-nav" aria-label="Static Analysis Framework Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8726,70 +8726,73 @@
 
 <h1 id="overview-of-methodology-risk-exposure-index">Overview of Methodology &amp; Risk Exposure Index</h1>
 <blockquote>
-<p><strong>The Core Philosophy: From Raw Text to Relational Knowledge Graph</strong></p>
-<p>GitGalaxy does not measure subjective "Code Quality," which implies judgment. Instead, it measures objective <strong>Risk Exposures</strong>. </p>
-<p>By utilizing deterministic keyword heuristics, the engine parses raw text to build a massive, interconnected knowledge graph of the entire repository. We extract structural markers from the code (the data) and translate them into visible risk heatmaps (the projection). This allows architecture teams to instantly see where their system is drifting into dangerous territory without reading a single line of code.</p>
-<p><strong>The Structural Taxonomy of GitGalaxy</strong></p>
-<p>GitGalaxy assesses functions against 50+ metrics. We then roll these measurements up to the class, file, folder and repo level. </p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
+<p><strong>Core Philosophy: From Raw Source Text to Structural Knowledge Graph</strong></p>
+<p>GitGalaxy measures objective <strong>Risk Exposures</strong> rather than subjective quality scores.</p>
+<p>Using deterministic keyword heuristics and regular expression patterns, the analysis engine parses raw source code to construct a comprehensive knowledge graph of the repository. Structural indicators extracted from code files are converted into visual risk heatmaps, enabling engineering teams to identify high-risk modules, architectural drift, and technical debt without manual line-by-line inspection.</p>
+<p><strong>Structural Metric Taxonomy</strong></p>
+<p>GitGalaxy evaluates code components against 50+ individual metrics, aggregating results across function, class, file, directory, and repository scopes.</p>
 </blockquote>
 <h2 id="the-universal-risk-spectrum">The Universal Risk Spectrum</h2>
-<p>Regardless of the risk metric being viewed, the visual translation is always the same color palette:
-* 🟦 <strong>Blue:</strong> Very Low Exposure 
-* 🩵 <strong>Cyan:</strong> Low Exposure
-* 🟨 <strong>Yellow:</strong> Moderate / Intermediate Exposure
-* 🟧 <strong>Orange:</strong> High Exposure
-* 🟥 <strong>Bright Red:</strong> Critical / Extreme Exposure (Hot / Dangerous)</p>
+<p>All risk exposure metrics map to a standardized 5-tier color scale:</p>
+<ul>
+<li>🟦 <strong>Blue:</strong> Very Low Risk Exposure</li>
+<li>🩵 <strong>Cyan:</strong> Low Risk Exposure</li>
+<li>🟨 <strong>Yellow:</strong> Moderate Risk Exposure</li>
+<li>🟧 <strong>Orange:</strong> High Risk Exposure</li>
+<li>🟥 <strong>Bright Red:</strong> Critical Risk Exposure</li>
+</ul>
 <h2 id="primary-risk-exposures">Primary Risk Exposures</h2>
-<p><strong>Definition:</strong> The mathematical output of parsing regex heuristics, file boundaries, version control counts, and ecosystem multipliers. These metrics represent the unified risk calculations applied across the repository.</p>
+<p>The metrics table below details the unified risk exposure calculations applied across each architectural scope:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Metric</th>
-<th style="text-align: left;">Level 1: Function<br>(<a href="../08-02-sub-equations/">count based</a>)<br>(0-infinity)</th>
-<th style="text-align: left;">Level 2: Class<br>(<a href="../08-02-sub-equations/">count based</a>)<br>(0-infinity)</th>
-<th style="text-align: left;">Level 3: File<br>(<a href="../08-03-transforming-regex-counts/">Sigmoid normalized</a>)<br>(0-100)</th>
-<th style="text-align: left;">Level 4: Folder<br>(Weighted Avg)<br>(0-100)</th>
-<th style="text-align: left;">Level 5: Repo<br>(Weighted Avg)<br>(0-100)</th>
+<th style="text-align: left;">Level 1: Function<br>(<a href="../08-02-sub-equations/">Count-based</a>)</th>
+<th style="text-align: left;">Level 2: Class<br>(<a href="../08-02-sub-equations/">Count-based</a>)</th>
+<th style="text-align: left;">Level 3: File<br>(<a href="../08-03-transforming-regex-counts/">Sigmoid Normalized</a>)</th>
+<th style="text-align: left;">Level 4: Directory<br>(Weighted Avg)</th>
+<th style="text-align: left;">Level 5: Repository<br>(Weighted Avg)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-05-cognitive-load/">Cognitive Load</a></strong></td>
-<td style="text-align: left;"># of branches, mutations, and danger triggers, adjusted</td>
-<td style="text-align: left;">Sum of function counts + Gini</td>
-<td style="text-align: left;">Normalized via sigmoid function + GuideStar Shield</td>
+<td style="text-align: left;">Branch count, state mutations, risk triggers</td>
+<td style="text-align: left;">Sum of function counts + Gini index</td>
+<td style="text-align: left;">Sigmoid normalization + security guardrail filter</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-16-state-flux-exposure/">State Flux</a></strong></td>
-<td style="text-align: left;"># of variable mutations, adjusted</td>
+<td style="text-align: left;">Variable mutation count, adjusted</td>
 <td style="text-align: left;">Sum of function counts + LCOM</td>
-<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Sigmoid normalization</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-15-concurrency-exposure/">Concurrency</a></strong></td>
-<td style="text-align: left;"># of async/thread operations minus locks, adjusted</td>
+<td style="text-align: left;">Async/thread calls minus lock protections</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Sigmoid normalization</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-08-technical-debt/">Technical Debt</a></strong></td>
-<td style="text-align: left;"># of engineer comments (ex: HACK, TODO), adjusted</td>
+<td style="text-align: left;">Engineer inline comments (<code>TODO</code>, <code>HACK</code>)</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function</td>
+<td style="text-align: left;">Sigmoid normalization</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-07-structural-fortification/">Structural Fortification</a></strong></td>
-<td style="text-align: left;"># of attacker vs. defender keywords, adjusted</td>
+<td style="text-align: left;">Defensive vs attack surface markers</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function w/ Breach Floor</td>
+<td style="text-align: left;">Sigmoid normalization with breach floor</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
@@ -8797,23 +8800,23 @@
 <td style="text-align: left;"><strong><a href="../08-13-graveyard-detector/">Graveyard</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Commented out code lines, normalized via sigmoid function</td>
+<td style="text-align: left;">Commented-out dead code lines</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-18-specification-alignment/">Specification Alignment</a></strong></td>
-<td style="text-align: left;"># of functions with Spec tags, adjusted</td>
-<td style="text-align: left;">Sum of function counts w/ Spec mapping</td>
-<td style="text-align: left;">Percentage of entities lacking spec tags, adjusted</td>
+<td style="text-align: left;">Spec-tagged function markers</td>
+<td style="text-align: left;">Sum of spec-tagged function counts</td>
+<td style="text-align: left;">Percentage of entities lacking spec tags</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong><a href="../08-12-civil-war/">Civil War (Tabs/Spaces)</a></strong></td>
+<td style="text-align: left;"><strong><a href="../08-12-civil-war/">Indentation Consistency</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Ratio of tab vs space indented lines, percentage</td>
+<td style="text-align: left;">Ratio of tab vs. space indented lines</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
@@ -8821,7 +8824,7 @@
 <td style="text-align: left;"><strong><a href="../08-04-ownership-entropy/">Ownership Entropy</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Distribution of git authors, normalized via Shannon entropy</td>
+<td style="text-align: left;">Git author contribution share via Shannon entropy</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
@@ -8829,79 +8832,79 @@
 <td style="text-align: left;"><strong><a href="../08-06-deep-churn/">Deep Churn</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Total git commits over time, normalized via log curve</td>
+<td style="text-align: left;">Commit volume over time via logarithmic scaling</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong><a href="../08-10-file-stability/">File Stability (Heat)</a></strong></td>
+<td style="text-align: left;"><strong><a href="../08-10-file-stability/">File Recency Heat</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Time since last commit, normalized via time distance</td>
+<td style="text-align: left;">Time delta since last commit</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong><a href="../08-11-test-coverage/">Verification Risk (Test Coverage)</a></strong></td>
-<td style="text-align: left;"># of unverified execution paths, adjusted</td>
+<td style="text-align: left;"><strong><a href="../08-11-test-coverage/">Verification Risk</a></strong></td>
+<td style="text-align: left;">Unverified execution paths</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Cross-File Test Tethers</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> test linkage</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong><a href="../08-09-documentation-risk/">Documentation Risk Exposure</a></strong></td>
-<td style="text-align: left;"># of missing docstrings, comments, and readmes, adjusted</td>
+<td style="text-align: left;"><strong><a href="../08-09-documentation-risk/">Documentation Risk</a></strong></td>
+<td style="text-align: left;">Missing docstrings and inline docs</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Bus Factor</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> bus factor</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-14-api-exposure/">API Exposure</a></strong></td>
-<td style="text-align: left;"># of export/public modifiers, adjusted</td>
-<td style="text-align: left;">Sum of function counts + Public interfaces</td>
-<td style="text-align: left;">Normalized via ratio and volume * Network Blast Radius</td>
+<td style="text-align: left;">Exported and public member count</td>
+<td style="text-align: left;">Sum of public interface members</td>
+<td style="text-align: left;">Export ratio <span class="arithmatex">\(\times\)</span> surface radius</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-24-Big-O-Detection/">Algorithmic DoS Exposure</a></strong></td>
-<td style="text-align: left;"># of deep loops interacting with data/network, adjusted</td>
+<td style="text-align: left;">Nested loops with data/network I/O</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Network Blast Radius</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> blast radius</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-20-logic-bomb-exposure/">Logic Bomb Exposure</a></strong></td>
-<td style="text-align: left;"># of conditions leading to payloads, adjusted</td>
+<td style="text-align: left;">Conditional checks tied to critical payloads</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Taint Flow Tracking</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> taint analysis</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-21-injection-surface-exposure/">Injection Surface Exposure</a></strong></td>
-<td style="text-align: left;"># of inputs flowing to execution, adjusted</td>
+<td style="text-align: left;">Unsanitized input pathways</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Taint Flow Tracking</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> taint analysis</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-22-memory-corruption-exposure/">Memory Corruption Exposure</a></strong></td>
-<td style="text-align: left;"># of pointers/allocations minus cleanups, adjusted</td>
+<td style="text-align: left;">Allocation counts minus deallocations</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * ML Archetype Map</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> static analysis model</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="../08-19-obscured-payload-exposure/">Obscured Payload Exposure</a></strong></td>
-<td style="text-align: left;"># of obfuscation and intent triggers, adjusted</td>
+<td style="text-align: left;">Obfuscated strings and dynamic execution</td>
 <td style="text-align: left;">Sum of function counts</td>
-<td style="text-align: left;">Normalized via sigmoid function * Biaxial Drift</td>
+<td style="text-align: left;">Sigmoid normalization <span class="arithmatex">\(\times\)</span> entropy drift</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
@@ -8909,37 +8912,38 @@
 <td style="text-align: left;"><strong><a href="../08-23-hardcoded-secrets-exposure/">Hardcoded Secrets Exposure</a></strong></td>
 <td style="text-align: left;">N/A</td>
 <td style="text-align: left;">N/A</td>
-<td style="text-align: left;">Detected credential strings, normalized via sigmoid function</td>
+<td style="text-align: left;">Hardcoded credential patterns</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 <td style="text-align: left;">Mass-Weighted Avg</td>
 </tr>
 </tbody>
 </table>
 <h2 id="custom-topological-scales">Custom Topological Scales</h2>
-<p>Certain metrics do not represent a "Safe to Dangerous" pipeline, but rather a difference in structural style within the graph. These bypass the Universal Spectrum and use custom rendering palettes.</p>
+<p>Certain metrics measure structural formatting styles rather than risk progression. These bypass the standard risk spectrum and use custom indicator palettes:</p>
 <ul>
-<li><strong>Civil War (Tabs vs. Spaces):</strong> Checks for indentation consistency across the codebase.</li>
-<li>🟩 <strong>Green:</strong> Strictly uses Tabs.</li>
-<li>🟨 <strong>Yellow:</strong> Strictly uses Spaces.</li>
-<li>🟦 <strong>Blue:</strong> A chaotic, mixed indentation style (The "Warzone").</li>
+<li><strong>Indentation Consistency (Tabs vs. Spaces):</strong></li>
+<li>🟩 <strong>Green:</strong> Strict Tab Indentation</li>
+<li>🟨 <strong>Yellow:</strong> Strict Space Indentation</li>
+<li>🟦 <strong>Blue:</strong> Mixed Indentation Patterns ("Inconsistent Whitespace")</li>
 </ul>
 <hr />
-<h2 id="expanding-the-physics-framework">Expanding the Physics Framework</h2>
-<p>These documents outline the specific variables and mathematical normalization strategies that power the equations detailed in the matrix above.</p>
+<h2 id="static-analysis-framework-reference">Static Analysis Framework Reference</h2>
+<p>The following documents define the extracted variables and mathematical normalization pipelines powering these metrics:</p>
 <ul>
-<li><a href="../08-02-sub-equations/">08-02: Sub-Equations (Scanner Variables)</a></li>
-<li><a href="../08-03-transforming-regex-counts/">08-03: Transforming Regex Counts (The UEF)</a></li>
+<li><a href="../08-02-sub-equations/">08-02: Sub-Equations &amp; Scanner Variables</a></li>
+<li><a href="../08-03-transforming-regex-counts/">08-03: Transforming Regex Counts (Universal Exposure Framework)</a></li>
 </ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
 <p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
 </ul>
 <hr />
-<p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
+<p><strong><a href="../">⬅️ Back to Master Index</a></strong>
+️ Back to Master Index](index.md)**</p>
 
 
 

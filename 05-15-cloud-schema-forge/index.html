@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cloud-schema-forge" class="md-skip">
+        <a href="#relational-database-json-schema-generator" class="md-skip">
           Skip to content
         </a>
       
@@ -7287,10 +7287,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pic-clause-translation" class="md-nav__link">
+  <a href="#picture-pic-clause-data-type-translation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PIC Clause Translation
+        Picture (PIC) Clause Data Type Translation
       
     </span>
   </a>
@@ -7298,33 +7298,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-bloat-cutter-ir-synergy" class="md-nav__link">
+  <a href="#dead-code-filtering-data-structure-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Bloat Cutter (IR Synergy)
+        Dead Code Filtering &amp; Data Structure Parsing
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#honesty-sensors-dynamic-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Honesty Sensors (Dynamic Memory)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Honesty Sensors (Dynamic Memory)">
+    <nav class="md-nav" aria-label="Dead Code Filtering &amp; Data Structure Parsing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8633,10 +8622,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pic-clause-translation" class="md-nav__link">
+  <a href="#picture-pic-clause-data-type-translation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PIC Clause Translation
+        Picture (PIC) Clause Data Type Translation
       
     </span>
   </a>
@@ -8644,33 +8633,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-bloat-cutter-ir-synergy" class="md-nav__link">
+  <a href="#dead-code-filtering-data-structure-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Bloat Cutter (IR Synergy)
+        Dead Code Filtering &amp; Data Structure Parsing
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#honesty-sensors-dynamic-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Honesty Sensors (Dynamic Memory)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Honesty Sensors (Dynamic Memory)">
+    <nav class="md-nav" aria-label="Dead Code Filtering &amp; Data Structure Parsing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8702,29 +8680,38 @@
   
 
 
-<h1 id="cloud-schema-forge">Cloud Schema Forge</h1>
+<h1 id="relational-database-json-schema-generator">Relational Database &amp; JSON Schema Generator</h1>
 <blockquote>
-<p><strong>Architecture: Multi-Target DDL &amp; Schema Generation</strong></p>
-<p><strong>Summary:</strong> The Cloud Schema Forge translates the raw byte-maps of the COBOL Data Division into modern, relational data structures. It outputs both strict PostgreSQL Data Definition Language (DDL) statements and REST-compliant JSON Schemas simultaneously.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py">gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py</a></p>
+<p><strong>Architecture: Multi-Target DDL &amp; Schema Mapping</strong></p>
+<p><strong>Summary:</strong> The Cloud Schema Generator converts COBOL <code>DATA DIVISION</code> byte-mapped definitions (<code>PIC</code> clauses and usage specifiers) into modern relational database structures. It outputs PostgreSQL Data Definition Language (DDL) scripts and REST-compliant JSON Schemas.</p>
 </blockquote>
-<h2 id="pic-clause-translation">PIC Clause Translation</h2>
-<p>The forge parses legacy <code>PIC</code> (Picture) constraints and translates them into modern relational bounds:
-* <strong>String Allocation:</strong> Translates <code>PIC X(50)</code> directly into <code>VARCHAR(50)</code>.
-* <strong>Integer Mapping:</strong> Analyzes numeric length to intelligently map to <code>SMALLINT</code>, <code>INTEGER</code>, or <code>BIGINT</code> to optimize cloud database storage.
-* <strong>Decimal Precision:</strong> Splits clauses like <code>PIC S9(7)V99</code> into their base and fractional components, mapping them to strict <code>DECIMAL(9, 2)</code> SQL bounds.</p>
-<h2 id="the-bloat-cutter-ir-synergy">The Bloat Cutter (IR Synergy)</h2>
-<p>Before generating a column for a detected variable, the Schema Forge queries the IR State Manager. If the Graveyard Reaper previously flagged the variable as orphaned or unused memory, the forge instantly drops it. This ensures the resulting PostgreSQL tables are lean and free of the legacy memory bloat that accumulates over decades of maintenance.</p>
-<h2 id="honesty-sensors-dynamic-memory">Honesty Sensors (Dynamic Memory)</h2>
-<p>The forge scans for complex mainframe-specific memory behaviors and injects architectural warnings directly into the generated SQL as comments:
-* <strong>Dynamic Arrays:</strong> If it detects an <code>OCCURS DEPENDING ON</code> clause (an array whose length changes dynamically at runtime), it flags the column with a critical warning to utilize a <code>JSONB</code> data type, as strict relational columns cannot handle dynamic array allocation.
-* <strong>Packed Decimals:</strong> It flags <code>COMP-3</code> variables to alert downstream engineering teams that the original data source is binary-compressed.</p>
+<h2 id="picture-pic-clause-data-type-translation">Picture (<code>PIC</code>) Clause Data Type Translation</h2>
+<p>The parser inspects COBOL <code>PIC</code> declarations (<code>parse_cobol_picture</code>) and maps legacy memory bounds to SQL and JSON data types:</p>
+<ul>
+<li><strong>Alphanumeric &amp; Text:</strong> Converts <code>PIC X(n)</code> or <code>PIC A(n)</code> to SQL <code>VARCHAR(n)</code> and JSON <code>string</code>.</li>
+<li><strong>Integer Types:</strong> Analyzes numeric string lengths (<code>PIC 9(n)</code>):</li>
+<li><span class="arithmatex">\(n \le 4\)</span>: Maps to <code>SMALLINT</code> and JSON <code>integer</code>.</li>
+<li><span class="arithmatex">\(5 \le n \le 9\)</span>: Maps to <code>INTEGER</code> and JSON <code>integer</code>.</li>
+<li><span class="arithmatex">\(n \ge 10\)</span>: Maps to <code>BIGINT</code> and JSON <code>integer</code>.</li>
+<li><strong>Fixed-Point Decimal Types:</strong> Splits clauses containing <code>V</code> or <code>.</code> (e.g., <code>PIC S9(7)V99</code>) into integer and fractional digit counts, mapping them to SQL <code>DECIMAL(precision, scale)</code> and JSON <code>number</code>.</li>
+</ul>
+<h2 id="dead-code-filtering-data-structure-parsing">Dead Code Filtering &amp; Data Structure Parsing</h2>
+<p>The generator processes files (<code>forge_schemas</code>) to build relational tables:</p>
+<ul>
+<li><strong>Structural Noise Filtering:</strong> Ignores <code>FILLER</code> declarations (unnamed byte allocations) and <code>88</code>-level condition names (boolean expressions).</li>
+<li><strong>Unused Variable Exclusion:</strong> Checks variable names against static analysis dead memory results (<code>ignore_vars</code>) to drop unused fields, preventing unnecessary columns in generated database tables.</li>
+<li><strong>Specialized Storage Annotations:</strong> </li>
+<li><strong>Dynamic Arrays:</strong> Detects <code>OCCURS DEPENDING ON</code> clauses (variable-length arrays) and appends warning comments recommending PostgreSQL <code>JSONB</code> data types.</li>
+<li><strong>Packed Decimals:</strong> Identifies binary-compressed fields (<code>COMP-3</code> / <code>PACKED-DECIMAL</code>) and adds inline SQL comments to inform downstream developers of packed storage origins.</li>
+</ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-integration">Ecosystem Integration</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and heuristic dependency mapping engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

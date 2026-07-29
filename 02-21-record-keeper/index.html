@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-sqlite-record-keeper-relational-graphing" class="md-skip">
+        <a href="#the-sqlite-record-keeper-relational-graph-database-exporter" class="md-skip">
           Skip to content
         </a>
       
@@ -6145,15 +6145,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-architectural-pivot-sqlite-vs-neo4j-cypher" class="md-nav__link">
+  <a href="#architectural-rationale-sqlite-vs-graph-databases-neo4j-cypher" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Architectural Pivot: SQLite vs. Neo4j / Cypher
+        Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Architectural Pivot: SQLite vs. Neo4j / Cypher">
+    <nav class="md-nav" aria-label="Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -6179,10 +6179,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-schema-simplicity" class="md-nav__link">
+  <a href="#3-strict-relational-schema-integrity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Schema Simplicity
+        3. Strict Relational Schema Integrity
       
     </span>
   </a>
@@ -6195,10 +6195,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-relational-schema" class="md-nav__link">
+  <a href="#relational-database-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Relational Schema
+        Relational Database Schema
       
     </span>
   </a>
@@ -6206,22 +6206,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#empowering-autonomous-workflows" class="md-nav__link">
+  <a href="#autonomous-agent-cicd-query-workflows" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Empowering Autonomous Workflows
+        Autonomous Agent &amp; CI/CD Query Workflows
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Empowering Autonomous Workflows">
+    <nav class="md-nav" aria-label="Autonomous Agent &amp; CI/CD Query Workflows">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8672,15 +8672,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-architectural-pivot-sqlite-vs-neo4j-cypher" class="md-nav__link">
+  <a href="#architectural-rationale-sqlite-vs-graph-databases-neo4j-cypher" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Architectural Pivot: SQLite vs. Neo4j / Cypher
+        Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Architectural Pivot: SQLite vs. Neo4j / Cypher">
+    <nav class="md-nav" aria-label="Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8706,10 +8706,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-schema-simplicity" class="md-nav__link">
+  <a href="#3-strict-relational-schema-integrity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Schema Simplicity
+        3. Strict Relational Schema Integrity
       
     </span>
   </a>
@@ -8722,10 +8722,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-relational-schema" class="md-nav__link">
+  <a href="#relational-database-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Relational Schema
+        Relational Database Schema
       
     </span>
   </a>
@@ -8733,22 +8733,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#empowering-autonomous-workflows" class="md-nav__link">
+  <a href="#autonomous-agent-cicd-query-workflows" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Empowering Autonomous Workflows
+        Autonomous Agent &amp; CI/CD Query Workflows
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Empowering Autonomous Workflows">
+    <nav class="md-nav" aria-label="Autonomous Agent &amp; CI/CD Query Workflows">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8780,40 +8780,41 @@
   
 
 
-<h1 id="the-sqlite-record-keeper-relational-graphing">The SQLite Record Keeper (Relational Graphing)</h1>
+<h1 id="the-sqlite-record-keeper-relational-graph-database-exporter">The SQLite Record Keeper (Relational Graph Database Exporter)</h1>
 <blockquote>
-<p><strong>The Portable Source of Truth</strong></p>
-<p>The Record Keeper (<code>record_keeper.py</code>) is the serialization engine responsible for translating GitGalaxy's multi-dimensional RAM state into a highly portable, relational SQLite database (<code>_galaxy_graph.sqlite</code>). </p>
-<p>While the GPU Recorder creates compressed payloads for visual rendering, the Record Keeper builds a structured, queryable knowledge graph designed specifically to empower Autonomous AI Agents and custom CI/CD analytics pipelines.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/record_keeper.py"><code>gitgalaxy/recorders/record_keeper.py</code></a></p>
 </blockquote>
-<h2 id="the-architectural-pivot-sqlite-vs-neo4j-cypher">The Architectural Pivot: SQLite vs. Neo4j / Cypher</h2>
-<p>In earlier iterations of code-graphing tools, the industry standard was to export dependency maps into dedicated Graph Databases (like Neo4j) and query them using Graph Query Languages (like Cypher), often requiring heavy Node.js backend drivers. </p>
-<p>GitGalaxy fundamentally rejects this approach in favor of native SQLite for three critical reasons:</p>
-<h3 id="1-superior-llm-synergy-text-to-sql-vs-text-to-cypher">1. Superior LLM Synergy (Text-to-SQL vs. Text-to-Cypher)</h3>
-<p>Large Language Models (like GPT-4o or Claude 3.5) are trained on billions of lines of standard SQL. They understand relational joins, aggregations, and subqueries with near-perfect accuracy. In contrast, LLM training data for Cypher is vastly smaller. When autonomous agents attempt to write complex graph traversals in Cypher, they frequently hallucinate syntax or misinterpret node/edge property mappings. By providing a clean SQLite schema, GitGalaxy guarantees that RAG (Retrieval-Augmented Generation) agents can natively write flawless queries against the codebase.</p>
-<h3 id="2-zero-infrastructure-portability">2. Zero-Infrastructure Portability</h3>
-<p>A Neo4j or Node.js-backed architecture requires standing up Docker containers, managing network ports, and maintaining persistent storage volumes. GitGalaxy's SQLite output is a single, isolated <code>.sqlite</code> file. It can be attached to an email, dropped into an S3 bucket, or instantly queried by lightweight Python agents (via <code>sqlite3</code>) and WASM-based browser environments without spinning up a single server.</p>
-<h3 id="3-schema-simplicity">3. Schema Simplicity</h3>
-<p>Code architecture is inherently relational. By mapping files to functions, and files to dependencies using strict Foreign Keys, we eliminate the ambiguous property-graph bloat. The relational structure forces strict typing and mathematical integrity.</p>
-<h2 id="the-relational-schema">The Relational Schema</h2>
-<p>The Record Keeper extracts the live object state and constructs a highly normalized database schema optimized for fast analytical queries:</p>
-<ul>
-<li><strong><code>stars</code> (The Core Ledger):</strong> The master table containing the primary telemetry for every file. It includes pre-calculated columns for the 18-point Risk Vector, Structural Mass, Volatility, AI Threat Confidence, and Network Centrality (PageRank).</li>
-<li><strong><code>constellations</code> (Neighborhoods):</strong> Folder-level aggregate metrics, allowing agents to query the health of entire architectural domains rather than just isolated files.</li>
-<li><strong><code>satellites</code> (Internal Logic):</strong> Maps every extracted function, class, or method back to its parent <code>star_id</code>. It includes specific function-level metrics like Big-O complexity, argument counts, and Control Flow Ratios.</li>
-<li><strong><code>dna_hits</code> (The Regex Ledger):</strong> A flattened, highly indexed table containing every single regex pattern triggered by a file. This allows security agents to instantly query, for example, "Show me all files that contain <code>sec_danger</code> hits."</li>
-<li><strong><code>inbound_dependencies</code> &amp; <code>outbound_dependencies</code> (The Edge Tables):</strong> The bi-directional graph represented as relational join tables. This dual-table approach allows an agent to easily query "Blast Radius" (who imports me?) and "Fragility" (who do I import?) using standard <code>INNER JOIN</code> logic.</li>
-</ul>
-<h2 id="empowering-autonomous-workflows">Empowering Autonomous Workflows</h2>
-<p>By bridging the gap between raw file parsing and standard SQL, the Record Keeper turns a repository into a queryable dataset. </p>
-<p>Instead of writing brittle Python scripts to traverse abstract syntax trees, an LLM agent can now simply execute a SQL query to answer complex architectural questions, such as: <em>"Find all files with a PageRank greater than 1.0, that have high State Flux, and are imported by the authentication module."</em></p>
-<p><br><br></p>
+<p>The Record Keeper (<code>record_keeper.py</code>) is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (<code>_galaxy_graph.sqlite</code>).</p>
+<p>While the GPU Recorder generates compressed array payloads for WebGL visualizers, the Record Keeper builds a normalized relational database designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="architectural-rationale-sqlite-vs-graph-databases-neo4j-cypher">Architectural Rationale: SQLite vs. Graph Databases (Neo4j / Cypher)</h2>
+<p>Earlier code analysis tools often exported dependency graphs into graph databases (such as Neo4j) queried via domain-specific graph query languages (like Cypher). GitGalaxy utilizes native SQLite for three architectural reasons:</p>
+<h3 id="1-superior-llm-synergy-text-to-sql-vs-text-to-cypher">1. Superior LLM Synergy (Text-to-SQL vs. Text-to-Cypher)</h3>
+<p>Large Language Models (such as GPT-4o or Claude 3.5) are trained on massive text corpora containing standard SQL syntax. LLMs generate relational JOINs, GROUP BY aggregations, and subqueries with high precision. Conversely, Cypher training samples are far sparser, leading to syntax hallucinations when agents attempt complex graph traversals. SQLite output allows RAG agents to write reliable SQL queries against codebase metadata.</p>
+<h3 id="2-zero-infrastructure-portability">2. Zero-Infrastructure Portability</h3>
+<p>Graph database servers require running containerized services, managing network ports, and provisioning storage volumes. GitGalaxy's SQLite output is a self-contained <code>.sqlite</code> file that can be committed, stored as a CI artifact, or queried by lightweight Python engines (<code>sqlite3</code>) and WASM browser runtimes without backend database servers.</p>
+<h3 id="3-strict-relational-schema-integrity">3. Strict Relational Schema Integrity</h3>
+<p>Code architecture exhibits structured relational properties. Mapping files to functions, and files to dependency edges via foreign keys eliminates property-graph schema ambiguity while enforcing data types and relational integrity.</p>
+<hr />
+<h2 id="relational-database-schema">Relational Database Schema</h2>
+<p>The Record Keeper extracts in-memory telemetry objects and constructs a normalized SQLite database schema (table names preserve schema compatibility):</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><code>stars</code> (Source File Ledger):</strong> Core table containing primary file metrics, including 18-point risk vector components, total/logic LOC, structural mass, churn frequency, XGBoost threat scores, and PageRank blast radius values.</li>
+<li><strong><code>constellations</code> (Directory Groups):</strong> Directory-level aggregate metrics, allowing queries against module and package health.</li>
+<li><strong><code>satellites</code> (Functions &amp; Methods):</strong> Maps extracted functions, methods, and classes to parent file IDs via foreign keys, recording function lines of code, parameter counts, Control Flow ratios, and Big-O time complexity classifications.</li>
+<li><strong><code>dna_hits</code> (Pattern Trigger Ledger):</strong> Flattened, indexed table recording every static regex pattern hit per file for security audit queries.</li>
+<li><strong><code>inbound_dependencies</code> &amp; <code>outbound_dependencies</code> (Graph Edge Tables):</strong> Bi-directional dependency tables representing graph edges. Allows agents to query blast radius ("who imports this file?") and fragility ("what does this file import?") using SQL <code>INNER JOIN</code> operations.</li>
+</ul>
+<hr />
+<h2 id="autonomous-agent-cicd-query-workflows">Autonomous Agent &amp; CI/CD Query Workflows</h2>
+<p>By structuring codebase telemetry into relational SQL tables, the Record Keeper allows automated tools and AI agents to query codebase structure. </p>
+<p>Instead of traversing Abstract Syntax Trees with custom scripts, AI agents can execute SQL queries to retrieve architectural insights, such as identifying core modules with high blast radius metrics, high state volatility, and missing test coverage.</p>
+<hr />
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic static analysis engine.</p>
+<ul>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for source code and tools.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your codebase at GitGalaxy.io</a></strong> using the interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

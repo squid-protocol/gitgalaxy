@@ -6979,10 +6979,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dual-paradigm-execution-detection" class="md-nav__link">
+  <a href="#execution-paradigm-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dual-Paradigm Execution Detection
+        Execution Paradigm Detection
       
     </span>
   </a>
@@ -6990,10 +6990,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#auto-wiring-the-service-layer" class="md-nav__link">
+  <a href="#service-layer-auto-wiring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Auto-Wiring the Service Layer
+        Service Layer Auto-Wiring
       
     </span>
   </a>
@@ -7001,22 +7001,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-mock-service-shield" class="md-nav__link">
+  <a href="#mock-service-generation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Mock Service Shield
+        Mock Service Generation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Mock Service Shield">
+    <nav class="md-nav" aria-label="Mock Service Generation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dual-paradigm-execution-detection" class="md-nav__link">
+  <a href="#execution-paradigm-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dual-Paradigm Execution Detection
+        Execution Paradigm Detection
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#auto-wiring-the-service-layer" class="md-nav__link">
+  <a href="#service-layer-auto-wiring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Auto-Wiring the Service Layer
+        Service Layer Auto-Wiring
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-mock-service-shield" class="md-nav__link">
+  <a href="#mock-service-generation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Mock Service Shield
+        Mock Service Generation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Mock Service Shield">
+    <nav class="md-nav" aria-label="Mock Service Generation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8704,28 +8704,28 @@
 
 <h1 id="api-service-contracts">API &amp; Service Contracts</h1>
 <blockquote>
-<p><strong>Architecture: Dual-Paradigm Execution &amp; Dependency Injection</strong></p>
-<p><strong>Summary:</strong> The API and Service Forges translate the legacy Directed Acyclic Graph (DAG) intent into modern Spring Boot REST Controllers and <code>@Service</code> layers. It automatically detects the execution paradigm (Batch vs. Transactional) and auto-wires cross-service dependencies.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py"><code>gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py</code></a></p>
+<p><strong>Architecture: Dual-Paradigm Execution &amp; Dependency Injection Auto-Wiring</strong></p>
+<p><strong>Summary:</strong> The API Contract Generator (<code>cobol_to_java_api_contract_forge.py</code>) and Service Generator (<code>cobol_to_java_service_forge.py</code>) translate structural static analysis into modern Spring Boot <code>@RestController</code> endpoints and <code>@Service</code> components. They automatically detect execution paradigms (Batch vs. Transactional) and establish dependency injection wiring.</p>
 </blockquote>
-<h2 id="dual-paradigm-execution-detection">Dual-Paradigm Execution Detection</h2>
-<p>Legacy COBOL operates in two primary modes: CICS (Transactional) and JCL (Batch). The API Contract Forge analyzes the DAG lineage to detect the original intent and scaffolds the corresponding REST interface.</p>
+<h2 id="execution-paradigm-detection">Execution Paradigm Detection</h2>
+<p>Legacy COBOL applications execute primarily as CICS transactional modules or JCL batch jobs. The API generator inspects file allocation requests and CICS indicators in the IR state to determine the appropriate REST interface pattern:</p>
 <ul>
-<li><strong>The Transactional Paradigm:</strong> If the module relies on structured data inputs/outputs without physical file requests, the forge generates a standard JSON POST endpoint (<code>/api/v1/{module}/execute</code>). It automatically injects the required Data Transfer Objects (<code>@RequestBody DTO</code>) based on the input schemas.</li>
-<li><strong>The Batch Paradigm:</strong> If the DAG indicates the module expects physical file bindings (<code>DD</code> names), the forge switches to a Batch paradigm. It generates a specialized multipart endpoint (<code>/api/v1/{module}/execute-batch</code>) mapped to <code>@RequestParam MultipartFile</code> inputs, securely piping the data streams directly into the Service layer.</li>
+<li><strong>Transactional Paradigm:</strong> When a module processes structured in-memory data structures without physical dataset requests, the generator produces a JSON POST endpoint (<code>/api/v1/{module}/execute</code>) accepting <code>@RequestBody</code> DTO objects.</li>
+<li><strong>Batch Paradigm:</strong> When dataset file bindings (<code>DD</code> allocations) are present, the generator produces a multipart POST endpoint (<code>/api/v1/{module}/execute-batch</code>) accepting <code>@RequestParam MultipartFile</code> arguments mapped to legacy dataset definitions.</li>
 </ul>
-<h2 id="auto-wiring-the-service-layer">Auto-Wiring the Service Layer</h2>
-<p>The Service Forge generates the <code>@Service</code> skeleton where the actual business logic will reside. It utilizes the DAG to map the architectural lineage and inject cross-service dependencies:
-* <strong>Known Dependencies:</strong> Fully resolved module calls are injected into the class constructor for standard Spring Dependency Injection (<code>@RequiredArgsConstructor</code>).
-* <strong>Unresolved Dependencies:</strong> If the legacy code dynamically calls a module that was not found in the repository scan, the forge injects a <code>TODO: AI AGENT</code> comment with the required interface signature. It intentionally comments out the dependency to ensure the generated Spring Boot application remains fully compilable out of the box.</p>
-<h2 id="the-mock-service-shield">The Mock Service Shield</h2>
-<p>To prevent missing external subroutines from crashing the Spring Application Context upon booting, the orchestrator generates Mock Services for any unresolved calls. These mock services intercept the legacy call, log a standard warning (<code>"Mock Service invoked. Implementation missing."</code>), and safely return execution to the main thread.</p>
-<p><br><br></p>
+<h2 id="service-layer-auto-wiring">Service Layer Auto-Wiring</h2>
+<p>The Service Generator constructs the <code>@Service</code> business logic skeleton (<code>{ModuleName}Service.java</code>) and maps cross-module dependencies:
+* <strong>Resolved Subroutines:</strong> References to external COBOL subroutines found in the repository scan are injected into the service constructor via Lombok <code>@RequiredArgsConstructor</code> for Spring Dependency Injection.
+* <strong>Unresolved Subroutines:</strong> When dynamic or external module calls cannot be statically resolved, the generator injects inline interface stubs (<code>TODO: IMPLEMENT SUBROUTINE CALL</code>) to preserve compilability.</p>
+<h2 id="mock-service-generation">Mock Service Generation</h2>
+<p>To prevent missing subroutines from breaking Spring Application Context initialization on startup, the controller (<code>cobol_to_java_controller.py</code>) generates mock <code>@Service</code> classes for unresolved calls. These mock services intercept calls, log diagnostic warnings (<code>"Mock Service invoked. Implementation missing."</code>), and safely return execution to the caller.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

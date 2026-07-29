@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#zero-trust-jcl-forge" class="md-skip">
+        <a href="#job-control-language-jcl-generator" class="md-skip">
           Skip to content
         </a>
       
@@ -7203,10 +7203,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-ast-flattener" class="md-nav__link">
+  <a href="#source-code-normalization-intent-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The AST Flattener
+        Source Code Normalization &amp; Intent Parsing
       
     </span>
   </a>
@@ -7214,22 +7214,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dag-driven-io-provisioning" class="md-nav__link">
+  <a href="#execution-provisioning-least-privilege-disposition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DAG-Driven I/O Provisioning
+        Execution Provisioning &amp; Least Privilege Disposition
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DAG-Driven I/O Provisioning">
+    <nav class="md-nav" aria-label="Execution Provisioning &amp; Least Privilege Disposition">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8622,10 +8622,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-ast-flattener" class="md-nav__link">
+  <a href="#source-code-normalization-intent-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The AST Flattener
+        Source Code Normalization &amp; Intent Parsing
       
     </span>
   </a>
@@ -8633,22 +8633,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dag-driven-io-provisioning" class="md-nav__link">
+  <a href="#execution-provisioning-least-privilege-disposition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DAG-Driven I/O Provisioning
+        Execution Provisioning &amp; Least Privilege Disposition
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DAG-Driven I/O Provisioning">
+    <nav class="md-nav" aria-label="Execution Provisioning &amp; Least Privilege Disposition">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8680,28 +8680,35 @@
   
 
 
-<h1 id="zero-trust-jcl-forge">Zero-Trust JCL Forge</h1>
+<h1 id="job-control-language-jcl-generator">Job Control Language (JCL) Generator</h1>
 <blockquote>
-<p><strong>Architecture: Intent Extraction &amp; Secure Provisioning</strong></p>
-<p><strong>Summary:</strong> The Zero-Trust JCL Forge translates the raw structural intent of a COBOL program into a highly restricted Job Control Language (JCL) emulator. It guarantees that the resulting execution environment only provisions the exact data access the program mathematically requires to run.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py">gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py</a></p>
+<p><strong>Architecture: Intent Extraction &amp; Minimal Access Execution Provisioning</strong></p>
+<p><strong>Summary:</strong> The Zero-Trust JCL Generator converts physical file requirements and execution intent extracted from COBOL source code into streamlined Job Control Language (JCL) scripts. It ensures generated execution scripts provision only the exact dataset permissions required for execution.</p>
 </blockquote>
-<h2 id="the-ast-flattener">The AST Flattener</h2>
-<p>Legacy COBOL is strictly formatted to 80-character punch cards, meaning long file assignments frequently break across multiple lines. To parse this accurately, the forge utilizes an AST Flattener:
-* It strips out punch-card formatting and ignores any text located in Column 7 (legacy comments).
-* It merges the remaining code into a single continuous string.
-* This allows the regex engine to successfully extract <code>SELECT ... ASSIGN TO</code> file bindings even if the keywords are separated by 20 lines of whitespace or line breaks.</p>
-<h2 id="dag-driven-io-provisioning">DAG-Driven I/O Provisioning</h2>
-<p>Once the required physical files (DD names) are extracted, the forge queries the DAG Architect's lineage data to determine the exact execution intent for each file, assigning strict Data Set Parameters (<code>DISP</code>):
-* <strong>Outputs (Write-Only or I/O):</strong> The forge provisions the file with <code>DISP=(NEW,CATLG,DELETE)</code>, allocating fresh tracking space (<code>SPACE=(CYL,(5,1),RLSE)</code>) for the output generation.
-* <strong>Inputs (Read-Only):</strong> The forge restricts the file to <code>DISP=SHR</code> (Shared Read). 
-* <strong>The Anomaly Warning:</strong> If the program requests a file in its Data Division, but the DAG Architect proves the program <em>never actually opens it</em> in the execution logic, the forge defaults to read-only access and injects an explicit <code>WARNING: NO EXPLICIT OPEN INTENT</code> comment into the JCL for architectural review.</p>
+<h2 id="source-code-normalization-intent-parsing">Source Code Normalization &amp; Intent Parsing</h2>
+<p>Legacy COBOL files format code across 80-column punch cards, causing file assignments to break across multiple lines or contain legacy margin indicators.</p>
+<ul>
+<li><strong>Format Normalizer:</strong> Strips 6-column sequence numbers and column 7 comment indicators (<code>*</code>, <code>/</code>), consolidating source code into a normalized text stream.</li>
+<li><strong>Program Identifier Extraction:</strong> Extracts the program name from <code>PROGRAM-ID</code> statements (falling back to the source file name if absent).</li>
+<li><strong>Batch File Assignments:</strong> Parses <code>SELECT ... ASSIGN TO</code> statements to extract internal file names and Data Definition (DD) target identifiers, stripping system prefixes like <code>UT-S-</code> or <code>UR-S-</code>.</li>
+<li><strong>Subsystem Usage Scans:</strong> Scans for <code>EXEC CICS</code> (transactional engine) and <code>EXEC SQL</code> (database access) blocks, recording invocation counts and adding necessary operational flags (<code>CICS</code>, <code>DB2</code>).</li>
+</ul>
+<h2 id="execution-provisioning-least-privilege-disposition">Execution Provisioning &amp; Least Privilege Disposition</h2>
+<p>The generator maps extracted file bindings to Data Set Parameters (<code>DISP</code>) to enforce least-privilege resource access:</p>
+<ul>
+<li><strong>Output File Allocations:</strong> Assigns <code>DISP=(NEW,CATLG,DELETE)</code> to output datasets, appending storage parameters (<code>SPACE=(CYL,(5,1),RLSE)</code>, <code>DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)</code>).</li>
+<li><strong>Input File Allocations:</strong> Assigns <code>DISP=SHR</code> (Shared Read) to input datasets.</li>
+<li><strong>Unreferenced Binding Safeguard:</strong> If a dataset is declared in the file section but static lineage analysis shows no explicit open operations (<code>OPEN INPUT</code> / <code>OPEN OUTPUT</code>), the generator assigns read-only access and appends a warning comment (<code>//* WARNING: NO EXPLICIT OPEN INTENT FOR ...</code>) for developer review.</li>
+<li><strong>Corporate Header &amp; Job Cards:</strong> Generates standardized job headers (<code>JOB</code>, <code>EXEC PGM=</code>, <code>STEPLIB</code>, <code>SYSOUT</code>, <code>SYSPRINT</code>, <code>SYSUDUMP</code>) and embeds custom corporate compliance headers when supplied.</li>
+</ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-integration">Ecosystem Integration</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and heuristic dependency mapping engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

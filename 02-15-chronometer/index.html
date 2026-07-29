@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-chronometer-temporal-telemetry" class="md-skip">
+        <a href="#chronometer-git-history-analysis" class="md-skip">
           Skip to content
         </a>
       
@@ -5977,10 +5977,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-melded-protocol-survey-first-logic" class="md-nav__link">
+  <a href="#batch-processing-strategy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Melded Protocol (Survey-First Logic)
+        Batch Processing Strategy
       
     </span>
   </a>
@@ -5988,10 +5988,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#boundary-locks-the-museum-demo-protocol" class="md-nav__link">
+  <a href="#commit-boundaries-historical-sweep" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boundary Locks &amp; The Museum Demo Protocol
+        Commit Boundaries &amp; Historical Sweep
       
     </span>
   </a>
@@ -5999,10 +5999,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#process-management-kill-switches-fallbacks" class="md-nav__link">
+  <a href="#process-management-fallbacks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Process Management (Kill Switches &amp; Fallbacks)
+        Process Management &amp; Fallbacks
       
     </span>
   </a>
@@ -6010,15 +6010,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#temporal-outputs-the-handover" class="md-nav__link">
+  <a href="#output-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Temporal Outputs (The Handover)
+        Output Metrics
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Temporal Outputs (The Handover)">
+    <nav class="md-nav" aria-label="Output Metrics">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8644,10 +8644,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-melded-protocol-survey-first-logic" class="md-nav__link">
+  <a href="#batch-processing-strategy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Melded Protocol (Survey-First Logic)
+        Batch Processing Strategy
       
     </span>
   </a>
@@ -8655,10 +8655,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#boundary-locks-the-museum-demo-protocol" class="md-nav__link">
+  <a href="#commit-boundaries-historical-sweep" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boundary Locks &amp; The Museum Demo Protocol
+        Commit Boundaries &amp; Historical Sweep
       
     </span>
   </a>
@@ -8666,10 +8666,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#process-management-kill-switches-fallbacks" class="md-nav__link">
+  <a href="#process-management-fallbacks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Process Management (Kill Switches &amp; Fallbacks)
+        Process Management &amp; Fallbacks
       
     </span>
   </a>
@@ -8677,15 +8677,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#temporal-outputs-the-handover" class="md-nav__link">
+  <a href="#output-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Temporal Outputs (The Handover)
+        Output Metrics
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Temporal Outputs (The Handover)">
+    <nav class="md-nav" aria-label="Output Metrics">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8724,36 +8724,35 @@
   
 
 
-<h1 id="the-chronometer-temporal-telemetry">The Chronometer (Temporal Telemetry)</h1>
+<h1 id="chronometer-git-history-analysis">Chronometer (Git History Analysis)</h1>
 <blockquote>
-<p><strong>Adding History to the Map</strong></p>
-<p>The Chronometer (<code>chronometer.py</code>) acts as GitGalaxy's high-fidelity Temporal Sensor. While the rest of the pipeline analyzes the static, physical structure of the code at a single point in time, the Chronometer measures Git churn and physical file-system stability. </p>
-<p>By extracting these temporal signals, it provides the "redshift" and volatility of artifacts over time, providing raw telemetry to the Signal Processor for exposure calculations.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/chronometer.py"><code>gitgalaxy/metrics/chronometer.py</code></a></p>
 </blockquote>
-<h2 id="the-melded-protocol-survey-first-logic">The Melded Protocol (Survey-First Logic)</h2>
-<p>If the engine attempted to query Git history for every single file during the parallel multiprocessing phase, it would create a catastrophic I/O bottleneck. </p>
-<p>To achieve hyper-scale velocity, the Chronometer utilizes <strong>Survey-First Logic</strong>. It performs a bulk metadata sweep during initialization, caching the results in internal state maps (<code>entropy_map</code>, <code>mtime_map</code>, <code>author_map</code>). When the worker threads later request temporal data for a specific file, the handover is a lightning-fast, zero-I/O <span class="arithmatex">\(O(1)\)</span> memory lookup.</p>
-<h2 id="boundary-locks-the-museum-demo-protocol">Boundary Locks &amp; The Museum Demo Protocol</h2>
-<p>To accurately calculate how "old" or "stable" a file is, the engine must first establish the absolute boundaries of the universe.</p>
+<p>The Chronometer component measures code churn (frequency of changes) and file stability by analyzing Git history. While the rest of the pipeline performs static analysis on the codebase at a single point in time, the Chronometer provides the historical context required by the Signal Processor to calculate risk exposure metrics.</p>
+<h2 id="batch-processing-strategy">Batch Processing Strategy</h2>
+<p>If the engine queried Git history for every individual file during parallel multiprocessing, it would create a massive I/O bottleneck. </p>
+<p>To ensure high performance, the Chronometer utilizes a <strong>batch caching strategy</strong>. It performs a bulk metadata sweep during initialization, caching the results in internal state maps (<code>churn_map</code>, <code>mtime_map</code>, <code>author_map</code>). When worker threads later request temporal data for a specific file, the retrieval is a fast <span class="arithmatex">\(O(1)\)</span> memory lookup.</p>
+<h2 id="commit-boundaries-historical-sweep">Commit Boundaries &amp; Historical Sweep</h2>
+<p>To accurately calculate the age and stability of files, the engine must first establish the boundaries of the repository.</p>
 <ul>
-<li><strong>Boundary Lock:</strong> The sensor queries the Git <code>rev-list</code> and log heads to establish the absolute minimum (first commit) and maximum (latest commit) timestamps of the entire project.</li>
-<li><strong>Cosmetic Filter:</strong> Before sweeping for churn, the Chronometer automatically loads <code>.git-blame-ignore-revs</code> if it exists, filtering out non-functional cosmetic commits (like mass code-formatting) from the volatility math.</li>
-<li><strong>The Museum Demo Protocol:</strong> Rather than grinding through decades of Git history, the sensor executes a 1-year historical sweep. This guarantees deep churn data for modern volatility without getting bogged down in ancient bedrock.</li>
-<li><strong>Dynamic Thresholds:</strong> To save RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files.</li>
+<li><strong>Boundary Discovery:</strong> The component queries <code>git rev-list</code> and <code>git log</code> to find the timestamps of the first commit and the latest commit across the entire project.</li>
+<li><strong>Cosmetic Commit Filtering:</strong> The Chronometer automatically loads <code>.git-blame-ignore-revs</code> (if available), filtering out cosmetic commits (e.g., mass code-formatting by Prettier or Black) from the churn calculations.</li>
+<li><strong>1-Year Sweep:</strong> Rather than parsing the entire history of older repositories, the component limits its churn scan to the past 12 months. This guarantees that metrics reflect recent development activity without wasting resources on older, stable code.</li>
+<li><strong>Dynamic Halting:</strong> To conserve RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files.</li>
 </ul>
-<h2 id="process-management-kill-switches-fallbacks">Process Management (Kill Switches &amp; Fallbacks)</h2>
-<p>Streaming Git logs via <code>Popen</code> can be dangerous; if the stream hangs, it creates zombie processes that leak file descriptors. The Chronometer enforces strict resource guards.</p>
+<h2 id="process-management-fallbacks">Process Management &amp; Fallbacks</h2>
+<p>Streaming large Git logs via <code>subprocess.Popen</code> can be resource-intensive. If the stream hangs, it can create zombie processes that leak file descriptors. The Chronometer enforces strict resource management:</p>
 <ul>
-<li><strong>Dual Kill Switches:</strong> The Git stream escalator is bound by two strict kill switches: a hard compute timeout (defaulting to 15.0 seconds) and the dynamic file coverage target. If either is breached, the loop breaks early.</li>
-<li><strong>Zombie Prevention:</strong> If the stream is broken early, the Chronometer violently kills the <code>Popen</code> process and explicitly closes the <code>stdout</code>/<code>stderr</code> pipes to prevent OS-level zombie processes.</li>
-<li><strong>OS-Level Fallback:</strong> If the repository is not tracked by Git (or Git is missing from the host machine), the Chronometer falls back to standard operating system <code>stat</code> calls to check file modification times (<code>mtime</code>). This fallback is capped at 25,000 files to protect disk I/O performance.</li>
+<li><strong>Timeout Controls:</strong> The Git streaming process is bound by two limits: a hard compute timeout (defaulting to 15.0 seconds) and the dynamic file coverage target mentioned above. If either is reached, the loop breaks early.</li>
+<li><strong>Zombie Process Prevention:</strong> If the stream exits early, the Chronometer terminates the <code>Popen</code> process and explicitly clears out <code>stdout</code>/<code>stderr</code> buffers to prevent OS-level zombie processes. (For example, <code>stderr</code> is routed to <code>DEVNULL</code> to prevent deadlocks from noisy Git warnings).</li>
+<li><strong>OS-Level Fallback:</strong> If the repository is not tracked by Git or if <code>git ls-files</code> fails, the Chronometer gracefully falls back to standard operating system <code>stat</code> calls to check file modification times (<code>mtime</code>). This fallback is capped at 25,000 files to protect disk I/O performance.</li>
 </ul>
-<h2 id="temporal-outputs-the-handover">Temporal Outputs (The Handover)</h2>
-<p>The Chronometer does not calculate final risk scores; it acts as a raw sensor, extracting the temporal data required by the <code>SignalProcessor</code> to calculate the final metrics:</p>
+<h2 id="output-metrics">Output Metrics</h2>
+<p>The Chronometer acts as a raw data collection layer. It extracts the following data for the <code>SignalProcessor</code> to use in final metric calculations:</p>
 <ul>
-<li><strong>Stability (Age):</strong> Hands over the exact modification time (<code>mtime</code>) and the repository's minimum/maximum timestamps.</li>
-<li><strong>Raw Churn Frequency:</strong> Captures the total commit count within the historical sweep.</li>
-<li><strong>Ownership Mapping:</strong> Captures every author who modified the file and their respective commit counts. This powers the downstream <strong>Ownership Entropy</strong> and <strong>Silo Risk</strong> calculations.</li>
+<li><strong>Stability (Age):</strong> The exact modification time (<code>mtime</code>) of each file, along with the repository's minimum and maximum timestamps.</li>
+<li><strong>Raw Churn Frequency:</strong> The total commit count for each file within the historical sweep window.</li>
+<li><strong>Ownership Mapping:</strong> A dictionary mapping every author who modified a file to their respective commit counts. This powers downstream ownership entropy and silo risk calculations.</li>
 </ul>
 <p><br><br></p>
 <hr />

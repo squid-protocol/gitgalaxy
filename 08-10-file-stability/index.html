@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#file-stability-commit-heat" class="md-skip">
+        <a href="#file-stability-commit-age-timestamp-heat" class="md-skip">
           Skip to content
         </a>
       
@@ -8205,10 +8205,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-inputs-file-system" class="md-nav__link">
+  <a href="#metric-inputs-file-system-version-control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Inputs (File System)
+        Metric Inputs (File System &amp; Version Control)
       
     </span>
   </a>
@@ -8227,33 +8227,61 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-equation-relative-time-normalization" class="md-nav__link">
+  <a href="#mathematical-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Equation: Relative Time Normalization
+        Mathematical Formulation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mathematical Formulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-calculate-temporal-distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Calculate Temporal Distance
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-python-reference" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-calculate-relative-ratio" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implementation (Python Reference)
+        Step 2: Calculate Relative Ratio
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Implementation (Python Reference)">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-implementation-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Implementation Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python Implementation Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy Engine
       
     </span>
   </a>
@@ -8644,10 +8672,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-inputs-file-system" class="md-nav__link">
+  <a href="#metric-inputs-file-system-version-control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Inputs (File System)
+        Metric Inputs (File System &amp; Version Control)
       
     </span>
   </a>
@@ -8666,33 +8694,61 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-equation-relative-time-normalization" class="md-nav__link">
+  <a href="#mathematical-formulation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Equation: Relative Time Normalization
+        Mathematical Formulation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mathematical Formulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-calculate-temporal-distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Calculate Temporal Distance
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-python-reference" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-calculate-relative-ratio" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implementation (Python Reference)
+        Step 2: Calculate Relative Ratio
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Implementation (Python Reference)">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-implementation-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Implementation Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python Implementation Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy Engine
       
     </span>
   </a>
@@ -8724,103 +8780,99 @@
   
 
 
-<h1 id="file-stability-commit-heat">File Stability (Commit Heat)</h1>
+<h1 id="file-stability-commit-age-timestamp-heat">File Stability (Commit Age &amp; Timestamp Heat)</h1>
 <blockquote>
-<p><strong>Metric: Relative Temporal Distance (Geological Layers)</strong></p>
-<p><strong>Summary:</strong> Visualizes the "Geological Layers" of the knowledge graph. Instead of measuring "Freshness" (which implies old code is bad/stale), we measure <strong>Stability</strong>. We use Auto-Scaling Normalization to scan the entire repository and find the absolute oldest and newest timestamps, creating a relative timeframe specific to that exact topology.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum.
-* 🟦 <strong>HOT/NEW (Score 0-19):</strong> The "Active Front." Code written or heavily modified very recently.
-* 🟨 <strong>ACTIVE (Score 40-59):</strong> Settled. Halfway down the repository's timeline.
-* 🟥 <strong>ENDURING (Score 80-100):</strong> The "Foundation." The oldest, most untouched files in the repository.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
+<p><strong>Metric:</strong> Relative Temporal Distance &amp; File Modifications</p>
+<p><strong>Summary:</strong> Evaluates file age and timestamp stability across the repository. Instead of treating older code as inherently problematic, stability measures the relative time elapsed since a file was last modified compared to the newest and oldest timestamps in the repository.</p>
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+* 🟦 <strong>RECENT / ACTIVE (Score 0-19):</strong> Code modified very recently (the active edge of development).
+* 🟨 <strong>SETTLED (Score 40-59):</strong> Code modified near the midpoint of the repository timeline.
+* 🟥 <strong>ESTABLISHED BASELINE (Score 80-100):</strong> The oldest, long-unmodified files in the repository.</p>
 </blockquote>
-<h2 id="the-inputs-file-system">The Inputs (File System)</h2>
-<p>We use <strong>Auto-Scaling Normalization</strong>. We scan the entire repository to find the absolute oldest and newest timestamps, creating a relative time-frame strictly for this specific project.</p>
+<h2 id="metric-inputs-file-system-version-control">Metric Inputs (File System &amp; Version Control)</h2>
+<p>Using auto-scaling normalization, Phase 1 scans the entire codebase to establish the repository's active lifespan boundary (<code>RepoMinTime</code> to <code>RepoMaxTime</code>):</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Variable</th>
-<th style="text-align: left;">Source</th>
-<th style="text-align: left;">Unit</th>
-<th style="text-align: left;">Structural Definition</th>
+<th style="text-align: left;">Data Source</th>
+<th style="text-align: left;">Units</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><code>FileMTime</code></td>
-<td style="text-align: left;"><code>os.path.getmtime</code></td>
-<td style="text-align: left;">Epoch</td>
-<td style="text-align: left;">The last modified timestamp of the specific file.</td>
+<td style="text-align: left;"><code>os.path.getmtime</code> / Git Commit</td>
+<td style="text-align: left;">Epoch Timestamp</td>
+<td style="text-align: left;">Last modified timestamp of the target file.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>RepoMinTime</code></td>
-<td style="text-align: left;">Calculated (Phase 1)</td>
-<td style="text-align: left;">Epoch</td>
-<td style="text-align: left;">The timestamp of the <em>oldest</em> file in the entire repo.</td>
+<td style="text-align: left;">Repository Scanner Phase 1</td>
+<td style="text-align: left;">Epoch Timestamp</td>
+<td style="text-align: left;">Oldest modified timestamp observed in the repository.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>RepoMaxTime</code></td>
-<td style="text-align: left;">Calculated (Phase 1)</td>
-<td style="text-align: left;">Epoch</td>
-<td style="text-align: left;">The timestamp of the <em>newest</em> file in the entire repo.</td>
+<td style="text-align: left;">Repository Scanner Phase 1</td>
+<td style="text-align: left;">Epoch Timestamp</td>
+<td style="text-align: left;">Newest modified timestamp observed in the repository.</td>
 </tr>
 </tbody>
 </table>
 <h2 id="universal-framework-integration">Universal Framework Integration</h2>
-<p>Stability is a pure temporal measurement. It is not a risk factor that requires structural dampening or context amplification.</p>
+<p>File stability is a linear physical timestamp measurement:</p>
 <ul>
-<li><strong><span class="arithmatex">\(Fc\)</span> (Fidelity Coefficient):</strong> Not Applied. Time is absolute.</li>
-<li><strong><span class="arithmatex">\(Irc\)</span> (Implicit Risk Correction):</strong> Not Applied.</li>
-<li><strong><span class="arithmatex">\(Mp\)</span> (Path Modifier):</strong> Not Applied. The age of a file is a physical constant.</li>
+<li><strong><span class="arithmatex">\(Fc\)</span> (Fidelity Coefficient):</strong> Not applied (timestamps are exact epoch values).</li>
+<li><strong><span class="arithmatex">\(Irc\)</span> (Implicit Risk Correction):</strong> Not applied.</li>
+<li><strong><span class="arithmatex">\(Mp\)</span> (Path Modifier):</strong> Not applied (file modification age is an absolute measurement).</li>
 </ul>
-<h2 id="the-equation-relative-time-normalization">The Equation: Relative Time Normalization</h2>
-<p>We define Stability as the "Distance from the Newest moment."</p>
-<p><strong>Step A: Calculate Temporal Distance</strong>
-We subtract the file's last modified time (<code>mtime</code>) from the newest moment in the repository (<code>repo_max</code>). We clamp this difference to <span class="arithmatex">\(0.0\)</span> at a minimum to prevent negative time errors if a file's timestamp somehow drifts ahead of the global max during processing.</p>
-<div class="arithmatex">\[SecondsFromMax=\max(RepoMaxTime-FileMTime, 0.0)\]</div>
-<p><strong>Step B: Calculate Relative Ratio</strong>
-We divide the file's temporal distance by the total time range of the repository. We enforce a minimum range of <span class="arithmatex">\(1.0\)</span> second to prevent division-by-zero crashes in brand-new or single-file repositories.</p>
-<div class="arithmatex">\[TimeRange=\max(RepoMaxTime-RepoMinTime, 1.0)$$
-$$StabilityScore=\min\left( \left( \frac{SecondsFromMax}{TimeRange} \right) \times 100.0, 100.0 \right)\]</div>
+<h2 id="mathematical-formulation">Mathematical Formulation</h2>
+<p>Stability measures relative temporal distance from the repository's newest modification point:</p>
+<h3 id="step-1-calculate-temporal-distance">Step 1: Calculate Temporal Distance</h3>
+<p>The elapsed time between the newest repository file (<code>RepoMaxTime</code>) and the target file's timestamp (<code>FileMTime</code>) is calculated and clamped to <span class="arithmatex">\(\ge 0.0\)</span>:</p>
+<div class="arithmatex">\[\text{SecondsFromMax} = \max(\text{RepoMaxTime} - \text{FileMTime}, 0.0)\]</div>
+<h3 id="step-2-calculate-relative-ratio">Step 2: Calculate Relative Ratio</h3>
+<p>The distance is normalized against the total active time range of the repository (<span class="arithmatex">\(\ge 1.0\)</span> second floor to prevent division by zero):</p>
+<div class="arithmatex">\[\text{TimeRange} = \max(\text{RepoMaxTime} - \text{RepoMinTime}, 1.0)$$
+$$\text{StabilityScore} = \min\left( \left( \frac{\text{SecondsFromMax}}{\text{TimeRange}} \right) \times 100.0, 100.0 \right)\]</div>
 <ul>
-<li>If <span class="arithmatex">\(FileTime == RepoMaxTime\)</span> (Newest), the distance is <span class="arithmatex">\(0\)</span>, so <span class="arithmatex">\(StabilityScore = 0.0\)</span>.</li>
-<li>If <span class="arithmatex">\(FileTime == RepoMinTime\)</span> (Oldest), the distance equals the full range, so <span class="arithmatex">\(StabilityScore = 100.0\)</span>.</li>
+<li>When <span class="arithmatex">\(\text{FileMTime} == \text{RepoMaxTime}\)</span> (Newest file), <span class="arithmatex">\(\text{StabilityScore} = 0.0\)</span>.</li>
+<li>When <span class="arithmatex">\(\text{FileMTime} == \text{RepoMinTime}\)</span> (Oldest file), <span class="arithmatex">\(\text{StabilityScore} = 100.0\)</span>.</li>
 </ul>
-<h2 id="implementation-python-reference">Implementation (Python Reference)</h2>
-<p>```python
-import math
-from typing import Dict, Any, Tuple</p>
-<p>def _calc_raw_temporal_signals(self, temp: Dict[str, Any]) -&gt; Tuple[float, float]:
-    """Calculates Stability (Age) and Raw Churn (Seismic Frequency)."""
-    if not temp or not temp.get("is_git_tracked", False):
-        return 50.0, 0.0 </p>
-<div class="highlight"><pre><span></span><code>mtime = temp.get(&quot;mtime&quot;, 0.0)
-repo_min = temp.get(&quot;repo_min_time&quot;, mtime)
-repo_max = temp.get(&quot;repo_max_time&quot;, mtime)
-commits = temp.get(&quot;commit_count&quot;, 0)
-
-# ---&gt; THE FIX: Clamp the time difference so it never goes negative &lt;---
-seconds_from_max = max(repo_max - mtime, 0.0)
-time_range = max(repo_max - repo_min, 1.0)
-
-# 1. Stability (0 = Newest/Surface, 100 = Oldest/Bedrock)
-stability_ratio = seconds_from_max / time_range
-stability_score = min(stability_ratio * 100.0, 100.0)
-
-# 2. Raw Churn Frequency (Calculated alongside stability)
-age_weeks = max(seconds_from_max / 604800.0, 1.0) 
-raw_churn_freq = commits / math.sqrt(age_weeks)
-
-return stability_score, raw_churn_freq
+<h2 id="python-implementation-reference">Python Implementation Reference</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_raw_temporal_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates File Stability (Age score) and Raw Churn (Commit frequency).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">temp</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">temp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_git_tracked&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">return</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">0.0</span> 
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">mtime</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mtime&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">repo_min</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repo_min_time&quot;</span><span class="p">,</span> <span class="n">mtime</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">repo_max</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repo_max_time&quot;</span><span class="p">,</span> <span class="n">mtime</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">commits</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;commit_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="c1"># Clamp the time difference to prevent negative values</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">seconds_from_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">repo_max</span> <span class="o">-</span> <span class="n">mtime</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">time_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">repo_max</span> <span class="o">-</span> <span class="n">repo_min</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="c1"># 1. Stability Score (0 = Newest/Active, 100 = Oldest Baseline)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">stability_ratio</span> <span class="o">=</span> <span class="n">seconds_from_max</span> <span class="o">/</span> <span class="n">time_range</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">stability_score</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">stability_ratio</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="c1"># 2. Raw Churn Frequency calculation</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">age_weeks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">seconds_from_max</span> <span class="o">/</span> <span class="mf">604800.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> 
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">raw_churn_freq</span> <span class="o">=</span> <span class="n">commits</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">age_weeks</span><span class="p">)</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">return</span> <span class="n">stability_score</span><span class="p">,</span> <span class="n">raw_churn_freq</span>
 </code></pre></div>
-<p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
-<ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
-</ul>
-<hr />
+<h3 id="powered-by-gitgalaxy-engine">Powered by GitGalaxy Engine</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Project</a>, an AST-free, LLM-free static analysis engine for automated codebase risk auditing.</p>
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
 
 

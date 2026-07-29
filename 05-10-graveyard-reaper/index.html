@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#graveyard-reaper-dead-code-analysis" class="md-skip">
+        <a href="#dead-code-unused-data-analysis" class="md-skip">
           Skip to content
         </a>
       
@@ -7147,10 +7147,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-inline-copybook-expander" class="md-nav__link">
+  <a href="#inline-copybook-expansion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Inline Copybook Expander
+        Inline Copybook Expansion
       
     </span>
   </a>
@@ -7158,10 +7158,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#phase-1-hunting-orphaned-data" class="md-nav__link">
+  <a href="#phase-1-unused-memory-variable-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Hunting Orphaned Data
+        Phase 1: Unused Memory Variable Analysis
       
     </span>
   </a>
@@ -7169,22 +7169,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#phase-2-hunting-phantom-paragraphs" class="md-nav__link">
+  <a href="#phase-2-unreachable-execution-logic-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Hunting Phantom Paragraphs
+        Phase 2: Unreachable Execution Logic Analysis
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Phase 2: Hunting Phantom Paragraphs">
+    <nav class="md-nav" aria-label="Phase 2: Unreachable Execution Logic Analysis">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-inline-copybook-expander" class="md-nav__link">
+  <a href="#inline-copybook-expansion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Inline Copybook Expander
+        Inline Copybook Expansion
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#phase-1-hunting-orphaned-data" class="md-nav__link">
+  <a href="#phase-1-unused-memory-variable-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Hunting Orphaned Data
+        Phase 1: Unused Memory Variable Analysis
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#phase-2-hunting-phantom-paragraphs" class="md-nav__link">
+  <a href="#phase-2-unreachable-execution-logic-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Hunting Phantom Paragraphs
+        Phase 2: Unreachable Execution Logic Analysis
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Phase 2: Hunting Phantom Paragraphs">
+    <nav class="md-nav" aria-label="Phase 2: Unreachable Execution Logic Analysis">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8702,33 +8702,40 @@
   
 
 
-<h1 id="graveyard-reaper-dead-code-analysis">Graveyard Reaper (Dead Code Analysis)</h1>
+<h1 id="dead-code-unused-data-analysis">Dead Code &amp; Unused Data Analysis</h1>
 <blockquote>
-<p><strong>Architecture: AST Resolution &amp; Dead Logic Isolation</strong></p>
-<p><strong>Summary:</strong> The Graveyard Reaper performs static analysis on the COBOL Abstract Syntax Tree (AST) to isolate orphaned data and mathematically unreachable code. By identifying this structural necrosis early, it prevents downstream forges from generating bloated cloud schemas or hallucinated microservices.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py">gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py</a></p>
+<p><strong>Architecture: Static Analysis &amp; Unreachable Logic Isolation</strong></p>
+<p><strong>Summary:</strong> The Deprecated Trails Analyzer performs static analysis on COBOL source files to isolate unused variable declarations in memory and unreachable execution logic in control flow. Identifying unused data structures and dead paragraphs early prevents downstream tools from generating unnecessary database columns or unneeded microservices.</p>
 </blockquote>
-<h2 id="the-inline-copybook-expander">The Inline Copybook Expander</h2>
-<p>Legacy COBOL frequently hides its variable declarations inside external <code>.cpy</code> files. Before the Reaper can accurately map memory usage, it must assemble the full execution context. 
-* It recursively hunts for <code>COPY</code> statements and injects the target file's contents directly into the local memory string.
-* <strong>Dynamic Variable Swapping:</strong> It actively parses <code>REPLACING ==OLD== BY ==NEW==</code> clauses during the injection phase, executing word-boundary regex substitutions to ensure the resulting AST perfectly matches what the mainframe compiler would see.</p>
-<h2 id="phase-1-hunting-orphaned-data">Phase 1: Hunting Orphaned Data</h2>
-<p>The Reaper splits the code into the <code>DATA DIVISION</code> and <code>PROCEDURE DIVISION</code>. 
-1. It scans the Data Division to build a master set of all declared variables (ignoring structural noise like <code>FILLER</code> or boolean <code>88</code> levels).
-2. It executes a strict word-boundary scan against the Procedure Division.
-3. Any variable that is declared in memory but never explicitly referenced in the execution logic is flagged as <strong>Orphaned Memory</strong>. This list is passed to the Schema Forge to prevent useless columns from being created in the PostgreSQL database.</p>
-<h2 id="phase-2-hunting-phantom-paragraphs">Phase 2: Hunting Phantom Paragraphs</h2>
-<p>To identify dead execution logic, the Reaper maps the control flow of the program:
-1. It catalogs every paragraph (code block) defined in the file.
-2. It assumes the very first paragraph is the "Main Entry Point" and is always executed.
-3. It scans the entire file for explicit jump commands (<code>PERFORM</code> and <code>GO TO</code>) to build a set of all "Reached" targets.
-4. Any paragraph that is declared but never reached by a jump command from the main execution tree is flagged as a <strong>Phantom Paragraph</strong>. This list is passed to the DAG Architect and Microservice Slicer so they know to completely ignore those lines of code.</p>
+<h2 id="inline-copybook-expansion">Inline Copybook Expansion</h2>
+<p>COBOL variable declarations and record layouts are frequently stored in external copybook files (<code>.cpy</code>). Before performing static analysis, the analyzer expands copybooks to obtain the full execution context.</p>
+<ul>
+<li><strong>Recursive Processing:</strong> Recursively searches for <code>COPY</code> statements (up to 3 nesting levels deep) and injects the contents of target copybook files into the source memory buffer.</li>
+<li><strong>Variable Substitution:</strong> Parses <code>REPLACING ==OLD== BY ==NEW==</code> clauses during copybook expansion, performing word-boundary regex substitutions (<code>re.sub</code> with negative lookarounds) so the expanded source code matches compiled behavior.</li>
+</ul>
+<h2 id="phase-1-unused-memory-variable-analysis">Phase 1: Unused Memory Variable Analysis</h2>
+<p>The analyzer splits the COBOL program at the <code>PROCEDURE DIVISION</code> header to inspect memory usage:</p>
+<ol>
+<li><strong>Declaration Parsing:</strong> Scans the <code>DATA DIVISION</code> for variable declarations across level numbers <code>01</code> through <code>49</code>, <code>77</code>, and <code>88</code>, while filtering structural noise such as <code>FILLER</code> declarations.</li>
+<li><strong>Usage Verification:</strong> Performs word-boundary regex scans against the <code>PROCEDURE DIVISION</code> to check if declared variables are ever referenced.</li>
+<li><strong>Orphaned Memory Isolation:</strong> Flags variables declared in memory but never referenced in execution logic as orphaned variables. This list is passed to downstream schema generators to prevent unused database columns from being created in SQL DDL statements.</li>
+</ol>
+<h2 id="phase-2-unreachable-execution-logic-analysis">Phase 2: Unreachable Execution Logic Analysis</h2>
+<p>To identify dead code blocks in the procedural logic, the analyzer evaluates control flow topology:</p>
+<ol>
+<li><strong>Paragraph Cataloging:</strong> Scans the <code>PROCEDURE DIVISION</code> to record all declared paragraph headers (<code>^[ \t]{0,11}([A-Z0-9\-]+)\.</code>).</li>
+<li><strong>Entry Point Identification:</strong> Designates the first paragraph in the <code>PROCEDURE DIVISION</code> as the main execution entry point.</li>
+<li><strong>Control Flow Mapping:</strong> Scans the file for explicit transfer-of-control statements (<code>PERFORM</code> and <code>GO TO</code>) to map all reachable targets.</li>
+<li><strong>Dead Paragraph Detection:</strong> Flags any declared paragraph that is not reachable from the main entry point or jump statements as unreachable logic. Common loop exit labels (such as <code>*-EXIT</code>) are excluded. The analyzer also calculates estimated Lines of Code (LOC) saved: <code>(dead_paragraphs * 10) + orphaned_variables</code>.</li>
+</ol>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-integration">Ecosystem Integration</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and heuristic dependency mapping engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

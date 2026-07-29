@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#microservice-slicer" class="md-skip">
+        <a href="#microservice-business-logic-extractor" class="md-skip">
           Skip to content
         </a>
       
@@ -7259,10 +7259,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-alias-engine-taint-tracking" class="md-nav__link">
+  <a href="#recursive-data-flow-taint-tracking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Alias Engine (Taint Tracking)
+        Recursive Data Flow Taint Tracking
       
     </span>
   </a>
@@ -7270,22 +7270,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#shared-ir-state-synergies" class="md-nav__link">
+  <a href="#control-flow-context-dead-code-filtering" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared IR State Synergies
+        Control Flow Context &amp; Dead Code Filtering
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Shared IR State Synergies">
+    <nav class="md-nav" aria-label="Control Flow Context &amp; Dead Code Filtering">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8622,10 +8622,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-alias-engine-taint-tracking" class="md-nav__link">
+  <a href="#recursive-data-flow-taint-tracking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Alias Engine (Taint Tracking)
+        Recursive Data Flow Taint Tracking
       
     </span>
   </a>
@@ -8633,22 +8633,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#shared-ir-state-synergies" class="md-nav__link">
+  <a href="#control-flow-context-dead-code-filtering" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared IR State Synergies
+        Control Flow Context &amp; Dead Code Filtering
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Shared IR State Synergies">
+    <nav class="md-nav" aria-label="Control Flow Context &amp; Dead Code Filtering">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8680,28 +8680,33 @@
   
 
 
-<h1 id="microservice-slicer">Microservice Slicer</h1>
+<h1 id="microservice-business-logic-extractor">Microservice Business Logic Extractor</h1>
 <blockquote>
-<p><strong>Architecture: Recursive Taint-Tracking &amp; Logic Extraction</strong></p>
-<p><strong>Summary:</strong> The Microservice Slicer isolates specific business rules from massive monolithic files. By tracking a target variable through the AST, it extracts only the mathematically relevant lines of code, creating a perfectly isolated logic slice ready for autonomous LLM translation.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py">gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py</a></p>
+<p><strong>Architecture: Recursive Data Flow Taint Tracking &amp; Logic Extraction</strong></p>
+<p><strong>Summary:</strong> The Microservice Logic Extractor isolates specific business rules from monolithic procedural programs. By recursively tracking a target variable through data assignment and computation statements, it extracts only the executable statements relevant to that variable, creating isolated rule slices for microservice refactoring.</p>
 </blockquote>
-<h2 id="the-alias-engine-taint-tracking">The Alias Engine (Taint Tracking)</h2>
-<p>Variables in COBOL constantly change names as they move through different paragraphs. The slicer executes a multi-pass taint-tracking algorithm to map these aliases:
-* It scans for assignment operators (<code>MOVE</code>, <code>ADD</code>, <code>SUBTRACT</code>). If a tainted variable touches a clean variable, the clean variable becomes tainted.
-* It parses complex math formulas (<code>COMPUTE X = Y * Z</code>). If the target variable is part of the equation, all interacting variables are added to the alias map.
-* It loops through the execution tree multiple times to ensure deeply chained aliases (e.g., Variable A mutates B, which later mutates C) are fully captured.</p>
-<h2 id="shared-ir-state-synergies">Shared IR State Synergies</h2>
-<p>The Slicer heavily utilizes the global Intermediate Representation (IR) State Manager to enforce strict deterministic boundaries and prevent hallucinated dependencies:
-* <strong>Orphaned Memory Abort:</strong> Before scanning, the slicer checks the target variable against the Graveyard Reaper's state. If the target is known to be dead memory, the slicer aborts immediately, saving heavy compute cycles.
-* <strong>The Ghost Deflector:</strong> While mapping aliases, the slicer actively checks its current paragraph against the IR state. If the paragraph is flagged as mathematically unreachable, the slicer skips it. This prevents dead code from creating false-positive variable taints.
-* <strong>Extraction Shield:</strong> During the final code extraction phase, the slicer physically refuses to extract lines of code that reside inside dead paragraphs, guaranteeing the resulting microservice payload contains 100% active, executable logic.</p>
+<h2 id="recursive-data-flow-taint-tracking">Recursive Data Flow Taint Tracking</h2>
+<p>Variables in legacy COBOL programs pass state through multiple intermediate variables across different procedural paragraphs. The extractor's <code>slice_business_logic</code> function maps these dependencies using multi-pass taint tracking:</p>
+<ul>
+<li><strong>Assignment Tracking:</strong> Scans procedural statements for assignments (<code>MOVE</code>, <code>ADD</code>, <code>SUBTRACT</code>). If a tainted variable interacts with another variable, the second variable is added to the tainted set.</li>
+<li><strong>Mathematical Operations:</strong> Parses <code>COMPUTE</code> statements (e.g., <code>COMPUTE X = Y * Z</code>). If the target variable appears on either side of the assignment, all participating variables are added to the alias set.</li>
+<li><strong>Multi-Pass Iteration:</strong> Executes multiple passes (default: 3 passes) over the procedural lines to capture multi-level variable aliasing (e.g., Variable A mutates B, which subsequently mutates C).</li>
+</ul>
+<h2 id="control-flow-context-dead-code-filtering">Control Flow Context &amp; Dead Code Filtering</h2>
+<p>The extractor integrates with dead code analysis results (<code>dead_paras</code> and <code>orphaned_vars</code>) to enforce boundary constraints during extraction:</p>
+<ul>
+<li><strong>Unused Variable Early Abort:</strong> Checks if the target variable is flagged as dead memory (<code>orphaned_vars</code>). If so, the operation aborts immediately (<code>ORPHANED_MEMORY</code>) without spending processing cycles.</li>
+<li><strong>Unreachable Control Flow Masking:</strong> During both taint tracking and code extraction, statements contained within paragraphs identified as unreachable (<code>dead_paras</code>) are ignored. This prevents dead code from generating false-positive variable associations.</li>
+<li><strong>Extracted Statement Generation:</strong> Isolates and returns executable statements referencing any tainted variable, pairing each statement with its line number and containing paragraph name.</li>
+</ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-integration">Ecosystem Integration</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and heuristic dependency mapping engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

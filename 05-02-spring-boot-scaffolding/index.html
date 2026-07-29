@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#spring-boot-scaffolding-the-cloud-escape-hatch" class="md-skip">
+        <a href="#spring-boot-scaffolding-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -6923,10 +6923,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-build-system-forge" class="md-nav__link">
+  <a href="#build-system-scaffolding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Build System Forge
+        Build System Scaffolding
       
     </span>
   </a>
@@ -6934,22 +6934,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-ebcdic-comp-3-decoder-utility" class="md-nav__link">
+  <a href="#ebcdic-comp-3-data-decoder-utility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The EBCDIC &amp; COMP-3 Decoder Utility
+        EBCDIC &amp; COMP-3 Data Decoder Utility
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The EBCDIC &amp; COMP-3 Decoder Utility">
+    <nav class="md-nav" aria-label="EBCDIC &amp; COMP-3 Data Decoder Utility">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#hex-boundary-nibble-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Hex-Boundary &amp; Nibble Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8622,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-build-system-forge" class="md-nav__link">
+  <a href="#build-system-scaffolding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Build System Forge
+        Build System Scaffolding
       
     </span>
   </a>
@@ -8633,22 +8644,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-ebcdic-comp-3-decoder-utility" class="md-nav__link">
+  <a href="#ebcdic-comp-3-data-decoder-utility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The EBCDIC &amp; COMP-3 Decoder Utility
+        EBCDIC &amp; COMP-3 Data Decoder Utility
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The EBCDIC &amp; COMP-3 Decoder Utility">
+    <nav class="md-nav" aria-label="EBCDIC &amp; COMP-3 Data Decoder Utility">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#hex-boundary-nibble-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Hex-Boundary &amp; Nibble Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8680,33 +8702,33 @@
   
 
 
-<h1 id="spring-boot-scaffolding-the-cloud-escape-hatch">Spring Boot Scaffolding (The Cloud Escape Hatch)</h1>
+<h1 id="spring-boot-scaffolding-architecture">Spring Boot Scaffolding Architecture</h1>
 <blockquote>
-<p><strong>Architecture: Automated Build Systems &amp; Legacy Decoders</strong></p>
-<p><strong>Summary:</strong> The Java Translation Controller acts as the "Cloud Escape Hatch." It ingests the JSON IR dumps from the clean room and generates a fully compilable Spring Boot microservice scaffolding. This completely automates the bridge between legacy procedural execution and modern Object-Oriented/REST paradigms.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/cobol_to_java_controller.py"><code>gitgalaxy/cobol_to_java_controller.py</code></a></p>
+<p><strong>Architecture: Automated Build Systems &amp; Legacy Data Decoders</strong></p>
+<p><strong>Summary:</strong> The Java Translation Controller (<code>cobol_to_java_controller.py</code>) orchestrates the cloud migration pathway. It ingests JSON Intermediate Representation (IR) dumps produced during static analysis and generates a complete, compilable Spring Boot microservice project structure. This automates the transition from legacy procedural execution to modern Object-Oriented and RESTful paradigms.</p>
 </blockquote>
-<h2 id="the-build-system-forge">The Build System Forge</h2>
-<p>The orchestrator automatically generates the foundational configuration required to boot the application, ensuring a zero-friction handoff to the engineering team or autonomous agents.</p>
+<h2 id="build-system-scaffolding">Build System Scaffolding</h2>
+<p>The orchestrator automatically generates the foundational project structure and configuration files required to compile and boot the Spring Boot application:</p>
 <ul>
-<li><strong><code>pom.xml</code></strong>: Injects strict dependency trees for Spring Web, Spring Data JPA, Spring Batch, and PostgreSQL, locked to Java 17 standards.</li>
-<li><strong><code>application.yml</code></strong>: Auto-configures the database connections, Hibernate DDL settings, and disables auto-running batch jobs to prevent accidental execution loops on startup.</li>
-<li><strong>Application Entry Point</strong>: Generates the primary <code>@SpringBootApplication</code> main class.</li>
-<li><strong>Compliance Injection</strong>: Automatically scans for a <code>corporate_header.txt</code> file and wraps it into a standardized Java block comment, injecting it at the top of every generated file to maintain legal compliance.</li>
+<li><strong><code>pom.xml</code></strong>: Configures Maven dependencies for Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, and PostgreSQL, aligned with Java 17 standards.</li>
+<li><strong><code>application.yml</code></strong>: Automatically configures database connections, Hibernate schema DDL properties (<code>update</code>), and logging parameters.</li>
+<li><strong>Application Entry Point</strong>: Generates the standard <code>@SpringBootApplication</code> main class (<code>{ArtifactName}Application.java</code>).</li>
+<li><strong>Header &amp; Compliance Injection</strong>: Scans for a corporate header configuration file (<code>header.txt</code>) and wraps legal headers into Java block comments placed at the top of every generated source file.</li>
 </ul>
-<h2 id="the-ebcdic-comp-3-decoder-utility">The EBCDIC &amp; COMP-3 Decoder Utility</h2>
-<p>Modern cloud infrastructure operates on ASCII/UTF-8 and standard floating-point math, while legacy mainframes operate on EBCDIC character sets and Packed Decimal (COMP-3) byte arrays. To prevent catastrophic runtime crashes when the new Java system attempts to process dirty legacy data, the controller forges a strict <code>EbcdicDecoderUtil.java</code> class.</p>
-<p><strong>Strict Hex-Boundary Validation:</strong>
-The decoder unpacks COMP-3 byte arrays into Java <code>BigDecimal</code> objects. Because legacy databases frequently contain shifted or corrupt bytes, the generated utility includes strict validation:
-* It verifies that the high nibble of every byte is a valid integer (0-9).
-* It enforces that the final low nibble is a valid sign identifier (A-F).
-* If a dirty byte is detected, the utility safely intercepts the error, logs a hex-dump warning, and defaults to <code>BigDecimal.ZERO</code> to prevent the entire Spring Boot application from crashing.</p>
-<p><br><br></p>
+<h2 id="ebcdic-comp-3-data-decoder-utility">EBCDIC &amp; COMP-3 Data Decoder Utility</h2>
+<p>Legacy mainframes store data in EBCDIC character encoding and Packed Decimal (COMP-3) binary formats, whereas modern cloud infrastructure relies on UTF-8 text and standard numerical primitives (<code>BigDecimal</code>). To parse binary legacy payloads safely within Java applications, the controller generates <code>EbcdicDecoderUtil.java</code>.</p>
+<h3 id="hex-boundary-nibble-validation">Hex-Boundary &amp; Nibble Validation</h3>
+<p>The decoder unpacks COMP-3 byte arrays into Java <code>BigDecimal</code> objects:
+* <strong>High Nibble Verification:</strong> Verifies that the high nibble of each byte represents a valid numeric character (0–9).
+* <strong>Sign Nibble Verification:</strong> Validates that the final low nibble represents a valid sign identifier (<code>A</code>–<code>F</code>).
+* <strong>Corrupt Data Handling:</strong> If malformed or corrupted bytes are encountered, the utility intercepts the error, logs a hex-dump diagnostic message, and safely returns <code>BigDecimal.ZERO</code> to prevent application crashes.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

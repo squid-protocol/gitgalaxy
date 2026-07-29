@@ -5904,22 +5904,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
+  <a href="#audit-manifest-schema-galaxy_auditjson" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Blank Audit Skeleton (galaxy_audit.json)
+        Audit Manifest Schema (galaxy_audit.json)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Blank Audit Skeleton (galaxy_audit.json)">
+    <nav class="md-nav" aria-label="Audit Manifest Schema (galaxy_audit.json)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,22 +8633,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-blank-audit-skeleton-galaxy_auditjson" class="md-nav__link">
+  <a href="#audit-manifest-schema-galaxy_auditjson" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Blank Audit Skeleton (galaxy_audit.json)
+        Audit Manifest Schema (galaxy_audit.json)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Blank Audit Skeleton (galaxy_audit.json)">
+    <nav class="md-nav" aria-label="Audit Manifest Schema (galaxy_audit.json)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8682,119 +8682,120 @@
 
 <h1 id="the-audit-recorder">The Audit Recorder</h1>
 <blockquote>
-<p><strong>The SHBOM (Structural Health Bill of Materials)</strong></p>
-<p>The Audit Recorder (<code>audit_recorder.py</code>) is the final compliance stage of the GitGalaxy pipeline. It extracts the raw telemetry from live RAM and compiles it into a verbose, human-readable forensic JSON manifest. Designed for strict enterprise compliance, advanced supply chain tracking, and deep-dive debugging, it guarantees absolute traceability for every file evaluated.</p>
-<p><em>Note: While the SHBOM is not yet an industry standard, it serves as a technically more detailed version of a traditional Software Bill of Materials (SBOM). Rather than merely listing that a file exists, the SHBOM provides granular, mathematical proof about the actual quality, security, and structural health of the code inside those promised files.</em></p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/audit_recorder.py"><code>gitgalaxy/recorders/audit_recorder.py</code></a></p>
 </blockquote>
+<p>The Audit Recorder (<code>audit_recorder.py</code>) is the final compliance and reporting module of the GitGalaxy static analysis pipeline. It extracts raw structural telemetry from memory and serializes it into a verbose, human-readable forensic JSON audit manifest. Designed for enterprise compliance, software supply chain auditing, and deep security inspection, it provides end-to-end traceability for every analyzed file.</p>
+<p>The generated report acts as an enhanced Software Bill of Materials (SBOM) that incorporates structural health telemetry. Beyond listing existing files, it provides detailed mathematical metrics covering code quality, security exposure, and structural integrity across the repository.</p>
+<hr />
 <h2 id="key-architectural-features">Key Architectural Features</h2>
 <ul>
-<li><strong>The Traceability Anchor:</strong> Imprints the exact Git footprint (Branch, SHA-1 Hash, Remote URL, Last Commit Date) and engine timestamp into the header. This ensures the audit is permanently and cryptographically tied to the state of the repository at the exact moment of the scan.</li>
-<li><strong>Hierarchical Constellation Mapping:</strong> Rather than dumping a flat list of files, the Auditor intelligently sorts the "Visible Matter" by Constellation (folder) and ranks them descending by total structural mass. It also generates a folder-level <strong>Architectural Fingerprint</strong>, showing the exact breakdown of ML Archetypes per directory.</li>
-<li><strong>Advanced Security Triage:</strong> To prevent alert fatigue, the engine explicitly decouples active malicious threats from general structural risks. It evaluates raw threat signatures, incorporates the <strong>XGBoost AI Threat Confidence</strong> scores, and assigns a strict repository status: <code>AI_CONFIRMED_MALWARE_DETECTED</code>, <code>CRITICAL_THREATS_DETECTED (Rule-Based)</code>, <code>ELEVATED_SURFACE_RISK</code>, or <code>SECURE_NO_MALWARE_DETECTED</code>.</li>
-<li><strong>Network &amp; AppSec Posture:</strong> In the modern protocol, the Audit Recorder injects the full N-dimensional network graph topology (PageRank, Blast Radius) alongside any detected Autonomous AI AppSec Vulnerabilities (like Agentic RCE funnels) directly into the file's forensic profile.</li>
-<li><strong>The Faction Interceptor:</strong> Translates raw numerical data into human context. For example, it intercepts the "Civil War Exposure" (Tabs vs. Spaces) and translates the 0-100 score into readable cultural tags like "Team Tabs," "Team Spaces," or "Neutral / Deadlocked."</li>
-<li><strong>Dark Matter Preservation:</strong> Files rejected during the pipeline are never silently deleted. They are logged in the Dark Matter archive with explicit diagnostic reasons (e.g., "Structural Saturation," "Ecosystem Orphan," "Unsupported Extension") and their exact physical size, so engineers can audit the pipeline's blind spots.</li>
+<li><strong>Traceability Anchor:</strong> Encapsulates exact Git source control metadata (active branch, SHA-1 commit hash, remote URL, and last commit timestamp) alongside the analysis execution timestamp in the manifest header. This binds the audit log to a specific immutable repository commit state.</li>
+<li><strong>Hierarchical Module Mapping:</strong> Groups analyzed source files by directory path and orders them by total structural mass. It generates directory-level <strong>Architectural Fingerprints</strong>, providing an explicit breakdown of code complexity and pattern archetypes per module.</li>
+<li><strong>Security &amp; Vulnerability Triage:</strong> Decouples active malware threats from general code quality risks. It integrates raw pattern signature hits with <strong>XGBoost Machine Learning Threat Confidence</strong> scores, assigning a repository-wide security posture status (<code>AI_CONFIRMED_MALWARE_DETECTED</code>, <code>CRITICAL_THREATS_DETECTED (Rule-Based)</code>, <code>ELEVATED_SURFACE_RISK</code>, or <code>SECURE_NO_MALWARE_DETECTED</code>).</li>
+<li><strong>Network &amp; AppSec Posture:</strong> Injects directed dependency network graph metrics (PageRank, blast radius, upstream/downstream coupling) and autonomous AI security findings (such as unconstrained remote execution funnels) directly into each file's forensic profile.</li>
+<li><strong>Formatting &amp; Style Metrics:</strong> Converts raw formatting metrics (such as tab vs. space indentation balances) into human-readable style classifications for code review auditing.</li>
+<li><strong>Excluded Artifact Logging:</strong> Files excluded during analysis (due to path filters, binary formats, or size constraints) are preserved in an excluded artifacts ledger with explicit diagnostic reasons (e.g., "Size Saturation", "Unrecognized Extension", "Git Ignored") and exact byte sizes to prevent audit blind spots.</li>
 </ul>
-<h2 id="the-blank-audit-skeleton-galaxy_auditjson">The Blank Audit Skeleton (<code>galaxy_audit.json</code>)</h2>
-<p>Here is the structural blueprint of the final output. This template exactly matches the data hierarchy GitGalaxy produces in its V6.3+ protocol:</p>
-<p>```json
-{
-  "Audit Protocol": "GitGalaxy",
-  "1. Forensic Trail (Traceability)": {
-    "Analysis Context": {
-      "Engine Identity": "",
-      "Target Root Name": "",
-      "Absolute Project Path": "",
-      "Analysis ISO Timestamp": "",
-      "Total Scan Duration": ""
-    },
-    "Source Control Footprint (Immutable Anchor)": {
-      "Active Branch": "",
-      "Commit Hash (SHA-1)": "",
-      "Remote Origin URL": "",
-      "Last Code Integration Date": ""
-    }
-  },
-  "2. Global Synthesis Summary": {
-    "summary": {},
-    "Repository Macro-Architecture Patterns": {},
-    "singularity": {},
-    "health": {},
-    "composition": {},
-    "Global Architectural Fingerprint": {},
-    "ai_topology": {},
-    "constellations": {}
-  },
-  "3. Forensic Security &amp; Vulnerability Audit": {
-    "Audit Status": "[AI_CONFIRMED_MALWARE_DETECTED | CRITICAL_THREATS_DETECTED | ELEVATED_SURFACE_RISK | SECURE]",
-    "AI Threat Intelligence (XGBoost)": {
-      "Infected Files Detected": 0,
-      "Critical Targets": []
-    },
-    "Scope": {},
-    "Exposed Secrets &amp; Credentials (Quarantined Files)": [],
-    "Vulnerability Exposures (Rule-Based Threshold Breaches)": {},
-    "Raw Threat Signature Hits (Total Repository Occurrences)": {}
-  },
-  "4. High-Value Forensic Report": {
-    "exposures": {
-      "cognitive_load": { "highest": [], "lowest": [] },
-      "safety_score": { "highest": [], "lowest": [] },
-      "tech_debt": { "highest": [], "lowest": [] }
-      // ... iterates through all active risk exposures
-    },
-    "file_impact": { "highest": [], "lowest": [] },
-    "function_impact": { "highest": [], "lowest": [] },
-    "systemic_bottlenecks": { "highest": [], "lowest": [] },
-    "cumulative_risk": { "highest": [], "lowest": [] }
-  },
-  "5. Dark Matter (Excluded Artifacts)": [
-    {
-      "Path": "",
-      "Forensic Category": "Dark Matter (Excluded Artifact)",
-      "Diagnostic Reason": "",
-      "Size": "",
-      "Identity Confidence": "",
-      "Discovery Proof": ""
-    }
-  ],
-  "6. Visible Matter (Scanned Artifacts)": {
-    "[Constellation/Folder Name]": {
-      "Constellation Mass": 0.0,
-      "File Count": 0,
-      "Architectural Fingerprint (Archetypes)": {},
-      "Average Risk Exposures": {},
-      "Stars / Files": {
-        "[File Path]": {
-          "1. Identity": {},
-          "2. Spatial Coordinates": {},
-          "3. Architectural Profile": {},
-          "4. Risk Exposures": {},
-          "5. Function Analysis (Satellites)": [],
-          "6. Contextual Mitigations &amp; Amplifications": {},
-          "7. Structural DNA (Net Mitigated Signals)": {}, // Evaluated structurally as heuristic signatures
-          "8. Dependency Network": {
-             "Direct Upstream (Fragility)": 0,
-             "Direct Downstream (Blast Radius)": 0,
-             "Total Upstream (Absolute Fragility)": 0,
-             "Total Downstream (Absolute Blast Radius)": 0
-          },
-          "9. Extracted Dependencies": []
-        }
-      }
-    }
-  }
-}</p>
-<p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="audit-manifest-schema-galaxy_auditjson">Audit Manifest Schema (<code>galaxy_audit.json</code>)</h2>
+<p>Below is the structural JSON schema produced by the Audit Recorder:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;Audit Protocol&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GitGalaxy&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;1. Forensic Trail (Traceability)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&quot;Analysis Context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nt">&quot;Engine Identity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="nt">&quot;Target Root Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="nt">&quot;Absolute Project Path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="nt">&quot;Analysis ISO Timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="nt">&quot;Total Scan Duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">&quot;Source Control Footprint (Immutable Anchor)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="nt">&quot;Active Branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">&quot;Commit Hash (SHA-1)&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">&quot;Remote Origin URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="nt">&quot;Last Code Integration Date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">&quot;2. Global Synthesis Summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nt">&quot;Repository Macro-Architecture Patterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">&quot;singularity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nt">&quot;composition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nt">&quot;Global Architectural Fingerprint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nt">&quot;ai_topology&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nt">&quot;constellations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="nt">&quot;3. Forensic Security &amp; Vulnerability Audit&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">&quot;Audit Status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[AI_CONFIRMED_MALWARE_DETECTED | CRITICAL_THREATS_DETECTED | ELEVATED_SURFACE_RISK | SECURE]&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">&quot;AI Threat Intelligence (XGBoost)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">      </span><span class="nt">&quot;Infected Files Detected&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">      </span><span class="nt">&quot;Critical Targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="nt">&quot;Scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="nt">&quot;Exposed Secrets &amp; Credentials (Quarantined Files)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">&quot;Vulnerability Exposures (Rule-Based Threshold Breaches)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">&quot;Raw Threat Signature Hits (Total Repository Occurrences)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">  </span><span class="nt">&quot;4. High-Value Forensic Report&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nt">&quot;exposures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">      </span><span class="nt">&quot;cognitive_load&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">      </span><span class="nt">&quot;safety_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">      </span><span class="nt">&quot;tech_debt&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="nt">&quot;file_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">    </span><span class="nt">&quot;function_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">    </span><span class="nt">&quot;systemic_bottlenecks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">    </span><span class="nt">&quot;cumulative_risk&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;highest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;lowest&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">  </span><span class="nt">&quot;5. Dark Matter (Excluded Artifacts)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">      </span><span class="nt">&quot;Path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">      </span><span class="nt">&quot;Forensic Category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dark Matter (Excluded Artifact)&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">      </span><span class="nt">&quot;Diagnostic Reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">      </span><span class="nt">&quot;Size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">      </span><span class="nt">&quot;Identity Confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">      </span><span class="nt">&quot;Discovery Proof&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">  </span><span class="nt">&quot;6. Visible Matter (Scanned Artifacts)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="w">    </span><span class="nt">&quot;[Directory Path]&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="w">      </span><span class="nt">&quot;Constellation Mass&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="w">      </span><span class="nt">&quot;File Count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="w">      </span><span class="nt">&quot;Architectural Fingerprint (Archetypes)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="w">      </span><span class="nt">&quot;Average Risk Exposures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="w">      </span><span class="nt">&quot;Files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a><span class="w">        </span><span class="nt">&quot;[File Path]&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a><span class="w">          </span><span class="nt">&quot;1. Identity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a><span class="w">          </span><span class="nt">&quot;2. Spatial Coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a><span class="w">          </span><span class="nt">&quot;3. Architectural Profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a><span class="w">          </span><span class="nt">&quot;4. Risk Exposures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a><span class="w">          </span><span class="nt">&quot;5. Function Analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a><span class="w">          </span><span class="nt">&quot;6. Contextual Mitigations &amp; Amplifications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a><span class="w">          </span><span class="nt">&quot;7. Structural Signatures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a><span class="w">          </span><span class="nt">&quot;8. Dependency Network&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a><span class="w">             </span><span class="nt">&quot;Direct Upstream (Fragility)&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a><span class="w">             </span><span class="nt">&quot;Direct Downstream (Blast Radius)&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a><span class="w">             </span><span class="nt">&quot;Total Upstream (Absolute Fragility)&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a><span class="w">             </span><span class="nt">&quot;Total Downstream (Absolute Blast Radius)&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-0-80" name="__codelineno-0-80" href="#__codelineno-0-80"></a><span class="w">          </span><span class="p">},</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a><span class="w">          </span><span class="nt">&quot;9. Extracted Dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82" href="#__codelineno-0-82"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83" href="#__codelineno-0-83"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84" href="#__codelineno-0-84"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85" href="#__codelineno-0-85"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86" href="#__codelineno-0-86"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic static analysis engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for source code and tools.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your codebase at GitGalaxy.io</a></strong> using the interactive WebGPU dashboard.</li>
 </ul>
 <hr />
-<p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
+<p><strong><a href="../">⬅️ Back to Master Index</a></strong>
+](index.md)**</p>
 
 
 

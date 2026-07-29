@@ -7035,10 +7035,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-three-phase-validation-loop" class="md-nav__link">
+  <a href="#three-phase-validation-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Three-Phase Validation Loop
+        Three-Phase Validation Pipeline
       
     </span>
   </a>
@@ -7046,10 +7046,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-isolation-stability" class="md-nav__link">
+  <a href="#environment-isolation-process-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Isolation &amp; Stability
+        Environment Isolation &amp; Process Controls
       
     </span>
   </a>
@@ -7057,22 +7057,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#granular-telemetry" class="md-nav__link">
+  <a href="#test-logging-audit-reporting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Granular Telemetry
+        Test Logging &amp; Audit Reporting
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Granular Telemetry">
+    <nav class="md-nav" aria-label="Test Logging &amp; Audit Reporting">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-three-phase-validation-loop" class="md-nav__link">
+  <a href="#three-phase-validation-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Three-Phase Validation Loop
+        Three-Phase Validation Pipeline
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-isolation-stability" class="md-nav__link">
+  <a href="#environment-isolation-process-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Isolation &amp; Stability
+        Environment Isolation &amp; Process Controls
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#granular-telemetry" class="md-nav__link">
+  <a href="#test-logging-audit-reporting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Granular Telemetry
+        Test Logging &amp; Audit Reporting
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Granular Telemetry">
+    <nav class="md-nav" aria-label="Test Logging &amp; Audit Reporting">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8704,27 +8704,31 @@
 
 <h1 id="batch-test-harness">Batch Test Harness</h1>
 <blockquote>
-<p><strong>Architecture: Automated Compilation &amp; CI/CD Validation</strong></p>
-<p><strong>Summary:</strong> The Batch Test Harness is an automated stress-testing tool designed to validate the output of the entire V4 GitGalaxy pipeline across an arbitrary number of legacy repositories. It proves that the generated JSON Intermediate Representation (IR) successfully translates into a 100% compilable Spring Boot architecture.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/batch_test_harness.py"><code>gitgalaxy/tools/cobol_to_java/batch_test_harness.py</code></a></p>
+<p><strong>Architecture: Automated Pipeline Validation &amp; Maven Build Testing</strong></p>
+<p><strong>Summary:</strong> The Batch Test Harness (<code>batch_test_harness.py</code>) is an automated test validation tool designed to stress-test the modernization pipeline across multiple legacy repositories. It verifies that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications across an entire software repository corpus.</p>
 </blockquote>
-<h2 id="the-three-phase-validation-loop">The Three-Phase Validation Loop</h2>
-<p>The harness iterates through the corpus directory, running each repository through a strict validation sequence:
-1. <strong>Refraction Phase:</strong> Executes the COBOL Refractor Controller. Converts the legacy monolith into the JSON IR using the auto-scaling State Manager.
-2. <strong>Java Forge Phase:</strong> Executes the Java Translation Controller. Scaffolds the Spring Boot architecture, PostgreSQL schemas, and Mock Services.
-3. <strong>Compilation Phase:</strong> Spawns a localized Maven subprocess (<code>mvn clean compile</code>) to attempt a full build of the generated architecture.</p>
-<h2 id="execution-isolation-stability">Execution Isolation &amp; Stability</h2>
-<p>To ensure consistent testing across varying local environments, the harness applies strict execution controls:
-* <strong>Environment Sandboxing:</strong> The harness clones the host environment and explicitly overrides the <code>JAVA_HOME</code> path to enforce Java 17 OpenJDK standards.
-* <strong>Infinite Hang Protection:</strong> Legacy code can occasionally trigger catastrophic regex recursion. The harness wraps every subprocess command in a strict 5-minute timeout (<code>timeout=300</code>). If a phase stalls, the harness safely kills the thread, logs a timeout failure, and proceeds to the next repository.</p>
-<h2 id="granular-telemetry">Granular Telemetry</h2>
-<p>All Standard Output (STDOUT) and Standard Error (STDERR) from the Refractor, Java Forge, and Maven compiler are captured and piped into a <code>batch_test_reports/</code> directory. If a repository fails to compile, the harness dumps the exact Maven dependency or syntax error into an isolated log file, allowing the engineering team to rapidly debug translation bottlenecks.</p>
-<p><br><br></p>
+<h2 id="three-phase-validation-pipeline">Three-Phase Validation Pipeline</h2>
+<p>The test harness iterates through target legacy repositories, executing a three-stage validation sequence for each codebase:</p>
+<ol>
+<li><strong>Structural Extraction Phase:</strong> Runs <code>cobol_refractor_controller.py</code> to parse legacy source files and generate JSON Intermediate Representation (IR) state dumps.</li>
+<li><strong>Spring Boot Scaffolding Phase:</strong> Runs <code>cobol_to_java_controller.py</code> to generate Java JPA entities, REST controllers, mock services, and Maven build configurations (<code>pom.xml</code>).</li>
+<li><strong>Compilation Verification Phase:</strong> Spawns a localized Maven subprocess (<code>mvn clean compile</code>) to attempt a clean compilation of the generated Java codebase.</li>
+</ol>
+<h2 id="environment-isolation-process-controls">Environment Isolation &amp; Process Controls</h2>
+<p>To ensure consistent execution across different CI/CD runners and environments:
+* <strong>JDK Path Standardization:</strong> Clones host environment variables and forces <code>JAVA_HOME</code> to Java 17 OpenJDK (<code>/usr/lib/jvm/java-17-openjdk-amd64</code>) for deterministic compilation.
+* <strong>Process Timeout Enforcement:</strong> Wraps subprocess executions with a 5-minute timeout (<code>timeout=300</code>) to terminate hung processes or infinite regex loops cleanly, logging failure states without blocking subsequent batch runs.</p>
+<h2 id="test-logging-audit-reporting">Test Logging &amp; Audit Reporting</h2>
+<p>The harness records detailed telemetry to support CI/CD pipeline auditing:
+* <strong>Batch Summary:</strong> Tracks overall success and failure counts (<code>passed</code>, <code>failed_refractor</code>, <code>failed_java_forge</code>, <code>failed_maven</code>).
+* <strong>Error Log Capture:</strong> Captures stdout and stderr for any failed step into dedicated log files under <code>batch_test_reports/{repo}_error_{timestamp}.log</code>, allowing developers to inspect Maven compilation logs or static analysis errors directly.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

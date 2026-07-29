@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#21-how-we-represent-complexity-as-physical-structure" class="md-skip">
+        <a href="#visual-code-complexity-mapping-specifications" class="md-skip">
           Skip to content
         </a>
       
@@ -7566,7 +7566,7 @@
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8597,7 +8597,7 @@
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8624,76 +8624,78 @@
   
 
 
-<h1 id="21-how-we-represent-complexity-as-physical-structure">2.1. How We Represent Complexity as Physical Structure</h1>
-<p>Code complexity is mapped directly to physical structure, creating organic, distinct shapes for different complexity patterns. This representation of complexity does not depend on color; it relies purely on geometry and spatial arrangement.</p>
+<h1 id="visual-code-complexity-mapping-specifications">Visual Code Complexity Mapping Specifications</h1>
+<blockquote>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py"><code>gitgalaxy/recorders/gpu_recorder.py</code></a></p>
+</blockquote>
+<p>GitGalaxy maps static code metrics directly to 3D visual parameters in WebGL/WebGPU. Rather than relying exclusively on color coding, the visualization engine converts code complexity, file size, dependency relationships, and control flow density into distinct geometric shapes, spatial positioning, and orbital sub-node layouts.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Physical Attribute</th>
-<th style="text-align: left;">Code Metric (Heuristic)</th>
-<th style="text-align: left;">Visual Result (The "Look")</th>
+<th style="text-align: left;">Visual Attribute</th>
+<th style="text-align: left;">Source Metric (Heuristic)</th>
+<th style="text-align: left;">Visual Output &amp; Rendering Behavior</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Star's Size</strong></td>
-<td style="text-align: left;">Lines of Code (LOC) per File</td>
-<td style="text-align: left;"><strong>Mass.</strong> Logarithmic scaling ensures that 10k+ LOC files appear as massive suns, while 10 LOC scripts remain small asteroids.</td>
+<td style="text-align: left;"><strong>File Node Scale</strong></td>
+<td style="text-align: left;">Lines of Code (LOC) &amp; Structural Mass</td>
+<td style="text-align: left;">Logarithmic scaling maps file size and complexity to physical 3D node radius. Large core modules appear as prominent parent nodes, while small utilities remain compact nodes.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Star's Pulse Rate</strong></td>
-<td style="text-align: left;">Inbound References (Popularity)</td>
-<td style="text-align: left;"><strong>Bioluminescence.</strong> Core utilities pulse with a white-hot "heartbeat." Unreferenced files remain dim and static.</td>
+<td style="text-align: left;"><strong>Emissive Intensity</strong></td>
+<td style="text-align: left;">Inbound Reference Count (Graph In-Degree)</td>
+<td style="text-align: left;">Frequently imported core modules emit high-intensity bloom, visually highlighting central architectural bottlenecks. Unreferenced files remain dim and static.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Star's Shape</strong></td>
-<td style="text-align: left;">Control Flow Ratio (File Level)</td>
-<td style="text-align: left;"><strong>Geometry.</strong> Morphs from a smooth <strong>Sphere</strong> (Declarative/Data) to a sharp <strong>Tetrahedron</strong> (Pure Algorithmic Logic).</td>
+<td style="text-align: left;"><strong>Node Mesh Geometry</strong></td>
+<td style="text-align: left;">File Control Flow Ratio (<span class="arithmatex">\(R_L\)</span>)</td>
+<td style="text-align: left;">Morphs node geometry from smooth spheres (declarative data files and configs) to sharp polyhedral wireframes (highly complex algorithmic code).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Satellite Unit</strong></td>
-<td style="text-align: left;">Function Declaration</td>
-<td style="text-align: left;"><strong>Moons.</strong> Every discrete function is materialized as a satellite orbiting its parent star.</td>
+<td style="text-align: left;"><strong>Function Sub-Nodes</strong></td>
+<td style="text-align: left;">Function / Method Declarations</td>
+<td style="text-align: left;">Discrete functions within a file are rendered as child nodes orbiting the main file node.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Satellite Distance</strong></td>
-<td style="text-align: left;">Lines of Code (LOC) per Function</td>
-<td style="text-align: left;"><strong>Orbital Reach.</strong> Long functions reach further into the void; small stubs orbit tightly near the star's surface.</td>
+<td style="text-align: left;"><strong>Orbital Distance</strong></td>
+<td style="text-align: left;">Function Lines of Code (LOC)</td>
+<td style="text-align: left;">Function length determines orbital radius. Long functions orbit at a larger radius from the parent node, while concise functions remain tightly bound.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Number of Satellites</strong></td>
-<td style="text-align: left;">Cyclomatic Complexity</td>
-<td style="text-align: left;"><strong>Fractal Density.</strong> Highly complex functions spawn sub-clusters or dense swarms of satellites, creating a "thorny" silhouette.</td>
+<td style="text-align: left;"><strong>Sub-Node Quantity</strong></td>
+<td style="text-align: left;">Function Count &amp; Complexity</td>
+<td style="text-align: left;">Reflects the total number and structural density of discrete functions contained within the parent file.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Satellite Position</strong></td>
-<td style="text-align: left;">Control Flow Ratio (Function Level)</td>
-<td style="text-align: left;"><strong>Branching Angle.</strong> Sharp, jagged angles (&lt;45°) indicate complex control flow; 90° "Circuit Board" patterns indicate linear flow.</td>
+<td style="text-align: left;"><strong>Sub-Node Position</strong></td>
+<td style="text-align: left;">Function Control Flow Ratio</td>
+<td style="text-align: left;">Branching angles and angular positions reflect the relative decision complexity of individual functions.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Satellite Size</strong></td>
-<td style="text-align: left;">Argument Count</td>
-<td style="text-align: left;"><strong>Volume.</strong> Large moons represent "Heavy" functions with many inputs; small dots represent lightweight utilities.</td>
+<td style="text-align: left;"><strong>Sub-Node Scale</strong></td>
+<td style="text-align: left;">Function Parameter Count</td>
+<td style="text-align: left;">Functions with large parameter lists and high input coupling render with larger sub-node radii.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Star's Rings</strong></td>
+<td style="text-align: left;"><strong>Dependency Rings</strong></td>
 <td style="text-align: left;">External Library Imports</td>
-<td style="text-align: left;"><strong>Accretion Disks.</strong> Files tethered to many external dependencies manifest glowing rings, symbolizing a large "Gravity Well."</td>
+<td style="text-align: left;">Files with heavy third-party dependencies are rendered with concentric rings surrounding the parent node.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Star's Position</strong></td>
-<td style="text-align: left;">Semantic Affinity (Directory/Path)</td>
-<td style="text-align: left;"><strong>Neighborhoods.</strong> Files are grouped into sectoral clusters based on folder structure, creating distinct "Auth," "UI," and "API" continents.</td>
+<td style="text-align: left;"><strong>Spatial Clustering</strong></td>
+<td style="text-align: left;">Directory Path &amp; Module Structure</td>
+<td style="text-align: left;">Files are grouped into 3D spatial sectors based on directory hierarchy (e.g., <code>auth/</code>, <code>ui/</code>, <code>api/</code> modules).</td>
 </tr>
 </tbody>
 </table>
-<p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
 <p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive 3D WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

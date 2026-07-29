@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#zero-trust-meta-auditor" class="md-skip">
+        <a href="#jcl-security-reduction-auditor" class="md-skip">
           Skip to content
         </a>
       
@@ -7175,10 +7175,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intent-parsing-legacy-mapping" class="md-nav__link">
+  <a href="#intent-parsing-legacy-script-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Intent Parsing &amp; Legacy Mapping
+        Intent Parsing &amp; Legacy Script Mapping
       
     </span>
   </a>
@@ -7186,22 +7186,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-security-diff-calculation" class="md-nav__link">
+  <a href="#security-reduction-metrics-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Security Diff Calculation
+        Security &amp; Reduction Metrics Calculation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Security Diff Calculation">
+    <nav class="md-nav" aria-label="Security &amp; Reduction Metrics Calculation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8622,10 +8622,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intent-parsing-legacy-mapping" class="md-nav__link">
+  <a href="#intent-parsing-legacy-script-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Intent Parsing &amp; Legacy Mapping
+        Intent Parsing &amp; Legacy Script Mapping
       
     </span>
   </a>
@@ -8633,22 +8633,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-security-diff-calculation" class="md-nav__link">
+  <a href="#security-reduction-metrics-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Security Diff Calculation
+        Security &amp; Reduction Metrics Calculation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Security Diff Calculation">
+    <nav class="md-nav" aria-label="Security &amp; Reduction Metrics Calculation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#ecosystem-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Ecosystem Integration
       
     </span>
   </a>
@@ -8680,27 +8680,33 @@
   
 
 
-<h1 id="zero-trust-meta-auditor">Zero-Trust Meta Auditor</h1>
+<h1 id="jcl-security-reduction-auditor">JCL Security &amp; Reduction Auditor</h1>
 <blockquote>
-<p><strong>Architecture: Diff Calculation &amp; I/O Validation</strong></p>
-<p><strong>Summary:</strong> The JCL Meta Auditor acts as a verification gateway. It compares the newly forged GitGalaxy Zero-Trust JCLs against the original IBM legacy JCLs to calculate exact code bloat reduction and quantify the elimination of over-permissioned I/O access.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py">gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py</a></p>
+<p><strong>Architecture: Execution Intent Parsing &amp; Security Boundary Validation</strong></p>
+<p><strong>Summary:</strong> The Zero-Trust JCL Auditor is a verification tool that compares generated, program-specific Job Control Language (JCL) scripts against legacy IBM JCL files. It quantifies code bloat reduction and measures the elimination of over-permissioned I/O access boundaries.</p>
 </blockquote>
-<h2 id="intent-parsing-legacy-mapping">Intent Parsing &amp; Legacy Mapping</h2>
-<p>Mainframe environments often contain dozens of duplicated, fragmented, or obsolete JCL scripts that call the same underlying COBOL program. 
-* The auditor scans the original repository and groups legacy JCLs by their primary executable (<code>EXEC PGM=</code>).
-* If multiple legacy scripts call the same program, the auditor maps the "worst offender"—the script with the highest lines of code and the most data definitions—as the baseline for comparison.
-* It strictly filters out standard IBM system noise (e.g., <code>STEPLIB</code>, <code>SYSOUT</code>, <code>IEFBR14</code>, <code>IDCAMS</code>) to focus solely on custom business data definitions.</p>
-<h2 id="the-security-diff-calculation">The Security Diff Calculation</h2>
-<p>The auditor compares the baseline legacy metrics against the newly forged GitGalaxy JCLs:
-* <strong>Code Bloat Reduction:</strong> Calculates the exact number of lines saved by moving from monolithic, multi-step legacy jobs to streamlined, program-specific emulators.
-* <strong>Over-Permissioned I/O Shedding:</strong> Calculates the <code>excess_dds_blocked</code>. If a legacy JCL granted access to 15 datasets, but the COBOL AST proves the program only ever opens 3 of them, the auditor records the 12 blocked datasets as a quantifiable security improvement (Least Privilege Enforcement).</p>
+<h2 id="intent-parsing-legacy-script-mapping">Intent Parsing &amp; Legacy Script Mapping</h2>
+<p>Legacy mainframe environments often retain multi-step or redundant JCL scripts that execute identical COBOL programs with broad file access rights.</p>
+<ul>
+<li><strong>Executable Grouping:</strong> The auditor scans legacy JCL files (<code>.jcl</code>, <code>.txt</code>) and groups them by their target binary (<code>EXEC PGM=</code>).</li>
+<li><strong>Baseline Selection:</strong> When multiple legacy scripts reference the same executable, the auditor designates the largest script (highest line count and dataset allocations) as the baseline for audit comparison.</li>
+<li><strong>System Component Filtering:</strong> Ignores standard IBM system programs (e.g., <code>IEFBR14</code>, <code>IDCAMS</code>, <code>IEBGENER</code>, <code>IGYCRCTL</code>) and system data definitions (e.g., <code>STEPLIB</code>, <code>SYSOUT</code>, <code>SYSPRINT</code>, <code>SYSUDUMP</code>, <code>SYSIN</code>) to focus exclusively on application data definitions.</li>
+</ul>
+<h2 id="security-reduction-metrics-calculation">Security &amp; Reduction Metrics Calculation</h2>
+<p>The auditor compares baseline legacy metrics against modernized JCL files:</p>
+<ul>
+<li><strong>Code Bloat Reduction:</strong> Measures the net reduction in lines of code achieved by replacing multi-step legacy jobs with focused, single-program scripts (<code>bloat_reduction_pct</code>).</li>
+<li><strong>Over-Permissioned I/O Elimination:</strong> Calculates <code>excess_dds_blocked</code> by evaluating datasets defined in legacy JCLs that are omitted from modernized execution scripts. For example, if a legacy JCL allocated 15 datasets but static analysis proves the COBOL program only accesses 3, the 12 unreferenced datasets are flagged as blocked excess permissions (enforcing least privilege).</li>
+<li><strong>Reporting Options:</strong> Outputs results as a structured CLI report or as raw JSON (<code>--json</code>) for automated integration testing pipelines.</li>
+</ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="ecosystem-integration">Ecosystem Integration</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and heuristic dependency mapping engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using the interactive dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

@@ -7119,10 +7119,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#schema-driven-byte-slicing" class="md-nav__link">
+  <a href="#schema-driven-record-byte-slicing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Schema-Driven Byte Slicing
+        Schema-Driven Record Byte Slicing
       
     </span>
   </a>
@@ -7130,10 +7130,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comp-3-packed-decimal-decoding" class="md-nav__link">
+  <a href="#packed-decimal-comp-3-decoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        COMP-3 (Packed Decimal) Decoding
+        Packed Decimal (COMP-3) Decoding
       
     </span>
   </a>
@@ -7141,22 +7141,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ebcdic-character-translation" class="md-nav__link">
+  <a href="#ebcdic-character-encoding-conversion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        EBCDIC Character Translation
+        EBCDIC Character Encoding Conversion
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="EBCDIC Character Translation">
+    <nav class="md-nav" aria-label="EBCDIC Character Encoding Conversion">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#schema-driven-byte-slicing" class="md-nav__link">
+  <a href="#schema-driven-record-byte-slicing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Schema-Driven Byte Slicing
+        Schema-Driven Record Byte Slicing
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comp-3-packed-decimal-decoding" class="md-nav__link">
+  <a href="#packed-decimal-comp-3-decoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        COMP-3 (Packed Decimal) Decoding
+        Packed Decimal (COMP-3) Decoding
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ebcdic-character-translation" class="md-nav__link">
+  <a href="#ebcdic-character-encoding-conversion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        EBCDIC Character Translation
+        EBCDIC Character Encoding Conversion
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="EBCDIC Character Translation">
+    <nav class="md-nav" aria-label="EBCDIC Character Encoding Conversion">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8704,26 +8704,29 @@
 
 <h1 id="etl-unpacker-ebcdic-to-csv">ETL Unpacker (EBCDIC to CSV)</h1>
 <blockquote>
-<p><strong>Architecture: Binary Translation &amp; Precision Decoding</strong></p>
-<p><strong>Summary:</strong> The ETL (Extract, Transform, Load) Unpacker acts as the data bridge between the legacy mainframe and the modern cloud. It translates raw, binary EBCDIC byte streams into standard UTF-8 CSV files, unpacking highly compressed mainframe memory formats on the fly.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py"><code>gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py</code></a></p>
+<p><strong>Architecture: Binary Data Unpacking &amp; Character Decoding</strong></p>
+<p><strong>Summary:</strong> The ETL Unpacker (<code>cobol_etl_unpacker.py</code>) serves as a data migration utility between legacy mainframe datasets and modern cloud databases. It converts raw EBCDIC binary byte streams into UTF-8 CSV files, parsing Packed Decimal (COMP-3) and Zoned Decimal fields using layout metadata from generated JSON schemas.</p>
 </blockquote>
-<h2 id="schema-driven-byte-slicing">Schema-Driven Byte Slicing</h2>
-<p>Mainframe data files do not have delimiters (like commas or tabs). They are continuous blocks of binary data. To slice them correctly, the unpacker reads the GitGalaxy-generated JSON Schema.
-It calculates the exact physical byte length of each field based on its legacy <code>PIC</code> clause. For example, it translates <code>PIC X(50)</code> into a rigid 50-byte read buffer, allowing it to perfectly segment the binary stream row by row.</p>
-<h2 id="comp-3-packed-decimal-decoding">COMP-3 (Packed Decimal) Decoding</h2>
-<p>To save physical disk space, IBM mainframes compress numeric data using COMP-3. This format packs two digits into a single byte (nibbles), utilizing the final half-byte to store the positive/negative sign.
-* The unpacker calculates the compressed byte size using the formula: <code>ceil((digits + 1) / 2)</code>.
-* It decodes the raw hex values into standard Python floats.
-* It validates the final nibble (checking for <code>D</code> or <code>B</code> to indicate negative values) and applies the schema's defined decimal scale (e.g., shifting the decimal point for <code>PIC S9(5)V99</code>).</p>
-<h2 id="ebcdic-character-translation">EBCDIC Character Translation</h2>
-<p>Standard text fields and zoned decimals are read in their raw EBCDIC encoding and translated to standard UTF-8. The unpacker strictly uses the <code>cp037</code> code page (the standard IBM US EBCDIC character set) to ensure special characters and legacy formatting survive the transition to the cloud intact.</p>
-<p><br><br></p>
+<h2 id="schema-driven-record-byte-slicing">Schema-Driven Record Byte Slicing</h2>
+<p>Mainframe binary datasets lack row delimiters (such as newlines or commas). Instead, data records are stored as fixed-length byte blocks. </p>
+<p>The unpacker (<code>calculate_byte_layout</code>) reads the GitGalaxy JSON Schema (<code>_schema.json</code>) to calculate exact field byte boundaries:
+* Parses legacy <code>PIC</code> clauses to determine conceptual character or numeric length.
+* Computes field byte offsets and record row lengths (<code>record_length</code>).
+* Slices incoming binary streams row-by-row based on calculated byte boundaries.</p>
+<h2 id="packed-decimal-comp-3-decoding">Packed Decimal (COMP-3) Decoding</h2>
+<p>To optimize storage space, mainframes compress numeric values using Packed Decimal (COMP-3) formatting, storing two decimal digits per byte (one per nibble) with the final nibble reserved for sign representation:
+* <strong>Byte Size Calculation:</strong> Determines physical byte footprint using <code>ceil((digits + 1) / 2)</code>.
+* <strong>Sign Nibble Parsing:</strong> Inspects the final nibble of the byte array (<code>D</code> or <code>B</code> indicate negative values; <code>C</code>, <code>A</code>, <code>F</code>, or <code>E</code> indicate positive values).
+* <strong>Decimal Scale Application:</strong> Divides the parsed numeric integer by <code>10^decimals</code> according to the schema scale specification to produce standard floating-point values (<code>unpack_comp3</code>).</p>
+<h2 id="ebcdic-character-encoding-conversion">EBCDIC Character Encoding Conversion</h2>
+<p>Alphanumeric text fields and Zoned Decimal numbers are decoded from raw EBCDIC bytes to UTF-8 text using the standard IBM US EBCDIC code page (<code>cp037</code>). This ensures special characters and text formatting are preserved accurately during database migration.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

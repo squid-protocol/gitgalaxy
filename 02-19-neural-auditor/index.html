@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-neural-auditor-weight-inspection" class="md-skip">
+        <a href="#the-tensor-model-scanner-binary-weight-inspection" class="md-skip">
           Skip to content
         </a>
       
@@ -6089,22 +6089,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#zero-ram-inspection" class="md-nav__link">
+  <a href="#zero-ram-binary-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Zero-RAM Inspection
+        Zero-RAM Binary Inspection
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Zero-RAM Inspection">
+    <nav class="md-nav" aria-label="Zero-RAM Binary Inspection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-safetensors-extraction" class="md-nav__link">
+  <a href="#1-safetensors-metadata-extraction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Safetensors Extraction
+        1. Safetensors Metadata Extraction
       
     </span>
   </a>
@@ -6112,10 +6112,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-gguf-heuristics" class="md-nav__link">
+  <a href="#2-gguf-binary-header-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. GGUF Heuristics
+        2. GGUF Binary Header Inspection
       
     </span>
   </a>
@@ -6128,22 +6128,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-neural-supernova" class="md-nav__link">
+  <a href="#model-metadata-node-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Neural Supernova
+        Model Metadata &amp; Node Mapping
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Neural Supernova">
+    <nav class="md-nav" aria-label="Model Metadata &amp; Node Mapping">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8650,22 +8650,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#zero-ram-inspection" class="md-nav__link">
+  <a href="#zero-ram-binary-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Zero-RAM Inspection
+        Zero-RAM Binary Inspection
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Zero-RAM Inspection">
+    <nav class="md-nav" aria-label="Zero-RAM Binary Inspection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-safetensors-extraction" class="md-nav__link">
+  <a href="#1-safetensors-metadata-extraction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Safetensors Extraction
+        1. Safetensors Metadata Extraction
       
     </span>
   </a>
@@ -8673,10 +8673,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-gguf-heuristics" class="md-nav__link">
+  <a href="#2-gguf-binary-header-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. GGUF Heuristics
+        2. GGUF Binary Header Inspection
       
     </span>
   </a>
@@ -8689,22 +8689,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-neural-supernova" class="md-nav__link">
+  <a href="#model-metadata-node-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Neural Supernova
+        Model Metadata &amp; Node Mapping
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Neural Supernova">
+    <nav class="md-nav" aria-label="Model Metadata &amp; Node Mapping">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8736,36 +8736,35 @@
   
 
 
-<h1 id="the-neural-auditor-weight-inspection">The Neural Auditor (Weight Inspection)</h1>
+<h1 id="the-tensor-model-scanner-binary-weight-inspection">The Tensor Model Scanner (Binary Weight Inspection)</h1>
 <blockquote>
-<p><strong>Inspecting the AI Brain</strong></p>
-<p>As developers increasingly check Large Language Models (LLMs) and LoRA adapters directly into their repositories, scanners face a physical constraint: you cannot load a 70GB model weight file into RAM just to parse it. </p>
-<p>The Neural Auditor (<code>neural_auditor.py</code>) solves this by surgically inspecting massive AI model binaries (<code>.safetensors</code>, <code>.gguf</code>) without ever loading the full file into memory. It extracts parameter counts, quantization levels, and architecture families directly from the binary headers, allowing GitGalaxy to map the exact scale of local AI compute.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/tensor_scanner.py"><code>gitgalaxy/metrics/tensor_scanner.py</code></a></p>
 </blockquote>
-<h2 id="zero-ram-inspection">Zero-RAM Inspection</h2>
-<p>When the Aperture Filter relegates a massive binary file to "Dark Matter," the Orchestrator checks if the file is a known AI model format. If so, it passes the file path to the Neural Auditor, which executes a highly targeted, zero-RAM byte read. </p>
-<p>The Auditor routes the file to the correct parser based on its extension:</p>
-<h3 id="1-safetensors-extraction">1. Safetensors Extraction</h3>
-<p>The <code>.safetensors</code> format (standardized by HuggingFace) is designed for safe, fast loading. The Auditor leverages this structure:
-* <strong>The 8-Byte Header Read:</strong> The engine reads only the first 8 bytes of the file (a little-endian <code>uint64</code>) to determine the exact size of the JSON metadata header.
-* <strong>The Anti-Hallucination Shield:</strong> Before reading the JSON, it checks if the reported header size is suspiciously large (e.g., &gt; 100MB). If so, it aborts the read to prevent maliciously crafted files from causing a memory overflow.
-* <strong>Parameter Mathematics:</strong> Once the JSON header is securely parsed, the Auditor extracts the architecture family (e.g., LLaMA, Mistral). It then calculates the exact parameter count of the model by multiplying the multidimensional shapes of every tensor listed in the file.
-* <strong>Formatting:</strong> It converts the raw integer count into human-readable formats (e.g., "8.0B" or "350.0M").</p>
-<h3 id="2-gguf-heuristics">2. GGUF Heuristics</h3>
-<p>The <code>.gguf</code> format (used heavily by <code>llama.cpp</code> for local quantized inference) embeds its metadata as Key-Value pairs scattered through the binary header. 
-* <strong>Magic Byte Verification:</strong> The Auditor reads the first 4 bytes to verify the <code>GGUF</code> magic number, ensuring it isn't a spoofed file.
-* <strong>The 1MB Chunk Scan:</strong> Fully unpacking the GGUF binary tree natively in Python is computationally expensive. Instead, the Auditor reads a raw 1MB chunk of the header and decodes it as an ASCII string.
-* <strong>Heuristic Extraction:</strong> It uses fast heuristic string matching to identify the architecture family (e.g., "llama", "qwen") and the specific quantization level (e.g., "Q4_K", "Q8_0") utilized by the model.</p>
-<h2 id="the-neural-supernova">The Neural Supernova</h2>
-<p>Once the Auditor successfully extracts the model's metadata, it passes the intelligence back to the Orchestrator. </p>
-<p>Because AI model weights are incredibly dense and represent massive local compute gravity, the Orchestrator injects this data back into the 3D map as a <strong>Neural Supernova</strong>. The file is given a massive gravitational footprint (calculated by dividing its gigabyte size by a scalar) and its extracted metadata (Architecture, Parameter Count, Quantization) is attached directly to the visual node, allowing architects to see exactly what kind of AI brain is embedded in their repository.</p>
-<p><br><br></p>
+<p>The Tensor Model Scanner (<code>tensor_scanner.py</code>, historically referenced as the Neural Auditor) inspects large Machine Learning model weights (<code>.safetensors</code>, <code>.gguf</code>) stored within repositories without loading multi-gigabyte files into system RAM. By parsing binary headers using zero-RAM byte reads, it extracts parameter counts, quantization levels, and architecture metadata for static analysis reporting.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="zero-ram-binary-inspection">Zero-RAM Binary Inspection</h2>
+<p>When the ingestion filter (<code>aperture.py</code>) encounters large AI model binaries, it routes the file paths to the <code>TensorScanner</code>. The scanner inspects binary headers using targeted stream reads based on file extension:</p>
+<h3 id="1-safetensors-metadata-extraction">1. Safetensors Metadata Extraction</h3>
+<p>The <code>.safetensors</code> format (standardized for machine learning model serialization) places JSON metadata at the beginning of the binary file:
+* <strong>8-Byte Header Read:</strong> Reads the first 8 bytes of the file (a little-endian <code>uint64</code> integer) to determine the exact byte length of the JSON metadata header.
+* <strong>Header Size Validation:</strong> Validates that the declared header size does not exceed safety limits (e.g., &gt; 100MB). If suspicious header sizes are detected, parsing aborts to prevent buffer overflows or memory exhaustion.
+* <strong>Parameter Mathematics:</strong> Parses the JSON metadata header to extract model architecture declarations (e.g., LLaMA, Mistral). Calculates total parameter counts by multiplying tensor dimension arrays for every declared weight key.
+* <strong>Format Formatting:</strong> Formats raw parameter counts into standardized human-readable strings (e.g., "8.0B", "350.0M").</p>
+<h3 id="2-gguf-binary-header-inspection">2. GGUF Binary Header Inspection</h3>
+<p>The <code>.gguf</code> format (commonly used for quantized local inference) stores metadata key-value pairs near the beginning of the file:
+* <strong>Magic Byte Verification:</strong> Reads the initial 4 bytes to verify the <code>GGUF</code> magic byte signature, confirming valid binary format before proceeding.
+* <strong>Header Chunk Extraction:</strong> Reads a 1MB stream from the beginning of the file and decodes printable ASCII text strings to extract metadata keys without full binary tree parsing.
+* <strong>Metadata Heuristics:</strong> Uses pattern matching to extract architecture family names (e.g., "llama", "qwen") and quantization levels (e.g., "Q4_K", "Q8_0").</p>
+<hr />
+<h2 id="model-metadata-node-mapping">Model Metadata &amp; Node Mapping</h2>
+<p>Once metadata extraction completes, the scanner returns structured metadata dictionaries (<code>architecture</code>, <code>parameters</code>, <code>quantization</code>) to the pipeline orchestrator.</p>
+<p>The orchestrator attaches model architecture attributes to the repository file node and computes visual node mass based on file size, enabling engineering teams to audit local machine learning model footprints across repository repositories.</p>
+<hr />
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic static analysis engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for source code and tools.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your codebase at GitGalaxy.io</a></strong> using the interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

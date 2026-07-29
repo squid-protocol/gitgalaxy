@@ -6984,22 +6984,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lexical-sanitization" class="md-nav__link">
+  <a href="#java-syntax-naming-sanitization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lexical Sanitization
+        Java Syntax &amp; Naming Sanitization
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Lexical Sanitization">
+    <nav class="md-nav" aria-label="Java Syntax &amp; Naming Sanitization">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8677,22 +8677,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lexical-sanitization" class="md-nav__link">
+  <a href="#java-syntax-naming-sanitization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lexical Sanitization
+        Java Syntax &amp; Naming Sanitization
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Lexical Sanitization">
+    <nav class="md-nav" aria-label="Java Syntax &amp; Naming Sanitization">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8726,30 +8726,30 @@
 
 <h1 id="entity-memory-mapping">Entity &amp; Memory Mapping</h1>
 <blockquote>
-<p><strong>Architecture: Strict Memory Boundary Enforcement</strong></p>
-<p><strong>Summary:</strong> The Java Spring Entity Forge translates the generated JSON schemas into standard Spring Boot JPA Entities (<code>@Entity</code>). Because COBOL utilizes highly specific memory layouts that do not naturally exist in Java, the forge applies advanced annotation strategies to recreate the legacy memory constraints in the cloud.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py"><code>gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py</code></a></p>
+<p><strong>Architecture: Strict Memory Boundary Enforcement &amp; JPA Entity Mapping</strong></p>
+<p><strong>Summary:</strong> The Java Spring Entity Generator (<code>cobol_to_java_spring_forge.py</code>) translates extracted JSON schemas into standard Spring Boot JPA Entities (<code>@Entity</code>). Because COBOL uses explicit byte-level memory layouts that do not exist natively in Java or relational databases, the generator applies specialized JPA annotations to represent legacy memory constraints accurately.</p>
 </blockquote>
 <h2 id="memory-overlay-resolution-redefines">Memory Overlay Resolution (REDEFINES)</h2>
-<p>In COBOL, the <code>REDEFINES</code> clause allows two variables to occupy the exact same physical memory address. Relational databases do not support this concept natively. </p>
-<p>When the Entity Forge detects a <code>redefines</code> constraint in the JSON schema, it maps the primary variable to the database column, but maps the redefined alias as a <code>@Transient</code> variable. This ensures the alias is accessible to the Java business logic at runtime without attempting to create duplicate, conflicting columns in the PostgreSQL schema.</p>
+<p>In COBOL, the <code>REDEFINES</code> clause allows multiple variables to occupy the exact same physical memory address. Relational databases do not support overlapping columns natively.</p>
+<p>When the entity generator detects a <code>redefines</code> constraint in the schema, it maps the primary variable to a persistent database column while mapping the redefined alias with <code>@Transient</code>. This makes the alias available to runtime business logic without creating duplicate, redundant columns in the SQL schema.</p>
 <h2 id="array-generation-occurs">Array Generation (OCCURS)</h2>
-<p>Legacy <code>OCCURS</code> clauses define fixed-length arrays within records. The Entity Forge translates these into Java <code>List&lt;T&gt;</code> structures, automatically annotating them with <code>@ElementCollection</code> and <code>@CollectionTable</code>. It strictly wires the join columns to ensure the normalized array data maps perfectly back to the parent entity's <code>sys_id</code>.</p>
+<p>Legacy <code>OCCURS</code> clauses define fixed-length arrays within data records. The generator translates these into Java <code>List&lt;T&gt;</code> fields, automatically annotating them with <code>@ElementCollection</code> and <code>@CollectionTable</code>. It wires foreign key join columns to ensure normalized array elements reference the parent entity's primary key (<code>sys_id</code>).</p>
 <h2 id="financial-precision-pic-clauses">Financial Precision (PIC Clauses)</h2>
-<p>The forge parses legacy <code>PIC</code> (Picture) clauses to enforce strict structural boundaries on the generated JPA columns:
-* <strong>Strings (<code>PIC X</code> / <code>PIC A</code>):</strong> Extracts the exact byte length and maps it directly to the <code>@Column(length = N)</code> annotation.
-* <strong>Decimals (<code>PIC S9V99</code> / <code>PIC Z</code>):</strong> Calculates the exact number of integers and fractional digits, mapping them to <code>BigDecimal</code> types with strict <code>@Column(precision = P, scale = S)</code> boundaries.</p>
-<h2 id="lexical-sanitization">Lexical Sanitization</h2>
-<p>To ensure the generated Java code compiles instantly, the Entity Forge applies a multi-pass sanitization protocol to all legacy variable names:
-1. <strong>CamelCase Conversion:</strong> Legacy hyphens (<code>CUSTOMER-NAME</code>) are converted to standard Java camelCase (<code>customerName</code>).
-2. <strong>Numeric Prefixing:</strong> Java variables cannot begin with a number. Legacy variables like <code>1099-FORM</code> are automatically prefixed (<code>v1099Form</code>).
-3. <strong>Reserved Keyword Shielding:</strong> If a legacy variable directly collides with a Java reserved keyword (e.g., <code>class</code>, <code>public</code>, <code>return</code>, <code>int</code>), the forge automatically appends a <code>Val</code> suffix (e.g., <code>classVal</code>) to guarantee successful Maven compilation.</p>
-<p><br><br></p>
+<p>The generator parses legacy <code>PIC</code> (Picture) clauses to enforce exact structural boundaries on JPA columns:
+* <strong>Strings (<code>PIC X</code> / <code>PIC A</code>):</strong> Extracts byte length and maps to <code>@Column(length = N)</code>.
+* <strong>Decimals (<code>PIC S9(7)V99</code> / <code>PIC Z</code>):</strong> Calculates integer and fractional digit counts, mapping them to Java <code>BigDecimal</code> fields with <code>@Column(precision = P, scale = S)</code> annotations.</p>
+<h2 id="java-syntax-naming-sanitization">Java Syntax &amp; Naming Sanitization</h2>
+<p>To ensure all generated Java entities compile cleanly without syntax errors:
+1. <strong>CamelCase Conversion:</strong> Converts hyphenated legacy names (<code>CUSTOMER-NAME</code>) to standard Java camelCase (<code>customerName</code>).
+2. <strong>Numeric Prefixing:</strong> Java identifiers cannot begin with a number. Legacy variables starting with digits (e.g., <code>1099-FORM</code>) are automatically prefixed (e.g., <code>v1099Form</code>).
+3. <strong>Reserved Keyword Shielding:</strong> If a legacy variable name collides with a Java reserved keyword (such as <code>class</code>, <code>public</code>, <code>return</code>, <code>new</code>), the generator appends a <code>Val</code> suffix (e.g., <code>classVal</code>) to guarantee compilation.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, a static analysis and knowledge graph engine for software modernization.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a> for code, tools, and updates.</li>
+<li><a href="https://gitgalaxy.io/">Visualize your repository</a> using our interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

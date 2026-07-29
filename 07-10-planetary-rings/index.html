@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#21i-planetary-rings" class="md-skip">
+        <a href="#21i-external-dependency-rings" class="md-skip">
           Skip to content
         </a>
       
@@ -7815,10 +7815,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
+  <a href="#21i1-dependency-weight-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.1. The Philosophy: The Gravity Well
+        2.1.I.1. Dependency Weight Thresholds
       
     </span>
   </a>
@@ -7826,10 +7826,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
+  <a href="#21i2-input-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.2. The Inputs: Measuring Dependencies
+        2.1.I.2. Input Metrics
       
     </span>
   </a>
@@ -7837,10 +7837,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
+  <a href="#21i3-mathematical-formulation-ring-opacity-and-thickness" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.3. The Equation: Growth and Density
+        2.1.I.3. Mathematical Formulation: Ring Opacity and Thickness
       
     </span>
   </a>
@@ -7848,22 +7848,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i4-the-visual-output" class="md-nav__link">
+  <a href="#21i4-webglwebgpu-rendering-specifications" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.4. The Visual Output
+        2.1.I.4. WebGL/WebGPU Rendering Specifications
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.1.I.4. The Visual Output">
+    <nav class="md-nav" aria-label="2.1.I.4. WebGL/WebGPU Rendering Specifications">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#21i1-the-philosophy-the-gravity-well" class="md-nav__link">
+  <a href="#21i1-dependency-weight-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.1. The Philosophy: The Gravity Well
+        2.1.I.1. Dependency Weight Thresholds
       
     </span>
   </a>
@@ -8655,10 +8655,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i2-the-inputs-measuring-dependencies" class="md-nav__link">
+  <a href="#21i2-input-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.2. The Inputs: Measuring Dependencies
+        2.1.I.2. Input Metrics
       
     </span>
   </a>
@@ -8666,10 +8666,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i3-the-equation-growth-and-density" class="md-nav__link">
+  <a href="#21i3-mathematical-formulation-ring-opacity-and-thickness" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.3. The Equation: Growth and Density
+        2.1.I.3. Mathematical Formulation: Ring Opacity and Thickness
       
     </span>
   </a>
@@ -8677,22 +8677,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#21i4-the-visual-output" class="md-nav__link">
+  <a href="#21i4-webglwebgpu-rendering-specifications" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1.I.4. The Visual Output
+        2.1.I.4. WebGL/WebGPU Rendering Specifications
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.1.I.4. The Visual Output">
+    <nav class="md-nav" aria-label="2.1.I.4. WebGL/WebGPU Rendering Specifications">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#powered-by-the-blast-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by the blAST Engine
       
     </span>
   </a>
@@ -8724,42 +8724,43 @@
   
 
 
-<h1 id="21i-planetary-rings">2.1.I. Planetary Rings</h1>
+<h1 id="21i-external-dependency-rings">2.1.I. External Dependency Rings</h1>
 <blockquote>
-<p><strong>Metric: External Library Import Count</strong></p>
-<p><strong>Purpose:</strong> See which files import external libraries.</p>
-<p><strong>Why:</strong> Determine which files have dependencies that you don't fully control.</p>
-<p><strong>Effect:</strong> Spawns rings around the file to visually represent its external dependency weight.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py"><code>gitgalaxy/core/detector.py</code></a></p>
+<p><strong>Metric: External Library Import Count (<code>ImportHits</code>)</strong></p>
+<p><strong>Purpose:</strong> Highlights modules with high external dependency counts.</p>
+<p><strong>Rationale:</strong> Standard utility modules maintain self-contained logic, whereas integration modules or framework controllers pull in multiple external packages. Visualizing dependency load as surround rings allows developers to spot heavy integration points and potential dependency coupling risks at a glance.</p>
+<p><strong>Effect:</strong> Renders dependency rings around file nodes in 3D visualization space.</p>
 </blockquote>
-<h2 id="21i1-the-philosophy-the-gravity-well">2.1.I.1. The Philosophy: The Gravity Well</h2>
-<p>A clean file is a sphere. It floats freely. A file with dependencies is tethered. The more it imports, the heavier it gets. We set a <strong>High Threshold</strong> for rings. We don't want visual noise for a single utility import. Rings are reserved strictly for "Heavy Lifters" and "Glue Code."</p>
-<h2 id="21i2-the-inputs-measuring-dependencies">2.1.I.2. The Inputs: Measuring Dependencies</h2>
+<h2 id="21i1-dependency-weight-thresholds">2.1.I.1. Dependency Weight Thresholds</h2>
+<p>Self-contained files render as clean single nodes without surround rings. As a file imports external libraries, its dependency weight increases. To prevent visual noise from routine single imports, a threshold is enforced: surround rings only activate for high-dependency modules ("heavy lifters" and orchestration layers).</p>
+<h2 id="21i2-input-metrics">2.1.I.2. Input Metrics</h2>
 <ul>
-<li><strong>ImportHits:</strong> The count of <code>import</code>, <code>require</code>, or <code>include</code> statements found by the scanner.</li>
-<li><strong>Threshold:</strong> <strong>&gt; 5 Imports</strong>. Anything less is considered "Standard Weight" and renders with <strong>No Rings</strong>.</li>
+<li><strong><code>ImportHits</code>:</strong> Total count of <code>import</code>, <code>require</code>, <code>include</code>, or package import directives identified by the static analyzer.</li>
+<li><strong>Activation Threshold:</strong> <strong>&gt; 5 Imports</strong>. Modules with 5 or fewer imports do not spawn dependency rings.</li>
 </ul>
-<h2 id="21i3-the-equation-growth-and-density">2.1.I.3. The Equation: Growth and Density</h2>
-<p>Instead of complex accretion disks, we use a single, evolving ring system that grows in <strong>Density (Opacity)</strong> and <strong>Mass (Width)</strong> as the gravity increases.</p>
-<p><strong>1. Opacity (Visibility)</strong>
-Ranges from <span class="arithmatex">\(0.0\)</span> to <span class="arithmatex">\(0.6\)</span> over the first 26 imports. Rare imports create a barely visible "Ghost Ring." As dependencies hit the critical mass (26), the ring becomes a distinct, semi-solid band.</p>
+<h2 id="21i3-mathematical-formulation-ring-opacity-and-thickness">2.1.I.3. Mathematical Formulation: Ring Opacity and Thickness</h2>
+<p>Dependency rings evolve dynamically in visual opacity and thickness as import counts rise:</p>
+<p><strong>1. Visual Opacity (Transparency)</strong>
+Opacity scales linearly from <span class="arithmatex">\(0.0\)</span> to <span class="arithmatex">\(0.6\)</span> over the range of 6 to 26 imports, capping at a maximum value of <span class="arithmatex">\(0.6\)</span>:</p>
 <div class="arithmatex">\[\text{Opacity} = \min\left( \left(\frac{\text{ImportHits}}{26}\right) \times 0.6,\ 0.6 \right)\]</div>
-<p><strong>2. Width (Tube Thickness)</strong>
-Grows continuously as imports increase. The ring gets physically thicker and wider, consuming more visual space around the planet as the gravity well deepens.</p>
+<p><strong>2. Ring Width (Geometry Thickness)</strong>
+Geometry radius expands progressively with additional imports to indicate cumulative external coupling:</p>
 <div class="arithmatex">\[\text{TubeRadius} = \text{BaseWidth} + (\text{ImportHits} \times 0.1)\]</div>
-<h2 id="21i4-the-visual-output">2.1.I.4. The Visual Output</h2>
+<h2 id="21i4-webglwebgpu-rendering-specifications">2.1.I.4. WebGL/WebGPU Rendering Specifications</h2>
 <ul>
-<li><strong>Geometry:</strong> <code>TorusGeometry</code>.</li>
+<li><strong>Geometry Class:</strong> <code>TorusGeometry</code>.</li>
 <li><strong>Tube Radius:</strong> Scaled linearly by <code>ImportHits</code>.</li>
-<li><strong>Material:</strong> Transparent with <code>opacity</code> capped at <span class="arithmatex">\(0.6\)</span>.</li>
-<li><strong>Tilt:</strong> Rings are tilted at randomized axes (Euler angles) to ensure they don't look like flat plates, but dynamic, gyroscope-like orbital paths.</li>
+<li><strong>Material Properties:</strong> Translucent mesh material with <code>opacity</code> capped at <span class="arithmatex">\(0.6\)</span>.</li>
+<li><strong>Rotational Orientation:</strong> Ring meshes are tilted across randomized Euler axes to prevent overlapping coplanar visual artifacting and ensure clear visibility from all 3D camera viewpoints.</li>
 </ul>
 <p><br><br></p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
+<h3 id="powered-by-the-blast-engine">Powered by the blAST Engine</h3>
 <p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

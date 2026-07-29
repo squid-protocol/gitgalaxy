@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-state-rehydrator-ram-rehydration" class="md-skip">
+        <a href="#the-state-rehydrator-incremental-state-restoration" class="md-skip">
           Skip to content
         </a>
       
@@ -6173,10 +6173,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#state-extraction-sqlite-to-ram" class="md-nav__link">
+  <a href="#state-extraction-sqlite-to-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        State Extraction (SQLite to RAM)
+        State Extraction (SQLite to Memory)
       
     </span>
   </a>
@@ -6184,10 +6184,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#temporal-diffs-and-delta-scans" class="md-nav__link">
+  <a href="#incremental-analysis-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Temporal Diffs and Delta Scans
+        Incremental Analysis Workflow
       
     </span>
   </a>
@@ -6195,22 +6195,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structural-delta-reporting" class="md-nav__link">
+  <a href="#structural-delta-reporting-in-cicd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural Delta Reporting
+        Structural Delta Reporting in CI/CD
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Structural Delta Reporting">
+    <nav class="md-nav" aria-label="Structural Delta Reporting in CI/CD">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8633,10 +8633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#state-extraction-sqlite-to-ram" class="md-nav__link">
+  <a href="#state-extraction-sqlite-to-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        State Extraction (SQLite to RAM)
+        State Extraction (SQLite to Memory)
       
     </span>
   </a>
@@ -8644,10 +8644,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#temporal-diffs-and-delta-scans" class="md-nav__link">
+  <a href="#incremental-analysis-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Temporal Diffs and Delta Scans
+        Incremental Analysis Workflow
       
     </span>
   </a>
@@ -8655,22 +8655,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structural-delta-reporting" class="md-nav__link">
+  <a href="#structural-delta-reporting-in-cicd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural Delta Reporting
+        Structural Delta Reporting in CI/CD
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Structural Delta Reporting">
+    <nav class="md-nav" aria-label="Structural Delta Reporting in CI/CD">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#powered-by-the-blast-engine" class="md-nav__link">
+  <a href="#powered-by-gitgalaxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌌 Powered by the blAST Engine
+        Powered by GitGalaxy
       
     </span>
   </a>
@@ -8702,41 +8702,43 @@
   
 
 
-<h1 id="the-state-rehydrator-ram-rehydration">The State Rehydrator (RAM Rehydration)</h1>
+<h1 id="the-state-rehydrator-incremental-state-restoration">The State Rehydrator (Incremental State Restoration)</h1>
 <blockquote>
-<p><strong>The Fast-Track for CI/CD</strong></p>
-<p>The State Rehydrator (<code>state_rehydrator.py</code>) is the engine that enables GitGalaxy to run efficiently in Continuous Integration/Continuous Deployment (CI/CD) pipelines. </p>
-<p>Scanning a massive 10,000-file repository from scratch takes compute time. However, in a standard CI pipeline, a developer might only modify three files in a single commit. The State Rehydrator bridges this gap by querying the SQLite Record Keeper and instantly "thawing" the repository's previous historical state directly back into live Python RAM.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/state_rehydrator.py"><code>gitgalaxy/core/state_rehydrator.py</code></a></p>
 </blockquote>
-<h2 id="state-extraction-sqlite-to-ram">State Extraction (SQLite to RAM)</h2>
-<p>When a Delta Mission is initiated, the Rehydrator bypasses the Optical Pipeline entirely and interfaces directly with the <code>_galaxy_graph.sqlite</code> database.</p>
-<ul>
-<li><strong>Commit Targeting:</strong> The engine queries the <code>repo_data</code> table to find the absolute most recent <code>commit_hash</code> that GitGalaxy successfully scanned for the target repository. </li>
-<li><strong>State Reconstruction:</strong> It extracts the structural metrics of every file (e.g., <code>file_impact</code>, <code>total_loc</code>, <code>control_flow_ratio</code>, <code>ai_threat_score</code>) from the <code>file_data</code> table.</li>
-<li><strong>The State Payload:</strong> It maps these static database rows back into a live Python dictionary schema (the <code>ram_cache</code>), perfectly mimicking the RAM state that the Orchestrator would have generated during a full scan.</li>
-</ul>
-<h2 id="temporal-diffs-and-delta-scans">Temporal Diffs and Delta Scans</h2>
-<p>This rehydration process is the strict mechanical foundation that makes temporal scans, diffs, and deltas computationally viable. </p>
-<p>Instead of re-running regex math on the entire universe, GitGalaxy leverages the rehydrated state to execute a <strong>Delta Mission</strong>:</p>
-<ol>
-<li><strong>Surgical Extraction:</strong> The pipeline asks Git which specific files were modified or added in the new commit. It runs the heavy optical scanners (Language Lens, Security Lens) <em>only</em> on those isolated files.</li>
-<li><strong>State Merging:</strong> The newly calculated file states overwrite their older counterparts inside the rehydrated <code>ram_cache</code> dictionary.</li>
-<li><strong>Dependency Graph Recalculation:</strong> With the merged state living in RAM, the Orchestrator instantly triggers the downstream analysis engines (Network Graph, XGBoost Security Auditor). Because network topology (Blast Radius, PageRank) is globally interconnected, modifying even one file can shift the gravity of the entire system. </li>
-</ol>
-<h2 id="structural-delta-reporting">Structural Delta Reporting</h2>
-<p>By having immediate access to both the "Old State" (via SQLite) and the "New State" (via the Delta Mission), GitGalaxy can instantly calculate exact structural diffs. </p>
-<p>Instead of a standard Git diff showing <em>text</em> changes, the engine outputs <strong>Structural Deltas</strong>:
-* <em>"This commit increased the system's Tech Debt by 14%."</em>
-* <em>"This commit shifted the Blast Radius of <code>auth.py</code>, making it a system bottleneck."</em>
-* <em>"This commit introduced a new Agentic RCE vulnerability."</em></p>
-<p>This allows security and architecture teams to establish hard CI/CD quality gates based on mathematical structural drift rather than subjective code reviews.</p>
-<p><br><br></p>
+<p>The State Rehydrator (<code>state_rehydrator.py</code>) enables efficient incremental scans within Continuous Integration/Continuous Deployment (CI/CD) pipelines. </p>
+<p>Performing full static analysis across large codebases (e.g., 10,000 files) on every single commit introduces unnecessary compute overhead when a pull request only modifies a few files. The State Rehydrator addresses this by loading previously analyzed state from the SQLite database (<code>_galaxy_graph.sqlite</code>) into memory (<code>ram_cache</code>), restoring the repository baseline without re-parsing unchanged source files.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="state-extraction-sqlite-to-memory">State Extraction (SQLite to Memory)</h2>
+<p>When an incremental scan (Delta Scan) is triggered, the Rehydrator bypasses full filesystem ingestion and connects to <code>_galaxy_graph.sqlite</code>:</p>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong>Commit Baseline Lookup:</strong> Queries the database to identify the SHA-1 commit hash of the most recent complete analysis.</li>
+<li><strong>State Reconstruction:</strong> Pulls file telemetry, structural metrics (<code>file_impact</code>, <code>total_loc</code>, <code>control_flow_ratio</code>, <code>ai_threat_score</code>), and signature counts from database tables.</li>
+<li><strong>Memory State Population:</strong> Maps stored database records into an in-memory dictionary (<code>ram_cache</code>) structured identically to the full pipeline scan state.</li>
+</ul>
+<hr />
+<h2 id="incremental-analysis-workflow">Incremental Analysis Workflow</h2>
+<p>State rehydration establishes the foundation for high-speed incremental analysis:</p>
+<ol>
+<li><strong>Delta Target Identification:</strong> Queries Git to identify files added, modified, or deleted in the target commit. Executes regex parsing and signature extraction exclusively on modified files.</li>
+<li><strong>State Dictionary Merge:</strong> Overwrites updated file records inside the rehydrated <code>ram_cache</code> dictionary.</li>
+<li><strong>Graph Topology Recalculation:</strong> Triggers graph analysis modules (<code>NetworkRiskSensor</code>, <code>SecurityAuditor</code>) across the merged state. Because network topology (PageRank, blast radius) is globally interconnected, modifying key files recalculates global centrality metrics without re-parsing unmodified source code.</li>
+</ol>
+<hr />
+<h2 id="structural-delta-reporting-in-cicd">Structural Delta Reporting in CI/CD</h2>
+<p>Comparing baseline state (restored from SQLite) against modified commit state enables automated CI/CD quality gates based on <strong>Structural Deltas</strong>:</p>
+<ul>
+<li><strong>Technical Debt Progression:</strong> Measures percentage changes in cumulative risk scores across commits.</li>
+<li><strong>Blast Radius Escalations:</strong> Identifies changes that shift a module into a system choke point.</li>
+<li><strong>Security Vulnerability Delta:</strong> Flags newly introduced vulnerabilities (such as unsanitized LLM command execution funnels or malware signature triggers).</li>
+</ul>
+<p>CI/CD pipelines enforce automated pull request gates based on objective metric deltas rather than subjective code review.</p>
+<hr />
+<h3 id="powered-by-gitgalaxy">Powered by GitGalaxy</h3>
+<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic static analysis engine.</p>
+<ul>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for source code and tools.</li>
+<li><strong><a href="https://gitgalaxy.io/">Visualize your codebase at GitGalaxy.io</a></strong> using the interactive WebGPU dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

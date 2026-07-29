@@ -8350,6 +8350,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification Alignment
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -8366,6 +8384,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#inputs-detection-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs &amp; Detection Signals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Calculation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-code-entity-tally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Code Entity Tally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-traceability-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Traceability Ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inverse-risk-exposure-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inverse Risk Exposure Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ecosystem-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -8539,6 +8665,103 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#inputs-detection-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs &amp; Detection Signals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Calculation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-code-entity-tally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Code Entity Tally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-traceability-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Traceability Ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inverse-risk-exposure-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inverse Risk Exposure Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ecosystem-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -8558,33 +8781,83 @@
 
 
 <h1 id="specification-alignment-exposure">Specification Alignment Exposure</h1>
-<h1 id="specification-alignment-exposure_1">Specification Alignment Exposure</h1>
 <blockquote>
-<p><strong>Metric: Architectural Traceability (Specs vs. Entities)</strong></p>
-<p><strong>Summary:</strong> Visualizes the gap between executable logic and formal documentation. Specification Alignment measures how many of your functional entities (Classes and Functions) are explicitly tied back to architectural specs, RFCs, or formal audits. </p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum.
-* 🟦 <strong>VERY LOW (Score 0-19):</strong> Fully Traceable. Almost every entity maps to a formal spec.
-* 🟨 <strong>MODERATE (Score 40-59):</strong> Partial Traceability. Some logic is formally documented, while the rest is ad-hoc.
-* 🟥 <strong>VERY HIGH (Score 80-100):</strong> Rogue Logic. The module executes heavily without any ties to a formal specification.</p>
+<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 </blockquote>
-<h2 id="the-equation-inverse-ratio-mapping">The Equation: Inverse Ratio Mapping</h2>
-<p>We calculate the direct ratio of specification markers to total logic entities. Because this is an <em>Exposure</em> metric, a high ratio of specifications results in a low risk score.</p>
-<p><strong>Step A: Define the Entities</strong>
-We sum the total number of structural blocks in the file.
-$<span class="arithmatex">\(Entities = \max(func\_start + class\_start, 1)\)</span>$</p>
-<p><strong>Step B: Calculate the Traceability Ratio</strong>
-We divide the <code>spec_exposure</code> hits by the total entities, clamping at 1.0.
-$<span class="arithmatex">\(Ratio = \min\left(\frac{spec\_exposure}{Entities}, 1.0\right)\)</span>$</p>
-<p><strong>Step C: Invert for Risk Exposure</strong>
-We subtract the ratio from 1.0, multiply by 100, and apply the Path Modifier (<span class="arithmatex">\(Mp\)</span>). 
-$<span class="arithmatex">\(Exposure = \min((1.0 - Ratio) \times 100.0 \times Mp, 100.0)\)</span>$</p>
-<p><br><br></p>
+<p><strong>Metric:</strong> Architectural Traceability (Specification Alignment)</p>
+<p><strong>Summary:</strong> Measures the gap between executable logic entities (classes and functions) and formal architectural specifications, design documents, or RFC references. Higher spec exposure hits lead to lower risk scores; conversely, modules with numerous functions/classes lacking specification references produce high risk exposure scores ("untraced logic").</p>
+<p><strong>Risk Classification:</strong>
+* 🟦 <strong>VERY LOW (Score 0–19):</strong> Fully traceable code. Virtually all functions and classes map to formal design specifications or RFC markers.
+* 🟨 <strong>MODERATE (Score 40–59):</strong> Partial traceability. Core functions reference specs while supporting functions do not.
+* 🟥 <strong>VERY HIGH (Score 80–100):</strong> Untraced logic. High-volume execution logic without architectural specification linkage.</p>
 <hr />
-<h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>
-<p>This documentation is part of the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy Ecosystem</a>, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<h2 id="inputs-detection-signals">Inputs &amp; Detection Signals</h2>
+<p>The analysis engine tallies code structural entities against specification annotations:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Signal Category</th>
+<th style="text-align: left;">Role</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>func_start</code></td>
+<td style="text-align: left;">Entity Counter</td>
+<td style="text-align: left;">Denominator Component</td>
+<td style="text-align: left;">Count of function definition starts in the file.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>class_start</code></td>
+<td style="text-align: left;">Entity Counter</td>
+<td style="text-align: left;">Denominator Component</td>
+<td style="text-align: left;">Count of class definition starts in the file.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>spec_exposure</code></td>
+<td style="text-align: left;">Specification Hits</td>
+<td style="text-align: left;">Traceability Counter</td>
+<td style="text-align: left;">Count of explicit specification annotations, RFC links, or design doc references.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mp</code></td>
+<td style="text-align: left;">Path Modifier</td>
+<td style="text-align: left;">Multiplier</td>
+<td style="text-align: left;">Context modifier adjusting final exposure risk.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="metric-calculation">Metric Calculation</h2>
+<p>The calculation evaluates the ratio of specification hits to total code entities and inverts it to yield risk exposure:</p>
+<h3 id="1-code-entity-tally">1. Code Entity Tally</h3>
+<p>Sum total structural entities (functions + classes), enforcing a floor of 1:</p>
+<div class="arithmatex">\[\text{Entities} = \max(\text{func\_start} + \text{class\_start}, 1)\]</div>
+<h3 id="2-traceability-ratio">2. Traceability Ratio</h3>
+<p>Divide specification hits by total entities, clamped at a maximum ratio of 1.0:</p>
+<div class="arithmatex">\[\text{Ratio} = \min\left( \frac{\text{spec\_exposure}}{\text{Entities}}, 1.0 \right)\]</div>
+<h3 id="3-inverse-risk-exposure-mapping">3. Inverse Risk Exposure Mapping</h3>
+<p>Invert the traceability ratio so that 100% specification alignment yields 0 risk, modified by <span class="arithmatex">\(Mp\)</span>:</p>
+<div class="arithmatex">\[\text{Exposure} = \min((1.0 - \text{Ratio}) \times 100.0 \times Mp, 100.0)\]</div>
+<hr />
+<h2 id="reference-implementation">Reference Implementation</h2>
+<p>The following Python method from <code>gitgalaxy/metrics/signal_processor.py</code> implements the specification alignment metric:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_spec_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">    Calculates Architectural Traceability (Specification Alignment Exposure).</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    Returns exposure risk score from 0.0 to 100.0.</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">entities</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;func_start&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class_start&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">ratio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spec_exposure&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">entities</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="ecosystem-references">Ecosystem References</h3>
 <ul>
-<li>🪐 <strong><a href="https://github.com/squid-protocol/gitgalaxy">Explore the GitHub Repository</a></strong> for code, tools, and updates.</li>
-<li>🔭 <strong><a href="https://gitgalaxy.io/">Visualize your own repository at GitGalaxy.io</a></strong> using our interactive 3D WebGPU dashboard.</li>
+<li><strong><a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py">Signal Processor Module</a></strong> - Metric implementation details.</li>
+<li><strong><a href="https://gitgalaxy.io/">GitGalaxy Platform</a></strong> - Interactive repository architecture dashboard.</li>
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>

@@ -7288,7 +7288,12 @@ LANGUAGE_DEFINITIONS = {
             # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
             "branch": re.compile(r"\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b|&&|\|\|"),
             # 2. args: Parameters / Coupling. Captures parameters in function signatures.
-            "args": re.compile(r"\bfn\s*(?:[a-zA-Z_]\w*\s*)?\([^)]*\)"),
+            # BUG FIX (Rule 11): `[^)]*` is a flat negated class -- can't
+            # represent even one level of nesting. Zig function-pointer-type
+            # parameters nest constantly (`fn foo(callback: fn(i32) void)
+            # void`) -- confirmed the old pattern truncated at the inner
+            # `)`. Upgraded to the one-level-nesting bounded form.
+            "args": re.compile(r"\bfn\s*(?:[a-zA-Z_]\w*\s*)?\((?:[^()]|\([^()]*\))*\)"),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
             "structural_boundaries": re.compile(
                 r"\b(var|return|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b"
@@ -7330,8 +7335,15 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc: Structured Documentation. Structured documentation (/// and //!).
             "doc": re.compile(r"///|//!"),
             # 14. test: Testing & Assertions. Native test framework blocks.
+            # BUG FIX: `test\s+"[^"]*"` ended on `"`, inside the shared
+            # trailing `\b` group. The char after a closing quote (space,
+            # then `{`) is also non-word, so `\b` between two non-word
+            # chars never fired -- the quoted-test-name form (`test "basic"
+            # {`), Zig's dominant real-world test declaration shape, never
+            # matched at all. Pulled out with no trailing `\b`
+            # (self-delimiting on the closing quote).
             "test": re.compile(
-                r'\b(test\s+"[^"]*"|test\s+[a-zA-Z_]\w*|std\.testing\.expect|std\.testing\.expectEqual)\b'
+                r'test\s+"[^"]*"|\b(?:test\s+[a-zA-Z_]\w*|std\.testing\.expect|std\.testing\.expectEqual)\b'
             ),
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency: Temporal Static. Suspend/resume and thread primitives.

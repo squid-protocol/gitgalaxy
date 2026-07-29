@@ -79,7 +79,7 @@ def run_firewall_audit(
     imports_whitelisted = 0
     imports_blacklisted = 0
     imports_unknown = 0
-    threats_found_files = set()
+    threats_found_files: set[str] = set()
     threats_allowed = 0
 
     if not parsed_files:

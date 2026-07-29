@@ -8782,11 +8782,11 @@
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># 2. Ignite the Delta Engine</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">scope</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="s2">&quot;/path/to/repo&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">scope</span><span class="o">.</span><span class="n">execute_delta_mission</span><span class="p">(</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">ram_cache</span><span class="o">=</span><span class="n">ram_cache</span><span class="p">[</span><span class="s1">&#39;cryolink&#39;</span><span class="p">],</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">ram_cache</span><span class="o">=</span><span class="n">ram_cache</span><span class="p">[</span><span class="s2">&quot;cryolink&quot;</span><span class="p">],</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">added</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;src/api/new_route.py&quot;</span><span class="p">],</span>
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">modified</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;src/core/auth.py&quot;</span><span class="p">],</span>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">deleted</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;src/legacy/old_auth.py&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">db_output_path</span><span class="o">=</span><span class="s2">&quot;repo_master.db&quot;</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">db_output_path</span><span class="o">=</span><span class="s2">&quot;repo_master.db&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">)</span>
 </code></pre></div>
 <p>By shifting from O(N) full scans to O(1) delta updates, a single central GitGalaxy server can monitor thousands of active enterprise repositories simultaneously with zero pipeline latency.</p>

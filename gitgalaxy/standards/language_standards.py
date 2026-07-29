@@ -4767,8 +4767,13 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # User-driven branching and declarative framework conditionals.
+            # BUG FIX: `*ngIf` was inside the shared `\b(...)"[^"]*"` group.
+            # `*` is a non-word char always preceded by whitespace in real
+            # markup (`<div *ngIf="cond">`) -- a `\b` between two non-word
+            # characters can never fire, so Angular's structural directive
+            # never matched. Pulled out with no leading `\b` (self-delimiting).
             "branch": re.compile(
-                r'<(?:details|summary|noscript)\b|\b(?:v-if|ng-if|\*ngIf|x-if|hx-swap)="[^"]*"|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}',
+                r'<(?:details|summary|noscript)\b|\b(?:v-if|ng-if|x-if|hx-swap)="[^"]*"|\*ngIf="[^"]*"|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}',
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
@@ -4794,8 +4799,16 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 2: RISK ENGINE (Structural Integrity & Debt) ---
             # 6. safety (Defensive Programming / Validation)
             # Browser security and validation constraints.
+            # BUG FIX: `pattern="..."`/`sandbox="..."`/`rel="noopener..."`/
+            # `integrity="..."` were inside the shared `\b(...)\b` group.
+            # Each ends on a literal `"`, and the char immediately after a
+            # closing attribute quote (a space or `>`) is also non-word --
+            # `\b` between two non-word characters can never fire, so all
+            # four never matched. Pulled out with no trailing `\b`
+            # (self-delimiting on the closing quote).
             "safety": re.compile(
-                r'\b(?:required|readonly|disabled|pattern="[^"]*"|sandbox="[^"]*"|rel="noopener(?: noreferrer)?"|integrity="[^"]*")\b|<meta\s+http-equiv="Content-Security-Policy"',
+                r'\b(?:required|readonly|disabled)\b|pattern="[^"]*"|sandbox="[^"]*"|rel="noopener(?: noreferrer)?"'
+                r'|integrity="[^"]*"|<meta\s+http-equiv="Content-Security-Policy"',
                 re.I,
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
@@ -4839,8 +4852,13 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
             # 15. concurrency (Asynchronous Execution)
             # Prioritization and asynchronous fetching logic.
+            # BUG FIX: same trailing-`\b`-after-quote trap as `safety` above --
+            # `loading="lazy"`/`fetchpriority="..."`/`decoding="async"` all end
+            # on `"`, and the shared trailing `\b` can't fire against the
+            # non-word char that follows a closing attribute quote. Pulled out.
             "concurrency": re.compile(
-                r'\b(?:async|defer|loading="lazy"|fetchpriority="(?:high|low)"|decoding="async")\b|<link\s+rel="(?:preload|prefetch|preconnect|modulepreload|prerender)"',
+                r'\b(?:async|defer)\b|loading="lazy"|fetchpriority="(?:high|low)"|decoding="async"'
+                r'|<link\s+rel="(?:preload|prefetch|preconnect|modulepreload|prerender)"',
                 re.I,
             ),
             # 16. ui_framework (UI / View Components)
@@ -4860,16 +4878,30 @@ LANGUAGE_DEFINITIONS = {
             "globals": None,
             # 19. decorators (Decorators / Annotations)
             # Directive-based logic mutation (HTMX, Vue, Alpine).
+            # BUG FIX: `hidden`/`inert` are true HTML boolean attributes,
+            # almost always written bare (`<div hidden>`) with no `=` at
+            # all -- the old pattern required `[ \t]*=` unconditionally
+            # after every alternative, so the dominant real-world form of
+            # these two never matched. Made the `=...` suffix optional only
+            # for hidden/inert; the rest (class/style/tabindex/etc.) always
+            # require an explicit value in real markup, so they keep the
+            # mandatory `=`.
             "decorators": re.compile(
-                r'\b(?:class|style|hidden|inert|tabindex|draggable|spellcheck|dir|lang|translate)[ \t]*=|hx-[a-z-]+="[^"]*"|x-[a-z-]+="[^"]*"|v-[a-z-]+="[^"]*"',
+                r"\b(?:hidden|inert)\b(?:[ \t]*=)?"
+                r"|\b(?:class|style|tabindex|draggable|spellcheck|dir|lang|translate)[ \t]*="
+                r'|hx-[a-z-]+="[^"]*"|x-[a-z-]+="[^"]*"|v-[a-z-]+="[^"]*"',
                 re.I,
             ),
             # 20. generics (Generics / Type Parameters)
             "generics": re.compile(r"<slot\b[^>]*>", re.I),
             # 21. comprehensions (Iterators / Comprehensions)
             # Declarative array iteration in markup.
+            # BUG FIX: same leading-`\b`-before-`*` trap as `branch` above --
+            # `*ngFor` is always preceded by whitespace in real markup, so
+            # the shared leading `\b` (boundary between two non-word chars)
+            # never fired. Pulled out with no leading `\b`.
             "comprehensions": re.compile(
-                r'\b(?:v-for|ng-repeat|\*ngFor|x-for)="[^"]*"|\{%\s*for\b[^%]*%\}|\{\{#each\b[^}]*\}\}',
+                r'\b(?:v-for|ng-repeat|x-for)="[^"]*"|\*ngFor="[^"]*"|\{%\s*for\b[^%]*%\}|\{\{#each\b[^}]*\}\}',
                 re.I,
             ),
             # 22. scientific (Numerical / Compute Libraries)
@@ -4880,7 +4912,15 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Extreme logic heat: heavy inline styles and JS pollution.
-            "reflection_metaprogramming": re.compile(r'style="[^"]*;"|\bon[a-z]+="[^"]*"', re.I),
+            # BUG FIX: `style="[^"]*;"` required a literal trailing `;`
+            # immediately before the closing quote. CSS allows omitting the
+            # last declaration's semicolon, and most real inline styles
+            # (hand-written or minified) don't carry one -- confirmed
+            # `style="color:red"` and `style="color:red;font-size:12px"`
+            # (multi-declaration, no trailing `;`) never matched under the
+            # old pattern. Dropped the semicolon requirement; presence of
+            # any inline style attribute is the actual intent here.
+            "reflection_metaprogramming": re.compile(r'style="[^"]*"|\bon[a-z]+="[^"]*"', re.I),
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r'<script\s+type="(?:importmap|module)"|<link\s+(?:rel="stylesheet"|rev="[^"]*")',
@@ -4914,7 +4954,11 @@ LANGUAGE_DEFINITIONS = {
                 re.I,
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
-            "dependency_injection": re.compile(r'<script\s+type="importmap"\b', re.I),
+            # BUG FIX: trailing `\b` right after the closing `"` -- same
+            # shared-boundary trap as safety/concurrency above (the char
+            # after a closing attribute quote is never a word char), so
+            # this never matched at all. Self-delimiting on the quote.
+            "dependency_injection": re.compile(r'<script\s+type="importmap"', re.I),
             # 34. macros (Preprocessor Directives / Macros)
             # Server Side Includes (SSI).
             "macros": re.compile(r"<!--#\s*(?:include|exec|echo|config|if|else|endif)\b", re.I),
@@ -4949,7 +4993,14 @@ LANGUAGE_DEFINITIONS = {
             # 44. sync_locks (Resource Management & Stability)
             "sync_locks": None,
             # 45. immutability_locks (Immutability Constraints)
-            "immutability_locks": re.compile(r'\b(?:readonly|disabled|inert|aria-disabled="true")\b', re.I),
+            # BUG FIX: `aria-disabled="true"` ended on `"`, inside the same
+            # shared trailing-`\b` trap as safety/concurrency above. It
+            # happened to still match in practice only because "disabled" is
+            # a substring of "aria-disabled" and self-heals via the bare
+            # `disabled` alternative (matching regardless of the actual
+            # true/false value, which was never the intent) -- pulled out so
+            # the match is for the right reason.
+            "immutability_locks": re.compile(r'\b(?:readonly|disabled|inert)\b|aria-disabled="true"', re.I),
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(
                 r'\b(?:removeEventListener|clearInterval|clearTimeout|remove|innerHTML\s*=\s*[\'"][\'"])\s*\(',

@@ -1,70 +1,80 @@
-# The Spectral Audit (Quality Control)
+# Statistical Quality Auditor & Bayesian Data Validation
 
-> **Bayesian Accountability**
->
-> The Spectral Auditor is the final data-integrity gate of the analysis pipeline. It performs an automated statistical verification of every artifact to ensure that the assigned language and resulting logic metrics are mathematically plausible. This process eliminates "Linguistic Drift"—the misidentification of non-code artifacts (e.g., massive data dumps, logs, or minified blobs) as source files—ensuring anomalous data does not corrupt the project's aggregate metrics.
->
-> The Auditor operates on **Bayesian Accountability**. If a file acts as a statistical outlier compared to its peers, the engine refutes the prior assumption and banishes the file to the Singularity (Dark Matter), regardless of its initial metadata claims.
+> **File Reference:** [`gitgalaxy/metrics/statistical_auditor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/statistical_auditor.py)
 
-## Empirical Bayes Loop-Back (The Consensus Engine)
+The `StatisticalAuditor` module in `gitgalaxy/metrics/statistical_auditor.py` acts as the statistical quality control and data validation gate for GitGalaxy. It performs automated statistical verification across all processed files to ensure assigned language classifications and structural metrics are mathematically plausible.
 
-Before evaluating signal density, the Auditor attempts to save ambiguous files using local ecosystem consensus.
-
-* **The Triage:** Files that landed at a weak Tier 4 identity lock, or suffered a collision, are placed in an "Ambiguous Pen." Highly confident files form the "Confident Core."
-* **Ecosystem Consensus:** The engine maps the exact file extensions of the Confident Core. If it determines that 80% or more of a specific extension in *this specific repository* firmly belongs to a single language, it applies that localized truth to the Ambiguous Pen.
-* **The Loop-Back:** Ambiguous files matching that extension are pulled into the dominant orbit, elevated to a Tier 2 Lock, and spared from immediate relegation. Files that remain ambiguous are instantly stripped to Dark Matter to prevent hallucinations.
-
-## Dynamic Auditability (Inert vs. Structural Matter)
-
-Legacy systems use hardcoded lists (e.g., "ignore JSON and Markdown") to bypass audits. The Spectral Auditor dynamically evaluates a language's capability based on its active regex sensors against the 32-key schema.
-
-* **Inert Matter Gate:** If a language triggers 0 active logic sensors (e.g., YAML, CSV, Plaintext), it is classified as *Inert Matter*. It automatically bypasses the statistical audit and is placed directly in the visible galaxy.
-* **Structural Gate:** If a language utilizes less than 75% of the total logic sensors (missing concepts like pointers, memory allocation, or globals), it is classified as *Structural* (e.g., HTML, CSS, Dockerfile).
-
-## The Ecosystem Orphan Guard
-
-If a language species has a microscopic population in the galaxy (dynamically calculated based on total repository size, e.g., 3 files or fewer), it triggers the Orphan Guard.
-
-To survive as an isolated species, the files MUST possess an absolute Convergent Lock (Tier 0). If the entire orphan population relies on weak, unverified claims (Tier 1+), the Auditor assumes they are linguistic hallucinations, strips their identities, and converts them to **plaintext** to preserve their mass without polluting the linguistic composition metrics.
-
-## Signal Density & The MAD Protocol
-
-For true executable code, the Auditor calculates **Intent Density** ($\rho$): **(Sum of 32 Verified Signal Hits) / (Total Physical Lines)**. This isolates authorial intent from syntactic noise.
-
-To find outliers, the Auditor uses the **MAD Protocol (Median Absolute Deviation)**:
-
-1. **Statistical Readiness:** The baseline is only trusted if the species has a massive population ($N \ge 50$), high cohesion (R-MAD < 1.0), and at least one high-confidence anchor file ($C_i > 0.85$).
-2. **Polyglot Defense:** Highly Blended Polyglots (where the primary language makes up < 80% of the mass) are excluded from the baseline math to prevent embedded languages from skewing the median density.
-3. **The Robust Z-Score ($M_i$):** $$M_i = \frac{0.6745 \times (\rho - \text{Median}_\rho)}{\text{MAD}}$$
-4. **Bayesian Threshold Gating ($T_{adj}$):** The threshold for relegation is dynamically tied to the file's upstream Confidence Score ($C_i$). The formula ensures that high-confidence files are granted wider statistical leniency, while low-confidence files are held to strict scrutiny.
-$$T_{adj} = -5 \times \max(C_i, 0.1)$$
-
-## The Event Horizon: Quarantine, Necrosis, and Relegation
-
-Every file is evaluated against the 50/0 Law (any file >50 lines with 0 signals is a data dump) and the MAD Protocol. If flagged as an outlier, it faces three possible outcomes:
-
-### The Quarantine Guard (Security Override)
-Highly obfuscated malware often registers a structural density of zero, attempting to disguise itself as a harmless data dump to evade traditional scanners. If a file fails the audit but the Security Lens detects *ACTIVE THREAT SIGNATURES* (e.g., Glassworm obfuscation, Sub-Atomic Decryption), the Quarantine Guard activates. It explicitly intercepts the relegation, forcing the active threat into the visible galaxy so the Signal Processor and human auditors can flag the anomaly.
-
-### The Necrosis Guard (Reprieve from Relegation)
-If a file fails the density audit but contains a massive comment-to-code ratio (e.g., > 5:1) or its active signals are >50% graveyard hits (commented-out logic), it is granted a Reprieve. This ensures that "Dead Code" remains in the visible galaxy for forensic Tech Debt analysis rather than being lost to the Singularity.
-
-### Relegation to Dark Matter
-Files failing the audit (and not saved by Quarantine or Necrosis) are stripped of their metadata and cast into the Singularity. To ensure SBOM Traceability, they are formatted into an Inert Dark Matter schema that preserves their "Bayesian Optics" (the failed claim, confidence, and source proof) so engineers can audit *why* the prediction was refuted.
-
-<br><br>
+By applying Bayesian accountability models, the auditor excludes anomalous non-code artifacts (e.g., massive data dumps, raw log files, compressed binary blobs) from repository-wide code metrics.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Empirical Bayes Consensus Loop
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+Before auditing signal density, the auditor attempts to resolve ambiguous file classifications using local ecosystem consensus:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+1. **Classification Triage:** Files with low-confidence locks (Tier 4 discovery or extension collisions) are assigned to an ambiguous evaluation queue. Confident files form the verified core baseline.
+2. **Directory Ecosystem Consensus:** Evaluates extension distributions within the verified core. If 80% or more of files matching a specific extension firmly belong to a single language within the target repository, that consensus rule is applied to ambiguous files.
+3. **Consensus Elevation & Relegation:** Ambiguous files matching the dominant extension rule are elevated to Tier 2 locks and retained in code metrics. Unresolved ambiguous files are relegated to the unclassified asset store.
 
+---
 
+## Dynamic Auditability Gates
+
+Languages are audited based on their structural sensor coverage across the 32-key metric schema:
+
+* **Inert Asset Gate:** Languages triggering zero active logic sensors (e.g., YAML, CSV, Plaintext) automatically pass quality audits as static content assets.
+* **Structural Asset Gate:** Languages utilizing less than 75% of available logic sensors (e.g., HTML, CSS, Dockerfile) are classified as structural assets and audited under relaxed criteria.
+
+---
+
+## Ecosystem Orphan Guard
+
+If a programming language species is represented by a tiny population (e.g., 3 files or fewer in a large repository), the auditor triggers the Orphan Guard:
+
+* **Strict Lock Requirement:** Orphan files must hold a **Tier 0 Convergent Lock** (dual matching evidence) to remain classified as executable code.
+* **Fallback to Plaintext:** If orphan files rely on unverified signatures, the auditor strips their language keys and reclassifies them as `plaintext`. This preserves file mass in repository metrics without polluting language composition statistics.
+
+---
+
+## Intent Density & MAD Outlier Protocol
+
+For executable source code, the auditor computes **Intent Density** ($\rho$):
+
+$$\rho = \frac{\text{Verified Signal Hits}}{\text{Total Physical Lines}}$$
+
+To identify statistical outliers without sensitivity to extreme values, the auditor uses the **Median Absolute Deviation (MAD)** protocol:
+
+1. **Baseline Validation Criteria:** Baseline statistics are calculated only if the language population is sufficiently large ($N \ge 50$), highly cohesive ($\text{R-MAD} < 1.0$), and contains at least one high-confidence anchor file ($C_i > 0.85$).
+2. **Polyglot Exclusion:** Multi-language hybrid files (< 80% primary language mass) are excluded from baseline calculations to prevent mixed syntax from distorting median metrics.
+3. **Robust Z-Score Computation:** Computes the robust Z-score ($M_i$) for each file:
+   $$M_i = \frac{0.6745 \times (\rho - \text{Median}_\rho)}{\text{MAD}}$$
+4. **Bayesian Dynamic Thresholding ($T_{adj}$):** Adjusts outlier relegation thresholds based on upstream prior confidence ($C_i$):
+   $$T_{adj} = -5 \times \max(C_i, 0.1)$$
+   High-confidence files receive wider statistical tolerance, whereas unverified low-confidence files face strict scrutiny.
+
+---
+
+## Outlier Handling & Event Horizon Policies
+
+Files violating the 50/0 rule (files over 50 lines with zero structural signals) or failing MAD Z-score thresholds face three evaluation outcomes:
+
+### 1. Quarantine Override Guard (Security Precedence)
+Obfuscated malware payloads often register zero structural code signals to evade static analyzers. If a file fails statistical density audits but the security scanner (`security_lens.py`) detects active threat signatures (obfuscation, XOR decryption loops, homoglyphs), the Quarantine Guard intercepts relegation. The file is forced into the main code graph so security alerts remain visible.
+
+### 2. Necrosis Guard (Dead Code Reprieve)
+Files failing density audits that contain high comment ratios (> 5:1 comment-to-code ratio) or > 50% commented-out code matches receive an audit reprieve. Dead code is retained in the active file graph for technical debt and legacy analysis.
+
+### 3. Relegation to Unclassified Asset Store
+Files failing quality audits (and not saved by Quarantine or Necrosis guards) are stripped of language keys and relegated to the unclassified asset store (Dark Matter). Relegation records preserve Bayesian audit metadata (failed claim, prior confidence, and proof source) for compliance tracking and SBOM audits.
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `statistical_auditor.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive 3D repository visualization dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

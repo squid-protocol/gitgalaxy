@@ -1,50 +1,49 @@
-# The Dev Agent Firewall (AI Guardrails)
+# The Dev Agent Firewall (AI Guardrail Engine)
 
-> **Regulating Autonomous AI Editors**
->
-> The Dev Agent Firewall (`dev_agent_firewall.py`) evaluates the repository specifically to determine if it is safe to allow an autonomous AI agent (like Claude, Cursor, or Devin) to modify the code.
->
-> While standard linters check for human errors, this firewall evaluates **Token Physics** and **Architectural Complexity** to anticipate where a Large Language Model is statistically likely to fail, hallucinate, or cause catastrophic cascading breakages.
+> **File Reference:** [`gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py)
 
-## Token Physics & Agentic Constraints
-
-The firewall scans the telemetry, risk vectors, and network metrics of every file in the ecosystem to assess its compatibility with standard LLM context windows and reasoning capabilities. It enforces four primary guardrails:
-
-### 1. The Context Window Shredder (The Black Hole)
-If a file has a massive token footprint (e.g., `token_mass > 8000`) AND terrible algorithmic complexity (e.g., $O(N^3)$ or worse), it is flagged as an `is_agentic_black_hole`. 
-* **The Threat:** Feeding this file to an AI agent will completely shred its context window and reasoning capabilities, leading to severe logical omissions and "forgetfulness" during refactoring.
-
-### 2. The HITL Mandate (Human-In-The-Loop)
-The firewall cross-references the file's Network Graph topology against its local risk. If a file has a massive Blast Radius (Normalized PageRank > 1.0) and severe technical debt (cumulative risk vector > 200), it triggers the `requires_hitl` flag.
-* **The Threat:** The file is too structurally critical and too fragile to trust to autonomous modification. An agent making a mistake here will shatter the entire application. A human must explicitly review any AI-generated changes.
-
-### 3. The Hallucination Zone
-Detects areas of the codebase relying heavily on metaprogramming, reflection, or dynamic dispatch (`heat_triggers > 2`) but lacking adequate documentation (`doc_density < 0.2`).
-* **The Threat:** Because the code's behavior is determined dynamically at runtime and lacks human-readable explanations, static LLM analysis will fail. The AI is highly likely to hallucinate missing methods or incorrect data structures.
-
-### 4. The Silent Mutation Risk
-Flags files that possess high state volatility (`state_flux > 50`) and act as heavily relied-upon foundational producers (`in_degree > 5`), but have absolutely zero unit tests.
-* **The Threat:** If an autonomous agent refactors this file and introduces a subtle state-mutation bug, there are no tests to catch it. The AI cannot verify its own fixes, leading to silent, cascading corruption across all downstream dependencies.
-
-## Telemetry Injection
-
-Once the firewall completes its evaluation, it compiles the triggered guardrails and specific warning messages into an `ai_guardrails` report. This payload is injected directly back into the star's central telemetry. 
-
-This ensures that downstream output modules—specifically the LLM Recorder—can explicitly warn downstream AI agents about the physical constraints and dangers of the files they are attempting to edit.
-
-<br><br>
+The Dev Agent Firewall (`dev_agent_firewall.py`) evaluates codebase complexity and network graph metrics to determine safety boundaries for autonomous AI coding agents (such as Cursor, Claude, or Devin). Rather than enforcing syntax style rules, the firewall analyzes token mass, algorithmic complexity, graph topology, and documentation density to identify modules where autonomous code edits present high statistical probabilities of context window degradation, API hallucinations, or silent regressions.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Token Density & Architectural Guardrails
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+The firewall scans file telemetry, risk vectors, and dependency graph metrics to evaluate compatibility with LLM context windows and reasoning capacities. It enforces four primary safety guardrails:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+### 1. Context Window Exhaustion (`is_agentic_black_hole`)
+Flags files exhibiting massive token footprints (`token_mass > 8000`) combined with severe algorithmic complexity ($O(N^3)$ or worse).
+* **Engineering Risk:** Modifying these files inside an AI agent session consumes context window allocations, degrading LLM reasoning and leading to code truncation or structural omissions during refactoring.
 
+### 2. Human-In-The-Loop Approval Gate (`requires_hitl`)
+Triggers when a file possesses a high PageRank Blast Radius (`normalized_blast_radius > 1.0`) combined with high technical debt (`cumulative_risk > 200`).
+* **Engineering Risk:** The module is both load-bearing and structurally fragile. Unvalidated autonomous edits present high risks of breaking downstream sub-systems. Automated modifications to these modules require explicit human code review.
 
+### 3. Dynamic Logic Warning Zone (`hallucination_zone`)
+Flags files relying heavily on reflection, dynamic dispatch, or metaprogramming (`heat_triggers > 2`) that lack sufficient documentation (`doc_density < 0.2`).
+* **Engineering Risk:** Runtime behaviors depend on dynamic resolution rather than static interface contracts. Without inline documentation, LLM code generators frequently hallucinate missing functions or incorrect method signatures.
+
+### 4. Silent Mutation Risk (`silent_mutation_risk`)
+Identifies modules exhibiting high state volatility (`state_flux > 50`) that act as foundational producers (`in_degree > 5`) but lack unit test coverage.
+* **Engineering Risk:** Autonomous refactoring of un-tested stateful producers risks introducing subtle runtime state corruption. Without automated unit test suites, agents cannot verify code correctness, propagating silent errors to downstream consumers.
+
+---
+
+## Telemetry Integration
+
+Upon completing evaluation, the firewall compiles active guardrails and descriptive warning strings into an `ai_guardrails` object injected into the file's central telemetry map.
+
+This telemetry is consumed by downstream components—specifically the `LLMRecorder` (`llm_recorder.py`)—to insert explicit agent constraint warnings into generated prompt briefs and SQLite knowledge graphs.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

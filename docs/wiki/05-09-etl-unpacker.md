@@ -1,35 +1,41 @@
 # ETL Unpacker (EBCDIC to CSV)
 
-> **Architecture: Binary Translation & Precision Decoding**
+> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py)
+
+> **Architecture: Binary Data Unpacking & Character Decoding**
 >
-> **Summary:** The ETL (Extract, Transform, Load) Unpacker acts as the data bridge between the legacy mainframe and the modern cloud. It translates raw, binary EBCDIC byte streams into standard UTF-8 CSV files, unpacking highly compressed mainframe memory formats on the fly.
+> **Summary:** The ETL Unpacker (`cobol_etl_unpacker.py`) serves as a data migration utility between legacy mainframe datasets and modern cloud databases. It converts raw EBCDIC binary byte streams into UTF-8 CSV files, parsing Packed Decimal (COMP-3) and Zoned Decimal fields using layout metadata from generated JSON schemas.
 
-## Schema-Driven Byte Slicing
-Mainframe data files do not have delimiters (like commas or tabs). They are continuous blocks of binary data. To slice them correctly, the unpacker reads the GitGalaxy-generated JSON Schema.
-It calculates the exact physical byte length of each field based on its legacy `PIC` clause. For example, it translates `PIC X(50)` into a rigid 50-byte read buffer, allowing it to perfectly segment the binary stream row by row.
+## Schema-Driven Record Byte Slicing
 
-## COMP-3 (Packed Decimal) Decoding
-To save physical disk space, IBM mainframes compress numeric data using COMP-3. This format packs two digits into a single byte (nibbles), utilizing the final half-byte to store the positive/negative sign.
-* The unpacker calculates the compressed byte size using the formula: `ceil((digits + 1) / 2)`.
-* It decodes the raw hex values into standard Python floats.
-* It validates the final nibble (checking for `D` or `B` to indicate negative values) and applies the schema's defined decimal scale (e.g., shifting the decimal point for `PIC S9(5)V99`).
+Mainframe binary datasets lack row delimiters (such as newlines or commas). Instead, data records are stored as fixed-length byte blocks. 
 
-## EBCDIC Character Translation
-Standard text fields and zoned decimals are read in their raw EBCDIC encoding and translated to standard UTF-8. The unpacker strictly uses the `cp037` code page (the standard IBM US EBCDIC character set) to ensure special characters and legacy formatting survive the transition to the cloud intact.
+The unpacker (`calculate_byte_layout`) reads the GitGalaxy JSON Schema (`_schema.json`) to calculate exact field byte boundaries:
+* Parses legacy `PIC` clauses to determine conceptual character or numeric length.
+* Computes field byte offsets and record row lengths (`record_length`).
+* Slices incoming binary streams row-by-row based on calculated byte boundaries.
 
-<br><br>
+## Packed Decimal (COMP-3) Decoding
+
+To optimize storage space, mainframes compress numeric values using Packed Decimal (COMP-3) formatting, storing two decimal digits per byte (one per nibble) with the final nibble reserved for sign representation:
+* **Byte Size Calculation:** Determines physical byte footprint using `ceil((digits + 1) / 2)`.
+* **Sign Nibble Parsing:** Inspects the final nibble of the byte array (`D` or `B` indicate negative values; `C`, `A`, `F`, or `E` indicate positive values).
+* **Decimal Scale Application:** Divides the parsed numeric integer by `10^decimals` according to the schema scale specification to produce standard floating-point values (`unpack_comp3`).
+
+## EBCDIC Character Encoding Conversion
+
+Alphanumeric text fields and Zoned Decimal numbers are decoded from raw EBCDIC bytes to UTF-8 text using the standard IBM US EBCDIC code page (`cp037`). This ensures special characters and text formatting are preserved accurately during database migration.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

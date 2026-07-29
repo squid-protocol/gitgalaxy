@@ -1,58 +1,63 @@
-# The GPU Recorder (Hypercompressed Data Storage)
+# The GPU Recorder (Columnar Data Exporter)
 
-> **The Starmap**
->
-> The GPU Recorder (`gpu_recorder.py`) is the instrument's high-performance recording head. It prepares project telemetry for real-time 3D WebGL/WebGPU rendering by transforming verbose, row-based JSON into a hypercompressed, columnar format. Unlike the Audit Recorder, it prioritizes memory efficiency, bandwidth reduction, and raw computational speed over human readability.
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-## Destructive RAM Eviction
-
-To handle massive repositories without exhausting system memory, the engine employs an aggressive eviction strategy during the final serialization phase.
-
-* **Iterative Destruction:** As each file (Star) or anomaly (Singularity) is converted into its columnar components, it is physically removed from the RAM-resident list using `.pop()`. This ensures the list is physically emptied as the new structure is built.
-* **Explicit Garbage Collection:** The original object references are explicitly deleted (e.g., `del s`, `del d`), followed by a manual Python garbage collection cycle (`gc.collect()`) to completely clear the heap before the massive file-write operation.
-
-## The Columnar Pivot & Dependency Graphing
-
-The recorder converts the object-oriented manifest into a "Structure of Arrays" (SoA). It introduces advanced dependency graphing and Machine Learning clustering directly into this pivot:
-
-* **Primary Arrays:** Parallel columns for spatial coordinates (`pos_x`, `pos_y`, `pos_z`), masses, and DNA signals (`cog_raw`, `raw_churn_freq`, `ownership_entropy`).
-* **The WebGL Edge Engine:** The recorder builds a pre-computed Dependency Resolution Map *before* destruction. It maps every raw import to its target file's exact array index, generating `edges` (inbound connections) and `outbound_edges`. This allows the UI to render thousands of 3D relational lines instantly without performing expensive string-matching in the browser.
-* **Satellite Minification:** Flattens the internal function (satellite) data into a single 1D array (`satellite_data_flat`), tracking block sizes using `satellite_offsets`. It reverses the chunks to maintain a highest-first order.
-* **ML Archetypes & AI Threats:** Extracts dynamic Machine Learning fingerprint data (`a_ids`, `a_dists`) and injects the XGBoost AI Threat Confidence scores directly into a dedicated `ai_threats` column.
-
-## String Interning & Numerical Quantization
-
-To achieve maximum compression, the recorder eliminates repetitive text and floating-point bloat.
-
-### String Interning Registries
-Repeated strings are stored once in a master header registry and replaced in the columns with lightweight integer IDs. Registries include standard metadata (Languages, Authors, Proofs) as well as vectorized lookups for `ext_lookup`, `import_lookup`, `const_lookup` (Constellations), and `archetype_lookup` (ML Archetypes).
-
-### Physics and Exposure Scaling
-Floating-point values are precision-scaled and converted to integers to match the input expectations of vertex shaders:
-* **Physics Scaling (x10):** Applied to Spatial Coordinates, Structural Mass, and Satellite Angles (e.g., `150.45` becomes `1505`).
-* **Exposure Scaling (x1000):** Applied to AI Threat Scores, Control Flow Ratios, Ownership Entropy, and Author Distribution (e.g., a float `0.854` becomes `854`).
-
-## Dynamic Lore & Final Sealing
-
-Before final serialization, the recorder shapes the payload for the frontend UI:
-
-* **Flattened Singularity:** The heavily nested Dark Matter composition statistics are flattened into a UI-friendly breakdown, explicitly separating formats and mapping their specific diagnostic reasons.
-* **Dynamic Lore Injection:** Fetches the `PROJECT_STORIES` registry to inject the specific narrative, historical significance, and highlighted artifacts into the root of the GPU manifest, bridging the gap between raw data and human storytelling.
-* **Final Sealing:** The JSON is serialized with `indent=None` and `separators=(',', ':')` to strip all whitespace, yielding the absolute lowest latency payload possible for the 3D visualizer.
-
-<br><br>
+The GPU Recorder (`gpu_recorder.py`) is the high-performance data transformation module of the GitGalaxy pipeline. It converts verbose, object-oriented JSON telemetry into a hypercompressed columnar format (Structure of Arrays / SoA) designed specifically for WebGL/WebGPU 3D rendering engines. The exporter prioritizes memory efficiency, low payload transfer size, and low-latency buffer loading over human readability.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Memory Management & Garbage Collection
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+To process large codebases without exhausting system RAM, the exporter executes an aggressive memory eviction strategy during final payload construction:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Iterative Array Eviction:** As file records and anomaly structures are converted into columnar arrays, they are popped from RAM-resident dictionaries using `.pop()`, freeing memory incrementally as serialization progresses.
+* **Explicit Garbage Collection:** Object references are explicitly cleared (`del`), followed by manual Python garbage collection calls (`gc.collect()`) prior to disk serialization to minimize memory footprint.
 
+---
 
+## Columnar Layout & Dependency Resolution
+
+The recorder converts nested dictionary hierarchies into parallel flat arrays (Structure of Arrays):
+
+* **Parallel Metric Columns:** Generates parallel arrays for spatial positions (`pos_x`, `pos_y`, `pos_z`), file masses, and structural code metrics (`cog_raw`, `raw_churn_freq`, `ownership_entropy`).
+* **Pre-Computed Dependency Edges:** Pre-resolves string import declarations into numerical array index pointers (`edges` and `outbound_edges`). This allows WebGL visualizers to draw Thousands of 3D dependency connections directly from GPU vertex buffers without performing expensive string searches at runtime.
+* **Flattened Function Offsets:** Flattens internal function/method records into a single 1D array (`satellite_data_flat`), using offset pointers (`satellite_offsets`) to maintain boundary lookups sorted by metric magnitude.
+* **ML Archetypes & Threat Scores:** Vectorizes Machine Learning archetype classifications and embeds XGBoost threat confidence percentages directly into numeric columns (`ai_threats`).
+
+---
+
+## String Dictionary Encoding & Fixed-Point Quantization
+
+To maximize compression ratios and decrease network transfer times, the exporter eliminates redundant text strings and floating-point precision overhead.
+
+### String Dictionary Encoding (Interning)
+Repeated string values (file extensions, directory paths, language names, import names, and archetype labels) are stored once in header lookup tables and replaced in columnar data with integer dictionary keys (`ext_lookup`, `import_lookup`, `const_lookup`, `archetype_lookup`).
+
+### Fixed-Point Quantization
+Floating-point values are multiplied by fixed scaling factors and stored as integers to match graphics pipeline vertex buffer formats:
+* **Position & Structural Mass Scaling (10x):** Applied to spatial coordinates, file masses, and function angles (e.g., `150.45` scales to `1505`).
+* **Metric & Threat Scaling (1000x):** Applied to threat probabilities, control flow ratios, ownership entropy, and author distribution percentages (e.g., `0.854` scales to `854`).
+
+---
+
+## Output Packaging & Serialization
+
+Prior to disk export, the module finalizes the visualizer payload:
+
+* **Excluded Artifact Breakdown:** Summarizes file exclusion categories and diagnostics into flat array structures for frontend filter rendering.
+* **Metadata & Context Injection:** Includes project metadata, historical overview metrics, and highlighted analysis insights in the payload header.
+* **Compressed Serialization:** Serializes JSON output without formatting whitespace (`separators=(',', ':')`), generating minimal-byte payloads for WebGL consumption.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

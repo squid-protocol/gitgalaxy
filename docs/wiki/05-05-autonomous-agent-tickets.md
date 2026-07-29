@@ -1,37 +1,36 @@
-# Autonomous Agent Tickets
+# Autonomous Agent Task Tickets
 
-> **Architecture: Deterministic LLM Task Orchestration**
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py)
+
+> **Architecture: Structured LLM Task Orchestration & Prompt Bounding**
 >
-> **Summary:** To complete the modernization loop, the generated Java code must be populated with the extracted COBOL business rules. Instead of feeding raw COBOL directly into an LLM (which guarantees hallucinations), GitGalaxy packages the isolated logic slices into strict, structured JSON Task Tickets designed for autonomous agents.
+> **Summary:** To complete the Java modernization loop, generated `@Service` skeletons must be populated with translated business rules. Rather than feeding entire legacy source files directly to an LLM (which can cause hallucinated dependencies and missing state), `cobol_to_java_agent_forge.py` packages pre-sliced business logic into structured JSON Task Tickets (`{prog_id}_java_service_job.json`) designed for autonomous code generation agents.
 
-## The JSON Ticket Payload
+## JSON Task Ticket Schema
 
-The Agent Forge generates a strict JSON contract (`{prog_id}_java_service_job.json`) that bounds the AI agent to a highly specific, restricted context.
+The Task Generator constructs a bounded JSON ticket (`generate_java_agent_ticket`) that restricts AI code generation to a defined context:
 
-* **Isolated Business Rules:** The ticket contains only the localized logic slice extracted by the Microservice Slicer. The LLM cannot see the whole COBOL monolith; it only sees the exact paragraphs required for the target variable.
-* **External Dependencies:** The ticket explicitly lists the unresolved `CALL` statements discovered by the DAG. 
-* **Architectural Warnings:** The ticket injects the "Honesty Protocol" flags (e.g., system limit overrides, dynamic jumps) directly into the context window, forcing the AI to account for legacy edge cases.
+* **Isolated Business Rules:** Contains only localized logic statements extracted by static analysis. The agent is provided only with the specific paragraphs required to implement logic for the target variable.
+* **External Dependencies:** Explicitly enumerates unresolved subroutine calls (`unresolved_calls`) identified during static analysis.
+* **Architectural Warnings:** Injects audit flags and edge-case warnings (such as system limit overrides or dynamic GOTOs) directly into the ticket context window, requiring the agent to address legacy edge cases explicitly.
 
-## The Anti-Hallucination Constraints
+## Anti-Hallucination Constraints & Prompt Bounding
 
-The ticket includes a strict System Prompt engineered to suppress generative hallucinations:
-1. **No External Systems:** The agent is explicitly forbidden from inventing external systems or databases not defined in the JSON context.
-2. **Interface Forcing:** The agent is instructed to write standard interface calls to the provided `external_dependencies`, rather than attempting to guess and write the external logic itself.
-3. **Deterministic Output:** The agent is required to return a valid JSON object containing a `diagnosis` string and the isolated `java_code`, ensuring the pipeline can programmatically insert the result into the forged `@Service` class.
-
-<br><br>
+The ticket embedded `system_prompt` enforces strict generation rules:
+1. **No External System Synthesis:** The agent is explicitly prohibited from creating unlisted external systems or unmapped database tables.
+2. **Interface Contract Enforcement:** For unresolved external dependencies, the agent is instructed to generate interface calls against Spring-managed dependencies rather than writing arbitrary implementations.
+3. **Structured Response Format:** The agent must return its response as a structured JSON payload containing a `diagnosis` explanation string and a `java_code` string, enabling automated pipeline validation and insertion into generated `@Service` classes.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

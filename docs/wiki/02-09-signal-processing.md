@@ -1,82 +1,87 @@
-# Signal Processing (Equations & 2nd Pass Calculations)
+# Metrics Normalization & Risk Score Processor
 
-> **The Post-Processing Pipeline**
->
-> The Signal Processor acts as GitGalaxy's core Physics Engine. Once the Splicer has carved the raw structural telemetry (the 60-Point `SIGNAL_SCHEMA`), the Physics Engine resolves these counts into meaningful, scaled insights—the 18-Point `RISK_SCHEMA`.
->
-> Rather than executing static math, the modern Protocol introduces a multi-pass architecture. It evaluates a file not just in isolation, but against the physical reality of its surrounding neighborhood and the temporal history of the entire galaxy.
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
-## The Context vs. Entity Matrix (Domain Ontologies)
+The `SignalProcessor` module in `gitgalaxy/metrics/signal_processor.py` acts as the metrics normalization and risk evaluation engine for GitGalaxy. Once the structural code analyzer (`detector.py`) extracts raw 60-point structural counts (`SIGNAL_SCHEMA`), the signal processor normalizes these values and maps them into an 18-point scaled risk score vector (`RISK_SCHEMA`).
 
-A file's risk profile changes drastically depending on where it lives. A C++ file in a firmware repository is expected; a C++ file hidden deep inside a frontend JavaScript repository is highly anomalous.
-
-To catch these architectural Trojans, the engine utilizes the **Context vs. Entity Matrix**:
-
-* **Native Ecosystems:** The engine compares the file's language against the dominant language of its parent folder. [cite_start]If they match the same domain ontology (e.g., both are *backend*), the file is processed using standard native weights[cite: 143, 144].
-* [cite_start]**Alien Entities (Trojan Detection):** If a severe context mismatch occurs, the file is classified as an "Alien"[cite: 147]. [cite_start]The engine dynamically injects severe risk multipliers[cite: 149]. [cite_start]For example, a systems-level file (`c`, `rust`) hiding in a web neighborhood (`javascript`, `html`) receives massive multipliers to its `logic_bomb` and `memory_corruption` exposures, immediately flagging it as a severe architectural or security anomaly[cite: 153].
-
-## Standardization: The Tiered Physics Model
-
-[cite_start]To ensure comparative fairness across different code "materials," the engine applies Linguistic Normalization[cite: 490]. [cite_start]This accounts for the fact that explicit languages (like Rust) "broadcast" their safety, while implicit languages (like Shell) hide their risks[cite: 491].
-
-[cite_start]The instrument applies specific Trust Constants based on the language's spectral class[cite: 492]:
-
-| Tier | Spectral Class | Examples | Physics Treatment |
-| :--- | :--- | :--- | :--- |
-| **Tier 1** | **Explicit** | Rust, Go, Swift, Java | Signals are trusted at face value. [cite_start]The Fidelity Coefficient is 1.0, and "Implicit Risk" is zero[cite: 493, 494]. |
-| **Tier 2** | **Structured** | Python, JS, C++ | Translucent. [cite_start]A minor "Opacity Tax" is applied to account for potential runtime surprises[cite: 495]. |
-| **Tier 3** | **Implicit** | Shell, SQL, Assembly | Opaque. [cite_start]The "Fog of War" penalty adds a baseline phantom risk to all equations, requiring significantly higher defensive density to achieve a "Safe" rating[cite: 496]. |
-
-## Biaxial Weaponization (Global vs. Local Drift)
-
-One of the most advanced features of the Signal Processor is its ability to detect **Biaxial Anomalies**. By using the ML Inference models, the engine measures two distinct types of architectural drift:
-
-* **Global Archetype:** How does this file behave compared to the entire repository? (e.g., Is it a "God Node" or a "Static Configuration"?)
-* **Local Micro-Species:** How does this file behave compared *only* to other files written in the exact same language?
-
-**The Trojan Spike:** The Physics Engine cross-multiplies these two drift scores. If a file blends in globally (Low Global Drift) but heavily violates the standard conventions of its native programming language (High Local Drift), it triggers the Biaxial Trojan Spike. This means the file is structurally masquerading as something it is not. The engine applies an exponential multiplier to its `logic_bomb` and `obscured_payload` threat masses, ensuring it glows white-hot on the 3D map.
-
-## The Infrastructure Shields (Bypass Protocols)
-
-To prevent the math engine from hallucinating extreme risks on inert files, the Signal Processor employs several absolute bypass protocols:
-
-* **The Extension Deception Sensor:** Punishes files claiming to be inert data (like `.txt` or `.json`) but evaluated as executable code (like `python` or `shell`), instantly flagging them for a `sec_extension_mismatch` security violation.
-* [cite_start]**The Exposed Secret Bypass:** Treat exposed keyfiles (like `.pem` or `.env`) as structural vulnerabilities[cite: 268]. It skips the math and instantly pegs the `secrets_risk` exposure to 100%.
-* **The Minified / Vendor Tripwire:** Minified files (like `.min.js` or `node_modules`) are zeroed out of all standard architectural risks (Cognitive Load, Tech Debt). However, if the engine detects *any* malicious intent (eval, network fetching) inside the minified mass, it trips the wire and spikes the Obfuscated Payload risk to 100%.
-* **The Documentation Bypass:** Pure literature files (`markdown`, `plaintext`) do not execute logic. Their logic metrics are safely zeroed out (0% Documentation Risk, 0% Cognitive Load), and their Ownership Entropy is zeroed since plaintext changelogs don't have a "Bus Factor."
-
-## Global Synthesis & 2-Pass Normalization
-
-Because temporal metrics (like commit frequency) vary wildly between repositories, a hardcoded churn threshold is useless. A file with 5 commits might be volatile in a dead repository but highly stable in an active one.
-
-GitGalaxy solves this via **Two-Pass Normalization**:
-
-1. **Pass 1 (Raw Extraction):** The engine calculates the absolute Age (Stability) and the raw Churn Frequency (Commits over time) for every individual star.
-2. **Pass 2 (The Global Curve):** Once all files are processed, the `_normalize_temporal_metrics` engine scans the entire galaxy to find the "Volcano" (the absolute maximum churn frequency in the repository). It then applies a Logarithmic Curve (`math.log1p`) to scale every file's churn relative to that global ceiling. This guarantees that the UI gradients perfectly highlight the hottest files in the repository, regardless of the team's specific commit culture.
-
-## The Physics Engine: N-Dimensional Systemic Bottlenecks
-
-In the final stage, the engine generates the high-fidelity Forensic Report. [cite_start]To prevent noise, it applies an **Active Logic Mask**, blinding the ranking algorithms to structural assets (like JSON configs or Markdown) so only true executable code competes for the "Highest Risk" spots[cite: 585, 586].
-
-Alongside ranking individual vectors (like highest Tech Debt or lowest Safety), the engine calculates **Systemic Bottlenecks** by cross-multiplying the *Local Risk Exposure* against the *Global Network Graph Theory* metrics provided by the `NetworkRiskSensor`:
-
-* **Contagious Mutation:** `Betweenness * State Flux`. These files act as structural bridges between components but possess highly volatile, mutating state, causing unpredictable side-effects for downstream consumers.
-* **House of Cards:** `Closeness * Error Risk`. These files are deeply embedded (1 or 2 hops from the entire codebase) but possess high error exposure. A runtime exception here will cascade instantly across the application.
-* **Blind Bottleneck:** `Blast Radius * Doc Risk`. These are "God Nodes" that the entire ecosystem relies upon, but they lack human intent or documentation. Modifying them is flying blind.
-
-<br><br>
+The engine evaluates files in context, comparing individual metrics against directory language distributions, repository-wide baseline curves, and Git commit history.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Domain Ontologies & Context Mismatch Detection
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+A file's risk profile depends heavily on its surrounding directory context. High-level systems code located in backend directories is expected, whereas system-level binaries located inside web frontend folders represent architectural anomalies.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+To detect misplaced or hidden executable components, the processor evaluates the **Context vs. Entity Matrix**:
 
+* **Native Directory Context:** If a file's language matches the dominant language domain of its parent directory (e.g., Python files inside a Python service directory), standard scoring weights are applied.
+* **Anomalous Directory Context (Alien Entity Detection):** If a file's language conflicts with its directory context (e.g., C/Rust source files located inside a JavaScript static asset folder), the processor injects risk multipliers. `Logic Bomb` and `Memory Corruption` exposure scores receive dynamic scaling penalties to flag anomalous placement.
 
+---
+
+## Tiered Language Standardization Model
+
+To ensure comparative fairness across programming languages with varying syntactic verbosity, the processor applies linguistic normalization:
+
+| Language Tier | Classification | Example Languages | Normalization Treatment |
+| :--- | :--- | :--- | :--- |
+| **Tier 1** | **Explicit** | Rust, Go, Swift, Java | Signals trusted directly. Fidelity coefficient = 1.0, zero implicit opacity penalty. |
+| **Tier 2** | **Structured** | Python, JavaScript, C++ | Translucent syntax. Applies minor opacity adjustment for dynamic runtime behavior. |
+| **Tier 3** | **Implicit** | Shell, SQL, Assembly | Opaque syntax. Applies baseline phantom risk penalty requiring higher test density for safe ratings. |
+
+---
+
+## Biaxial Anomaly Detection (Global vs. Local Drift)
+
+The processor evaluates two axes of structural drift:
+
+* **Global Repository Drift:** Compares a file's structural metrics against all files across the repository.
+* **Local Language Drift:** Compares a file's structural metrics strictly against other files written in the *same* programming language.
+
+### Biaxial Spike Detection
+If a file displays low global drift (appearing benign relative to the codebase overall) but exhibits extreme local language drift (heavily violating structural conventions of its native language), the processor triggers a **Biaxial Anomaly Penalty**. Exponential multipliers are applied to `Logic Bomb` and `Obfuscated Payload` risk scores to highlight potential masquerading code.
+
+---
+
+## Infrastructure Shields & Score Bypasses
+
+To prevent false positives on non-code assets or static configurations, the processor enforces bypass rules:
+
+* **Extension Mismatch Shield:** Detects files with non-executable extensions (`.txt`, `.json`) that contain active code logic, setting a `sec_extension_mismatch` security flag.
+* **Exposed Secret Bypass:** Exposed credential files (`.pem`, `.env`) bypass standard metric scaling and set `secrets_risk` directly to 100%.
+* **Minified & Vendor Shield:** Minified bundles (`.min.js`) zero out cognitive complexity and debt metrics. However, if dynamic execution (`eval`) or network calls are detected inside minified code, the `Obfuscated Payload` risk score spikes to 100%.
+* **Documentation Bypass:** Documentation assets (`markdown`, `plaintext`) zero out executable code metrics and bus-factor risk.
+
+---
+
+## Two-Pass Temporal Normalization
+
+Commit modification frequency (churn) varies significantly across repositories. Hardcoded churn limits are ineffective across projects with different commit volumes.
+
+The processor resolves this via **Two-Pass Normalization**:
+
+1. **Pass 1 (Raw Extraction):** Computes absolute file age and raw commit count per file from Git history.
+2. **Pass 2 (Repository Scaling Curve):** Identifies the maximum commit churn file in the repository. Applies a logarithmic curve ($\log(1 + \text{churn})$) via `_normalize_temporal_metrics` to scale all file churn scores relative to the repository ceiling.
+
+---
+
+## Systemic Risk Bottleneck Evaluation
+
+The processor synthesizes local file risk scores with directed graph centrality metrics from `NetworkRiskSensor`:
+
+* **Active Logic Filtering:** Excludes non-executable assets (JSON configs, Markdown docs) from risk rankings, ensuring only executable source code competes for top risk spots.
+* **Contagious Mutation Index:** Calculates $\text{Betweenness Centrality} \times \text{State Mutation}$. Flags architectural choke points with volatile mutating state.
+* **Cascading Error Risk (House of Cards):** Calculates $\text{Closeness Centrality} \times \text{Error Exposure}$. Flags central nodes where unhandled exceptions cascade across downstream callers.
+* **Undocumented Critical Nodes:** Calculates $\text{Blast Radius} \times \text{Documentation Risk}$. Flags critical core modules that lack documentation.
+
+---
+
+### Ecosystem References
+
+* **[GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** - Source module for `signal_processor.py`.
+* **[GitGalaxy Platform](https://gitgalaxy.io/)** - Interactive repository visualization dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

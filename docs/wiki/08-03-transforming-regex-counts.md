@@ -1,43 +1,43 @@
-# Transforming Noisy Regex Counts Into Something Meaningful
+# Normalizing Heuristic Regex Counts (Universal Exposure Framework)
+
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
 > **The Universal Exposure Framework**
 >
-> We recognize that raw heuristic counts are inherently fragile; they are easily fooled by "safety theater" (like empty catch blocks) and lack the deep contextual awareness of a compiler. To transform this fuzzy, easily manipulated data into actionable intelligence for the **knowledge graph**, we implemented a Universal Exposure Framework that treats code metrics not as absolute truths, but as weighted signals within a deterministic "Physics Engine."
+> Raw static regex counts can be noisy or misleading if uncalibrated (for instance, being skewed by empty catch blocks or lacking full AST compiler context). To convert heuristic signals into actionable architecture metrics, GitGalaxy implements the Universal Exposure Framework (UEF), which processes raw occurrence counts through deterministic normalization transformations.
 
-## The Four Stabilizing Forces
+## The Four Stabilizing Principles
 
-To counteract the noise of static analysis, the engine applies four specific stabilizing forces to the raw data:
+To mitigate false positives and count instability, the static analysis engine applies four core normalization principles:
 
-* **Weighted Asymmetry (The Entropy Check):** A simple counter treats a vulnerability and a safeguard as equal opposites ($1 - 1 = 0$). In reality, it is significantly harder to secure a system than to break it. We apply a **2.5x multiplier** to all detected risks, forcing the code to demonstrate disproportionate defensive density before it can achieve a "Safe" rating. This prevents minor cosmetic fixes from masking structural brittleness.
-* **The Breach Cap (Zero-Trust Logic):** To prevent large files with high test coverage from masking critical flaws, we enforce a hard limit: if the raw count of **Risk Hits** exceeds **Guardrail Hits**, the module is capped at a "Fragile" rating regardless of its other qualities. This overrides the math with a reality check—no amount of unit testing can neutralize a fundamentally insecure architecture.
-* **The Sigmoid Clamp (Noise Gating):** Linear counting penalizes large files for having trace amounts of technical debt. We utilize a logistic function to act as a noise gate, suppressing trivial findings (0-5% density) while aggressively highlighting clusters of debt once they cross a critical threshold (~20%). This ensures the visualization focuses on systemic patterns rather than isolated infractions.
-* **Quantized Final Tiering (Removing False Precision):** Presenting a "Safety Score" of 87.4% implies a level of precision that regex cannot provide. By binning complex scores into five distinct **Qualitative Tiers** (Unshielded, Fragile, Stable, Defended, Fortified), we remove false precision and deliver a binary truth: the module is either sufficiently defended for its context, or it is not.
+* **Weighted Asymmetry (Defensive Multiplier):** Heuristic counters should not treat vulnerabilities and safeguards as equivalent 1:1 offsets ($1 - 1 = 0$). Securing complex logic requires greater effort than introducing flaws. The engine applies a **2.5x multiplier** to identified risk signals, requiring modules to exhibit strong defensive density before earning a "Defended" rating.
+* **The Breach Cap (Zero-Trust Guardrail):** High test coverage or defensive comments must not hide severe architectural defects. If raw **Risk Hits** exceed **Guardrail Hits**, the module's safety rating is capped at "Fragile," overriding standard mathematical averages with a strict risk threshold.
+* **Sigmoid Gating (Noise Suppression):** Linear counting penalizes large files for minor, isolated issues. The engine uses a logistic sigmoid function to filter out low-density noise (0–5% risk density) while scaling exponentially as risk density crosses critical thresholds (~20%).
+* **Quantized Metric Tiering:** Numerical scores like "87.4%" imply artificial precision in static regex scanning. Score outputs are binned into five qualitative operational tiers (**Unshielded, Fragile, Stable, Defended, Fortified**), giving teams a clear binary signal on module health.
 
-## The Physics of Risk
+## Metric Calibration and Language Risk Models
 
-Instead of a single "Master Equation" for all Risk Exposures, we employ a Universal Framework that is instantiated and calibrated for each specific Risk Domain. 
+Rather than applying a uniform formula across all source files, the engine instantiates calibrated risk models tailored to each risk domain and programming language paradigm.
 
-While each domain has a unique formula, they all adhere to the exact same physics: we weigh risk heavier than defenses, we add an "Opacity Tax" to the risk for dynamic languages, and we dampen the defenses based on our trust in the language's explicit syntax.
+### Language Confidence Tiers
 
-### The Language Confidence Tiers
+Programming languages are categorized into confidence tiers that govern defensive dampening and risk penalties:
 
-Every coding language is assigned to a tier that dictates its mathematical dampeners.
-
-| Confidence Tier | Classification | Example Languages | Mathematical Treatment |
+| Confidence Tier | Classification | Example Languages | Normalization Treatment |
 | :--- | :--- | :--- | :--- |
-| **Tier 1** | Explicit Languages (High Trust) | Rust, Go, C++ | Standard baseline calculations. |
-| **Tier 2** | Structured Languages (Minor Doubt) | Java, TypeScript | Minor risk dampening applied. |
-| **Tier 3** | Implicit Languages (Fog of War) | Shell, Python, JS | High "Opacity Tax" added; Defensive hits are dampened. |
+| **Tier 1** | Explicit / Strongly Typed | Rust, Go, C++ | Baseline calculations; maximum trust in type system and error handling keywords. |
+| **Tier 2** | Structured / Managed | Java, TypeScript | Standard calculations with minor defensive dampening. |
+| **Tier 3** | Implicit / Dynamic | Shell, Python, JavaScript | Elevated risk penalty ("Opacity Tax") and dampened defensive keyword confidence. |
 
-### The Universal Variables
+### Universal Model Variables
 
-* **$Fc$ (Fidelity Coefficient):** A dampener used to reduce our trust in the defensive keywords of ambiguous languages.
-* **$Irc$ (Implicit Risk Correction):** A flat penalty added to ambiguous languages (The "Opacity Tax").
-* **$Mp$ (Multiplier / Path Modifier):** Scales risk based on the file's physical location in the repository (e.g., Core vs. Lab vs. Tests). This mathematically rewards teams for good folder architecture.
+* **$Fc$ (Fidelity Coefficient):** Scaling factor reducing confidence weight for defensive keywords in dynamic or weakly-typed languages.
+* **$Irc$ (Implicit Risk Correction):** Flat risk penalty added to dynamic languages to compensate for missing compile-time checks.
+* **$Mp$ (Path Multiplier):** Contextual weight modifier based on repository file location (e.g., Core vs. Utility vs. Test directories).
 
-### The General Risk Equation
+### General Risk Equation
 
-All risk domains follow this fundamental structural pattern:
+All risk domain calculations conform to this unified mathematical structure:
 
 $$RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \times Fc)}{LOC} \right) \times Mp$$
 
@@ -45,15 +45,14 @@ $$RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \t
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

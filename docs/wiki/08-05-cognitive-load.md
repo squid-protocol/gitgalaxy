@@ -1,90 +1,86 @@
 # Cognitive Load Exposure
 
-> **Metric: Density of Decision-Making & Logic Tangledness**
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 >
-> **Summary:** Visualizes the "Mental RAM" required to understand a file. Unlike Lines of Code (which measures physical volume), Cognitive Load measures the density of decision-making heuristics within the knowledge graph. A healthy engineering culture admits that human working memory is a finite resource. We recognize that complex problems often require complex solutions. We don't measure "Tangled Logic" to critique the necessity of the code, but to deterministically surface it so the team can be honest about which files require the most mental overhead. Surfacing these high-friction zones protects the team from burnout.
+> **Metric:** Density of Decision-Making & Logic Complexity
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 **Deep Blue** (linear, easy-to-read data) to 🟥 **Intense Red** (high-friction, multi-state async logic).
+> **Summary:** Measures the mental overhead required for a developer to understand a source file. Unlike raw line count (which measures volume), Cognitive Load evaluates decision density, state mutations, temporal complexity, reflection, and unsafe execution markers per line of code. High cognitive load highlights complex or tangled logic requiring focus, while clear documentation acts as a mitigating factor.
+>
+> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 **Deep Blue** (linear, straightforward code) to 🟥 **Intense Red** (dense, multi-state async logic).
 
-## The Philosophy: The Density of Understanding
+## Architectural Overview
 
-Human working memory is a biological bottleneck. Every time a developer encounters a nested `if`, a complex ternary, or a manual memory management keyword, they must "cache" the current state in their brain. This represents the total Cognitive Load of a module.
+Human working memory has finite capacity. When reading source code, nested conditionals, dynamic state mutations, concurrency, and reflection require developers to mentally track multiple states simultaneously.
 
-In GitGalaxy, we treat code as a system where logic generates friction and documentation provides mitigation. By being honest about where the Cognitive Load is "hot," we move away from performance judgment and toward resource management. 
+In GitGalaxy, cognitive load measures logic friction while treating structured documentation as mitigation:
 
-* **Low Cognitive Load:** Linear code that reads clearly; low impact on the developer's working memory.
-* **High Cognitive Load:** Necessary but complex logic that requires the developer to simulate multiple realities simultaneously; identifies areas that require peak focus.
+* **Low Cognitive Load (0 - 39):** Linear, predictable execution paths with low mental overhead.
+* **Moderate Cognitive Load (40 - 59):** Standard business or algorithmic logic operating within normal parameters.
+* **High Cognitive Load (60 - 100):** Dense, multi-branch or asynchronous logic requiring intensive focus and careful review.
 
-## The Inputs: Heuristic Stressors & Mitigations
+## Metric Inputs & Heuristics
 
-We utilize the pre-calculated hits from the deterministic engine and weight them based on the "Mental Tax" they impose on the reader.
+The Signal Processor evaluates pre-calculated heuristic counts from the static analysis engine, weighting them based on mental tax:
 
-| Variable | Metric Focus | Multiplier | Clamp Limit | Human Translation |
+| Input Variable | Metric Focus | Multiplier | Clamp Limit | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `branch_hits` | Decision Density | 1.0x | 0.5/line | The baseline of decision making (`if`/`else`). Clamped to prevent massive, flat switch-statements from breaking the math. |
-| `flux_hits` | State Mutation | 2.0x | 0.75/line | Tracking variables changing values taxes short-term memory significantly more than static logic. |
-| `concurrency_hits` | Temporal Complexity | 3.0x | None | Logic that jumps in time forces the reader to track non-linear execution. |
-| `heat_triggers_hits`| Abstraction Penalty | 5.0x | None | Macros, reflection, and dynamic dispatch hide the true logic, forcing "mental compilation." |
-| `danger_hits` | Anxiety | 5.0x | None | `eval` or unsafe code forces the brain into a slow, high-alert verification mode. |
-| `doc_hits` | The Antidote | 10.0x | None | Structured documentation provides mental shortcuts, reducing the effective load (acts as a mitigating agent). |
+| `branch` | Decision Density | 1.0x | 0.5 / line | Baseline conditional branching (`if`/`else`, `switch`). Clamped to handle flat switch blocks smoothly. |
+| `state_mutation` | State Flux | 2.0x | 0.75 / line | Variable mutations and state reassignment taxing short-term memory. |
+| `concurrency` | Temporal Complexity | 3.0x | None | Asynchronous code, promises, and goroutines that create non-linear control flow. |
+| `reflection_metaprogramming` | Abstraction Penalty | 5.0x | None | Dynamic dispatch, reflection, macros, and metaprogramming hiding explicit logic paths. |
+| `high_risk_execution` | Unsafe Operations | 5.0x | None | Unsafe memory access, `eval`, or dynamic code execution forcing manual verification. |
+| `doc` | Documentation Mitigation | 10.0x | None | Structured inline comments and docstrings providing context (acts as a cooling factor). |
 
 ## Universal Framework Integration
 
-We apply the standard physics variables to ensure fairness across language families and environments:
+Standard environmental parameters adjust the metric across language families and project paths:
 
-* **$Irc$ (Implicit Risk Correction):** Added to the total density. Opaque languages (Shell, Perl) get a baseline complexity penalty because the syntax itself implies hidden logic.
-* **$Fc$ (Fidelity Coefficient):** Applied to the mitigation factor. We trust documentation in explicit languages (Java) more than in implicit ones (Ruby) where comments might drift from reality.
-* **$Mp$ (Path Modifier):** Utilized to allow contextual overrides. For example, highly complex mocking logic in a `tests/` directory may receive a reduction, as the cognitive expectations there differ from a production runtime core.
+* **$Irc$ (Implicit Risk Correction):** Added to total density to account for baseline syntactical opacity in implicit languages (e.g., Shell, Perl).
+* **$Fc$ (Fidelity Coefficient):** Scales the documentation mitigation factor based on language type expliciteness (e.g., trusting Java docstrings over implicit scripting comments).
+* **$Mp$ (Path Modifier):** Contextual multiplier based on directory location (e.g., dampening UI framework load, amplifying core database logic).
 
-## The Equation: The Sigmoid Clamp
+## Mathematical Formulation
 
-We use a Logistic Function (Sigmoid) tuned to be forgiving of moderate complexity but demanding of high complexity.
+Cognitive load calculation follows four primary steps:
 
-**Step A: Calculate Clamped Densities**
-We calculate the per-line density of each stressor. Branch and Flux densities are clamped. A file with 5,000 lines of simple `case` statements shouldn't be flagged as high-friction just because of high raw branch counts.
+### Step 1: Calculate Clamped Line Densities
+Per-line densities for branches and state mutations are computed and clamped:
 
-**Step B: The Synergistic Sum**
-We sum the clamped densities and heavy logic multipliers, then add the baseline opacity tax ($Irc$).
+$$\text{BranchDensity} = \min\left(\frac{\text{branch}}{\text{LOC}}, 0.5\right)$$
+$$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{\text{LOC}} \times 2.0, 0.75\right)$$
 
-$$TotalDensity = ClampedBranch + ClampedFlux + HeavyLogic + \left(\frac{Irc}{LOC}\right)$$
+### Step 2: Sum Heavy Logic & Apply Gini Coefficient
+Heavy logic multipliers (concurrency, reflection, unsafe code) and baseline opacity ($Irc$) are aggregated. If function complexity is heavily concentrated in a single function (high Gini coefficient $> 0.7$), a Gini penalty multiplier is applied:
 
-**Step C: The Sigmoid Curve (The Base Score)**
-We map the total density to a $0-100$ scale using a Sigmoid curve. 
-* **Offset ($0.75$):** Pushes the "center" of the curve to the right. Code must have a high density ($0.75$ weighted points per line) just to reach a score of $50$.
-* **Slope ($4.0$):** A moderate slope ensures a smooth transition rather than a sudden wall, allowing for nuance in the $50-80$ range.
+$$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)$$
+$$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{\text{LOC}} + \frac{Irc}{\text{LOC}}\right) \times \text{GiniMultiplier}$$
 
-$$RawScore = \frac{100}{1 + e^{-4.0 \times (TotalDensity - 0.75)}}$$
+### Step 3: Map Through Sigmoid Curve
+The total density is mapped onto a 0–100 scale using a logistic Sigmoid function (offset $= 0.75$, slope $= 4.0$):
 
-**Step D: The Mitigation Factor (The Antidote)**
-Documentation reduces load, but never to zero. Complex logic is still complex, even if explained well. We cap the cooling effect at a maximum reduction of 50%, then apply the Path Modifier ($Mp$).
+$$\text{RawScore} = \frac{100}{1 + e^{-4.0 \times (\text{TotalDensity} - 0.75)}}$$
 
-$$DocCoverage = \frac{doc\_hits \times 10.0}{LOC}$$
-$$MitigationFactor = \max(0.5,\ 1.0 - (DocCoverage \times Fc))$$
-$$FinalScore = \min(RawScore \times MitigationFactor \times Mp,\ 100)$$
+### Step 4: Apply Documentation Mitigation & Path Modifier
+Documentation coverage reduces the raw risk score by up to 50%, scaled by the Fidelity Coefficient ($Fc$) and Path Modifier ($Mp$):
 
-## Visual Interpretation: The Cognitive Topology
+$$\text{DocCoverage} = \frac{\text{doc} \times 10.0}{\text{LOC}}$$
+$$\text{CoolingFactor} = \max\left(0.5, 1.0 - (\text{DocCoverage} \times Fc)\right)$$
+$$\text{FinalScore} = \min(\text{RawScore} \times \text{CoolingFactor} \times Mp, 100)$$
 
-| Score Range | Universal Color | Risk Label | Structural Reality |
+## Risk Level Interpretation
+
+| Score Range | Color Code | Risk Rating | Architectural Description |
 | :--- | :--- | :--- | :--- |
-| **0 - 19** | 🟦 **Deep Blue** | **VERY LOW** | Big JSON Configs. Zero branching. Minimal baseline density. |
-| **20 - 39** | 🩵 **Cyan** | **LOW** | Standard UI Component. Normal complexity, easily held in working memory. |
-| **40 - 59** | 🟨 **Yellow** | **INTERMEDIATE** | Complex Algorithm. Noticeable, but not alarming. The code is "doing work." |
-| **60 - 89** | 🟧 **Orange** | **HIGH** | Heavy Logic Core. The Tipping Point. Heavy branching mixed with state flux. |
-| **90 - 100** | 🟥 **Bright Red** | **VERY HIGH** | Extreme Meta-Programming. Dense clusters of async, reflection, and danger per line. |
-
-<br><br>
+| **0 - 19** | 🟦 **Deep Blue** | **Very Low** | Flat data structures, configuration files, and simple linear code. |
+| **20 - 39** | 🩵 **Cyan** | **Low** | Standard UI components or simple utility functions with minimal branching. |
+| **40 - 59** | 🟨 **Yellow** | **Moderate** | Standard application logic and core algorithms operating within expected parameters. |
+| **60 - 89** | 🟧 **Orange** | **High** | Complex operational code featuring nested branching and state mutations. |
+| **90 - 100** | 🟥 **Bright Red** | **Very High** | Highly complex metaprogramming, async pipelines, or unsafe execution blocks. |
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy Engine
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
-
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
-
----
+This documentation is part of the [GitGalaxy Project](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free static analysis engine for automated codebase risk auditing.
 
 **[⬅️ Back to Master Index](index.md)**

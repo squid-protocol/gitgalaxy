@@ -1,49 +1,46 @@
-# The Neural Auditor (Weight Inspection)
+# The Tensor Model Scanner (Binary Weight Inspection)
 
-> **Inspecting the AI Brain**
->
-> As developers increasingly check Large Language Models (LLMs) and LoRA adapters directly into their repositories, scanners face a physical constraint: you cannot load a 70GB model weight file into RAM just to parse it. 
->
-> The Neural Auditor (`neural_auditor.py`) solves this by surgically inspecting massive AI model binaries (`.safetensors`, `.gguf`) without ever loading the full file into memory. It extracts parameter counts, quantization levels, and architecture families directly from the binary headers, allowing GitGalaxy to map the exact scale of local AI compute.
+> **File Reference:** [`gitgalaxy/metrics/tensor_scanner.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/tensor_scanner.py)
 
-## Zero-RAM Inspection
-
-When the Aperture Filter relegates a massive binary file to "Dark Matter," the Orchestrator checks if the file is a known AI model format. If so, it passes the file path to the Neural Auditor, which executes a highly targeted, zero-RAM byte read. 
-
-The Auditor routes the file to the correct parser based on its extension:
-
-### 1. Safetensors Extraction
-The `.safetensors` format (standardized by HuggingFace) is designed for safe, fast loading. The Auditor leverages this structure:
-* **The 8-Byte Header Read:** The engine reads only the first 8 bytes of the file (a little-endian `uint64`) to determine the exact size of the JSON metadata header.
-* **The Anti-Hallucination Shield:** Before reading the JSON, it checks if the reported header size is suspiciously large (e.g., > 100MB). If so, it aborts the read to prevent maliciously crafted files from causing a memory overflow.
-* **Parameter Mathematics:** Once the JSON header is securely parsed, the Auditor extracts the architecture family (e.g., LLaMA, Mistral). It then calculates the exact parameter count of the model by multiplying the multidimensional shapes of every tensor listed in the file.
-* **Formatting:** It converts the raw integer count into human-readable formats (e.g., "8.0B" or "350.0M").
-
-### 2. GGUF Heuristics
-The `.gguf` format (used heavily by `llama.cpp` for local quantized inference) embeds its metadata as Key-Value pairs scattered through the binary header. 
-* **Magic Byte Verification:** The Auditor reads the first 4 bytes to verify the `GGUF` magic number, ensuring it isn't a spoofed file.
-* **The 1MB Chunk Scan:** Fully unpacking the GGUF binary tree natively in Python is computationally expensive. Instead, the Auditor reads a raw 1MB chunk of the header and decodes it as an ASCII string.
-* **Heuristic Extraction:** It uses fast heuristic string matching to identify the architecture family (e.g., "llama", "qwen") and the specific quantization level (e.g., "Q4_K", "Q8_0") utilized by the model.
-
-## The Neural Supernova
-
-Once the Auditor successfully extracts the model's metadata, it passes the intelligence back to the Orchestrator. 
-
-Because AI model weights are incredibly dense and represent massive local compute gravity, the Orchestrator injects this data back into the 3D map as a **Neural Supernova**. The file is given a massive gravitational footprint (calculated by dividing its gigabyte size by a scalar) and its extracted metadata (Architecture, Parameter Count, Quantization) is attached directly to the visual node, allowing architects to see exactly what kind of AI brain is embedded in their repository.
-
-<br><br>
+The Tensor Model Scanner (`tensor_scanner.py`, historically referenced as the Neural Auditor) inspects large Machine Learning model weights (`.safetensors`, `.gguf`) stored within repositories without loading multi-gigabyte files into system RAM. By parsing binary headers using zero-RAM byte reads, it extracts parameter counts, quantization levels, and architecture metadata for static analysis reporting.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Zero-RAM Binary Inspection
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+When the ingestion filter (`aperture.py`) encounters large AI model binaries, it routes the file paths to the `TensorScanner`. The scanner inspects binary headers using targeted stream reads based on file extension:
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+### 1. Safetensors Metadata Extraction
+The `.safetensors` format (standardized for machine learning model serialization) places JSON metadata at the beginning of the binary file:
+* **8-Byte Header Read:** Reads the first 8 bytes of the file (a little-endian `uint64` integer) to determine the exact byte length of the JSON metadata header.
+* **Header Size Validation:** Validates that the declared header size does not exceed safety limits (e.g., > 100MB). If suspicious header sizes are detected, parsing aborts to prevent buffer overflows or memory exhaustion.
+* **Parameter Mathematics:** Parses the JSON metadata header to extract model architecture declarations (e.g., LLaMA, Mistral). Calculates total parameter counts by multiplying tensor dimension arrays for every declared weight key.
+* **Format Formatting:** Formats raw parameter counts into standardized human-readable strings (e.g., "8.0B", "350.0M").
 
+### 2. GGUF Binary Header Inspection
+The `.gguf` format (commonly used for quantized local inference) stores metadata key-value pairs near the beginning of the file:
+* **Magic Byte Verification:** Reads the initial 4 bytes to verify the `GGUF` magic byte signature, confirming valid binary format before proceeding.
+* **Header Chunk Extraction:** Reads a 1MB stream from the beginning of the file and decodes printable ASCII text strings to extract metadata keys without full binary tree parsing.
+* **Metadata Heuristics:** Uses pattern matching to extract architecture family names (e.g., "llama", "qwen") and quantization levels (e.g., "Q4_K", "Q8_0").
 
+---
+
+## Model Metadata & Node Mapping
+
+Once metadata extraction completes, the scanner returns structured metadata dictionaries (`architecture`, `parameters`, `quantization`) to the pipeline orchestrator.
+
+The orchestrator attaches model architecture attributes to the repository file node and computes visual node mass based on file size, enabling engineering teams to audit local machine learning model footprints across repository repositories.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

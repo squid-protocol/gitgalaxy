@@ -1,41 +1,40 @@
-# Spring Boot Scaffolding (The Cloud Escape Hatch)
+# Spring Boot Scaffolding Architecture
 
-> **Architecture: Automated Build Systems & Legacy Decoders**
+> **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/cobol_to_java_controller.py)
+
+> **Architecture: Automated Build Systems & Legacy Data Decoders**
 >
-> **Summary:** The Java Translation Controller acts as the "Cloud Escape Hatch." It ingests the JSON IR dumps from the clean room and generates a fully compilable Spring Boot microservice scaffolding. This completely automates the bridge between legacy procedural execution and modern Object-Oriented/REST paradigms.
+> **Summary:** The Java Translation Controller (`cobol_to_java_controller.py`) orchestrates the cloud migration pathway. It ingests JSON Intermediate Representation (IR) dumps produced during static analysis and generates a complete, compilable Spring Boot microservice project structure. This automates the transition from legacy procedural execution to modern Object-Oriented and RESTful paradigms.
 
-## The Build System Forge
+## Build System Scaffolding
 
-The orchestrator automatically generates the foundational configuration required to boot the application, ensuring a zero-friction handoff to the engineering team or autonomous agents.
+The orchestrator automatically generates the foundational project structure and configuration files required to compile and boot the Spring Boot application:
 
-* **`pom.xml`**: Injects strict dependency trees for Spring Web, Spring Data JPA, Spring Batch, and PostgreSQL, locked to Java 17 standards.
-* **`application.yml`**: Auto-configures the database connections, Hibernate DDL settings, and disables auto-running batch jobs to prevent accidental execution loops on startup.
-* **Application Entry Point**: Generates the primary `@SpringBootApplication` main class.
-* **Compliance Injection**: Automatically scans for a `corporate_header.txt` file and wraps it into a standardized Java block comment, injecting it at the top of every generated file to maintain legal compliance.
+* **`pom.xml`**: Configures Maven dependencies for Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, and PostgreSQL, aligned with Java 17 standards.
+* **`application.yml`**: Automatically configures database connections, Hibernate schema DDL properties (`update`), and logging parameters.
+* **Application Entry Point**: Generates the standard `@SpringBootApplication` main class (`{ArtifactName}Application.java`).
+* **Header & Compliance Injection**: Scans for a corporate header configuration file (`header.txt`) and wraps legal headers into Java block comments placed at the top of every generated source file.
 
-## The EBCDIC & COMP-3 Decoder Utility
+## EBCDIC & COMP-3 Data Decoder Utility
 
-Modern cloud infrastructure operates on ASCII/UTF-8 and standard floating-point math, while legacy mainframes operate on EBCDIC character sets and Packed Decimal (COMP-3) byte arrays. To prevent catastrophic runtime crashes when the new Java system attempts to process dirty legacy data, the controller forges a strict `EbcdicDecoderUtil.java` class.
+Legacy mainframes store data in EBCDIC character encoding and Packed Decimal (COMP-3) binary formats, whereas modern cloud infrastructure relies on UTF-8 text and standard numerical primitives (`BigDecimal`). To parse binary legacy payloads safely within Java applications, the controller generates `EbcdicDecoderUtil.java`.
 
-**Strict Hex-Boundary Validation:**
-The decoder unpacks COMP-3 byte arrays into Java `BigDecimal` objects. Because legacy databases frequently contain shifted or corrupt bytes, the generated utility includes strict validation:
-* It verifies that the high nibble of every byte is a valid integer (0-9).
-* It enforces that the final low nibble is a valid sign identifier (A-F).
-* If a dirty byte is detected, the utility safely intercepts the error, logs a hex-dump warning, and defaults to `BigDecimal.ZERO` to prevent the entire Spring Boot application from crashing.
-
-<br><br>
+### Hex-Boundary & Nibble Validation
+The decoder unpacks COMP-3 byte arrays into Java `BigDecimal` objects:
+* **High Nibble Verification:** Verifies that the high nibble of each byte represents a valid numeric character (0–9).
+* **Sign Nibble Verification:** Validates that the final low nibble represents a valid sign identifier (`A`–`F`).
+* **Corrupt Data Handling:** If malformed or corrupted bytes are encountered, the utility intercepts the error, logs a hex-dump diagnostic message, and safely returns `BigDecimal.ZERO` to prevent application crashes.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

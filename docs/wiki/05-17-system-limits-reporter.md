@@ -1,42 +1,46 @@
-# System Limits Reporter (The Honesty Protocol)
+# Architectural Anomaly & Boundary Detector
 
-> **Architecture: Deterministic Boundary Validation**
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py)
 >
-> **Summary:** The System Limits Reporter (also known as the "Honesty Protocol") is a specialized static analysis sensor. Its sole purpose is to detect structural anomalies, dynamic routing, and legacy architectural patterns that compromise the deterministic mathematical mapping of the repository.
+> **Architecture: Static Integrity Scanning & Non-Deterministic Pattern Detection**
+>
+> **Summary:** The Architectural Anomaly Detector (System Limits Reporter) is a static analysis sensor. It scans COBOL source files for dynamic routing statements, asynchronous event handlers, and macro substitution patterns that break deterministic static analysis and dependency graph resolution.
 
-## The "Ancient Dragons"
-Certain legacy COBOL commands fundamentally break modern Abstract Syntax Tree (AST) analysis because they alter the execution flow or memory structure at runtime. The reporter scans line-by-line (ignoring standard punch-card comments) to flag these critical limiters:
+## Structural Violation Rules
 
-### 1. The ALTER Statement (`CRITICAL`)
-* **Detection:** `ALTER ... TO PROCEED TO ...`
-* **Architectural Impact:** The `ALTER` statement dynamically rewrites the target of a `GO TO` jump during runtime. This mathematically compromises the control flow graph. The static AST cannot guarantee where the execution will route, completely blinding the Microservice Slicer.
+Certain legacy COBOL constructs alter control flow or program memory dynamically at runtime. The detector scans source lines (bypassing comment lines starting with `*` in column 7) using strict regular expression rules (`SYSTEM_LIMIT_RULES`):
 
-### 2. CICS Asynchronous Jumps (`CRITICAL`)
-* **Detection:** `EXEC CICS HANDLE CONDITION`
-* **Architectural Impact:** This command establishes asynchronous error routing. If a specific condition occurs anywhere in the program, the execution flow instantly jumps to an error-handling paragraph, bypassing the static DAG. This breaks topological execution sorting.
+### 1. Dynamic Jump Target Alteration (`ALTER_STATEMENT` - `CRITICAL`)
+* **Regex Pattern:** `\bALTER\s+[A-Z0-9\-]+\s+TO\s+(?:PROCEED\s+TO\s+)?[A-Z0-9\-]+\b`
+* **Architectural Impact:** The `ALTER` statement dynamically overwrites the destination target of a `GO TO` statement at runtime. This invalidates static control flow graphs and makes static data flow analysis unreliable.
 
-### 3. Macro Substitution (`HIGH`)
-* **Detection:** `COPY ... REPLACING`
-* **Architectural Impact:** While the Graveyard Reaper attempts to actively resolve and expand copybooks, heavy macro substitution means the static source code may drift significantly from the actual compiled execution path.
+### 2. Asynchronous Event Handling (`CICS_ASYNC_JUMP` - `CRITICAL`)
+* **Regex Pattern:** `EXEC\s+CICS\s+HANDLE\s+CONDITION`
+* **Architectural Impact:** Registers asynchronous condition handlers that intercept runtime events and jump to error-handling paragraphs. Execution flow can bypass normal sequential logic at any point, breaking static topological execution mapping.
 
-## Master Audit Integration
-When the orchestrator runs, the System Limits Reporter acts as a strict verification gateway. 
-* If no anomalies are detected, the pipeline certifies that the DAG is "100% mathematically deterministic."
-* If anomalies *are* detected, the engine refuses to fail silently. It aggregates the specific files, line numbers, and severity codes into the Master Audit Report, explicitly flagging the repository as requiring human architectural review or autonomous LLM remediation before the modernization can be trusted.
+### 3. Macro Substitution (`COPY_REPLACING` - `HIGH`)
+* **Regex Pattern:** `\bCOPY\s+[\'"]?[A-Z0-9\-]+[\'"]?\s+REPLACING\b`
+* **Architectural Impact:** Identifies macro substitution within copybooks, flagging potential drift between static source text and compiled execution logic.
+
+## Integrity Verification Workflow
+
+During analysis pipelines, the detector (`scan_system_limits`) evaluates each file and reports structural integrity:
+
+* **Clean Status:** If no anomalies are detected, the analyzer reports that the target codebase is 100% statically deterministic.
+* **Violation Reporting:** If anomalies are detected, the detector formats warnings containing target file name, line number, severity level (`CRITICAL` / `HIGH`), and rule description. These findings are passed to downstream task generators or audit reports to flag files requiring architectural review before modernization.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Ecosystem Integration
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and heuristic dependency mapping engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

@@ -1,45 +1,44 @@
 # Entity & Memory Mapping
 
-> **Architecture: Strict Memory Boundary Enforcement**
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py)
+
+> **Architecture: Strict Memory Boundary Enforcement & JPA Entity Mapping**
 >
-> **Summary:** The Java Spring Entity Forge translates the generated JSON schemas into standard Spring Boot JPA Entities (`@Entity`). Because COBOL utilizes highly specific memory layouts that do not naturally exist in Java, the forge applies advanced annotation strategies to recreate the legacy memory constraints in the cloud.
+> **Summary:** The Java Spring Entity Generator (`cobol_to_java_spring_forge.py`) translates extracted JSON schemas into standard Spring Boot JPA Entities (`@Entity`). Because COBOL uses explicit byte-level memory layouts that do not exist natively in Java or relational databases, the generator applies specialized JPA annotations to represent legacy memory constraints accurately.
 
 ## Memory Overlay Resolution (REDEFINES)
 
-In COBOL, the `REDEFINES` clause allows two variables to occupy the exact same physical memory address. Relational databases do not support this concept natively. 
+In COBOL, the `REDEFINES` clause allows multiple variables to occupy the exact same physical memory address. Relational databases do not support overlapping columns natively.
 
-When the Entity Forge detects a `redefines` constraint in the JSON schema, it maps the primary variable to the database column, but maps the redefined alias as a `@Transient` variable. This ensures the alias is accessible to the Java business logic at runtime without attempting to create duplicate, conflicting columns in the PostgreSQL schema.
+When the entity generator detects a `redefines` constraint in the schema, it maps the primary variable to a persistent database column while mapping the redefined alias with `@Transient`. This makes the alias available to runtime business logic without creating duplicate, redundant columns in the SQL schema.
 
 ## Array Generation (OCCURS)
 
-Legacy `OCCURS` clauses define fixed-length arrays within records. The Entity Forge translates these into Java `List<T>` structures, automatically annotating them with `@ElementCollection` and `@CollectionTable`. It strictly wires the join columns to ensure the normalized array data maps perfectly back to the parent entity's `sys_id`.
+Legacy `OCCURS` clauses define fixed-length arrays within data records. The generator translates these into Java `List<T>` fields, automatically annotating them with `@ElementCollection` and `@CollectionTable`. It wires foreign key join columns to ensure normalized array elements reference the parent entity's primary key (`sys_id`).
 
 ## Financial Precision (PIC Clauses)
 
-The forge parses legacy `PIC` (Picture) clauses to enforce strict structural boundaries on the generated JPA columns:
-* **Strings (`PIC X` / `PIC A`):** Extracts the exact byte length and maps it directly to the `@Column(length = N)` annotation.
-* **Decimals (`PIC S9V99` / `PIC Z`):** Calculates the exact number of integers and fractional digits, mapping them to `BigDecimal` types with strict `@Column(precision = P, scale = S)` boundaries.
+The generator parses legacy `PIC` (Picture) clauses to enforce exact structural boundaries on JPA columns:
+* **Strings (`PIC X` / `PIC A`):** Extracts byte length and maps to `@Column(length = N)`.
+* **Decimals (`PIC S9(7)V99` / `PIC Z`):** Calculates integer and fractional digit counts, mapping them to Java `BigDecimal` fields with `@Column(precision = P, scale = S)` annotations.
 
-## Lexical Sanitization
+## Java Syntax & Naming Sanitization
 
-To ensure the generated Java code compiles instantly, the Entity Forge applies a multi-pass sanitization protocol to all legacy variable names:
-1. **CamelCase Conversion:** Legacy hyphens (`CUSTOMER-NAME`) are converted to standard Java camelCase (`customerName`).
-2. **Numeric Prefixing:** Java variables cannot begin with a number. Legacy variables like `1099-FORM` are automatically prefixed (`v1099Form`).
-3. **Reserved Keyword Shielding:** If a legacy variable directly collides with a Java reserved keyword (e.g., `class`, `public`, `return`, `int`), the forge automatically appends a `Val` suffix (e.g., `classVal`) to guarantee successful Maven compilation.
-
-<br><br>
+To ensure all generated Java entities compile cleanly without syntax errors:
+1. **CamelCase Conversion:** Converts hyphenated legacy names (`CUSTOMER-NAME`) to standard Java camelCase (`customerName`).
+2. **Numeric Prefixing:** Java identifiers cannot begin with a number. Legacy variables starting with digits (e.g., `1099-FORM`) are automatically prefixed (e.g., `v1099Form`).
+3. **Reserved Keyword Shielding:** If a legacy variable name collides with a Java reserved keyword (such as `class`, `public`, `return`, `new`), the generator appends a `Val` suffix (e.g., `classVal`) to guarantee compilation.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

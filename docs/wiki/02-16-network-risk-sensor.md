@@ -1,68 +1,75 @@
-# The Network Risk Sensor (Graph Topology)
+# The Network Risk Sensor (Graph Topology & Blast Radius)
 
-> **Wiring the Universe**
->
-> The Network Risk Sensor (`network_risk_sensor.py`) is responsible for transforming a flat list of isolated files into an interconnected, $N$-dimensional Directed Graph. 
->
-> By mapping how files import and depend on each other, the sensor elevates GitGalaxy from a simple file scanner into a systemic risk engine. It calculates the absolute "Blast Radius" of every file, defines its architectural role, and aggregates repo-wide macro-physics to determine the structural resilience of the entire codebase.
+> **File Reference:** [`gitgalaxy/core/network_risk_sensor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/network_risk_sensor.py)
 
-## The Directed Graph
-
-The sensor ingests the raw import strings extracted by the Language Lens and wires them into a NetworkX Directed Graph (`nx.DiGraph`). 
-
-* **Fast Path Lookup:** It utilizes a pre-computed resolution map to instantly link `raw_imports` (like `import utils`) to their exact physical node counterparts (like `src/core/utils.py`).
-* **Weighted Edges:** The graph is not uniformly weighted. If the upstream scanner detected an import tied to a specific entity (like a class or a specific function, rather than a generic file import), the sensor increases the edge weight by 1.5x to represent tighter logical coupling.
-
-## Node Centrality & Blast Radius
-
-Once the graph is wired, the sensor executes advanced network mathematics to determine the true gravity of every file:
-
-* **PageRank (Load-Bearing Gravity):** Calculates the absolute importance of a file based on how many other important files depend on it. This is normalized (multiplied by 1000) to create the **Normalized Blast Radius**. Modifying a file with a high Blast Radius carries extreme regression risk.
-* **Betweenness (Choke Points):** Measures how often a file acts as a bridge along the shortest path between two other domains. *Note: To maintain hyper-scale velocity on massive repositories (>5,000 nodes), Betweenness calculation is capped to a randomized sample size ($k=50$) to guarantee $O(N)$ execution speed*.
-* **Closeness (Ripple Effect):** Measures how "close" a file is to every other file in the repository, dictating how fast a runtime error here will cascade across the application.
-
-## Ecosystem Roles
-
-A file's risk profile changes based on its role. The sensor calculates the ratio of incoming dependencies (`in_degree`) to total dependencies, strictly classifying every node:
-
-* **Pure Producer (Foundation):** $>80\%$ of its edges are inbound. These are core libraries, utilities, or database schemas that the rest of the app relies upon.
-* **Pure Consumer (Orchestrator):** $<20\%$ of its edges are inbound. These are controllers, UI views, or main entry points that pull in massive amounts of dependencies to execute logic.
-* **Transceiver (Middle-Tier):** Sits between 20% and 80%, acting as a bridge passing data between producers and consumers.
-* **Isolated/Orphan:** Has zero connections. It is either an unused file, a dynamic injection target, or a top-level script.
-
-## Systemic Threats & Algorithmic Bottlenecks
-
-Local risk is only half the story. A file with 90% Tech Debt is harmless if it's an isolated orphan; it is catastrophic if it is a foundational Producer.
-
-* **Multi-Dimensional Systemic Threat:** The sensor cross-multiplies the Normalized Blast Radius against the 18-point local risk vector. This generates a new `systemic_threat_vector`, highlighting files that are both highly dangerous *and* highly depended upon.
-* **Algorithmic Bottlenecks:** The sensor checks the file's Big-O depth and recursion markers. If a file has a Normalized Blast Radius $> 1.0$ AND it possesses an algorithmic complexity of $O(N^3)$ or higher (or is actively recursive), it is immediately flagged as an `is_algorithmic_bottleneck`. These are the primary targets for performance refactoring.
-
-## Macro-Ecosystem Physics
-
-After mapping individual stars, the sensor calculates the health and resilience of the entire galaxy using undirected subgraphs:
-
-* **Modularity:** Are components cleanly separated (Microservice-like) or deeply tangled (Spaghetti code)?
-* **Assortativity:** Do heavy files connect to other heavy files (Resilient core), or do heavy files connect to fragile files (Negative assortativity / Single points of failure)?
-* **Cyclic Density:** What percentage of the repository is trapped in dependency loops (Static Friction)?
-* **Average Path Length:** The average number of "hops" required to get from one file to any other file, indicating the tightness of system coupling.
-* **Articulation Points:** The exact number of single files that, if removed or broken, would completely shatter the network graph into disconnected pieces.
-
-### Zero-Dependency Fallback
-If the host environment cannot run `networkx`, the sensor gracefully degrades into a Zero-Dependency Mode. It manually calculates direct in/out degrees to determine basic Ecosystem Roles and a heuristic Blast Radius, ensuring the pipeline never fails due to missing external math libraries.
-
-<br><br>
+The Network Risk Sensor (`network_risk_sensor.py`) constructs an $N$-dimensional Directed Graph (`nx.DiGraph`) from raw import statements extracted across all scanned files. By mapping inter-file module dependencies, the sensor transforms isolated file metrics into a systemic dependency analysis engine. It computes blast radius values, classifies component roles, and evaluates repo-wide network resilience.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+## Directed Graph Construction
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+The sensor ingests raw import string declarations extracted during parsing and resolves them into a NetworkX Directed Graph (`nx.DiGraph`):
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
+* **Fast Target Path Resolution:** Uses a pre-computed lookup resolution map matching raw import strings (e.g., `import utils`) to target source file paths (e.g., `src/core/utils.py`).
+* **Weighted Coupling Edges:** Assigns weighted edges based on dependency specificity. Imports targeting specific class or function symbols increase edge weight by 1.5x to reflect tight logical coupling.
 
+---
 
+## Graph Centrality & Blast Radius Metrics
+
+Once the graph topology is resolved, the sensor computes network centrality metrics to determine module impact:
+
+* **PageRank (Normalized Blast Radius):** Measures structural dependency weight based on the number and importance of importing modules. Scaled by 1000 to produce the **Normalized Blast Radius**. Modifying high blast radius modules introduces substantial regression risk.
+* **Betweenness Centrality (Architectural Choke Points):** Measures how frequently a module sits along shortest dependency paths between distinct functional domains. For repositories exceeding 5,000 nodes, betweenness computation uses randomized sampling ($k=50$) to maintain $O(N)$ execution speed.
+* **Closeness Centrality (Ripple Effect Distance):** Evaluates average topological distance to all other files in the graph, indicating how rapidly runtime failures propagate across the application.
+
+---
+
+## Ecosystem Component Roles
+
+The sensor evaluates the ratio of inbound dependency edges (`in_degree`) to total connected edges, categorizing every module into an operational role:
+
+* **Producer (Foundation):** $>80\%$ inbound edges. Core utility modules, base classes, or data schemas relied upon by the rest of the application.
+* **Consumer (Orchestrator):** $<20\%$ inbound edges. Controllers, entry points, or CLI scripts that import multiple downstream packages to execute application flows.
+* **Transceiver (Middle Tier):** $20\% - 80\%$ inbound edges. Intermediate business logic and service handlers passing data between consumers and producers.
+* **Isolated / Orphan:** 0 connected edges. Unused modules, standalone utilities, or dynamically loaded scripts.
+
+---
+
+## Systemic Risk & Performance Bottleneck Analysis
+
+Local code quality issues present higher risk when located inside core foundational modules:
+
+* **Systemic Threat Vector:** Cross-multiplies local risk scores with the module's Normalized Blast Radius to highlight files that are both high-risk and heavily depended upon.
+* **Algorithmic Complexity Bottlenecks:** Flags modules with a Normalized Blast Radius $> 1.0$ combined with an algorithmic complexity of $O(N^3)$ or higher (or active recursion). These represent key candidates for performance optimization.
+
+---
+
+## Global Repository Topology Metrics
+
+The sensor computes structural health metrics across the overall graph:
+
+* **Modularity:** Measures functional separation between modules versus monolithic coupling density.
+* **Assortativity:** Evaluates whether high-impact modules connect primarily to other robust modules (resilient architecture) or to fragile scripts (single points of failure).
+* **Cyclic Density:** Measures the percentage of files participating in circular dependency loops.
+* **Average Path Length:** Calculates the average dependency distance between any two files in the repository.
+* **Articulation Points:** Identifies single files whose removal breaks the graph into disconnected sub-components.
+
+---
+
+### Zero-Dependency Fallback Mode
+If `networkx` is unavailable in the environment, the sensor degrades gracefully into Zero-Dependency Mode. It calculates basic in/out degree ratios to determine component roles and heuristic blast radius metrics without throwing runtime errors.
+
+---
+
+### Powered by GitGalaxy
+
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic static analysis engine.
+
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for source code and tools.
+* **[Visualize your codebase at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

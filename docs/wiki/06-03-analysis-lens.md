@@ -1,57 +1,54 @@
-# Analysis Lens (Math Constants & Schemas)
+# Analysis Lens & Schema Registry
 
-> **The Universal Schemas**
->
-> The `analysis_lens.py` file operates as the strict mathematical and schema registry for GitGalaxy. While `language_standards.py` defines *how* to parse code, the Analysis Lens defines *what* that parsed data actually means. 
->
-> It enforces the exact array structures, string translations, and mathematical thresholds required to turn raw regex counts into meaningful 3D visuals and forensic audits without breaking downstream Python dictionaries or GPU shaders.
+> **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/analysis_lens.py)
 
-## The Triad of Schemas (`RECORDING_SCHEMAS`)
+The `analysis_lens.py` module defines the mathematical schemas, metric vectors, string translation maps, and security policy thresholds utilized throughout the GitGalaxy static analysis engine. 
 
-Because GitGalaxy eventually pivots data from object-oriented Python into flattened C-style arrays for WebGL, array order is critical. The Analysis Lens hardcodes the exact order of elements for the entire pipeline:
+While `language_standards.py` defines how to parse syntax across different languages, `analysis_lens.py` defines the mathematical meaning, array schemas, and risk normalization formulas applied to the extracted data.
 
-### 1. `SIGNAL_SCHEMA` (The 60-Point Heuristic Matrix)
-This defines the absolute layout of the raw telemetry extracted by the `LogicSplicer`. Every language's regex hits are aggregated into this exact 60-element array. It represents the foundational signal data of the file, including active logic (e.g., `branch`, `memory_alloc`), passive data (e.g., `doc`, `graveyard`), and raw security triggers (e.g., `sec_danger`, `sec_io`).
+## Metric Schemas (`RECORDING_SCHEMAS`)
 
-### 2. `RISK_SCHEMA` (The 18-Point Exposure Vector)
-This schema defines the final, processed risk metrics calculated by the `SignalProcessor`. It transforms the raw 60-point signal array into 18 standardized exposures (e.g., `cognitive_load`, `tech_debt`, `logic_bomb`, `memory_corruption`). Every file in the visible galaxy receives a score from 0.0 to 100.0 for every element in this array.
+To flatten object-oriented analysis data into contiguous arrays for efficient processing, storage, and WebGL rendering, `analysis_lens.py` defines three primary vector schemas:
 
-### 3. `SAT_SCHEMA` (Satellite Data)
-Defines the strict 10-element array used to flatten individual internal functions (Satellites) into the GPU manifest. It enforces the order of metrics like LOC, Control Flow Ratio, and Big-O Depth.
+### 1. `SIGNAL_SCHEMA` (60-Point Heuristic Vector)
+Defines the layout of raw syntax telemetry extracted during file parsing. Extracted regular expression hits are aggregated into this 60-element array, representing raw measures of active logic (e.g., `branch`, `memory_alloc`), structural indicators (e.g., `doc`, dead code markers), and security signals (e.g., `sec_danger`, `sec_io`).
 
-## The Translation Dictionaries
+### 2. `RISK_SCHEMA` (18-Point Risk Exposure Vector)
+Defines the structure of processed risk exposure metrics computed by `SignalProcessor`. Raw 60-point signal vectors are transformed into 18 standardized risk metrics (e.g., `cognitive_load`, `tech_debt`, `secrets_risk`, `memory_corruption`), with each evaluated file receiving normalized risk scores from 0.0 to 100.0.
 
-LLMs and human auditors cannot easily read raw backend keys like `sec_bitwise_hits` or `cog_raw`. The Analysis Lens contains the master translation maps utilized by the `AuditRecorder` and `LLMRecorder`:
+### 3. `SAT_SCHEMA` (Function Metadata Array)
+Defines the 10-element array structure used to represent individual function definitions within visualization payloads. Encodes function metrics such as Lines of Code (LOC), Control Flow Ratio, estimated algorithmic complexity, and parameter counts.
 
-* **`FRIENDLY_MAP`:** Translates raw heuristic keys into descriptive text (e.g., converting `sec_bitwise_hits` into "Sub-Atomic Decryption (Custom XOR)").
-* **`EXPOSURE_LABELS`:** Formats the 18-point risk vector for the JSON audit (e.g., formatting `secrets_risk` as "Secrets Risk Exposure").
-* **`GPU_TEXTURE_LOOKUPS`:** A fixed string-interning dictionary that maps functional archetypes (like `io`, `mutation`, `event`, `logic`) into strict integers so the GPU knows exactly which 3D material to apply to a satellite node.
+## Translation Dictionaries
 
-## Mathematical Constants & Thresholds
+For reporting tools, JSON audits, and LLM integrations, `analysis_lens.py` provides translation mappings from internal telemetry keys to human-readable strings and rendering codes:
 
-The file houses the global physics constants used to calculate mass, momentum, and risk degradation:
+* **`FRIENDLY_MAP`:** Translates raw metric keys into human-readable descriptions (e.g., mapping `sec_bitwise_hits` to "Bitwise Operations & Custom XOR Logic").
+* **`EXPOSURE_LABELS`:** Formats keys in the 18-point risk vector for audit output (e.g., mapping `secrets_risk` to "Secrets Risk Exposure").
+* **`GPU_TEXTURE_LOOKUPS`:** String-interning dictionary that maps functional archetypes (e.g., `io`, `mutation`, `event`, `logic`) to integer identifiers for WebGL shader material rendering.
 
-* **Trust Constants (The Fog of War):** Defines the "Opacity Tax" for dynamically typed or implicit languages (like Shell or SQL). Languages with higher opacity receive an artificial boost to their baseline risk scores to account for runtime unpredictability.
-* **Network Load-Bearing Multipliers:** Determines exactly how heavily PageRank and Betweenness scores are weighted when calculating a file's Systemic Threat Vector.
-* **Security Tripewires:** Houses the exact floating-point thresholds (e.g., > 60.0%) that trigger the `ELEVATED_SURFACE_RISK` and `CRITICAL_THREATS_DETECTED` statuses in the final SHBOM audit.
+## Mathematical Constants and Risk Policies
 
-## Architectural Stability
+`analysis_lens.py` houses global numerical constants used across risk scoring and network centrality calculations:
 
-By centralizing these schemas, GitGalaxy achieves extreme stability. If a developer needs to add a new security metric to the engine, they do not have to update 15 different Python modules. They simply add the key to the `RISK_SCHEMA` array in the Analysis Lens, and the Splicer, Signal Processor, GPU Recorder, and Audit Recorder will automatically inherit, process, and serialize the new metric perfectly.
+* **Dynamic Language Uncertainty Factors:** Weight multipliers applied to dynamically typed or shell scripting languages to reflect runtime unpredictability.
+* **Network Centrality Weights:** Defines PageRank and Betweenness Centrality coefficients used to calculate systemic risk and dependency exposure.
+* **Security Alert Thresholds:** Defines floating-point cutoff levels (e.g., > 60.0%) that trigger `ELEVATED_SURFACE_RISK` and `CRITICAL_THREATS_DETECTED` status flags in generated security reports.
 
-<br><br>
+## Maintainability & Schema Integrity
+
+Centralizing schemas in `analysis_lens.py` ensures consistency across the pipeline. Adding a new analysis metric requires updating the schema definitions in this module, which automatically propagates through the parser, signal processor, export recorders, and visualization components.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

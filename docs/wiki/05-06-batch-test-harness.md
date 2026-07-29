@@ -1,39 +1,41 @@
 # Batch Test Harness
 
-> **Architecture: Automated Compilation & CI/CD Validation**
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/batch_test_harness.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/batch_test_harness.py)
+
+> **Architecture: Automated Pipeline Validation & Maven Build Testing**
 >
-> **Summary:** The Batch Test Harness is an automated stress-testing tool designed to validate the output of the entire V4 GitGalaxy pipeline across an arbitrary number of legacy repositories. It proves that the generated JSON Intermediate Representation (IR) successfully translates into a 100% compilable Spring Boot architecture.
+> **Summary:** The Batch Test Harness (`batch_test_harness.py`) is an automated test validation tool designed to stress-test the modernization pipeline across multiple legacy repositories. It verifies that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications across an entire software repository corpus.
 
-## The Three-Phase Validation Loop
+## Three-Phase Validation Pipeline
 
-The harness iterates through the corpus directory, running each repository through a strict validation sequence:
-1. **Refraction Phase:** Executes the COBOL Refractor Controller. Converts the legacy monolith into the JSON IR using the auto-scaling State Manager.
-2. **Java Forge Phase:** Executes the Java Translation Controller. Scaffolds the Spring Boot architecture, PostgreSQL schemas, and Mock Services.
-3. **Compilation Phase:** Spawns a localized Maven subprocess (`mvn clean compile`) to attempt a full build of the generated architecture.
+The test harness iterates through target legacy repositories, executing a three-stage validation sequence for each codebase:
 
-## Execution Isolation & Stability
+1. **Structural Extraction Phase:** Runs `cobol_refractor_controller.py` to parse legacy source files and generate JSON Intermediate Representation (IR) state dumps.
+2. **Spring Boot Scaffolding Phase:** Runs `cobol_to_java_controller.py` to generate Java JPA entities, REST controllers, mock services, and Maven build configurations (`pom.xml`).
+3. **Compilation Verification Phase:** Spawns a localized Maven subprocess (`mvn clean compile`) to attempt a clean compilation of the generated Java codebase.
 
-To ensure consistent testing across varying local environments, the harness applies strict execution controls:
-* **Environment Sandboxing:** The harness clones the host environment and explicitly overrides the `JAVA_HOME` path to enforce Java 17 OpenJDK standards.
-* **Infinite Hang Protection:** Legacy code can occasionally trigger catastrophic regex recursion. The harness wraps every subprocess command in a strict 5-minute timeout (`timeout=300`). If a phase stalls, the harness safely kills the thread, logs a timeout failure, and proceeds to the next repository.
+## Environment Isolation & Process Controls
 
-## Granular Telemetry
+To ensure consistent execution across different CI/CD runners and environments:
+* **JDK Path Standardization:** Clones host environment variables and forces `JAVA_HOME` to Java 17 OpenJDK (`/usr/lib/jvm/java-17-openjdk-amd64`) for deterministic compilation.
+* **Process Timeout Enforcement:** Wraps subprocess executions with a 5-minute timeout (`timeout=300`) to terminate hung processes or infinite regex loops cleanly, logging failure states without blocking subsequent batch runs.
 
-All Standard Output (STDOUT) and Standard Error (STDERR) from the Refractor, Java Forge, and Maven compiler are captured and piped into a `batch_test_reports/` directory. If a repository fails to compile, the harness dumps the exact Maven dependency or syntax error into an isolated log file, allowing the engineering team to rapidly debug translation bottlenecks.
+## Test Logging & Audit Reporting
 
-<br><br>
+The harness records detailed telemetry to support CI/CD pipeline auditing:
+* **Batch Summary:** Tracks overall success and failure counts (`passed`, `failed_refractor`, `failed_java_forge`, `failed_maven`).
+* **Error Log Capture:** Captures stdout and stderr for any failed step into dedicated log files under `batch_test_reports/{repo}_error_{timestamp}.log`, allowing developers to inspect Maven compilation logs or static analysis errors directly.
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by GitGalaxy
 
-This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
+This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), a static analysis and knowledge graph engine for software modernization.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* [Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy) for code, tools, and updates.
+* [Visualize your repository](https://gitgalaxy.io/) using our interactive WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

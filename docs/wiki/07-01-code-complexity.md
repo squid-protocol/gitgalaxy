@@ -1,33 +1,32 @@
-# 2.1. How We Represent Complexity as Physical Structure
+# Visual Code Complexity Mapping Specifications
 
-Code complexity is mapped directly to physical structure, creating organic, distinct shapes for different complexity patterns. This representation of complexity does not depend on color; it relies purely on geometry and spatial arrangement.
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
 
-| Physical Attribute | Code Metric (Heuristic) | Visual Result (The "Look") |
+GitGalaxy maps static code metrics directly to 3D visual parameters in WebGL/WebGPU. Rather than relying exclusively on color coding, the visualization engine converts code complexity, file size, dependency relationships, and control flow density into distinct geometric shapes, spatial positioning, and orbital sub-node layouts.
+
+| Visual Attribute | Source Metric (Heuristic) | Visual Output & Rendering Behavior |
 | :--- | :--- | :--- |
-| **Star's Size** | Lines of Code (LOC) per File | **Mass.** Logarithmic scaling ensures that 10k+ LOC files appear as massive suns, while 10 LOC scripts remain small asteroids. |
-| **Star's Pulse Rate** | Inbound References (Popularity) | **Bioluminescence.** Core utilities pulse with a white-hot "heartbeat." Unreferenced files remain dim and static. |
-| **Star's Shape** | Control Flow Ratio (File Level) | **Geometry.** Morphs from a smooth **Sphere** (Declarative/Data) to a sharp **Tetrahedron** (Pure Algorithmic Logic). |
-| **Satellite Unit** | Function Declaration | **Moons.** Every discrete function is materialized as a satellite orbiting its parent star. |
-| **Satellite Distance** | Lines of Code (LOC) per Function | **Orbital Reach.** Long functions reach further into the void; small stubs orbit tightly near the star's surface. |
-| **Number of Satellites** | Cyclomatic Complexity | **Fractal Density.** Highly complex functions spawn sub-clusters or dense swarms of satellites, creating a "thorny" silhouette. |
-| **Satellite Position** | Control Flow Ratio (Function Level) | **Branching Angle.** Sharp, jagged angles (<45°) indicate complex control flow; 90° "Circuit Board" patterns indicate linear flow. |
-| **Satellite Size** | Argument Count | **Volume.** Large moons represent "Heavy" functions with many inputs; small dots represent lightweight utilities. |
-| **Star's Rings** | External Library Imports | **Accretion Disks.** Files tethered to many external dependencies manifest glowing rings, symbolizing a large "Gravity Well." |
-| **Star's Position** | Semantic Affinity (Directory/Path) | **Neighborhoods.** Files are grouped into sectoral clusters based on folder structure, creating distinct "Auth," "UI," and "API" continents. |
-
-<br><br>
+| **File Node Scale** | Lines of Code (LOC) & Structural Mass | Logarithmic scaling maps file size and complexity to physical 3D node radius. Large core modules appear as prominent parent nodes, while small utilities remain compact nodes. |
+| **Emissive Intensity** | Inbound Reference Count (Graph In-Degree) | Frequently imported core modules emit high-intensity bloom, visually highlighting central architectural bottlenecks. Unreferenced files remain dim and static. |
+| **Node Mesh Geometry** | File Control Flow Ratio ($R_L$) | Morphs node geometry from smooth spheres (declarative data files and configs) to sharp polyhedral wireframes (highly complex algorithmic code). |
+| **Function Sub-Nodes** | Function / Method Declarations | Discrete functions within a file are rendered as child nodes orbiting the main file node. |
+| **Orbital Distance** | Function Lines of Code (LOC) | Function length determines orbital radius. Long functions orbit at a larger radius from the parent node, while concise functions remain tightly bound. |
+| **Sub-Node Quantity** | Function Count & Complexity | Reflects the total number and structural density of discrete functions contained within the parent file. |
+| **Sub-Node Position** | Function Control Flow Ratio | Branching angles and angular positions reflect the relative decision complexity of individual functions. |
+| **Sub-Node Scale** | Function Parameter Count | Functions with large parameter lists and high input coupling render with larger sub-node radii. |
+| **Dependency Rings** | External Library Imports | Files with heavy third-party dependencies are rendered with concentric rings surrounding the parent node. |
+| **Spatial Clustering** | Directory Path & Module Structure | Files are grouped into 3D spatial sectors based on directory hierarchy (e.g., `auth/`, `ui/`, `api/` modules). |
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using the interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

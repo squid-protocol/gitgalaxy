@@ -5690,7 +5690,7 @@ LANGUAGE_DEFINITIONS = {
             # 4. func_start (Executable Logic Anchors)
             # Subroutine entry points. EXCLUDES data labels or local loop markers.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_][a-zA-Z0-9_.$]*)(?=\s*:)",
+                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_][a-zA-Z0-9_.$]*)(?=[ \t]*:)",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -5842,19 +5842,36 @@ LANGUAGE_DEFINITIONS = {
             "cleanup": re.compile(r"\b(?:call|bl)\s+_?free\b", re.I),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             # Logic hidden from view via visibility directives. [cite: 786]
-            "encapsulation": re.compile(r"(?i)\b(?:\.local|\.private)\b"),
+            "encapsulation": re.compile(r"^[ \t]*(?:\.local|\.private)\b", re.M | re.I),
             # 48. listeners (Event Listeners / Observers)
             # Assembly relies on hardware interrupts rather than high-level listener subscriptions. [cite: 787]
             "listeners": None,
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             # Framework code that explicitly bypasses verification. [cite: 788]
             "test_skip": None,
-            # --- PHASE 3: HYBRID DOMAIN SENSORS (Lua Specifics) ---
-            "serialization_parsing": re.compile(r"\b(string\.dump|loadstring|load|cjson\.decode|cjson\.encode)\b"),
-            "regex_execution": re.compile(r"\b(string\.match|string\.gmatch|string\.find|string\.gsub)\b"),
-            "time_date_logic": re.compile(r"\b(os\.time|os\.clock|os\.date|os\.difftime)\b"),
+            # --- HYBRID DOMAIN SENSORS ---
+            # serialization_parsing: Assembly has no native or universal JSON/XML/YAML
+            # parsing construct -- unlike malloc/free/printf there is no single
+            # ubiquitous libc convention for this, so per Strict Feature Parity
+            # (Rule 4) this stays None rather than forcing a fit.
+            "serialization_parsing": None,
+            # regex_execution: No native regex instruction; the realistic native
+            # equivalent is a call into the POSIX libc regex API.
+            "regex_execution": re.compile(
+                r"\b(?:call|bl)\s+_?(?:regcomp|regexec|regfree|re_search|re_match)\b",
+                re.I,
+            ),
+            # time_date_logic: rdtsc/rdtscp are real native timestamp-counter
+            # instructions; also covers calls into the libc time API.
+            "time_date_logic": re.compile(
+                r"\brdtscp?\b|\b(?:call|bl)\s+_?(?:time|clock|clock_gettime|gettimeofday)\b",
+                re.I,
+            ),
+            # ipc_rpc_bridges: Raw process/IPC syscalls and their libc wrappers.
+            # Distinct from `io`'s generic sys_read/sys_open/syscall tokens.
             "ipc_rpc_bridges": re.compile(
-                r"\b(os\.execute|io\.popen|coroutine\.create|coroutine\.resume|coroutine\.yield)\b"
+                r"\b(?:call|bl)\s+_?(?:fork|execve|pipe|socket|clone)\b|\bsys_(?:fork|execve|pipe|clone)\b",
+                re.I,
             ),
         },
     },

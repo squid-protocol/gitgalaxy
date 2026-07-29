@@ -1,56 +1,57 @@
-# 2.1.I. Planetary Rings 
+# 2.1.I. External Dependency Rings
 
-> **Metric: External Library Import Count**
+> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+
+> **Metric: External Library Import Count (`ImportHits`)**
 >
-> **Purpose:** See which files import external libraries.
+> **Purpose:** Highlights modules with high external dependency counts.
 >
-> **Why:** Determine which files have dependencies that you don't fully control.
+> **Rationale:** Standard utility modules maintain self-contained logic, whereas integration modules or framework controllers pull in multiple external packages. Visualizing dependency load as surround rings allows developers to spot heavy integration points and potential dependency coupling risks at a glance.
 >
-> **Effect:** Spawns rings around the file to visually represent its external dependency weight.
+> **Effect:** Renders dependency rings around file nodes in 3D visualization space.
 
-## 2.1.I.1. The Philosophy: The Gravity Well
+## 2.1.I.1. Dependency Weight Thresholds
 
-A clean file is a sphere. It floats freely. A file with dependencies is tethered. The more it imports, the heavier it gets. We set a **High Threshold** for rings. We don't want visual noise for a single utility import. Rings are reserved strictly for "Heavy Lifters" and "Glue Code."
+Self-contained files render as clean single nodes without surround rings. As a file imports external libraries, its dependency weight increases. To prevent visual noise from routine single imports, a threshold is enforced: surround rings only activate for high-dependency modules ("heavy lifters" and orchestration layers).
 
-## 2.1.I.2. The Inputs: Measuring Dependencies
+## 2.1.I.2. Input Metrics
 
-* **ImportHits:** The count of `import`, `require`, or `include` statements found by the scanner.
-* **Threshold:** **> 5 Imports**. Anything less is considered "Standard Weight" and renders with **No Rings**.
+* **`ImportHits`:** Total count of `import`, `require`, `include`, or package import directives identified by the static analyzer.
+* **Activation Threshold:** **> 5 Imports**. Modules with 5 or fewer imports do not spawn dependency rings.
 
-## 2.1.I.3. The Equation: Growth and Density
+## 2.1.I.3. Mathematical Formulation: Ring Opacity and Thickness
 
-Instead of complex accretion disks, we use a single, evolving ring system that grows in **Density (Opacity)** and **Mass (Width)** as the gravity increases.
+Dependency rings evolve dynamically in visual opacity and thickness as import counts rise:
 
-**1. Opacity (Visibility)**
-Ranges from $0.0$ to $0.6$ over the first 26 imports. Rare imports create a barely visible "Ghost Ring." As dependencies hit the critical mass (26), the ring becomes a distinct, semi-solid band.
+**1. Visual Opacity (Transparency)**
+Opacity scales linearly from $0.0$ to $0.6$ over the range of 6 to 26 imports, capping at a maximum value of $0.6$:
 
 $$\text{Opacity} = \min\left( \left(\frac{\text{ImportHits}}{26}\right) \times 0.6,\ 0.6 \right)$$
 
-**2. Width (Tube Thickness)**
-Grows continuously as imports increase. The ring gets physically thicker and wider, consuming more visual space around the planet as the gravity well deepens.
+**2. Ring Width (Geometry Thickness)**
+Geometry radius expands progressively with additional imports to indicate cumulative external coupling:
 
 $$\text{TubeRadius} = \text{BaseWidth} + (\text{ImportHits} \times 0.1)$$
 
-## 2.1.I.4. The Visual Output
+## 2.1.I.4. WebGL/WebGPU Rendering Specifications
 
-* **Geometry:** `TorusGeometry`.
+* **Geometry Class:** `TorusGeometry`.
 * **Tube Radius:** Scaled linearly by `ImportHits`.
-* **Material:** Transparent with `opacity` capped at $0.6$.
-* **Tilt:** Rings are tilted at randomized axes (Euler angles) to ensure they don't look like flat plates, but dynamic, gyroscope-like orbital paths.
+* **Material Properties:** Translucent mesh material with `opacity` capped at $0.6$.
+* **Rotational Orientation:** Ring meshes are tilted across randomized Euler axes to prevent overlapping coplanar visual artifacting and ensure clear visibility from all 3D camera viewpoints.
 
 <br><br>
 
 ---
 
-### 🌌 Powered by the blAST Engine
+### Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://github.com/squid-protocol/gitgalaxy), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
-* 🔭 **[Visualize your own repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
-
-
+* **[Explore the GitHub Repository](https://github.com/squid-protocol/gitgalaxy)** for code, tools, and updates.
+* **[Visualize your repository at GitGalaxy.io](https://gitgalaxy.io/)** using our interactive 3D WebGPU dashboard.
 
 ---
 
 **[⬅️ Back to Master Index](index.md)**
+

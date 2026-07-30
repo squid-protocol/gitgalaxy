@@ -54,6 +54,8 @@ This dictionary defines the **Structural Signatures** used by an AST-free parsin
     * ❌ `\b(Import-Module|-Parallel)\b` — `-Parallel` can never satisfy the leading `\b`; real code always precedes it with whitespace (a non-word character), so the alternative silently never matches.
     * ✅ `\bImport-Module\b|-Parallel\b`
     * This was, by a wide margin, the single most common defect found across every language audited so far — it produces zero errors or warnings, the signature just quietly never matches its most common real-world form.
+    * **Whitespace itself is non-word too — this trap isn't limited to punctuation.** An alternative ending in `\s+`/`\s*` (not a symbol) has exactly the same problem: `\bCALL\s+\b` inside a shared group can only fire if a word character *immediately* follows all the consumed whitespace, which fails the moment the real form is `CALL 'SUBPROGRAM'` (a quote right after the space). Found independently in COBOL (`CALL\s+`) and elsewhere — treat any alternative ending in a `\s`-quantifier the same as one ending in a literal symbol.
+    * **A "broken" alternative can still silently work if a sibling alternative shadows it — always verify with a real `.search()` call, not by reading the regex shape.** If a group also contains a *shorter, unqualified* alternative that's a prefix of the broken one (e.g. bare `yield` next to broken `yield\s*\*`), the shorter one may satisfy the match first on every realistic input, masking the defect entirely. Confirmed repeatedly (YAML's `TODO`/`@todo`, Tcl's `::`-suffixed namespaces, Rust's `yield`/`yield\s*\*`) — don't flag *or* clear a boundary finding based on the pattern's shape alone; check what `.search()` actually returns on the realistic text.
 10. **Zero-Argument / Symbol-First-Argument Call Forms:** When anchoring a function/method call by name with a trailing `\b` (e.g. `\bapp\(\b`-style reasoning), remember real calls are frequently written with zero arguments or a quoted/numeric first argument — never assume a word character follows the opening paren.
     * ❌ A trailing `\b` placed right after a literal `(` — matches `app(x)` but not `app()` or `app("foo")`, which are usually the *more* common call shapes.
     * ✅ Drop the trailing `\b` when an alternative already ends on `(` — the paren is self-delimiting, same principle as Rule 9.
@@ -63,6 +65,22 @@ This dictionary defines the **Structural Signatures** used by an AST-free parsin
 12. **Comment-Style Completeness for `dead_code`:** If a language's lexical family supports more than one comment style (e.g. a `standard_block` language with both `//` and `/* */`), the `dead_code` keyword check must be wired to ALL of them, not just one — do not assume the style you happen to write the regex against first is the dominant one.
     * ❌ `(?:/\*)\s*(?:function|class|...)\b` — only fires inside block comments, silently missing every `// function foo() {}` line-comment case even though `//` is usually the far more common style.
     * ✅ `(?://|/\*)\s*(?:function|class|...)\b`
+    * The same completeness check applies to `doc`/`ownership` if they're anchored to a specific comment marker (e.g. m4's `dnl` vs. its equally-real `#` default comment) — don't assume the family's shared delimiter table and the rule's own hand-written anchor agree just because they're both "correct" in isolation.
+13. **Multiline Flag Completeness for `^`-Anchored Rules:** Any rule using `^` (start-of-line anchor) MUST include `re.M` in its compile flags. Without it, `^` anchors to the true start of the *string*, not the start of each line — the rule can then only ever fire if the anchored keyword happens to be the literal first characters of the entire file, almost never true for a real multi-line source file.
+    * ❌ `re.compile(r"^(?:EXPOSE|VOLUME|ENTRYPOINT)\b")` with no `re.M` — can only match if one of these keywords is the first thing in the file; a real Dockerfile always starts with `FROM`, so this silently never fires.
+    * ✅ `re.compile(r"^(?:EXPOSE|VOLUME|ENTRYPOINT)\b", re.M)`
+    * Exactly as invisible as Rule 9's defect: the pattern compiles fine and the anchor "looks" correct, it just structurally can't match real multi-line code. Always check the flags, not just the pattern text.
+14. **Adjacent Quantifiers With Overlapping Character Classes (a ReDoS shape distinct from Rule 11):** Two quantified pieces placed back-to-back, where the first's character class is a superset of or overlaps the second's, let the engine try exponentially many ways to split the matched text between them before failing on a payload with no valid closing token. This is NOT about bracket/delimiter nesting (see Rule 11) — it happens with any adjacent quantifiers, including a plain `\s+ ... \s+` sandwiching an unbounded middle piece.
+    * ❌ `\d+[^\]]*` — `[^\]]*` also matches digits, so on a long run of digits with no closing `]`, the engine repartitions the run between the two quantifiers exponentially. Confirmed independently broken this exact way in 7+ languages in this codebase's own audit history (embedded_python, css, tcl, matlab, scheme, typescript, rust) — bound both: `\d{1,10}[^\]]{0,300}`.
+    * ❌ `\s+.*\s+FROM` — `.` matches whitespace too, so a long space-only run with no `FROM` ever appearing lets the engine partition it between `\s+`, `.*`, and the second `\s+` in exponentially many ways. Confirmed **9+ real seconds at just n=2000** in one case — far faster to blow up than the typical nested-delimiter shape, which usually only shows real cost around n=16000-32000. Replace the unbounded middle piece with the actual expected token shape (e.g. a real identifier character class) — this is usually both more correct AND removes the ambiguity entirely.
+    * When testing for this shape, start the scaling sweep at a SMALL n (e.g. 2000) rather than assuming n=32000 is where a real hang would first appear.
+15. **A Documented Exclusion Must Actually Exclude:** If a rule's own comment claims to exclude a specific case (e.g. "only public methods, not private"), verify the regex uses a negative lookahead/lookbehind to actually enforce it — not an *optional* positive group that, when it fails to match the excluded text, simply backs off and matches the unqualified base case anyway.
+    * ❌ `methods\b(?:[ \t]*\(Access[ \t]*=[ \t]*public[ \t]*\))?` intended to flag only public methods blocks — the qualifying group is optional, so `methods (Access = private)` still matches via the bare `methods` alone; the "exclusion" never actually gates anything.
+    * ✅ `methods\b(?![ \t]*\([^)]*\bAccess[ \t]*=[ \t]*(?:private|protected)\b)` — a negative lookahead that genuinely blocks the match when the excluded condition is present.
+    * This defect is invisible to a casual read of the regex — it *looks* like it discriminates on the qualifier — and only surfaces when you specifically test the case the comment claims to exclude.
+16. **Identifier Capture Classes Must Match the Language's Real Grammar:** A capture class like `[a-zA-Z0-9_!?-]+` for a function/type name assumes a narrow, C-like identifier grammar. Many languages (Lisp-family especially, but any language with idiomatic naming conventions using extra punctuation) allow far more characters in identifiers than that. Because the capture typically feeds a required trailing lookahead, a truncated capture doesn't just capture less — it can break the lookahead entirely, turning a partial-match bug into a complete non-match for the whole rule.
+    * ❌ `[a-zA-Z0-9_!?-]+` for Scheme identifiers — excludes `> < = * + / . ~ $ % ^ &`, so idiomatic names like `list->vector`, `1+`, and SRFI-9's `<TypeName>` record-naming convention never matched AT ALL, because the truncated capture broke the trailing lookahead requiring whitespace/`)` right after.
+    * ✅ Check the language's actual identifier grammar (e.g. R7RS's special-initial/special-subsequent character sets) before picking the capture class, and verify against real idiomatic names from that language's own standard library — not just simple ASCII test names.
 
 ### THE LEXICAL PARSING FAMILIES
 You must assign the language to one of these 5 lexical parsing families based on how it handles comments and non-executable text:
@@ -249,15 +267,28 @@ fine":
    key, parametrized into a single test. Every positive snippet must be realistic code you'd
    actually find in a real file of this language — not a synthetic string engineered to match.
 2. **Symbolic-boundary audit (Rule 9/10).** For every `\b(...)\b` group in the dict, check whether
-   any alternative starts or ends on a non-word character. For each one found, write a regression
-   test proving the *realistic* real-world form (preceded/followed by whitespace, not a
-   conveniently-placed word character) actually matches.
+   any alternative starts or ends on a non-word character — including a bare `\s+`/`\s*`, which is
+   just as non-word as a literal symbol. For each one found, write a regression test proving the
+   *realistic* real-world form (preceded/followed by whitespace or punctuation, not a
+   conveniently-placed word character) actually matches. Before flagging (or clearing) a finding,
+   run the actual `.search()` call on the realistic text — a structurally-broken alternative can be
+   silently masked by a shorter, unqualified sibling alternative in the same group that matches
+   first on every realistic input (confirmed repeatedly: YAML's `TODO`/`@todo`, Tcl's
+   `::`-suffixed namespaces, Rust's `yield`/`yield\s*\*`). The pattern's shape alone is not proof
+   either way.
 3. **Nested-delimiter audit (Rule 11).** For every rule using a flat negated class as a delimiter
    matcher (`[^\]]+`, `[^)]+`, `[^}]+`), construct a realistic one-level-nested input for this
    language (a generic type, a nested call, a nested nested structure) and verify it still matches.
+   Separately, check for **adjacent quantifiers with overlapping character classes** (Rule 14) —
+   not a nesting/bracket issue, but two quantified pieces back-to-back where the first's character
+   class overlaps the second's (`\d+` next to `[^\]]+`, or `\s+` next to `.*`). This shape has shown
+   up independently in 7+ languages for the exact same copy-pasted `spec_exposure` pattern, and can
+   be *far* more explosive than a typical nested-delimiter ReDoS (one real case hung for 9+ seconds
+   at just n=2000) — start the scaling sweep at a small n, not just n=32000.
 4. **Comment-style audit (Rule 12).** If the language's `lexical_family` supports more than one
-   comment style, verify `dead_code` fires under each of them, not just the one it was seemingly
-   written against.
+   comment style, verify `dead_code` (and `doc`/`ownership`, if they're anchored to a specific
+   comment marker rather than the family's full delimiter set) fires under each of them, not just
+   the one it was seemingly written against.
 5. **ReDoS adversarial payloads, verified by scaling — not a single timing.** For every rule with
    an unbounded-looking quantifier, construct the "never closes" adversarial payload (e.g. `"{" *
    n` for a rule expecting a closing `}`, `"(" * n` for one expecting `)`) and measure actual
@@ -265,7 +296,9 @@ fine":
    32000). A roughly 2x time increase per doubling is linear and fine. A roughly 4x increase per
    doubling is the signature of real O(n²) catastrophic backtracking and must be fixed (bound the
    quantifier, e.g. `{0,300}` / `{0,500}`, generous enough to still match realistic code) — do not
-   report a ReDoS finding, and do not clear one, off a single timing.
+   report a ReDoS finding, and do not clear one, off a single timing. See Rule 14 above for a shape
+   that can blow up dramatically faster than the usual nested-delimiter case — don't assume n=32000
+   is always where trouble would first appear.
 6. **Ambiguity sweep.** For every *pair* of signatures in the dict (not just an assumed subset),
    check for shared literal tokens, then empirically verify each flagged pair on real-shaped input:
    is it a genuine false collision (two signatures matching the exact same text when they
@@ -276,6 +309,29 @@ fine":
    `bitwise_ops` vs `closures`. Not every finding is a bug — e.g. a test-assertion DSL whose
    "matches" keyword genuinely invokes a regex engine under the hood (Pester's `Should -Match`) is
    a correct, intentional double-classification, not a false positive. State which it is and why.
+7. **`re.M` completeness audit (Rule 13).** For every rule whose pattern uses a literal `^` outside
+   a character class, confirm `re.M` is actually set in its compile flags. A missing flag produces
+   no error and no warning — the rule simply can never match past the first line of a file, which
+   is easy to miss entirely if you only read the pattern text and not the flags argument.
+8. **Lexical-family sanity check.** Before writing any signature-level tests, compare the
+   language's own inline `# Rationale:` comment (next to its `lexical_family` field) against the
+   *actual* value assigned. If they describe different families, don't just fix the mismatch —
+   empirically confirm via `Prism.split_streams()` against a realistic multi-line comment sample
+   whether comments are actually being stripped as the rationale comment assumes. This has
+   surfaced real, separate pipeline bugs twice (HTML mistagged `line_exclusive` instead of
+   `block_exclusive`; Scheme mistagged `line_exclusive` despite describing a nested-block family
+   that was never implemented) — file pipeline-level findings like this as their own issue rather
+   than folding a `prism.py` fix into a per-language strict-parsing PR (see Step 5's on-target
+   discipline below), and write this language's signature tests against the *actual* observed
+   stripping behavior, not the aspirational one.
+9. **Schema completeness audit (Rule 4, revisited).** Diff the full baseline key list (everything
+   in the Output Schema below) against this language's actual `rules.keys()` — not just against
+   the subset that's currently non-`None`. A key can be missing from the dict *entirely*, which
+   looks identical to "hasn't been assigned yet" unless you explicitly check for its presence.
+   Found this way in COBOL: `import` was absent outright (not `None`) even though
+   `_dependency_capture` right next to it was already correctly parsing COPY/INCLUDE targets — a
+   real, working regex for the key was clearly intended and just never added. If a key is
+   genuinely inapplicable, it should be explicit `None` per Rule 4, not silently absent.
 
 ### Step 5: Verify Against the Language Crucible
 The project maintains `tests/test_golden_crucible.py`, which runs the real `galaxyscope` CLI

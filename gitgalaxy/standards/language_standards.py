@@ -2808,7 +2808,15 @@ LANGUAGE_DEFINITIONS = {
                 # FIX: We now use strict O(1) alternation `(?:\s*[*&]+\s*|\s+)` which
                 # forces the engine to choose exactly one path and never backtrack.
                 # =====================================================================
-                r'\b(extern|__declspec\(dllexport\)|__attribute__\(\(visibility\("default"\)\)\))\b|'
+                # BUG FIX (Rule 9): `__declspec(dllexport)` and
+                # `__attribute__((visibility("default")))` both end in `)`
+                # (non-word) but shared a trailing `\b` with word-ending
+                # `extern` -- `\b` right after can only fire if the next char
+                # is a word character, never true for the realistic form
+                # (whitespace/newline before the return type follows). Pulled
+                # both out of the shared boundary group.
+                r"\bextern\b|__declspec\(dllexport\)|"
+                r'__attribute__\(\(visibility\("default"\)\)\)|'
                 r"^[ \t]*(?!static\b)[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*(?:\[[^\]]*\])?\s*=?|"
                 r"^[ \t]*[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*\s*\([^)]*\)\s*;",
                 re.M,
@@ -2852,8 +2860,15 @@ LANGUAGE_DEFINITIONS = {
             # 21. comprehensions
             "comprehensions": None,
             # 22. scientific (Numerical / Compute Libraries)
+            # BUG FIX (Rule 9): `cblas_` ends in `_` (a word char) and was
+            # clearly intended as a prefix match for any BLAS routine
+            # (`cblas_dgemm`, `cblas_sgemm`, ...), but shared a trailing `\b`
+            # with word-ending siblings -- real usage always continues with
+            # more word characters right after (`cblas_dgemm`), so the
+            # boundary could never fire (both sides word chars). Pulled out
+            # of the shared group with only a leading `\b`.
             "scientific": re.compile(
-                r"\b(math\.h|tgmath\.h|complex\.h|cblas_|dgemm|sin|cos|tan|exp|log|sqrt|complex|I|_Float\d+|__m\d+)\b"
+                r"\b(?:math\.h|tgmath\.h|complex\.h|dgemm|sin|cos|tan|exp|log|sqrt|complex|I|_Float\d+|__m\d+)\b|\bcblas_"
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # Macros with args and unstructured jumps.
@@ -2869,7 +2884,12 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, and
+            # rust earlier in this epic. Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -2928,7 +2948,11 @@ LANGUAGE_DEFINITIONS = {
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on_event|handler|callback|signal\(|sigaction\()"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(IGNORE_TEST|test\.skip|mock\(|fake\()\b"),
+            # BUG FIX (Rule 10): `mock\(`/`fake\(` end in a literal `(` but
+            # shared a trailing `\b` with word-ending siblings -- broke on
+            # the truly-empty-argument call form (`mock()`), where the next
+            # char after `(` is `)`, not a word char.
+            "test_skip": re.compile(r"\b(?:IGNORE_TEST|test\.skip)\b|mock\(|fake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (C Specifics) ---
             "serialization_parsing": re.compile(r"\b(cJSON_Parse|json_loads|xmlReadMemory|xmlParseFile|jansson)\b"),
             "regex_execution": re.compile(r"\b(regcomp|regexec|regfree)\b"),

@@ -5441,12 +5441,12 @@ def test_yacc_explicit_casts_redos_immunity():
     """
     pattern = YACC_RULES["explicit_casts"]
 
-    timings = []
-    for n in (2000, 4000, 8000, 16000, 32000):
-        payload = "(int" + " " * n
-        start = time.perf_counter()
-        pattern.search(payload)
-        timings.append(time.perf_counter() - start)
+    # _best_of_timing (min-of-5) instead of a single perf_counter() sample
+    # per size -- a lone scheduling hiccup on any one size (common on
+    # contended CI runners) used to be indistinguishable from a real
+    # regression. Same hardening already applied to the shared
+    # _best_of_timing/ratio checks elsewhere in this file (#800).
+    timings = [_best_of_timing(pattern, "(int" + " " * n) for n in (2000, 4000, 8000, 16000, 32000)]
 
     assert_redos_immune(pattern, "(int" + " " * 100000, timeout_sec=3.0)
 
@@ -6506,12 +6506,9 @@ def test_groovy_closures_redos_immunity():
     """
     pattern = GROOVY_RULES["closures"]
 
-    timings = []
-    for n in (2000, 4000, 8000, 16000, 32000):
-        payload = "{" + " " * n
-        start = time.perf_counter()
-        pattern.search(payload)
-        timings.append(time.perf_counter() - start)
+    # _best_of_timing (min-of-5) instead of a single perf_counter() sample
+    # per size -- see the explicit_casts test above for why.
+    timings = [_best_of_timing(pattern, "{" + " " * n) for n in (2000, 4000, 8000, 16000, 32000)]
 
     assert_redos_immune(pattern, "{" + " " * 100000, timeout_sec=3.0)
 
@@ -6544,12 +6541,12 @@ def test_groovy_spec_exposure_quadratic_blowup_redos_regression():
     """
     pattern = GROOVY_RULES["spec_exposure"]
 
-    timings = []
-    for n in (2000, 4000, 8000, 16000, 32000):
-        payload = "[SPEC-" + "1" * n
-        start = time.perf_counter()
-        pattern.search(payload)
-        timings.append(time.perf_counter() - start)
+    # _best_of_timing (min-of-5) instead of a single perf_counter() sample
+    # per size -- see explicit_casts's own test earlier in this file for
+    # why (this exact test failed in CI this way on macos-3.10 during
+    # #770's PR: [0.0007, 0.0014, 0.0036, 0.0064, 0.0202]s, tripping the
+    # 0.02s floor on the last size by a hair under runner contention).
+    timings = [_best_of_timing(pattern, "[SPEC-" + "1" * n) for n in (2000, 4000, 8000, 16000, 32000)]
 
     assert_redos_immune(pattern, "[SPEC-" + "1" * 100000, timeout_sec=3.0)
 

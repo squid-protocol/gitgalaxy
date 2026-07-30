@@ -1598,7 +1598,16 @@ LANGUAGE_DEFINITIONS = {
                 # follows it outside the group. This mutual exclusivity guarantees O(N) parsing.
                 # [REDOS ARMOR 3]: Explicitly prevents return types from eating modifiers during a backtrack,
                 # sealing the overlapping permutation leak that caused Catastrophic Backtracking.
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)\b)[a-zA-Z0-9_<>\[\]?,.()]+[ \t\n]+){0,10}"
+                # BUG FIX (Rule 14): this loop's trailing `[ \t\n]+` and the
+                # final `[ \t\n]*\(` before the opening paren (item 5 below)
+                # are two effectively-adjacent unbounded whitespace
+                # quantifiers -- once a real method never follows (no `(`
+                # anywhere), the engine must retry every possible split of
+                # the same trailing whitespace run across both gaps, O(n^2).
+                # Confirmed ~4x/doubling, 1.5s at n=32000 on a bare
+                # `"int foo" + " "*n` payload. Bounded both to `{1,200}`/
+                # `{0,200}`, same fix shape already applied in cpp.
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)\b)[a-zA-Z0-9_<>\[\]?,.()]+[ \t\n]{1,200}){0,10}"
                 # 4. THE "NOT A FUNCTION" SHIELD
                 # Negative lookahead ensuring we don't accidentally capture control flow,
                 # primitive type keywords, or object instantiations as function names.
@@ -1610,7 +1619,7 @@ LANGUAGE_DEFINITIONS = {
                 # - `(?:[ \t\n]*<[^>]{0,100}>)?` safely steps over method-level generic definitions
                 #   like `<T, U>` BEFORE hitting the opening parenthesis.
                 # [VERTICAL FIX]: Removed `\n` exclusion from the generic stepper to support multi-line generics.
-                r"([@A-Za-z_$][\w_$.]*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*\(",
+                r"([@A-Za-z_$][\w_$.]*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -1644,12 +1653,24 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES const/readonly (freeze_hits).
+            # BUG FIX (Rule 13): `^[ \t]*(?:this\.)?\w+[ \t]*=` requires
+            # `re.M` for the `^` to anchor per-line -- without it, `^` only
+            # matches true string-start, so this alternative (the plain
+            # `field = value;` assignment form, arguably the most common
+            # state-mutation shape in any real C# file) could only ever
+            # fire if the assignment happened to be the first line of the
+            # entire scanned content.
             "state_mutation": re.compile(
-                r"\b(set|field)\s*[{;]|volatile|ref\s|out\s|^[ \t]*(?:this\.)?\w+[ \t]*=|(?:\w+\.)?(?:Add|Remove|Clear|Insert|Push|Pop|Update)\s*\("
+                r"\b(set|field)\s*[{;]|volatile|ref\s|out\s|^[ \t]*(?:this\.)?\w+[ \t]*=|(?:\w+\.)?(?:Add|Remove|Clear|Insert|Push|Pop|Update)\s*\(",
+                re.M,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
+            # BUG FIX (Rule 12): only checked `//` line comments, entirely
+            # missing `/* */` block comments despite csharp being a
+            # `standard_block` language where both styles are equally
+            # idiomatic (`/* if (x) foo(); */`).
             "dead_code": re.compile(
-                r"//[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
+                r"(?://|/\*)[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"///|///\s*<summary>|///\s*<param|///\s*<returns>|///\s*<remarks>"),
@@ -1675,8 +1696,15 @@ LANGUAGE_DEFINITIONS = {
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(r"=>|delegate[ \t]*\{"),
             # 18. globals (Global / Shared State)
+            # BUG FIX (Rule 9): the `public static ... = ` alternative ends
+            # in `=` (non-word) but shared a trailing `\b` with word-ending
+            # siblings -- only fired when the assignment had zero
+            # whitespace around `=` (`X=5;`), breaking on the idiomatic
+            # spaced form (`MAX_VALUE = 100;`) that's the dominant real C#
+            # style.
             "globals": re.compile(
-                r"\b(ConfigurationManager|Environment\.|public\s+static\s+(?:readonly[ \t]+)?[\w<>]+\s+[A-Z_0-9]+[ \t]*=|AsyncLocal)\b|\[ThreadStatic\]"
+                r"\b(?:ConfigurationManager|AsyncLocal)\b|\bEnvironment\.|"
+                r"\bpublic\s+static\s+(?:readonly[ \t]+)?[\w<>]+\s+[A-Z_0-9]+[ \t]*=|\[ThreadStatic\]"
             ),
             # 19. decorators (Decorators / Annotations)
             "decorators": re.compile(r"^[ \t]*\[[A-Za-z_][^\]]*\]", re.M),
@@ -1710,7 +1738,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust,
+            # c, and cpp earlier in this epic (the 10th hit). Bounded both
+            # quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (The Blazor/Razor Horizon)
@@ -1776,13 +1810,28 @@ LANGUAGE_DEFINITIONS = {
             # 45. immutability_locks (Immutability Constraints)
             "immutability_locks": re.compile(r"\b(const|readonly|init|Immutable[A-Z]\w*)\b"),
             # 46. cleanup (Resource Cleanup / Teardown)
-            "cleanup": re.compile(r"\b(dispose|close|free|delete|GC\.Collect|GC\.SuppressFinalize)\b\s*\("),
+            # BUG FIX (grammar mismatch): this was entirely case-sensitive
+            # and only matched lowercase `dispose(`/`close(`/etc -- but
+            # idiomatic C# always PascalCases public members
+            # (`.Dispose()`, `.Close()`), so the realistic form never
+            # matched at all; only a non-idiomatic lowercase call would.
+            "cleanup": re.compile(r"\b(dispose|close|free|delete|GC\.Collect|GC\.SuppressFinalize)\b\s*\(", re.I),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             "encapsulation": re.compile(r"\b(private|protected|internal|file)\b"),
             # 48. listeners (Event Listeners / Observers)
-            "listeners": re.compile(r"\b(on|addEventListener|subscribe|EventHandler)\b|\+="),
+            # BUG FIX (grammar mismatch): case-sensitive lowercase
+            # `subscribe`/`on` never matched idiomatic C# PascalCase
+            # (Rx.NET's `.Subscribe(...)`, SignalR's `.On<T>(...)`) --
+            # same shape as the `cleanup` fix above.
+            "listeners": re.compile(r"\b(on|addEventListener|subscribe|EventHandler)\b|\+=", re.I),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\[(?:Ignore|Skipped)\]|test\.skip\(|mock\(|stub\(|Substitute\.For"),
+            # BUG FIX (real coverage gap): missing xUnit's `[Fact(Skip =
+            # "...")]` / `[Theory(Skip = "...")]` form entirely -- the
+            # dominant real xUnit skip idiom (NUnit/MSTest use a standalone
+            # `[Ignore]` attribute instead, which was already covered).
+            "test_skip": re.compile(
+                r"\[(?:Ignore|Skipped)\]|\[(?:Fact|Theory)\([^)]*Skip\s*=|test\.skip\(|mock\(|stub\(|Substitute\.For"
+            ),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (C# Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(JsonSerializer\.Deserialize|JsonConvert\.DeserializeObject|XmlSerializer|BinaryFormatter)\b"

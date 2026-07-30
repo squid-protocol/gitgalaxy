@@ -7390,6 +7390,18 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(REDEFINES|RENAMES|OCCURS\s+DEPENDING\s+ON|EVALUATE\s+TRUE|EXEC\s+CICS|EXEC\s+SQL)\b",
                 re.I,
             ),
+            # 24. import (Dependency Inclusions)
+            # BUG FIX (Strict Feature Parity, Rule 4): this key was missing
+            # entirely (not even explicitly None), despite COBOL clearly
+            # having a real dependency-inclusion mechanism (COPY/INCLUDE
+            # copybooks) -- confirmed by `_dependency_capture` immediately
+            # below already correctly extracting these same targets. Every
+            # language's rules dict is expected to define every baseline
+            # key, using None only where genuinely inapplicable (per
+            # how_to_add_a_language.md's Strict Feature Parity rule); a
+            # silently absent key is a real schema-completeness gap, not an
+            # intentional None.
+            "import": re.compile(r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:COPY|INCLUDE)\b", re.I | re.M),
             "_dependency_capture": re.compile(
                 r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Za-z0-9_-]+)['\"]?",
                 re.I | re.M,
@@ -7408,8 +7420,14 @@ LANGUAGE_DEFINITIONS = {
             # 31. ssr_boundaries: View Horizon. CICS web endpoints.
             "ssr_boundaries": re.compile(r"\bEXEC\s+CICS\s+(?:WEB\s+SEND|DOCUMENT|WEB\s+READ)\b", re.I),
             # 32. events: Pub/Sub Network. Signal handlers and MQ bindings.
+            # BUG FIX: the `CALL 'MQPUT'`/`CALL 'MQGET'` alternative shared a
+            # trailing `\b` with the word-ending EXEC CICS alternative, but
+            # ends in a literal `'` (non-word) -- `\b` right after can only
+            # fire if the next char is a word character, never true for the
+            # realistic form (`CALL 'MQPUT' USING queue-name.`, whitespace
+            # after the closing quote). Pulled out of the shared group.
             "events": re.compile(
-                r"\b(?:EXEC\s+CICS\s+(?:SIGNAL|HANDLE\s+CONDITION)|CALL\s+\'(?:MQPUT|MQGET)\')\b",
+                r"\bEXEC\s+CICS\s+(?:SIGNAL|HANDLE\s+CONDITION)\b|CALL\s+'(?:MQPUT|MQGET)'",
                 re.I,
             ),
             # 33. dependency_injection: Inversion of Control.
@@ -7460,10 +7478,25 @@ LANGUAGE_DEFINITIONS = {
             "regex_execution": re.compile(
                 r"(?i)\b(INSPECT|TALLYING|REPLACING)\b"
             ),  # COBOL's hardware-level string manipulation engine
+            # BUG FIX (severe ReDoS): `\s+.*\s+FROM` has three adjacent
+            # quantifiers whose character sets overlap (`.` matches
+            # whitespace too), so the engine can partition the space between
+            # the receiving-identifier and the two `\s+`s in exponentially
+            # many ways before finding `FROM` -- confirmed 9+ seconds at just
+            # n=2000 (far worse than the typical ~4x/doubling shape). Real
+            # COBOL syntax only ever has a single identifier there, so
+            # replaced the unbounded `.*` with a real identifier character
+            # class, which is both correct and eliminates the ambiguity.
             "time_date_logic": re.compile(
-                r"(?i)\b(ACCEPT\s+.*\s+FROM\s+(?:DATE|TIME|DAY)|CURRENT-DATE|WHEN-COMPILED)\b"
+                r"(?i)\bACCEPT\s+[A-Za-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
             ),
-            "ipc_rpc_bridges": re.compile(r"(?i)\b(CALL\s+|EXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN)|EXEC\s+SQL)\b"),
+            # BUG FIX: `CALL\s+` shared a trailing `\b` with word-ending
+            # siblings, but ends in whitespace (non-word) -- broke on the
+            # dominant realistic call form, a quoted program-name literal
+            # (`CALL 'SUBPROGRAM' USING ...`), where a quote (non-word)
+            # follows the consumed whitespace. Only the less-common unquoted
+            # data-name form (`CALL WS-PROGRAM-NAME`) happened to work.
+            "ipc_rpc_bridges": re.compile(r"(?i)\bCALL\s+|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN)\b|\bEXEC\s+SQL\b"),
         },
     },
     "zig": {

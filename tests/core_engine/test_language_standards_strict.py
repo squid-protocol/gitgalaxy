@@ -7018,19 +7018,18 @@ def test_makefile_hybrid_sensors_redos_immunity():
     0.00003s..0.00151s, a clean ~2x per doubling.
     """
     old_serialization_parsing = re.compile(r"(?m)^\s*(?:@|-)?(?:tar|unzip|gunzip|jq|sed|awk)\b")
-    # Sanity check the bug reproduces directly against the OLD pattern: a
-    # bounded (not indefinite) O(n^2) payload that should take multiple
-    # seconds under the confirmed-quadratic old behavior but under 1s for
-    # any genuinely linear pattern. Timed in-process (not via
-    # assert_redos_immune's subprocess-kill path) since the payload is
-    # bounded and this is specifically demonstrating the *old* pattern's
-    # slowness, not guarding against a hang.
-    start = time.perf_counter()
-    old_serialization_parsing.search("\n" * 20000)
-    old_duration = time.perf_counter() - start
-    assert old_duration > 1.0, (
-        f"sanity check: old ^\\s* pattern was expected to reproduce the O(n^2) blowup "
-        f"(~5s measured during investigation) but only took {old_duration:.3f}s"
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed -- confirmed by
+    # a real CI failure on an unrelated PR's smoke-test run hitting the
+    # analogous absolute-threshold check in tcl's spec_exposure test): a
+    # payload-size doubling should cost ~4x on the quadratic OLD pattern,
+    # vs ~2x for linear.
+    small_duration = _best_of_timing(old_serialization_parsing, "\n" * 1000)
+    large_duration = _best_of_timing(old_serialization_parsing, "\n" * 2000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old ^\\s* pattern was expected to show quadratic (~4x) scaling on a "
+        f"payload doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
     )
 
     for key in (
@@ -9435,14 +9434,17 @@ def test_tcl_spec_exposure_redos_regression():
     `[^\\]]*` to `{0,300}`.
     """
     old_pattern = re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I)
-    payload = "[SPEC-" + "1" * 8000
 
-    start = time.perf_counter()
-    old_pattern.search(payload)
-    old_duration = time.perf_counter() - start
-    assert old_duration > 0.02, (
-        f"sanity check: old pattern was expected to show measurable quadratic cost at this size "
-        f"but only took {old_duration:.4f}s"
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed -- this exact
+    # test failed on CI for this reason): a payload-size doubling should
+    # cost ~4x on the quadratic OLD pattern, vs ~2x for linear.
+    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000)
+    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 16000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
+        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
     )
 
     spec_exposure = TCL_RULES["spec_exposure"]

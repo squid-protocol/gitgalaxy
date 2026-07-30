@@ -10,13 +10,28 @@ test_dependency_extraction_strict.py) -- typescript's entries were removed
 from those four when this file was added.
 """
 
+import sys
+from pathlib import Path
+
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-from tests.extraction._extraction_harness import (
+
+# tests/ has no __init__.py anywhere in this repo, so a dotted
+# `tests.extraction._extraction_harness` import only works by accident
+# locally (e.g. `python -m pytest` from the repo root happens to put the
+# root on sys.path) and fails in CI, which invokes the `pytest` console
+# script directly. Insert this file's parent (tests/extraction/) onto
+# sys.path instead, so the harness imports as a plain top-level module.
+_EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
+if _EXTRACTION_DIR not in sys.path:
+    sys.path.insert(0, _EXTRACTION_DIR)
+
+from _extraction_harness import (  # noqa: E402
     assert_invalid_no_match,
     assert_pathological_dependency_match,
     assert_pathological_match,
+    assert_redos_immune,
     assert_valid_dependency_match,
     assert_valid_match,
 )
@@ -168,8 +183,6 @@ def test_typescript_func_start_redos_immunity():
     alternative (epic #813/#815): bounded to `{0,200}` and excludes `=`/`;`/
     `{`, so an unterminated `IDENT: <garbage>` payload must resolve linearly.
     """
-    from tests.core_engine.test_language_standards_strict import assert_redos_immune
-
     func_start = TS_RULES["func_start"]
     assert_redos_immune(func_start, "Foo: " + "a" * 100000, timeout_sec=3.0)
     assert func_start.search("const Foo: React.FC<Props> = (p) => {"), "sanity: real case still matches"
@@ -356,8 +369,6 @@ def test_typescript_class_start_nested_generic_extends_regression():
 
 def test_typescript_class_start_redos_immunity():
     """ReDoS sweep for the widened one-level-nesting generic step-over."""
-    from tests.core_engine.test_language_standards_strict import assert_redos_immune
-
     class_start = TS_RULES["class_start"]
     assert_redos_immune(class_start, "class Foo<" + "a" * 100000, timeout_sec=3.0)
     assert class_start.search("class Foo<T extends Comparable<T>> extends Bar {")
@@ -439,8 +450,6 @@ def test_typescript_dependency_capture_side_effect_import_regression():
 
 def test_typescript_dependency_capture_redos_immunity():
     """ReDoS sweep for the new bare-import alternative."""
-    from tests.core_engine.test_language_standards_strict import assert_redos_immune
-
     pattern = TS_RULES["_dependency_capture"]
     assert_redos_immune(pattern, 'import "' + "a" * 100000, timeout_sec=3.0)
     assert pattern.search('import "./real-path";')

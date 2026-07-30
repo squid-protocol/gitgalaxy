@@ -3549,7 +3549,7 @@ def test_php_decorators_redos_immunity():
     assert pattern.search("#[Test]")
 
 
-def test_php_state_mutation_redos_immunity():
+def test_php_state_mutation_redos_immunity_2():
     """
     Regression test for the pre-existing quadratic-blowup fix noted
     directly in the source: the optional `(?:\\w+)?` before the
@@ -13549,7 +13549,7 @@ def test_c_intentional_double_classification_sweep():
     assert C_RULES["dependency_injection"].search(ops_struct)
 
 
-def test_c_knr_ambiguity_trap():
+def test_c_knr_ambiguity_trap_2():
     """
     Proves the C function spawner does not spiral into a permutation death
     loop when encountering the MS-DOS BEGIN macro or massive parameter
@@ -13566,7 +13566,7 @@ def test_c_knr_ambiguity_trap():
     assert matches[0].group(1) == "legacy_func"
 
 
-def test_c_pointer_ambiguity_overlap():
+def test_c_pointer_ambiguity_overlap_2():
     r"""
     Proves that O(1) alternation `(?:\s*[*&]+\s*|\s+)` successfully prevents
     exponential evaluation on massive strings of pointer asterisks.

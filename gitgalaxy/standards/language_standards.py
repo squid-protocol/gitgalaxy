@@ -247,7 +247,7 @@ GLOBAL_DL_FRAMEWORKS = re.compile(_IMPORT_WRAPPER.format(names=_DL_FRAMEWORKS_NA
 # 4. LANGUAGE DEFINITIONS (The Structural Signature Matrix)
 # Consumed by: detector.py, language_lens.py, prism.py
 # ------------------------------------------------------------------------------
-LANGUAGE_DEFINITIONS = {
+LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "python": {
         "_meta": {
             "target_version": "Python 3.14",

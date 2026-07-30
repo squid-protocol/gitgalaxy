@@ -27,7 +27,9 @@ _EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
 if _EXTRACTION_DIR not in sys.path:
     sys.path.insert(0, _EXTRACTION_DIR)
 
-from _extraction_harness import (  # noqa: E402
+from typing import Any
+
+from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
     assert_pathological_dependency_match,
     assert_pathological_match,
@@ -41,7 +43,7 @@ TS_RULES = LANGUAGE_DEFINITIONS["typescript"]["rules"]
 # ==============================================================================
 # FUNC_START (func_start)
 # ==============================================================================
-FUNCTION_CASES = {
+FUNCTION_CASES: dict[str, Any] = {
     "valid": [
         # Modern idiom (carried forward)
         ("public async TargetFunc<T>() {", "TargetFunc"),
@@ -232,7 +234,7 @@ def test_typescript_func_start_known_limitation_generic_nesting_beyond_one_level
 # ==============================================================================
 # ARGS (args)
 # ==============================================================================
-ARGS_CASES = {
+ARGS_CASES: dict[str, Any] = {
     "valid": [
         ("function TargetFunc<T>(val: T): T {", "TargetFunc"),
         ("public TargetFunc(private id: string) {", "TargetFunc"),
@@ -301,7 +303,7 @@ def test_typescript_args_known_limitation_bare_call_at_line_start():
 # ==============================================================================
 # CLASS_START (class_start)
 # ==============================================================================
-CLASS_CASES = {
+CLASS_CASES: dict[str, Any] = {
     "valid": [
         ("export class TargetEntity {", "TargetEntity"),
         ("export default abstract class TargetEntity", "TargetEntity"),
@@ -377,7 +379,7 @@ def test_typescript_class_start_redos_immunity():
 # ==============================================================================
 # DEPENDENCY (_dependency_capture)
 # ==============================================================================
-DEPENDENCY_CASES = {
+DEPENDENCY_CASES: dict[str, Any] = {
     "valid": [
         ('import type { Node } from "./ast/node";', "./ast/node"),
         ('export * from "../utils";', "../utils"),

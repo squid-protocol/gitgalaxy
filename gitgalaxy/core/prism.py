@@ -490,7 +490,7 @@ class Prism:
         segments = []
         last_idx = 0
 
-        triggers = []
+        triggers: list[dict[str, Any]] = []
         # --- FAST PATH: The Universal Web Tax Shield ---
         # Bypasses expensive case-insensitive regex scans unless the trigger literal is actually present.
         content_lower = None

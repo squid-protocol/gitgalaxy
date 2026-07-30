@@ -209,8 +209,35 @@ specifically. Check every language against these *first* before assuming a rule 
    have the same ordering issue for their respective language sets.
 4. **Type-alias vs. real-declaration ambiguity**: any language where a `type X = ...`/`using X =
    ...`/`typedef` construct has the same surface shape as a real function/class declaration, with no
-   preceding-keyword exclusion.
-5. *(All of `how_to_add_a_language.md`'s existing recurring-bug-class list — trailing/leading `\b`
+   preceding-keyword exclusion. **Confirmed real in typescript (#815)**: `type Foo = (a: T) => R;`
+   shares the exact `IDENT = (...) => ...` shape as a real arrow-function assignment.
+5. **(#815) Identifier-then-optional-type-annotation-then-operator**: any rule assuming an
+   identifier is followed *directly* by the operator it cares about (`=`, `(`, etc.) without
+   accounting for an optional type annotation in between — common in every statically-typed
+   language (`const Foo: React.FC<Props> = (...) => {`; the equivalent shape exists in Kotlin,
+   Swift, Rust, C#). Fix shape: an optional bounded skip-zone (`:` then bounded content excluding
+   the real operator's own character) before the operator check — but watch for the operator
+   appearing *inside* the type itself (e.g. a function-type annotation's own `=>`), which the skip
+   zone can't safely cross without additional care (documented as a known limitation in #815, not
+   solved there).
+6. **(#815) Rule 11 also applies to inheritance/extends clauses, not just args/return-types**:
+   `class_start`'s own generic step-over (between the class name and its `extends`/`implements`
+   clause) can have the exact same flat-`<[^>]*>` bug — an easy miss because the class NAME still
+   matches fine even when this breaks (only the extends/implements capture group silently goes
+   missing). Check class_start's generic handling explicitly for any future language with generics.
+7. **(#815) Bare-call-vs-bare-definition ambiguity — a known, ACCEPTED limitation class, not
+   something to keep re-attempting**: in any C-family/JS-family language, a bare call statement at
+   true line start (`it('test', fn);`, `foo();`) can be textually identical to a bare
+   method/function signature with no body shown. Same fundamental ambiguity #789 (csharp) hit and
+   deliberately did not fix at the regex level (a terminator requirement broke the cross-language
+   "extraction gauntlet expects bare fragments to match" convention). Document with a dedicated
+   known-limitation test per language rather than re-investigating whether it's fixable — it
+   generally isn't, without real scope-tracking this engine doesn't have.
+8. **(#815) A "zero diff" on `crucible_check.py` after adding a regex feature can mean the corpus
+   doesn't exercise it, not that the feature is wrong** — same pattern as #735. Conversely, confirm
+   a real per-language diff is confined to that language (`grep` the diff for other language names)
+   before blessing, not just eyeballed for plausible magnitude.
+9. *(All of `how_to_add_a_language.md`'s existing recurring-bug-class list — trailing/leading `\b`
    against symbolic or word-character boundaries, missing `re.M`, adjacent-overlapping-quantifier
    ReDoS — applies here too; these rules live in the same file and share the same authorship
    patterns.)*

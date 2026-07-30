@@ -2464,6 +2464,18 @@ LANGUAGE_DEFINITIONS = {
                 # =====================================================================
                 # 1. THE HORIZONTAL ANCHOR (Stops O(N^2) vertical spirals)
                 r"^[ \t]*"
+                # BUG FIX (false-positive correctness): the return-type loop
+                # (item 4) never excluded control-flow keywords from being
+                # consumed as a generic return-type word -- only the later
+                # identifier-capture shield (item 5) excluded them from
+                # being the FUNCTION NAME itself. This let a two-word
+                # control-flow form slip through: `if constexpr (x) {}`
+                # falsely matched with "constexpr" captured as the function
+                # name ("if" consumed by the loop, "constexpr" landing in
+                # the identifier position, which the shield doesn't reject).
+                # Rejects any line starting with one of these keywords
+                # outright, before the loop even starts.
+                r"(?!(?:if|for|while|switch|catch|else)\b)"
                 # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
                 r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"
                 # 3. COMPILER ATTRIBUTES PRE-TYPE (Includes C23 [[...]])
@@ -2472,7 +2484,23 @@ LANGUAGE_DEFINITIONS = {
                 # [IRON WALL]: Prevents the engine from reading a `#define` on the next line as a return type.
                 # [POINTER AMBIGUITY FIX]: Strictly enforces sequential evaluation of pointers and spaces.
                 r"(?:(?:struct|union|enum)[ \t\n]+)?"
-                r"(?:(?![ \t]*#)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:<[^>]*>)?[*&]*[ \t\n]+){0,5}"
+                # BUG FIX (Rule 11): the return-type's flat `<[^>]*>` broke
+                # on any nested template argument (`std::vector<std::pair<
+                # int,int>>`, `std::map<K, std::vector<V>>`) -- extremely
+                # common in real C++ -- causing the whole rule to never
+                # match at all (no fallback path exists once the return
+                # type fails to consume correctly). Extended to a bounded
+                # 2-level nesting tolerance.
+                # BUG FIX (Rule 14): this loop's trailing `[ \t\n]+` and the
+                # parameter block's leading `[ \t\n]*` (item 7 below) are
+                # two effectively-adjacent unbounded whitespace quantifiers
+                # -- once a real function never follows (no `(` anywhere),
+                # the engine must retry every possible split of the same
+                # trailing whitespace run across both gaps, O(n^2).
+                # Confirmed ~4x/doubling, 2.8s at n=32000 on a bare
+                # `"int foo" + " "*n` payload. Bounded both to `{1,200}`.
+                r"(?:(?![ \t]*#)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*"
+                r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[*&]*[ \t\n]{1,200}){0,5}"
                 # 5. THE "NOT A FUNCTION" SHIELD
                 # Prevents control flow (if, while) and primitive types from being captured as function names.
                 r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
@@ -2481,7 +2509,7 @@ LANGUAGE_DEFINITIONS = {
                 r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
-                r"[ \t\n]*(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"
+                r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"
                 # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
                 # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
                 r"(?:[ \t\n]+(?:const|volatile|noexcept|override|final|&{1,2}|__attribute__\([^)]*\)|\[\[[^\]]*\]\])){0,10}"
@@ -2507,8 +2535,19 @@ LANGUAGE_DEFINITIONS = {
             # over attributes, converted `\s*` to `[ \t\n]*` for the template wrapper,
             # and added the exact capture group `([a-zA-Z_]\w*)`.
             # =====================================================================
+            # BUG FIX (Rule 11): the template-skip's flat `<[^>]*>` broke on
+            # any nested default template argument (`template<typename T =
+            # std::vector<int>> class Foo`), truncating at the inner `>` and
+            # failing to match at all on the (very common) single-line form
+            # -- the multi-line form appeared to "work" only because the
+            # optional template group could be skipped entirely via
+            # backtracking, re-anchoring on a later line's bare `class Foo`.
+            # Extended to the same bounded 2-level nesting tolerance used in
+            # func_start's return type.
             "class_start": re.compile(
-                r"^[ \t]*(?:export[ \t\n]+)?(?:template[ \t\n]*<[^>]*>[ \t\n]*)?(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:\[\[[^\]]*\]\][ \t\n]*){0,5}([a-zA-Z_]\w*)",
+                r"^[ \t]*(?:export[ \t\n]+)?"
+                r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
+                r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:\[\[[^\]]*\]\][ \t\n]*){0,5}([a-zA-Z_]\w*)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -2518,7 +2557,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Swallowing errors or bypassing types. EXCLUDES standard casting (Phase 5).
-            "safety_bypasses": re.compile(r"\b(std::any|void\s*\*)\b|catch\s*\(\s*\.\.\.\s*\)"),
+            # BUG FIX (Rule 9): `void\s*\*` ends in `*` (non-word) but shared
+            # a trailing `\b` with word-ending `std::any` -- the boundary
+            # could only fire if a word character immediately followed the
+            # `*` with zero whitespace (`void *p`), breaking on the equally
+            # common `void* p`/`void * p` forms and any non-identifier
+            # continuation (`(void*)src`). Pulled out with only a leading
+            # `\b`.
+            "safety_bypasses": re.compile(r"\bstd::any\b|\bvoid\s*\*|catch\s*\(\s*\.\.\.\s*\)"),
             # 8. danger (High-Risk Execution / System Calls)
             # Process killers and low-level blits. EXCLUDES prints (Phase 5).
             "high_risk_execution": re.compile(r"\b(system|memcpy|memset|abort|exit|std::terminate|longjmp|setjmp)\b"),
@@ -2528,8 +2574,18 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 10. api (Public Surface Area)
             # Code exposed to the world. Explicit visibility and module exports.
+            # BUG FIX (Rule 9): `public:`, `__declspec(dllexport)`, and
+            # `__attribute__((visibility("default")))` all end in non-word
+            # characters (`:`/`)`) but shared a trailing `\b` with
+            # word-ending `export module`/`export import`/`export class` --
+            # the boundary could never fire for the realistic forms
+            # (whitespace/newline follows `public:`; nothing but whitespace
+            # follows the closing `)`). Pulled all three out with only a
+            # leading `\b`.
             "api": re.compile(
-                r'\b(public:|export\s+module|export\s+import|export\s+class|__declspec\(dllexport\)|__attribute__\(\(visibility\("default"\)\)\))\b|^[ \t]*export\b(?!\s*module)',
+                r"\b(?:export\s+module|export\s+import|export\s+class)\b|"
+                r'\bpublic:|__declspec\(dllexport\)|__attribute__\(\(visibility\("default"\)\)\)|'
+                r"^[ \t]*export\b(?!\s*module)",
                 re.M,
             ),
             # 11. flux (State Mutation)
@@ -2539,8 +2595,12 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out execution logic indicating dead features. MUST enforce that the structural keyword immediately follows the comment token.
+            # BUG FIX (Rule 12): only checked `//` line comments, entirely
+            # missing `/* */` block comments despite cpp being a
+            # `standard_block` language where both styles are equally
+            # idiomatic (`/* if (x) foo(); */`).
             "dead_code": re.compile(
-                r"//[ \t]*(?:if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return)\b"
+                r"(?://|/\*)[ \t]*(?:if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return)\b"
             ),
             # 13. doc (Structured Documentation)
             "doc": re.compile(
@@ -2557,7 +2617,13 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(std::thread|std::jthread|std::mutex|std::future|std::promise|std::async|std::latch|std::barrier|std::condition_variable|std::semaphore|co_await|std::coroutine_handle)\b"
             ),
             # 16. ui_framework (UI / View Components)
-            "ui_framework": re.compile(r"\b(Q_OBJECT|slots:|signals:|QWidget|wxFrame|ImGui::|Fl_Window)\b"),
+            # BUG FIX (Rule 9): `slots:`/`signals:` end in `:` (non-word) but
+            # shared a trailing `\b` with word-ending siblings -- broke on
+            # the realistic Qt form (`signals:` followed by a newline, never
+            # a word character). `ImGui::` also ends in non-word (`::`) but
+            # verified self-healing: real usage is always immediately
+            # followed by an identifier (`ImGui::Begin(...)`), so left as-is.
+            "ui_framework": re.compile(r"\b(?:Q_OBJECT|QWidget|wxFrame|ImGui::|Fl_Window)\b|\bslots:|\bsignals:"),
             # 17. closures (Closures / Anonymous Functions)
             "closures": re.compile(
                 r"\[[^\]]*\]\s*(?:<[^>]*>\s*)?(?:\([^)]*\))?\s*(?:(?:mutable|constexpr|consteval|noexcept)\s+)*(?:mutable|constexpr|consteval|noexcept)?\s*(?:->\s*[\w:<>_]+)?[ \t]*\{"
@@ -2582,8 +2648,14 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 23. heat_triggers (Metaprogramming & Reflection)
             # SFINAE, compile-time reflection, and macros.
+            # BUG FIX (Rule 9): `sizeof...` ends in `.` (non-word) but shared
+            # a trailing `\b` with word-ending siblings -- the realistic
+            # form (`sizeof...(Args)`) is immediately followed by `(`, also
+            # non-word, so no boundary transition ever occurs and this
+            # alternative could never fire. Pulled out with only a leading
+            # `\b`.
             "reflection_metaprogramming": re.compile(
-                r"\b(if\s+constexpr|if\s+consteval|std::enable_if|std::is_same|std::any_cast|std::bit_cast|decltype|sizeof\.\.\.)\b|#define\s+[a-zA-Z_]"
+                r"\b(?:if\s+constexpr|if\s+consteval|std::enable_if|std::is_same|std::any_cast|std::bit_cast|decltype)\b|\bsizeof\.\.\.|#define\s+[a-zA-Z_]"
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(
@@ -2602,7 +2674,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust,
+            # and c earlier in this epic (the 9th hit). Bounded both
+            # quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -2636,8 +2714,27 @@ LANGUAGE_DEFINITIONS = {
             ),
             # # 40. explicit_casts (Explicit Type Casting)
             # Forceful type coercion bypassing the safety engine. Captures modern explicitly named casts and strict C-style groupings.
+            # BUG FIX (false-positive correctness): the bare `<\s*[A-Za-z_]
+            # \w*\s*>` alternative had no requirement that this actually be
+            # used as a cast -- it fired on ANY single-identifier template
+            # instantiation (`std::vector<int>`, `std::unique_ptr<Foo>`,
+            # `Container<T>`), which is an ordinary declaration, not a cast.
+            # Since every modern C++ file is full of these, this alternative
+            # was a major over-broad false-positive source. Restricted to
+            # require a functional-cast-style identifier prefix and a call
+            # immediately after the closing `>` (`narrow_cast<int>(x)`,
+            # `gsl::narrow_cast<T>(x)`), which is structurally distinct from
+            # a plain declaration (identifier follows, not `(`).
+            # Also fixed: the C-style-cast alternative required a bare
+            # `(int)` with no asterisk, so it never matched C++'s equally
+            # valid, common C-style POINTER cast (`(int*)ptr`) -- the exact
+            # overlap the issue asked to check against C's `explicit_casts`/
+            # `pointers` ambiguity. Extended to allow pointer asterisks
+            # (O(1) alternation per the same fix already applied in C).
             "explicit_casts": re.compile(
-                r"\b(?:static_cast|dynamic_cast|reinterpret_cast|const_cast|bit_cast)\b|<\s*[A-Za-z_]\w*\s*>|\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed)\s*\)\s*[a-zA-Z_]"
+                r"\b(?:static_cast|dynamic_cast|reinterpret_cast|const_cast|bit_cast)\b|"
+                r"\b[a-zA-Z_]\w*<\s*[A-Za-z_]\w*\s*>\s*\(|"
+                r"\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed|void)[ \t\n]*(?:\*[ \t\n]*)*\)\s*[a-zA-Z_]"
             ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
             "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
@@ -2657,11 +2754,22 @@ LANGUAGE_DEFINITIONS = {
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(r"\b(delete|free|close|fclose|dispose|shutdown|std::destroy|reset)\b\s*\("),
             # 47. encapsulation (Access Modifiers / Encapsulation)
-            "encapsulation": re.compile(r"\b(private:|protected:|internal:)\b"),
+            # BUG FIX (Rule 9): all three alternatives end in `:` (non-word)
+            # and the group had NO word-ending sibling at all -- the
+            # trailing `\b` could never fire against the realistic form
+            # (`private:` always followed by whitespace/newline, never a
+            # word character), meaning this rule never matched anything.
+            # Removed the trailing `\b`; the literal `:` is already
+            # unambiguous.
+            "encapsulation": re.compile(r"\b(?:private|protected|internal):"),
             # 48. listeners (Event Listeners / Observers)
             "listeners": re.compile(r"\b(on|addEventListener|subscribe|connect|handler|callback)\b"),
             # 49. test_skip (Bypassed Tests / Ignored Specs)
-            "test_skip": re.compile(r"\b(GTEST_SKIP|test\.skip|it\.skip|mock\(|fake\()\b"),
+            # BUG FIX (Rule 10): `mock\(`/`fake\(` end in a literal `(` but
+            # shared a trailing `\b` with word-ending siblings -- broke on
+            # the truly-empty-argument call form (`mock()`), same shape
+            # already found and fixed in C (#773).
+            "test_skip": re.compile(r"\b(?:GTEST_SKIP|test\.skip|it\.skip)\b|mock\(|fake\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (C++ Specifics) ---
             "serialization_parsing": re.compile(
                 r"\b(nlohmann::json|rapidjson|boost::archive|ParseFromString|SerializeToString)\b"

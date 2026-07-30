@@ -10603,6 +10603,15 @@ LANGUAGE_DEFINITIONS = {
             "structural_boundaries": re.compile(r"(?<=[ \t(\[])(let|let\*|letrec|letrec\*|begin|do)(?=[ \t)\]\n\r])"),
             # 4. func_start (Executable Logic Anchors)
             # Anchors logic blocks. Captures the function name immediately following the parenthesis.
+            # BUG FIX: the identifier capture class `[a-zA-Z0-9_!?-]+` excluded
+            # `> < = * + / . ~ $ % ^ &` -- but real Scheme identifiers are
+            # extremely permissive (R7RS special-initial/special-subsequent
+            # chars), and the "X->Y" type-conversion naming convention
+            # (`list->vector`, `string->number`, ...) is idiomatic in the
+            # standard library itself. The truncated capture broke the
+            # following lookahead entirely, so func_start silently failed to
+            # match ANY such definition (`1+`, `foo*`, `list->vector`, etc.),
+            # not just a partial-name capture. Widened to the realistic set.
             "func_start": re.compile(
                 # =====================================================================
                 # [ THE S-EXPRESSION SHIELD (SCHEME/LISP) ]
@@ -10612,13 +10621,16 @@ LANGUAGE_DEFINITIONS = {
                 # the S-expression structure to ensure the parser can track the
                 # identifier no matter how deeply it is vertically nested.
                 # =====================================================================
-                r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([a-zA-Z0-9_!?-]+)(?=[ \t\n)\]\r])",
+                r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?=[ \t\n)\]\r])",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Scheme lacks traditional objects; SRFI-9 Records serve as structural entities.
+            # BUG FIX: same identifier-capture defect as func_start above --
+            # missed the extremely common `<TypeName>` angle-bracket naming
+            # convention for record types (SRFI-9/R6RS idiom, e.g. `<point>`).
             "class_start": re.compile(
-                r"^[ \t]*\([ \t]*define-record-type\s+([a-zA-Z0-9_!?-]+)(?=[ \t)\]\n\r])",
+                r"^[ \t]*\([ \t]*define-record-type\s+([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?=[ \t)\]\n\r])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10673,7 +10685,10 @@ LANGUAGE_DEFINITIONS = {
             "closures": re.compile(r"(?<=[ \t(\[])lambda(?=[ \t)\]\n\r])"),
             # 18. globals (Global / Shared State)
             # Top-level state bindings (defines that are NOT functions).
-            "globals": re.compile(r"^[ \t]*\([ \t]*define\s+[a-zA-Z0-9_!?-]+\s+[^(\s]", re.M),
+            # BUG FIX: same identifier-class defect as func_start/class_start --
+            # a top-level binding using the "X->Y" convention (e.g.
+            # `default->value`) failed to match at all.
+            "globals": re.compile(r"^[ \t]*\([ \t]*define\s+[a-zA-Z0-9_!?*+/<>=.~$%^&:-]+\s+[^(\s]", re.M),
             # 19. decorators
             "decorators": None,
             # 20. generics
@@ -10707,7 +10722,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX: adjacent unbounded quantifiers with overlapping character
+            # sets (`\d+` immediately followed by `[^\]]*`, which also matches
+            # digits) -- the same ReDoS shape already found and fixed
+            # independently in embedded_python, css, tcl, and matlab earlier in
+            # this epic. Confirmed via scaling sweep (~4x per doubling before,
+            # ~linear after bounding both quantifiers).
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Lisp/Scheme relies entirely on uniform space alignment. Tabs are highly destructive here.
             "tabs_vs_spaces": None,

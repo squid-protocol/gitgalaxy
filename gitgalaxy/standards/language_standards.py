@@ -10404,10 +10404,19 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out macro definitions.
-            "dead_code": re.compile(r"^[ \t]*dnl[ \t]+(?:m4_define|define|AC_DEFUN|ifelse|AS_IF)\b", re.M),
+            # COMMENT-STYLE COMPLETENESS (Engine Rule 12): GNU M4's actual default
+            # lexer-level comment delimiter is `#`-to-newline (confirmed in the shared
+            # line_exclusive family table in gitgalaxy_config.py, which prism.py uses
+            # to segment the comment stream for every line_exclusive language) --
+            # `dnl` is a separate, macro-level discard-to-newline mechanism. Real
+            # Autoconf/m4 corpus files use `#` comments as heavily as (often more
+            # heavily than) `dnl`. Wired to both prefixes; only checking `dnl` missed
+            # the dominant style.
+            "dead_code": re.compile(r"^[ \t]*(?:dnl[ \t]+|#[ \t]*)(?:m4_define|define|AC_DEFUN|ifelse|AS_IF)\b", re.M),
             # 13. doc (Structured Documentation)
             # Documentation blocks or explicit copyright insertions into the output script.
-            "doc": re.compile(r"^[ \t]*dnl[ \t]+@(?:param|return|brief)|AC_COPYRIGHT\b", re.M),
+            # Same comment-style completeness fix as dead_code above.
+            "doc": re.compile(r"^[ \t]*(?:dnl[ \t]+|#[ \t]*)@(?:param|return|brief)|AC_COPYRIGHT\b", re.M),
             # 14. test (Testing & Assertions)
             # The GNU Autotest framework.
             "test": re.compile(r"\b(?:AT_SETUP|AT_CHECK|AT_CLEANUP|AT_INIT|AT_DATA)\b"),
@@ -10440,8 +10449,9 @@ LANGUAGE_DEFINITIONS = {
             # File inclusions.
             "import": re.compile(r"^[ \t]*(?:include|sinclude|m4_include|m4_sinclude)\b", re.M),
             # 25. ownership (Authorship Metadata)
+            # Same comment-style completeness fix as dead_code above (Engine Rule 12).
             "ownership": re.compile(
-                r"^[ \t]*dnl[ \t]+(?:Author|Maintainer|Copyright|License):|AC_COPYRIGHT",
+                r"^[ \t]*(?:dnl[ \t]+|#[ \t]*)(?:Author|Maintainer|Copyright|License):|AC_COPYRIGHT",
                 re.I | re.M,
             ),
             # --- 🌌 PHASE 4: EXTENDED DIMENSIONS (Specialized Sub-Equations) ---

@@ -8713,6 +8713,131 @@ def test_html_redos_immunity_sweep():
 
 
 # ==============================================================================
+# Issue #735: html attribute-value rules assumed double-quoted attributes only
+# ==============================================================================
+_HTML_SINGLE_QUOTE_TARGETS = [
+    # (rule_name, single-quoted snippet, double-quoted snippet)
+    ("branch", "<div v-if='cond'>", '<div v-if="cond">'),
+    ("args", "<input data-foo='bar'>", '<input data-foo="bar">'),
+    ("safety", "<input pattern='[0-9]+'>", '<input pattern="[0-9]+">'),
+    ("safety_bypasses", "<a target='_blank'>", '<a target="_blank">'),
+    ("io", "<img src='x.png'>", '<img src="x.png">'),
+    ("api", "<div id='main'>", '<div id="main">'),
+    ("doc", "<meta name='description' content='hi'>", '<meta name="description" content="hi">'),
+    ("concurrency", "<img loading='lazy'>", '<img loading="lazy">'),
+    ("ui_framework", "<div class='flex'>", '<div class="flex">'),
+    ("closures", "<template shadowrootmode='open'>", '<template shadowrootmode="open">'),
+    ("decorators", "<div hx-get='/x'>", '<div hx-get="/x">'),
+    ("reflection_metaprogramming", "<div style='color:red'>", '<div style="color:red">'),
+    ("import", "<script type='module'>", '<script type="module">'),
+    ("ownership", "<meta name='author' content='Jane Doe'>", '<meta name="author" content="Jane Doe">'),
+    ("ssr_boundaries", "<div data-reactroot='true'>", '<div data-reactroot="true">'),
+    ("events", "<div hx-trigger='click'>", '<div hx-trigger="click">'),
+    ("dependency_injection", "<script type='importmap'>", '<script type="importmap">'),
+    ("telemetry", "<script src='gtag.js'>", '<script src="gtag.js">'),
+    ("immutability_locks", "<input aria-disabled='true'>", '<input aria-disabled="true">'),
+    ("comprehensions", "<li v-for='x in y'>", '<li v-for="x in y">'),
+]
+
+
+@pytest.mark.parametrize("signature,single_quoted,double_quoted", _HTML_SINGLE_QUOTE_TARGETS)
+def test_html_single_quoted_attribute_values_regression(signature, single_quoted, double_quoted):
+    """
+    Regression test for issue #735: every one of these 20 rules originally
+    hard-coded a literal `"..."` delimiter around attribute values
+    (`"[^"]*"`). Real-world markup legally uses single quotes for attribute
+    values (`<div class='flex'>`) just as often, and none of these rules
+    recognized that form at all. Fixed by widening each to the
+    `["'][^"']*["']` idiom already used elsewhere in this file
+    (`_dependency_capture`) -- a quote-character-class for the delimiters
+    plus a content class excluding both quote characters, rather than an
+    alternation -- so there's no added unbounded quantifier and thus no new
+    ReDoS surface.
+    """
+    pattern = HTML_RULES[signature]
+    assert pattern is not None, f"html's {signature!r} rule is unexpectedly None"
+    assert pattern.search(single_quoted), f"html {signature!r} still didn't match the single-quoted form"
+    assert pattern.search(double_quoted), f"html {signature!r} regressed on the double-quoted form"
+
+
+def test_html_single_quote_bug_reproduces_on_old_double_quote_only_patterns():
+    """
+    Sanity check that the bug fixed above was real: reconstruct two of the
+    original double-quote-only patterns and confirm they genuinely failed
+    to match single-quoted markup before the fix.
+    """
+    old_branch = re.compile(
+        r'<(?:details|summary|noscript)\b|\b(?:v-if|ng-if|x-if|hx-swap)="[^"]*"'
+        r'|\*ngIf="[^"]*"|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}',
+        re.I,
+    )
+    assert not old_branch.search("<div v-if='cond'>"), "sanity check: bug must reproduce on old branch pattern"
+
+    old_ui_framework = re.compile(
+        r"<(?:b|i|u|strong|em|mark|small|del|ins|sub|sup)\b"
+        r'|\bclass="[^"]*(?:flex|grid|absolute|relative|block|inline-block|container|row|col-[0-9]+'
+        r'|justify-center|items-center|w-full|h-full)[^"]*"',
+        re.I,
+    )
+    assert not old_ui_framework.search("<div class='flex'>"), (
+        "sanity check: bug must reproduce on old ui_framework pattern"
+    )
+
+    branch = HTML_RULES["branch"]
+    ui_framework = HTML_RULES["ui_framework"]
+    assert branch.search("<div v-if='cond'>")
+    assert ui_framework.search("<div class='flex'>")
+
+
+def test_html_ownership_single_quoted_capture_group_preserved():
+    """
+    `ownership` is the one rule in this sweep with a capture group
+    (`content="..."` captured via `([^"]+)`). Confirm the fix preserved a
+    single group (not duplicated per quote style) and that it captures
+    correctly under both quote forms.
+    """
+    ownership = HTML_RULES["ownership"]
+    m_double = ownership.search('<meta name="author" content="Jane Doe">')
+    m_single = ownership.search("<meta name='author' content='Jane Doe'>")
+    assert m_double and m_double.group(1) == "Jane Doe"
+    assert m_single and m_single.group(1) == "Jane Doe"
+
+
+def test_html_single_quote_fix_does_not_introduce_redos():
+    """
+    Widening `[^"]*` to `[^"']*` adds one more excluded character to an
+    existing single quantifier -- it doesn't add a quantifier or change the
+    adjacency shape, so ReDoS immunity should be unaffected. Confirmed via a
+    scaling sweep (n=2000/4000/8000, unterminated single-quoted payloads)
+    before writing this test: linear growth throughout, same as the
+    double-quote form already covered by test_html_redos_immunity_sweep.
+    """
+    assert_redos_immune(HTML_RULES["ui_framework"], "<div class='" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HTML_RULES["args"], "<input data-foo='" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HTML_RULES["telemetry"], "<script src='" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HTML_RULES["ownership"], "<meta name='author' content='" + "a" * 100000, timeout_sec=3.0)
+
+
+def test_css_attribute_selectors_already_quote_agnostic():
+    """
+    Issue #735 explicitly asked whether css shares html's double-quote-only
+    gap. It doesn't: css's only rules that touch attribute-selector syntax
+    (`test`, `test_skip`) never parse a quoted value in the first place --
+    `test`'s pattern stops right after the `=` (`[ \\t]*[=\\]]`), so it's
+    already agnostic to whatever quoting (or lack of it) follows. Confirmed
+    empirically here rather than left as an unstated assumption; no fix
+    needed on the css side.
+    """
+    test_rule = CSS_RULES["test"]
+    for snippet in (
+        '[data-testid="submit"] { color: red; }',
+        "[data-testid='submit'] { color: red; }",
+        "[data-testid] { color: red; }",
+    ):
+        assert test_rule.search(snippet), f"css test rule should match regardless of quoting: {snippet!r}"
+
+
+# ==============================================================================
 # CSS: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #577, part of epic #518)
 # ==============================================================================
 # NOTE: `branch`/`structural_boundaries` already carry BUG FIX comments from

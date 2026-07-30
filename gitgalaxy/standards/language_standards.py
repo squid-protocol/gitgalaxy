@@ -5132,14 +5132,23 @@ LANGUAGE_DEFINITIONS = {
             # markup (`<div *ngIf="cond">`) -- a `\b` between two non-word
             # characters can never fire, so Angular's structural directive
             # never matched. Pulled out with no leading `\b` (self-delimiting).
+            # BUG FIX (#735): every `"[^"]*"`-shaped attribute-value pattern
+            # in this rules dict assumed double-quoted HTML attributes only
+            # -- `<div v-if='cond'>` (single-quoted, equally valid HTML)
+            # never matched. Swapped the literal `"` delimiters for a
+            # `["\']` quote-character class and widened the wildcard
+            # content class to `[^"\']` (excludes either quote char) --
+            # the same idiom this file's own `_dependency_capture` already
+            # uses. No ReDoS risk added: still exactly one unbounded
+            # quantifier per gap, just a wider character class.
             "branch": re.compile(
-                r'<(?:details|summary|noscript)\b|\b(?:v-if|ng-if|x-if|hx-swap)="[^"]*"|\*ngIf="[^"]*"|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}',
+                r"<(?:details|summary|noscript)\b|\b(?:v-if|ng-if|x-if|hx-swap)=[\"'][^\"']*[\"']|\*ngIf=[\"'][^\"']*[\"']|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}",
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
             # Attribute signatures defining input coupling. Bounded to prevent ReDoS on massive data attrs.
             "args": re.compile(
-                r'\b(?:data-[a-zA-Z0-9_-]+|aria-[a-z]+|name|value|placeholder|for|alt|step|min|max)="[^"]*"',
+                r"\b(?:data-[a-zA-Z0-9_-]+|aria-[a-z]+|name|value|placeholder|for|alt|step|min|max)=[\"'][^\"']*[\"']",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5167,14 +5176,14 @@ LANGUAGE_DEFINITIONS = {
             # four never matched. Pulled out with no trailing `\b`
             # (self-delimiting on the closing quote).
             "safety": re.compile(
-                r'\b(?:required|readonly|disabled)\b|pattern="[^"]*"|sandbox="[^"]*"|rel="noopener(?: noreferrer)?"'
-                r'|integrity="[^"]*"|<meta\s+http-equiv="Content-Security-Policy"',
+                r"\b(?:required|readonly|disabled)\b|pattern=[\"'][^\"']*[\"']|sandbox=[\"'][^\"']*[\"']|rel=[\"']noopener(?: noreferrer)?[\"']"
+                r"|integrity=[\"'][^\"']*[\"']|<meta\s+http-equiv=[\"']Content-Security-Policy[\"']",
                 re.I,
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Actively bypasses standard browser safety (e.g. target="_blank" without noopener).
             "safety_bypasses": re.compile(
-                r'target="_blank"(?!\s+rel="noopener")|href="javascript:[^"]*"|on[a-z]+="[^"]*(?:eval\(|document\.write\()',
+                r"target=[\"']_blank[\"'](?!\s+rel=[\"']noopener[\"'])|href=[\"']javascript:[^\"']*[\"']|on[a-z]+=[\"'][^\"']*(?:eval\(|document\.write\()",
                 re.I,
             ),
             # 8. danger (High-Risk Execution / System Calls)
@@ -5183,13 +5192,13 @@ LANGUAGE_DEFINITIONS = {
             # 9. io (I/O & Network Boundaries)
             # Hyperlink navigation and resource fetching. (The core of the Web).
             "io": re.compile(
-                r'\b(?:src|href|action|poster|data)="[^"]*"|<(?:a|form|iframe|audio|video|object|embed|source|track|img)\b',
+                r"\b(?:src|href|action|poster|data)=[\"'][^\"']*[\"']|<(?:a|form|iframe|audio|video|object|embed|source|track|img)\b",
                 re.I,
             ),
             # 10. api (Public Surface Area)
             # Exposed identifiers and metadata consumption surface.
             "api": re.compile(
-                r'\b(?:id|name|role|exportparts|part|itemprop|itemscope|itemtype)="[^"]*"|<slot\b|<meta\s+(?:property="og:|name="twitter:)',
+                r"\b(?:id|name|role|exportparts|part|itemprop|itemscope|itemtype)=[\"'][^\"']*[\"']|<slot\b|<meta\s+(?:property=[\"']og:|name=[\"']twitter:)",
                 re.I,
             ),
             # 11. flux (State Mutation)
@@ -5204,7 +5213,7 @@ LANGUAGE_DEFINITIONS = {
             # 13. doc (Structured Documentation)
             # Structured intent for crawlers and accessibility.
             "doc": re.compile(
-                r'<title>[^<]*</title>|<meta\s+name="(?:description|keywords|author)"\s+content="[^"]*"|\baria-(?:description|label|labelledby|describedby|details)="[^"]*"',
+                r"<title>[^<]*</title>|<meta\s+name=[\"'](?:description|keywords|author)[\"']\s+content=[\"'][^\"']*[\"']|\baria-(?:description|label|labelledby|describedby|details)=[\"'][^\"']*[\"']",
                 re.I,
             ),
             # 14. test (Testing & Assertions)
@@ -5217,20 +5226,20 @@ LANGUAGE_DEFINITIONS = {
             # on `"`, and the shared trailing `\b` can't fire against the
             # non-word char that follows a closing attribute quote. Pulled out.
             "concurrency": re.compile(
-                r'\b(?:async|defer)\b|loading="lazy"|fetchpriority="(?:high|low)"|decoding="async"'
-                r'|<link\s+rel="(?:preload|prefetch|preconnect|modulepreload|prerender)"',
+                r"\b(?:async|defer)\b|loading=[\"']lazy[\"']|fetchpriority=[\"'](?:high|low)[\"']|decoding=[\"']async[\"']"
+                r"|<link\s+rel=[\"'](?:preload|prefetch|preconnect|modulepreload|prerender)[\"']",
                 re.I,
             ),
             # 16. ui_framework (UI / View Components)
             # Formatting tags and Tailwind/Bootstrap utility density.
             "ui_framework": re.compile(
-                r'<(?:b|i|u|strong|em|mark|small|del|ins|sub|sup)\b|\bclass="[^"]*(?:flex|grid|absolute|relative|block|inline-block|container|row|col-[0-9]+|justify-center|items-center|w-full|h-full)[^"]*"',
+                r"<(?:b|i|u|strong|em|mark|small|del|ins|sub|sup)\b|\bclass=[\"'][^\"']*(?:flex|grid|absolute|relative|block|inline-block|container|row|col-[0-9]+|justify-center|items-center|w-full|h-full)[^\"']*[\"']",
                 re.I,
             ),
             # 17. closures (Closures / Anonymous Functions)
             # DOM encapsulation via Shadow DOM.
             "closures": re.compile(
-                r'<template\s+shadowrootmode="[^"]*">|<template\s+shadowroot="[^"]*">',
+                r"<template\s+shadowrootmode=[\"'][^\"']*[\"']>|<template\s+shadowroot=[\"'][^\"']*[\"']>",
                 re.I,
             ),
             # 18. globals (Global / Shared State)
@@ -5249,7 +5258,7 @@ LANGUAGE_DEFINITIONS = {
             "decorators": re.compile(
                 r"\b(?:hidden|inert)\b(?:[ \t]*=)?"
                 r"|\b(?:class|style|tabindex|draggable|spellcheck|dir|lang|translate)[ \t]*="
-                r'|hx-[a-z-]+="[^"]*"|x-[a-z-]+="[^"]*"|v-[a-z-]+="[^"]*"',
+                r"|hx-[a-z-]+=[\"'][^\"']*[\"']|x-[a-z-]+=[\"'][^\"']*[\"']|v-[a-z-]+=[\"'][^\"']*[\"']",
                 re.I,
             ),
             # 20. generics (Generics / Type Parameters)
@@ -5261,7 +5270,7 @@ LANGUAGE_DEFINITIONS = {
             # the shared leading `\b` (boundary between two non-word chars)
             # never fired. Pulled out with no leading `\b`.
             "comprehensions": re.compile(
-                r'\b(?:v-for|ng-repeat|x-for)="[^"]*"|\*ngFor="[^"]*"|\{%\s*for\b[^%]*%\}|\{\{#each\b[^}]*\}\}',
+                r"\b(?:v-for|ng-repeat|x-for)=[\"'][^\"']*[\"']|\*ngFor=[\"'][^\"']*[\"']|\{%\s*for\b[^%]*%\}|\{\{#each\b[^}]*\}\}",
                 re.I,
             ),
             # 22. scientific (Numerical / Compute Libraries)
@@ -5280,16 +5289,16 @@ LANGUAGE_DEFINITIONS = {
             # (multi-declaration, no trailing `;`) never matched under the
             # old pattern. Dropped the semicolon requirement; presence of
             # any inline style attribute is the actual intent here.
-            "reflection_metaprogramming": re.compile(r'style="[^"]*"|\bon[a-z]+="[^"]*"', re.I),
+            "reflection_metaprogramming": re.compile(r"style=[\"'][^\"']*[\"']|\bon[a-z]+=[\"'][^\"']*[\"']", re.I),
             # 24. import (Dependency Inclusions)
             "import": re.compile(
-                r'<script\s+type="(?:importmap|module)"|<link\s+(?:rel="stylesheet"|rev="[^"]*")',
+                r"<script\s+type=[\"'](?:importmap|module)[\"']|<link\s+(?:rel=[\"']stylesheet[\"']|rev=[\"'][^\"']*[\"'])",
                 re.I,
             ),
             "_dependency_capture": re.compile(r'<(?:script[^>]+src|link[^>]+href)\s*=\s*["\']([^"\']+)["\']', re.I),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(
-                r'<meta\s+name="(?:author|creator|publisher)"\s+content="([^"]+)"|<link\s+rev="made"\s+href="mailto:[^"]+"',
+                r"<meta\s+name=[\"'](?:author|creator|publisher)[\"']\s+content=[\"']([^\"']+)[\"']|<link\s+rev=[\"']made[\"']\s+href=[\"']mailto:[^\"']+[\"']",
                 re.I,
             ),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -5312,13 +5321,13 @@ LANGUAGE_DEFINITIONS = {
             # 31. ssr_boundaries (Server-Side Rendering)
             # Back-end template engine hydration.
             "ssr_boundaries": re.compile(
-                r'<\?php|<%|<%=|\{\{\s*[^}]+\s*\}\}|\{%\s*[^%]+\s*%\}|\b(?:data-reactroot|data-server-rendered|ng-version|nuxt-ssr)="[^"]*"',
+                r"<\?php|<%|<%=|\{\{\s*[^}]+\s*\}\}|\{%\s*[^%]+\s*%\}|\b(?:data-reactroot|data-server-rendered|ng-version|nuxt-ssr)=[\"'][^\"']*[\"']",
                 re.I,
             ),
             # 32. events (Event Emitters / Pub-Sub)
             # Declarative event dispatchers.
             "events": re.compile(
-                r'\bhx-trigger="[^"]*"|@[a-z]+="[^"]*"|v-on:[a-z]+="[^"]*"|\([a-z]+\)="[^"]*"',
+                r"\bhx-trigger=[\"'][^\"']*[\"']|@[a-z]+=[\"'][^\"']*[\"']|v-on:[a-z]+=[\"'][^\"']*[\"']|\([a-z]+\)=[\"'][^\"']*[\"']",
                 re.I,
             ),
             # 33. dependency_injection (Dependency Injection / IoC)
@@ -5326,7 +5335,7 @@ LANGUAGE_DEFINITIONS = {
             # shared-boundary trap as safety/concurrency above (the char
             # after a closing attribute quote is never a word char), so
             # this never matched at all. Self-delimiting on the quote.
-            "dependency_injection": re.compile(r'<script\s+type="importmap"', re.I),
+            "dependency_injection": re.compile(r"<script\s+type=[\"']importmap[\"']", re.I),
             # 34. macros (Preprocessor Directives / Macros)
             # Server Side Includes (SSI).
             "macros": re.compile(r"<!--#\s*(?:include|exec|echo|config|if|else|endif)\b", re.I),
@@ -5341,7 +5350,7 @@ LANGUAGE_DEFINITIONS = {
             # 38. telemetry (Structured Logging / Telemetry)
             # Professional analytics trackers.
             "telemetry": re.compile(
-                r'<script[^>]*src="[^"]*(?:analytics|gtag|gtm|segment|plausible|mixpanel)[^"]*"|\bdata-layer\b|\bnavigator\.sendBeacon\b',
+                r"<script[^>]*src=[\"'][^\"']*(?:analytics|gtag|gtm|segment|plausible|mixpanel)[^\"']*[\"']|\bdata-layer\b|\bnavigator\.sendBeacon\b",
                 re.I,
             ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
@@ -5368,7 +5377,7 @@ LANGUAGE_DEFINITIONS = {
             # `disabled` alternative (matching regardless of the actual
             # true/false value, which was never the intent) -- pulled out so
             # the match is for the right reason.
-            "immutability_locks": re.compile(r'\b(?:readonly|disabled|inert)\b|aria-disabled="true"', re.I),
+            "immutability_locks": re.compile(r"\b(?:readonly|disabled|inert)\b|aria-disabled=[\"']true[\"']", re.I),
             # 46. cleanup (Resource Cleanup / Teardown)
             "cleanup": re.compile(
                 r'\b(?:removeEventListener|clearInterval|clearTimeout|remove|innerHTML\s*=\s*[\'"][\'"])\s*\(',

@@ -85,7 +85,8 @@ def _report(label: str, new: dict, resolved: dict, baseline_path: Path, regenera
             print(f"    {k}  -- {v}")
 
     if regenerate and not genuine:
-        json.dump(current, open(baseline_path, "w"), indent=2, sort_keys=True)
+        with open(baseline_path, "w") as baseline_file:
+            json.dump(current, baseline_file, indent=2, sort_keys=True)
         print(f"[{label}] Regenerated baseline ({len(current)} findings, all were pure line-shifts).")
         return True
 

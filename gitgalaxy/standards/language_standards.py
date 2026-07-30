@@ -11251,16 +11251,6 @@ LANGUAGE_DEFINITIONS = {
             ".7",
             ".8",
             ".9",
-            # --- THE SECRETS SHUNT (ASCII ONLY) ---
-            ".pem",
-            ".key",
-            ".pub",
-            ".crt",
-            ".cer",
-            ".asc",
-            ".gpg",
-            ".sig",
-            ".ovpn",
         ],
         # ABSOLUTE IDENTITY: The universally recognized, extensionless plaintext anchors.
         # FIX: Added ubiquitous community files. Removed binary keystore exact matches.
@@ -11275,21 +11265,6 @@ LANGUAGE_DEFINITIONS = {
             "CODE_OF_CONDUCT",
             "SECURITY",
             "MAINTAINERS",
-            # --- THE SECRETS SHUNT (ASCII ONLY) ---
-            "id_rsa",
-            "id_dsa",
-            "id_ed25519",
-            "id_ecdsa",
-            ".env",
-            ".env.local",
-            ".env.production",
-            ".npmrc",
-            ".htpasswd",
-            ".pypirc",
-            "credentials.json",
-            "client_secret.json",
-            "auth.json",
-            "shadow",
         ],
         # ECOSYSTEM ANCHORS: Universal fallback discriminators.
         "discriminators": [".txt", ".md", "README", "LICENSE"],

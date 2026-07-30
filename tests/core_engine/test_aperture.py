@@ -431,3 +431,82 @@ def test_aperture_ignored_directories_case_insensitive(tmp_path):
 
     # Non-matching source files still pass
     assert engine._check_ignore_rules("src/valid.py") is True
+
+
+# ==============================================================================
+# TEST: SECRETS SHUNT CONFIGURATION DRIFT (#703)
+# ==============================================================================
+def test_plaintext_language_definition_does_not_duplicate_secrets_shunt_config():
+    """
+    Regression test for #703: the secrets-extension/exact-match lists used
+    to be hardcoded twice -- once as the real source of truth in
+    gitgalaxy_config.py's APERTURE_CONFIG (what aperture.py's Gate 1.1
+    Credential Exposure Radar actually reads), and again, redundantly,
+    inside language_standards.py's "plaintext" language entry under a
+    "THE SECRETS SHUNT (ASCII ONLY)" comment block.
+
+    That second copy was provably dead: Gate 1.1 runs unconditionally at
+    the top of ApertureFilter.evaluate_path_integrity() and returns early
+    (rejecting the file) before Gate 1.5 (Language Registry Validation) --
+    the only gate that ever reads a language's "extensions"/"exact_matches"
+    -- is reached. A file matching SECRETS_EXTENSIONS/SECRETS_EXACT can
+    never fall through to have its extension checked against "plaintext"'s
+    list, so the duplicate served no runtime purpose and was pure
+    configuration-drift risk (add a new secret extension to one file,
+    forget the other).
+
+    Asserts the two configs stay decoupled going forward: no entry from
+    gitgalaxy_config.py's real SECRETS_EXTENSIONS/SECRETS_EXACT should ever
+    reappear in language_standards.py's "plaintext" extensions/exact_matches.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    plaintext_extensions = set(LANGUAGE_DEFINITIONS["plaintext"]["extensions"])
+    plaintext_exact_matches = set(LANGUAGE_DEFINITIONS["plaintext"]["exact_matches"])
+
+    overlapping_extensions = plaintext_extensions & APERTURE_CONFIG["SECRETS_EXTENSIONS"]
+    overlapping_exact = plaintext_exact_matches & APERTURE_CONFIG["SECRETS_EXACT"]
+
+    assert not overlapping_extensions, (
+        f"plaintext's extensions re-duplicated SECRETS_EXTENSIONS entries: {overlapping_extensions}"
+    )
+    assert not overlapping_exact, f"plaintext's exact_matches re-duplicated SECRETS_EXACT entries: {overlapping_exact}"
+
+
+def test_aperture_secrets_shunt_unaffected_by_removing_plaintext_duplication(tmp_path):
+    """
+    End-to-end regression test for #703: proves removing the duplicated
+    entries from language_standards.py's "plaintext" definition did not
+    regress the actual secrets-shunt behavior. Uses the REAL
+    APERTURE_CONFIG and LANGUAGE_DEFINITIONS (not the minimal mocks used
+    elsewhere in this file) to confirm Gate 1.1 still rejects secret
+    extensions/filenames purely from gitgalaxy_config.py, with no
+    dependency on "plaintext"'s own (now-deduplicated) lists.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_engine = ApertureFilter(
+        root_dir=tmp_path,
+        language_definitions=LANGUAGE_DEFINITIONS,
+        aperture_config=APERTURE_CONFIG,
+    )
+
+    pem_file = tmp_path / "private_key.pem"
+    pem_file.write_text("-----BEGIN RSA PRIVATE KEY-----", encoding="utf-8")
+    is_valid, _, reason = real_engine.evaluate_path_integrity(pem_file)
+    assert is_valid is False
+    assert "CRITICAL LEAK" in reason
+
+    ssh_key_file = tmp_path / "id_rsa"
+    ssh_key_file.write_text("-----BEGIN OPENSSH PRIVATE KEY-----", encoding="utf-8")
+    is_valid, _, reason = real_engine.evaluate_path_integrity(ssh_key_file)
+    assert is_valid is False
+    assert "CRITICAL LEAK" in reason
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("API_KEY=secret", encoding="utf-8")
+    is_valid, _, reason = real_engine.evaluate_path_integrity(env_file)
+    assert is_valid is False
+    assert "CRITICAL LEAK" in reason

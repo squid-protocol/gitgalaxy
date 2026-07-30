@@ -1950,3 +1950,63 @@ def test_detector_csharp_expression_body_fallback_gated_to_csharp_only():
 
     satellites, _ = js_detector._slice_by_braces(code, "javascript", js_rules, 0, {})
     assert satellites == [], "the csharp-only arrow fallback must not fire for other languages"
+
+
+# ==============================================================================
+# JAVASCRIPT/TYPESCRIPT STRING-LITERAL FALSE POSITIVE (epic #813, #814/#815)
+# ==============================================================================
+def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
+    """
+    Regression test for a real bug found while hardening the extraction
+    gauntlets (epic #813): func_start used to be matched against the raw,
+    unshielded `code` in _slice_by_braces, computed BEFORE the
+    string/comment-shielded `safe_code` existed (safe_code was only built
+    afterward, for the brace-search step). Since javascript's/typescript's
+    func_start regex is `\\b`-anchored (not `^`-anchored), a single-line
+    string literal containing function-shaped text false-positive-matched,
+    e.g. `let query = "function Foo() {";`. Fixed by matching against
+    `safe_code` instead for these two languages specifically.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang in ("javascript", "typescript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        code = 'let query = "function Foo() {";\nconst realFn = () => {\n  return 1;\n};\n'
+
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert names == ["realFn"], f"[{lang}] string-literal lookalike still hallucinated a function: {names}"
+
+
+def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
+    """
+    The safe_code-matching fix above is deliberately gated to
+    `lang_id in ("javascript", "typescript")` only -- NOT applied broadly to
+    every Mode-B (brace-slicing) language. Verifying it against the real
+    crucible corpus surfaced a separate, pre-existing bug in prism.py's
+    comment/string stripping for PHP (filed as #859): at least one real PHP
+    corpus file's `code_stream` already has corrupted docblock/string
+    content that confuses the same string/comment shielding step used here.
+    That's currently harmless because the brace-search step's blast radius
+    is naturally bounded -- but matching func_start's own positions against
+    a corrupted safe_code (this fix's approach) would turn that latent
+    corruption into wholesale loss of real functions for those files. This
+    test locks in the gate so a future edit doesn't "simplify" this by
+    removing the lang_id check before #859 is actually fixed.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
+    php_rules = LANGUAGE_DEFINITIONS["php"]["rules"]
+    # A php-shaped analogue of the same lookalike: if this language were
+    # matched against safe_code, this would correctly resolve to zero
+    # satellites (like javascript/typescript above) -- but the gate means
+    # php still uses the raw-code path, so this just proves php's own
+    # ordinary (already-existing) function detection is untouched by this
+    # fix rather than asserting on the string-literal case directly (php's
+    # own func_start is `^`-anchored, so it was never vulnerable to this
+    # specific bug shape in the first place).
+    code = "function realFn() {\n  return 1;\n}\n"
+    satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
+    assert [s["name"] for s in satellites] == ["realFn"], "php's ordinary function detection regressed"

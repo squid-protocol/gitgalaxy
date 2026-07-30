@@ -1446,11 +1446,6 @@ class StructuralExtractor:
         if not func_start:
             return [], 0.0
 
-        try:
-            matches = list(func_start.finditer(code))
-        except Exception:
-            return [], 0.0
-
         # Dynamically set scope bounds based on lexical family
         # We now consistently use curly braces for standard block-style languages.
         opener, closer = "{", "}"
@@ -1512,6 +1507,48 @@ class StructuralExtractor:
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
 
             safe_code = "".join(lines)
+
+        # BUG FIX (epic #813, extraction hardening, #814/#815): func_start
+        # used to be matched against the raw, unshielded `code` -- computed
+        # above, BEFORE `safe_code` existed. That let a single-line string
+        # literal or comment containing function-shaped text (e.g. `let
+        # query = "function Foo() {";`) false-positive-match, since
+        # javascript's/typescript's func_start regex is `\b`-anchored (not
+        # `^`-anchored) and has no way to know it's inside a string/comment
+        # on its own. `safe_code` already exists at this point specifically
+        # to solve this for the downstream brace search -- matching against
+        # it here instead of `code` closes the same gap for the match
+        # itself. `safe_code` is guaranteed the same length as `code`
+        # (shielding replaces matched spans with same-length whitespace), so
+        # every index computed from `matches` below remains valid against
+        # the original `code` for slicing.
+        #
+        # Gated to javascript/typescript only, NOT applied to every Mode B
+        # language: verifying this fix against the real crucible corpus
+        # surfaced a pre-existing, separate bug in `prism.py`'s comment/
+        # string stripping for PHP (#859) -- `combined_pattern`'s shielding
+        # already relies on `code_stream` being clean, and for at least two
+        # real PHP corpus files it isn't, causing a multi-thousand-character
+        # false shield match. That's harmless today because the brace
+        # search's blast radius is naturally bounded (a bounded window, one
+        # brace lookup) -- but matching *all* of func_start's positions
+        # against a corrupted `safe_code` (this fix's approach) turns that
+        # latent corruption into wholesale loss of real functions for those
+        # files (confirmed: one file dropped from 1 real function detected
+        # to 0, with a 17x structural-magnitude blowup). Broadening this fix
+        # to other Mode B languages should follow #859 (and an audit of
+        # whether other languages share the same class of prism.py gap),
+        # not precede it.
+        if lang_id in ("javascript", "typescript"):
+            try:
+                matches = list(func_start.finditer(safe_code))
+            except Exception:
+                return [], 0.0
+        else:
+            try:
+                matches = list(func_start.finditer(code))
+            except Exception:
+                return [], 0.0
 
         last_end_idx = 0
         current_line_count = offset + 1

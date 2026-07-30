@@ -111,6 +111,16 @@ def run_firewall_audit(
             if str(current_dir) == ".":
                 break
 
+            # DEFENSIVE DESIGN (ABSOLUTE PATH ROOT BARRIER): the "." check
+            # above only terminates a strictly relative traversal. If
+            # rel_path_str is instead an absolute path (e.g. "/opt/app/
+            # main.py"), current_dir climbs to the filesystem root and
+            # Path("/").parent == Path("/") forever -- it never becomes
+            # ".", so the loop never terminates. A path is at its own root
+            # exactly when .parent returns itself; catch that directly.
+            if current_dir == current_dir.parent:
+                break
+
             current_dir = current_dir.parent
 
         # =====================================================================

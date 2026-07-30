@@ -1,6 +1,7 @@
 import pytest
 import sys
 import json
+import multiprocessing
 import yaml
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -131,11 +132,11 @@ def test_threats_found_counts_unique_files_only():
             "risk_vector": _risk_vector(),
             "equations": {},
             "coding_loc": 20,
-        }
+        },
     ]
 
     result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
-    
+
     # 3 blacklisted imports were found
     assert result["imports_blacklisted"] == 3
     # But only 2 unique files contained threats
@@ -334,6 +335,59 @@ def test_monorepo_contextual_alias_resolution(caplog):
     assert result["threats_found"] == 3, "Failed to increment threats for contextually spoofed packages!"
     assert "'lodash' -> 'rogue-ui'" in caplog.text, "Failed to resolve exact directory alias (Frontend)!"
     assert "'lodash' -> 'malicious-core'" in caplog.text, "Failed to traverse upwards to authoritative manifest!"
+
+
+def _run_firewall_audit_with_absolute_path(result_queue):
+    """
+    Multiprocessing target for test_absolute_path_does_not_infinite_loop_
+    in_alias_resolution below. Rebuilds everything inside the child
+    process rather than pickling fixtures across the process boundary.
+    """
+    import gitgalaxy.tools.supply_chain_security.supply_chain_firewall as fm
+    from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
+
+    config = ResolvedConfig(_values=resolve_config().to_dict())
+    mock_ram_graph = [
+        {"path": "/opt/app/src/main.py", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10},
+    ]
+    result = fm.run_firewall_audit(mock_ram_graph, alias_map={}, config=config)
+    result_queue.put(result["imports_unknown"])
+
+
+def test_absolute_path_does_not_infinite_loop_in_alias_resolution():
+    """
+    Regression test for #710: run_firewall_audit's contextual alias
+    resolution traverses upward via Path(rel_path_str).parent looking for
+    the nearest authoritative manifest, terminating when current_dir == ".".
+    That check only catches a strictly RELATIVE path. If rel_path_str is
+    instead absolute (e.g. "/opt/app/src/main.py"), current_dir climbs to
+    the filesystem root ("/"), and Python's pathlib defines
+    Path("/").parent == Path("/") -- it never becomes ".", so the old code
+    looped forever, permanently stalling the firewall in a real CPU
+    deadlock on any absolute-path input.
+
+    Run in an isolated, timeout-killed subprocess (mirroring this
+    codebase's own assert_redos_immune pattern for "prove this doesn't
+    hang" tests) so a regression fails cleanly with a clear timeout error
+    instead of hanging the whole test suite indefinitely.
+    """
+    ctx = multiprocessing.get_context("spawn")
+    result_queue = ctx.Queue()
+    p = ctx.Process(target=_run_firewall_audit_with_absolute_path, args=(result_queue,))
+    p.start()
+    p.join(timeout=10)
+
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        raise AssertionError(
+            "run_firewall_audit hung on an absolute file path -- the alias-resolution "
+            "traversal never reached its root-barrier termination condition"
+        )
+
+    assert p.exitcode == 0, f"subprocess crashed with exit code {p.exitcode}"
+    assert not result_queue.empty(), "subprocess exited without reporting a result"
+    assert result_queue.get() == 1, "lodash should have resolved as an unknown (unmapped) import, not crashed"
 
 
 # ==============================================================================

@@ -128,7 +128,6 @@ class Prism:
         # Hardened Language Specific Extractors
         self.PYTHON_DOC_PATTERN = re.compile(PRISM_CONFIG.get("PYTHON_DOC_PATTERN", ""), re.M)
         self.PHP_HEREDOC_PATTERN = re.compile(PRISM_CONFIG.get("PHP_HEREDOC_PATTERN", ""), re.M)
-        self.PHP_MULTILINE_STRING = re.compile(PRISM_CONFIG.get("PHP_MULTILINE_STRING", ""), re.M)
 
         self.logger.info(f"Structural Scanner Online | Calibrated {len(self.REGEX_MATRIX)} syntax rules.")
 
@@ -484,9 +483,6 @@ class Prism:
         # 1. Extract Heredoc/Nowdoc
         text = self.PHP_HEREDOC_PATTERN.sub(capture_lit, text)
 
-        # 2. Extract massive Multi-line Strings
-        text = self.PHP_MULTILINE_STRING.sub(capture_lit, text)
-
         return text, lits
 
     def _partition_embedded_languages(self, content: str, primary_id: str) -> list[tuple[str, str]]:
@@ -519,16 +515,16 @@ class Prism:
                 if hint not in content_lower:
                     continue  # Skip the expensive regex entirely!
 
-            for m in t_config["trigger"].finditer(content):
-                triggers.append(
-                    {
-                        "start": m.start(),
-                        "end_pattern": t_config["end"],
-                        "target": t_config["target"],
-                        "pair": t_config["pair"],
-                        "trigger_end": m.end(),
-                    }
-                )
+            triggers.extend(
+                {
+                    "start": m.start(),
+                    "end_pattern": t_config["end"],
+                    "target": t_config["target"],
+                    "pair": t_config["pair"],
+                    "trigger_end": m.end(),
+                }
+                for m in t_config["trigger"].finditer(content)
+            )
 
         triggers.sort(key=lambda x: x["start"])
 

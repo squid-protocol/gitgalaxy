@@ -1,6 +1,7 @@
-import pytest
 import re
 from unittest.mock import patch
+
+import pytest
 
 # Adjust this import to match your project structure
 from gitgalaxy.core.prism import Prism, PrismError
@@ -50,8 +51,8 @@ def prism_engine():
         {
             "SHIELD_PATTERN": r'(?P<shield>"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|`(?:\\.|[^`\\])*`)',
             "PYTHON_DOC_PATTERN": r"(\"\"\"[\s\S]*?\"\"\"|\'\'\'[\s\S]*?\'\'\')",
-            "PHP_HEREDOC_PATTERN": r"<<<EOT[\s\S]*?EOT;",
-            "PHP_MULTILINE_STRING": r"'(?:\\'|[^'])*'",
+            "PHP_HEREDOC_PATTERN": r"<<<[\'\"]?([a-zA-Z0-9_]+)[\'\"]?\n(?:.*\n)*?\s*\1;?",
+            "POSITIONAL_ANCHORS": {"*", "C", "c", "/", "!"},
         },
     ):
         return Prism(comment_definitions=MOCK_COMMENT_DEFS, language_definitions=MOCK_LANG_DEFS)
@@ -231,15 +232,16 @@ def test_prism_format_and_xml_bypass(prism_engine):
 
 
 # ==============================================================================
-# TEST 7: PHP HEREDOC AND MULTILINE STRINGS
+# TEST 7: PHP HEREDOC STRINGS
 # ==============================================================================
 def test_prism_php_string_extraction(prism_engine):
-    """Proves PHP Heredoc and large strings are stripped to the documentation stream."""
+    """Proves PHP Heredoc strings are stripped to the documentation stream."""
     prism_engine.languages["php"] = {"lexical_family": "standard_block"}
-    prism_engine.PHP_HEREDOC_PATTERN = re.compile(r"<<<EOT[\s\S]*?EOT;", re.M)
-    prism_engine.PHP_MULTILINE_STRING = re.compile(r"'(?:\\'|[^'])*'", re.M)
+    prism_engine.PHP_HEREDOC_PATTERN = re.compile(
+        r"<<<[\'\"]?([a-zA-Z0-9_]+)[\'\"]?\n(?:.*\n)*?\s*\1;?", re.M
+    )
 
-    content = "<?php\n$a = <<<EOT\nMassive Text\nEOT;\n$b = 'Multi\nLine';\n// comment"
+    content = "<?php\n$a = <<<EOT\nMassive Text\nEOT;\n// comment"
     res = prism_engine.split_streams(content, primary_lang="php")
 
     assert "<<<EOT" not in res["code_stream"]
@@ -358,8 +360,8 @@ def test_prism_strips_comments_against_the_real_config():
     proves comment stripping actually works for one language per real family
     (standard_block, line_exclusive, recursive_block, positional_anchored).
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -398,8 +400,8 @@ def test_prism_sub_families_fix_the_standard_block_delimiter_gap():
     recursive_block_haskell) or an existing compatible one (line_exclusive
     for perl), so standard_block's regex is never shared with them.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -436,8 +438,8 @@ def test_prism_haskell_block_comments_actually_nest():
     Rust/Swift/Dart/Scala, just with Haskell's -- / {- / -} tokens instead
     of C-style ones (family "recursive_block_haskell").
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams(
@@ -456,8 +458,8 @@ def test_prism_livecode_multi_style_live_comments():
     modern script server comments (#), LiveCode Builder comments (//), and
     C-style blocks (/* */).
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -483,8 +485,8 @@ def test_prism_standard_block_c_family_unaffected_by_sub_family_split():
     operator) and `#` (preprocessor directive), both of which the rejected
     first-attempt fix broke by treating them as shared comment tokens.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -519,8 +521,8 @@ def test_prism_dash_comment_string_literal_shielding():
     literal must still be shielded from the new multi_style_dash/
     embedded_syntax comment patterns.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams('x = "this -- is not a comment"\n', "lua")
@@ -534,8 +536,8 @@ def test_prism_haskell_and_powershell_string_literal_shielding():
     the recursive_block_haskell nested-peel algorithm, and PowerShell's '#'
     inside a string must not be treated as a comment by embedded_syntax.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -560,8 +562,8 @@ def test_prism_block_exclusive_and_non_lexical_real_config():
     not a mock" discipline), not just that the bypass mechanism works at all
     (test_prism_format_and_xml_bypass already covers that against a mock).
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     assert LANGUAGE_DEFINITIONS["xml"]["lexical_family"] == "block_exclusive"
     assert LANGUAGE_DEFINITIONS["plaintext"]["lexical_family"] == "non_lexical"
@@ -592,8 +594,8 @@ def test_prism_non_lexical_has_no_compiled_pattern():
     also being added to that bypass list, it would silently fall through to
     "no pattern registered" and get zero comment stripping.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     assert "non_lexical" not in real_prism.REGEX_MATRIX
@@ -629,8 +631,8 @@ def test_prism_real_family_patterns_are_redos_immune():
     """
     import time
 
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -736,8 +738,8 @@ def test_prism_line_exclusive_no_longer_truncates_double_dash():
     in python/shell/ruby) silently truncated the rest of the line into the
     comment stream. Real `#` comments must still be stripped correctly.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -759,8 +761,8 @@ def test_prism_line_exclusive_real_delimiters_still_stripped():
     actually uses the real configured delimiter list, including tokens the
     old hardcoded pattern never covered at all (`dnl`, `=begin`/`=end`, `%`).
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -781,8 +783,8 @@ def test_prism_line_exclusive_dnl_requires_word_boundary():
     proves the fix's word-boundary handling, not just presence/absence of
     stripping.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams("set(mydnlvariable, 1)\n", "m4")
@@ -799,8 +801,8 @@ def test_prism_line_exclusive_ruby_begin_end_no_leading_boundary_bug():
     start, no preceding word character -- actually gets treated as a
     delimiter.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams("puts 'code'\n=begin\nblock comment\n=end\nputs 'more code'\n", "ruby")
@@ -820,8 +822,8 @@ def test_prism_single_line_delimiter_pattern_redos_immune():
     verify against an adversarial payload sized the same way as the epic's
     other ReDoS checks rather than assume.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     poison = "x" * 80000 + "#" * 20000
@@ -853,8 +855,8 @@ def test_prism_scheme_block_comment_regression_from_issue_770():
     state) -- every subsequent line, including a fake commented-out function
     definition, leaked into code_stream as live code.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     code = (
@@ -886,8 +888,8 @@ def test_prism_scheme_block_comments_actually_nest():
     as recursive_block/recursive_block_haskell rather than a flat delimiter
     match.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams(
@@ -909,8 +911,8 @@ def test_prism_scheme_semicolon_line_comments_still_work():
     new dedicated family (recursive_block_lisp reuses the same single-line
     peel step _strip_nested_comments already runs before its block peel).
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams('(display "hi") ; a real comment\n(+ 1 1)\n', "scheme")
@@ -926,8 +928,8 @@ def test_prism_scheme_string_literal_shielding():
     the new family's block-peel or single-line-peel steps, mirroring the
     existing haskell/powershell string-shielding regression coverage.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     result = real_prism.split_streams('(display "this ; is not a comment")\n', "scheme")
@@ -959,8 +961,8 @@ def test_prism_recursive_block_lisp_redos_immunity():
     tokens but no closing |# must resolve in well under the generous
     timeout used throughout this suite, bounded by NESTED_PEEL_LIMIT.
     """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     poison = "#| " * 20000 + "unterminated"

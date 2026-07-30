@@ -145,7 +145,6 @@ class PrismConfigSchema(TypedDict):
     SHIELD_PATTERN: str
     PYTHON_DOC_PATTERN: str
     PHP_HEREDOC_PATTERN: str
-    PHP_MULTILINE_STRING: str
     POSITIONAL_ANCHORS: set[str]
     THRESHOLDS: dict[str, int]
 
@@ -158,7 +157,6 @@ PRISM_CONFIG: PrismConfigSchema = {
     "SHIELD_PATTERN": r'((?<!\\)"(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\])*\'|(?<!\\)`(?:\\.|[^`\\])*`)',
     "PYTHON_DOC_PATTERN": r'(?m)^\s*(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')',
     "PHP_HEREDOC_PATTERN": r'<<<[ \t]*([\'"]?)([a-zA-Z_]\w*)\1[ \t]*\r?\n[\s\S]*?\n[ \t]*\2;?',
-    "PHP_MULTILINE_STRING": r'(?<!\\)"(?:\\.|[^"\\])*\n(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\])*\n(?:\\.|[^\'\\])*\'',
     "POSITIONAL_ANCHORS": {"*", "C", "c", "/", "!"},
     "THRESHOLDS": {"NESTED_PEEL_LIMIT": 500},
 }

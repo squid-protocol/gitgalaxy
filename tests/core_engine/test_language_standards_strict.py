@@ -42,6 +42,24 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
         assert duration < timeout_sec, f"Regex took too long: {duration:.4f}s"
 
 
+def _best_of_timing(pattern: re.Pattern, payload: str, trials: int = 3) -> float:
+    """
+    Times a single in-process `.search()` call, taking the minimum of
+    several trials to filter out one-off OS scheduling noise (e.g. a
+    preceding subprocess-based ReDoS test leaving a scheduling hiccup on
+    the very next timing measurement). Used for scale-relative ReDoS
+    sanity checks, which compare a ratio between two sizes rather than
+    asserting an absolute wall-clock threshold -- absolute thresholds are
+    flaky across CI hardware of varying speed.
+    """
+    best = float("inf")
+    for _ in range(trials):
+        start = time.perf_counter()
+        pattern.search(payload)
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
 # ==============================================================================
 # TEST 1: THE C/C++ K&R AMBIGUITY TRAP
 # Reference: language_standards.py (Line ~1365)
@@ -8829,14 +8847,18 @@ def test_css_class_start_lookahead_redos_regression():
     0.0001s/0.0004s/0.0016s, clean ~2x per doubling (linear).
     """
     old_pattern = re.compile(r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[ \t,>+~:]*[^{]*\{)", re.M)
-    payload = ".foo" + (" ,>+~:" * 2000)
 
-    start = time.perf_counter()
-    old_pattern.search(payload)
-    old_duration = time.perf_counter() - start
-    assert old_duration > 0.05, (
-        f"sanity check: old pattern was expected to show measurable quadratic cost at this size "
-        f"but only took {old_duration:.4f}s"
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed): a doubling of
+    # payload size should cost ~4x on the quadratic OLD pattern, vs ~2x for
+    # linear. This is the same discipline used everywhere else in this
+    # epic's ReDoS scaling sweeps.
+    small_duration = _best_of_timing(old_pattern, ".foo" + (" ,>+~:" * 1000))
+    large_duration = _best_of_timing(old_pattern, ".foo" + (" ,>+~:" * 2000))
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
+        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
     )
 
     class_start = CSS_RULES["class_start"]
@@ -8857,14 +8879,17 @@ def test_css_spec_exposure_redos_regression():
     `[^\\]]*` to `{0,300}`.
     """
     old_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I)
-    payload = "[SPEC-" + "1" * 8000
 
-    start = time.perf_counter()
-    old_pattern.search(payload)
-    old_duration = time.perf_counter() - start
-    assert old_duration > 0.02, (
-        f"sanity check: old pattern was expected to show measurable quadratic cost at this size "
-        f"but only took {old_duration:.4f}s"
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed): a doubling of
+    # payload size should cost ~4x on the quadratic OLD pattern, vs ~2x for
+    # linear.
+    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000)
+    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 16000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
+        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
     )
 
     spec_exposure = CSS_RULES["spec_exposure"]
@@ -13258,15 +13283,19 @@ def test_c_spec_exposure_redos_regression():
     language with this exact shape). Bounded both quantifiers.
     """
     old_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I)
-    # Prove the quadratic blowup directly via timing: unclosed bracket with
-    # digits then padding forces the engine to re-partition the trailing
-    # run between `\d+` and `[^\]]*` on every failed attempt to find `]`.
-    import time
-
-    start = time.perf_counter()
-    old_pattern.search("[SPEC-" + "1" * 16000 + " " * 16000)
-    duration = time.perf_counter() - start
-    assert duration > 0.3, "sanity check: old pattern should show measurable quadratic cost at this scale"
+    # Prove the quadratic blowup via a scale-relative comparison (not an
+    # absolute wall-clock threshold, which is flaky across CI hardware of
+    # varying speed): unclosed bracket with digits then padding forces the
+    # engine to re-partition the trailing run between `\d+` and `[^\]]*` on
+    # every failed attempt to find `]`, so a payload-size doubling should
+    # cost ~4x on the quadratic OLD pattern, vs ~2x for linear.
+    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 4000 + " " * 4000)
+    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000 + " " * 8000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
+        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
+    )
 
     spec_exposure = C_RULES["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-" + " " * 100000, timeout_sec=3.0)
@@ -13917,12 +13946,17 @@ def test_cpp_spec_exposure_redos_regression():
     9th hit).
     """
     old_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I)
-    import time
-
-    start = time.perf_counter()
-    old_pattern.search("[SPEC-" + "1" * 16000 + " " * 16000)
-    duration = time.perf_counter() - start
-    assert duration > 0.3, "sanity check: old pattern should show measurable quadratic cost at this scale"
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed): a payload-size
+    # doubling should cost ~4x on the quadratic OLD pattern, vs ~2x for
+    # linear.
+    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 4000 + " " * 4000)
+    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000 + " " * 8000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
+        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
+    )
 
     spec_exposure = CPP_RULES["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-" + " " * 100000, timeout_sec=3.0)

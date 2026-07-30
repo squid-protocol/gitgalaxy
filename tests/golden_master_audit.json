@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-30T01:32:39.733420+00:00",
-            "Total Scan Duration": "23.83 seconds"
+            "Analysis ISO Timestamp": "2026-07-30T02:41:56.821534+00:00",
+            "Total Scan Duration": "24.51 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -197,7 +197,7 @@
         },
         "health": {
             "avg_cognitive_load": 23.49,
-            "avg_safety_score": 23.262,
+            "avg_safety_score": 23.263,
             "avg_tech_debt": 25.426,
             "avg_documentation": 28.445
         },
@@ -360,7 +360,7 @@
             "typescript": {
                 "files": 24,
                 "loc": 21446,
-                "impact": 3564.75
+                "impact": 3568.1
             },
             "kotlin": {
                 "files": 5,
@@ -1062,11 +1062,11 @@
             },
             "typescript/playwright": {
                 "file_count": 11,
-                "total_mass": 555.82,
+                "total_mass": 557.97,
                 "avg_exposures": {
                     "cognitive_load": 45.02,
-                    "safety_score": 58.07,
-                    "tech_debt": 41.11,
+                    "safety_score": 58.09,
+                    "tech_debt": 41.13,
                     "verification": 36.78,
                     "api_exposure": 3.04,
                     "concurrency": 48.68,
@@ -1137,7 +1137,7 @@
             },
             "typescript/assemblyscript": {
                 "file_count": 5,
-                "total_mass": 1564.16,
+                "total_mass": 1564.46,
                 "avg_exposures": {
                     "cognitive_load": 30.35,
                     "safety_score": 52.06,
@@ -2237,10 +2237,10 @@
             },
             "typescript/vscode": {
                 "file_count": 11,
-                "total_mass": 1008.65,
+                "total_mass": 1009.55,
                 "avg_exposures": {
                     "cognitive_load": 31.55,
-                    "safety_score": 58.78,
+                    "safety_score": 58.8,
                     "tech_debt": 51.42,
                     "verification": 51.33,
                     "api_exposure": 3.78,
@@ -5307,17 +5307,17 @@
                     {
                         "name": "crConnection.ts",
                         "path": "typescript/playwright/crConnection.ts",
-                        "value": 99.6266
+                        "value": 99.6372
+                    },
+                    {
+                        "name": "dispatcher.ts",
+                        "path": "typescript/playwright/dispatcher.ts",
+                        "value": 99.3803
                     },
                     {
                         "name": "HKT.ts",
                         "path": "typescript/fp-ts/HKT.ts",
                         "value": 99.3568
-                    },
-                    {
-                        "name": "dispatcher.ts",
-                        "path": "typescript/playwright/dispatcher.ts",
-                        "value": 99.3486
                     }
                 ],
                 "lowest": [
@@ -6132,7 +6132,7 @@
                 {
                     "name": "frames.ts",
                     "path": "typescript/playwright/frames.ts",
-                    "value": 937.02
+                    "value": 937.12
                 },
                 {
                     "name": "DefaultPluginManager.java",
@@ -6167,12 +6167,12 @@
                 {
                     "name": "dispatcher.ts",
                     "path": "typescript/playwright/dispatcher.ts",
-                    "value": 838.73
+                    "value": 838.99
                 },
                 {
                     "name": "crConnection.ts",
                     "path": "typescript/playwright/crConnection.ts",
-                    "value": 838.15
+                    "value": 838.16
                 },
                 {
                     "name": "bidiConnection.ts",
@@ -14137,9 +14137,9 @@
                         "Identity Proof": "Single Indicator (Ext: .zig)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3883.48,
+                        "X": 3883.54,
                         "Y": -114.03,
-                        "Z": -4566.65
+                        "Z": -4566.72
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -15977,9 +15977,9 @@
                         "Identity Proof": "Single Indicator (Ext: .zig)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3251.57,
+                        "X": 3251.62,
                         "Y": -202.19,
-                        "Z": -4764.07
+                        "Z": -4764.14
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -18462,9 +18462,9 @@
                         "Identity Proof": "Single Indicator (Ext: .zig)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3581.83,
+                        "X": 3581.88,
                         "Y": -101.08,
-                        "Z": -4267.97
+                        "Z": -4268.04
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -20491,9 +20491,9 @@
                         "Identity Proof": "Single Indicator (Ext: .zig)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3964.91,
+                        "X": 3964.97,
                         "Y": -107.17,
-                        "Z": -5102.8
+                        "Z": -5102.87
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -21417,9 +21417,9 @@
                         "Identity Proof": "Single Indicator (Ext: .zig)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4182.54,
+                        "X": 4182.6,
                         "Y": 39.32,
-                        "Z": -4428.89
+                        "Z": -4428.96
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -182085,9 +182085,9 @@
                         "Identity Proof": "Single Indicator (Exact Match)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2423.87,
+                        "X": 2423.93,
                         "Y": -315.04,
-                        "Z": -5244.82
+                        "Z": -5244.91
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -182280,9 +182280,9 @@
                         "Identity Proof": "Ecosystem Consensus Lock (100% Local Dominance)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3296.51,
+                        "X": 3296.57,
                         "Y": -153.5,
-                        "Z": -4616.42
+                        "Z": -4616.51
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -182541,9 +182541,9 @@
                         "Identity Proof": "Ecosystem Consensus Lock (100% Local Dominance)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3040.1,
+                        "X": 3040.16,
                         "Y": -332.07,
-                        "Z": -5455.28
+                        "Z": -5455.37
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -182895,9 +182895,9 @@
                         "Identity Proof": "Ecosystem Consensus Lock (100% Local Dominance)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2697.32,
+                        "X": 2697.37,
                         "Y": -198.87,
-                        "Z": -4762.85
+                        "Z": -4762.94
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
@@ -183306,9 +183306,9 @@
                         "Identity Proof": "Sibling Anchor (.c)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3405.99,
+                        "X": 3406.05,
                         "Y": -289.44,
-                        "Z": -5332.76
+                        "Z": -5332.85
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -183498,9 +183498,9 @@
                         "Identity Proof": "Ecosystem Consensus Lock (70% Local Dominance)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2929.16,
+                        "X": 2929.21,
                         "Y": -233.45,
-                        "Z": -5224.14
+                        "Z": -5224.23
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -229271,7 +229271,7 @@
             }
         },
         "typescript/assemblyscript": {
-            "Directory Group Magnitude": 1564.16,
+            "Directory Group Magnitude": 1564.46,
             "File Count": 5,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_8": "40.0%",
@@ -229313,7 +229313,7 @@
                         "Identity Proof": "Single Indicator (Ext: .json)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 5498.2,
+                        "X": 5498.21,
                         "Y": 237.6,
                         "Z": -2870.7
                     },
@@ -229495,7 +229495,7 @@
                     "2. Topological Coordinates": {
                         "X": 4713.8,
                         "Y": 229.53,
-                        "Z": -3271.64
+                        "Z": -3271.65
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -229655,9 +229655,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 5206.0,
+                        "X": 5206.01,
                         "Y": 291.77,
-                        "Z": -3636.72
+                        "Z": -3636.73
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_16",
@@ -230830,54 +230830,54 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_11",
-                        "Repository Drift (Z-Score)": 14.429,
+                        "Repository Drift (Z-Score)": 14.43,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.718,
-                            "file_cluster_1": 14.953,
-                            "file_cluster_2": 14.626,
-                            "file_cluster_3": 15.707,
-                            "file_cluster_4": 14.916,
-                            "file_cluster_5": 15.33,
-                            "file_cluster_6": 14.786,
-                            "file_cluster_7": 14.678,
-                            "file_cluster_8": 14.485,
-                            "file_cluster_9": 14.923,
-                            "file_cluster_10": 15.493,
-                            "file_cluster_11": 14.429,
-                            "file_cluster_12": 14.892,
-                            "file_cluster_13": 14.507,
-                            "file_cluster_14": 17.762,
-                            "file_cluster_15": 14.976,
-                            "file_cluster_16": 14.726,
-                            "file_cluster_17": 14.659
+                            "file_cluster_0": 14.72,
+                            "file_cluster_1": 14.955,
+                            "file_cluster_2": 14.628,
+                            "file_cluster_3": 15.708,
+                            "file_cluster_4": 14.918,
+                            "file_cluster_5": 15.332,
+                            "file_cluster_6": 14.788,
+                            "file_cluster_7": 14.68,
+                            "file_cluster_8": 14.487,
+                            "file_cluster_9": 14.925,
+                            "file_cluster_10": 15.495,
+                            "file_cluster_11": 14.43,
+                            "file_cluster_12": 14.89,
+                            "file_cluster_13": 14.509,
+                            "file_cluster_14": 17.763,
+                            "file_cluster_15": 14.978,
+                            "file_cluster_16": 14.728,
+                            "file_cluster_17": 14.661
                         },
                         "File Archetype": "Cluster 5: Declarative Glue & Inert Types",
                         "File Drift (Z-Score)": 3.751,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 5.474,
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 5.473,
                             "Cluster 1: Async Scripting & I/O Automation": 5.879,
-                            "Cluster 2: Type Definitions & Bypasses": 7.488,
-                            "Cluster 3: UI Frameworks & View Layers": 5.177,
-                            "Cluster 4: Heavily Documented Core Classes": 6.181,
+                            "Cluster 2: Type Definitions & Bypasses": 7.487,
+                            "Cluster 3: UI Frameworks & View Layers": 5.175,
+                            "Cluster 4: Heavily Documented Core Classes": 6.18,
                             "Cluster 5: Declarative Glue & Inert Types": 3.751,
-                            "Cluster 6: Async Testing & Verification": 6.866,
-                            "Cluster 7: Highly Concurrent State Management": 7.608,
-                            "Cluster 8: Algorithmic Data Processing": 4.582
+                            "Cluster 6: Async Testing & Verification": 6.865,
+                            "Cluster 7: Highly Concurrent State Management": 7.607,
+                            "Cluster 8: Algorithmic Data Processing": 4.581
                         },
                         "Total LOC": 10689,
                         "Coding LOC": 3653,
                         "Documentation LOC": 6361,
-                        "Structural Magnitude": 857.69,
+                        "Structural Magnitude": 857.99,
                         "Control Flow Ratio": "58.6%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.49
+                        "Raw Cognitive Density": 1.492
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "54.47%",
-                        "Error & Exception Exposure": "99.08%",
+                        "Cognitive Load Exposure": "54.49%",
+                        "Error & Exception Exposure": "99.09%",
                         "Tech Debt Exposure": "33.33%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "2.72%",
@@ -231340,7 +231340,7 @@
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 2,
                         "Exposed API / Public Exports": 18,
-                        "State Mutations / Variable Reassignments": 3047,
+                        "State Mutations / Variable Reassignments": 3050,
                         "Commented-out Code (Dead Logic)": 10,
                         "Structured Documentation Blocks": 156,
                         "Unit Test Assertions": 98,
@@ -231352,7 +231352,7 @@
                         "Generic Type Abstractions": 84,
                         "Collection Iterators / Comprehensions": 0,
                         "Scientific & Mathematical Operations": 0,
-                        "Metaprogramming & Reflection": 39,
+                        "Metaprogramming & Reflection": 40,
                         "Module Dependencies (Imports)": 14,
                         "Authorship Metadata": 0,
                         "Planned Work (TODOs)": 29,
@@ -238827,7 +238827,7 @@
             }
         },
         "typescript/vscode": {
-            "Directory Group Magnitude": 1008.65,
+            "Directory Group Magnitude": 1009.55,
             "File Count": 11,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_13": "54.5%",
@@ -238838,7 +238838,7 @@
             },
             "Average Risk Exposures": {
                 "Cognitive Load Exposure": "31.55%",
-                "Error & Exception Exposure": "58.78%",
+                "Error & Exception Exposure": "58.8%",
                 "Tech Debt Exposure": "51.42%",
                 "Testing Exposure": "51.33%",
                 "API Exposure": "3.78%",
@@ -239386,67 +239386,67 @@
                         "Path": "typescript/vscode/async.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
-                        "Parent Entity": "IDisposable, Barrier",
+                        "Parent Entity": "Promise, IDisposable, Barrier",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -4475.0,
+                        "X": -4475.01,
                         "Y": 153.94,
-                        "Z": -2455.7
+                        "Z": -2455.69
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_4",
-                        "Repository Drift (Z-Score)": 15.09,
+                        "Repository Drift (Z-Score)": 15.097,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 15.7,
-                            "file_cluster_1": 16.217,
-                            "file_cluster_2": 15.867,
-                            "file_cluster_3": 16.79,
-                            "file_cluster_4": 15.09,
-                            "file_cluster_5": 16.548,
-                            "file_cluster_6": 15.99,
-                            "file_cluster_7": 15.976,
-                            "file_cluster_8": 15.851,
-                            "file_cluster_9": 16.029,
-                            "file_cluster_10": 16.665,
+                            "file_cluster_0": 15.706,
+                            "file_cluster_1": 16.225,
+                            "file_cluster_2": 15.874,
+                            "file_cluster_3": 16.795,
+                            "file_cluster_4": 15.097,
+                            "file_cluster_5": 16.555,
+                            "file_cluster_6": 15.997,
+                            "file_cluster_7": 15.983,
+                            "file_cluster_8": 15.859,
+                            "file_cluster_9": 16.035,
+                            "file_cluster_10": 16.669,
                             "file_cluster_11": 15.431,
-                            "file_cluster_12": 16.302,
-                            "file_cluster_13": 15.625,
-                            "file_cluster_14": 18.583,
-                            "file_cluster_15": 15.721,
-                            "file_cluster_16": 15.507,
-                            "file_cluster_17": 15.606
+                            "file_cluster_12": 16.284,
+                            "file_cluster_13": 15.631,
+                            "file_cluster_14": 18.589,
+                            "file_cluster_15": 15.726,
+                            "file_cluster_16": 15.514,
+                            "file_cluster_17": 15.613
                         },
                         "File Archetype": "Cluster 8: Algorithmic Data Processing",
-                        "File Drift (Z-Score)": 6.413,
+                        "File Drift (Z-Score)": 6.408,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.388,
-                            "Cluster 1: Async Scripting & I/O Automation": 7.627,
-                            "Cluster 2: Type Definitions & Bypasses": 7.535,
-                            "Cluster 3: UI Frameworks & View Layers": 7.052,
-                            "Cluster 4: Heavily Documented Core Classes": 7.136,
-                            "Cluster 5: Declarative Glue & Inert Types": 6.836,
-                            "Cluster 6: Async Testing & Verification": 8.671,
-                            "Cluster 7: Highly Concurrent State Management": 8.255,
-                            "Cluster 8: Algorithmic Data Processing": 6.413
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.381,
+                            "Cluster 1: Async Scripting & I/O Automation": 7.621,
+                            "Cluster 2: Type Definitions & Bypasses": 7.53,
+                            "Cluster 3: UI Frameworks & View Layers": 7.042,
+                            "Cluster 4: Heavily Documented Core Classes": 7.13,
+                            "Cluster 5: Declarative Glue & Inert Types": 6.832,
+                            "Cluster 6: Async Testing & Verification": 8.665,
+                            "Cluster 7: Highly Concurrent State Management": 8.248,
+                            "Cluster 8: Algorithmic Data Processing": 6.408
                         },
                         "Total LOC": 2646,
                         "Coding LOC": 1896,
                         "Documentation LOC": 326,
-                        "Structural Magnitude": 334.03,
+                        "Structural Magnitude": 334.63,
                         "Control Flow Ratio": "34.3%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 2.465
+                        "Raw Cognitive Density": 2.47
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "63.01%",
-                        "Error & Exception Exposure": "91.18%",
+                        "Cognitive Load Exposure": "63.02%",
+                        "Error & Exception Exposure": "91.33%",
                         "Tech Debt Exposure": "100.0%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "6.25%",
@@ -241279,7 +241279,7 @@
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 3,
                         "Exposed API / Public Exports": 126,
-                        "State Mutations / Variable Reassignments": 1157,
+                        "State Mutations / Variable Reassignments": 1163,
                         "Commented-out Code (Dead Logic)": 0,
                         "Structured Documentation Blocks": 70,
                         "Unit Test Assertions": 0,
@@ -241291,7 +241291,7 @@
                         "Generic Type Abstractions": 296,
                         "Collection Iterators / Comprehensions": 14,
                         "Scientific & Mathematical Operations": 2,
-                        "Metaprogramming & Reflection": 1,
+                        "Metaprogramming & Reflection": 3,
                         "Module Dependencies (Imports)": 9,
                         "Authorship Metadata": 0,
                         "Planned Work (TODOs)": 5,
@@ -241388,7 +241388,7 @@
                         "Path": "typescript/vscode/codeEditorWidget.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
-                        "Parent Entity": "Disposable implements editorBrowser, Disposable, editorCommon",
+                        "Parent Entity": "Disposable implements editorBrowser, Disposable, Emitter",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
@@ -244095,50 +244095,50 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -4703.18,
-                        "Y": 69.49,
-                        "Z": -2752.02
+                        "X": -4703.26,
+                        "Y": 69.47,
+                        "Z": -2752.03
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 14.43,
+                        "Repository Drift (Z-Score)": 14.455,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.797,
-                            "file_cluster_1": 15.605,
-                            "file_cluster_2": 15.034,
-                            "file_cluster_3": 16.081,
-                            "file_cluster_4": 14.95,
-                            "file_cluster_5": 16.001,
-                            "file_cluster_6": 15.077,
-                            "file_cluster_7": 15.407,
-                            "file_cluster_8": 15.055,
-                            "file_cluster_9": 14.914,
-                            "file_cluster_10": 16.0,
-                            "file_cluster_11": 14.525,
-                            "file_cluster_12": 15.517,
-                            "file_cluster_13": 14.43,
-                            "file_cluster_14": 17.718,
-                            "file_cluster_15": 15.414,
-                            "file_cluster_16": 14.817,
-                            "file_cluster_17": 14.595
+                            "file_cluster_0": 14.82,
+                            "file_cluster_1": 15.629,
+                            "file_cluster_2": 15.058,
+                            "file_cluster_3": 16.103,
+                            "file_cluster_4": 14.973,
+                            "file_cluster_5": 16.025,
+                            "file_cluster_6": 15.101,
+                            "file_cluster_7": 15.431,
+                            "file_cluster_8": 15.08,
+                            "file_cluster_9": 14.938,
+                            "file_cluster_10": 16.022,
+                            "file_cluster_11": 14.548,
+                            "file_cluster_12": 15.541,
+                            "file_cluster_13": 14.455,
+                            "file_cluster_14": 17.737,
+                            "file_cluster_15": 15.436,
+                            "file_cluster_16": 14.841,
+                            "file_cluster_17": 14.619
                         },
                         "File Archetype": "Cluster 4: Heavily Documented Core Classes",
-                        "File Drift (Z-Score)": 6.759,
+                        "File Drift (Z-Score)": 6.763,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 8.14,
-                            "Cluster 1: Async Scripting & I/O Automation": 8.166,
-                            "Cluster 2: Type Definitions & Bypasses": 6.988,
-                            "Cluster 3: UI Frameworks & View Layers": 7.822,
-                            "Cluster 4: Heavily Documented Core Classes": 6.759,
-                            "Cluster 5: Declarative Glue & Inert Types": 7.226,
-                            "Cluster 6: Async Testing & Verification": 8.789,
-                            "Cluster 7: Highly Concurrent State Management": 8.445,
-                            "Cluster 8: Algorithmic Data Processing": 6.86
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 8.143,
+                            "Cluster 1: Async Scripting & I/O Automation": 8.169,
+                            "Cluster 2: Type Definitions & Bypasses": 6.991,
+                            "Cluster 3: UI Frameworks & View Layers": 7.825,
+                            "Cluster 4: Heavily Documented Core Classes": 6.763,
+                            "Cluster 5: Declarative Glue & Inert Types": 7.23,
+                            "Cluster 6: Async Testing & Verification": 8.792,
+                            "Cluster 7: Highly Concurrent State Management": 8.446,
+                            "Cluster 8: Algorithmic Data Processing": 6.862
                         },
                         "Total LOC": 476,
                         "Coding LOC": 207,
                         "Documentation LOC": 194,
-                        "Structural Magnitude": 32.61,
+                        "Structural Magnitude": 32.91,
                         "Control Flow Ratio": "59.3%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -244148,7 +244148,7 @@
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "76.82%",
-                        "Error & Exception Exposure": "98.95%",
+                        "Error & Exception Exposure": "99.03%",
                         "Tech Debt Exposure": "59.83%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "0.13%",
@@ -244311,7 +244311,7 @@
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 0,
                         "Exposed API / Public Exports": 1,
-                        "State Mutations / Variable Reassignments": 180,
+                        "State Mutations / Variable Reassignments": 183,
                         "Commented-out Code (Dead Logic)": 2,
                         "Structured Documentation Blocks": 0,
                         "Unit Test Assertions": 0,
@@ -244755,7 +244755,7 @@
                         "Path": "typescript/vscode/lifecycle.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
-                        "Parent Entity": "IDisposableTracker, IDisposable",
+                        "Parent Entity": "IDisposableTracker, IDisposable, IReference",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
@@ -244768,26 +244768,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 14.498,
+                        "Repository Drift (Z-Score)": 14.499,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.746,
-                            "file_cluster_1": 15.16,
-                            "file_cluster_2": 14.859,
-                            "file_cluster_3": 15.841,
-                            "file_cluster_4": 14.518,
-                            "file_cluster_5": 15.508,
-                            "file_cluster_6": 15.015,
-                            "file_cluster_7": 14.908,
-                            "file_cluster_8": 14.786,
-                            "file_cluster_9": 15.021,
-                            "file_cluster_10": 15.733,
-                            "file_cluster_11": 14.557,
-                            "file_cluster_12": 15.322,
-                            "file_cluster_13": 14.498,
-                            "file_cluster_14": 17.71,
-                            "file_cluster_15": 14.958,
-                            "file_cluster_16": 14.547,
-                            "file_cluster_17": 14.515
+                            "file_cluster_0": 14.747,
+                            "file_cluster_1": 15.162,
+                            "file_cluster_2": 14.86,
+                            "file_cluster_3": 15.843,
+                            "file_cluster_4": 14.52,
+                            "file_cluster_5": 15.51,
+                            "file_cluster_6": 15.017,
+                            "file_cluster_7": 14.91,
+                            "file_cluster_8": 14.787,
+                            "file_cluster_9": 15.022,
+                            "file_cluster_10": 15.735,
+                            "file_cluster_11": 14.559,
+                            "file_cluster_12": 15.324,
+                            "file_cluster_13": 14.499,
+                            "file_cluster_14": 17.711,
+                            "file_cluster_15": 14.96,
+                            "file_cluster_16": 14.549,
+                            "file_cluster_17": 14.517
                         },
                         "File Archetype": "Cluster 8: Algorithmic Data Processing",
                         "File Drift (Z-Score)": 5.895,
@@ -245601,7 +245601,7 @@
                         "Control Flow Branches": 111,
                         "Sequential Logic Declarations": 173,
                         "Function Parameters": 140,
-                        "Function/Method Declarations": 128,
+                        "Function/Method Declarations": 129,
                         "Class/Entity Declarations": 18,
                         "Defensive Programming Constructs": 77,
                         "Type/Safety Bypasses": 15,
@@ -255400,7 +255400,7 @@
             }
         },
         "typescript/playwright": {
-            "Directory Group Magnitude": 555.82,
+            "Directory Group Magnitude": 557.97,
             "File Count": 11,
             "Ecosystem Fingerprint (Archetypes)": {
                 "Static: Literature & Documentation": "36.4%",
@@ -255410,8 +255410,8 @@
             },
             "Average Risk Exposures": {
                 "Cognitive Load Exposure": "45.02%",
-                "Error & Exception Exposure": "58.07%",
-                "Tech Debt Exposure": "41.11%",
+                "Error & Exception Exposure": "58.09%",
+                "Tech Debt Exposure": "41.13%",
                 "Testing Exposure": "36.78%",
                 "API Exposure": "3.04%",
                 "Concurrency Exposure": "48.68%",
@@ -255442,9 +255442,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3398.71,
+                        "X": 3398.77,
                         "Y": -338.04,
-                        "Z": -4325.48
+                        "Z": -4325.54
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -255603,9 +255603,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3429.74,
-                        "Y": -406.3,
-                        "Z": -3821.38
+                        "X": 3429.8,
+                        "Y": -406.31,
+                        "Z": -3821.4
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -255764,9 +255764,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2403.99,
+                        "X": 2403.98,
                         "Y": -192.3,
-                        "Z": -3732.36
+                        "Z": -3732.38
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -255925,9 +255925,9 @@
                         "Identity Proof": "Metadata Anchor (NOTICE)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3238.82,
+                        "X": 3238.86,
                         "Y": -252.85,
-                        "Z": -4475.71
+                        "Z": -4475.78
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -256086,9 +256086,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2788.8,
+                        "X": 2788.81,
                         "Y": -272.86,
-                        "Z": -3563.63
+                        "Z": -3563.62
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
@@ -256309,9 +256309,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2458.62,
-                        "Y": -157.85,
-                        "Z": -4003.77
+                        "X": 2458.6,
+                        "Y": -157.84,
+                        "Z": -4003.81
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
@@ -256690,9 +256690,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3009.33,
+                        "X": 3009.35,
                         "Y": -180.49,
-                        "Z": -4502.69
+                        "Z": -4502.76
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
@@ -257105,50 +257105,50 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3159.42,
-                        "Y": -329.48,
-                        "Z": -3640.4
+                        "X": 3159.48,
+                        "Y": -329.49,
+                        "Z": -3640.39
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_4",
-                        "Repository Drift (Z-Score)": 13.699,
+                        "Repository Drift (Z-Score)": 13.707,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.543,
-                            "file_cluster_1": 14.979,
-                            "file_cluster_2": 14.673,
-                            "file_cluster_3": 15.729,
-                            "file_cluster_4": 13.699,
-                            "file_cluster_5": 15.47,
-                            "file_cluster_6": 14.952,
-                            "file_cluster_7": 14.877,
-                            "file_cluster_8": 14.603,
-                            "file_cluster_9": 14.933,
-                            "file_cluster_10": 15.63,
-                            "file_cluster_11": 14.318,
-                            "file_cluster_12": 15.04,
-                            "file_cluster_13": 14.051,
-                            "file_cluster_14": 17.747,
-                            "file_cluster_15": 14.858,
-                            "file_cluster_16": 14.599,
-                            "file_cluster_17": 14.516
+                            "file_cluster_0": 14.551,
+                            "file_cluster_1": 14.987,
+                            "file_cluster_2": 14.681,
+                            "file_cluster_3": 15.737,
+                            "file_cluster_4": 13.707,
+                            "file_cluster_5": 15.478,
+                            "file_cluster_6": 14.96,
+                            "file_cluster_7": 14.886,
+                            "file_cluster_8": 14.611,
+                            "file_cluster_9": 14.941,
+                            "file_cluster_10": 15.638,
+                            "file_cluster_11": 14.326,
+                            "file_cluster_12": 15.048,
+                            "file_cluster_13": 14.059,
+                            "file_cluster_14": 17.754,
+                            "file_cluster_15": 14.866,
+                            "file_cluster_16": 14.608,
+                            "file_cluster_17": 14.524
                         },
-                        "File Archetype": "Cluster 4: Heavily Documented Core Classes",
-                        "File Drift (Z-Score)": 6.749,
+                        "File Archetype": "Cluster 8: Algorithmic Data Processing",
+                        "File Drift (Z-Score)": 6.75,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.8,
-                            "Cluster 1: Async Scripting & I/O Automation": 7.931,
-                            "Cluster 2: Type Definitions & Bypasses": 6.893,
-                            "Cluster 3: UI Frameworks & View Layers": 7.367,
-                            "Cluster 4: Heavily Documented Core Classes": 6.749,
-                            "Cluster 5: Declarative Glue & Inert Types": 7.085,
-                            "Cluster 6: Async Testing & Verification": 8.474,
-                            "Cluster 7: Highly Concurrent State Management": 8.312,
-                            "Cluster 8: Algorithmic Data Processing": 6.749
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.801,
+                            "Cluster 1: Async Scripting & I/O Automation": 7.932,
+                            "Cluster 2: Type Definitions & Bypasses": 6.894,
+                            "Cluster 3: UI Frameworks & View Layers": 7.368,
+                            "Cluster 4: Heavily Documented Core Classes": 6.75,
+                            "Cluster 5: Declarative Glue & Inert Types": 7.086,
+                            "Cluster 6: Async Testing & Verification": 8.475,
+                            "Cluster 7: Highly Concurrent State Management": 8.313,
+                            "Cluster 8: Algorithmic Data Processing": 6.75
                         },
                         "Total LOC": 240,
                         "Coding LOC": 186,
                         "Documentation LOC": 22,
-                        "Structural Magnitude": 53.74,
+                        "Structural Magnitude": 53.84,
                         "Control Flow Ratio": "38.8%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -257158,7 +257158,7 @@
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "94.62%",
-                        "Error & Exception Exposure": "99.63%",
+                        "Error & Exception Exposure": "99.64%",
                         "Tech Debt Exposure": "99.95%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "2.03%",
@@ -257321,7 +257321,7 @@
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 0,
                         "Exposed API / Public Exports": 6,
-                        "State Mutations / Variable Reassignments": 182,
+                        "State Mutations / Variable Reassignments": 183,
                         "Commented-out Code (Dead Logic)": 0,
                         "Structured Documentation Blocks": 1,
                         "Unit Test Assertions": 1,
@@ -257430,68 +257430,68 @@
                         "Path": "typescript/playwright/dispatcher.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
-                        "Parent Entity": "Dispatcher",
+                        "Parent Entity": "EventEmitter implements channels, Dispatcher",
                         "Doc Umbrella": 1.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2689.99,
-                        "Y": -216.96,
-                        "Z": -3908.74
+                        "X": 2689.89,
+                        "Y": -216.95,
+                        "Z": -3908.66
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_4",
-                        "Repository Drift (Z-Score)": 14.141,
+                        "Repository Drift (Z-Score)": 14.165,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.723,
-                            "file_cluster_1": 15.274,
-                            "file_cluster_2": 14.837,
-                            "file_cluster_3": 15.935,
-                            "file_cluster_4": 14.141,
-                            "file_cluster_5": 15.727,
-                            "file_cluster_6": 15.061,
-                            "file_cluster_7": 15.106,
-                            "file_cluster_8": 14.77,
-                            "file_cluster_9": 15.052,
-                            "file_cluster_10": 15.841,
-                            "file_cluster_11": 14.513,
-                            "file_cluster_12": 15.303,
-                            "file_cluster_13": 14.305,
-                            "file_cluster_14": 17.712,
-                            "file_cluster_15": 15.206,
-                            "file_cluster_16": 14.901,
-                            "file_cluster_17": 14.493
+                            "file_cluster_0": 14.746,
+                            "file_cluster_1": 15.298,
+                            "file_cluster_2": 14.86,
+                            "file_cluster_3": 15.957,
+                            "file_cluster_4": 14.165,
+                            "file_cluster_5": 15.75,
+                            "file_cluster_6": 15.084,
+                            "file_cluster_7": 15.13,
+                            "file_cluster_8": 14.796,
+                            "file_cluster_9": 15.075,
+                            "file_cluster_10": 15.863,
+                            "file_cluster_11": 14.536,
+                            "file_cluster_12": 15.325,
+                            "file_cluster_13": 14.329,
+                            "file_cluster_14": 17.731,
+                            "file_cluster_15": 15.228,
+                            "file_cluster_16": 14.924,
+                            "file_cluster_17": 14.517
                         },
                         "File Archetype": "Cluster 2: Type Definitions & Bypasses",
-                        "File Drift (Z-Score)": 6.419,
+                        "File Drift (Z-Score)": 6.449,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 8.003,
-                            "Cluster 1: Async Scripting & I/O Automation": 7.924,
-                            "Cluster 2: Type Definitions & Bypasses": 6.419,
-                            "Cluster 3: UI Frameworks & View Layers": 7.523,
-                            "Cluster 4: Heavily Documented Core Classes": 6.541,
-                            "Cluster 5: Declarative Glue & Inert Types": 7.148,
-                            "Cluster 6: Async Testing & Verification": 8.075,
-                            "Cluster 7: Highly Concurrent State Management": 8.279,
-                            "Cluster 8: Algorithmic Data Processing": 6.757
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 8.029,
+                            "Cluster 1: Async Scripting & I/O Automation": 7.948,
+                            "Cluster 2: Type Definitions & Bypasses": 6.449,
+                            "Cluster 3: UI Frameworks & View Layers": 7.548,
+                            "Cluster 4: Heavily Documented Core Classes": 6.573,
+                            "Cluster 5: Declarative Glue & Inert Types": 7.177,
+                            "Cluster 6: Async Testing & Verification": 8.098,
+                            "Cluster 7: Highly Concurrent State Management": 8.3,
+                            "Cluster 8: Algorithmic Data Processing": 6.785
                         },
                         "Total LOC": 415,
                         "Coding LOC": 339,
                         "Documentation LOC": 25,
-                        "Structural Magnitude": 70.07,
+                        "Structural Magnitude": 71.02,
                         "Control Flow Ratio": "48.8%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 2.419
+                        "Raw Cognitive Density": 2.408
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "96.93%",
-                        "Error & Exception Exposure": "99.35%",
-                        "Tech Debt Exposure": "99.35%",
+                        "Cognitive Load Exposure": "96.92%",
+                        "Error & Exception Exposure": "99.38%",
+                        "Tech Debt Exposure": "99.58%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "1.19%",
                         "Concurrency Exposure": "100.0%",
@@ -257599,6 +257599,16 @@
                             "Control Flow Ratio": "50.0%",
                             "Start Line": 395,
                             "End Line": 399
+                        },
+                        {
+                            "Function Name": "_dispatchEvent",
+                            "Structural Impact": 6.5,
+                            "Lines of Code (LOC)": 9,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "60.0%",
+                            "Start Line": 99,
+                            "End Line": 107
                         },
                         {
                             "Function Name": "stopPendingOperations",
@@ -257816,14 +257826,14 @@
                         "Control Flow Branches": 82,
                         "Sequential Logic Declarations": 86,
                         "Function Parameters": 47,
-                        "Function/Method Declarations": 42,
+                        "Function/Method Declarations": 43,
                         "Class/Entity Declarations": 3,
                         "Defensive Programming Constructs": 29,
                         "Type/Safety Bypasses": 25,
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 7,
                         "Exposed API / Public Exports": 5,
-                        "State Mutations / Variable Reassignments": 289,
+                        "State Mutations / Variable Reassignments": 292,
                         "Commented-out Code (Dead Logic)": 0,
                         "Structured Documentation Blocks": 1,
                         "Unit Test Assertions": 5,
@@ -257847,7 +257857,7 @@
                         "Dependency Injection Constructs": 0,
                         "Preprocessor Macros": 0,
                         "Pointer Arithmetic & Addressing": 0,
-                        "Manual Memory Allocation": 18,
+                        "Manual Memory Allocation": 19,
                         "Inline Assembly Blocks": 0,
                         "Structured Telemetry & Logging": 0,
                         "Ad-hoc Print / Debug Statements": 0,
@@ -257887,7 +257897,7 @@
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
                         "Duplicate Logic": 3,
-                        "Orphaned Logic": 9,
+                        "Orphaned Logic": 10,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,
@@ -257943,50 +257953,50 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2894.21,
+                        "X": 2894.24,
                         "Y": -230.5,
-                        "Z": -3943.28
+                        "Z": -3943.32
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_4",
-                        "Repository Drift (Z-Score)": 14.049,
+                        "Repository Drift (Z-Score)": 14.068,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.999,
-                            "file_cluster_1": 15.393,
-                            "file_cluster_2": 15.155,
-                            "file_cluster_3": 16.113,
-                            "file_cluster_4": 14.049,
-                            "file_cluster_5": 15.866,
-                            "file_cluster_6": 15.332,
-                            "file_cluster_7": 15.229,
-                            "file_cluster_8": 14.871,
-                            "file_cluster_9": 15.276,
-                            "file_cluster_10": 16.004,
-                            "file_cluster_11": 14.754,
-                            "file_cluster_12": 15.595,
-                            "file_cluster_13": 14.724,
-                            "file_cluster_14": 18.021,
-                            "file_cluster_15": 15.146,
-                            "file_cluster_16": 15.175,
-                            "file_cluster_17": 14.857
+                            "file_cluster_0": 15.019,
+                            "file_cluster_1": 15.414,
+                            "file_cluster_2": 15.175,
+                            "file_cluster_3": 16.131,
+                            "file_cluster_4": 14.068,
+                            "file_cluster_5": 15.885,
+                            "file_cluster_6": 15.351,
+                            "file_cluster_7": 15.249,
+                            "file_cluster_8": 14.892,
+                            "file_cluster_9": 15.295,
+                            "file_cluster_10": 16.023,
+                            "file_cluster_11": 14.773,
+                            "file_cluster_12": 15.614,
+                            "file_cluster_13": 14.743,
+                            "file_cluster_14": 18.037,
+                            "file_cluster_15": 15.165,
+                            "file_cluster_16": 15.195,
+                            "file_cluster_17": 14.876
                         },
                         "File Archetype": "Cluster 8: Algorithmic Data Processing",
-                        "File Drift (Z-Score)": 6.207,
+                        "File Drift (Z-Score)": 6.209,
                         "File Fingerprint": {
-                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.563,
-                            "Cluster 1: Async Scripting & I/O Automation": 7.388,
-                            "Cluster 2: Type Definitions & Bypasses": 6.555,
-                            "Cluster 3: UI Frameworks & View Layers": 6.803,
-                            "Cluster 4: Heavily Documented Core Classes": 6.42,
-                            "Cluster 5: Declarative Glue & Inert Types": 6.471,
-                            "Cluster 6: Async Testing & Verification": 8.183,
-                            "Cluster 7: Highly Concurrent State Management": 8.029,
-                            "Cluster 8: Algorithmic Data Processing": 6.207
+                            "Cluster 0: The God Nodes (Universal Dependencies)": 7.565,
+                            "Cluster 1: Async Scripting & I/O Automation": 7.39,
+                            "Cluster 2: Type Definitions & Bypasses": 6.558,
+                            "Cluster 3: UI Frameworks & View Layers": 6.806,
+                            "Cluster 4: Heavily Documented Core Classes": 6.424,
+                            "Cluster 5: Declarative Glue & Inert Types": 6.475,
+                            "Cluster 6: Async Testing & Verification": 8.185,
+                            "Cluster 7: Highly Concurrent State Management": 8.03,
+                            "Cluster 8: Algorithmic Data Processing": 6.209
                         },
                         "Total LOC": 1823,
                         "Coding LOC": 1186,
                         "Documentation LOC": 438,
-                        "Structural Magnitude": 320.26,
+                        "Structural Magnitude": 321.36,
                         "Control Flow Ratio": "45.6%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -257996,7 +258006,7 @@
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "99.16%",
-                        "Error & Exception Exposure": "98.03%",
+                        "Error & Exception Exposure": "98.14%",
                         "Tech Debt Exposure": "97.73%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "0.18%",
@@ -259139,7 +259149,7 @@
                         "High-Risk Execution Commands": 2,
                         "I/O and Network Boundaries": 4,
                         "Exposed API / Public Exports": 2,
-                        "State Mutations / Variable Reassignments": 736,
+                        "State Mutations / Variable Reassignments": 747,
                         "Commented-out Code (Dead Logic)": 0,
                         "Structured Documentation Blocks": 1,
                         "Unit Test Assertions": 2,
@@ -259267,9 +259277,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 2689.68,
-                        "Y": -153.47,
-                        "Z": -4689.21
+                        "X": 2689.69,
+                        "Y": -153.46,
+                        "Z": -4689.28
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -265581,9 +265591,9 @@
                         "Identity Proof": "Single Indicator (Exact Match)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4404.96,
+                        "X": 4405.02,
                         "Y": 97.16,
-                        "Z": -4783.98
+                        "Z": -4784.05
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -265742,9 +265752,9 @@
                         "Identity Proof": "Single Indicator (Ext: .ts)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4612.51,
+                        "X": 4612.57,
                         "Y": 141.84,
-                        "Z": -4995.32
+                        "Z": -4995.38
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -277575,6 +277585,7 @@
                         "Path": "typescript/fp-ts/HKT.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
+                        "Parent Entity": "HKT, HKT2, HKT3",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
@@ -277765,7 +277776,7 @@
                         "Path": "typescript/fp-ts/TaskEither.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
-                        "Parent Entity": "_",
+                        "Parent Entity": "Task, _",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
@@ -277778,38 +277789,38 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_16",
-                        "Repository Drift (Z-Score)": 12.001,
+                        "Repository Drift (Z-Score)": 12.006,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 13.202,
-                            "file_cluster_1": 13.32,
-                            "file_cluster_2": 12.312,
-                            "file_cluster_3": 14.184,
-                            "file_cluster_4": 13.475,
-                            "file_cluster_5": 13.676,
-                            "file_cluster_6": 13.503,
-                            "file_cluster_7": 13.062,
-                            "file_cluster_8": 12.854,
-                            "file_cluster_9": 13.477,
-                            "file_cluster_10": 14.182,
-                            "file_cluster_11": 13.056,
-                            "file_cluster_12": 13.534,
-                            "file_cluster_13": 12.458,
-                            "file_cluster_14": 16.076,
-                            "file_cluster_15": 13.353,
-                            "file_cluster_16": 12.001,
-                            "file_cluster_17": 12.82
+                            "file_cluster_0": 13.206,
+                            "file_cluster_1": 13.325,
+                            "file_cluster_2": 12.317,
+                            "file_cluster_3": 14.188,
+                            "file_cluster_4": 13.479,
+                            "file_cluster_5": 13.681,
+                            "file_cluster_6": 13.508,
+                            "file_cluster_7": 13.066,
+                            "file_cluster_8": 12.858,
+                            "file_cluster_9": 13.481,
+                            "file_cluster_10": 14.186,
+                            "file_cluster_11": 13.06,
+                            "file_cluster_12": 13.538,
+                            "file_cluster_13": 12.463,
+                            "file_cluster_14": 16.079,
+                            "file_cluster_15": 13.357,
+                            "file_cluster_16": 12.006,
+                            "file_cluster_17": 12.825
                         },
                         "File Archetype": "Cluster 8: Algorithmic Data Processing",
                         "File Drift (Z-Score)": 6.622,
                         "File Fingerprint": {
                             "Cluster 0: The God Nodes (Universal Dependencies)": 7.377,
-                            "Cluster 1: Async Scripting & I/O Automation": 7.663,
+                            "Cluster 1: Async Scripting & I/O Automation": 7.662,
                             "Cluster 2: Type Definitions & Bypasses": 7.448,
                             "Cluster 3: UI Frameworks & View Layers": 6.941,
-                            "Cluster 4: Heavily Documented Core Classes": 6.729,
+                            "Cluster 4: Heavily Documented Core Classes": 6.73,
                             "Cluster 5: Declarative Glue & Inert Types": 6.85,
-                            "Cluster 6: Async Testing & Verification": 8.717,
-                            "Cluster 7: Highly Concurrent State Management": 8.628,
+                            "Cluster 6: Async Testing & Verification": 8.716,
+                            "Cluster 7: Highly Concurrent State Management": 8.627,
                             "Cluster 8: Algorithmic Data Processing": 6.622
                         },
                         "Total LOC": 1882,
@@ -278061,7 +278072,7 @@
                         "Control Flow Branches": 15,
                         "Sequential Logic Declarations": 590,
                         "Function Parameters": 311,
-                        "Function/Method Declarations": 85,
+                        "Function/Method Declarations": 87,
                         "Class/Entity Declarations": 3,
                         "Defensive Programming Constructs": 49,
                         "Type/Safety Bypasses": 16,
@@ -278208,6 +278219,7 @@
                         "Path": "typescript/fp-ts/pipeable.ts",
                         "Language": "Typescript",
                         "Architect": "Unknown Architect",
+                        "Parent Entity": "PipeableFunctor, PipeableFunctor1, PipeableFunctor2",
                         "Doc Umbrella": 0.0,
                         "Folder Dominant Lang": "typescript",
                         "Lock Tier": 2,
@@ -287279,9 +287291,9 @@
                         "Identity Proof": "Prose Extension (.txt)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 5905.11,
+                        "X": 5905.12,
                         "Y": -172.25,
-                        "Z": -3174.43
+                        "Z": -3174.44
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -287440,7 +287452,7 @@
                         "Identity Proof": "Single Indicator (Ext: .csv)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 5700.83,
+                        "X": 5700.84,
                         "Y": -121.78,
                         "Z": -2760.49
                     },
@@ -291524,9 +291536,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3528.35,
+                        "X": 3528.41,
                         "Y": 77.93,
-                        "Z": -5537.66
+                        "Z": -5537.74
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -291685,9 +291697,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3729.82,
+                        "X": 3729.87,
                         "Y": 117.24,
-                        "Z": -5562.37
+                        "Z": -5562.45
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -291846,9 +291858,9 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3673.62,
+                        "X": 3673.68,
                         "Y": 156.7,
-                        "Z": -5865.68
+                        "Z": -5865.76
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "Static: Literature & Documentation",
@@ -292037,9 +292049,9 @@
                         "Identity Proof": "Single Indicator (Ext: .csv)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3066.65,
+                        "X": 3066.69,
                         "Y": 155.1,
-                        "Z": -5875.95
+                        "Z": -5876.04
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -292877,9 +292889,9 @@
                         "Identity Proof": "Metadata Anchor (pom.xml)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4079.27,
+                        "X": 4079.33,
                         "Y": -44.32,
-                        "Z": -5418.7
+                        "Z": -5418.77
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -298353,7 +298365,7 @@
                         "Identity Proof": "Prose Extension (.md)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 5650.64,
+                        "X": 5650.65,
                         "Y": 114.89,
                         "Z": -3738.69
                     },

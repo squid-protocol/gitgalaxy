@@ -889,6 +889,34 @@ LANGUAGE_DEFINITIONS = {
             # 4. func_start (Executable Logic Anchors)
             # Captures standard functions, assignments, object properties, and class methods.
             # Safely steps over TypeScript Generics <T> and explicit return types in the lookaheads.
+            # BUG FIX (severe ReDoS, ~4x/doubling confirmed via scaling sweep,
+            # ~1.9s at n=32000): the trailing lookahead `\s*(?:<[^>]*>)?\s*\(`
+            # (shared by the `function` branch and the class-member branch)
+            # has two adjacent unbounded `\s*` quantifiers separated by an
+            # optional group -- on a long run of pure whitespace with no `(`
+            # ever appearing (e.g. a truncated/malformed source file), the
+            # engine can partition that whitespace between the two `\s*`
+            # instances in exponentially many ways before failing. Bounded
+            # both to `[ \t\n]{0,50}` (generous for real code). Also fixed a
+            # separate, unrelated pre-existing gap found while in here: the
+            # `function` branch's `\s*\*?\s+` required a whitespace char
+            # *after* the generator `*` even when one preceded it instead
+            # (`function *gen()`, less common than `function* gen()` but
+            # valid), and rejected the zero-space `function*gen()` form
+            # entirely. Replaced with `[ \t\n*]+` (one or more of
+            # whitespace-or-star), which still requires *some* separator so
+            # it can't false-positive-match an unrelated identifier like
+            # `functionFoo()`.
+            # BUG FIX (Rule 11, nested-delimiter coverage -- this is the
+            # issue's own flagged "func_start vs generics" known ambiguity
+            # pattern, already found in C#): the flat `[^>]*` generic
+            # step-over broke on even one level of nested angle brackets in
+            # a generic constraint (`function foo<T extends Array<number>>`),
+            # a common realistic TypeScript pattern -- func_start silently
+            # failed to match the WHOLE function, not just the generic part.
+            # Widened to tolerate one level of self-nesting (non-overlapping
+            # alternatives, so no new ReDoS risk per the doc's own Rule 11
+            # example).
             "func_start": re.compile(
                 r"(?:"
                 # =====================================================================
@@ -900,10 +928,10 @@ LANGUAGE_DEFINITIONS = {
                 # the isolated function name and the generic parameters.
                 # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
                 # =====================================================================
-                r"\b(?:async\s+)?function\s*\*?\s+[a-zA-Z_$][\w$]*(?=\s*(?:<[^>]*>)?\s*\()|"
-                r"\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<[^>]*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<[^>]*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:get\s+|set\s+)?(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=\s*(?:<[^>]*>)?\s*\()"
+                r"\b(?:async\s+)?function[ \t\n*]+[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
+                r"\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:get\s+|set\s+)?(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r")",
                 re.M,
             ),
@@ -915,8 +943,15 @@ LANGUAGE_DEFINITIONS = {
             # FIX: Grouped the modifiers into a flexible, bounded set `(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}`.
             # Upgraded all internal spaces to `[ \t\n]+` to seamlessly leap over vertical gaps.
             # =====================================================================
+            # BUG FIX: the extends/implements capture required whitespace
+            # immediately after the class-name capture, but a generic class
+            # declaration (`class Foo<T> extends Bar<T>`) has `<T>` there
+            # instead -- the optional extends/implements group silently never
+            # fired for any generic class, a very common TypeScript pattern.
+            # Added an optional `<...>` step-over between the name and the
+            # extends/implements check.
             "class_start": re.compile(
-                r"^[ \t]*(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
+                r"^[ \t]*(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<[^>]*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -945,11 +980,24 @@ LANGUAGE_DEFINITIONS = {
             ),
             # 11. flux (State Mutation)
             # Mutation of state. EXCLUDES const (freeze_hits).
+            # BUG FIX: `.current =`, `.set(`, `.delete(`, and `.add(` shared a
+            # trailing `\b` with word-ending siblings (push/pop/...), but all
+            # four end in `(` or `=` (non-word) -- `\b` right after can only
+            # fire if the next char happens to be a word character, never true
+            # for the realistic forms (`myRef.current = value` -- space after
+            # `=`; `myMap.set('key', v)` -- quote after `(`). These four are
+            # already self-delimited by their leading `.`, so pulled out of
+            # the shared boundary group entirely.
             "state_mutation": re.compile(
-                r"\b(let|var|this\.|setState|push|pop|shift|unshift|splice|sort|reverse|\.current[ \t]*=|\.set\(|\.delete\(|\.add\()\b"
+                r"\b(?:let|var|this\.|setState|push|pop|shift|unshift|splice|sort|reverse)\b"
+                r"|\.current[ \t]*=|\.set\(|\.delete\(|\.add\("
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
-            "dead_code": re.compile(r"//[ \t]*(?:if|for|while|function|class|return|export|import)\b"),
+            # BUG FIX (Engine Rule 12, Comment-Style Completeness): typescript
+            # is `standard_block` (both `//` and `/* */` are real comment
+            # styles), but this only ever checked `//` -- a block-commented-out
+            # function/class (`/* function foo() {} */`) was invisible.
+            "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"),
             # 13. doc (Structured Documentation)
             "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"),
             # 14. test (Testing & Assertions)
@@ -981,8 +1029,14 @@ LANGUAGE_DEFINITIONS = {
             # 22. scientific (Numerical / Compute Libraries)
             "scientific": re.compile(r"\b(Math\.|tf\.|THREE\.|d3\.|gl-matrix|random)\b"),
             # 23. heat_triggers (Metaprogramming & Reflection)
+            # BUG FIX: `.bind(`, `.call(`, `.apply(` shared a trailing `\b`
+            # with word-ending siblings, but end in a literal `(` -- broke
+            # on the truly-empty-argument call form (`foo.bind()`), where
+            # the next char after `(` is `)`, not a word char. Already
+            # self-delimited by their leading `.`; pulled out of the group.
             "reflection_metaprogramming": re.compile(
-                r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
+                r"\b(?:arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b"
+                r"|\.bind\(|\.call\(|\.apply\("
             ),
             # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
             "llm_api": GLOBAL_LLM_API,
@@ -1031,7 +1085,12 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX: adjacent unbounded quantifiers with overlapping
+            # character sets (`\d+` next to `[^\]]*`) -- the same ReDoS
+            # shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, and scheme earlier in this
+            # epic. Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -1089,8 +1148,17 @@ LANGUAGE_DEFINITIONS = {
             # 49. test_skip (Bypassed Tests / Ignored Specs)
             "test_skip": re.compile(r"\b(test\.skip|it\.skip|describe\.skip|xit|xdescribe|mock|stub)\b"),
             # --- NEW: ADVANCED ALGORITHMIC SENSORS ---
+            # BUG FIX: `function\s*\*` shared a trailing `\b` with word-ending
+            # siblings, but ends in a literal `*` -- `\b` right after can only
+            # fire if the next char is a word character, never true for the
+            # canonical `function* foo()` generator syntax (space after the
+            # `*`). Unlike the co-located `yield\s*\*` (silently shadowed by
+            # the bare `yield` alternative earlier in the same group, so it
+            # happened to still "work"), nothing else in this pattern covers
+            # bare `function*` generator declarations -- a genuine, unmasked
+            # false negative. Pulled both out of the shared boundary group.
             "lazy_evaluation": re.compile(
-                r"\b(yield|yield\s*\*|function\s*\*|Generator|AsyncGenerator|Iterable|AsyncIterable)\b"
+                r"\byield\b|yield\s*\*|function\s*\*|\b(?:Generator|AsyncGenerator|Iterable|AsyncIterable)\b"
             ),
             "vectorized_math": re.compile(r"\b(matmul|dot|cross|multiply)\s*\("),
             # --- PHASE 3: HYBRID DOMAIN SENSORS (JS/TS Specifics) ---
@@ -1106,8 +1174,15 @@ LANGUAGE_DEFINITIONS = {
             "rce_funnel": re.compile(
                 r"child_process\.(?:spawn|exec|execSync)\s*\(\s*['\"](?:python|bash|sh|bun|node)\b"
             ),
+            # BUG FIX (Rule 11, nested-delimiter coverage): the flat `[^)]*`
+            # broke on one level of nested parens before the camouflage
+            # keyword -- e.g. a URL built via a helper call
+            # (`fetch(buildUrl("x"), {telemetry: payload})`), a realistic
+            # evasion shape for exactly the kind of disguised-exfiltration
+            # traffic this security-relevant rule exists to catch. Widened
+            # to tolerate one level of self-nesting.
             "exfiltration_camouflage": re.compile(
-                r"\b(fetch|axios\.post|https\.request)\s*\([^)]*(?:checkmarx|telemetry|metrics|audit|log)\b",
+                r"\b(fetch|axios\.post|https\.request)\s*\((?:[^()]|\([^()]*\))*(?:checkmarx|telemetry|metrics|audit|log)\b",
                 re.I,
             ),
         },

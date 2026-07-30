@@ -451,7 +451,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -749,7 +755,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -1385,7 +1397,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -2038,7 +2056,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             # Gofmt mandates tabs; finding spaces at start signals structural friction.
             "tabs_vs_spaces": None,
@@ -3341,7 +3365,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -4210,7 +4240,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -4445,7 +4481,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -4694,7 +4736,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -5250,7 +5298,15 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(
+                r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL)[^\]]{0,300}\]", re.I
+            ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
@@ -6136,7 +6192,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|rfc)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|rfc)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
@@ -6863,7 +6925,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt: The Fracture. Admitted fragility or hacks.
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags.
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 4-Spaces density markers.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-Side Rendering computation boundaries.
@@ -8291,8 +8359,14 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt: The Fracture. Admitted fragility or hacks.
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags and architecture specs.
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
             "spec_exposure": re.compile(
-                r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]*\]|\b(?:Tim\s+Berners-Lee|WorldWideWeb|HyperText\s+Proposal)\b",
+                r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:Tim\s+Berners-Lee|WorldWideWeb|HyperText\s+Proposal)\b",
                 re.I,
             ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
@@ -8853,8 +8927,14 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
             "spec_exposure": re.compile(
-                r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit|CVE-\d{4}-\d+)[^\]]*\]",
+                r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit|CVE-\d{4}-\d+)[^\]]{0,300}\]",
                 re.I,
             ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
@@ -9635,7 +9715,15 @@ LANGUAGE_DEFINITIONS = {
             # 28. private_info: Hardcoded credentials or private keys. Requires assignment.
             "hardcoded_secrets": re.compile(r"\b(private_key|secret|mnemonic|api_key)\b[ \t]*[:=]", re.I),
             # 29. spec_exposure: Map vs. Territory. ERC/EIP standards and audit tags.
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|audit)[^\]]*\]|\b(ERC-\d+|EIP-\d+)\b", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(
+                r"\[(?:\s*SPEC\s*-\s*\d{1,10}|audit)[^\]]{0,300}\]|\b(ERC-\d+|EIP-\d+)\b", re.I
+            ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Handled natively.
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon.
@@ -9884,8 +9972,14 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
             "spec_exposure": re.compile(
-                r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]*\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
+                r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
                 re.I,
             ),
             "tabs_vs_spaces": None,
@@ -10700,7 +10794,13 @@ LANGUAGE_DEFINITIONS = {
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
-            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             "events": None,
@@ -10852,7 +10952,13 @@ LANGUAGE_DEFINITIONS = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure
-            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
+            # overlapping character sets (`\d+` next to `[^\]]*`) -- the
+            # same ReDoS shape already found and fixed independently in
+            # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
+            # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
+            # Bounded both quantifiers.
+            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries

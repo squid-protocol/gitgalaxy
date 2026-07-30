@@ -14410,3 +14410,95 @@ def test_csharp_redos_immunity_sweep():
     assert CSHARP_RULES["func_start"].search("public int Foo() {")
     assert CSHARP_RULES["class_start"].search("class Foo {")
     assert CSHARP_RULES["args"].search("x => x + 1")
+
+
+# ==============================================================================
+# CROSS-LANGUAGE SWEEP: spec_exposure ADJACENT-QUANTIFIER ReDoS (Issue #713)
+# ==============================================================================
+# Found while closing #584 (groovy strict-parsing tests): the `spec_exposure`
+# signature's `\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]` shape (or close
+# per-language variants) was copy-pasted across the majority of
+# LANGUAGE_DEFINITIONS entries, and most copies still carried the unbounded
+# `[^\]]*` immediately after the equally-unbounded `\d+` -- the classic
+# adjacent-overlapping-quantifier shape (digits satisfy both character
+# classes, so an unclosed "[SPEC-11111..." tag with no closing "]" forces
+# the engine to re-scan an ever-shrinking digit suffix at every possible
+# split point between the two quantifiers, O(n^2)).
+#
+# This exact bug class had already been found and fixed independently,
+# one language at a time, throughout this epic (embedded_python, css, tcl,
+# matlab, scheme, typescript, rust, c, cpp, csharp, groovy, shell, sqlite)
+# -- #713 is the systemic sweep catching every language that slipped
+# through those one-off passes. Rather than scatter 17 near-identical
+# regression tests across each language's own (already large) strict-
+# parsing section, this is the single dedicated cross-language test the
+# issue itself explicitly authorizes as the "cleaner" alternative.
+#
+# Fix: bound `\d+` to `\d{1,10}` and `[^\]]*` to `[^\]]{0,300}` -- the
+# exact same clamp already proven correct for shell/sqlite/groovy/etc
+# earlier in this epic. Generous enough for any realistic spec/audit tag,
+# only removing the pathological-input hang.
+_SPEC_EXPOSURE_REDOS_SWEEP_TARGETS = [
+    # (language, old vulnerable pattern text before this fix, extra correctness spot-check)
+    ("python", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("javascript", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("java", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("go", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("php", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("ruby", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("swift", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("kotlin", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("html", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL)[^\]]*\]", "[RFC 2616]"),
+    ("assembly", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|rfc)[^\]]*\]", "[rfc]"),
+    ("perl", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    (
+        "dart",
+        r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]*\]|\b(?:Tim\s+Berners-Lee|WorldWideWeb|HyperText\s+Proposal)\b",
+        "[ENQUIRE]",
+    ),
+    (
+        "dockerfile",
+        r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit|CVE-\d{4}-\d+)[^\]]*\]",
+        "[CVE-2024-12345]",
+    ),
+    ("solidity", r"\[(?:\s*SPEC\s*-\s*\d+|audit)[^\]]*\]|\b(ERC-\d+|EIP-\d+)\b", "ERC-721"),
+    (
+        "objective-c",
+        r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]*\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
+        "WorldWideWeb",
+    ),
+    ("yacc", r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", None),
+    ("m4", r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", None),
+]
+
+
+@pytest.mark.parametrize(
+    "language,old_pattern_text,extra_positive",
+    _SPEC_EXPOSURE_REDOS_SWEEP_TARGETS,
+    ids=[t[0] for t in _SPEC_EXPOSURE_REDOS_SWEEP_TARGETS],
+)
+def test_spec_exposure_adjacent_quantifier_redos_sweep(language, old_pattern_text, extra_positive):
+    old_pattern = re.compile(old_pattern_text, re.I)
+
+    # Scale-relative sanity check (not an absolute wall-clock threshold,
+    # which is flaky across CI hardware of varying speed -- the exact
+    # failure mode of an earlier version of this same style of test in
+    # this file): a payload-size doubling should cost ~4x on the
+    # quadratic OLD pattern, vs ~2x for linear.
+    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000)
+    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 16000)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.5, (
+        f"{language}: sanity check failed -- old pattern was expected to show quadratic (~4x) "
+        f"scaling on a payload doubling, but only scaled {ratio:.2f}x "
+        f"({small_duration:.4f}s -> {large_duration:.4f}s)"
+    )
+
+    spec_exposure = LANGUAGE_DEFINITIONS[language]["rules"]["spec_exposure"]
+    assert_redos_immune(spec_exposure, "[SPEC-" + "1" * 100000, timeout_sec=3.0)
+    assert spec_exposure.search("[SPEC-123]"), f"{language}: lost the basic SPEC-NNN positive case"
+    assert spec_exposure.search("[audit]"), f"{language}: lost the basic [audit] positive case"
+    if extra_positive is not None:
+        assert spec_exposure.search(extra_positive), (
+            f"{language}: lost its own extra alternative ({extra_positive!r}) while bounding the fix"
+        )

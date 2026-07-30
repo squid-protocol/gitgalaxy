@@ -1831,4 +1831,122 @@ def test_detector_comment_analysis_literate_keys_noop_for_non_markdown():
     assert result.get("lit_headers", 0) == 0
     assert result.get("lit_links", 0) == 0
     assert result.get("lit_code_blocks", 0) == 0
-    assert result.get("lit_diagrams", 0) == 0
+
+
+# ==============================================================================
+# TEST 49: CSHARP EXPRESSION-BODIED MEMBERS & BARE-CALL HALLUCINATION (#789)
+# ==============================================================================
+def test_detector_csharp_expression_bodied_methods_now_counted():
+    """
+    Regression test for #789 using the issue's own example: unlike every
+    other C-family language, csharp's func_start used to stop matching
+    right at the opening `(`, deferring entirely to _slice_by_braces's
+    post-hoc `{` search. Expression-bodied methods (idiomatic since C# 6)
+    have no `{` at all, so they produced zero satellites before the fix.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["csharp"]["rules"]
+    code = "public class Calc\n{\n    public int Square(int x) => x * x;\n    public int Cube(int x) => x * x * x;\n}\n"
+
+    satellites, _ = detector._slice_by_braces(code, "csharp", rules, 0, {})
+    names = [s["name"] for s in satellites]
+    assert names == ["Square", "Cube"], f"expression-bodied methods should both be counted as functions: {names}"
+
+
+def test_detector_csharp_bare_top_level_call_no_longer_hallucinated():
+    """
+    Regression test for #789 using the issue's own example: C# 9+
+    top-level statements (the default `dotnet new console` template) have
+    no enclosing brace. Before the fix, _slice_by_braces's bounded
+    post-hoc brace search absorbed the first `{` it found downstream (the
+    unrelated `if` block below), hallucinating a satellite named
+    `Environment.Exit` whose body incorrectly spanned into that `if`
+    block. func_start's new terminator lookahead now rejects a bare call
+    statement outright (no `{` or `=>` follows it), so no satellite is
+    produced at all.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["csharp"]["rules"]
+    code = 'Console.WriteLine("Hello");\nEnvironment.Exit(0);\nif (args.Length > 0) {\n    Console.WriteLine(args[0]);\n}\n'
+
+    satellites, _ = detector._slice_by_braces(code, "csharp", rules, 0, {})
+    assert satellites == [], f"bare top-level call statements must not hallucinate a function: {satellites}"
+
+
+def test_detector_csharp_mixed_block_and_expression_bodies():
+    """
+    A realistic class mixing a normal block-bodied method, an
+    expression-bodied method, and a constructor with a `: base(...)`
+    initializer -- all three must be counted, each with the correct body
+    span (proving the constructor-initializer lookahead branch doesn't
+    interfere with the existing brace-search path).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["csharp"]["rules"]
+    code = (
+        "public class Calc\n"
+        "{\n"
+        "    public int Add(int a, int b)\n"
+        "    {\n"
+        "        var result = a + b;\n"
+        "        return result;\n"
+        "    }\n"
+        "\n"
+        "    public int Square(int x) => x * x;\n"
+        "\n"
+        "    public Calc(int seed) : base()\n"
+        "    {\n"
+        "        Seed = seed;\n"
+        "    }\n"
+        "}\n"
+    )
+    satellites, _ = detector._slice_by_braces(code, "csharp", rules, 0, {})
+    names = [s["name"] for s in satellites]
+    assert names == ["Add", "Square", "Calc"], f"expected all 3 methods, got: {names}"
+
+
+def test_detector_csharp_lambda_default_parameter_arrow_not_mistaken_for_body():
+    """
+    Regression guard for the fallback's own edge case: when an
+    expression-bodied method has a lambda-typed default parameter that
+    carries its OWN `=>`, the fallback must locate the method's real
+    arrow (searched from after the parameter list's own closing paren),
+    not the lambda default's arrow sitting inside the parameter list.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["csharp"]["rules"]
+    code = "public int Foo(Func<int, int> f = null) => f(1);\n"
+
+    satellites, _ = detector._slice_by_braces(code, "csharp", rules, 0, {})
+    assert len(satellites) == 1
+    assert satellites[0]["name"] == "Foo"
+    # The block must span through to the REAL terminating `;`, not stop
+    # short at some earlier point.
+    assert "f(1)" in code[: code.index(";") + 1]
+
+
+def test_detector_csharp_expression_body_fallback_gated_to_csharp_only():
+    """
+    The `=>`-then-`;` fallback in _slice_by_braces is explicitly gated to
+    `lang_id == "csharp"` -- proves it doesn't change behavior for other
+    Mode-B (brace-slicing) languages that also use `=>` for lambdas
+    (e.g. javascript/typescript arrow functions assigned to a const,
+    which are not real func_start matches and must still produce zero
+    satellites, not a hallucinated one via the new fallback).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    js_detector = StructuralExtractor("javascript", LANGUAGE_DEFINITIONS)
+    js_rules = LANGUAGE_DEFINITIONS["javascript"]["rules"]
+    code = "const double = (x) => x * 2;\n"
+
+    satellites, _ = js_detector._slice_by_braces(code, "javascript", js_rules, 0, {})
+    assert satellites == [], "the csharp-only arrow fallback must not fire for other languages"

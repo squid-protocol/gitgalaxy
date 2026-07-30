@@ -1528,11 +1528,51 @@ class StructuralExtractor:
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 
-            brace_idx = safe_code.find(opener, start_idx, search_limit)
-            if brace_idx == -1:
-                continue
+            # #789: csharp's func_start regex (unlike every other C-family
+            # language here) doesn't consume the parameter list or require
+            # a terminator -- it stops matching right at the opening `(`,
+            # deferring entirely to the generic brace search below. That
+            # search alone has two gaps for csharp specifically: (1) a bare
+            # top-level call statement with no enclosing brace at all (C#
+            # 9+ top-level statements, e.g. `Environment.Exit(0);`) would
+            # get whatever `{` the bounded window found downstream
+            # (typically an unrelated later block) hallucinated as its
+            # body, and (2) expression-bodied members
+            # (`Square(int x) => x * x;`, idiomatic since C# 6) have no `{`
+            # at all and were never counted as functions. Both are closed
+            # here by finding the parameter list's own closing paren first,
+            # then checking whether a `{`, an expression-bodied `=>`, or a
+            # bare `;` comes first immediately after it -- a `;` before
+            # either means this was never a real function signature.
+            # Gated to csharp only; every other Mode-B language keeps the
+            # exact original brace-only behavior.
+            if lang_id == "csharp":
+                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                brace_idx = safe_code.find(opener, params_end_idx, search_limit)
+                arrow_idx = safe_code.find("=>", params_end_idx, search_limit)
+                semi_idx = safe_code.find(";", params_end_idx, search_limit)
 
-            end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                # Whichever of the three appears first (a -1 "not found"
+                # sorts last) decides what this match actually is.
+                candidates = [(idx, kind) for idx, kind in ((brace_idx, "brace"), (arrow_idx, "arrow")) if idx != -1]
+                if semi_idx != -1 and (not candidates or semi_idx < min(idx for idx, _ in candidates)):
+                    continue  # a bare statement -- `;` arrived before any real terminator
+                if not candidates:
+                    continue  # neither a brace nor an arrow ever showed up in the window
+                idx, kind = min(candidates, key=lambda pair: pair[0])
+                if kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, idx, opener, closer)
+                else:
+                    semi_after_arrow = safe_code.find(";", idx, search_limit)
+                    if semi_after_arrow == -1:
+                        continue
+                    end_idx = semi_after_arrow + 1
+            else:
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
+                if brace_idx == -1:
+                    continue
+                end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+
             block = code[start_idx:end_idx].strip()
             if not block:
                 continue

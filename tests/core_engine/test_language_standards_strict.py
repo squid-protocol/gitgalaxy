@@ -14403,6 +14403,27 @@ def test_csharp_func_start_redos_regression():
     assert m and m.group(1) == "Foo"
 
 
+def test_csharp_func_start_regex_unchanged_by_789():
+    """
+    #789 (expression-bodied members never counted; bare top-level calls
+    hallucinated as functions) is fixed entirely in detector.py's
+    _slice_by_braces (see test_detector_csharp_* in test_detector.py), NOT
+    by adding a terminator requirement to this regex. An earlier attempt
+    did add a `{`/`=>`-requiring lookahead here, but that broke the
+    pre-existing cross-language "extraction gauntlet"
+    (test_function_extraction_strict.py), which deliberately tests
+    func_start against bare signature fragments with no terminator visible
+    at all -- true for csharp's own fixtures there and for most other
+    languages' fixtures too (e.g. typescript's
+    `"function TargetFunc<T, U>("`). This test locks in that the regex
+    still matches a bare fragment exactly as before, so a future change
+    doesn't reintroduce that conflict.
+    """
+    func_start = CSHARP_RULES["func_start"]
+    m = func_start.search("protected override void TargetFunc(int x)")
+    assert m and m.group(1) == "TargetFunc", "func_start must still match a bare signature fragment with no terminator"
+
+
 def test_csharp_args_lambda_redos_immunity_folded():
     """
     Pre-existing regression test (test_csharp_args_lambda_redos_immunity),

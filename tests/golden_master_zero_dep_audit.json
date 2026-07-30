@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-30T20:21:08.104726+00:00",
-            "Total Scan Duration": "25.75 seconds"
+            "Analysis ISO Timestamp": "2026-07-30T21:16:56.375467+00:00",
+            "Total Scan Duration": "25.26 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -198,8 +198,8 @@
         "health": {
             "avg_cognitive_load": 23.613,
             "avg_safety_score": 23.328,
-            "avg_tech_debt": 25.443,
-            "avg_documentation": 28.468
+            "avg_tech_debt": 25.454,
+            "avg_documentation": 28.471
         },
         "composition": {
             "xml": {
@@ -300,7 +300,7 @@
             "csharp": {
                 "files": 8,
                 "loc": 10899,
-                "impact": 24631.280000000002
+                "impact": 24538.780000000002
             },
             "css": {
                 "files": 4,
@@ -1562,20 +1562,20 @@
             },
             "csharp/roslyn": {
                 "file_count": 7,
-                "total_mass": 24550.44,
+                "total_mass": 24457.94,
                 "avg_exposures": {
-                    "cognitive_load": 23.84,
-                    "safety_score": 41.45,
-                    "tech_debt": 50.35,
-                    "verification": 57.57,
+                    "cognitive_load": 23.87,
+                    "safety_score": 41.46,
+                    "tech_debt": 51.8,
+                    "verification": 57.59,
                     "api_exposure": 3.59,
-                    "concurrency": 37.75,
-                    "state_flux": 59.96,
+                    "concurrency": 35.86,
+                    "state_flux": 60.02,
                     "dead_code": 3.03,
                     "spec_match": 85.71,
                     "stability": 42.86,
                     "churn": 0.0,
-                    "documentation": 35.42,
+                    "documentation": 35.9,
                     "tabs_vs_spaces": 92.86,
                     "algorithmic_dos": 83.78,
                     "obscured_payload": 0.0,
@@ -42550,7 +42550,7 @@
             }
         },
         "csharp/roslyn": {
-            "Directory Group Magnitude": 24550.44,
+            "Directory Group Magnitude": 24457.94,
             "File Count": 7,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_8": "71.4%",
@@ -42558,18 +42558,18 @@
                 "file_cluster_13": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "23.84%",
-                "Error & Exception Exposure": "41.45%",
-                "Tech Debt Exposure": "50.35%",
-                "Testing Exposure": "57.57%",
+                "Cognitive Load Exposure": "23.87%",
+                "Error & Exception Exposure": "41.46%",
+                "Tech Debt Exposure": "51.8%",
+                "Testing Exposure": "57.59%",
                 "API Exposure": "3.59%",
-                "Concurrency Exposure": "37.75%",
-                "State Flux Exposure": "59.96%",
+                "Concurrency Exposure": "35.86%",
+                "State Flux Exposure": "60.02%",
                 "Commented Logic Exposure": "3.03%",
                 "Specification Exposure": "85.71%",
                 "Instability Exposure": "42.86%",
                 "Volatility Exposure": "0.0%",
-                "Documentation Exposure": "35.42%",
+                "Documentation Exposure": "35.9%",
                 "Civil War Exposure": "92.86%",
                 "Algorithmic DoS Exposure": "83.78%",
                 "Obfuscation & Evasion Surface": "0.0%",
@@ -42753,32 +42753,32 @@
                         "Identity Proof": "Single Indicator (Ext: .cs)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3720.63,
-                        "Y": 48.69,
-                        "Z": -2499.36
+                        "X": 3720.52,
+                        "Y": 48.67,
+                        "Z": -2499.26
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 13.293,
+                        "Repository Drift (Z-Score)": 13.298,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 13.549,
-                            "file_cluster_1": 13.766,
-                            "file_cluster_2": 13.881,
-                            "file_cluster_3": 14.614,
-                            "file_cluster_4": 13.765,
-                            "file_cluster_5": 14.135,
-                            "file_cluster_6": 13.744,
-                            "file_cluster_7": 13.476,
-                            "file_cluster_8": 13.293,
-                            "file_cluster_9": 13.755,
-                            "file_cluster_10": 14.518,
-                            "file_cluster_11": 13.45,
-                            "file_cluster_12": 13.981,
-                            "file_cluster_13": 13.337,
-                            "file_cluster_14": 16.97,
-                            "file_cluster_15": 13.704,
-                            "file_cluster_16": 13.377,
-                            "file_cluster_17": 13.687
+                            "file_cluster_0": 13.553,
+                            "file_cluster_1": 13.771,
+                            "file_cluster_2": 13.885,
+                            "file_cluster_3": 14.618,
+                            "file_cluster_4": 13.766,
+                            "file_cluster_5": 14.14,
+                            "file_cluster_6": 13.748,
+                            "file_cluster_7": 13.481,
+                            "file_cluster_8": 13.298,
+                            "file_cluster_9": 13.759,
+                            "file_cluster_10": 14.521,
+                            "file_cluster_11": 13.453,
+                            "file_cluster_12": 13.986,
+                            "file_cluster_13": 13.34,
+                            "file_cluster_14": 16.972,
+                            "file_cluster_15": 13.708,
+                            "file_cluster_16": 13.381,
+                            "file_cluster_17": 13.689
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -42786,27 +42786,27 @@
                         "Total LOC": 5286,
                         "Coding LOC": 2403,
                         "Documentation LOC": 2112,
-                        "Structural Magnitude": 4069.86,
+                        "Structural Magnitude": 4103.26,
                         "Control Flow Ratio": "50.4%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.667
+                        "Raw Cognitive Density": 0.666
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "20.87%",
-                        "Error & Exception Exposure": "41.92%",
-                        "Tech Debt Exposure": "85.13%",
+                        "Cognitive Load Exposure": "20.85%",
+                        "Error & Exception Exposure": "42.05%",
+                        "Tech Debt Exposure": "90.68%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "3.86%",
-                        "Concurrency Exposure": "72.42%",
-                        "State Flux Exposure": "86.64%",
+                        "Concurrency Exposure": "59.2%",
+                        "State Flux Exposure": "87.02%",
                         "Commented Logic Exposure": "5.23%",
                         "Specification Exposure": "100.0%",
                         "Instability Exposure": "50.0%",
                         "Volatility Exposure": "0.0%",
-                        "Documentation Exposure": "67.26%",
+                        "Documentation Exposure": "83.83%",
                         "Indentation Consistency": "Spaces",
                         "Algorithmic DoS Exposure": "100.0%",
                         "Obfuscation & Evasion Surface": "0.0%",
@@ -42837,14 +42837,14 @@
                             "End Line": 1305
                         },
                         {
-                            "Function Name": "SupportsRuntimeCapabilityCore",
-                            "Structural Impact": 324.4,
-                            "Lines of Code (LOC)": 191,
-                            "Control Flow Branches": 33,
-                            "Input Parameters": 6,
-                            "Control Flow Ratio": "56.9%",
-                            "Start Line": 3041,
-                            "End Line": 3231
+                            "Function Name": "AppendSymbolsWithName",
+                            "Structural Impact": 170.7,
+                            "Lines of Code (LOC)": 54,
+                            "Control Flow Branches": 11,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "64.7%",
+                            "Start Line": 3082,
+                            "End Line": 3135
                         },
                         {
                             "Function Name": "CommonCreateBuiltinOperator",
@@ -42917,6 +42917,16 @@
                             "End Line": 711
                         },
                         {
+                            "Function Name": "AddCache",
+                            "Structural Impact": 56.0,
+                            "Lines of Code (LOC)": 25,
+                            "Control Flow Branches": 6,
+                            "Input Parameters": 4,
+                            "Control Flow Ratio": "60.0%",
+                            "Start Line": 3206,
+                            "End Line": 3230
+                        },
+                        {
                             "Function Name": "Create",
                             "Structural Impact": 54.1,
                             "Lines of Code (LOC)": 32,
@@ -42925,16 +42935,6 @@
                             "Control Flow Ratio": "75.0%",
                             "Start Line": 476,
                             "End Line": 507
-                        },
-                        {
-                            "Function Name": "Matches",
-                            "Structural Impact": 53.0,
-                            "Lines of Code (LOC)": 31,
-                            "Control Flow Branches": 2,
-                            "Input Parameters": 5,
-                            "Control Flow Ratio": "28.6%",
-                            "Start Line": 3252,
-                            "End Line": 3282
                         },
                         {
                             "Function Name": "ReturnsAwaitableToVoidOrInt",
@@ -42975,6 +42975,16 @@
                             "Control Flow Ratio": "75.0%",
                             "Start Line": 2947,
                             "End Line": 2960
+                        },
+                        {
+                            "Function Name": "GetSpineSymbol",
+                            "Structural Impact": 41.3,
+                            "Lines of Code (LOC)": 21,
+                            "Control Flow Branches": 5,
+                            "Input Parameters": 4,
+                            "Control Flow Ratio": "50.0%",
+                            "Start Line": 3160,
+                            "End Line": 3180
                         },
                         {
                             "Function Name": "IsDefinedOrImplementedInSourceTree",
@@ -43027,6 +43037,26 @@
                             "End Line": 793
                         },
                         {
+                            "Function Name": "GetSymbol",
+                            "Structural Impact": 32.1,
+                            "Lines of Code (LOC)": 18,
+                            "Control Flow Branches": 5,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "71.4%",
+                            "Start Line": 3187,
+                            "End Line": 3204
+                        },
+                        {
+                            "Function Name": "GetCachedSymbol",
+                            "Structural Impact": 31.5,
+                            "Lines of Code (LOC)": 4,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 4,
+                            "Control Flow Ratio": "75.0%",
+                            "Start Line": 3182,
+                            "End Line": 3185
+                        },
+                        {
                             "Function Name": "GetTypeByMetadataName",
                             "Structural Impact": 29.7,
                             "Lines of Code (LOC)": 6,
@@ -43045,6 +43075,26 @@
                             "Control Flow Ratio": "44.4%",
                             "Start Line": 1380,
                             "End Line": 1427
+                        },
+                        {
+                            "Function Name": "AppendMemberSymbolsWithName",
+                            "Structural Impact": 29.1,
+                            "Lines of Code (LOC)": 22,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "60.0%",
+                            "Start Line": 3137,
+                            "End Line": 3158
+                        },
+                        {
+                            "Function Name": "ShouldCheckTypeForMembers",
+                            "Structural Impact": 26.3,
+                            "Lines of Code (LOC)": 12,
+                            "Control Flow Branches": 2,
+                            "Input Parameters": 5,
+                            "Control Flow Ratio": "50.0%",
+                            "Start Line": 3267,
+                            "End Line": 3278
                         },
                         {
                             "Function Name": "ContainsSymbolsWithName",
@@ -43107,6 +43157,16 @@
                             "End Line": 929
                         },
                         {
+                            "Function Name": "isAllowedPointerArithmeticIntegralType",
+                            "Structural Impact": 20.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "75.0%",
+                            "Start Line": 2792,
+                            "End Line": 2793
+                        },
+                        {
                             "Function Name": "WithSemanticModelProvider",
                             "Structural Impact": 19.4,
                             "Lines of Code (LOC)": 20,
@@ -43115,16 +43175,6 @@
                             "Control Flow Ratio": "50.0%",
                             "Start Line": 542,
                             "End Line": 561
-                        },
-                        {
-                            "Function Name": "IsUnreferencedAssemblyIdentityDiagnostic",
-                            "Structural Impact": 19.2,
-                            "Lines of Code (LOC)": 16,
-                            "Control Flow Branches": 2,
-                            "Input Parameters": 5,
-                            "Control Flow Ratio": "50.0%",
-                            "Start Line": 1429,
-                            "End Line": 1444
                         },
                         {
                             "Function Name": "GetNullableAnalysisValue",
@@ -43155,16 +43205,6 @@
                             "Control Flow Ratio": "50.0%",
                             "Start Line": 566,
                             "End Line": 581
-                        },
-                        {
-                            "Function Name": "Interlocked.CompareExchange",
-                            "Structural Impact": 12.9,
-                            "Lines of Code (LOC)": 19,
-                            "Control Flow Branches": 1,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "10.0%",
-                            "Start Line": 169,
-                            "End Line": 187
                         },
                         {
                             "Function Name": "CommonCreateErrorTypeSymbol",
@@ -43267,16 +43307,6 @@
                             "End Line": 2888
                         },
                         {
-                            "Function Name": "GetBoundReferenceManager",
-                            "Structural Impact": 9.4,
-                            "Lines of Code (LOC)": 15,
-                            "Control Flow Branches": 0,
-                            "Input Parameters": 2,
-                            "Control Flow Ratio": "0.0%",
-                            "Start Line": 827,
-                            "End Line": 841
-                        },
-                        {
                             "Function Name": "CompareSourceLocations",
                             "Structural Impact": 9.3,
                             "Lines of Code (LOC)": 13,
@@ -43285,16 +43315,6 @@
                             "Control Flow Ratio": "25.0%",
                             "Start Line": 2890,
                             "End Line": 2902
-                        },
-                        {
-                            "Function Name": "InterlockedOperations.Initialize",
-                            "Structural Impact": 9.2,
-                            "Lines of Code (LOC)": 11,
-                            "Control Flow Branches": 0,
-                            "Input Parameters": 2,
-                            "Control Flow Ratio": "0.0%",
-                            "Start Line": 220,
-                            "End Line": 230
                         },
                         {
                             "Function Name": "CompareSourceLocations",
@@ -43325,6 +43345,16 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 268,
                             "End Line": 271
+                        },
+                        {
+                            "Function Name": "EntryPoint",
+                            "Structural Impact": 8.9,
+                            "Lines of Code (LOC)": 5,
+                            "Control Flow Branches": 1,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "100.0%",
+                            "Start Line": 1439,
+                            "End Line": 1443
                         },
                         {
                             "Function Name": "MightContainNoPiaLocalTypes",
@@ -43367,6 +43397,46 @@
                             "End Line": 3242
                         },
                         {
+                            "Function Name": "Matches",
+                            "Structural Impact": 6.2,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 5,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3252,
+                            "End Line": 3253
+                        },
+                        {
+                            "Function Name": "Matches",
+                            "Structural Impact": 6.2,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 5,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3280,
+                            "End Line": 3281
+                        },
+                        {
+                            "Function Name": "NameSymbolSearcher",
+                            "Structural Impact": 5.9,
+                            "Lines of Code (LOC)": 6,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 4,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3260,
+                            "End Line": 3265
+                        },
+                        {
+                            "Function Name": "AbstractSymbolSearcher",
+                            "Structural Impact": 5.7,
+                            "Lines of Code (LOC)": 13,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3053,
+                            "End Line": 3065
+                        },
+                        {
                             "Function Name": "CommonCreateErrorNamespaceSymbol",
                             "Structural Impact": 5.5,
                             "Lines of Code (LOC)": 6,
@@ -43377,6 +43447,26 @@
                             "End Line": 412
                         },
                         {
+                            "Function Name": "GetSymbolsWithName",
+                            "Structural Impact": 5.5,
+                            "Lines of Code (LOC)": 11,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3070,
+                            "End Line": 3080
+                        },
+                        {
+                            "Function Name": "SupportsRuntimeCapabilityCore",
+                            "Structural Impact": 5.4,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 6,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3041,
+                            "End Line": 3042
+                        },
+                        {
                             "Function Name": "CommonCreatePreprocessingSymbol",
                             "Structural Impact": 5.1,
                             "Lines of Code (LOC)": 4,
@@ -43385,6 +43475,26 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 414,
                             "End Line": 417
+                        },
+                        {
+                            "Function Name": "isReadOnlySpanOfByteType",
+                            "Structural Impact": 5.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 2795,
+                            "End Line": 2796
+                        },
+                        {
+                            "Function Name": "IsUnreferencedAssemblyIdentityDiagnostic",
+                            "Structural Impact": 5.0,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 5,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 1429,
+                            "End Line": 1430
                         },
                         {
                             "Function Name": "CommonGetBoundReferenceManager",
@@ -43417,24 +43527,14 @@
                             "End Line": 3020
                         },
                         {
-                            "Function Name": "Assembly.Modules.SelectMany",
-                            "Structural Impact": 4.0,
-                            "Lines of Code (LOC)": 11,
+                            "Function Name": "GetPreviousSubmissionImports",
+                            "Structural Impact": 4.1,
+                            "Lines of Code (LOC)": 2,
                             "Control Flow Branches": 0,
-                            "Input Parameters": 2,
+                            "Input Parameters": 3,
                             "Control Flow Ratio": "0.0%",
-                            "Start Line": 878,
-                            "End Line": 888
-                        },
-                        {
-                            "Function Name": "Binder.GetWellKnownTypeMember",
-                            "Structural Impact": 3.4,
-                            "Lines of Code (LOC)": 17,
-                            "Control Flow Branches": 0,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "0.0%",
-                            "Start Line": 3023,
-                            "End Line": 3039
+                            "Start Line": 914,
+                            "End Line": 915
                         },
                         {
                             "Function Name": "isReadOnlySpanOfByteType",
@@ -43445,6 +43545,16 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 2784,
                             "End Line": 2787
+                        },
+                        {
+                            "Function Name": "static",
+                            "Structural Impact": 1.8,
+                            "Lines of Code (LOC)": 1,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 968,
+                            "End Line": 968
                         }
                     ],
                     "6. Contextual Mitigations & Amplifications": "None Detected",
@@ -43459,7 +43569,7 @@
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 1,
                         "Exposed API / Public Exports": 101,
-                        "State Mutations / Variable Reassignments": 289,
+                        "State Mutations / Variable Reassignments": 291,
                         "Commented-out Code (Dead Logic)": 6,
                         "Structured Documentation Blocks": 243,
                         "Unit Test Assertions": 0,
@@ -43522,8 +43632,8 @@
                         "Design Upper Case": 0,
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
-                        "Duplicate Logic": 16,
-                        "Orphaned Logic": 25,
+                        "Duplicate Logic": 21,
+                        "Orphaned Logic": 21,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,
@@ -43594,32 +43704,32 @@
                         "Identity Proof": "Single Indicator (Ext: .cs)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4367.96,
-                        "Y": 113.9,
-                        "Z": -2537.35
+                        "X": 4367.83,
+                        "Y": 113.88,
+                        "Z": -2537.53
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 12.347,
+                        "Repository Drift (Z-Score)": 12.348,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.564,
-                            "file_cluster_1": 12.911,
-                            "file_cluster_2": 13.115,
-                            "file_cluster_3": 13.88,
-                            "file_cluster_4": 12.608,
-                            "file_cluster_5": 13.271,
-                            "file_cluster_6": 13.099,
-                            "file_cluster_7": 12.599,
-                            "file_cluster_8": 12.557,
-                            "file_cluster_9": 13.15,
-                            "file_cluster_10": 13.744,
-                            "file_cluster_11": 12.694,
-                            "file_cluster_12": 13.268,
-                            "file_cluster_13": 12.347,
-                            "file_cluster_14": 16.566,
-                            "file_cluster_15": 12.691,
-                            "file_cluster_16": 12.588,
-                            "file_cluster_17": 13.123
+                            "file_cluster_0": 12.567,
+                            "file_cluster_1": 12.913,
+                            "file_cluster_2": 13.117,
+                            "file_cluster_3": 13.881,
+                            "file_cluster_4": 12.609,
+                            "file_cluster_5": 13.272,
+                            "file_cluster_6": 13.1,
+                            "file_cluster_7": 12.601,
+                            "file_cluster_8": 12.559,
+                            "file_cluster_9": 13.152,
+                            "file_cluster_10": 13.746,
+                            "file_cluster_11": 12.696,
+                            "file_cluster_12": 13.27,
+                            "file_cluster_13": 12.348,
+                            "file_cluster_14": 16.568,
+                            "file_cluster_15": 12.693,
+                            "file_cluster_16": 12.589,
+                            "file_cluster_17": 13.125
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -43627,18 +43737,18 @@
                         "Total LOC": 942,
                         "Coding LOC": 406,
                         "Documentation LOC": 409,
-                        "Structural Magnitude": 820.32,
+                        "Structural Magnitude": 807.22,
                         "Control Flow Ratio": "52.6%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.893
+                        "Raw Cognitive Density": 0.892
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "31.96%",
+                        "Cognitive Load Exposure": "31.94%",
                         "Error & Exception Exposure": "51.97%",
-                        "Tech Debt Exposure": "66.86%",
+                        "Tech Debt Exposure": "61.2%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "5.92%",
                         "Concurrency Exposure": "100.0%",
@@ -43647,7 +43757,7 @@
                         "Specification Exposure": "100.0%",
                         "Instability Exposure": "50.0%",
                         "Volatility Exposure": "0.0%",
-                        "Documentation Exposure": "42.46%",
+                        "Documentation Exposure": "29.4%",
                         "Indentation Consistency": "Spaces",
                         "Algorithmic DoS Exposure": "100.0%",
                         "Obfuscation & Evasion Surface": "0.0%",
@@ -43706,16 +43816,6 @@
                             "Control Flow Ratio": "40.0%",
                             "Start Line": 170,
                             "End Line": 183
-                        },
-                        {
-                            "Function Name": "Debug.Assert",
-                            "Structural Impact": 13.1,
-                            "Lines of Code (LOC)": 21,
-                            "Control Flow Branches": 1,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "20.0%",
-                            "Start Line": 134,
-                            "End Line": 154
                         },
                         {
                             "Function Name": "GetCompilationUnitRoot",
@@ -43854,7 +43954,7 @@
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
                         "Duplicate Logic": 4,
-                        "Orphaned Logic": 3,
+                        "Orphaned Logic": 2,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,
@@ -43910,32 +44010,32 @@
                         "Identity Proof": "Single Indicator (Ext: .cs)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 4461.1,
-                        "Y": 198.96,
-                        "Z": -3079.3
+                        "X": 4462.2,
+                        "Y": 199.14,
+                        "Z": -3080.01
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 10.422,
+                        "Repository Drift (Z-Score)": 10.417,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 11.442,
-                            "file_cluster_1": 10.817,
-                            "file_cluster_2": 11.332,
-                            "file_cluster_3": 12.3,
-                            "file_cluster_4": 11.832,
-                            "file_cluster_5": 11.359,
-                            "file_cluster_6": 11.676,
-                            "file_cluster_7": 10.598,
-                            "file_cluster_8": 10.422,
-                            "file_cluster_9": 11.725,
-                            "file_cluster_10": 12.263,
-                            "file_cluster_11": 11.5,
-                            "file_cluster_12": 11.625,
-                            "file_cluster_13": 10.443,
-                            "file_cluster_14": 15.556,
-                            "file_cluster_15": 11.091,
-                            "file_cluster_16": 10.613,
-                            "file_cluster_17": 11.848
+                            "file_cluster_0": 11.438,
+                            "file_cluster_1": 10.812,
+                            "file_cluster_2": 11.328,
+                            "file_cluster_3": 12.296,
+                            "file_cluster_4": 11.828,
+                            "file_cluster_5": 11.355,
+                            "file_cluster_6": 11.673,
+                            "file_cluster_7": 10.594,
+                            "file_cluster_8": 10.417,
+                            "file_cluster_9": 11.721,
+                            "file_cluster_10": 12.26,
+                            "file_cluster_11": 11.496,
+                            "file_cluster_12": 11.621,
+                            "file_cluster_13": 10.439,
+                            "file_cluster_14": 15.553,
+                            "file_cluster_15": 11.087,
+                            "file_cluster_16": 10.609,
+                            "file_cluster_17": 11.844
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -43943,7 +44043,7 @@
                         "Total LOC": 39,
                         "Coding LOC": 20,
                         "Documentation LOC": 12,
-                        "Structural Magnitude": 32.5,
+                        "Structural Magnitude": 37.4,
                         "Control Flow Ratio": "22.2%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -43955,7 +44055,7 @@
                         "Cognitive Load Exposure": "3.46%",
                         "Error & Exception Exposure": "0.0%",
                         "Tech Debt Exposure": "92.41%",
-                        "Testing Exposure": "2.97%",
+                        "Testing Exposure": "3.11%",
                         "API Exposure": "10.55%",
                         "Concurrency Exposure": "0.0%",
                         "State Flux Exposure": "0.0%",
@@ -43992,6 +44092,16 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 33,
                             "End Line": 36
+                        },
+                        {
+                            "Function Name": "GetHashCode",
+                            "Structural Impact": 4.9,
+                            "Lines of Code (LOC)": 1,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 5,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 31,
+                            "End Line": 31
                         }
                     ],
                     "6. Contextual Mitigations & Amplifications": "None Detected",
@@ -44124,21 +44234,21 @@
                         "Repository Drift (Z-Score)": 13.603,
                         "Repository Fingerprint": {
                             "file_cluster_0": 13.881,
-                            "file_cluster_1": 14.172,
-                            "file_cluster_2": 14.219,
+                            "file_cluster_1": 14.173,
+                            "file_cluster_2": 14.22,
                             "file_cluster_3": 14.99,
-                            "file_cluster_4": 14.194,
+                            "file_cluster_4": 14.193,
                             "file_cluster_5": 14.587,
                             "file_cluster_6": 14.073,
                             "file_cluster_7": 13.901,
                             "file_cluster_8": 13.603,
                             "file_cluster_9": 14.044,
-                            "file_cluster_10": 14.847,
+                            "file_cluster_10": 14.848,
                             "file_cluster_11": 13.758,
-                            "file_cluster_12": 14.364,
+                            "file_cluster_12": 14.365,
                             "file_cluster_13": 13.852,
                             "file_cluster_14": 17.187,
-                            "file_cluster_15": 14.084,
+                            "file_cluster_15": 14.085,
                             "file_cluster_16": 13.942,
                             "file_cluster_17": 13.913
                         },
@@ -44148,18 +44258,18 @@
                         "Total LOC": 14680,
                         "Coding LOC": 6701,
                         "Documentation LOC": 6035,
-                        "Structural Magnitude": 17555.22,
+                        "Structural Magnitude": 17414.52,
                         "Control Flow Ratio": "59.4%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.142
+                        "Raw Cognitive Density": 1.144
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "65.09%",
-                        "Error & Exception Exposure": "79.05%",
-                        "Tech Debt Exposure": "13.19%",
+                        "Cognitive Load Exposure": "65.2%",
+                        "Error & Exception Exposure": "79.02%",
+                        "Tech Debt Exposure": "13.45%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "0.86%",
                         "Concurrency Exposure": "0.0%",
@@ -44168,7 +44278,7 @@
                         "Specification Exposure": "100.0%",
                         "Instability Exposure": "50.0%",
                         "Volatility Exposure": "0.0%",
-                        "Documentation Exposure": "14.39%",
+                        "Documentation Exposure": "14.24%",
                         "Indentation Consistency": "Spaces",
                         "Algorithmic DoS Exposure": "100.0%",
                         "Obfuscation & Evasion Surface": "0.0%",
@@ -44319,16 +44429,6 @@
                             "End Line": 1721
                         },
                         {
-                            "Function Name": "SyntaxFacts.IsBinaryExpressionOperatorTo",
-                            "Structural Impact": 100.0,
-                            "Lines of Code (LOC)": 41,
-                            "Control Flow Branches": 13,
-                            "Input Parameters": 3,
-                            "Control Flow Ratio": "86.7%",
-                            "Start Line": 3112,
-                            "End Line": 3152
-                        },
-                        {
                             "Function Name": "ContainsErrorDiagnostic",
                             "Structural Impact": 87.6,
                             "Lines of Code (LOC)": 38,
@@ -44407,16 +44507,6 @@
                             "Control Flow Ratio": "42.9%",
                             "Start Line": 7188,
                             "End Line": 7231
-                        },
-                        {
-                            "Function Name": "_syntaxFactory.ForEachVariableStatement",
-                            "Structural Impact": 48.0,
-                            "Lines of Code (LOC)": 49,
-                            "Control Flow Branches": 12,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "63.2%",
-                            "Start Line": 5443,
-                            "End Line": 5491
                         },
                         {
                             "Function Name": "IsValidForeachVariable",
@@ -44809,6 +44899,16 @@
                             "End Line": 8832
                         },
                         {
+                            "Function Name": "Reset",
+                            "Structural Impact": 10.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 8852,
+                            "End Line": 8853
+                        },
+                        {
                             "Function Name": "Release",
                             "Structural Impact": 10.0,
                             "Lines of Code (LOC)": 4,
@@ -44849,16 +44949,6 @@
                             "End Line": 7366
                         },
                         {
-                            "Function Name": "Debug.Assert",
-                            "Structural Impact": 7.3,
-                            "Lines of Code (LOC)": 6,
-                            "Control Flow Branches": 1,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "50.0%",
-                            "Start Line": 1592,
-                            "End Line": 1597
-                        },
-                        {
                             "Function Name": "looksLikeVariableInitializer",
                             "Structural Impact": 6.9,
                             "Lines of Code (LOC)": 17,
@@ -44877,16 +44967,6 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 165,
                             "End Line": 175
-                        },
-                        {
-                            "Function Name": "this.ParseMethodDeclaration",
-                            "Structural Impact": 6.3,
-                            "Lines of Code (LOC)": 6,
-                            "Control Flow Branches": 1,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "50.0%",
-                            "Start Line": 1600,
-                            "End Line": 1605
                         },
                         {
                             "Function Name": "GetOldParent",
@@ -45039,6 +45119,16 @@
                             "End Line": 7510
                         },
                         {
+                            "Function Name": "GetDisposableResetPoint",
+                            "Structural Impact": 4.6,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 4,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 8812,
+                            "End Line": 8813
+                        },
+                        {
                             "Function Name": "ParseReturnType",
                             "Structural Impact": 4.4,
                             "Lines of Code (LOC)": 8,
@@ -45089,6 +45179,26 @@
                             "End Line": 7371
                         },
                         {
+                            "Function Name": "IsEndOfTypeArgumentList",
+                            "Structural Impact": 4.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 3805,
+                            "End Line": 3806
+                        },
+                        {
+                            "Function Name": "ParseExpressionForParenthesizedConstruct",
+                            "Structural Impact": 4.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 5594,
+                            "End Line": 5595
+                        },
+                        {
                             "Function Name": "ParseNamespaceDeclaration",
                             "Structural Impact": 4.0,
                             "Lines of Code (LOC)": 10,
@@ -45121,7 +45231,7 @@
                         "High-Risk Execution Commands": 8,
                         "I/O and Network Boundaries": 0,
                         "Exposed API / Public Exports": 38,
-                        "State Mutations / Variable Reassignments": 1771,
+                        "State Mutations / Variable Reassignments": 1769,
                         "Commented-out Code (Dead Logic)": 37,
                         "Structured Documentation Blocks": 143,
                         "Unit Test Assertions": 0,
@@ -45184,8 +45294,8 @@
                         "Design Upper Case": 0,
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
-                        "Duplicate Logic": 0,
-                        "Orphaned Logic": 25,
+                        "Duplicate Logic": 2,
+                        "Orphaned Logic": 21,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,
@@ -45469,32 +45579,32 @@
                         "Identity Proof": "Single Indicator (Ext: .cs)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 3437.2,
-                        "Y": 37.98,
-                        "Z": -3020.0
+                        "X": 3436.73,
+                        "Y": 37.9,
+                        "Z": -3020.09
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 12.008,
+                        "Repository Drift (Z-Score)": 12.016,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.663,
-                            "file_cluster_1": 12.345,
-                            "file_cluster_2": 12.654,
-                            "file_cluster_3": 13.524,
-                            "file_cluster_4": 12.837,
-                            "file_cluster_5": 12.805,
-                            "file_cluster_6": 12.625,
-                            "file_cluster_7": 12.133,
-                            "file_cluster_8": 12.008,
-                            "file_cluster_9": 12.904,
-                            "file_cluster_10": 13.43,
-                            "file_cluster_11": 12.414,
-                            "file_cluster_12": 12.903,
-                            "file_cluster_13": 12.026,
-                            "file_cluster_14": 16.054,
-                            "file_cluster_15": 12.264,
-                            "file_cluster_16": 12.246,
-                            "file_cluster_17": 12.518
+                            "file_cluster_0": 12.669,
+                            "file_cluster_1": 12.352,
+                            "file_cluster_2": 12.661,
+                            "file_cluster_3": 13.532,
+                            "file_cluster_4": 12.845,
+                            "file_cluster_5": 12.813,
+                            "file_cluster_6": 12.633,
+                            "file_cluster_7": 12.141,
+                            "file_cluster_8": 12.016,
+                            "file_cluster_9": 12.911,
+                            "file_cluster_10": 13.438,
+                            "file_cluster_11": 12.422,
+                            "file_cluster_12": 12.909,
+                            "file_cluster_13": 12.035,
+                            "file_cluster_14": 16.059,
+                            "file_cluster_15": 12.272,
+                            "file_cluster_16": 12.255,
+                            "file_cluster_17": 12.526
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -45502,18 +45612,18 @@
                         "Total LOC": 2589,
                         "Coding LOC": 562,
                         "Documentation LOC": 1697,
-                        "Structural Magnitude": 597.74,
+                        "Structural Magnitude": 620.74,
                         "Control Flow Ratio": "37.7%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.384
+                        "Raw Cognitive Density": 0.39
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "9.41%",
+                        "Cognitive Load Exposure": "9.59%",
                         "Error & Exception Exposure": "51.24%",
-                        "Tech Debt Exposure": "83.71%",
+                        "Tech Debt Exposure": "93.73%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "1.37%",
                         "Concurrency Exposure": "67.39%",
@@ -45623,6 +45733,26 @@
                             "End Line": 261
                         },
                         {
+                            "Function Name": "OnProjectNameChanged",
+                            "Structural Impact": 6.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 1,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "33.3%",
+                            "Start Line": 347,
+                            "End Line": 348
+                        },
+                        {
+                            "Function Name": "OnOutputFilePathChanged",
+                            "Structural Impact": 5.3,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 1,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "33.3%",
+                            "Start Line": 338,
+                            "End Line": 339
+                        },
+                        {
                             "Function Name": "OnProjectAdded",
                             "Structural Impact": 5.2,
                             "Lines of Code (LOC)": 6,
@@ -45663,6 +45793,26 @@
                             "End Line": 276
                         },
                         {
+                            "Function Name": "CanApplyCompilationOptionChange",
+                            "Structural Impact": 3.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 528,
+                            "End Line": 529
+                        },
+                        {
+                            "Function Name": "CanApplyParseOptionChange",
+                            "Structural Impact": 3.1,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 3,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 541,
+                            "End Line": 542
+                        },
+                        {
                             "Function Name": "CheckAndAddProject",
                             "Structural Impact": 2.8,
                             "Lines of Code (LOC)": 5,
@@ -45671,6 +45821,26 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 223,
                             "End Line": 227
+                        },
+                        {
+                            "Function Name": "OnCompilationOptionsChanged",
+                            "Structural Impact": 2.7,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 353,
+                            "End Line": 354
+                        },
+                        {
+                            "Function Name": "OnRunAnalyzersChanged",
+                            "Structural Impact": 2.7,
+                            "Lines of Code (LOC)": 2,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 2,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 359,
+                            "End Line": 360
                         },
                         {
                             "Function Name": "CheckProjectCanBeRemoved",
@@ -45759,7 +45929,7 @@
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
                         "Duplicate Logic": 0,
-                        "Orphaned Logic": 12,
+                        "Orphaned Logic": 16,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,

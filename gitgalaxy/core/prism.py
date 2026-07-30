@@ -255,13 +255,18 @@ class Prism:
         # line_exclusive/recursive_block/positional_anchored/block_exclusive/
         # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
         # stripper below, ever actually ran for any language.
-        if family in ("recursive_block", "recursive_block_haskell"):
+        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp"):
             # #621: recursive_block_haskell added because Haskell's {- -}
             # blocks genuinely nest (unlike the standard_block family's flat
             # delimiters) but use -- for line comments and {- -} rather than
             # recursive_block's C-style // /* */ -- same nesting algorithm,
             # different token set, so this reads its own family's delimiters
             # instead of assuming "recursive_block" specifically.
+            # #770: recursive_block_lisp added the same way for Scheme's ;
+            # line comments and genuinely-nestable #| |# block comments --
+            # scheme was previously misclassified "line_exclusive" (stateless,
+            # no cross-line tracking), which only ever stripped a #| block
+            # comment's opening line.
             code, nested_lits = self._strip_nested_comments(text, family)
             lits.extend(nested_lits)
             return code, "\n".join(lits)
@@ -325,7 +330,13 @@ class Prism:
         # see gitgalaxy_config.py's LEXICAL_FAMILY_HEURISTICS. perl moved to
         # the existing "line_exclusive" family (needed no new family at all).
         for fam_key, data in self.lexical_families.items():
-            if fam_key in ("recursive_block", "recursive_block_haskell", "positional_anchored", "positional_abap"):
+            if fam_key in (
+                "recursive_block",
+                "recursive_block_haskell",
+                "recursive_block_lisp",
+                "positional_anchored",
+                "positional_abap",
+            ):
                 continue
 
             delims = data.get("delimiters", [])

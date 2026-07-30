@@ -86,7 +86,7 @@ This dictionary defines the **Structural Signatures** used by an AST-free parsin
 You must assign the language to one of these 5 lexical parsing families based on how it handles comments and non-executable text:
 * `standard_block`: The language uses both line and block delimiters, but blocks CANNOT be nested. Examples: C, C++, Java, JavaScript, PHP, SQL, Go, Ruby, Lua.
 * `recursive_block`: The language allows block comments to be safely nested inside one another. Examples: Rust, Swift, Dart, Scala.
-* `line_exclusive`: The language possesses no native multi-line block syntax. The engine ignores closing tags. Examples: Python, Shell, Makefile, Assembly, Scheme.
+* `line_exclusive`: The language possesses no native multi-line block syntax. The engine ignores closing tags. Examples: Python, Shell, Makefile, Assembly.
 * `block_exclusive`: The language possesses no native single-line comment syntax. All text must be enclosed. Examples: HTML, XML.
 * `positional_anchored`: The engine must verify the token's physical column placement. Examples: Legacy COBOL, Legacy Fortran, ABAP.
 

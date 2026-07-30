@@ -512,10 +512,23 @@ LEXICAL_FAMILY_HEURISTICS = {
         # Haskell's own line/block tokens instead of C-style ones.
         # Examples: haskell.
         "recursive_block_haskell": {"delimiters": ["--", "{-", "-}"]},
+        # 2c. Recursive Block, Lisp dialect (#770)
+        # Same nested-block-peeling algorithm as recursive_block, but with
+        # Lisp/Scheme's own line/block tokens: ';' for line comments, '#|'/'|#'
+        # for genuinely-nestable block comments (R6RS/R7RS both allow
+        # `#| ... #| ... |# ... |#`). Previously scheme was misclassified as
+        # "line_exclusive" -- which has no cross-line state at all -- despite
+        # its own inline comment already documenting an intent for nested
+        # block comments that was never wired up (#770). '#|'/'|#' are moved
+        # out of line_exclusive's shared delimiter list below since scheme was
+        # the only language that ever needed them there, and leaving them in
+        # a stateless per-line stripper is exactly what caused the bug.
+        # Examples: scheme.
+        "recursive_block_lisp": {"delimiters": [";", "#|", "|#"]},
         # 3. Line Exclusive
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
         # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.
-        "line_exclusive": {"delimiters": ["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%", "#|", "|#"]},
+        "line_exclusive": {"delimiters": ["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%"]},
         # 4. Block Exclusive
         # The language possesses no native single-line comment syntax. All text must be enclosed.
         # Examples: HTML, XML.

@@ -646,6 +646,9 @@ def test_prism_real_family_patterns_are_redos_immune():
         # recursive_block_haskell -- deeply nested-looking (but never
         # actually closed) block markers
         "haskell": "{- " * 5000 + "unterminated",
+        # recursive_block_lisp (#770) -- same shape as haskell above, with
+        # scheme's own #| token instead of {-.
+        "scheme": "#| " * 5000 + "unterminated",
     }
     for lang, payload in poison_cases.items():
         start = time.perf_counter()
@@ -826,3 +829,142 @@ def test_prism_single_line_delimiter_pattern_redos_immune():
     real_prism.split_streams(poison, "python")
     duration = time.time() - start
     assert duration < 2.0, f"line_exclusive delimiter pattern shows non-linear scaling: {duration}s"
+
+
+# ==============================================================================
+# TEST 13: SCHEME'S #| |# BLOCK COMMENTS ACTUALLY NEST (#770)
+# ==============================================================================
+def test_prism_scheme_lexical_family_reclassified():
+    """
+    Scheme was previously "line_exclusive" despite its own inline comment
+    describing a nested block-comment family that was never wired up
+    (#770). Confirms the reclassification landed.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    assert LANGUAGE_DEFINITIONS["scheme"]["lexical_family"] == "recursive_block_lisp"
+
+
+def test_prism_scheme_block_comment_regression_from_issue_770():
+    """
+    Regression test for #770 using the exact multi-line example from the
+    issue report. Before the fix, only the opening line of a `#| ... |#`
+    block was recognized as a comment (line_exclusive has no cross-line
+    state) -- every subsequent line, including a fake commented-out function
+    definition, leaked into code_stream as live code.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "(define (foo x)\n"
+        "  #| This is a block comment\n"
+        "     spanning multiple lines\n"
+        "     (define fake-function x) |#\n"
+        "  (+ x 1))\n"
+    )
+    result = real_prism.split_streams(code, "scheme")
+
+    assert "This is a block comment" not in result["code_stream"]
+    assert "spanning multiple lines" not in result["code_stream"]
+    assert "fake-function" not in result["code_stream"], (
+        "commented-out fake function definition leaked into code_stream"
+    )
+    assert "This is a block comment" in result["comment_stream"]
+    assert "spanning multiple lines" in result["comment_stream"]
+
+    assert "(define (foo x)" in result["code_stream"]
+    assert "(+ x 1))" in result["code_stream"]
+
+
+def test_prism_scheme_block_comments_actually_nest():
+    """
+    Mirrors test_prism_haskell_block_comments_actually_nest: R6RS/R7RS both
+    allow #| |# to nest (`#| outer #| inner |# still outer |#`), which is
+    exactly why scheme needed the same iterative inside-out peel algorithm
+    as recursive_block/recursive_block_haskell rather than a flat delimiter
+    match.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams(
+        "(define (foo) #| outer #| inner secret |# still outer secret |# (+ 1 1))",
+        "scheme",
+    )
+    assert "outer secret" not in result["code_stream"]
+    assert "inner secret" not in result["code_stream"]
+    assert "inner secret" in result["comment_stream"]
+    assert "outer secret" in result["comment_stream"]
+    assert "(define (foo)" in result["code_stream"]
+    assert "(+ 1 1))" in result["code_stream"]
+
+
+def test_prism_scheme_semicolon_line_comments_still_work():
+    """
+    Scheme's other real-world comment form -- `;` line comments -- must
+    still be stripped correctly after moving off line_exclusive onto the
+    new dedicated family (recursive_block_lisp reuses the same single-line
+    peel step _strip_nested_comments already runs before its block peel).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams('(display "hi") ; a real comment\n(+ 1 1)\n', "scheme")
+    assert "a real comment" not in result["code_stream"]
+    assert "a real comment" in result["comment_stream"]
+    assert '(display "hi")' in result["code_stream"]
+    assert "(+ 1 1)" in result["code_stream"]
+
+
+def test_prism_scheme_string_literal_shielding():
+    """
+    A string literal containing `#|`, `|#`, or `;` must not be corrupted by
+    the new family's block-peel or single-line-peel steps, mirroring the
+    existing haskell/powershell string-shielding regression coverage.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    result = real_prism.split_streams('(display "this ; is not a comment")\n', "scheme")
+    assert "this ; is not a comment" in result["code_stream"]
+
+
+def test_prism_line_exclusive_no_longer_lists_scheme_block_tokens():
+    """
+    #| and |# were removed from line_exclusive's shared delimiter list
+    (gitgalaxy_config.py) now that scheme -- the only language that ever
+    needed them -- has its own dedicated family. They were never meaningful
+    comment tokens for any of the ~20 other line_exclusive languages, so
+    this is a pure config cleanup rather than a behavior change for them
+    (each still has plain `#`/`;`/etc. as its own real delimiter, which
+    would truncate a line containing `#|`/`|#` regardless -- proving
+    absence via live split_streams() isn't meaningful here since e.g.
+    python's own bare `#` already truncates such a line on its own).
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    assert "#|" not in LEXICAL_FAMILY_HEURISTICS["lexical_families"]["line_exclusive"]["delimiters"]
+    assert "|#" not in LEXICAL_FAMILY_HEURISTICS["lexical_families"]["line_exclusive"]["delimiters"]
+
+
+def test_prism_recursive_block_lisp_redos_immunity():
+    """
+    ReDoS check for the new family, matching the discipline used for
+    recursive_block_haskell: an adversarial payload with many opening #|
+    tokens but no closing |# must resolve in well under the generous
+    timeout used throughout this suite, bounded by NESTED_PEEL_LIMIT.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    poison = "#| " * 20000 + "unterminated"
+    start = time.time()
+    real_prism.split_streams(poison, "scheme")
+    duration = time.time() - start
+    assert duration < 2.0, f"recursive_block_lisp took {duration:.2f}s on a pathological unterminated payload"

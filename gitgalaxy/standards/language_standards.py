@@ -11026,10 +11026,21 @@ LANGUAGE_DEFINITIONS = {
         "discriminators": [".scm", ".rkt", "info.rkt", "guix.scm"],
         # EXECUTION SIGNATURES: Interpreters found on Line 1 for shell wrappers invoking Scheme/Guile/Racket.
         "shebangs": ["guile", "scheme", "csi", "racket", "racketsh"],
-        # UPGRADED: Maps to Family 9 (Lisp_Semi) - *NEW FAMILY*
-        # Rationale: Perfectly captures the Lisp ecosystem's reliance on ';' for line-level
-        # comments and `#| |#` for nested block-level Commented / Non-Executable Text.
-        "lexical_family": "line_exclusive",
+        # BUG FIX (#770): this comment always described a genuine nested
+        # block-comment family ("Perfectly captures the Lisp ecosystem's
+        # reliance on ';' for line-level comments and `#| |#` for nested
+        # block-level Commented / Non-Executable Text"), but the field itself
+        # was left at "line_exclusive" -- which has NO cross-line state at
+        # all (per how_to_add_a_language.md: "no native multi-line block
+        # syntax; the engine ignores closing tags"), the literal opposite of
+        # what this comment claims. Confirmed empirically: a real multi-line
+        # `#| ... |#` block only had its first line recognized as a comment;
+        # every subsequent line up to and including the closing `|#` leaked
+        # into code_stream as live code. Fixed by actually creating the
+        # dedicated family (recursive_block_lisp), reusing the same
+        # iterative-peel algorithm recursive_block_haskell already uses for
+        # {- -}, just with Scheme's own ; / #| / |# tokens.
+        "lexical_family": "recursive_block_lisp",
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)

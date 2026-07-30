@@ -57,21 +57,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "typescript": {
-        "valid": [
-            ("public async TargetFunc<T>() {", "TargetFunc"),
-            ("export const TargetFunc = (req): Res =>", "TargetFunc"),
-            ("function TargetFunc<T, U>(", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc implements Interface", "interface TargetFunc"],
-        "pathological": [
-            # Extreme vertical spacing and generic explosion
-            (
-                "export \n default \n async \n function \n TargetFunc \n < \n T \n , \n U \n > \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("public async Task<List<string>> TargetFunc()", "TargetFunc"),

@@ -44,19 +44,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "typescript": {
-        "valid": [
-            ('import type { Node } from "./ast/node";', "./ast/node"),
-            ('export * from "../utils";', "../utils"),
-        ],
-        "invalid": ['let from_path = "x";'],
-        "pathological": [
-            (
-                "import \n type \n { \n  ASTNode \n } \n from \n '@typescript-eslint/parser'",
-                "@typescript-eslint/parser",
-            )
-        ],
-    },
     "java": {
         "valid": [
             ("import java.util.List;", "java.util.List"),

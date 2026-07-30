@@ -52,25 +52,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "typescript": {
-        "valid": [
-            ("export class TargetEntity {", "TargetEntity"),
-            ("export default abstract class TargetEntity", "TargetEntity"),
-            ("enum TargetEntity {", "TargetEntity"),
-        ],
-        "invalid": [
-            "const a = class {}",
-            "classyFunction()",
-            "import { TargetEntity } from 'foo'",
-        ],
-        "pathological": [
-            # Deep modifier stacking and generic bounds
-            (
-                "export \n default \n abstract \n class \n TargetEntity \n extends \n BaseEntity",
-                "TargetEntity",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

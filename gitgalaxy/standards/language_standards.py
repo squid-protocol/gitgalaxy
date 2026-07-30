@@ -929,6 +929,30 @@ LANGUAGE_DEFINITIONS = {
             # Widened to tolerate one level of self-nesting (non-overlapping
             # alternatives, so no new ReDoS risk per the doc's own Rule 11
             # example).
+            # BUG FIX (epic #813/#815): the assignment-style alternative
+            # (2nd branch below) has no way to distinguish a real arrow-
+            # function assignment (`const Foo = (a: T): T => a;`) from a
+            # function-shaped TYPE ALIAS (`type Foo = (a: T) => R;`) --
+            # both share the identical `IDENT = (...) => ...` surface shape.
+            # A type alias only *describes* a function signature; it isn't
+            # one. Fixed with a fixed-width negative lookbehind for the
+            # single-space `type ` prefix (Python's `re` doesn't support
+            # variable-width lookbehind, and real-world/formatter-produced
+            # TypeScript uses exactly one space here in the overwhelming
+            # majority of cases -- same "practical reality over perfect
+            # accuracy" tradeoff used throughout this file).
+            # BUG FIX (epic #813/#815): the same alternative also required
+            # the identifier to be followed *directly* by `=`, missing the
+            # extremely common idiomatic pattern of an explicit type
+            # annotation between the two (`const Foo: React.FC<Props> = (
+            # { a, b }) => {`, `const Foo: (x: number) => void = (x) => {
+            # ... }`). Added an optional bounded type-annotation skip
+            # (`:` then up to 200 chars excluding `=`/`;`/`{`, so it can't
+            # cross into the real assignment/statement boundary) before the
+            # `=` check. Bounded and excludes the same characters the `=>`
+            # alternatives already exclude, so it can't create a new
+            # adjacent-overlapping-quantifier (Rule 14) shape with the
+            # `[ \t\n]*` that follows it.
             "func_start": re.compile(
                 r"(?:"
                 # =====================================================================
@@ -941,7 +965,7 @@ LANGUAGE_DEFINITIONS = {
                 # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
                 # =====================================================================
                 r"\b(?:async\s+)?function[ \t\n*]+[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
-                r"\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"\b(?<!type )[a-zA-Z_$][\w$]*(?=(?:[ \t\n]*:[ \t\n]{0,50}[^=;{]{0,200})?[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:get\s+|set\s+)?(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r")",
@@ -962,8 +986,17 @@ LANGUAGE_DEFINITIONS = {
             # fired for any generic class, a very common TypeScript pattern.
             # Added an optional `<...>` step-over between the name and the
             # extends/implements check.
+            # BUG FIX (Rule 11, epic #813/#815): that step-over was flat
+            # (`<[^>]*>`), which truncates at the FIRST `>` -- a one-level-
+            # nested generic bound (`class Foo<T extends Comparable<T>>
+            # extends Bar {`, a common realistic pattern) left a stray `>`
+            # unconsumed right before the real `extends` clause, silently
+            # losing the entire extends/implements capture (group 2) even
+            # though the class NAME itself still matched fine. Widened to
+            # the established one-level-nesting idiom used elsewhere in
+            # this file.
             "class_start": re.compile(
-                r"^[ \t]*(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<[^>]*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
+                r"^[ \t]*(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -1081,8 +1114,14 @@ LANGUAGE_DEFINITIONS = {
                 # [ THE VERTICAL DESTRUCTURING SHIELD ]
                 # We retain `[ \t\n]+` to safely leap across massive vertical multi-line
                 # destructured imports: `import type \n { \n ASTNode \n } \n from`
+                #
+                # BUG FIX (epic #813/#815): side-effect-only imports
+                # (`import "./styles.css";`, extremely common for CSS/
+                # polyfill imports) have no `from` keyword and no parens at
+                # all -- neither of the two alternatives above matched them.
+                # Added a third alternative for bare `import "path";`.
                 # =====================================================================
-                r"\b(?:import(?:[ \t\n]+type)?|export(?:[ \t\n]+type)?)\b[^;]*?\bfrom[ \t\n]*['\"]([^'\"]+)['\"]|\b(?:require|import)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
+                r"\b(?:import(?:[ \t\n]+type)?|export(?:[ \t\n]+type)?)\b[^;]*?\bfrom[ \t\n]*['\"]([^'\"]+)['\"]|\b(?:require|import)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]|\bimport[ \t\n]*['\"]([^'\"]+)['\"]",
                 re.M,
             ),
             "_named_token_capture": re.compile(

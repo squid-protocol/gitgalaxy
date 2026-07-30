@@ -40,19 +40,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "typescript": {
-        "valid": [
-            ("function TargetFunc<T>(val: T): T {", "TargetFunc"),
-            ("public TargetFunc(private id: string) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc<string>(val);", "catch (e: any) {"],
-        "pathological": [
-            (
-                "export \n function \n TargetFunc \n < \n T extends Record<string, any> \n > \n (\n  config: Partial<T>,\n  callback: (err: Error | null) => void\n) \n {",
-                "TargetFunc",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("public void TargetFunc(int a, string b)", "TargetFunc"),

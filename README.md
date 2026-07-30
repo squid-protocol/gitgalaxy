@@ -130,8 +130,19 @@ Measured without mirrors. The GitHub/PyPI breakdown lines begin partway through 
 
 <div>
 
+## Proof, Not Just Claims
+
+Every "structural signature" and "AST-free" claim above is backed by two things you can inspect and re-run yourself, not just take on faith:
+
+1. **[2,491 per-signature regression tests](tests/README.md).** `gitgalaxy/standards/language_standards.py` defines every regex rule the engine uses to recognize a construct — a function start, an API boundary, a safety bypass — across the 45 languages that have real structural signatures (~1,970 compiled patterns total). Every one of those rules is tested for what it should match, what it should explicitly *exclude* (the false-positive check most regex-based tools skip), and that it can't be hung by an adversarial input. See **[`tests/README.md`](tests/README.md)** for the full index, and [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) for the audit that closed it out — dozens of real regex bugs found and fixed along the way, not just theoretical coverage.
+2. **Golden-master differential testing against real, unmodified production code.** [`language-crucible`](https://github.com/squid-protocol/language-crucible) is a pinned, tagged snapshot of ~120 real subdirectories pulled from major open-source projects — Godot's C++, the Roslyn C# compiler, curl, Kubernetes, Apollo 11's AGC flight software, and more — deliberately left disconnected and uncompilable, the same hostile state real repos are in. Every pull request that touches the parsing engine re-scans that entire corpus and diffs the output, field by field, against a checked-in snapshot (`tests/golden_master_audit.json`); a diff means the output changed on real code, and it has to be explained before it's accepted. See [`tests/README.md`](tests/README.md#5-golden-master-differential-testing-the-language-crucible) for exactly how this is wired into CI.
+
+</div>
+
+<div>
+
 ## Benchmarks
-* **[50+ Language Test Repo](https://github.com/squid-protocol/language-crucible)** and [artifacts](https://github.com/squid-protocol/language-crucible/tree/main/raw_output)
+* **[50+ Language Test Repo](https://github.com/squid-protocol/language-crucible)** — also the golden-master corpus described above — and [artifacts](https://github.com/squid-protocol/language-crucible/tree/main/raw_output)
 * **[Speed Results from 104 Repos](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/)**
 * **[Cross-Language Comparisons of over 1000 repos](https://squid-protocol.github.io/gitgalaxy/03-04-claim-4-comparing-languages/):** Deterministic 1:1 benchmarking of distinct syntax architectures.
 * **[Universal File Archetypes by k-means clustering](https://squid-protocol.github.io/gitgalaxy/03-05-claim-5-file-archetypes/):** ML isolation of files into K-means clusters.

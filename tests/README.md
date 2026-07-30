@@ -13,12 +13,17 @@ This test suite exists to mathematically prove the opposite. It aggressively val
 ### 1. `/core_engine` (The Physics & Parsing Core)
 This domain is the beating heart of GitGalaxy's structural physics. It validates the AST-free parsers, ReDoS shields, execution lifecycles, and mathematical models that allow the engine to operate flawlessly under extreme, adversarial conditions.
 
+* **`test_language_standards_strict.py`** — The single largest test file in the suite (2,491 tests) and the direct, per-language proof behind every "structural signature" claim GitGalaxy makes. `gitgalaxy/standards/language_standards.py` recognizes 58 languages/formats; 45 of them define real structural signatures (the rest — `json`, `xml`, `csv`, ... — are pure data formats with nothing to structurally signature-match), totaling ~1,970 compiled regex patterns. For every one of those 45 languages, this file enforces a strict per-signature template:
+  1. **Positive match** — the rule fires on a realistic snippet of its own documented, included construct.
+  2. **Negative match** — the rule does *not* fire on the documented excluded construct (the false-positive check most naive regex test suites skip entirely).
+  3. **Cross-rule ambiguity** — where two signatures share a token (e.g. C#'s `event ... += handler` firing both `events` and `listeners`), the test asserts the overlap is intentional and named, not an accidental collision.
+  4. **ReDoS immunity** — every rule with an unbounded-looking quantifier is scaled from 2,000 to 100,000+ characters of adversarial input and timed in an isolated, kill-switched subprocess (`assert_redos_immune`), so no rule can ever hang a real scan.
+  This template was applied to all 45 languages under [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518), which turned up and fixed dozens of real, previously-undetected regex bugs along the way — not just theoretical ones. The full recurring-bug-class checklist this epic accumulated (16 numbered engine rules, from ReDoS shapes to schema completeness) lives in [`how_to_add_a_language.md`](../gitgalaxy/standards/how_to_add_a_language.md), the canonical spec every one of these tests is written against.
 * **`test_detector.py`** — Validates the Logic Splicer. Proves the engine calculates $O(N)$ nesting depth natively, flags exponential $O(2^N)$ recursion, applies AppSec Spatial Correlation (blast radius multipliers), and safely implements the Anti-ReDoS Line Limiter.
 * **`test_signal_processor.py`** — Validates the 18-point risk exposure math. Ensures Zero-State Resiliency (no divide-by-zero crashes), Sigmoid Overflow Clamping for massive densities, and Logarithmic Temporal Normalization.
 * **`test_documentation_sensor.py`** — Validates the heuristic physics for code-to-comment density. Proves the engine correctly applies mass multipliers and complexity accelerants to eliminate false-positive fatigue on small files.
 * **`test_licensing_guard.py`** — Validates the PolyForm compliance gate, offline HMAC-SHA256 cryptographic key verification, and the execution of CI/CD audit tripwires for enterprise environments.
 * **`test_chronometer_timeout.py`** — Validates the Hardware Guillotine. Simulates a hanging Git stream and ensures the OS-level `SIGKILL` is sent, pipes are forcefully flushed, and file descriptors are closed to prevent RAM leaks.
-* *(See the [Core Engine README](core_engine/README.md) for the full 13-file index, including Optical Splitters, Bayesian Guidestars, and Identity Traps).*
 
 ### 2. `/extraction` (The Strict Gauntlets)
 Because our heuristics *are* the compiler, these massive, parameterized testing matrices fire thousands of mutated code snippets across all supported languages using a 3-Tier Matrix: **Valid** (The Iron Wall), **Invalid** (Ghost Prevention), and **Pathological** (Frankenstein formatting).
@@ -36,7 +41,6 @@ Validates the vulnerability, compliance, and zero-trust intelligence sensors. In
 * **`test_binary_anomaly_detector.py`** — Validates the X-Ray engine, spotting Magic Byte Mismatches (e.g., an executable disguised as a `.jpg`) and High-Entropy encrypted payloads.
 * **`test_network_risk_sensor.py`** — Validates N-Dimensional graph physics (PageRank, Betweenness centrality) without relying on heavy external dependencies.
 * **`test_redos_poison.py`** — Spawns an isolated 8-core multiprocessing pool to blast all 1,200+ production heuristics with classic ReDoS payloads to guarantee absolute pipeline stability.
-* *(See the [Security Auditing README](security_auditing/README.md) for the full 13-file index, including Swagger API mapping, PII Leak Hunters, and Supply Chain Firewalls).*
 
 ### 4. `/cobol_mainframe` (Legacy Modernization)
 Mathematically proves the engine can bridge the gap between 40-year-old EBCDIC IBM mainframes and modern Zero-Trust architectures without relying on compilers or emulators.
@@ -45,4 +49,12 @@ Mathematically proves the engine can bridge the gap between 40-year-old EBCDIC I
 * **`test_cobol_dag_architect.py`** — Validates Topological Sorts and the "Ghost Deflector" for mapping exact execution flow.
 * **`test_cobol_jcl_auditor.py` & `test_cobol_jcl_forge.py`** — Validates JCL intent parsing, Bloat Reduction math, and Zero-Trust least-privilege JCL generation.
 * **`test_cobol_agent_task_forge.py`** — Validates the context merger for autonomous agents, ensuring LLMs receive strict JSON remediation tickets bounded by reality.
-* *(See the [Main
+
+### 5. Golden Master Differential Testing (The Language Crucible)
+Everything above is a synthetic unit test — a snippet written by hand to probe one specific rule. This section is different: it's the empirical check that the whole engine, wired together, produces the *right* answer on real, unmodified production source code, not just on the adversarial strings a test author thought to write.
+
+**[`language-crucible`](https://github.com/squid-protocol/language-crucible)** is a companion repository: ~120 real subdirectories of production code pulled directly from significant open-source projects (Godot's C++, the Roslyn C# compiler, curl, Kubernetes, Apollo 11's AGC flight software, and dozens more), deliberately left disconnected and uncompilable — exactly the hostile, dependency-broken state GitGalaxy has to handle in the real world. See its own README for the full list of paradigms it's built to stress.
+
+GitGalaxy pins that corpus to a tagged release (`v1.0`) and checks two files into this repo — `tests/golden_master_audit.json` and `tests/golden_master_zero_dep_audit.json` — deterministic snapshots of a full scan over the entire corpus, one for each of the engine's two dependency modes (full-precision and zero-dependency). `tests/test_golden_crucible.py` (driven by the `crucible-audit` GitHub Actions job, which runs automatically on every pull request in both modes) re-runs `galaxyscope` against a fresh clone of that same pinned corpus and diffs the output against the checked-in snapshot, field by field, down to individual structural-signature counts per file.
+
+**A failing diff means GitGalaxy's output changed on real code.** That's either a regression (fix the engine) or a deliberate improvement (the fixture gets re-blessed via `tests/tools/update_golden_master.py`, which shows the full diff and requires explicit confirmation — never a blind `cp`). Every bug fixed across [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) was verified this way before merging: not just "the new regex passes its own unit test," but "the new regex's output on `godot/`, `roslyn/`, `curl/`, and the rest of the real corpus changed in exactly the way the fix predicts, and nowhere else." `tests/tools/crucible_check.py` is the one-command local equivalent of the CI job, for verifying this before a PR is even opened.

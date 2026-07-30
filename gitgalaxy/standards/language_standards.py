@@ -8690,14 +8690,40 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(?:load|save|fopen|fclose|fread|fwrite|fscanf|webread|webwrite|urlread|urlwrite|readtable|writetable|readmatrix|writematrix|serialport|imread|imwrite|audioread)\b"
             ),
             # api: Public APIs. We track explicit Methods blocks that don't declare private access.
+            # BUG FIX 1: the bare `methods` literal had no trailing boundary at all
+            # (not even `\b`), so it matched as a false-positive prefix of any
+            # identifier merely starting with "methods" (e.g. `methodsList = ...`).
+            # Added `\b` right after the literal -- "methods" is all word chars, so
+            # a plain `\b` is correct here (not the Rule 9 shared-group trap).
+            # BUG FIX 2 (Rule 1, Semantic Intent): the Access=public check was an
+            # optional *positive* group instead of a *negative* exclusion, so it
+            # never actually gated anything -- `methods (Access = private)` and
+            # `methods (Access = protected)` both still matched via the bare
+            # `methods\b` alone, directly contradicting this rule's own documented
+            # purpose ("don't declare private access"). Replaced with a negative
+            # lookahead that excludes an explicit private/protected declaration
+            # anywhere in a (possibly multi-attribute) attribute list, while still
+            # matching bare `methods` (implicitly public by MATLAB default) and
+            # explicit `Access = public`. Bounded to 200 chars per Rule 5.
             "api": re.compile(
-                r"^[ \t]*methods(?:[ \t]*\([ \t]*Access[ \t]*=[ \t]*public[ \t]*\))?",
+                r"^[ \t]*methods\b(?![ \t]*\([^)]{0,200}\bAccess[ \t]*=[ \t]*(?:private|protected)\b)",
                 re.M | re.I,
             ),
             # flux: Mutation of state via assignment.
             # Safely clamped with `[ \t]*=[ \t]*` to avoid newline spirals. Bounded nested fields `{0,5}`.
+            # BUG FIX (Rule 11, nested-delimiter coverage): the flat `[^)]*`/`[^}]*`
+            # classes broke on one level of nested indexing, e.g. `data(idx(1)) = v;`
+            # -- a common, realistic MATLAB pattern (indexing by another array/
+            # function's result). The truncated inner match left a stray closing
+            # bracket unconsumed, which then broke the required trailing `=`, so
+            # the WHOLE assignment went undetected (a true false negative, unlike
+            # a bare boolean-only rule where truncation still finds *a* match).
+            # Widened each segment to tolerate one level of self-nesting, same
+            # non-overlapping-alternatives shape the doc's Rule 11 example uses.
             "state_mutation": re.compile(
-                r"^[ \t]*[a-zA-Z_]\w*(?:\([^)]*\)|\{[^}]*\}|\.[a-zA-Z_]\w*){0,5}[ \t]*=[ \t]*[^=]|\b(?:clear|clearvars)\b",
+                r"^[ \t]*[a-zA-Z_]\w*"
+                r"(?:\((?:[^()]|\([^()]*\))*\)|\{(?:[^{}]|\{[^{}]*\})*\}|\.[a-zA-Z_]\w*){0,5}"
+                r"[ \t]*=[ \t]*[^=]|\b(?:clear|clearvars)\b",
                 re.M,
             ),
             # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -8749,7 +8775,13 @@ LANGUAGE_DEFINITIONS = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
-            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d+|spec|audit)[^\]]*\]", re.I),
+            # BUG FIX: adjacent unbounded quantifiers with overlapping character
+            # sets (`\d+` immediately followed by `[^\]]*`, which also matches
+            # digits) -- the same ReDoS shape already found and fixed
+            # independently in embedded_python, css, and tcl in this epic.
+            # Confirmed via scaling sweep (~4x per doubling before the fix).
+            # Bounded both quantifiers, consistent with the established fix.
+            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
             # civil_war: MATLAB default is 4 spaces. Raw tabs indicate formatter disruption.
             "tabs_vs_spaces": None,
             # ssr_boundaries: Web App compiler hooks.
@@ -8779,7 +8811,14 @@ LANGUAGE_DEFINITIONS = {
                 r"\b(?:cast|typecast|int8|uint8|int16|uint16|int32|uint32|int64|uint64|single|double|logical)\s*\("
             ),
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
-            "panics_and_aborts": re.compile(r"\b(?:error|throw|rethrow|MException|throwAsCaller)\b"),
+            # BUG FIX (Rule 3, Annotation & Execution Isolation): the bare `error`
+            # alternative fired on `logger.error(...)`/`log.error(...)` -- a
+            # custom logging framework's benign structured-logging call (already
+            # captured by `telemetry`), not MATLAB's built-in `error()` function,
+            # which actually throws and halts execution. A dot immediately before
+            # "error" is always a method-call chain, never the standalone
+            # builtin, so excluded via a negative lookbehind.
+            "panics_and_aborts": re.compile(r"\b(?:throw|rethrow|MException|throwAsCaller)\b|(?<!\.)\berror\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
             "thread_sleeps": re.compile(r"\bpause[ \t]*\("),
             # 43. bitwise_ops (Bitwise Operations)
@@ -8800,8 +8839,16 @@ LANGUAGE_DEFINITIONS = {
             "serialization_parsing": re.compile(r"\b(jsondecode|jsonencode|xmlread|xmlwrite|load|save|readtable)\b"),
             "regex_execution": re.compile(r"\b(regexp|regexpi|regexprep)\b"),
             "time_date_logic": re.compile(r"\b(tic|toc|datetime|clock|now|pause|cputime)\b"),
+            # BUG FIX: missing `re.M` entirely on this `^`-anchored alternative
+            # (epic recurring bug class #6) -- `^` anchored to true string start
+            # only, so the shell-escape `!cmd` form could only ever fire if `!`
+            # were the very first character of the entire file, never on any
+            # later line where a real shell-escape command actually appears in
+            # practice. Also switched `\s*` to `[ \t]*` per Rule 5 (horizontal-
+            # only spacing must not cross newlines under `re.M`).
             "ipc_rpc_bridges": re.compile(
-                r"\b(system|dos|unix|tcpclient|tcpserver|parpool|parfor)\b|^\s*!"
+                r"\b(system|dos|unix|tcpclient|tcpserver|parpool|parfor)\b|^[ \t]*!",
+                re.M,
             ),  # '!' is MATLAB's native shell escape
         },
     },

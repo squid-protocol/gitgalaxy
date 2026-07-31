@@ -1,0 +1,59 @@
+name: Full Suite Gate (All OS x Python)
+
+# Backup safety net for the full OS x Python-version matrix, now that
+# smoke-test.yml only runs the full pytest suite once per push (see that
+# file's comments for why). This workflow restores full 12-way matrix
+# coverage of the entire suite at two checkpoints instead of every push:
+#   - Any label added to a pull request (an explicit "give this the full
+#     validation pass" signal -- not filtered to a specific label name, so
+#     applying ANY label triggers it).
+#   - Any release tag push (`v*`), matching publish.yml's own release
+#     trigger, as a pre-release confidence check across every supported
+#     environment.
+on:
+  pull_request:
+    types: [labeled]
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  full-suite-matrix:
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: "1"
+      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install macOS dependencies (OpenMP for XGBoost)
+        if: runner.os == 'macOS'
+        run: brew install libomp
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install PyYAML networkx tiktoken pandas xgboost pytest
+          pip install --no-build-isolation -e .
+
+      - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
+        run: pytest tests/ -v

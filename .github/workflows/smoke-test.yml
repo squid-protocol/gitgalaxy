@@ -9,6 +9,15 @@ permissions:
   contents: read
 
 jobs:
+  # TRUE smoke test: cheap, OS/Python-version-sensitive checks only (package
+  # installs, CLI entry points, syntax floor) across the full matrix. Does
+  # NOT run the full pytest suite -- see full-suite (single env, below) for
+  # every-push regression coverage, and full-suite-gate.yml for the full
+  # matrix x full-suite backup run (fires on any PR label or a release tag).
+  # This split exists because most of tests/ (extraction/core_engine regex
+  # rules) has zero OS-dependency: running it 12x per push added CI cost
+  # that scaled with every language added to the extraction-hardening epic
+  # (#813) without adding real signal over running it once.
   smoke-test:
     runs-on: ${{ matrix.os }}
     env:
@@ -67,6 +76,35 @@ jobs:
 
       - name: Smoke Test - API Network Map
         run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
+
+  # Full pytest suite, ONE representative environment (ubuntu/3.12), on
+  # every push. This is the fast-feedback regression net that used to run
+  # 12x inside the smoke-test matrix above; running it once here keeps that
+  # signal on every push without the 12x cost. The full OS x Python-version
+  # matrix still gets exercised, just not on every push -- see
+  # full-suite-gate.yml.
+  full-suite:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: "1"
+      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install PyYAML networkx tiktoken pandas xgboost pytest
+          pip install --no-build-isolation -e .
 
       - name: Golden Record Integration Test (Pytest)
         run: pytest tests/ -v

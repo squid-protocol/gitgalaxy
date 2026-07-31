@@ -105,7 +105,7 @@ readme_renderer==44.0
 referencing==0.37.0
 regex==2026.4.4
 ruff==0.16.0
-requests==2.33.0
+requests==2.34.2
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==15.0.0

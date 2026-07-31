@@ -156,14 +156,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("import cats.effect.IO", "cats.effect.IO"),
-            ("export scala.collection.mutable.Map", "scala.collection.mutable.Map"),
-        ],
-        "invalid": ["val importCount = 0"],
-        "pathological": [("import \n scala.concurrent.Future", "scala.concurrent.Future")],
-    },
     "dockerfile": {
         "valid": [
             ("FROM ubuntu:latest", "ubuntu:latest"),

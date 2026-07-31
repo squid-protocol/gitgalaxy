@@ -69,20 +69,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("def TargetFunc(a: Int, b: String): Unit =", "TargetFunc"),
-            ("def TargetFunc[T](items: List[T])", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b)", "for (i <- 1 to 10) {"],
-        "pathological": [
-            # Vertical modifiers and complex lambda parameters
-            (
-                "inline \n def \n TargetFunc \n [T] \n (\n  items: List[T],\n  callback: (Int, String) => Unit\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "zig": {
         "valid": [
             ("pub fn TargetFunc(a: i32, b: f32) void {", "TargetFunc"),

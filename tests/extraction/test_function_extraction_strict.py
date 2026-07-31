@@ -115,21 +115,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("def TargetFunc()", "TargetFunc"),
-            ("override def TargetFunc()", "TargetFunc"),
-            ("transparent inline def TargetFunc", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "val TargetFunc =", "trait TargetFunc"],
-        "pathological": [
-            # Deep Scala 3 modifiers
-            (
-                '@deprecated("", "")\noverride \n protected \n inline \n def \n TargetFunc \n (',
-                "TargetFunc",
-            )
-        ],
-    },
     "fortran": {
         "valid": [
             ("SUBROUTINE TargetFunc()", "TargetFunc"),

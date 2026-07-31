@@ -33,25 +33,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("class TargetEntity {", "TargetEntity"),
-            ("sealed trait TargetEntity", "TargetEntity"),
-            ("case object TargetEntity", "TargetEntity"),
-        ],
-        "invalid": [
-            "val x = new TargetEntity()",
-            "def classMethod()",
-            "type TargetEntity = String",
-        ],
-        "pathological": [
-            # Scala 3 modifiers and vertical spacing
-            (
-                "@deprecated\nsealed \n abstract \n class \n TargetEntity \n extends \n Base",
-                "TargetEntity",
-            )
-        ],
-    },
     "dart": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

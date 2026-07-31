@@ -8680,8 +8680,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures parameters in method signatures and lambdas.
+            # RULE 11 FIX (epic #813/#825): the generic-parameter step-over was the flat
+            # `\[[^\]]*\]`, truncating at the FIRST `]` and breaking any nested generic bound
+            # (`def foo[T <: Comparable[T]](x: T): T = {`, a realistic bounded generic method --
+            # the square-bracket variant of the same Rule-11 bug class already fixed for
+            # java/typescript/python/rust/csharp/kotlin/swift).
+            # IDENTIFIER-GRAMMAR FIX (epic #813/#825): the name step-over required a plain
+            # `[a-zA-Z_]\w*`, so any backtick-quoted arbitrary identifier (Scala's escape hatch for
+            # reserved-word/space-containing method names, e.g. `` def `must not fail`(x: Int): Int
+            # = x ``, a realistic idiom for Java-interop/reserved-word names) never matched at all
+            # (doc's Rule 16 shape). Added as an alternative, not a widened class, so it can't loosen
+            # the plain-identifier path.
             "args": re.compile(
-                r"\bdef\s+[a-zA-Z_]\w*(?:\[[^\]]*\])?\s*\([^)]*\)|\([^)]*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
+                r"\bdef\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\([^)]*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
             "structural_boundaries": re.compile(
@@ -8697,9 +8708,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # across the attribute stepper and modifier capture, explicitly allowing
                 # the engine to wrap lines without triggering ReDoS.
                 # =====================================================================
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#825): same backtick-identifier gap as `args`
+                # above (doc's Rule 16) -- added as an alternative capture group, not a widened
+                # class. detector.py already resolves the fired group via `match.lastindex` for
+                # exactly this kind of multi-alternative name capture (see java's `(init)|
+                # (constructor)` groups), so no downstream change is needed.
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:override|private|protected|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
-                r"def[ \t\n]+([a-zA-Z_]\w*)(?=[ \t\n]*[\[(:=]|$)",
+                r"def[ \t\n]+(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))(?=[ \t\n]*[\[(:=]|$)",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities and OO boundaries.
@@ -8800,11 +8816,29 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 #
                 # [ THE BLOCK DESTRUCTURING SHIELD ]
                 # Scala relies heavily on bracketed block imports: `import java.util.{List, Map}`.
-                # The capture group `([\w.{}\s,]+)` is expanded to swallow the entire
-                # comma-separated block. The downstream parser must flatten this string
-                # and split on commas/brackets to extract the individual modules.
+                # A trailing `{...}` block is captured as its own alternative below so its content
+                # (which may span multiple lines and contain `=>` renames) is swallowed whole. The
+                # downstream parser (galaxyscope.py) flattens this string and splits on commas/
+                # brackets to extract the individual modules.
+                #
+                # BUG FIX (epic #813/#825): the previous capture, `[\w.{}\s,]+`, was a single flat
+                # character class with no statement boundary at all -- since `\s` matches newlines,
+                # it kept consuming across subsequent, unrelated lines (including a SECOND import
+                # statement) until it happened to hit some character outside the class. Confirmed on
+                # a realistic 2-import file: the first match's capture group swallowed the entire
+                # second `import` line plus part of the following `case class` line, so the second
+                # import was never separately detected at all. The same flat class also truncated at
+                # the first `*`/`=`/`>`, so Scala 3 wildcard imports (`import scala.util.chaining.*`)
+                # lost their trailing `*` and `=>`-renamed block imports (`import scala.util.{Try =>
+                # STry}`) were cut off mid-block. Replaced with a properly bounded
+                # segmented-dotted-path grammar: repeat `identifier.` segments, then end on either a
+                # `{...}` block (unrestricted content except braces themselves, so `=>` renames and
+                # multi-line layouts both work) or a bare trailing identifier/wildcard segment
+                # (`[\w*]+`, covering both Scala 2 `_` and Scala 3 `*` wildcards via `\w`/`*`). This
+                # is bounded per-statement by construction -- there is no `\s`/`.` left dangling
+                # outside an explicit brace block for it to bleed through.
                 # =====================================================================
-                r"\b(?:import|export)\s+([\w.{}\s,]+)",
+                r"\b(?:import|export)\s+((?:[\w]+\.)*(?:\{[^{}]*\}|[\w*]+))",
                 re.M,
             ),
             # 25. ownership: Authorship indicators.

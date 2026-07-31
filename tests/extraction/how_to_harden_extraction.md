@@ -440,6 +440,40 @@ specifically. Check every language against these *first* before assuming a rule 
 32. **(#824) Recurring class 3 confirmed on an EIGHTH language (swift) via TWO distinct string
     forms in the same language** -- both triple-quoted multi-line strings and `#"..."#` raw string
     literals reproduce the false positive independently.
+33. **(#825) The identifier-capture-class rule (`how_to_add_a_language.md`'s Rule 16) is a real,
+    recurring cross-language finding, not a one-off Scheme curiosity.** Scala's `func_start`/`args`
+    name capture required a plain `[a-zA-Z_]\w*`, so backtick-quoted arbitrary identifiers (Scala's
+    escape hatch for reserved-word/space-containing names, e.g. `` def `should handle edge cases`():
+    Unit = {} ``, a real ScalaTest/Java-interop idiom) never matched. Fixed as an alternative
+    capture group, resolved via `match.lastindex` (existing infrastructure, see java's
+    `(init)|(constructor)` groups) rather than widening the plain-identifier class. **Kotlin has the
+    identical backtick grammar and the identical gap, missed during #823's pass** -- when a language
+    supports backtick/escaped identifiers, check func_start/args/class_start's capture class against
+    that grammar explicitly, and don't assume a prior "closed" sub-issue for a sibling
+    backtick-identifier language already covers it.
+34. **(#825) A `_dependency_capture` rule can have NO statement-boundary logic at all -- a worse
+    failure mode than recurring class 19's missing-symbol gap.** Scala's capture was a flat
+    `[\w.{}\s,]+` class with no anchor stopping it at one logical import's end; since `\s` matches
+    newlines, it silently bled across a SECOND real import statement into the following unrelated
+    line on a realistic multi-import file, so the second import was never separately detected.
+    `crucible_check.py` against the real corpus (Kafka) confirmed the severity concretely: several
+    files' detected dependency counts roughly DOUBLED once fixed. Fix idiom: replace the flat class
+    with a bounded segmented-path grammar (repeat `identifier.` segments, end on either a `{...}`
+    block or a bare trailing identifier/wildcard) rather than just adding more characters to the
+    class. Check any `_dependency_capture` rule using bare `\s` instead of a real statement boundary
+    for this same bleed-over risk.
+35. **(#825) A confirmed real `_dependency_capture` fix's `crucible_check.py` diff can legitimately
+    ripple into completely unrelated languages/repos via the shared cross-repo dependency graph --
+    that is NOT automatically a confinement violation.** Unlike the other three rules (per-file
+    scoped), `_dependency_capture` feeds `network_risk_sensor.py`'s PageRank/blast-radius scoring
+    and `spatial_mapper.py`'s 3D projection, both computed over the WHOLE scanned corpus as one
+    graph. Fixing scala's bleed-over (class 34) shifted Topological Coordinates, PageRank-derived
+    blast-radius counts, and corpus-relative percentiles for 9 unrelated language/repo pairs plus
+    global ecosystem-summary aggregates. Verified genuine (not confinement-violating) by confirming
+    every non-target-language diff line was one of these global/derived metric types, never a raw
+    per-file signature count for an untouched language. When a fix touches `_dependency_capture`
+    specifically, expect and check for this ripple shape rather than treating any non-target-language
+    diff line as an automatic confinement bug.
 
 ## Process: the epic and its sub-issues
 

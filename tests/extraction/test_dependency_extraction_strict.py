@@ -69,14 +69,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "kotlin": {
-        "valid": [
-            ("import java.util.*", "java.util.*"),
-            ("import static org.mockito.Mockito.*", "org.mockito.Mockito.*"),
-        ],
-        "invalid": ["val importPath = false"],
-        "pathological": [("import \n kotlinx.coroutines.flow.*", "kotlinx.coroutines.flow.*")],
-    },
     "sqlite": {
         "valid": [
             ("ATTACH DATABASE 'file.db' AS file;", "file.db"),

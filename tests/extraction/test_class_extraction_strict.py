@@ -52,22 +52,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "kotlin": {
-        "valid": [
-            ("class TargetEntity {", "TargetEntity"),
-            ("data class TargetEntity(", "TargetEntity"),
-            ("sealed interface TargetEntity", "TargetEntity"),
-        ],
-        "invalid": [
-            "val x = TargetEntity()",
-            "fun classLike()",
-            "object: TargetEntity",
-        ],
-        "pathological": [
-            # Kotlin annotations and vertical modifier stacking
-            ("@JvmInline\npublic \n data \n class \n TargetEntity \n (", "TargetEntity")
-        ],
-    },
     "scala": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

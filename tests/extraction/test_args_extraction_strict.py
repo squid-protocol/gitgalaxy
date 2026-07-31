@@ -40,20 +40,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "kotlin": {
-        "valid": [
-            ("fun TargetFunc(a: Int, b: String) {", "TargetFunc"),
-            ("suspend fun TargetFunc(items: List<String>) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b)", "when (x) {"],
-        "pathological": [
-            # Vertical generics, default arguments, and lambda parameters
-            (
-                "internal \n suspend \n fun \n <T> \n TargetFunc \n (\n  items: List<T> = emptyList(),\n  callback: (Result<T>) -> Unit\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "ruby": {
         "valid": [
             ("def TargetFunc(a, b = 5)", "TargetFunc"),

@@ -419,6 +419,16 @@ specifically. Check every language against these *first* before assuming a rule 
     "fixing" what looks like an obviously-wrong match. The full pytest suite step (already
     required) does catch this eventually, but checking proactively is cheaper than a red test
     after the fact.
+29. **(#823) When fixing a missing-declaration-shape gap that would require making a shared
+    branch's name optional, check whether a NARROWLY-SCOPED new alternative achieves the same fix
+    without loosening anything else.** kotlin's `companion object { ... }` (almost always
+    anonymous) never matched `class_start`. Making the general `class|interface|object|enum class`
+    branch's name optional would have opened a new false positive on object EXPRESSIONS
+    (`object : Base() {`). A dedicated alternative scoped to the literal `companion object` shape
+    with its own optional name fixed it without touching the general branch at all.
+30. **(#823) Recurring class 3 confirmed on a SEVENTH language (kotlin, via triple-quoted raw
+    strings)** -- same shape as js/ts/java/go/rust/csharp/cpp, another confirming data point for
+    the eventual `_slice_by_braces`-broadening follow-up.
 
 ## Process: the epic and its sub-issues
 

@@ -4771,7 +4771,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Implemented the 1-Level Nesting Trick `(?:[^)(]+|\([^)]*\))*` to
                 # absorb the inner parentheses. Upgraded spaces to `[ \t\n]*` for vertical layouts.
                 # =====================================================================
-                r"\b(?:fun|constructor)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
+                # RULE 11 FIX (epic #813/#823): the generic-parameter step-over was the flat
+                # `<[^>]{0,100}>`, truncating at the FIRST `>` and breaking any nested generic
+                # bound (`fun <T, U : Comparable<U>> foo(x: T, y: U): T {`, a realistic bounded
+                # generic function). Widened to the established one-level-nesting idiom.
+                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
                 re.M,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -4786,16 +4790,26 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # (removing the `\n` restriction) and updated the trailing lookahead
                 # to `[ \t\n]*[\(\{]` so it can safely jump vertical gaps to the parameters.
                 # =====================================================================
+                # RULE 11 FIX (epic #813/#823): same generic-parameter nesting gap as args above
+                # -- widened to the established one-level-nesting idiom.
                 r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t\n]*){0,10}"
                 r"(?:(?:public|private|protected|internal|open|override|abstract|final|suspend|inline|tailrec|infix|operator|external|expect|actual)[ \t\n]+){0,5}"
                 r"(?:context\s*\([^)]*\)\s*)?"
-                r"(?:fun[ \t\n]+(?:<[^>]{0,100}>[ \t\n]*)?(?:[a-zA-Z_]\w*\.)?([a-zA-Z_]\w*)|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:[a-zA-Z_]\w*\.)?([a-zA-Z_]\w*)|(init)|(constructor))(?=[ \t\n]*[\(\{])",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # OPTIMIZED: Applied the same 300-char bounds to class annotations.
+            # COMPANION OBJECT FIX (epic #813/#823): `companion object { ... }` (almost always
+            # anonymous -- a name is rare and optional) never matched at all: "companion" wasn't in
+            # the modifier list, and even if it were, the class/interface/object/enum-class branch's
+            # name was mandatory. Added a dedicated alternative for it with an OPTIONAL name, kept
+            # narrowly scoped to the literal `companion object` shape rather than making the name
+            # optional for the general branch -- doing that broadly would have opened a new false
+            # positive on object EXPRESSIONS (`object : Base() {`, an anonymous object literal used
+            # inline, a different construct from an object DECLARATION).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:class|interface|object|enum\s+class)\s+[a-zA-Z_]\w*",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+[a-zA-Z_]\w*|companion[ \t\n]+object(?:\s+[a-zA-Z_]\w*)?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

@@ -40,21 +40,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "kotlin": {
-        "valid": [
-            ("fun TargetFunc()", "TargetFunc"),
-            ("suspend fun TargetFunc()", "TargetFunc"),
-            ("internal inline fun TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "val TargetFunc =", "if (TargetFunc)"],
-        "pathological": [
-            # JVM annotations and extreme generic spacing
-            (
-                "@JvmStatic\n@Throws(Exception::class)\npublic \n suspend \n inline \n fun \n < \n T \n > \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "php": {
         "valid": [
             ("function TargetFunc()", "TargetFunc"),

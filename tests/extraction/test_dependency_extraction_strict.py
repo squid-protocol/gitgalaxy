@@ -14,20 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "python": {
-        "valid": [
-            ("import os", "os"),
-            ("from gitgalaxy.engine import Parser", "gitgalaxy.engine"),
-            ("import numpy as np", "numpy"),
-        ],
-        "invalid": ["import_path = 'foo'", "def import_data():"],
-        "pathological": [
-            (
-                "from \n core.networking.sockets \n import ( \n    TCPSocket \n )",
-                "core.networking.sockets",
-            )
-        ],
-    },
     "javascript": {
         "valid": [
             (

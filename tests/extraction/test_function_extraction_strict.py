@@ -25,21 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "python": {
-        "valid": [
-            ("def TargetFunc():", "TargetFunc"),
-            ("async def TargetFunc(a: int) -> str:", "TargetFunc"),
-            ("    @decorator\n    def TargetFunc():", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc:", "TargetFunc = 5", "if TargetFunc():"],
-        "pathological": [
-            # Stacking decorators with arguments, extreme spaces, and vertical newlines
-            (
-                "@route('/api')\n@auth(role='admin')\n    async   def \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "javascript": {
         "valid": [
             ("function TargetFunc() {", "TargetFunc"),

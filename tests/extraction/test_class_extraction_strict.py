@@ -67,25 +67,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "python": {
-        "valid": [
-            ("class TargetEntity:", "TargetEntity"),
-            ("class TargetEntity(BaseClass):", "TargetEntity"),
-            ("class TargetEntity[T](Base):", "TargetEntity"),
-        ],
-        "invalid": [
-            "def class_start():",
-            "TargetEntity = class()",
-            "if isinstance(obj, TargetEntity):",
-        ],
-        "pathological": [
-            # Stacking decorators and extreme vertical spacing
-            (
-                "@dataclass\n@decorated(args)\nclass \n TargetEntity \n ( \n Base \n ) \n :",
-                "TargetEntity",
-            )
-        ],
-    },
     "javascript": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

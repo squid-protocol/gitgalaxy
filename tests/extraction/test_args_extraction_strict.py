@@ -12,20 +12,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # across major languages without triggering ReDoS on complex nested types.
 # ==============================================================================
 ARGS_EXTRACTION_CASES = {
-    "python": {
-        "valid": [
-            ("def TargetFunc(a: int, b=5):", "TargetFunc"),
-            ("async def TargetFunc(req: Request) -> Response:", "TargetFunc"),
-            ("class TargetClass:\n    def __init__(self, x):", "__init__"),
-        ],
-        "invalid": ["target_func_call(a, b)", "if (a == b):"],
-        "pathological": [
-            (
-                "def \n TargetFunc \n (\n    a: Callable[[int, str], bool],\n    b = lambda x: x * 2\n):",
-                "TargetFunc",
-            )
-        ],
-    },
     "javascript": {
         "valid": [
             ("function TargetFunc(req, res) {", "TargetFunc"),

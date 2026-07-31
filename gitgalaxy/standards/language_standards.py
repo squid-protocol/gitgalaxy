@@ -312,9 +312,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.
             "branch": re.compile(r"\b(if|elif|else|for|while|with|try|finally|match|case|and|or)\b"),
             # 2. args (Parameters / Coupling)
-            # Signatures for def/lambda. Bounded generics [^\]]* and params [^)]*.
+            # Signatures for def/lambda. Bounded generics and params [^)]*.
+            # RULE 11 FIX (epic #813/#818): the PEP 695 (3.12+) generic-parameter step-over was a
+            # flat `[^\]]*`, truncating at the FIRST `]` and breaking any type param with a
+            # nested-bracket bound (e.g. `def Foo[T: Sequence[int]](x: T) -> T:`, a realistic bounded
+            # generic). Widened to the established one-level-nesting idiom (square-bracket variant).
             "args": re.compile(
-                r"(?:async[ \t]+)?def\s+\w+(?:\[[^\]]*\])?\s*\([^)]*\)|\blambda\s+[^:]+:",
+                r"(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\blambda\s+[^:]+:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -324,13 +328,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # Anchors executable logic. Steps safely over decorators.
+            # RULE 11 FIX (epic #813/#818): see args' comment above -- same PEP 695 nested-bracket
+            # gap, same fix (widened generic-parameter step-over).
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+\w+(?:\[[^\]]*\])?\s*\(",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
+            # RULE 11 FIX (epic #813/#818): same PEP 695 nested-bracket gap as func_start/args above,
+            # here it silently dropped the base-class capture (group 2) rather than failing the whole
+            # match, since the class NAME (group 1) is captured before the generic step-over -- an
+            # easy miss for the same reason java's #816 class_start bug was (name looks fine,
+            # inheritance info silently vanishes).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?:\[[^\]]*\])?(?:\s*\(\s*([a-zA-Z0-9_., \t]*)\s*\))?",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:\s*\(\s*([a-zA-Z0-9_., \t]*)\s*\))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

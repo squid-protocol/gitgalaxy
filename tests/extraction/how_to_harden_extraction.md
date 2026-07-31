@@ -307,6 +307,27 @@ specifically. Check every language against these *first* before assuming a rule 
     `func_start`/`_dependency_capture` false positive as js/ts template literals and Java text
     blocks. Three languages, three unrelated syntax features, same root cause -- strong evidence
     this is a real general gap, not a per-language curiosity.
+15. **(#818) Rule 11 isn't angle-bracket-specific -- it hit python's SQUARE-bracket PEP 695 (3.12+)
+    generics identically.** `func_start`/`args`/`class_start` all shared a flat `[^\]]*`
+    generic-parameter step-over, breaking any nested-bracket type bound (`def Foo[T:
+    Sequence[int]](x: T) -> T:`). Same fix idiom, square-bracket variant:
+    `\[(?:[^\[\]]|\[[^\[\]]*\])*\]`. Whenever a language's generics use `[...]` instead of `<...>`
+    (Python, Go), check for the identical flat-negated-character-class mistake -- don't assume Rule
+    11 only applies to angle-bracket languages.
+16. **(#818) Mode C (`_slice_by_indentation`, python/yaml) ALREADY does the shield-before-match fix
+    that Mode B (`_slice_by_braces`) only has gated to js/ts.** Verified empirically: python's real
+    pipeline shields triple-quoted/standard strings and comments via an index-aligned shield BEFORE
+    calling `func_start.finditer()`, so the string-literal false positive confirmed at the regex
+    level (same shape as class 3) is NOT a live pipeline bug for python. This is the reference
+    implementation the eventual `_slice_by_braces`-broadening follow-up should mirror -- check
+    whether a language's actual routing mode already solves class 3 before assuming it needs the
+    fix.
+17. **(#818) Not every vertical-split seam needs pathological-test coverage -- check against what
+    real formatters actually produce.** A vertical split between an identifier and an
+    immediately-following generic bracket (`def Foo\n[T](...)`) fails to match; judged a
+    pre-existing, deliberately-undocumented-as-a-bug gap since no formatter (black, ruff format)
+    ever inserts a line break at that exact seam. Realism-triage (step 2 of the verification
+    discipline above) applies to formatting seams the same way it applies to feature coverage.
 
 ## Process: the epic and its sub-issues
 

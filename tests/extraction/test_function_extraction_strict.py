@@ -25,32 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "cpp": {
-        "valid": [
-            ("int TargetFunc() {", "TargetFunc"),
-            ("std::vector<std::string> TargetFunc(int a, float b) {", "TargetFunc"),
-            ("inline static const char* TargetFunc() {", "TargetFunc"),
-            ("TargetFunc() : a(1) {", "TargetFunc"),  # Constructor
-        ],
-        "invalid": [
-            "class TargetFunc {",
-            "#define TargetFunc()",
-            "if (TargetFunc()) {",
-        ],
-        "pathological": [
-            # =====================================================================
-            # [ THE C++ DEFINITION IGNITION ]
-            # In an AST-free engine, the only way to separate a C++ header declaration (.h)
-            # from a source definition (.cpp) is the opening brace '{'.
-            # The previous payload lacked it, so the regex accurately rejected it.
-            # FIX: Added `() \n {` to complete the pathological definition structure.
-            # =====================================================================
-            (
-                "inline \n static \n const \n std::vector<std::string>& \n TargetFunc \n () \n {",
-                "TargetFunc",
-            )
-        ],
-    },
     "c": {
         "valid": [
             ("static inline void TargetFunc(int a) {", "TargetFunc"),

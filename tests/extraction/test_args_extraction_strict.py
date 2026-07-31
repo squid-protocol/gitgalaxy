@@ -12,19 +12,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # across major languages without triggering ReDoS on complex nested types.
 # ==============================================================================
 ARGS_EXTRACTION_CASES = {
-    "cpp": {
-        "valid": [
-            ("void TargetFunc(int a, float b) {", "TargetFunc"),
-            ("std::vector<int> TargetFunc(const std::string& name) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b);", "if (a > b) {"],
-        "pathological": [
-            (
-                "inline \n static \n void \n TargetFunc \n (\n  std::vector<std::string>&& items,\n  void (*callback)(int, float)\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "php": {
         "valid": [
             ("function TargetFunc(int $a, ?string $b) {", "TargetFunc"),

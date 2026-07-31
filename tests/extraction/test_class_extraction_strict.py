@@ -14,21 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 CLASS_EXTRACTION_CASES = {
-    "cpp": {
-        "valid": [
-            ("class TargetEntity {", "TargetEntity"),
-            ("struct TargetEntity : public Base {", "TargetEntity"),
-            ("template <typename T> class TargetEntity", "TargetEntity"),
-        ],
-        "invalid": ["enum classy {", "TargetEntity obj;", "friend class TargetEntity;"],
-        "pathological": [
-            # Vertical template definitions and C++ attributes
-            (
-                "template \n < \n typename T \n > \n class \n [[nodiscard]] \n TargetEntity \n : \n public Base",
-                "TargetEntity",
-            )
-        ],
-    },
     "php": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

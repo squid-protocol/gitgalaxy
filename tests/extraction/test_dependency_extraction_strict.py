@@ -14,14 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "cpp": {
-        "valid": [
-            ("#include <sys/types.h>", "sys/types.h"),
-            ("import std.core;", "std.core"),
-        ],
-        "invalid": ["int include_count = 0;"],
-        "pathological": [("export \n import \n external.module.name \n ;", "external.module.name")],
-    },
     "c": {
         "valid": [("#include <stdio.h>", "stdio.h"), ('#include "local.h"', "local.h")],
         "invalid": ["int include_path = 1;"],

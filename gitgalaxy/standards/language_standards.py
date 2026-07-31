@@ -2643,8 +2643,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions and lambdas. Bounded to prevent ReDoS on massive signatures.
+            # OUT-OF-LINE OPERATOR + RULE 11 FIX (epic #813/#821): same gaps as func_start -- no
+            # allowance for a class-qualified operator name (`TargetClass::operator=`) at all, and
+            # the method's own template-argument step-over was the flat `<[^>]*>`, breaking a
+            # nested type arg (`Foo::Bar<Baz<int>>(...)`, an explicit template specialization).
             "args": re.compile(
-                r"\b[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:<[^>]*>)?\s*\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|std::|[A-Z]\w*)\b[^)]*\)|\[[^\]]*\]\s*\([^)]*\)"
+                r"\b(?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+)(?:<(?:[^<>]|<[^<>]*>)*>)?\s*\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|std::|[A-Z]\w*)\b[^)]*\)|\[[^\]]*\]\s*\([^)]*\)"
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
@@ -2707,7 +2711,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
                 # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
                 # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
-                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?)"
+                # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no
+                # allowance for a preceding class-qualifier (`TargetClass::operator=`, `TargetClass::
+                # operator==`), unlike the plain-identifier alternative which already supports
+                # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
+                # .cpp file, declared in the header) are mainstream, common C++ -- completely
+                # invisible to func_start before this fix.
+                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
                 r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"

@@ -373,6 +373,24 @@ specifically. Check every language against these *first* before assuming a rule 
     exist), confirmed via `crucible_check.py`. When reviewing `_dependency_capture`, check whether
     the rule's grammar covers every statement FORM the language's import syntax supports (plain,
     aliased, static, global, generic-targeted), not just variations on one form.
+24. **(#821) Out-of-line member definitions (`Class::member(...)`) are worth checking explicitly
+    for C-family languages -- operator overloads specifically are easy to miss.** cpp's
+    `func_start`/`args` supported `Class::method(...)` for plain identifiers but had ZERO
+    allowance for a class-qualifier before `operator` -- `TargetClass::operator=(...)` was
+    completely invisible even though bare `operator=(...)` already worked. Distinct failure mode
+    from Rule 11 (not a nesting bug -- the `operator` branch simply never got the qualifier-prefix
+    group the plain-identifier branch already had). **Don't assume a recurring bug class means the
+    SAME rule breaks again for the next language** -- java/python/csharp all had the class_start
+    generics bug, but cpp's actual new finding was in func_start/args instead; check all four rules
+    independently every time regardless of what the streak so far suggests.
+25. **(#821) When checking a `crucible_check.py` diff for confinement, don't grep the raw `git
+    diff` text -- it reports false "other language" hits from dependency-list VALUES and unrelated
+    context lines, not just changed `Parsed Files` keys.** On a large golden-master JSON, do a
+    STRUCTURAL diff instead: load pre- and post-update JSON and diff only the top-level
+    `"6. Parsed Files (Scanned Artifacts)" -> "<repo>" -> "Files"` keys against each other. A
+    naive textual grep after cpp's fix surfaced dozens of unrelated `.zig`/`.pm`/`.h` paths that
+    looked like a confinement violation but were just pre-existing values inside other files'
+    entries.
 
 ## Process: the epic and its sub-issues
 

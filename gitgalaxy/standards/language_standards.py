@@ -3098,7 +3098,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start (Object / Entity Declarations)
             # C uses structs/unions/enums as the primary entity entities.
-            "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)\s+[a-zA-Z_]\w*", re.M),
+            # BUG FIX (epic #813/#822): the tag name was mandatory, so anonymous typedef'd structs
+            # (`typedef struct { ... } MyStruct;`, an extremely common real C idiom) never matched
+            # at all -- undercounting this structural signature. Made the tag name optional.
+            # NOTE: a trailing-`{` requirement was tried and reverted -- it would have "fixed" this
+            # rule matching bare variable declarations of an existing struct type
+            # (`struct foo_ops ops;`), but test_c_intentional_double_classification_sweep
+            # (test_language_standards_strict.py) documents that co-firing as DELIBERATE: it's how
+            # the `_ops`-vtable-style dependency_injection heuristic pairs with class_start for
+            # exactly this shape. Any future change here must keep that test passing.
+            "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)(?:\s+[a-zA-Z_]\w*)?", re.M),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             "safety": re.compile(

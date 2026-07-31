@@ -391,6 +391,34 @@ specifically. Check every language against these *first* before assuming a rule 
     naive textual grep after cpp's fix surfaced dozens of unrelated `.zig`/`.pm`/`.h` paths that
     looked like a confinement violation but were just pre-existing values inside other files'
     entries.
+26. **(#822) "Confined to the language you changed" can legitimately span multiple repo buckets --
+    polyglot/embedded files in a differently-labeled repo are expected, not a violation.** c's
+    `class_start` fix changed files in `python/numpy`, `lua/redis`, `scheme/racket`,
+    `cobol/gnucobol_internals`, and `cpp/godot`'s `object.h` (engine-classified `Language: "C"` via
+    sibling-file disambiguation, despite the repo's folder-dominant language being cpp). All
+    confirmed genuine `.c`/`.h` files embedded in those repos, not files in the repo's nominal
+    language. After the structural diff (class 25) flags changed repos, verify every changed FILE
+    within them is actually classified as the language you fixed -- check the file's own
+    `"1. Artifact Identity" -> "Language"` field, not just its extension or the repo's folder label.
+27. **(#822) Recurring class 3 can manifest via COMMENTS instead of strings, and some languages
+    are structurally immune to the string-literal variant.** C has no raw strings, and every
+    string-literal content line necessarily starts with a literal `"` (blocking `^[ \t]*` from
+    reaching function-shaped text) -- the string variant confirmed on 6 other languages does NOT
+    reproduce for C. It DOES reproduce via un-decorated block-comment continuation lines (no
+    leading `*` marker). Check a language's comment syntax independently of its string syntax, and
+    record a confirmed-safe negative result explicitly rather than silently skipping it.
+28. **(#822) ALWAYS grep `test_language_standards_strict.py` for the rule you're about to change
+    before treating a permissive match as a bug -- it may be intentional, tested, and documented.**
+    A first version of c's `class_start` fix required a trailing `{` to reject what looked like an
+    obvious false positive (`struct foo_ops ops;` matching as a "class start"). This broke
+    `test_c_intentional_double_classification_sweep`, which explicitly documents that exact match
+    as deliberate -- designed to co-fire with the `dependency_injection` rule's
+    `_ops`-vtable-suffix heuristic. Reverted, keeping only the uncontested optional-tag-name fix.
+    This repo has an entire test file dedicated to documenting cross-rule ambiguity and
+    intentional double-classification as tested behavior -- grep it for the payload shape before
+    "fixing" what looks like an obviously-wrong match. The full pytest suite step (already
+    required) does catch this eventually, but checking proactively is cheaper than a red test
+    after the fact.
 
 ## Process: the epic and its sub-issues
 

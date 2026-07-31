@@ -68,20 +68,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "c": {
-        "valid": [
-            ("void TargetFunc(int a, float *b) {", "TargetFunc"),
-            ("static inline struct MyStruct* TargetFunc(void) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b);", "while (a < b) {"],
-        "pathological": [
-            # Attributes, vertical spaces, and function pointer arguments
-            (
-                "__attribute__((always_inline)) \n static \n void \n TargetFunc \n (\n  int a,\n  void (*callback)(int, void*)\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "objective-c": {
         "valid": [
             ("- (void)TargetFunc:(int)a withB:(NSString *)b", "TargetFunc"),

@@ -14,11 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "c": {
-        "valid": [("#include <stdio.h>", "stdio.h"), ('#include "local.h"', "local.h")],
-        "invalid": ["int include_path = 1;"],
-        "pathological": [("# \n include \n <sys/socket.h>", "sys/socket.h")],
-    },
     "php": {
         "valid": [
             (

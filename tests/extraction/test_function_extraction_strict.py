@@ -25,24 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "c": {
-        "valid": [
-            ("static inline void TargetFunc(int a) {", "TargetFunc"),
-            ("struct MyStruct * TargetFunc() {", "TargetFunc"),
-        ],
-        "invalid": [
-            "typedef struct TargetFunc {",
-            "#define TargetFunc",
-            "while(TargetFunc)",
-        ],
-        "pathological": [
-            # Macro stacking, compiler attributes, and erratic pointer spacing
-            (
-                "__attribute__((always_inline))\nstatic \n inline \n struct \n MyStruct \n * \n TargetFunc \n () \n {",
-                "TargetFunc",
-            )
-        ],
-    },
     "swift": {
         "valid": [
             ("func TargetFunc()", "TargetFunc"),

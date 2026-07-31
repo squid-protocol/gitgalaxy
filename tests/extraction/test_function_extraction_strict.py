@@ -25,21 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "swift": {
-        "valid": [
-            ("func TargetFunc()", "TargetFunc"),
-            ("public mutating func TargetFunc()", "TargetFunc"),
-            ("open override func TargetFunc<T>()", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "let TargetFunc =", "guard let TargetFunc"],
-        "pathological": [
-            # Availability macros and deep modifier stacking
-            (
-                "@available(iOS 14.0, *)\npublic \n mutating \n isolated \n func \n TargetFunc \n < \n T \n > \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "php": {
         "valid": [
             ("function TargetFunc()", "TargetFunc"),

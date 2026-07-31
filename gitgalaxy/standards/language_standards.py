@@ -4497,7 +4497,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # and injected the 1-Level Nesting Trick `(?:[^)(]+|\([^)]*\))*` to safely
                 # capture the entire parameter block without ReDoS.
                 # =====================================================================
-                r"\b(?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})[ \t\n]+in\b",
+                # RULE 11 FIX (epic #813/#824): the generic-parameter step-over was the flat
+                # `<[^>]*>`, truncating at the FIRST `>` and breaking any nested generic bound via
+                # a primary associated type constraint (`func foo<T: Collection<Int>>(x: T) {`,
+                # Swift 5.7+, mainstream). Widened to the established one-level-nesting idiom.
+                r"\b(?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})[ \t\n]+in\b",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -4514,10 +4518,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Upgraded horizontal `[ \t]+` spaces to vertical `[ \t\n]+` across
                 # decorators and modifiers, and safely detached the generic stepper
                 # `(?:[ \t\n]*<[^>]*>)?` from the function name capture.
+                # RULE 11 FIX (epic #813/#824): that generic stepper was flat, truncating at the
+                # FIRST `>` and breaking any nested generic bound via a primary associated type
+                # constraint (`func foo<T: Collection<Int>>(x: T) {`, Swift 5.7+, mainstream) --
+                # same gap as args above. Widened to the established one-level-nesting idiom.
                 # =====================================================================
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:public|private|fileprivate|internal|open|package|override|final|static|class|mutating|nonmutating|isolated|nonisolated(?:\(unsafe\))?|distributed|required|convenience)[ \t\n]+){0,5}"
-                r"(?:func[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<[^>]*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
+                r"(?:func[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

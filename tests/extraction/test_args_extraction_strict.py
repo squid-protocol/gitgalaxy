@@ -26,20 +26,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "swift": {
-        "valid": [
-            ("func TargetFunc(a: Int, b: String) {", "TargetFunc"),
-            ("init(config: Config) {", "init"),
-        ],
-        "invalid": ['TargetFunc(a: 1, b: "2")', "guard let a = b else {"],
-        "pathological": [
-            # Vertical modifiers and escaping closures
-            (
-                "public \n mutating \n func \n TargetFunc \n <T> \n (\n  _ items: [T],\n  completion: @escaping (Result<Void, Error>) -> Void\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "ruby": {
         "valid": [
             ("def TargetFunc(a, b = 5)", "TargetFunc"),

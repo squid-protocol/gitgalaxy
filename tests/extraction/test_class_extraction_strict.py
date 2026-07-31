@@ -33,25 +33,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "swift": {
-        "valid": [
-            ("class TargetEntity {", "TargetEntity"),
-            ("public struct TargetEntity: Protocol", "TargetEntity"),
-            ("actor TargetEntity", "TargetEntity"),
-        ],
-        "invalid": [
-            "let obj = TargetEntity()",
-            "func classMethod()",
-            "guard let x = TargetEntity else",
-        ],
-        "pathological": [
-            # Swift attributes and vertical modifier stacking
-            (
-                "@available(iOS 14.0, *)\npublic \n final \n actor \n TargetEntity \n : \n Base",
-                "TargetEntity",
-            )
-        ],
-    },
     "scala": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

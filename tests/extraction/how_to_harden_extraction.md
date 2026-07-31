@@ -429,6 +429,17 @@ specifically. Check every language against these *first* before assuming a rule 
 30. **(#823) Recurring class 3 confirmed on a SEVENTH language (kotlin, via triple-quoted raw
     strings)** -- same shape as js/ts/java/go/rust/csharp/cpp, another confirming data point for
     the eventual `_slice_by_braces`-broadening follow-up.
+31. **(#824) Rule 11 has now been a NEW confirmed finding in 7 of 9 languages checked with any
+    generics-like syntax (java, typescript, go, python, rust, csharp, kotlin, swift) -- the two
+    exceptions (cpp, already immune from a pre-epic pass except in args; c, no generics) prove the
+    rule rather than break it. Flip the default: assume any new generics-capable language's
+    generic-parameter step-over has this bug until empirically disproven, and check it FIRST.**
+    swift's variant came from Swift 5.7+ primary associated type constraints
+    (`func foo<T: Collection<Int>>(x: T) {`) -- different concrete syntax, identical root cause
+    and fix.
+32. **(#824) Recurring class 3 confirmed on an EIGHTH language (swift) via TWO distinct string
+    forms in the same language** -- both triple-quoted multi-line strings and `#"..."#` raw string
+    literals reproduce the false positive independently.
 
 ## Process: the epic and its sub-issues
 

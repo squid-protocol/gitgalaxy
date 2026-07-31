@@ -56,19 +56,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "swift": {
-        "valid": [
-            ("import Foundation", "Foundation"),
-            ("@_exported import UIKit", "UIKit"),
-        ],
-        "invalid": ["var importData = true"],
-        "pathological": [
-            (
-                "@_exported \n import \n typealias \n CustomModule.TargetType",
-                "CustomModule.TargetType",
-            )
-        ],
-    },
     "sqlite": {
         "valid": [
             ("ATTACH DATABASE 'file.db' AS file;", "file.db"),

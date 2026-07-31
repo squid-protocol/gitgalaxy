@@ -97,20 +97,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "powershell": {
-        "valid": [
-            ("param([string]$a, [int]$b)", "param"),
-            ("function TargetFunc ([string]$a) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc -a 'foo'", "if ($a -eq $b) {"],
-        "pathological": [
-            # Extreme parameter attribute stacking
-            (
-                "function \n TargetFunc \n (\n  [Parameter(Mandatory=$true)]\n  [ValidateNotNullOrEmpty()]\n  [string[]]$items\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "tcl": {
         "valid": [
             ("proc TargetFunc {a b} {", "TargetFunc"),

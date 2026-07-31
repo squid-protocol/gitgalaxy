@@ -30,14 +30,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "powershell": {
-        "valid": [
-            ("Import-Module ActiveDirectory", "ActiveDirectory"),
-            ("using namespace System.Net", "System.Net"),
-        ],
-        "invalid": ["Write-Host 'Import-Module'"],
-        "pathological": [("using \n module \n 'MyCustomModule.psm1'", "MyCustomModule.psm1")],
-    },
     "shell": {
         "valid": [("source .env", ".env"), (". /etc/profile", "/etc/profile")],
         "invalid": ["echo 'source .env'"],

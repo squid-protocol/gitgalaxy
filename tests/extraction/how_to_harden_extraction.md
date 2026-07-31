@@ -474,6 +474,48 @@ specifically. Check every language against these *first* before assuming a rule 
     per-file signature count for an untouched language. When a fix touches `_dependency_capture`
     specifically, expect and check for this ripple shape rather than treating any non-target-language
     diff line as an automatic confinement bug.
+36. **(#834) Rule 11 also manifests for a flat PARENTHESES-wrapped parameter/argument list, not just
+    generic type parameters.** PowerShell's `args` rule (`param(...)`/`function NAME(...)`) used the
+    flat `\([^)]*\)`, truncating at the FIRST `)` -- breaking on a default-value expression
+    containing its own parens/array-subexpression syntax (`param($Tag = @('Slow', 'Feature'))`, a
+    realistic idiom). Confirmed severity via `crucible_check.py`: a real PowerShell Core corpus
+    file's detected parameter count for one function jumped 3 -> 9 once fixed. Same fix idiom as
+    every other Rule-11 instance, just the paren-list variant -- check any flat `\([^)]*\)`
+    parameter-list rule for this, not just generic-bracket rules.
+37. **(#834) Adding coverage for a bare, unprefixed declaration shape (`Identifier(params) { body
+    }`, no keyword, no return-type marker -- PowerShell class constructors) WILL collide with that
+    same language's own control-flow statement shape (`if/while/switch/for/foreach (cond) {
+    body }`), since they're textually identical to a flat regex.** A negative-lookahead keyword
+    exclusion is required alongside the new alternative. Caught here by hand-testing the fix's own
+    "invalid" case immediately after writing it, not by `crucible_check.py` -- the same "a new
+    alternative can open its own blind spot" lesson as recurring class 21, but at authoring time via
+    manual verification instead of a corpus diff. Check for this collision risk BEFORE shipping any
+    bare-identifier-plus-body alternative in a C-family-control-flow language.
+38. **(#834) A modifier/scope prefix attached to an identifier via a delimiter can make a capture
+    group swallow the PREFIX instead of the real name -- silently wrong data, not just a non-match,
+    and easy to miss in review.** PowerShell's scope qualifiers (`global:`/`script:`/`local:`/
+    `private:` before a function name) aren't in the identifier character class, so the capture
+    stopped at the delimiter and returned the scope keyword itself as if it were the function name.
+    Same root shape as Rule 16 (identifier grammar) but the failure mode -- confidently wrong output
+    vs. a safe non-match -- is worse and doesn't show up as a dramatic test failure the way a
+    non-match does.
+39. **(#834) An "optional quote pair" idiom (`['"]?...['"]?`) around a capture class that excludes
+    whitespace is a DIFFERENT bug shape from recurring class 19 (a missing symbol) -- it truncates
+    any quoted value containing that excluded symbol even though quoting should have protected it.**
+    PowerShell's `_dependency_capture` used exactly this shape, so a quoted path containing a space
+    (`'C:\Program Files\MyModule\MyModule.psd1'`, an extremely common Windows idiom) silently
+    truncated at the first space. Fix: real per-quote-style alternatives (a quoted branch permitting
+    the excluded symbol inside real quotes, a separate bare/unquoted branch that still excludes it),
+    not just widening the shared class -- widening it would also re-break the original
+    over-capture problem the optional-quote shape was trying to avoid.
+40. **(#834) `_dependency_capture`'s comment-lookalike vulnerability (class 3's shape) is NOT
+    universal -- confirmed a SECOND language (powershell, after c's #822 finding, class 27) where
+    the rule's own `^[ \t]*` anchor structurally blocks a comment marker from ever reaching the
+    keyword. But the SAME rule instance in the SAME language can still be vulnerable via a DIFFERENT
+    unshielded-content vector**: PowerShell here-strings (`@"..."@`) land their inner content at true
+    line start with no blocking marker, so import-shaped text inside one still produces a phantom
+    dependency edge. Check comment- and string-literal vectors independently per language/rule --
+    confirmed immunity to one vector doesn't imply immunity to the other.
 
 ## Process: the epic and its sub-issues
 

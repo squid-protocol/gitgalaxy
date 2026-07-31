@@ -3643,7 +3643,39 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # args: Parameters / Coupling. Captures the param block mass of functions and script files.
-            "args": re.compile(r"\bparam\s*\([^)]*\)|\bfunction\s+[a-zA-Z0-9_-]+\s*\([^)]*\)", re.I),
+            # RULE 11 FIX (epic #813/#834): both alternatives used the flat `\([^)]*\)`,
+            # truncating at the FIRST `)` and breaking on a realistic default-value expression
+            # containing its own parens (`param($Config = (Get-DefaultConfig))`, extremely common
+            # for computed defaults) -- the paren variant of the same Rule-11 bug class already
+            # fixed for angle- and square-bracket generics elsewhere. Widened to the established
+            # one-level-nesting idiom.
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#834): PS class constructors
+            # (`Foo([string]$name) { ... }`) have no leading `function` keyword and no return-type
+            # bracket, so their parameter list was invisible to this rule entirely -- added as a
+            # third alternative, anchored to a trailing `{` (not just optional) specifically so it
+            # can't also match a bare call statement (`Foo($a, $b)` with no body), which PowerShell
+            # constructors/methods always have and bare calls never do immediately on the same line.
+            # SCOPE-QUALIFIER FIX (epic #813/#834): PowerShell allows an explicit scope modifier
+            # before a function name (`function global:Foo(...)`, also `script:`/`local:`/
+            # `private:`, a real idiom for module-authored functions that need global-scope
+            # visibility). The identifier class `[a-zA-Z0-9_-]+` doesn't include `:`, so the whole
+            # alternative failed to match at all past the scope prefix -- added as an optional
+            # non-capturing step-over before the name.
+            # NEW-ALTERNATIVE FALSE-POSITIVE FIX (epic #813/#834): the bare-identifier constructor
+            # alternative just above, on its own, ALSO matched PowerShell's own control-flow
+            # statements -- `if (...) {`, `while (...) {`, `switch (...) {`, `for (...) {`,
+            # `foreach (...) {`, `elseif (...) {` all share the exact "identifier, parens, trailing
+            # brace" shape a constructor call has. Caught by hand-testing the fix's own "invalid"
+            # case (`if ($a -eq $b) {`) before shipping, not by crucible (matches recurring class 21's
+            # lesson about a new alternative's own blind spots -- here at authoring time instead of
+            # via a corpus diff). Fixed with a negative-lookahead keyword exclusion.
+            "args": re.compile(
+                r"\bparam\s*\((?:[^()]|\([^()]*\))*\)"
+                r"|\bfunction\s+(?:(?:global|script|local|private):)?[a-zA-Z0-9_-]+\s*\((?:[^()]|\([^()]*\))*\)"
+                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"[A-Za-z_]\w*\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
+                re.I | re.M,
+            ),
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
             # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
             "structural_boundaries": re.compile(
@@ -3659,9 +3691,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `[System.Collections.Generic.List[string]] GetItems() {`) --
             # a common real-world form -- never matched at all, unlike the
             # identical non-generic form (`[int] GetValue() {`), which did.
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#834): PS class constructors
+            # (`Foo([string]$name) { ... }`) have neither a leading `function` keyword nor a
+            # return-type bracket, so they were entirely invisible to this rule (only typed
+            # methods and `function`-keyword declarations matched). Added as a third
+            # alternative, anchored to a trailing `{` (not just optional) specifically so it
+            # can't also match a bare call statement (`Foo($a, $b)` with no body) -- PowerShell
+            # constructors/methods always have a body immediately following on the same
+            # logical statement, and a bare call never continues into an unrelated `{` like
+            # that in realistic code.
+            # SCOPE-QUALIFIER FIX (epic #813/#834): PowerShell allows an explicit scope modifier
+            # before a function name (`function global:Foo {}`, also `script:`/`local:`/
+            # `private:`). The identifier class doesn't include `:`, so the capture greedily
+            # consumed only the SCOPE KEYWORD itself (e.g. "global") as if it were the function
+            # name, silently returning a wrong name rather than failing to match -- worse than a
+            # non-match. Added an optional non-capturing step-over before the name.
+            # NEW-ALTERNATIVE FALSE-POSITIVE FIX (epic #813/#834): same as `args` above -- the
+            # bare-identifier constructor alternative just below also matched PowerShell's own
+            # control-flow statements (`if (...) {`, `while (...) {`, `switch (...) {`, `for (...)
+            # {`, `foreach (...) {`, `elseif (...) {`). Fixed with the same negative-lookahead
+            # keyword exclusion.
             "func_start": re.compile(
-                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)"
-                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)"
+                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()"
+                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"([A-Za-z_]\w*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
                 re.I | re.M,
             ),
             # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
@@ -3786,8 +3840,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # --- UPDATED LINE FOR THE ORCHESTRATOR ---
+            # BUG FIX (epic #813/#834): the quoted-path branches used `['\"]?...['\"]?` -- an
+            # OPTIONAL quote pair around a capture class that excludes `\s` regardless of whether
+            # a quote is actually present. So a quoted path containing a space (e.g. the extremely
+            # common Windows `'C:\Program Files\MyModule\MyModule.psd1'`) silently truncated at the
+            # first space, losing everything after it. Replaced the single optional-quote capture
+            # with three real alternatives per import form (single-quoted / double-quoted / bare):
+            # a quoted capture now allows any character except its own quote (so spaces are fine),
+            # while the bare (unquoted) form keeps the original space/semicolon exclusion, since an
+            # unquoted PowerShell path genuinely cannot contain a space.
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:Import-Module|using[ \t\n]+(?:module|namespace|assembly))[ \t\n]+['\"]?([^'\"\s;]+)['\"]?|^[ \t]*\.[ \t\n]+['\"]?([^'\"\s;]+\.ps1)['\"]?",
+                r"^[ \t]*(?:Import-Module|using[ \t\n]+(?:module|namespace|assembly))[ \t\n]+"
+                r"(?:'([^'\n]+)'|\"([^\"\n]+)\"|([^'\"\s;]+))"
+                r"|^[ \t]*\.[ \t\n]+"
+                r"(?:'([^'\n]+\.ps1)'|\"([^\"\n]+\.ps1)\"|([^'\"\s;]+\.ps1))",
                 re.I | re.M,
             ),
             # ownership: Authorship indicators in comments or metadata.

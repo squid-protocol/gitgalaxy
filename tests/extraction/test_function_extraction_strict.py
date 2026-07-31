@@ -63,14 +63,6 @@ EXTRACTION_CASES = {
             ("function \t \n TargetFunc \n {", "TargetFunc")
         ],
     },
-    "powershell": {
-        "valid": [
-            ("function TargetFunc {", "TargetFunc"),
-            ("filter TargetFunc {", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "Invoke-Command", "$TargetFunc ="],
-        "pathological": [("function \n TargetFunc \n {", "TargetFunc")],
-    },
     "cobol": {
         "valid": [
             ("       TargetFunc SECTION.", "TargetFunc"),

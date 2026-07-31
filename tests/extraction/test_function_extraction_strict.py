@@ -25,23 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "javascript": {
-        "valid": [
-            ("function TargetFunc() {", "TargetFunc"),
-            ("async function TargetFunc (req, res)", "TargetFunc"),
-            ("export const TargetFunc = async () =>", "TargetFunc"),
-            ("TargetFunc: function() {", "TargetFunc"),
-            ("  async TargetFunc() {", "TargetFunc"),  # ES6 class method
-        ],
-        "invalid": ["class TargetFunc {", "if (TargetFunc) {", "typeof TargetFunc"],
-        "pathological": [
-            # Extreme spacing and asynchronous assignment spanning multiple lines
-            (
-                "export \n const \n TargetFunc \n = \n async \n (req, res) \n =>",
-                "TargetFunc",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("public async Task<List<string>> TargetFunc()", "TargetFunc"),

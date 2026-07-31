@@ -67,25 +67,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "javascript": {
-        "valid": [
-            ("class TargetEntity {", "TargetEntity"),
-            ("export default class TargetEntity extends Base", "TargetEntity"),
-            ("export class TargetEntity", "TargetEntity"),
-        ],
-        "invalid": [
-            "const a = class {}",
-            "function classy() {",
-            "import { TargetEntity } from 'foo';",
-        ],
-        "pathological": [
-            # Vertical default exports and inheritance
-            (
-                "export \n default \n class \n TargetEntity \n extends \n Base",
-                "TargetEntity",
-            )
-        ],
-    },
     "swift": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

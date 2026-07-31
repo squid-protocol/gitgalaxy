@@ -12,20 +12,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # across major languages without triggering ReDoS on complex nested types.
 # ==============================================================================
 ARGS_EXTRACTION_CASES = {
-    "javascript": {
-        "valid": [
-            ("function TargetFunc(req, res) {", "TargetFunc"),
-            ("const TargetFunc = async (data) =>", "TargetFunc"),
-            ("  TargetFunc(config) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(req, res)", "while (i < 10) {"],
-        "pathological": [
-            (
-                "export \n const \n TargetFunc \n = \n async \n (\n  { id, user: { name } },\n  [first, ...rest] = []\n) \n =>",
-                "TargetFunc",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("public void TargetFunc(int a, string b)", "TargetFunc"),

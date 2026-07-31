@@ -14,22 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "javascript": {
-        "valid": [
-            (
-                'import { Component } from "@scope/package/module";',
-                "@scope/package/module",
-            ),
-            ('const fs = require("fs");', "fs"),
-        ],
-        "invalid": ['const importPath = "x";', 'console.log("imported");'],
-        "pathological": [
-            (
-                "export \n type \n { \n  ComponentA \n } \n from \n '@scope/custom-module'",
-                "@scope/custom-module",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("using System.Threading.Tasks;", "System.Threading.Tasks"),

@@ -343,6 +343,20 @@ specifically. Check every language against these *first* before assuming a rule 
 20. **(#819) Class 3 reproduced on a FOURTH, unrelated language feature.** Rust's raw string
     literals (`r#"..."#`) produce the same false positive as js/ts template literals, Java text
     blocks, and Go raw strings.
+21. **(#814) A fix's own whitespace tolerance can open a NEW false-positive path -- caught only by
+    `crucible_check.py`, not by hand-written tests.** Fixing javascript's `func_start`/`args` to
+    recognize ES6 generator methods (`*foo() {}`) initially used a whitespace-tolerant
+    `\*?[ \t\n]*`, matching the style of the other modifier gaps around it. This let a JSDoc
+    comment continuation line (`* A (storage) buffer attribute...` -- `*` is the comment marker,
+    "A" is prose) get hallucinated as a generator method, confirmed against a real corpus file. No
+    hand-written pathological case would have caught this shape. Fix: require the star to hug the
+    name with zero whitespace (every real formatter emits `*foo()`, never `* foo()`) -- stricter
+    AND more accurate, not a flexibility regression. **General lesson:** when a fix widens a rule
+    with a "reasonable-sounding" whitespace-tolerant character class, check whether that specific
+    optional character can ALSO appear as the leading character of a comment/string in real code --
+    if so, match the strictest shape real formatted code actually produces, not the most permissive
+    shape the grammar technically allows. This is exactly why step 3's crucible-check requirement
+    exists even for "obviously safe" widenings.
 
 ## Process: the epic and its sub-issues
 

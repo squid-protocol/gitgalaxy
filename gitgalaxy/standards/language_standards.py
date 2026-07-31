@@ -611,10 +611,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # rule; possessive quantifiers (`*+`) would be cleaner but aren't
                 # available until Python 3.11, and this package supports 3.9+.
                 # =====================================================================
+                # GENERATOR METHOD FIX (epic #813/#814): the class-method branch had no
+                # allowance for the leading `*` ES6 generator method shorthand uses
+                # (`*foo(a, b) {}`, `async *foo(a, b) {}`) -- same gap already fixed in
+                # func_start for this language. Deliberately NO whitespace tolerance
+                # between `*` and the name (unlike the other modifier gaps): a real
+                # generator method always hugs the star to the name with zero space
+                # (Prettier/every real formatter), and allowing whitespace there let a
+                # JSDoc comment continuation line (`* A (storage) buffer...` -- the `*`
+                # is the comment marker, "A" is prose) false-positive-match as a
+                # generator method named "A" -- caught empirically via crucible_check.py
+                # against real corpus code (threejs), not by any test case alone.
                 r"(?:"
                 r"\b(?:async[ \t\n]+)?function[ \t\n]*\w*[ \t\n]*\([^)]*\)|"
                 r"(?:\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
-                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?(?!(?:if|for|while|switch|catch|return)\b)(?:#?[a-zA-Z_$][\w$]*)[ \t\n]*\([^)]*\)(?=[ \t\n]*\{)"
+                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return)\b)(?:#?[a-zA-Z_$][\w$]*)[ \t\n]*\([^)]*\)(?=[ \t\n]*\{)"
                 r")",
                 re.M,
             ),
@@ -641,7 +652,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # =====================================================================
                 r"\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=\s*\()"
+                # GENERATOR METHOD FIX (epic #813/#814): class/object-literal generator
+                # methods (`*foo() {}`, `async *foo() {}`, `static *foo() {}`) were
+                # completely invisible -- this branch had no allowance for the leading
+                # `*` that ES6 generator method shorthand uses (unlike the plain
+                # `function*` declaration branch above, which already had `\*?`).
+                # Deliberately NO whitespace tolerance between `*` and the name: a real
+                # generator method always hugs the star to the name with zero space
+                # (every real formatter), and allowing whitespace there let a JSDoc
+                # comment continuation line (`* A (storage) buffer...` -- the `*` is the
+                # comment marker, "A" is prose) false-positive-match as a generator
+                # method named "A" -- caught empirically via crucible_check.py against
+                # real corpus code (threejs), not by any test case alone.
+                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=\s*\()"
                 r")",
                 re.M,
             ),

@@ -58,12 +58,15 @@ or reading a large file cold, when the question is really "how big/risky/depende
 thing" rather than "what does this specific code do."
 
 - **`docs/gitgalaxy_architecture_brief.md`** — auto-committed on every merge to main (a byproduct
-  of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. Use it for
-  *repo-wide* framing before a large refactor: Section 7 has the actual blast-radius ranking
-  ("Top 5 Structural Pillars" by import fan-in, "Top 5 Orchestrators" by fan-out), Section 8 has
-  the heaviest functions repo-wide, Section 11 has the top 10 files by cumulative risk. If a file
-  you're about to touch shows up in one of these lists, that's a real signal to be more
-  conservative (smaller diffs, more explicit tests) — not a vague guess.
+  of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. This scan
+  always installs `networkx`/`tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
+  "Install GitGalaxy & Full Precision Engines" step) — confirm by checking the brief's own
+  Section 0 traceability table, which reports `Zero-Dependency Mode: Inactive (Full Precision)`.
+  Use it for *repo-wide* framing before a large refactor: Section 7 has the actual blast-radius
+  ranking ("Top 5 Structural Pillars" by import fan-in, "Top 5 Orchestrators" by fan-out),
+  Section 8 has the heaviest functions repo-wide, Section 11 has the top 10 files by cumulative
+  risk. If a file you're about to touch shows up in one of these lists, that's a real signal to
+  be more conservative (smaller diffs, more explicit tests) — not a vague guess.
 - **`docs/self_scan/gitgalaxy_master.db`** (SQLite, via `tests/tools/self_scan.py`) — targeted,
   near-zero-token ad hoc queries about one specific file/function instead of reading the whole
   file just to count its functions or gauge its complexity. **It's gitignored and NOT committed
@@ -87,10 +90,16 @@ thing" rather than "what does this specific code do."
       "SELECT directory_group, COUNT(*) files, SUM(total_loc) loc, SUM(function_count) funcs
        FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
     ```
-  - **Known gap:** `pagerank_score` and `normalized_blast_radius` are always NULL in this DB —
-    `self_scan.py` runs galaxyscope in `--db-only` mode, which skips the network/PageRank stage
-    (`network_risk_sensor.py`) for speed. For blast-radius/fan-in questions, use the
-    architecture brief's Section 7 instead, not this DB.
+  - **Full-precision dependencies required:** `pagerank_score`, `normalized_blast_radius`, and
+    other network/ML-derived columns need `networkx`, `tiktoken`, `numpy`, `pandas`, `xgboost`,
+    and `pyyaml` importable in whatever environment runs the scan — without all of them,
+    galaxyscope silently drops into Zero-Dependency Mode and those columns come back NULL (this
+    is *not* caused by `--db-only` itself, which only selects which recorder writes output; a
+    local dev venv missing one of these packages was the actual cause the one time this bit us).
+    `self_scan.py` now checks for all six before scanning and aborts loudly if any are missing,
+    rather than silently producing a degraded DB — if you hit that, `pip install` whatever it
+    lists. CI's copy (the `gitgalaxy-self-scan-db` artifact) always has these installed first, so
+    it's always full-precision; only a local run can be affected.
   - It also doesn't parse inside large dict/list literals (e.g. it can't tell you where the
     `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.

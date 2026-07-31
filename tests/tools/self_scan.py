@@ -41,6 +41,7 @@ file_id).
 """
 
 import argparse
+import importlib.util
 import os
 import shutil
 import sqlite3
@@ -52,8 +53,33 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SELF_SCAN_DIR = REPO_ROOT / "docs" / "self_scan"
 DB_PATH = SELF_SCAN_DIR / "gitgalaxy_master.db"
 
+# Mirrors the HAS_NETWORKX / HAS_TIKTOKEN / ML_AVAILABLE / HAS_PYYAML checks in
+# galaxyscope.py / network_risk_sensor.py / security_auditor.py. Without every
+# one of these, galaxyscope silently drops into "Zero-Dependency Mode" --
+# pagerank_score and normalized_blast_radius (and other network/ML-derived
+# columns) get written as NULL instead of erroring, since zero-dependency mode
+# is a legitimate, intentional mode for scanning *other* repos where installing
+# the full ML stack isn't wanted. But for THIS repo's own self-scan, silently
+# degraded output defeats the point -- callers query this DB assuming full
+# precision. Fail loudly before wasting a scan on a DB nobody wanted.
+FULL_PRECISION_PACKAGES = ("networkx", "tiktoken", "numpy", "pandas", "xgboost", "yaml")
+
+
+def _check_full_precision_deps() -> None:
+    missing = [pkg for pkg in FULL_PRECISION_PACKAGES if importlib.util.find_spec(pkg) is None]
+    if missing:
+        sys.exit(
+            "self-scan aborted -- missing full-precision dependencies: "
+            + ", ".join(missing)
+            + "\nWithout these, galaxyscope silently degrades to Zero-Dependency Mode and "
+            "pagerank_score/normalized_blast_radius (and other network/ML-derived columns) "
+            "come back NULL instead of erroring. Install them into this environment first:\n"
+            "    pip install " + " ".join(pkg if pkg != "yaml" else "pyyaml" for pkg in missing)
+        )
+
 
 def regenerate() -> None:
+    _check_full_precision_deps()
     SELF_SCAN_DIR.mkdir(parents=True, exist_ok=True)
     galaxyscope = shutil.which("galaxyscope")
     if not galaxyscope:
@@ -100,6 +126,22 @@ def print_summary() -> None:
         (total_classes,) = conn.execute("SELECT COUNT(*) FROM class_data").fetchone()
         print(f"✅ Regenerated {DB_PATH.relative_to(REPO_ROOT)}")
         print(f"   {total_files} files, {total_funcs} functions, {total_classes} classes indexed.")
+
+        # Belt-and-suspenders: _check_full_precision_deps() confirms the
+        # packages are importABLE, not that galaxyscope actually used them --
+        # an internal exception during graph-building could still leave these
+        # NULL even with every dependency present. Verify the real output.
+        (with_pagerank,) = conn.execute(
+            "SELECT COUNT(*) FROM file_data WHERE pagerank_score IS NOT NULL"
+        ).fetchone()
+        if total_files and with_pagerank == 0:
+            print(
+                "⚠️  pagerank_score/normalized_blast_radius are NULL for every file -- this scan "
+                "ran in Zero-Dependency Mode despite full-precision packages being importable. "
+                "Blast-radius queries against this DB will return nothing; check galaxyscope's "
+                "stderr output above for why.",
+                file=sys.stderr,
+            )
     finally:
         conn.close()
 

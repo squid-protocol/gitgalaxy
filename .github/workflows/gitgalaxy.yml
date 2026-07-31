@@ -117,6 +117,21 @@ jobs:
           name: gitgalaxy-sbom
           path: gitgalaxy-results_sbom.json
 
+      # The self-scan DB (tests/tools/self_scan.py) is gitignored on purpose --
+      # it's a cheap-to-regenerate (~6-8s), disposable structural index, same
+      # spirit as .crucible_venvs/ -- so unlike the LLM brief below, it's never
+      # committed to git history. Publishing it as a build artifact instead
+      # gives anyone (a fresh worktree, a coding-agent session without a local
+      # `pip install -e .`) a guaranteed-fresh copy without a repo-history cost.
+      - name: Regenerate Self-Scan DB
+        run: python tests/tools/self_scan.py
+
+      - name: Upload Self-Scan DB as Build Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gitgalaxy-self-scan-db
+          path: docs/self_scan/gitgalaxy_master.db
+
       # --- everything below here REPLACES the old "Commit LLM Brief to Docs" step ---
       - name: Prepare LLM Brief
         run: |

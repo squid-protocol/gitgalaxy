@@ -1732,8 +1732,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
+            # RULE 11 FIX (epic #813/#820): there was no generic-parameter step-over between the
+            # class/interface/etc. name and the base-list `:` check, so ANY generic type with a base
+            # list (`class Foo<T> : Base<T> {`, extremely common) left the class's own `<...>`
+            # unconsumed right before `:`, silently losing the entire base-list capture (group 2)
+            # even though the name (group 1) still matched fine -- same failure shape as java's
+            # #816 class_start bug. Also added a primary-constructor parameter-list step-over
+            # (`record Foo<T>(T Value) : Base<T>`, C# 9+ records / C# 12 primary constructors on
+            # classes/structs, mainstream and common) for the same reason -- the `(...)` between the
+            # generics and the `:` was equally unconsumed.
             "class_start": re.compile(
-                r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new)[ \t]+){0,5}(?:class|interface|struct|record|enum)\s+([A-Za-z_$][\w_$]*)(?:\s*:\s*([A-Za-z_$][\w_$, \t<>\?]*))?",
+                r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new)[ \t]+){0,5}(?:class|interface|struct|record|enum)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\((?:[^()]|\([^()]*\))*\))?(?:\s*:\s*([A-Za-z_$][\w_$, \t<>\?]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -1835,8 +1844,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"^[ \t]*(?:global[ \t]+)?using\s+(?:static[ \t]+)?[\w.]+;", re.M),
+            # ALIAS DIRECTIVE FIX (epic #813/#820): `using Alias = Target.Namespace;` (a using-alias
+            # directive, common for shortening long generic types or disambiguating identical type
+            # names from different namespaces) didn't match AT ALL -- there was no allowance for the
+            # `IDENT =` prefix before the actual target, so the whole statement produced zero
+            # dependency-graph edges. Added an optional alias-prefix skip-over so the capture lands
+            # on the real target (`Target.Namespace`), not the local alias name. Also added an
+            # optional generic-suffix step-over after the target capture: an alias directive's
+            # target is very commonly a CLOSED generic type (`using StringList =
+            # System.Collections.Generic.List<string>;` -- the primary real-world reason alias
+            # directives exist, to shorten long generics), and the required trailing `;` check
+            # failed on the unconsumed `<...>` without it.
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:global[ \t\n]+)?using[ \t\n]+(?:static[ \t\n]+)?([\w.]+)[ \t\n]*;",
+                r"^[ \t]*(?:global[ \t\n]+)?using[ \t\n]+(?:static[ \t\n]+)?(?:[\w]+[ \t\n]*=[ \t\n]*)?([\w.]+)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*;",
                 re.M,
             ),
             # 25. ownership (Authorship Metadata)

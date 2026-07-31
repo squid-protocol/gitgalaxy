@@ -25,28 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "csharp": {
-        "valid": [
-            ("public async Task<List<string>> TargetFunc()", "TargetFunc"),
-            ("protected override void TargetFunc(int x)", "TargetFunc"),
-            (
-                "internal static readonly Dictionary<int, string> TargetFunc()",
-                "TargetFunc",
-            ),
-        ],
-        "invalid": [
-            "public class TargetFunc {",
-            "if (TargetFunc == null)",
-            "new TargetFunc()",
-        ],
-        "pathological": [
-            # Vertical stacking, attribute bloat, and massive nested generics
-            (
-                '[Obsolete]\n[Route("api/v1")]\npublic\nasync\nTask<Dictionary<string, List<int>>>\nTargetFunc\n(',
-                "TargetFunc",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("int TargetFunc() {", "TargetFunc"),

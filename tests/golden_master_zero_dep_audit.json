@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-31T02:31:20.414655+00:00",
-            "Total Scan Duration": "23.43 seconds"
+            "Analysis ISO Timestamp": "2026-07-31T03:40:29.812842+00:00",
+            "Total Scan Duration": "22.46 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -4129,7 +4129,7 @@
             },
             "firewall": {
                 "imports_whitelisted": 0,
-                "imports_unknown": 7358,
+                "imports_unknown": 7359,
                 "imports_blacklisted": 0,
                 "threats_found": 139,
                 "threats_allowed": 0
@@ -43758,26 +43758,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 12.348,
+                        "Repository Drift (Z-Score)": 12.362,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.567,
-                            "file_cluster_1": 12.913,
-                            "file_cluster_2": 13.117,
-                            "file_cluster_3": 13.881,
-                            "file_cluster_4": 12.609,
-                            "file_cluster_5": 13.272,
-                            "file_cluster_6": 13.1,
-                            "file_cluster_7": 12.601,
-                            "file_cluster_8": 12.559,
-                            "file_cluster_9": 13.152,
-                            "file_cluster_10": 13.746,
-                            "file_cluster_11": 12.696,
-                            "file_cluster_12": 13.27,
-                            "file_cluster_13": 12.348,
-                            "file_cluster_14": 16.568,
-                            "file_cluster_15": 12.693,
-                            "file_cluster_16": 12.589,
-                            "file_cluster_17": 13.125
+                            "file_cluster_0": 12.58,
+                            "file_cluster_1": 12.927,
+                            "file_cluster_2": 13.13,
+                            "file_cluster_3": 13.893,
+                            "file_cluster_4": 12.623,
+                            "file_cluster_5": 13.286,
+                            "file_cluster_6": 13.113,
+                            "file_cluster_7": 12.614,
+                            "file_cluster_8": 12.572,
+                            "file_cluster_9": 13.165,
+                            "file_cluster_10": 13.759,
+                            "file_cluster_11": 12.709,
+                            "file_cluster_12": 13.283,
+                            "file_cluster_13": 12.362,
+                            "file_cluster_14": 16.577,
+                            "file_cluster_15": 12.707,
+                            "file_cluster_16": 12.603,
+                            "file_cluster_17": 13.138
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -44024,13 +44024,14 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 14,
+                        "Direct Upstream (Fragility)": 15,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
                         "Microsoft.CodeAnalysis.CSharp.Syntax",
+                        "Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax",
                         "Microsoft.CodeAnalysis.Collections",
                         "Microsoft.CodeAnalysis.PooledObjects",
                         "Microsoft.CodeAnalysis.Text",

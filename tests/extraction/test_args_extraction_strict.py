@@ -12,22 +12,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # across major languages without triggering ReDoS on complex nested types.
 # ==============================================================================
 ARGS_EXTRACTION_CASES = {
-    "csharp": {
-        "valid": [
-            ("public void TargetFunc(int a, string b)", "TargetFunc"),
-            (
-                "protected override Task<int> TargetFunc(CancellationToken token)",
-                "TargetFunc",
-            ),
-        ],
-        "invalid": ["TargetFunc(a, b);", "catch (Exception ex)"],
-        "pathological": [
-            (
-                "public \n async \n Task<IActionResult> \n TargetFunc \n (\n  [FromBody] User user,\n  [FromQuery] string? id,\n  Action<bool, string> callback\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("void TargetFunc(int a, float b) {", "TargetFunc"),

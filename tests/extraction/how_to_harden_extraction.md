@@ -357,6 +357,22 @@ specifically. Check every language against these *first* before assuming a rule 
     if so, match the strictest shape real formatted code actually produces, not the most permissive
     shape the grammar technically allows. This is exactly why step 3's crucible-check requirement
     exists even for "obviously safe" widenings.
+22. **(#820) `class_start`'s missing-generic-step-over bug keeps recurring independently across
+    unrelated languages.** java (#816), python (#818), and csharp (#820) all had it, each
+    discovered separately, from a 4-language sample of generics-capable languages checked so far.
+    **For any future language with generics, check `class_start`'s name-to-base-list gap FIRST**
+    given this hit rate, rather than treating it as a fresh discovery each time. csharp also needed
+    a companion fix no prior language required: a primary-constructor parameter-list step-over
+    (`record Foo<T>(T Value) : Base<T>`, C# 9+ records / C# 12 primary constructors) -- check for
+    this shape in any language with "primary constructor"-style class declarations (Kotlin, Scala).
+23. **(#820) A `_dependency_capture` rule can be missing an entire real-world statement SHAPE, not
+    just a character.** csharp's `using Alias = Target;` alias directive didn't match AT ALL --
+    no allowance for the `IDENT =` prefix at all (contrast with rust's #819 finding, which was just
+    a missing `*` in an existing shape). The alias target itself also needed its own generic-suffix
+    step-over (`using StringList = List<string>;`, the primary real-world reason alias directives
+    exist), confirmed via `crucible_check.py`. When reviewing `_dependency_capture`, check whether
+    the rule's grammar covers every statement FORM the language's import syntax supports (plain,
+    aliased, static, global, generic-targeted), not just variations on one form.
 
 ## Process: the epic and its sub-issues
 

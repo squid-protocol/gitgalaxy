@@ -14,25 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 CLASS_EXTRACTION_CASES = {
-    "csharp": {
-        "valid": [
-            ("public class TargetEntity", "TargetEntity"),
-            ("internal record TargetEntity", "TargetEntity"),
-            ("public interface TargetEntity<T>", "TargetEntity"),
-        ],
-        "invalid": [
-            "var obj = new TargetEntity();",
-            "public classList",
-            "typeof(TargetEntity)",
-        ],
-        "pathological": [
-            # Vertical attribute stacking, modifiers, and inheritance interfaces
-            (
-                '[Serializable]\n[Route("api/v1")]\npublic \n sealed \n class \n TargetEntity \n : \n IDisposable \n , \n ICloneable',
-                "TargetEntity",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

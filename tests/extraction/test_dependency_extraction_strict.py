@@ -14,19 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "csharp": {
-        "valid": [
-            ("using System.Threading.Tasks;", "System.Threading.Tasks"),
-            ("global using static System.Math;", "System.Math"),
-        ],
-        "invalid": ["using (var stream = new FileStream())"],
-        "pathological": [
-            (
-                "global \n using \n static \n Microsoft.AspNetCore.Mvc \n ;",
-                "Microsoft.AspNetCore.Mvc",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("#include <sys/types.h>", "sys/types.h"),

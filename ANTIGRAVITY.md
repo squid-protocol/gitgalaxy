@@ -69,3 +69,11 @@ GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture
 - **Freshness:** unlike the architecture brief (auto-committed to `docs/` on every merge to main), the self-scan DB is gitignored on purpose -- it's a cheap-to-regenerate (~6-8s), disposable index, not history. It may be missing or stale in your checkout.
   - Fastest path in an active session: `python tests/tools/self_scan.py` regenerates it in place.
   - If you'd rather not run a local scan, the `gitgalaxy.yml` workflow's "Full Report" job now publishes a fresh copy as a `gitgalaxy-self-scan-db` build artifact on every merge to main -- pull the latest one from that workflow's most recent run instead.
+
+## 7. Submitting Pull Requests
+
+When working in this repository, **always work on a side branch and submit a PR to `main`. Do not merge or push directly to `main`.**
+
+When generating or submitting a Pull Request for this repository, it is critical to provide comprehensive context for reviewers. 
+- **Always add a thorough description:** Outline the changes, the rationale, and any structural boundaries or tests added. Do not leave the PR body blank or sparse.
+- **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.

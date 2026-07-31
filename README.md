@@ -121,11 +121,17 @@ instance first.
 
 <div align="center">
 
-Tracking the total, deduplicated volume of fetches across PyPI, GitHub, and GitLab against our baseline control repositories.
+GitGalaxy is meant to run *in* CI, not just get starred and forgotten — so we track CI/production integration as its own adoption signal alongside human discovery, instead of filtering it out as noise.
+
+<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/human_vs_ci_adoption.png" alt="GitGalaxy: Human Discovery vs. Production Integration" width="700">
+
+**Left:** GitHub stars, forks, unique cloners, and unique profile views. **Right:** GitLab CI/CD Catalog usage (unique projects running GitGalaxy in a pipeline in the last 30 days) and GitHub Action adoption (unique repos referencing the action in a workflow, via code search — GitGalaxy isn't Marketplace-listed yet, so this is the best passive signal available). The CI/production panel is a new data series — expect it to fill in day by day rather than show history.
 
 <img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/cumulative_downloads.png" alt="GitGalaxy Cumulative Downloads" width="500">
 
-Measured without mirrors. The GitHub/PyPI breakdown lines begin partway through the window because per-source tracking was added after total-fetch tracking; the total line before that point is aggregate across all sources.
+Combined distribution volume across PyPI, GitHub, and GitLab against our baseline control repositories — **not a uniformly deduplicated count**. GitHub's unique-cloner count and GitLab's unique-project count are genuinely deduplicated; PyPI's public download data has no identity to deduplicate against (measured without mirrors, which excludes known mirror-sync bots but not CI-driven installs), so that component is a raw download-event count. The GitHub/PyPI breakdown lines begin partway through the window because per-source tracking was added after total-fetch tracking; the total line before that point is aggregate across all sources.
+
+Full methodology, including exactly what is and isn't deduplicated per source: [squid-protocol/squid-telemetry](https://github.com/squid-protocol/squid-telemetry#methodology-notes).
 </div>
 
 <div>

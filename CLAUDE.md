@@ -67,6 +67,26 @@ first. If you fix backlog findings, regenerate the baseline by running the scrip
 `--ci`. `ruff format --check` is the one zero-tolerance exception (whole repo was reformatted
 once at adoption, so there's no backlog to carry).
 
+Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three
+`--ci` scripts separately and manually diffing each baseline by eye — it bundles all three plus
+the format check, and auto-detects "pure line-shift" findings (same file/code/message, just moved
+because an earlier edit in the same file shifted everything below it) from genuine new findings
+that need real review, only regenerating the former.
+
+## Testing conventions
+
+`tests/` has no `__init__.py` anywhere in this repo. A new test file that needs to import a
+sibling helper module (not the `gitgalaxy` package itself, which is always safely importable via
+its normal `pip install -e .` editable install) must insert that sibling's directory onto
+`sys.path` and import it as a bare top-level module — **never** a dotted `tests.x.y.some_module`
+import. That form passes every local `python -m pytest` run (which prepends the CWD to
+`sys.path`) but fails in CI with `ModuleNotFoundError: No module named 'tests'`, because CI
+invokes the `pytest` console script directly, which doesn't do that prepending. See any file
+under `tests/extraction/languages/` for the working pattern. Before pushing a new test file with
+this kind of import, verify it by running plain `pytest <file>` (not `python -m pytest`) from an
+unrelated working directory — that reproduces CI's actual invocation style locally instead of on
+a wasted CI round-trip.
+
 ## The Differential Scan (PR protocol for engine/regex changes)
 
 Any PR touching parsing logic (`detector.py`, `language_standards.py`, `prism.py`, etc.) is

@@ -1526,19 +1526,21 @@ class StructuralExtractor:
         # Gated to javascript/typescript only, NOT applied to every Mode B
         # language: verifying this fix against the real crucible corpus
         # surfaced a pre-existing, separate bug in `prism.py`'s comment/
-        # string stripping for PHP (#859) -- `combined_pattern`'s shielding
-        # already relies on `code_stream` being clean, and for at least two
-        # real PHP corpus files it isn't, causing a multi-thousand-character
-        # false shield match. That's harmless today because the brace
-        # search's blast radius is naturally bounded (a bounded window, one
-        # brace lookup) -- but matching *all* of func_start's positions
-        # against a corrupted `safe_code` (this fix's approach) turns that
-        # latent corruption into wholesale loss of real functions for those
-        # files (confirmed: one file dropped from 1 real function detected
-        # to 0, with a 17x structural-magnitude blowup). Broadening this fix
-        # to other Mode B languages should follow #859 (and an audit of
-        # whether other languages share the same class of prism.py gap),
-        # not precede it.
+        # string stripping for PHP (#859, FIXED -- the broken
+        # PHP_MULTILINE_STRING extraction step was removed entirely) --
+        # `combined_pattern`'s shielding already relies on `code_stream`
+        # being clean, and for at least two real PHP corpus files it wasn't,
+        # causing a multi-thousand-character false shield match. That was
+        # harmless before this fix because the brace search's blast radius
+        # is naturally bounded (a bounded window, one brace lookup) -- but
+        # matching *all* of func_start's positions against a corrupted
+        # `safe_code` (this fix's approach) turned that latent corruption
+        # into wholesale loss of real functions for those files (confirmed:
+        # one file dropped from 1 real function detected to 0, with a 17x
+        # structural-magnitude blowup). #859 is now fixed, so broadening
+        # this gate to other Mode B languages is unblocked -- but still do
+        # it as its own audited PR (confirm no other language has a similar
+        # latent prism.py gap first), not as a drive-by expansion here.
         if lang_id in ("javascript", "typescript"):
             try:
                 matches = list(func_start.finditer(safe_code))

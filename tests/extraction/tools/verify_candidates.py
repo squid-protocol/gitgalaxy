@@ -130,9 +130,7 @@ def check_redos_scaling(lang: str, rule_key: str, payload_fn, sizes=(2000, 4000,
 def _cli() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--lang", required=True)
-    parser.add_argument(
-        "--rule", required=True, choices=["func_start", "args", "class_start", "_dependency_capture"]
-    )
+    parser.add_argument("--rule", required=True, choices=["func_start", "args", "class_start", "_dependency_capture"])
     parser.add_argument("--payload", required=True)
     parser.add_argument("--expect-match", action="store_true")
     parser.add_argument("--expect-name", default=None)

@@ -171,25 +171,52 @@ reasonable *floor*. Push further — aim for 10-15 per major language covering, 
 ## Verification discipline (non-negotiable)
 
 1. **Empirically verify every candidate case against the real compiled regex before adding it to
-   the test file.** Write a throwaway script that imports `LANGUAGE_DEFINITIONS`, compiles nothing
-   extra, and calls `.search()` directly — don't guess whether a payload matches. A case that's
-   wrong about the engine's actual behavior is worse than no case: it either bakes in a bug as
-   "expected" or fails for the wrong reason.
+   the test file.** Use `tests/extraction/tools/verify_candidates.py` — `check_case()`/`check_many()`
+   from a scratch script, or the CLI for a single ad-hoc check — instead of rewriting the same
+   checker function from scratch (every language pass before this tool existed did exactly that).
+   Don't guess whether a payload matches. A case that's wrong about the engine's actual behavior is
+   worse than no case: it either bakes in a bug as "expected" or fails for the wrong reason.
 2. **A failing verification is a finding, not necessarily a bug to fix immediately.** Triage each
    one: is the payload realistic (a fair test), or did the payload accidentally test something the
    rule was never meant to handle (e.g. a single-line object-literal method shorthand when the rule
-   is `^`-anchored and the real-world form is always multi-line)? Rewrite unrealistic payloads
-   before concluding there's a bug.
-3. **Real bugs get fixed with the full existing discipline**, not just documented: ReDoS scaling
-   check if the fix touches a quantifier, `ruff format`/`ruff_audit.py --ci`/`mypy_audit.py --ci`/
-   `dead_key_audit.py --ci`, full relevant test suites, and — if the fix touches `language_standards.py`,
-   `detector.py`, or `prism.py` — `tests/tools/crucible_check.py` with the diff verified file-by-file
-   against ground truth (not just "the diff count looks plausible") before regenerating golden
-   masters. See `CLAUDE.md`'s Differential Scan section.
+   is `^`-anchored and the real-world form is always multi-line; a nested-generic depth beyond what
+   the established one-level-nesting idiom claims to support)? Rewrite unrealistic payloads before
+   concluding there's a bug, and don't force a fix to reach a depth/case the architecture was never
+   designed to handle — see recurring-bug-class notes on generic nesting and bare-call ambiguity
+   below for two concrete examples of "investigated, documented, deliberately not fixed."
+3. **Real bugs get fixed with the full existing discipline**, not just documented:
+   - ReDoS scaling check if the fix touches a quantifier — `verify_candidates.py`'s
+     `check_redos_scaling()` for quick iteration; a real assertion (`assert_redos_immune`, already
+     available from `_extraction_harness.py`) once the pattern is finalized.
+   - `python tests/tools/audit_check.py` (add `--regenerate` if it reports pure line-shifts — see its
+     own docstring) instead of running `ruff format`/`ruff_audit.py --ci`/`mypy_audit.py --ci`/
+     `dead_key_audit.py --ci` as four separate commands and manually eyeballing each diff.
+   - Full relevant test suites.
+   - If the fix touches `language_standards.py`, `detector.py`, or `prism.py`:
+     `python tests/tools/crucible_check.py` (never hand-build venvs — see `CLAUDE.md`'s Differential
+     Scan section for why a stale/shared venv silently scans the wrong checkout). A real diff must be
+     confirmed **confined to the language(s) you actually changed** before blessing — pull the unique
+     language names out of the diff output and check nothing else shows up — not just eyeballed for
+     "the magnitude looks plausible." Only then `python tests/tools/crucible_check.py --update --yes`
+     to regenerate both golden masters in one call (it builds/refreshes both venvs itself; you do not
+     need to `source .../bin/activate` anything by hand).
 4. **A fix that spans many languages at once** (like the `_slice_by_braces` raw-vs-shielded-code
    ordering bug) is an architectural fix, not a per-language one — file it as its own issue, fix it
    on its own branch/PR, and note in the affected languages' sub-issues that it's covered elsewhere
-   rather than re-fixing it N times.
+   rather than re-fixing it N times. If verifying the broad version surfaces an unrelated pre-existing
+   bug elsewhere (e.g. #859's PHP `prism.py` corruption, found while verifying the shared
+   `_slice_by_braces` fix), gate the fix to just the language(s) actually in scope rather than either
+   shipping the regression or blocking on the unrelated bug too.
+5. **Any new test file that imports a sibling helper module must use `sys.path` insertion, not a
+   dotted `tests.x.y` import.** This repo's `tests/` tree has no `__init__.py` anywhere, so
+   `from tests.extraction._extraction_harness import ...` passes every local `python -m pytest` run
+   (which prepends the CWD to `sys.path`) but fails in CI with `ModuleNotFoundError: No module named
+   'tests'` (CI invokes the `pytest` console script directly, which doesn't). See any file under
+   `tests/extraction/languages/` for the exact working pattern — insert `Path(__file__).resolve().
+   parent.parent` onto `sys.path`, then import the helper as a bare top-level module name. **Before
+   pushing any new test file with this kind of import, verify it by running plain `pytest <file>`
+   (not `python -m pytest`) from an unrelated working directory** — this reproduces CI's actual
+   invocation style and catches the failure locally instead of on a wasted CI round-trip.
 
 ## Recurring bug classes (seed list — extend this as the epic progresses)
 

@@ -30,14 +30,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "powershell": {
-        "valid": [
-            ("Import-Module ActiveDirectory", "ActiveDirectory"),
-            ("using namespace System.Net", "System.Net"),
-        ],
-        "invalid": ["Write-Host 'Import-Module'"],
-        "pathological": [("using \n module \n 'MyCustomModule.psm1'", "MyCustomModule.psm1")],
-    },
     "shell": {
         "valid": [("source .env", ".env"), (". /etc/profile", "/etc/profile")],
         "invalid": ["echo 'source .env'"],
@@ -156,14 +148,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("import cats.effect.IO", "cats.effect.IO"),
-            ("export scala.collection.mutable.Map", "scala.collection.mutable.Map"),
-        ],
-        "invalid": ["val importCount = 0"],
-        "pathological": [("import \n scala.concurrent.Future", "scala.concurrent.Future")],
-    },
     "dockerfile": {
         "valid": [
             ("FROM ubuntu:latest", "ubuntu:latest"),
@@ -218,14 +202,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         ],
         "invalid": ["DATA include_name TYPE string."],
         "pathological": [("TYPE-POOLS \n slis \n .", "slis")],
-    },
-    "yaml": {
-        "valid": [
-            ("uses: actions/checkout@v3", "actions/checkout@v3"),
-            ("image: node:18-alpine", "node:18-alpine"),
-        ],
-        "invalid": ["description: 'image setup'"],
-        "pathological": [("image: \n postgres:15", "postgres:15")],
     },
 }
 

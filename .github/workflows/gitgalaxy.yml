@@ -107,7 +107,7 @@ jobs:
           galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
 
       - name: Upload SARIF to GitHub Security Tab   # unchanged
-        uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
         with:
           sarif_file: gitgalaxy-results_sarif.json
 

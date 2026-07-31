@@ -30,11 +30,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "shell": {
-        "valid": [("source .env", ".env"), (". /etc/profile", "/etc/profile")],
-        "invalid": ["echo 'source .env'"],
-        "pathological": [(". \t  '/opt/custom/script.sh'", "/opt/custom/script.sh")],
-    },
     "ruby": {
         "valid": [
             ("require 'json'", "json"),

@@ -3993,7 +3993,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Positional parameters and expansion markers.
-            "args": re.compile(r'\$(?:[1-9]|\{[1-9]\w*\}|@|\*|#)|"\$@"|"\$\*"'),
+            # BUG FIX (epic #813/#835): the braced form only matched a bare
+            # `${1}`/`${10}` -- it had no allowance for the extremely common
+            # bash default-value/error-message expansion operators (`:-`,
+            # `:=`, `:?`, `:+`), so `${1:-default}` (arguably the single most
+            # common way positional params actually appear in real scripts)
+            # was entirely invisible to this rule. Added an optional
+            # `:[-=?+]...` suffix using the same one-level-nesting-safe idiom
+            # already established elsewhere in this file's `safety` rule
+            # (`(?:[^{}]|\{[^{}]*\})*`), so a nested default like
+            # `${1:-${DEFAULT:-x}}` is captured in full instead of truncating
+            # at the inner `}`. Confirmed linear-time (no ReDoS) up to a
+            # 200k-char adversarial input before landing.
+            "args": re.compile(r'\$(?:[1-9]|\{[1-9]\w*(?::[-=?+](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*"'),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries and straight-line execution verbs.
             # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
@@ -4013,8 +4025,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # keyword and the identifier name.
                 # FIX: Upgraded horizontal spaces `[ \t]+` to `[ \t\n]+` for the
                 # `function` keyword path, allowing it to easily consume weird formatting.
+                #
+                # BUG FIX (epic #813/#835): the POSIX `name()` branch's keyword
+                # exclusion only listed 5 of bash's ~17 word-based reserved words
+                # (if/while/for/case/until) -- `done() {`, `elif() {`, `select() {`,
+                # `function() {`, etc. all falsely matched as function definitions.
+                # None of these are ever valid bash (a reserved word can't be used
+                # as a POSIX function name -- the real parser errors on it), but
+                # this is a regex-only engine scanning arbitrary/malformed text, so
+                # the same defensive intent that motivated the original 5-word list
+                # applies equally to the rest. Widened to the full reserved-word set.
                 # =====================================================================
-                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.-]*)|(?!(?:if|while|for|case|until)\b)([a-zA-Z_][a-zA-Z0-9_.-]*)[ \t\n]*\(\))",
+                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.-]*)|"
+                r"(?!(?:if|then|elif|else|fi|case|esac|while|until|for|in|do|done|function|select|time|coproc)\b)"
+                r"([a-zA-Z_][a-zA-Z0-9_.-]*)[ \t\n]*\(\))",
                 re.M,
             ),
             # 5. class_start

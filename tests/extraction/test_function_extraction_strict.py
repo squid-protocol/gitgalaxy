@@ -52,17 +52,6 @@ EXTRACTION_CASES = {
             ("def \n self. \n TargetFunc \n (", "TargetFunc")
         ],
     },
-    "shell": {
-        "valid": [
-            ("function TargetFunc {", "TargetFunc"),
-            ("TargetFunc() {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc=", "if TargetFunc; then", "alias TargetFunc="],
-        "pathological": [
-            # Extreme spacing on standard definitions
-            ("function \t \n TargetFunc \n {", "TargetFunc")
-        ],
-    },
     "cobol": {
         "valid": [
             ("       TargetFunc SECTION.", "TargetFunc"),

@@ -294,6 +294,19 @@ specifically. Check every language against these *first* before assuming a rule 
     than a js/ts-specific quirk -- strengthens the case for broadening the `_slice_by_braces`
     shielding gate as its own follow-up PR (tracked in the epic's "Related architectural issue"
     section).
+13. **(#817) A generic-step-over bug can be scoped to just ONE of the four rules, even in a
+    generics-heavy language.** Java (#816) had the bug in `func_start`/`args` (shared) and a
+    different-shaped version in `class_start`; typescript (#815) had it in `func_start` and
+    `class_start`. Go's `class_start` and `args` already had the correct step-over -- only
+    `func_start` (specifically the receiverless/top-level-function path) was missing it. **Check
+    each of the four rules independently for the generic-step-over pattern rather than assuming a
+    bug found in one implies the same gap everywhere** -- some rule authors already got three out
+    of four right.
+14. **(#817) Class 3 reproduced on a THIRD, unrelated language feature.** Go's raw string literals
+    (backtick-delimited, common for embedded SQL/templates/regex) produce the same
+    `func_start`/`_dependency_capture` false positive as js/ts template literals and Java text
+    blocks. Three languages, three unrelated syntax features, same root cause -- strong evidence
+    this is a real general gap, not a per-language curiosity.
 
 ## Process: the epic and its sub-issues
 

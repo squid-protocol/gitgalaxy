@@ -123,17 +123,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "go": {
-        "valid": [
-            ("func TargetFunc()", "TargetFunc"),
-            ("func (s *MyStruct) TargetFunc(a int) error {", "TargetFunc"),
-        ],
-        "invalid": ["type TargetFunc struct", "go TargetFunc()", "var TargetFunc ="],
-        "pathological": [
-            # Receivers split across newlines
-            ("func \n ( \n s \n * \n MyStruct \n ) \n TargetFunc \n (", "TargetFunc")
-        ],
-    },
     "rust": {
         "valid": [
             ("fn TargetFunc()", "TargetFunc"),

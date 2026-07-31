@@ -1962,8 +1962,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Go developers occasionally format complex struct receivers across multiple lines.
                 # FIX: Replaced horizontal spaces `[ \t]+` with `[ \t\n]+` around the `func`
                 # keyword, receiver block, and function name to safely leap across vertical gaps.
+                # GENERIC FUNCTION FIX (epic #813/#817): a top-level generic function's own
+                # type-parameter list (`func Foo[T constraints.Ordered](a, b T) T {`, Go 1.18+,
+                # mainstream since 2022) went straight from the captured name to `[ \t\n]*\(` with
+                # no allowance for a `[...]` list in between, so the whole function was invisible
+                # to the engine. (Generic *methods* with a receiver already matched by accident --
+                # the receiver's own `[^)]+` char class doesn't care about brackets -- and
+                # class_start/args already had this exact step-over; func_start was the outlier.)
+                # Added the same bounded, already-proven-safe `(?:[ \t\n]*\[[^\]]*\])?` step-over.
                 # =====================================================================
-                r"^[ \t]*func(?:[ \t\n]+\([^)]+\))?[ \t\n]+([A-Za-z_$][\w_$]*)[ \t\n]*\(",
+                r"^[ \t]*func(?:[ \t\n]+\([^)]+\))?[ \t\n]+([A-Za-z_$][\w_$]*)(?:[ \t\n]*\[[^\]]*\])?[ \t\n]*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

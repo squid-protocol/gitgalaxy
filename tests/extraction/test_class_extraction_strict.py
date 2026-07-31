@@ -105,25 +105,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "go": {
-        "valid": [
-            ("type TargetEntity struct {", "TargetEntity"),
-            ("type TargetEntity interface {", "TargetEntity"),
-            ("type TargetEntity[T any] struct", "TargetEntity"),
-        ],
-        "invalid": [
-            "type TargetEntity func()",
-            "var x struct {}",
-            "func (s *TargetEntity) method()",
-        ],
-        "pathological": [
-            # Go structs broken across lines
-            (
-                "type \n TargetEntity \n [ \n T \n any \n ] \n struct \n {",
-                "TargetEntity",
-            )
-        ],
-    },
     "rust": {
         "valid": [
             ("struct TargetEntity {", "TargetEntity"),

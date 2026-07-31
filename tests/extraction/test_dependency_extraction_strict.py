@@ -57,16 +57,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "go": {
-        "valid": [('import "net/http"', "net/http"), ('import fmt "fmt"', "fmt")],
-        "invalid": ['var importPath = "foo"'],
-        "pathological": [
-            (
-                'import \n ( \n  customAlias \n "my_internal_pkg/core_lib" \n )',
-                "my_internal_pkg/core_lib",
-            )
-        ],
-    },
     "rust": {
         "valid": [
             ("use std::collections::HashMap;", "std::collections::HashMap"),

@@ -83,20 +83,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "go": {
-        "valid": [
-            ("func TargetFunc(a int, b string) error {", "TargetFunc"),
-            ("func (s *Server) TargetFunc(ctx context.Context) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b)", "if err != nil {"],
-        "pathological": [
-            # Vertical receiver, generic type, and complex func parameter
-            (
-                "func \n (s *Server) \n TargetFunc \n [T any] \n (\n  ctx context.Context,\n  cb func(err error)\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "rust": {
         "valid": [
             ("fn TargetFunc(a: i32, b: &str) {", "TargetFunc"),

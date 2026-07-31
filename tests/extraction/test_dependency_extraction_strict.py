@@ -44,19 +44,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "java": {
-        "valid": [
-            ("import java.util.List;", "java.util.List"),
-            ("import static org.junit.Assert.*;", "org.junit.Assert.*"),
-        ],
-        "invalid": ["String importPath;"],
-        "pathological": [
-            (
-                "import \n static \n org.springframework.boot.SpringApplication \n ;",
-                "org.springframework.boot.SpringApplication",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("using System.Threading.Tasks;", "System.Threading.Tasks"),

@@ -1290,10 +1290,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # long `->`-less line, backtracking O(n) per position for
                 # O(n^2) total (same bug found and fixed in javascript's args).
                 # Bounded to {0,100}; real identifiers don't get that long.
+                # RULE 11 FIX (epic #813/#816): Branch 1's generic-bound modifier
+                # alternative was a flat `<[^>]*>`, truncating at the first `>` and
+                # breaking any single-line one-level-nested generic bound (e.g.
+                # `public static <T, U extends Comparable<U>> T Foo(T a, U b) {` --
+                # the same Rule 11 shape already fixed elsewhere; see
+                # how_to_add_a_language.md). Widened to the established
+                # one-level-nesting idiom `<(?:[^<>]|<[^<>]*>)*>`.
                 # =====================================================================
                 r"(?:"
                 # 1. Standard Methods
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<[^>]*>)[ \t\n]+){0,5}(?:[\w<>\[\]?]+[ \t\n]+)\w+[ \t\n]*\([^)]*\)|"
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<(?:[^<>]|<[^<>]*>)*>)[ \t\n]+){0,5}(?:[\w<>\[\]?]+[ \t\n]+)\w+[ \t\n]*\([^)]*\)|"
                 # 2. Constructors
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?:(?:public|protected|private|static)[ \t\n]+)?[A-Z]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
                 # 3. Lambdas & Method Refs
@@ -1320,14 +1327,27 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # execution keywords at the start of the sequence.
                 # =====================================================================
                 r"(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)"
-                r"(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|<[^>]*>)[ \t]+){0,5}"
+                # RULE 11 FIX (epic #813/#816): the generic-bound modifier
+                # alternative was a flat `<[^>]*>`, truncating at the first `>` and
+                # breaking any single-line one-level-nested generic bound (e.g.
+                # `public static <T, U extends Comparable<U>> T Foo(T a, U b) {`).
+                # Widened to the established one-level-nesting idiom.
+                r"(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|<(?:[^<>]|<[^<>]*>)*>)[ \t]+){0,5}"
                 r"(?:[a-zA-Z_$][\w<>$\[\]?,]*[ \t]+){0,5}"
                 r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
+            # RULE 11 FIX (epic #813/#816): there was no generic-parameter
+            # step-over between the class name and the extends/implements
+            # check at all, so ANY generic class declaration (e.g.
+            # `class Foo<T> extends Base<T> {`, `class Foo<T extends
+            # Comparable<T>> implements Serializable {`) left the class's own
+            # `<...>` unconsumed right before `extends`/`implements`, silently
+            # losing the entire inheritance capture (group 2) even though the
+            # class name (group 1) still matched fine.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|protected|private|static|final|sealed|non-sealed|abstract|strictfp)[ \t]+){0,5}(?:class|interface|enum|record)\s+([A-Za-z_$][\w_$]*)(?:\s+(?:extends|implements)\s+([A-Za-z_$][\w_$, \t<>\?]*))?",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|protected|private|static|final|sealed|non-sealed|abstract|strictfp)[ \t]+){0,5}(?:class|interface|enum|record)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s+(?:extends|implements)\s+([A-Za-z_$][\w_$, \t<>\?]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

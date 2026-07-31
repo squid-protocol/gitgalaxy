@@ -268,6 +268,32 @@ specifically. Check every language against these *first* before assuming a rule 
    against symbolic or word-character boundaries, missing `re.M`, adjacent-overlapping-quantifier
    ReDoS — applies here too; these rules live in the same file and share the same authorship
    patterns.)*
+10. **(#816) `class_start`'s generic step-over can be MISSING entirely, not just flat.** TypeScript's
+    #815 bug (class 6 above) was a flat `<[^>]*>` that needed widening to the one-level-nesting
+    idiom. Java's version of the same underlying bug was a different shape: no generic-parameter
+    step-over between the class name and the extends/implements check at all, so ANY generic class
+    with a subsequent extends/implements clause (`class Foo<T> extends Base<T> {`) silently lost the
+    entire inheritance capture. Same fix (`(?:\s*<(?:[^<>]|<[^<>]*>)*>)?` inserted before the
+    extends/implements check), but **check whether the step-over exists at all before assuming it
+    just needs widening** — both failure shapes present identically at the test level (name capture
+    fine, inheritance capture silently empty).
+11. **(#816) `_dependency_capture` is matched against raw, unshielded file content for EVERY
+    language, unconditionally — broader than class 3.** Unlike `func_start`'s Mode-B
+    `_slice_by_braces` path (gated to js/ts, tracked via #859), `_dependency_capture` runs via
+    `import_regex.finditer(content_buffer)` in `galaxyscope.py` against the raw file content read
+    straight off disk, for every language, with no shielding gate at all. Confirmed reproducible for
+    java: an `import ...;`-shaped line inside a Java 15+ text block (`"""..."""`) at true line start
+    still produces a phantom dependency-graph edge. Not fixed (would require shielding
+    `content_buffer` before every language's `_dependency_capture.finditer()` call -- a pipeline-wide
+    change, not a per-language one) -- check for the same shape (comment/string content containing
+    import-statement-shaped text at true line start) on every future language's dependency pass and
+    record it as a known limitation rather than re-discovering it.
+12. **(#816) Class 3 (unshielded content reaching a Mode-B rule) reproduced on a second, unrelated
+    language feature**: Java 15+ text blocks produce the exact same `func_start` false positive as
+    js/ts template literals, confirming this is a genuine cross-language architectural gap rather
+    than a js/ts-specific quirk -- strengthens the case for broadening the `_slice_by_braces`
+    shielding gate as its own follow-up PR (tracked in the epic's "Related architectural issue"
+    section).
 
 ## Process: the epic and its sub-issues
 

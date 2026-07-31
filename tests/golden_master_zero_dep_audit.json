@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-31T00:19:32.074234+00:00",
-            "Total Scan Duration": "23.42 seconds"
+            "Analysis ISO Timestamp": "2026-07-31T01:06:47.335405+00:00",
+            "Total Scan Duration": "23.29 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -198,7 +198,7 @@
         "health": {
             "avg_cognitive_load": 24.048,
             "avg_safety_score": 23.794,
-            "avg_tech_debt": 25.065,
+            "avg_tech_debt": 25.066,
             "avg_documentation": 29.832
         },
         "composition": {
@@ -335,7 +335,7 @@
             "java": {
                 "files": 14,
                 "loc": 4895,
-                "impact": 5687.7
+                "impact": 5710.700000000001
             },
             "haskell": {
                 "files": 7,
@@ -3012,11 +3012,11 @@
             },
             "groovy/gradle": {
                 "file_count": 3,
-                "total_mass": 2870.68,
+                "total_mass": 2893.68,
                 "avg_exposures": {
                     "cognitive_load": 33.18,
                     "safety_score": 71.61,
-                    "tech_debt": 98.45,
+                    "tech_debt": 98.87,
                     "verification": 80.0,
                     "api_exposure": 8.68,
                     "concurrency": 40.92,
@@ -6190,7 +6190,7 @@
                 {
                     "name": "DefaultPluginManager.java",
                     "path": "groovy/gradle/DefaultPluginManager.java",
-                    "value": 887.26
+                    "value": 888.54
                 },
                 {
                     "name": "gen_be_wrapper.ksh",
@@ -209968,7 +209968,7 @@
             }
         },
         "groovy/gradle": {
-            "Directory Group Magnitude": 2870.68,
+            "Directory Group Magnitude": 2893.68,
             "File Count": 3,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_0": "66.7%",
@@ -209977,7 +209977,7 @@
             "Average Risk Exposures": {
                 "Cognitive Load Exposure": "33.18%",
                 "Error & Exception Exposure": "71.61%",
-                "Tech Debt Exposure": "98.45%",
+                "Tech Debt Exposure": "98.87%",
                 "Testing Exposure": "80.0%",
                 "API Exposure": "8.68%",
                 "Concurrency Exposure": "40.92%",
@@ -210009,32 +210009,32 @@
                         "Identity Proof": "Single Indicator (Ext: .java)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -5452.57,
+                        "X": -5452.93,
                         "Y": 197.73,
-                        "Z": -118.86
+                        "Z": -118.53
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 11.205,
+                        "Repository Drift (Z-Score)": 11.229,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 11.222,
-                            "file_cluster_1": 12.532,
-                            "file_cluster_2": 12.505,
-                            "file_cluster_3": 13.261,
-                            "file_cluster_4": 11.452,
-                            "file_cluster_5": 12.995,
-                            "file_cluster_6": 12.271,
-                            "file_cluster_7": 12.218,
-                            "file_cluster_8": 11.719,
-                            "file_cluster_9": 12.233,
-                            "file_cluster_10": 13.255,
-                            "file_cluster_11": 11.596,
-                            "file_cluster_12": 12.472,
-                            "file_cluster_13": 11.205,
-                            "file_cluster_14": 15.774,
-                            "file_cluster_15": 12.617,
-                            "file_cluster_16": 11.52,
-                            "file_cluster_17": 12.095
+                            "file_cluster_0": 11.245,
+                            "file_cluster_1": 12.553,
+                            "file_cluster_2": 12.527,
+                            "file_cluster_3": 13.282,
+                            "file_cluster_4": 11.477,
+                            "file_cluster_5": 13.017,
+                            "file_cluster_6": 12.293,
+                            "file_cluster_7": 12.241,
+                            "file_cluster_8": 11.743,
+                            "file_cluster_9": 12.255,
+                            "file_cluster_10": 13.276,
+                            "file_cluster_11": 11.619,
+                            "file_cluster_12": 12.494,
+                            "file_cluster_13": 11.229,
+                            "file_cluster_14": 15.791,
+                            "file_cluster_15": 12.639,
+                            "file_cluster_16": 11.545,
+                            "file_cluster_17": 12.118
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -210042,7 +210042,7 @@
                         "Total LOC": 369,
                         "Coding LOC": 299,
                         "Documentation LOC": 20,
-                        "Structural Magnitude": 606.58,
+                        "Structural Magnitude": 629.58,
                         "Control Flow Ratio": "40.1%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -210053,7 +210053,7 @@
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "48.91%",
                         "Error & Exception Exposure": "73.04%",
-                        "Tech Debt Exposure": "95.34%",
+                        "Tech Debt Exposure": "96.62%",
                         "Testing Exposure": "80.0%",
                         "API Exposure": "4.29%",
                         "Concurrency Exposure": "100.0%",
@@ -210121,6 +210121,16 @@
                             "Control Flow Ratio": "66.7%",
                             "Start Line": 308,
                             "End Line": 311
+                        },
+                        {
+                            "Function Name": "findPluginIdForClass",
+                            "Structural Impact": 23.0,
+                            "Lines of Code (LOC)": 7,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 7,
+                            "Control Flow Ratio": "50.0%",
+                            "Start Line": 115,
+                            "End Line": 121
                         },
                         {
                             "Function Name": "findInstance",
@@ -210347,8 +210357,8 @@
                     "7. Structural Signatures (Net Mitigated Signals)": {
                         "Control Flow Branches": 63,
                         "Sequential Logic Declarations": 94,
-                        "Function Parameters": 33,
-                        "Function/Method Declarations": 35,
+                        "Function Parameters": 34,
+                        "Function/Method Declarations": 36,
                         "Class/Entity Declarations": 3,
                         "Defensive Programming Constructs": 10,
                         "Type/Safety Bypasses": 15,
@@ -210419,7 +210429,7 @@
                         "Design Short Vars": 0,
                         "Design Long Vars": 0,
                         "Duplicate Logic": 5,
-                        "Orphaned Logic": 4,
+                        "Orphaned Logic": 5,
                         "Instructional Code Examples": 0,
                         "Architectural Diagrams (Mermaid/PlantUML)": 0,
                         "Structured Literature Headers": 0,

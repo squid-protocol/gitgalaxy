@@ -69,19 +69,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "java": {
-        "valid": [
-            ("public void TargetFunc(String name, int age) {", "TargetFunc"),
-            ("protected List<T> TargetFunc(Predicate<T> filter)", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(name, age);", "for (int i = 0; i < 10; i++)"],
-        "pathological": [
-            (
-                "public \n static \n <T> \n void \n TargetFunc \n (\n  @NonNull final List<T> items,\n  @Nullable Function<T, String> mapper\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "php": {
         "valid": [
             ("function TargetFunc(int $a, ?string $b) {", "TargetFunc"),

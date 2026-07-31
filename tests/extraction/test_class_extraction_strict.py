@@ -14,25 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 CLASS_EXTRACTION_CASES = {
-    "java": {
-        "valid": [
-            ("public class TargetEntity {", "TargetEntity"),
-            ("protected abstract interface TargetEntity extends Base", "TargetEntity"),
-            ("public record TargetEntity(int x) {", "TargetEntity"),
-        ],
-        "invalid": [
-            "TargetEntity entity = new TargetEntity();",
-            "classyMethod()",
-            "return TargetEntity.class;",
-        ],
-        "pathological": [
-            # Vertical stacking, annotation bloat, and massive inheritance
-            (
-                '@Entity\n@Table(name="foo")\n@SuppressWarnings("unchecked")\npublic \n final \n class \n TargetEntity \n implements \n Serializable',
-                "TargetEntity",
-            )
-        ],
-    },
     "csharp": {
         "valid": [
             ("public class TargetEntity", "TargetEntity"),

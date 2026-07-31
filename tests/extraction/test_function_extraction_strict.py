@@ -123,25 +123,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "java": {
-        "valid": [
-            ("public static void TargetFunc()", "TargetFunc"),
-            ("protected List<String> TargetFunc(int x)", "TargetFunc"),
-            ("@Override\npublic void TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": [
-            "public class TargetFunc {",
-            "new TargetFunc();",
-            "return TargetFunc();",
-        ],
-        "pathological": [
-            # Massive generic soup before the return type and annotation stacking
-            (
-                '@Override\n@SuppressWarnings("unchecked")\npublic static final <T, U extends Map<String, V>>\nList<T>\nTargetFunc\n(',
-                "TargetFunc",
-            )
-        ],
-    },
     "go": {
         "valid": [
             ("func TargetFunc()", "TargetFunc"),

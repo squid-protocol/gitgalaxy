@@ -10870,15 +10870,27 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
-            "args": re.compile(r"^[ \t]*with:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
+            # BUG FIX (epic #813/#843): required `with:` to be immediately followed by a newline,
+            # so a trailing same-line comment (`with: # inputs for this action`, a real authoring
+            # style) broke the match entirely -- the block's own header line has to tolerate a
+            # comment the same way a job/step name line would.
+            "args": re.compile(r"^[ \t]*with:[ \t]*(?:#.*)?\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
             "structural_boundaries": re.compile(r"^[ \t]*(?:env|needs|runs-on|steps|strategy|matrix):", re.M | re.I),
             # Executable Logic Anchors: Explicit execution blocks
             "func_start": re.compile(
                 r"^[ \t]*(?:-?[ \t]*run:|script:|before_script:|after_script:)[ \t]*[|>]*",
                 re.M | re.I,
             ),
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#843): the reusable-workflow-call/
+            # container-job detection required `uses:`/`image:` to be the LITERAL FIRST line
+            # after the job name -- but real jobs of this shape routinely have other keys
+            # (`needs:`, `if:`, `permissions:`, etc.) before `uses:`/`image:`, e.g.
+            # `call-workflow:\n  needs: [build]\n  uses: ./reusable.yml`. Added a bounded
+            # (max 10, to stay safely linear -- real jobs never have anywhere near that many
+            # top-level keys before uses:/image:) step-over for intervening key:value lines.
             "class_start": re.compile(
-                r"^[ \t]*(?:jobs:|workflow_call:|[a-zA-Z0-9_-]+:[ \t]*\n[ \t]+(?:uses|image):)",
+                r"^[ \t]*(?:jobs:|workflow_call:"
+                r"|[a-zA-Z0-9_-]+:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*\n){0,10}[ \t]+(?:uses|image):)",
                 re.M | re.I,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10936,8 +10948,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t]+([a-zA-Z0-9_./@:-]+)",
                 re.M | re.I,
             ),
+            # BUG FIX (epic #813/#843): the bare capture class required the value to start
+            # immediately with an identifier character, so a quoted `uses:`/`image:` value
+            # (`uses: "actions/checkout@v4"`, a real -- if less common -- authoring style, e.g.
+            # for YAML-lint rules that require consistent scalar quoting) never matched at all,
+            # since the leading quote character isn't in the class. Added quoted alternatives
+            # (permitting the same identifier charset inside real quotes) alongside the original
+            # bare form.
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t\n]+([a-zA-Z0-9_./@:-]+)",
+                r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t\n]+"
+                r"(?:'([a-zA-Z0-9_./@:-]+)'|\"([a-zA-Z0-9_./@:-]+)\"|([a-zA-Z0-9_./@:-]+))",
                 re.M | re.I,
             ),
             "ownership": None,

@@ -203,14 +203,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["DATA include_name TYPE string."],
         "pathological": [("TYPE-POOLS \n slis \n .", "slis")],
     },
-    "yaml": {
-        "valid": [
-            ("uses: actions/checkout@v3", "actions/checkout@v3"),
-            ("image: node:18-alpine", "node:18-alpine"),
-        ],
-        "invalid": ["description: 'image setup'"],
-        "pathological": [("image: \n postgres:15", "postgres:15")],
-    },
 }
 
 

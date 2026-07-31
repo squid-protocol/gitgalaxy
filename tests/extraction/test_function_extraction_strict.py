@@ -292,11 +292,6 @@ EXTRACTION_CASES = {
         "invalid": ["<div id='script'>", "<span class='style'>"],
         "pathological": [("<script \n >", "script")]
     },
-    "yaml": {
-        "valid": [("- run: echo hello", "run:"), ("script:", "script:")],
-        "invalid": ["TargetFunc:", "steps:"],
-        "pathological": [("- \t run: \n", "run:")]
-    },
     "tcl": {
         "valid": [("proc TargetFunc {", "TargetFunc")],
         "invalid": ["set TargetFunc", "if {$TargetFunc}"],

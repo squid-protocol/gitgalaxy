@@ -516,6 +516,31 @@ specifically. Check every language against these *first* before assuming a rule 
     line start with no blocking marker, so import-shaped text inside one still produces a phantom
     dependency edge. Check comment- and string-literal vectors independently per language/rule --
     confirmed immunity to one vector doesn't imply immunity to the other.
+41. **(#843) A "block requires an immediate newline after its header key" idiom breaks on a
+    trailing same-line comment on the header itself.** YAML's `args` rule (`with:[ \t]*\n...`)
+    required an immediate newline after `with:`, so `with: # inputs for this action\n  node-version:
+    '18'` (a real CI-YAML authoring style) never matched. Same general shape as classes 5/6 (an
+    unaccounted-for optional element between two required tokens) but for a block-header-to-body
+    transition. Fix: an optional `(?:#.*)?` before the newline. Check any "header line, then
+    indented body" rule for the same gap if that language's comment marker can appear on the header
+    line.
+42. **(#843) A "declaration name, then immediately the thing we care about" shape can be too strict
+    when real usage inserts OTHER keys/statements in between -- a SEQUENCING problem, distinct from
+    Rule 11's nesting problem.** YAML's `class_start` required `uses:`/`image:` to be the literal
+    first line after a job name, but real reusable-workflow-call/container jobs routinely have
+    `needs:`/`if:`/`permissions:` first. Fixed with a BOUNDED (max 10) step-over for intervening
+    key:value lines -- bounded so it can't bleed into an unrelated subsequent job's own content once
+    no `uses:`/`image:` is found. Check for this shape whenever a rule assumes its target keyword is
+    the immediate next line/token after an anchor, when the real language allows other optional
+    statements in between.
+43. **(#843) An "optional-quote" idiom can be missing ENTIRELY, not just shaped wrong (class 39's
+    finding for PowerShell was a wrong shape; this is a total absence).** YAML's
+    `_dependency_capture` had no quote-tolerance at all for `uses:`/`image:` values, so a quoted
+    value (`uses: "actions/checkout@v4"`, a real yamllint-driven authoring style) never matched.
+    Fixed with the same real per-quote-style-alternative idiom as #834's fix. Note: `import` (a
+    sibling, non-gauntlet-scoped rule with nearly the same pattern) was deliberately left unfixed --
+    out of the four-gauntlet scope for a given issue, not an oversight; don't feel obligated to fix
+    every structurally-similar sibling rule outside the four gauntlets in the same pass.
 
 ## Process: the epic and its sub-issues
 

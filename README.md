@@ -125,7 +125,7 @@ GitGalaxy is meant to run *in* CI, not just get starred and forgotten — so we 
 
 <img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/human_vs_ci_adoption.png" alt="GitGalaxy: Human Discovery vs. Production Integration" width="700">
 
-**Left:** GitHub stars, forks, unique cloners, and unique profile views. **Right:** GitLab CI/CD Catalog usage (unique projects running GitGalaxy in a pipeline in the last 30 days) and GitHub Action adoption (unique repos referencing the action in a workflow, via code search — GitGalaxy isn't Marketplace-listed yet, so this is the best passive signal available). The CI/production panel is a new data series — expect it to fill in day by day rather than show history.
+**Left:** GitHub stars and forks (cumulative — reconstructed from each star's/fork's own timestamp, not just a snapshot going forward) alongside daily unique cloners and profile views. **Right:** GitLab CI/CD Catalog usage (unique projects running GitGalaxy in a pipeline in the last 30 days) and GitHub Action adoption (unique repos referencing the action in a workflow, via code search — GitGalaxy isn't Marketplace-listed yet, so this is the best passive signal available). Unlike the left panel, GitHub and GitLab don't expose any history for these two — expect the right panel to fill in day by day rather than show a backfilled trend.
 
 <img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/cumulative_downloads.png" alt="GitGalaxy Cumulative Downloads" width="500">
 

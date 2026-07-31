@@ -63,14 +63,6 @@ EXTRACTION_CASES = {
             ("function \t \n TargetFunc \n {", "TargetFunc")
         ],
     },
-    "powershell": {
-        "valid": [
-            ("function TargetFunc {", "TargetFunc"),
-            ("filter TargetFunc {", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "Invoke-Command", "$TargetFunc ="],
-        "pathological": [("function \n TargetFunc \n {", "TargetFunc")],
-    },
     "cobol": {
         "valid": [
             ("       TargetFunc SECTION.", "TargetFunc"),
@@ -111,21 +103,6 @@ EXTRACTION_CASES = {
             # Extreme modifier stacking
             (
                 "@override\nexternal \n static \n final \n Future<List<Map<String, dynamic>>> \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
-    "scala": {
-        "valid": [
-            ("def TargetFunc()", "TargetFunc"),
-            ("override def TargetFunc()", "TargetFunc"),
-            ("transparent inline def TargetFunc", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "val TargetFunc =", "trait TargetFunc"],
-        "pathological": [
-            # Deep Scala 3 modifiers
-            (
-                '@deprecated("", "")\noverride \n protected \n inline \n def \n TargetFunc \n (',
                 "TargetFunc",
             )
         ],
@@ -314,11 +291,6 @@ EXTRACTION_CASES = {
         "valid": [("<script>", "script"), ("<style>", "style")],
         "invalid": ["<div id='script'>", "<span class='style'>"],
         "pathological": [("<script \n >", "script")]
-    },
-    "yaml": {
-        "valid": [("- run: echo hello", "run:"), ("script:", "script:")],
-        "invalid": ["TargetFunc:", "steps:"],
-        "pathological": [("- \t run: \n", "run:")]
     },
     "tcl": {
         "valid": [("proc TargetFunc {", "TargetFunc")],

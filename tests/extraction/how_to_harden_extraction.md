@@ -440,6 +440,107 @@ specifically. Check every language against these *first* before assuming a rule 
 32. **(#824) Recurring class 3 confirmed on an EIGHTH language (swift) via TWO distinct string
     forms in the same language** -- both triple-quoted multi-line strings and `#"..."#` raw string
     literals reproduce the false positive independently.
+33. **(#825) The identifier-capture-class rule (`how_to_add_a_language.md`'s Rule 16) is a real,
+    recurring cross-language finding, not a one-off Scheme curiosity.** Scala's `func_start`/`args`
+    name capture required a plain `[a-zA-Z_]\w*`, so backtick-quoted arbitrary identifiers (Scala's
+    escape hatch for reserved-word/space-containing names, e.g. `` def `should handle edge cases`():
+    Unit = {} ``, a real ScalaTest/Java-interop idiom) never matched. Fixed as an alternative
+    capture group, resolved via `match.lastindex` (existing infrastructure, see java's
+    `(init)|(constructor)` groups) rather than widening the plain-identifier class. **Kotlin has the
+    identical backtick grammar and the identical gap, missed during #823's pass** -- when a language
+    supports backtick/escaped identifiers, check func_start/args/class_start's capture class against
+    that grammar explicitly, and don't assume a prior "closed" sub-issue for a sibling
+    backtick-identifier language already covers it.
+34. **(#825) A `_dependency_capture` rule can have NO statement-boundary logic at all -- a worse
+    failure mode than recurring class 19's missing-symbol gap.** Scala's capture was a flat
+    `[\w.{}\s,]+` class with no anchor stopping it at one logical import's end; since `\s` matches
+    newlines, it silently bled across a SECOND real import statement into the following unrelated
+    line on a realistic multi-import file, so the second import was never separately detected.
+    `crucible_check.py` against the real corpus (Kafka) confirmed the severity concretely: several
+    files' detected dependency counts roughly DOUBLED once fixed. Fix idiom: replace the flat class
+    with a bounded segmented-path grammar (repeat `identifier.` segments, end on either a `{...}`
+    block or a bare trailing identifier/wildcard) rather than just adding more characters to the
+    class. Check any `_dependency_capture` rule using bare `\s` instead of a real statement boundary
+    for this same bleed-over risk.
+35. **(#825) A confirmed real `_dependency_capture` fix's `crucible_check.py` diff can legitimately
+    ripple into completely unrelated languages/repos via the shared cross-repo dependency graph --
+    that is NOT automatically a confinement violation.** Unlike the other three rules (per-file
+    scoped), `_dependency_capture` feeds `network_risk_sensor.py`'s PageRank/blast-radius scoring
+    and `spatial_mapper.py`'s 3D projection, both computed over the WHOLE scanned corpus as one
+    graph. Fixing scala's bleed-over (class 34) shifted Topological Coordinates, PageRank-derived
+    blast-radius counts, and corpus-relative percentiles for 9 unrelated language/repo pairs plus
+    global ecosystem-summary aggregates. Verified genuine (not confinement-violating) by confirming
+    every non-target-language diff line was one of these global/derived metric types, never a raw
+    per-file signature count for an untouched language. When a fix touches `_dependency_capture`
+    specifically, expect and check for this ripple shape rather than treating any non-target-language
+    diff line as an automatic confinement bug.
+36. **(#834) Rule 11 also manifests for a flat PARENTHESES-wrapped parameter/argument list, not just
+    generic type parameters.** PowerShell's `args` rule (`param(...)`/`function NAME(...)`) used the
+    flat `\([^)]*\)`, truncating at the FIRST `)` -- breaking on a default-value expression
+    containing its own parens/array-subexpression syntax (`param($Tag = @('Slow', 'Feature'))`, a
+    realistic idiom). Confirmed severity via `crucible_check.py`: a real PowerShell Core corpus
+    file's detected parameter count for one function jumped 3 -> 9 once fixed. Same fix idiom as
+    every other Rule-11 instance, just the paren-list variant -- check any flat `\([^)]*\)`
+    parameter-list rule for this, not just generic-bracket rules.
+37. **(#834) Adding coverage for a bare, unprefixed declaration shape (`Identifier(params) { body
+    }`, no keyword, no return-type marker -- PowerShell class constructors) WILL collide with that
+    same language's own control-flow statement shape (`if/while/switch/for/foreach (cond) {
+    body }`), since they're textually identical to a flat regex.** A negative-lookahead keyword
+    exclusion is required alongside the new alternative. Caught here by hand-testing the fix's own
+    "invalid" case immediately after writing it, not by `crucible_check.py` -- the same "a new
+    alternative can open its own blind spot" lesson as recurring class 21, but at authoring time via
+    manual verification instead of a corpus diff. Check for this collision risk BEFORE shipping any
+    bare-identifier-plus-body alternative in a C-family-control-flow language.
+38. **(#834) A modifier/scope prefix attached to an identifier via a delimiter can make a capture
+    group swallow the PREFIX instead of the real name -- silently wrong data, not just a non-match,
+    and easy to miss in review.** PowerShell's scope qualifiers (`global:`/`script:`/`local:`/
+    `private:` before a function name) aren't in the identifier character class, so the capture
+    stopped at the delimiter and returned the scope keyword itself as if it were the function name.
+    Same root shape as Rule 16 (identifier grammar) but the failure mode -- confidently wrong output
+    vs. a safe non-match -- is worse and doesn't show up as a dramatic test failure the way a
+    non-match does.
+39. **(#834) An "optional quote pair" idiom (`['"]?...['"]?`) around a capture class that excludes
+    whitespace is a DIFFERENT bug shape from recurring class 19 (a missing symbol) -- it truncates
+    any quoted value containing that excluded symbol even though quoting should have protected it.**
+    PowerShell's `_dependency_capture` used exactly this shape, so a quoted path containing a space
+    (`'C:\Program Files\MyModule\MyModule.psd1'`, an extremely common Windows idiom) silently
+    truncated at the first space. Fix: real per-quote-style alternatives (a quoted branch permitting
+    the excluded symbol inside real quotes, a separate bare/unquoted branch that still excludes it),
+    not just widening the shared class -- widening it would also re-break the original
+    over-capture problem the optional-quote shape was trying to avoid.
+40. **(#834) `_dependency_capture`'s comment-lookalike vulnerability (class 3's shape) is NOT
+    universal -- confirmed a SECOND language (powershell, after c's #822 finding, class 27) where
+    the rule's own `^[ \t]*` anchor structurally blocks a comment marker from ever reaching the
+    keyword. But the SAME rule instance in the SAME language can still be vulnerable via a DIFFERENT
+    unshielded-content vector**: PowerShell here-strings (`@"..."@`) land their inner content at true
+    line start with no blocking marker, so import-shaped text inside one still produces a phantom
+    dependency edge. Check comment- and string-literal vectors independently per language/rule --
+    confirmed immunity to one vector doesn't imply immunity to the other.
+41. **(#843) A "block requires an immediate newline after its header key" idiom breaks on a
+    trailing same-line comment on the header itself.** YAML's `args` rule (`with:[ \t]*\n...`)
+    required an immediate newline after `with:`, so `with: # inputs for this action\n  node-version:
+    '18'` (a real CI-YAML authoring style) never matched. Same general shape as classes 5/6 (an
+    unaccounted-for optional element between two required tokens) but for a block-header-to-body
+    transition. Fix: an optional `(?:#.*)?` before the newline. Check any "header line, then
+    indented body" rule for the same gap if that language's comment marker can appear on the header
+    line.
+42. **(#843) A "declaration name, then immediately the thing we care about" shape can be too strict
+    when real usage inserts OTHER keys/statements in between -- a SEQUENCING problem, distinct from
+    Rule 11's nesting problem.** YAML's `class_start` required `uses:`/`image:` to be the literal
+    first line after a job name, but real reusable-workflow-call/container jobs routinely have
+    `needs:`/`if:`/`permissions:` first. Fixed with a BOUNDED (max 10) step-over for intervening
+    key:value lines -- bounded so it can't bleed into an unrelated subsequent job's own content once
+    no `uses:`/`image:` is found. Check for this shape whenever a rule assumes its target keyword is
+    the immediate next line/token after an anchor, when the real language allows other optional
+    statements in between.
+43. **(#843) An "optional-quote" idiom can be missing ENTIRELY, not just shaped wrong (class 39's
+    finding for PowerShell was a wrong shape; this is a total absence).** YAML's
+    `_dependency_capture` had no quote-tolerance at all for `uses:`/`image:` values, so a quoted
+    value (`uses: "actions/checkout@v4"`, a real yamllint-driven authoring style) never matched.
+    Fixed with the same real per-quote-style-alternative idiom as #834's fix. Note: `import` (a
+    sibling, non-gauntlet-scoped rule with nearly the same pattern) was deliberately left unfixed --
+    out of the four-gauntlet scope for a given issue, not an oversight; don't feel obligated to fix
+    every structurally-similar sibling rule outside the four gauntlets in the same pass.
 
 ## Process: the epic and its sub-issues
 

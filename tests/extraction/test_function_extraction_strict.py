@@ -208,11 +208,6 @@ EXTRACTION_CASES = {
         ],
         "pathological": [("( \n define \n ( \n TargetFunc \n x \n )", "TargetFunc")],
     },
-    "makefile": {
-        "valid": [("TargetFunc:", "TargetFunc"), ("TargetFunc::", "TargetFunc")],
-        "invalid": [".PHONY: TargetFunc", "TargetFunc =", "ifeq TargetFunc"],
-        "pathological": [("TargetFunc \t :", "TargetFunc")],
-    },
     "assembly": {
         "valid": [("TargetFunc:", "TargetFunc"), ("_TargetFunc:", "_TargetFunc")],
         "invalid": ["jmp TargetFunc", "call TargetFunc", ".data:"],

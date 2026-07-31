@@ -10392,7 +10392,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.
-            "args": re.compile(r"\$\([0-9]+\)|\$[0-9]\b|\$\(call[ \t]+[a-zA-Z0-9_.-]+"),
+            # BUG FIX (epic #813/#844): had no awareness of Make's own `$$`
+            # escaping convention (a doubled `$` means "a literal `$`,
+            # unescaped, for whatever consumes this text next"). Recipe lines
+            # commonly write `$$1`/`$$(1)` specifically to pass a literal
+            # `$1` through to the SHELL (the shell's own first positional
+            # parameter, or any other shell variable) -- unrelated to Make's
+            # own macro-call mechanism entirely, since Make's own `$`
+            # expansion already happened one layer up. The old pattern had no
+            # way to tell these apart from a real Make-level reference. Fixed
+            # with a negative lookbehind so a `$` immediately preceded by
+            # another `$` can never start a match.
+            "args": re.compile(r"(?<!\$)\$(?:\([0-9]+\)|[0-9]\b|\(call[ \t]+[a-zA-Z0-9_.-]+)"),
             # Smooth structural boundaries: variable assignments (:=, =, ?=) and native structural controls like vpath.
             # Explicitly excludes the append operator `+=` which belongs in flux.
             "structural_boundaries": re.compile(
@@ -10401,9 +10412,52 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # Strict capture group and positive lookahead applied for both Obj-C methods and C-functions.
+            # BUG FIX (epic #813/#844), two findings:
+            # 1. The trailing lookahead only checked for a bare `:`/`::`, with
+            #    no exclusion for an immediately-following `=` -- so
+            #    `MY_VAR := value` and `MY_VAR ::= value` (GNU Make's two
+            #    immediate-expansion assignment operators, arguably THE most
+            #    common modern Make idiom) were both misidentified as real
+            #    target declarations. Fixed with a negative lookahead so
+            #    neither colon form can be immediately followed by `=`.
+            # 2. A multi-target rule (`a b c: deps`, a real and common Make
+            #    idiom for sharing one recipe across several targets) wasn't
+            #    detected AT ALL -- the identifier class stopped at the first
+            #    space, then the colon lookahead failed against the next
+            #    target name instead of a colon, and there's no second `^`
+            #    anchor point later on the same line to retry from. Fixed by
+            #    allowing additional space-separated co-target tokens (same
+            #    char class) between the captured first name and the colon
+            #    lookahead -- but this alone reopened a NEW false-positive
+            #    vector: a recipe line with multiple words where a later word
+            #    contains a colon not followed by `=` (a URL's `://`, a bare
+            #    time value `10:30`) would misparse as "co-target tokens then
+            #    a real target-defining colon". Recipe lines are ALWAYS
+            #    tab-indented in Make's own lexical rules (a leading tab means
+            #    "recipe", unconditionally, absent a custom .RECIPEPREFIX) --
+            #    so the leading-whitespace class was narrowed from `[ \t]*` to
+            #    `[ ]*` (spaces only), which structurally excludes every
+            #    recipe line from ever reaching the target-declaration path at
+            #    all, closing the new vector without limiting the multi-target
+            #    fix itself.
+            #
+            # Considered and DELIBERATELY NOT fixed: a variable-referenced
+            # target name (`$(TARGET): $(OBJECTS)`, also common) is still
+            # invisible -- `$`/`(`/`)` are still outside the char class. This
+            # is intentional, not an oversight: test_language_standards_strict
+            # .py's test_makefile_func_start_and_macros_no_false_collision
+            # deliberately locks in that `$(1): $(2)` (a `define...endef`
+            # template's macro-positional-parameter placeholder) must NOT
+            # satisfy func_start, and this rule has no block/context tracking
+            # (line_exclusive lexical family) to distinguish that shape from a
+            # real `$(TARGET):` reference at the regex level. Safely
+            # separating the two would need a structured token (real
+            # variable names vs. bare positional-parameter digits), not a
+            # flat character-class widening -- judged out of scope for this
+            # issue; documented as a known limitation instead.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
-                r"([a-zA-Z0-9_./%-]+)(?=[ \t]*::?)",
+                r"^[ ]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
+                r"([a-zA-Z0-9_./%-]+)(?:[ \t]+[a-zA-Z0-9_./%-]+)*(?=[ \t]*(?:::(?!=)|:(?!:?=)))",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -10474,7 +10528,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # Linking isolated segments of the graph execution via modular file resolution.
             "import": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
-            "_dependency_capture": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
+            # BUG FIX (epic #813/#844): the leading `[ \t]*` allowed a TAB, but
+            # a tab-initial line is ALWAYS a recipe command in Make's own
+            # lexical rules (never a directive, absent a custom
+            # .RECIPEPREFIX) -- same root cause and fix as func_start's fix
+            # above. A recipe line whose command happens to be literally
+            # named "include"/"sinclude" (e.g. `\tinclude /etc/motd`) was
+            # misidentified as a real include directive. Narrowed to `[ ]*`
+            # (spaces only), matching func_start's fix. `import` (a sibling,
+            # non-gauntlet-scoped rule with the same pattern) deliberately
+            # left unfixed, out of the four-gauntlet scope for this issue --
+            # same precedent as #843's identical call for yaml.
+            "_dependency_capture": re.compile(r"^[ ]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
             # Metadata anchoring authorship and structural domain owners.
             "ownership": re.compile(
                 r"^[ \t]*#[ \t]*(?:@author\b|author:|maintainer:|created by:)",

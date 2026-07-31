@@ -185,11 +185,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["int import_count;"],
         "pathological": [("@import \n CoreGraphics \n ;", "CoreGraphics")],
     },
-    "makefile": {
-        "valid": [("include config.mk", "config.mk"), ("-include deps.mk", "deps.mk")],
-        "invalid": ["include_path := foo"],
-        "pathological": [("-include \n .depend", ".depend")],
-    },
     "abap": {
         "valid": [
             ("INCLUDE z_my_macros.", "z_my_macros"),

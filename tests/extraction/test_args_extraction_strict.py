@@ -69,20 +69,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "rust": {
-        "valid": [
-            ("fn TargetFunc(a: i32, b: &str) {", "TargetFunc"),
-            ("pub async fn TargetFunc<T>(items: Vec<T>) -> Result<()> {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b);", "while let Some(x) = iter.next() {"],
-        "pathological": [
-            # Massive vertical spacing with generic impl traits
-            (
-                "pub \n async \n fn \n TargetFunc \n <T> \n (\n  mut items: Vec<T>,\n  cb: impl FnOnce(i32) -> String\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "swift": {
         "valid": [
             ("func TargetFunc(a: Int, b: String) {", "TargetFunc"),

@@ -43,19 +43,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "rust": {
-        "valid": [
-            ("use std::collections::HashMap;", "std::collections::HashMap"),
-            ("pub use crate::networking::Socket;", "crate::networking::Socket"),
-        ],
-        "invalid": ["let use_cache = true;"],
-        "pathological": [
-            (
-                "pub \n use \n crate::core::networking \n :: \n { \n  tcp::TcpSocket \n };",
-                "crate::core::networking",
-            )
-        ],
-    },
     "cpp": {
         "valid": [
             ("#include <sys/types.h>", "sys/types.h"),

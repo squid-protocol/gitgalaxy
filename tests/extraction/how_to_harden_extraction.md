@@ -328,6 +328,21 @@ specifically. Check every language against these *first* before assuming a rule 
     pre-existing, deliberately-undocumented-as-a-bug gap since no formatter (black, ruff format)
     ever inserts a line break at that exact seam. Realism-triage (step 2 of the verification
     discipline above) applies to formatting seams the same way it applies to feature coverage.
+18. **(#819) A prior partial Rule-11 fix can leave a SIBLING rule un-fixed.** Rust's `func_start`
+    already carried an explicit "BUG FIX (Rule 11...)" comment and a two-level-nesting idiom from an
+    earlier pass, but `args` (parsing the exact same `fn <generics>(...)` shape) was never updated
+    and still had the flat `<[^>]*>`. A fix comment on one rule is not proof the sibling rules got
+    the same treatment -- check all four rules independently even when the code comments suggest
+    "this was already handled."
+19. **(#819) A `_dependency_capture` character class missing a single common symbol can hide an
+    entire common statement shape.** Rust's capture char class (`[a-zA-Z0-9_:{},\s]`) was missing
+    `*`, so EVERY glob import (`use std::io::*;`, `use super::*;`) produced zero dependency-graph
+    edges -- confirmed via `crucible_check.py` (a real corpus file's detected-dependency count
+    jumped 1 -> 5). Check a `_dependency_capture` character class against every symbol the
+    language's own import/use syntax can contain, not just what the existing cases happen to cover.
+20. **(#819) Class 3 reproduced on a FOURTH, unrelated language feature.** Rust's raw string
+    literals (`r#"..."#`) produce the same false positive as js/ts template literals, Java text
+    blocks, and Go raw strings.
 
 ## Process: the epic and its sub-issues
 

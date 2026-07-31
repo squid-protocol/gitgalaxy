@@ -2292,8 +2292,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Replaced `[^)]*` with `(?:[^)(]|\([^)]*\))*` to swallow 1-level deep
                 # closures and strictly removed the `+` to mathematically prevent ReDoS
                 # on deeply nested Bevy ECS queries.
+                # RULE 11 FIX (epic #813/#819): the generic step-over was still the flat
+                # `<[^>]*>`, unlike func_start's own two-level-nesting idiom below (fixed earlier)
+                # -- broke on any nested trait bound (`fn foo<T: Into<String>>(x: T) {`), a
+                # realistic, common Rust pattern. Widened to match func_start's already-proven
+                # two-level idiom.
                 # =====================================================================
-                r"\bfn[ \t\n]+[a-zA-Z_]\w*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\|[^|]*\|",
+                r"\bfn[ \t\n]+[a-zA-Z_]\w*(?:[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\|[^|]*\|",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -2437,8 +2442,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # explicitly swallows the entire comma-separated bracket block up to the semicolon.
                 # NOTE: The downstream parser MUST flatten and split this string on commas and
                 # brackets to accurately register the individual nodes.
+                # GLOB IMPORT FIX (epic #813/#819): the character class was missing `*`, so a glob
+                # import (`use std::io::*;`, extremely common Rust for re-exporting a module's
+                # entire public surface) didn't match at all -- the whole `use` statement was
+                # invisible to the dependency graph.
                 # =====================================================================
-                r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},\s]+);",
+                r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},*\s]+);",
                 re.M,
             ),
             # 25. ownership (Authorship Metadata)

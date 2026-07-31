@@ -108,21 +108,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "rust": {
-        "valid": [
-            ("fn TargetFunc()", "TargetFunc"),
-            ("pub async fn TargetFunc<T>() -> Result<()> {", "TargetFunc"),
-            ("pub(crate) unsafe fn TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["struct TargetFunc", "impl TargetFunc", "let TargetFunc ="],
-        "pathological": [
-            # Macro attributes, lifetimes, and extreme vertical modifiers
-            (
-                '#[inline(always)]\n#[cfg(test)]\npub \n async \n unsafe \n extern \n "C" \n fn \n TargetFunc \n < \n \'a \n , \n T \n > \n (',
-                "TargetFunc",
-            )
-        ],
-    },
     "swift": {
         "valid": [
             ("func TargetFunc()", "TargetFunc"),

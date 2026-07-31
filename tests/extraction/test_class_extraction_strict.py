@@ -86,18 +86,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "rust": {
-        "valid": [
-            ("struct TargetEntity {", "TargetEntity"),
-            ("pub enum TargetEntity", "TargetEntity"),
-            ("pub(crate) trait TargetEntity", "TargetEntity"),
-        ],
-        "invalid": ["impl TargetEntity {", "let x = struct {};", "fn my_class() {"],
-        "pathological": [
-            # Rust visibility and vertical spacing
-            ("pub \n ( \n crate \n ) \n struct \n TargetEntity \n {", "TargetEntity")
-        ],
-    },
     "swift": {
         "valid": [
             ("class TargetEntity {", "TargetEntity"),

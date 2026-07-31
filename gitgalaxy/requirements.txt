@@ -64,7 +64,7 @@ nbclient==0.11.0
 nbconvert==7.17.1
 nbformat==5.10.4
 networkx==3.6.1
-nh3==0.3.3
+nh3==0.3.6
 numba==0.66.0
 numpy==2.4.3
 nvidia-nccl-cu12==2.30.4

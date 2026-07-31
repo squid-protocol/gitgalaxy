@@ -8,12 +8,12 @@
                 "networkx": true,
                 "tiktoken": true,
                 "xgboost": true,
-                "pyyaml": true
+                "pyyaml": false
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-07-31T00:03:55.309366+00:00",
-            "Total Scan Duration": "22.8 seconds"
+            "Analysis ISO Timestamp": "2026-07-31T00:19:32.074234+00:00",
+            "Total Scan Duration": "23.42 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",

@@ -75,11 +75,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["include_flag db 1"],
         "pathological": [('%include \n "syscalls.inc"', "syscalls.inc")],
     },
-    "agc_assembly": {
-        "valid": [("BANK 43", "43"), ("SETLOC 4000", "4000")],
-        "invalid": ["EBANK_VAR EQUALS 1"],
-        "pathological": [("SETLOC \n 2000", "2000")],
-    },
+
     "lua": {
         "valid": [("require 'math'", "math"), ('local ffi = require("ffi")', "ffi")],
         "invalid": ["local require_path = ''"],

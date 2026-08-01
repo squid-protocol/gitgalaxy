@@ -88,6 +88,11 @@ To ensure rigorous, adversarial testing:
 
 When working in this repository, **always work on a side branch and submit a PR to `main`. Do not merge or push directly to `main`.**
 
+Before submitting a Pull Request, you must run the following deterministic tools in your belt to test out and fix your changes, acting as your local CI pipeline:
+1. **Unit Tests:** `venv/bin/python -m pytest tests/`
+2. **Lint & Types (Ruff, Mypy):** `PATH="$PWD/venv/bin:$PATH" python tests/tools/audit_check.py` (run with `--regenerate` or run `ruff format .` if auto-fixes are needed).
+3. **Golden Fixtures (Crucible):** `venv/bin/python tests/tools/crucible_check.py` (run with `--update --yes` if the output intentionally changed due to better parsing rules).
+
 When generating or submitting a Pull Request for this repository, it is critical to provide comprehensive context for reviewers. 
-- **Always add a thorough description:** Outline the changes, the rationale, and any structural boundaries or tests added. Do not leave the PR body blank or sparse.
+- **Always add a thorough description:** Outline the changes, the rationale, and any structural boundaries or tests added. Explain *why* any golden masters changed. Do not leave the PR body blank or sparse.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.

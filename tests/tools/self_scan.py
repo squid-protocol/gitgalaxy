@@ -131,9 +131,7 @@ def print_summary() -> None:
         # packages are importABLE, not that galaxyscope actually used them --
         # an internal exception during graph-building could still leave these
         # NULL even with every dependency present. Verify the real output.
-        (with_pagerank,) = conn.execute(
-            "SELECT COUNT(*) FROM file_data WHERE pagerank_score IS NOT NULL"
-        ).fetchone()
+        (with_pagerank,) = conn.execute("SELECT COUNT(*) FROM file_data WHERE pagerank_score IS NOT NULL").fetchone()
         if total_files and with_pagerank == 0:
             print(
                 "⚠️  pagerank_score/normalized_blast_radius are NULL for every file -- this scan "

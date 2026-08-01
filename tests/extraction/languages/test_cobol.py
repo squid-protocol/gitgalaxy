@@ -337,7 +337,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_cobol_dependency_capture_valid(payload, expected_path):
-    assert_valid_dependency_match(COBOL_RULES["_dependency_capture"], payload, expected_path, "cobol._dependency_capture")
+    assert_valid_dependency_match(
+        COBOL_RULES["_dependency_capture"], payload, expected_path, "cobol._dependency_capture"
+    )
 
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])

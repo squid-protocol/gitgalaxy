@@ -238,7 +238,9 @@ def test_scala_args_nested_generic_bound_regression():
     java/typescript/python/rust/csharp/kotlin/swift).
     """
     args = SCALA_RULES["args"]
-    assert args.search("def TargetFunc[T <: Comparable[T]](x: T): T = {"), "nested generic bound args detection regressed"
+    assert args.search("def TargetFunc[T <: Comparable[T]](x: T): T = {"), (
+        "nested generic bound args detection regressed"
+    )
 
 
 def test_scala_args_backtick_identifier_regression():
@@ -361,7 +363,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_scala_dependency_capture_valid(payload, expected_path):
-    assert_valid_dependency_match(SCALA_RULES["_dependency_capture"], payload, expected_path, "scala._dependency_capture")
+    assert_valid_dependency_match(
+        SCALA_RULES["_dependency_capture"], payload, expected_path, "scala._dependency_capture"
+    )
 
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
@@ -390,9 +394,7 @@ def test_scala_dependency_capture_multi_import_no_longer_bleeds_across_statement
     cannot bleed past an explicit brace block.
     """
     dep = SCALA_RULES["_dependency_capture"]
-    realistic_file = (
-        "import scala.util.Try\nimport scala.collection.mutable.{Map, Set}\n\ncase class Foo(x: Int)\n"
-    )
+    realistic_file = "import scala.util.Try\nimport scala.collection.mutable.{Map, Set}\n\ncase class Foo(x: Int)\n"
     matches = list(dep.finditer(realistic_file))
     captured = [m.group(m.lastindex) for m in matches]
     assert captured == ["scala.util.Try", "scala.collection.mutable.{Map, Set}"], (

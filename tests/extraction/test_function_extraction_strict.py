@@ -179,7 +179,6 @@ EXTRACTION_CASES = {
         ],
         "pathological": [("( \n define \n ( \n TargetFunc \n x \n )", "TargetFunc")],
     },
-
     "dockerfile": {
         "valid": [
             ("RUN apt-get update", "RUN"),
@@ -193,60 +192,60 @@ EXTRACTION_CASES = {
         "valid": [
             ("function TargetFunc()", "TargetFunc"),
             ("export const TargetFunc = async () =>", "TargetFunc"),
-            ("public get TargetFunc()", "TargetFunc")
+            ("public get TargetFunc()", "TargetFunc"),
         ],
         "invalid": ["class TargetFunc", "type TargetFunc", "interface TargetFunc"],
-        "pathological": [("public \n async \n get \n TargetFunc \n (", "TargetFunc")]
+        "pathological": [("public \n async \n get \n TargetFunc \n (", "TargetFunc")],
     },
     "zig": {
         "valid": [("fn TargetFunc()", "TargetFunc"), ("pub fn TargetFunc()", "TargetFunc")],
         "invalid": ["const TargetFunc = struct", "var TargetFunc"],
-        "pathological": [("pub \n export \n fn \n TargetFunc \n (", "TargetFunc")]
+        "pathological": [("pub \n export \n fn \n TargetFunc \n (", "TargetFunc")],
     },
     "solidity": {
         "valid": [("function TargetFunc()", "TargetFunc"), ("modifier TargetFunc()", "TargetFunc")],
         "invalid": ["contract TargetFunc", "struct TargetFunc"],
-        "pathological": [("function \n TargetFunc \n (", "TargetFunc")]
+        "pathological": [("function \n TargetFunc \n (", "TargetFunc")],
     },
     "groovy": {
         "valid": [("def TargetFunc()", "TargetFunc"), ("public void TargetFunc()", "TargetFunc")],
         "invalid": ["class TargetFunc", "if (TargetFunc)"],
-        "pathological": [("public \t static \t def \t TargetFunc \t (", "TargetFunc")]
+        "pathological": [("public \t static \t def \t TargetFunc \t (", "TargetFunc")],
     },
     "jcl": {
         "valid": [("//TargetFunc EXEC PGM=PROG", "TargetFunc")],
         "invalid": ["//TargetFunc DD DSN=", "//* TargetFunc EXEC"],
-        "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")]
+        "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")],
     },
     "m4": {
         "valid": [("m4_define(`TargetFunc',", "m4_define"), ("AC_DEFUN([TargetFunc],", "AC_DEFUN")],
         "invalid": ["TargetFunc()", "define TargetFunc"],
-        "pathological": [("m4_define \n (`TargetFunc',", "m4_define")]
+        "pathological": [("m4_define \n (`TargetFunc',", "m4_define")],
     },
     "yacc": {
         "valid": [("TargetFunc:", "TargetFunc")],
         "invalid": ["%token TargetFunc", "case TargetFunc:"],
-        "pathological": [("TargetFunc \t :", "TargetFunc")]
+        "pathological": [("TargetFunc \t :", "TargetFunc")],
     },
     "css": {
         "valid": [("@media (max-width: 600px) {", "@media"), ("@keyframes TargetFunc {", "@keyframes")],
         "invalid": [".TargetFunc {", "#TargetFunc {"],
-        "pathological": [("@media \n (max-width) \n {", "@media")]
+        "pathological": [("@media \n (max-width) \n {", "@media")],
     },
     "html": {
         "valid": [("<script>", "script"), ("<style>", "style")],
         "invalid": ["<div id='script'>", "<span class='style'>"],
-        "pathological": [("<script \n >", "script")]
+        "pathological": [("<script \n >", "script")],
     },
     "tcl": {
         "valid": [("proc TargetFunc {", "TargetFunc")],
         "invalid": ["set TargetFunc", "if {$TargetFunc}"],
-        "pathological": [("proc \t TargetFunc \t {", "TargetFunc")]
+        "pathological": [("proc \t TargetFunc \t {", "TargetFunc")],
     },
     "embedded_python": {
         "valid": [("def TargetFunc()", "TargetFunc")],
         "invalid": ["class TargetFunc:", "TargetFunc = 1"],
-        "pathological": [("@dec\nasync \t def \n TargetFunc \n (", "TargetFunc")]
+        "pathological": [("@dec\nasync \t def \n TargetFunc \n (", "TargetFunc")],
     },
 }
 

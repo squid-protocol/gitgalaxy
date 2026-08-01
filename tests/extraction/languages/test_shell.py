@@ -299,7 +299,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_shell_dependency_capture_valid(payload, expected_path):
-    assert_valid_dependency_match(SHELL_RULES["_dependency_capture"], payload, expected_path, "shell._dependency_capture")
+    assert_valid_dependency_match(
+        SHELL_RULES["_dependency_capture"], payload, expected_path, "shell._dependency_capture"
+    )
 
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])

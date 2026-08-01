@@ -55,8 +55,14 @@ FUNCTION_CASES: dict[str, Any] = {
             "my_trigger",
         ),  # schema-qualified -- was a real bug, now fixed
         ("CREATE INDEX main.idx_email ON users(email);", "idx_email"),  # schema-qualified index
-        ('CREATE VIEW "group" AS SELECT 1;', "group"),  # double-quoted (reserved-word name) -- was a real bug, now fixed
-        ("CREATE INDEX [my index] ON users(email);", "my index"),  # bracket-quoted with space -- was a real bug, now fixed
+        (
+            'CREATE VIEW "group" AS SELECT 1;',
+            "group",
+        ),  # double-quoted (reserved-word name) -- was a real bug, now fixed
+        (
+            "CREATE INDEX [my index] ON users(email);",
+            "my index",
+        ),  # bracket-quoted with space -- was a real bug, now fixed
         ("CREATE TRIGGER `my_trigger` AFTER INSERT ON users BEGIN\nEND;", "my_trigger"),  # backtick-quoted
     ],
     "invalid": [
@@ -348,7 +354,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_sqlite_dependency_capture_valid(payload, expected_path):
-    assert_valid_dependency_match(SQLITE_RULES["_dependency_capture"], payload, expected_path, "sqlite._dependency_capture")
+    assert_valid_dependency_match(
+        SQLITE_RULES["_dependency_capture"], payload, expected_path, "sqlite._dependency_capture"
+    )
 
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])

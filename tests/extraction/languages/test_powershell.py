@@ -52,7 +52,10 @@ FUNCTION_CASES: dict[str, Any] = {
         # Syntax-era / feature coverage
         ("workflow TargetFunc {", "TargetFunc"),  # PS Workflow (Windows PowerShell era)
         ("[int] TargetFunc() {", "TargetFunc"),  # PS class typed method
-        ("[Dictionary[string,int]] TargetFunc() {", "TargetFunc"),  # nested generic return type -- was a real bug, now fixed
+        (
+            "[Dictionary[string,int]] TargetFunc() {",
+            "TargetFunc",
+        ),  # nested generic return type -- was a real bug, now fixed
         ("TargetFunc([string]$name) {", "TargetFunc"),  # PS class constructor -- was a real bug, now fixed
         ("TargetFunc() {", "TargetFunc"),  # parameterless constructor -- was a real bug, now fixed
         ("function global:TargetFunc {", "TargetFunc"),  # scope-qualified -- was a real bug, now fixed

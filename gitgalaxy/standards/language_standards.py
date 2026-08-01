@@ -6456,7 +6456,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start (Object / Entity Declarations)
             # Maps to assembler structure definition macros.
-            "class_start": re.compile(r"^[ \t]*(?:(?:struc|STRUCT|\.struct)\s+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*\s+(?:struc|STRUCT|\.struct))\b", re.M | re.I),
+            "class_start": re.compile(
+                r"^[ \t]*(?:(?:struc|STRUCT|\.struct)\s+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*\s+(?:struc|STRUCT|\.struct))\b",
+                re.M | re.I,
+            ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             # Stack preservation and defensive frame setups.

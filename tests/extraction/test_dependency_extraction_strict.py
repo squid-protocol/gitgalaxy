@@ -67,7 +67,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["CHARACTER(LEN=10) :: INCLUDE_FILE"],
         "pathological": [("USE \n , \n INTRINSIC \n :: \n omp_lib", "omp_lib")],
     },
-
     "lua": {
         "valid": [("require 'math'", "math"), ('local ffi = require("ffi")', "ffi")],
         "invalid": ["local require_path = ''"],

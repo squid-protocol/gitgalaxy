@@ -80,21 +80,25 @@ FUNCTION_CASES: dict[str, Any] = {
         ("?mang@led$name.123_@:", "?mang@led$name.123_@"),
         ("\t\t .global_but_weird_name$@?:", ".global_but_weird_name$@?"),
         ("  @fastcall_func@123:", "@fastcall_func@123"),
-        (" \t\t_Z3fooii:", "_Z3fooii"), # C++ mangled name
+        (" \t\t_Z3fooii:", "_Z3fooii"),  # C++ mangled name
     ],
 }
+
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["valid"])
 def test_assembly_func_start_valid(payload, expected_name):
     assert_valid_match(ASSEMBLY_RULES["func_start"], payload, expected_name, "assembly.func_start")
 
+
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_assembly_func_start_invalid(payload):
     assert_invalid_no_match(ASSEMBLY_RULES["func_start"], payload, "assembly.func_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_assembly_func_start_pathological(payload, expected_name):
     assert_pathological_match(ASSEMBLY_RULES["func_start"], payload, expected_name, "assembly.func_start")
+
 
 def test_assembly_func_start_redos_immunity():
     assert_redos_immune(ASSEMBLY_RULES["func_start"], "A" * 100000 + ":", timeout_sec=1.0)
@@ -137,8 +141,8 @@ ARGS_CASES: dict[str, Any] = {
         "mov r12, 5",
         "ldr x30, [sp]",
         "str w8, [x8]",
-        "mov ymm0, ymm0", # Not supported by current args
-        "mov zmm0, zmm0", # Not supported by current args
+        "mov ymm0, ymm0",  # Not supported by current args
+        "mov zmm0, zmm0",  # Not supported by current args
     ],
     "pathological": [
         ("mov\trdi,\t1", "rdi"),
@@ -150,17 +154,21 @@ ARGS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", ARGS_CASES["valid"])
 def test_assembly_args_valid(payload, expected_name):
     assert_valid_match(ASSEMBLY_RULES["args"], payload, expected_name, "assembly.args")
+
 
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_assembly_args_invalid(payload):
     assert_invalid_no_match(ASSEMBLY_RULES["args"], payload, "assembly.args")
 
+
 @pytest.mark.parametrize("payload,expected_name", ARGS_CASES["pathological"])
 def test_assembly_args_pathological(payload, expected_name):
     assert_pathological_match(ASSEMBLY_RULES["args"], payload, expected_name, "assembly.args")
+
 
 def test_assembly_args_redos_immunity():
     assert_redos_immune(ASSEMBLY_RULES["args"], "mov" + " \t" * 50000 + "rdi", timeout_sec=1.0)
@@ -198,17 +206,21 @@ CLASS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["valid"])
 def test_assembly_class_start_valid(payload, expected_name):
     assert_valid_match(ASSEMBLY_RULES["class_start"], payload, expected_name, "assembly.class_start")
+
 
 @pytest.mark.parametrize("payload", CLASS_CASES["invalid"])
 def test_assembly_class_start_invalid(payload):
     assert_invalid_no_match(ASSEMBLY_RULES["class_start"], payload, "assembly.class_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["pathological"])
 def test_assembly_class_start_pathological(payload, expected_name):
     assert_pathological_match(ASSEMBLY_RULES["class_start"], payload, expected_name, "assembly.class_start")
+
 
 def test_assembly_class_start_redos_immunity():
     assert_redos_immune(ASSEMBLY_RULES["class_start"], "struc" + " \t" * 50000 + "A", timeout_sec=1.0)
@@ -224,11 +236,11 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ('.incbin "data.bin"', "data.bin"),
         ("INCLUDE macros.inc", "macros.inc"),
         ("INCLUDELIB kernel32.lib", "kernel32.lib"),
-        ('%include \'single_quotes.inc\'', "single_quotes.inc"),
-        ('.include \'single.s\'', "single.s"),
-        ('.incbin \'data.bin\'', "data.bin"),
-        ("  %include \"indented.inc\"", "indented.inc"),
-        ("\t.include\t\"tabbed.s\"", "tabbed.s"),
+        ("%include 'single_quotes.inc'", "single_quotes.inc"),
+        (".include 'single.s'", "single.s"),
+        (".incbin 'data.bin'", "data.bin"),
+        ('  %include "indented.inc"', "indented.inc"),
+        ('\t.include\t"tabbed.s"', "tabbed.s"),
         ("include macros.inc", "macros.inc"),
         ("includelib kernel32.lib", "kernel32.lib"),
     ],
@@ -240,28 +252,34 @@ DEPENDENCY_CASES: dict[str, Any] = {
         "INCLUDELIB",
         ".incbin",
         "#include <stdio.h>",
-        "import \"foo.s\"",
+        'import "foo.s"',
     ],
     "pathological": [
-        ("%include \t\t  \"macros.inc\"", "macros.inc"),
+        ('%include \t\t  "macros.inc"', "macros.inc"),
         (".include\t\t\t'defs.s'", "defs.s"),
         ("INCLUDE \t\t macros.inc", "macros.inc"),
         ("INCLUDELIB \t\t kernel32.lib", "kernel32.lib"),
-        ("\t\t%include\t\t\"macros.inc\"\t\t", "macros.inc"),
+        ('\t\t%include\t\t"macros.inc"\t\t', "macros.inc"),
     ],
 }
+
 
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["valid"])
 def test_assembly_dependency_valid(payload, expected_name):
     assert_valid_dependency_match(ASSEMBLY_RULES["_dependency_capture"], payload, expected_name, "assembly.dependency")
 
+
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_assembly_dependency_invalid(payload):
     assert_invalid_no_match(ASSEMBLY_RULES["_dependency_capture"], payload, "assembly.dependency")
 
+
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["pathological"])
 def test_assembly_dependency_pathological(payload, expected_name):
-    assert_pathological_dependency_match(ASSEMBLY_RULES["_dependency_capture"], payload, expected_name, "assembly.dependency")
+    assert_pathological_dependency_match(
+        ASSEMBLY_RULES["_dependency_capture"], payload, expected_name, "assembly.dependency"
+    )
+
 
 def test_assembly_dependency_redos_immunity():
-    assert_redos_immune(ASSEMBLY_RULES["_dependency_capture"], "%include" + " \t" * 50000 + "\"A\"", timeout_sec=1.0)
+    assert_redos_immune(ASSEMBLY_RULES["_dependency_capture"], "%include" + " \t" * 50000 + '"A"', timeout_sec=1.0)

@@ -237,9 +237,7 @@ def test_prism_format_and_xml_bypass(prism_engine):
 def test_prism_php_string_extraction(prism_engine):
     """Proves PHP Heredoc strings are stripped to the documentation stream."""
     prism_engine.languages["php"] = {"lexical_family": "standard_block"}
-    prism_engine.PHP_HEREDOC_PATTERN = re.compile(
-        r"<<<[\'\"]?([a-zA-Z0-9_]+)[\'\"]?\n(?:.*\n)*?\s*\1;?", re.M
-    )
+    prism_engine.PHP_HEREDOC_PATTERN = re.compile(r"<<<[\'\"]?([a-zA-Z0-9_]+)[\'\"]?\n(?:.*\n)*?\s*\1;?", re.M)
 
     content = "<?php\n$a = <<<EOT\nMassive Text\nEOT;\n// comment"
     res = prism_engine.split_streams(content, primary_lang="php")

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class EbcdicDecoderUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EbcdicDecoderUtil.class);
-    
+
     // Cp1047 is the standard IBM EBCDIC character set (US/Canada)
     private static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
 
@@ -45,7 +45,7 @@ public class EbcdicDecoderUtil {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < packedBytes.length; i++) {
                 int b = packedBytes[i] & 0xFF;
-                
+
                 // Extract the high and low nibbles (4 bits each)
                 int highNibble = b >>> 4;
                 int lowNibble = b & 0x0F;
@@ -78,7 +78,7 @@ public class EbcdicDecoderUtil {
 
             BigDecimal result = new BigDecimal(sb.toString());
             return result.movePointLeft(scale);
-            
+
         } catch (Exception e) {
             log.error("Critical failure unpacking COMP-3 bytes. Defaulting to ZERO.", e);
             return BigDecimal.ZERO;

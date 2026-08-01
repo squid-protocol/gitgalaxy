@@ -4873,7 +4873,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `<[^>]{0,100}>`, truncating at the FIRST `>` and breaking any nested generic
                 # bound (`fun <T, U : Comparable<U>> foo(x: T, y: U): T {`, a realistic bounded
                 # generic function). Widened to the established one-level-nesting idiom.
-                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#899): the name step-over required a plain
+                # `[a-zA-Z_]\w*`, so backtick-quoted arbitrary identifiers never matched. Added
+                # as an alternative, not a widened class.
+                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
                 re.M,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -4890,10 +4893,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # =====================================================================
                 # RULE 11 FIX (epic #813/#823): same generic-parameter nesting gap as args above
                 # -- widened to the established one-level-nesting idiom.
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#899): same backtick-identifier gap as `args`
+                # above (doc's Rule 16) -- added as an alternative capture group.
                 r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t\n]*){0,10}"
                 r"(?:(?:public|private|protected|internal|open|override|abstract|final|suspend|inline|tailrec|infix|operator|external|expect|actual)[ \t\n]+){0,5}"
                 r"(?:context\s*\([^)]*\)\s*)?"
-                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:[a-zA-Z_]\w*\.)?([a-zA-Z_]\w*)|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))|(init)|(constructor))(?=[ \t\n]*[\(\{])",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -4907,7 +4912,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # positive on object EXPRESSIONS (`object : Base() {`, an anonymous object literal used
             # inline, a different construct from an object DECLARATION).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+[a-zA-Z_]\w*|companion[ \t\n]+object(?:\s+[a-zA-Z_]\w*)?)",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)|companion[ \t\n]+object(?:\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

@@ -1468,7 +1468,7 @@ class StructuralExtractor:
 
         combined_pattern = (
             r'""".*?"""|@"[^"]*(?:""[^"]*)*"|R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
-            r'"(?:\\.|[^"\\])*"|' + single_quote + r'|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/'
+            r'"(?:\\.|[^"\\])*"|' + single_quote + r"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/"
         )
 
         lexed_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)

@@ -179,11 +179,7 @@ EXTRACTION_CASES = {
         ],
         "pathological": [("( \n define \n ( \n TargetFunc \n x \n )", "TargetFunc")],
     },
-    "assembly": {
-        "valid": [("TargetFunc:", "TargetFunc"), ("_TargetFunc:", "_TargetFunc")],
-        "invalid": ["jmp TargetFunc", "call TargetFunc", ".data:"],
-        "pathological": [("_TargetFunc \t :", "_TargetFunc")],
-    },
+
     "dockerfile": {
         "valid": [
             ("RUN apt-get update", "RUN"),

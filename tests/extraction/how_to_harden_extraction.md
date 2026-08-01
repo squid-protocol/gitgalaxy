@@ -541,6 +541,12 @@ specifically. Check every language against these *first* before assuming a rule 
     sibling, non-gauntlet-scoped rule with nearly the same pattern) was deliberately left unfixed --
     out of the four-gauntlet scope for a given issue, not an oversight; don't feel obligated to fix
     every structurally-similar sibling rule outside the four gauntlets in the same pass.
+44. **(#856) A negative lookahead exclusion can be entirely neutralized by the character class that
+    immediately follows it.** Assembly's `func_start` tried to exclude local labels like `.L` via
+    `(?!\.L)([a-zA-Z_]...)`, but `[a-zA-Z_]` already rejected any identifier starting with a dot.
+    This meant legitimate global labels starting with `.` were blocked, and the lookahead was dead
+    code. When adding a negative lookahead, verify that the subsequent matching logic actually
+    permits the excluded shape to begin with.
 
 ## Process: the epic and its sub-issues
 

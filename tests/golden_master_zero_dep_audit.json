@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-01T02:34:49.941923+00:00",
-            "Total Scan Duration": "25.52 seconds"
+            "Analysis ISO Timestamp": "2026-08-01T03:42:48.062403+00:00",
+            "Total Scan Duration": "24.57 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -240,7 +240,7 @@
             "assembly": {
                 "files": 8,
                 "loc": 2320,
-                "impact": 839.4200000000001
+                "impact": 852.12
             },
             "c": {
                 "files": 44,
@@ -1187,13 +1187,13 @@
             },
             "assembly/bootos": {
                 "file_count": 3,
-                "total_mass": 312.2,
+                "total_mass": 324.9,
                 "avg_exposures": {
                     "cognitive_load": 14.79,
                     "safety_score": 7.69,
                     "tech_debt": 26.27,
-                    "verification": 28.04,
-                    "api_exposure": 5.19,
+                    "verification": 28.05,
+                    "api_exposure": 6.06,
                     "concurrency": 0.0,
                     "state_flux": 39.06,
                     "dead_code": 1.8,
@@ -1202,7 +1202,7 @@
                     "churn": 0.0,
                     "documentation": 39.42,
                     "tabs_vs_spaces": 66.67,
-                    "algorithmic_dos": 33.85,
+                    "algorithmic_dos": 33.91,
                     "obscured_payload": 0.0,
                     "logic_bomb": 0.0,
                     "injection_surface": 0.0,
@@ -280489,7 +280489,7 @@
             }
         },
         "assembly/bootos": {
-            "Directory Group Magnitude": 312.2,
+            "Directory Group Magnitude": 324.9,
             "File Count": 3,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_8": "100.0%"
@@ -280498,8 +280498,8 @@
                 "Cognitive Load Exposure": "14.79%",
                 "Error & Exception Exposure": "7.69%",
                 "Tech Debt Exposure": "26.27%",
-                "Testing Exposure": "28.04%",
-                "API Exposure": "5.19%",
+                "Testing Exposure": "28.05%",
+                "API Exposure": "6.06%",
                 "Concurrency Exposure": "0.0%",
                 "State Flux Exposure": "39.06%",
                 "Commented Logic Exposure": "1.8%",
@@ -280508,7 +280508,7 @@
                 "Volatility Exposure": "0.0%",
                 "Documentation Exposure": "39.42%",
                 "Civil War Exposure": "66.67%",
-                "Algorithmic DoS Exposure": "33.85%",
+                "Algorithmic DoS Exposure": "33.91%",
                 "Obfuscation & Evasion Surface": "0.0%",
                 "Exploit Generation Surface": "0.0%",
                 "Weaponizable Injection Vectors": "0.0%",
@@ -280528,9 +280528,9 @@
                         "Identity Proof": "Single Indicator (Exact Match)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 1190.86,
-                        "Y": -239.81,
-                        "Z": -5458.0
+                        "X": 1469.07,
+                        "Y": -239.64,
+                        "Z": -6073.27
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -280708,32 +280708,32 @@
                         "Identity Proof": "Single Indicator (Ext: .asm)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 1517.45,
-                        "Y": -203.92,
-                        "Z": -6040.53
+                        "X": 1238.53,
+                        "Y": -204.08,
+                        "Z": -5425.89
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 8.461,
+                        "Repository Drift (Z-Score)": 8.524,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 9.821,
-                            "file_cluster_1": 8.869,
-                            "file_cluster_2": 9.63,
-                            "file_cluster_3": 11.022,
-                            "file_cluster_4": 9.987,
-                            "file_cluster_5": 10.22,
-                            "file_cluster_6": 10.154,
-                            "file_cluster_7": 9.324,
-                            "file_cluster_8": 8.461,
-                            "file_cluster_9": 10.025,
-                            "file_cluster_10": 11.06,
-                            "file_cluster_11": 10.133,
-                            "file_cluster_12": 10.294,
-                            "file_cluster_13": 9.602,
-                            "file_cluster_14": 13.913,
-                            "file_cluster_15": 10.467,
-                            "file_cluster_16": 9.948,
-                            "file_cluster_17": 9.466
+                            "file_cluster_0": 9.885,
+                            "file_cluster_1": 8.945,
+                            "file_cluster_2": 9.698,
+                            "file_cluster_3": 11.086,
+                            "file_cluster_4": 10.05,
+                            "file_cluster_5": 10.293,
+                            "file_cluster_6": 10.223,
+                            "file_cluster_7": 9.399,
+                            "file_cluster_8": 8.524,
+                            "file_cluster_9": 10.091,
+                            "file_cluster_10": 11.127,
+                            "file_cluster_11": 10.197,
+                            "file_cluster_12": 10.361,
+                            "file_cluster_13": 9.674,
+                            "file_cluster_14": 13.957,
+                            "file_cluster_15": 10.539,
+                            "file_cluster_16": 10.014,
+                            "file_cluster_17": 9.53
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -280741,7 +280741,7 @@
                         "Total LOC": 91,
                         "Coding LOC": 59,
                         "Documentation LOC": 12,
-                        "Structural Magnitude": 19.48,
+                        "Structural Magnitude": 22.38,
                         "Control Flow Ratio": "11.6%",
                         "Popularity Rank": 1,
                         "Raw Churn Frequency": 0.0,
@@ -280753,7 +280753,7 @@
                         "Cognitive Load Exposure": "18.12%",
                         "Error & Exception Exposure": "14.37%",
                         "Tech Debt Exposure": "78.81%",
-                        "Testing Exposure": "2.43%",
+                        "Testing Exposure": "2.47%",
                         "API Exposure": "0.0%",
                         "Concurrency Exposure": "0.0%",
                         "State Flux Exposure": "64.84%",
@@ -280763,7 +280763,7 @@
                         "Volatility Exposure": "0.0%",
                         "Documentation Exposure": "33.01%",
                         "Indentation Consistency": "Spaces",
-                        "Algorithmic DoS Exposure": "1.54%",
+                        "Algorithmic DoS Exposure": "1.73%",
                         "Obfuscation & Evasion Surface": "0.0%",
                         "Exploit Generation Surface": "0.0%",
                         "Weaponizable Injection Vectors": "0.0%",
@@ -280773,12 +280773,32 @@
                     "5. Function Analysis": [
                         {
                             "Function Name": "start",
-                            "Structural Impact": 12.3,
-                            "Lines of Code (LOC)": 66,
-                            "Control Flow Branches": 5,
+                            "Structural Impact": 6.0,
+                            "Lines of Code (LOC)": 30,
+                            "Control Flow Branches": 2,
                             "Input Parameters": 0,
-                            "Control Flow Ratio": "11.6%",
+                            "Control Flow Ratio": "8.3%",
                             "Start Line": 22,
+                            "End Line": 51
+                        },
+                        {
+                            "Function Name": ".1",
+                            "Structural Impact": 5.2,
+                            "Lines of Code (LOC)": 14,
+                            "Control Flow Branches": 2,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "28.6%",
+                            "Start Line": 52,
+                            "End Line": 65
+                        },
+                        {
+                            "Function Name": ".2",
+                            "Structural Impact": 4.0,
+                            "Lines of Code (LOC)": 21,
+                            "Control Flow Branches": 1,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "8.3%",
+                            "Start Line": 67,
                             "End Line": 87
                         }
                     ],
@@ -280787,7 +280807,7 @@
                         "Control Flow Branches": 5,
                         "Sequential Logic Declarations": 38,
                         "Function Parameters": 0,
-                        "Function/Method Declarations": 6,
+                        "Function/Method Declarations": 8,
                         "Class/Entity Declarations": 0,
                         "Defensive Programming Constructs": 0,
                         "Type/Safety Bypasses": 0,
@@ -280899,32 +280919,32 @@
                         "Identity Proof": "Single Indicator (Ext: .asm)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 1413.43,
+                        "X": 1413.53,
                         "Y": -167.42,
-                        "Z": -5554.73
+                        "Z": -5555.13
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 9.171,
+                        "Repository Drift (Z-Score)": 9.192,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 10.172,
-                            "file_cluster_1": 9.967,
-                            "file_cluster_2": 10.311,
-                            "file_cluster_3": 11.5,
-                            "file_cluster_4": 10.393,
-                            "file_cluster_5": 10.88,
-                            "file_cluster_6": 10.478,
-                            "file_cluster_7": 9.925,
-                            "file_cluster_8": 9.171,
-                            "file_cluster_9": 10.331,
-                            "file_cluster_10": 11.451,
-                            "file_cluster_11": 10.403,
-                            "file_cluster_12": 10.731,
+                            "file_cluster_0": 10.149,
+                            "file_cluster_1": 10.002,
+                            "file_cluster_2": 10.338,
+                            "file_cluster_3": 11.509,
+                            "file_cluster_4": 10.385,
+                            "file_cluster_5": 10.905,
+                            "file_cluster_6": 10.475,
+                            "file_cluster_7": 9.943,
+                            "file_cluster_8": 9.192,
+                            "file_cluster_9": 10.33,
+                            "file_cluster_10": 11.457,
+                            "file_cluster_11": 10.398,
+                            "file_cluster_12": 10.734,
                             "file_cluster_13": 10.103,
-                            "file_cluster_14": 14.207,
-                            "file_cluster_15": 10.847,
-                            "file_cluster_16": 10.492,
-                            "file_cluster_17": 9.875
+                            "file_cluster_14": 14.224,
+                            "file_cluster_15": 10.85,
+                            "file_cluster_16": 10.489,
+                            "file_cluster_17": 9.896
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -280932,7 +280952,7 @@
                         "Total LOC": 656,
                         "Coding LOC": 310,
                         "Documentation LOC": 302,
-                        "Structural Magnitude": 272.5,
+                        "Structural Magnitude": 282.3,
                         "Control Flow Ratio": "42.9%",
                         "Popularity Rank": 32,
                         "Raw Churn Frequency": 0.0,
@@ -280945,7 +280965,7 @@
                         "Error & Exception Exposure": "8.71%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
-                        "API Exposure": "3.39%",
+                        "API Exposure": "6.0%",
                         "Concurrency Exposure": "0.0%",
                         "State Flux Exposure": "52.34%",
                         "Commented Logic Exposure": "5.4%",
@@ -280962,16 +280982,6 @@
                         "Hardcoded Payload Artifacts": "0.0%"
                     },
                     "5. Function Analysis": [
-                        {
-                            "Function Name": "save_file",
-                            "Structural Impact": 17.6,
-                            "Lines of Code (LOC)": 21,
-                            "Control Flow Branches": 10,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "58.8%",
-                            "Start Line": 352,
-                            "End Line": 372
-                        },
                         {
                             "Function Name": "os6",
                             "Structural Impact": 15.6,
@@ -281033,13 +281043,13 @@
                             "End Line": 565
                         },
                         {
-                            "Function Name": "filename_length",
-                            "Structural Impact": 8.1,
-                            "Lines of Code (LOC)": 12,
+                            "Function Name": ".loop",
+                            "Structural Impact": 8.0,
+                            "Lines of Code (LOC)": 9,
                             "Control Flow Branches": 4,
                             "Input Parameters": 0,
-                            "Control Flow Ratio": "50.0%",
-                            "Start Line": 303,
+                            "Control Flow Ratio": "57.1%",
+                            "Start Line": 306,
                             "End Line": 314
                         },
                         {
@@ -281051,6 +281061,16 @@
                             "Control Flow Ratio": "57.1%",
                             "Start Line": 250,
                             "End Line": 256
+                        },
+                        {
+                            "Function Name": ".find",
+                            "Structural Impact": 7.8,
+                            "Lines of Code (LOC)": 5,
+                            "Control Flow Branches": 4,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "100.0%",
+                            "Start Line": 360,
+                            "End Line": 364
                         },
                         {
                             "Function Name": "os11",
@@ -281081,6 +281101,26 @@
                             "Control Flow Ratio": "42.9%",
                             "Start Line": 587,
                             "End Line": 594
+                        },
+                        {
+                            "Function Name": "save_file",
+                            "Structural Impact": 6.3,
+                            "Lines of Code (LOC)": 7,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "42.9%",
+                            "Start Line": 352,
+                            "End Line": 358
+                        },
+                        {
+                            "Function Name": ".empty",
+                            "Structural Impact": 6.3,
+                            "Lines of Code (LOC)": 7,
+                            "Control Flow Branches": 3,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "50.0%",
+                            "Start Line": 366,
+                            "End Line": 372
                         },
                         {
                             "Function Name": "delete_file",
@@ -281173,16 +281213,6 @@
                             "End Line": 524
                         },
                         {
-                            "Function Name": "start",
-                            "Structural Impact": 4.2,
-                            "Lines of Code (LOC)": 23,
-                            "Control Flow Branches": 1,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "9.1%",
-                            "Start Line": 178,
-                            "End Line": 200
-                        },
-                        {
                             "Function Name": "get_location",
                             "Structural Impact": 3.4,
                             "Lines of Code (LOC)": 8,
@@ -281201,6 +281231,16 @@
                             "Control Flow Ratio": "33.3%",
                             "Start Line": 537,
                             "End Line": 542
+                        },
+                        {
+                            "Function Name": ".load_vec",
+                            "Structural Impact": 3.2,
+                            "Lines of Code (LOC)": 4,
+                            "Control Flow Branches": 1,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "100.0%",
+                            "Start Line": 197,
+                            "End Line": 200
                         },
                         {
                             "Function Name": "os14",
@@ -281313,6 +281353,16 @@
                             "End Line": 611
                         },
                         {
+                            "Function Name": "start",
+                            "Structural Impact": 2.5,
+                            "Lines of Code (LOC)": 19,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 178,
+                            "End Line": 196
+                        },
+                        {
                             "Function Name": "max_entries",
                             "Structural Impact": 2.0,
                             "Lines of Code (LOC)": 12,
@@ -281371,6 +281421,16 @@
                             "Control Flow Ratio": "0.0%",
                             "Start Line": 205,
                             "End Line": 206
+                        },
+                        {
+                            "Function Name": "filename_length",
+                            "Structural Impact": 1.6,
+                            "Lines of Code (LOC)": 3,
+                            "Control Flow Branches": 0,
+                            "Input Parameters": 0,
+                            "Control Flow Ratio": "0.0%",
+                            "Start Line": 303,
+                            "End Line": 305
                         },
                         {
                             "Function Name": "write_zero_dir",
@@ -281438,13 +281498,13 @@
                         "Control Flow Branches": 78,
                         "Sequential Logic Declarations": 104,
                         "Function Parameters": 0,
-                        "Function/Method Declarations": 61,
+                        "Function/Method Declarations": 65,
                         "Class/Entity Declarations": 0,
                         "Defensive Programming Constructs": 1,
                         "Type/Safety Bypasses": 1,
                         "High-Risk Execution Commands": 0,
                         "I/O and Network Boundaries": 0,
-                        "Exposed API / Public Exports": 2,
+                        "Exposed API / Public Exports": 6,
                         "State Mutations / Variable Reassignments": 24,
                         "Commented-out Code (Dead Logic)": 1,
                         "Structured Documentation Blocks": 0,
@@ -301057,9 +301117,9 @@
                         "Identity Proof": "Single Indicator (Ext: .mlir)"
                     },
                     "2. Topological Coordinates": {
-                        "X": 1934.87,
+                        "X": 1935.29,
                         "Y": -136.67,
-                        "Z": -5854.15
+                        "Z": -5855.42
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",

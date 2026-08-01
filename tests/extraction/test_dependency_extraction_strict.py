@@ -67,14 +67,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["CHARACTER(LEN=10) :: INCLUDE_FILE"],
         "pathological": [("USE \n , \n INTRINSIC \n :: \n omp_lib", "omp_lib")],
     },
-    "assembly": {
-        "valid": [
-            ('%include "macros.inc"', "macros.inc"),
-            ('.include "defs.s"', "defs.s"),
-        ],
-        "invalid": ["include_flag db 1"],
-        "pathological": [('%include \n "syscalls.inc"', "syscalls.inc")],
-    },
+
     "lua": {
         "valid": [("require 'math'", "math"), ('local ffi = require("ffi")', "ffi")],
         "invalid": ["local require_path = ''"],

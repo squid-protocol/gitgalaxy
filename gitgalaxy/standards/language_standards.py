@@ -6439,7 +6439,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Assembly uses ABI registers for parameter coupling.
             "args": re.compile(
-                r"\b([er]di|[er]si|[er]dx|[er]cx|[er][89]|x[0-7]|w[0-7]|v[0-7]|xmm[0-7])\b",
+                r"\b([er]di|[er]si|[er]dx|[er]cx|[er][89]|x[0-7]|w[0-7]|v[0-7]|xmm[0-7]|r[0-7])\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6451,12 +6451,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # Subroutine entry points. EXCLUDES data labels or local loop markers.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_][a-zA-Z0-9_.$]*)(?=[ \t]*:)",
+                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Maps to assembler structure definition macros.
-            "class_start": re.compile(r"^[ \t]*(?:struc|STRUCT|\.struct)\s+[a-zA-Z_]\w*", re.M | re.I),
+            "class_start": re.compile(r"^[ \t]*(?:(?:struc|STRUCT|\.struct)\s+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*\s+(?:struc|STRUCT|\.struct))\b", re.M | re.I),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             # Stack preservation and defensive frame setups.
@@ -6529,9 +6529,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Complex SIB addressing and block replication.
             "reflection_metaprogramming": re.compile(r"\[\s*[a-zA-Z0-9_]+\s*\+\s*[a-zA-Z0-9_]+\s*\*\s*\d+", re.I),
             # 24. import (Dependency Inclusions)
-            "import": re.compile(r"^[ \t]*(?:%include|\.include|\.incbin)\b", re.M | re.I),
+            "import": re.compile(r"^[ \t]*(?:%include|\.include|\.incbin|INCLUDE|INCLUDELIB)\b", re.M | re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:%include|\.include|\.incbin)\s+(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
+                r"^[ \t]*(?:%include|\.include|\.incbin|INCLUDE|INCLUDELIB)\s+(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
                 re.M | re.I,
             ),
             # 25. ownership (Authorship Metadata)

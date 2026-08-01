@@ -3643,7 +3643,39 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # args: Parameters / Coupling. Captures the param block mass of functions and script files.
-            "args": re.compile(r"\bparam\s*\([^)]*\)|\bfunction\s+[a-zA-Z0-9_-]+\s*\([^)]*\)", re.I),
+            # RULE 11 FIX (epic #813/#834): both alternatives used the flat `\([^)]*\)`,
+            # truncating at the FIRST `)` and breaking on a realistic default-value expression
+            # containing its own parens (`param($Config = (Get-DefaultConfig))`, extremely common
+            # for computed defaults) -- the paren variant of the same Rule-11 bug class already
+            # fixed for angle- and square-bracket generics elsewhere. Widened to the established
+            # one-level-nesting idiom.
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#834): PS class constructors
+            # (`Foo([string]$name) { ... }`) have no leading `function` keyword and no return-type
+            # bracket, so their parameter list was invisible to this rule entirely -- added as a
+            # third alternative, anchored to a trailing `{` (not just optional) specifically so it
+            # can't also match a bare call statement (`Foo($a, $b)` with no body), which PowerShell
+            # constructors/methods always have and bare calls never do immediately on the same line.
+            # SCOPE-QUALIFIER FIX (epic #813/#834): PowerShell allows an explicit scope modifier
+            # before a function name (`function global:Foo(...)`, also `script:`/`local:`/
+            # `private:`, a real idiom for module-authored functions that need global-scope
+            # visibility). The identifier class `[a-zA-Z0-9_-]+` doesn't include `:`, so the whole
+            # alternative failed to match at all past the scope prefix -- added as an optional
+            # non-capturing step-over before the name.
+            # NEW-ALTERNATIVE FALSE-POSITIVE FIX (epic #813/#834): the bare-identifier constructor
+            # alternative just above, on its own, ALSO matched PowerShell's own control-flow
+            # statements -- `if (...) {`, `while (...) {`, `switch (...) {`, `for (...) {`,
+            # `foreach (...) {`, `elseif (...) {` all share the exact "identifier, parens, trailing
+            # brace" shape a constructor call has. Caught by hand-testing the fix's own "invalid"
+            # case (`if ($a -eq $b) {`) before shipping, not by crucible (matches recurring class 21's
+            # lesson about a new alternative's own blind spots -- here at authoring time instead of
+            # via a corpus diff). Fixed with a negative-lookahead keyword exclusion.
+            "args": re.compile(
+                r"\bparam\s*\((?:[^()]|\([^()]*\))*\)"
+                r"|\bfunction\s+(?:(?:global|script|local|private):)?[a-zA-Z0-9_-]+\s*\((?:[^()]|\([^()]*\))*\)"
+                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"[A-Za-z_]\w*\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
+                re.I | re.M,
+            ),
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
             # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
             "structural_boundaries": re.compile(
@@ -3659,9 +3691,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `[System.Collections.Generic.List[string]] GetItems() {`) --
             # a common real-world form -- never matched at all, unlike the
             # identical non-generic form (`[int] GetValue() {`), which did.
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#834): PS class constructors
+            # (`Foo([string]$name) { ... }`) have neither a leading `function` keyword nor a
+            # return-type bracket, so they were entirely invisible to this rule (only typed
+            # methods and `function`-keyword declarations matched). Added as a third
+            # alternative, anchored to a trailing `{` (not just optional) specifically so it
+            # can't also match a bare call statement (`Foo($a, $b)` with no body) -- PowerShell
+            # constructors/methods always have a body immediately following on the same
+            # logical statement, and a bare call never continues into an unrelated `{` like
+            # that in realistic code.
+            # SCOPE-QUALIFIER FIX (epic #813/#834): PowerShell allows an explicit scope modifier
+            # before a function name (`function global:Foo {}`, also `script:`/`local:`/
+            # `private:`). The identifier class doesn't include `:`, so the capture greedily
+            # consumed only the SCOPE KEYWORD itself (e.g. "global") as if it were the function
+            # name, silently returning a wrong name rather than failing to match -- worse than a
+            # non-match. Added an optional non-capturing step-over before the name.
+            # NEW-ALTERNATIVE FALSE-POSITIVE FIX (epic #813/#834): same as `args` above -- the
+            # bare-identifier constructor alternative just below also matched PowerShell's own
+            # control-flow statements (`if (...) {`, `while (...) {`, `switch (...) {`, `for (...)
+            # {`, `foreach (...) {`, `elseif (...) {`). Fixed with the same negative-lookahead
+            # keyword exclusion.
             "func_start": re.compile(
-                r"^[ \t]*(?:function|filter|workflow)\s+([a-zA-Z0-9_-]+)"
-                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)"
+                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()"
+                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"([A-Za-z_]\w*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
                 re.I | re.M,
             ),
             # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
@@ -3786,8 +3840,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # --- UPDATED LINE FOR THE ORCHESTRATOR ---
+            # BUG FIX (epic #813/#834): the quoted-path branches used `['\"]?...['\"]?` -- an
+            # OPTIONAL quote pair around a capture class that excludes `\s` regardless of whether
+            # a quote is actually present. So a quoted path containing a space (e.g. the extremely
+            # common Windows `'C:\Program Files\MyModule\MyModule.psd1'`) silently truncated at the
+            # first space, losing everything after it. Replaced the single optional-quote capture
+            # with three real alternatives per import form (single-quoted / double-quoted / bare):
+            # a quoted capture now allows any character except its own quote (so spaces are fine),
+            # while the bare (unquoted) form keeps the original space/semicolon exclusion, since an
+            # unquoted PowerShell path genuinely cannot contain a space.
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:Import-Module|using[ \t\n]+(?:module|namespace|assembly))[ \t\n]+['\"]?([^'\"\s;]+)['\"]?|^[ \t]*\.[ \t\n]+['\"]?([^'\"\s;]+\.ps1)['\"]?",
+                r"^[ \t]*(?:Import-Module|using[ \t\n]+(?:module|namespace|assembly))[ \t\n]+"
+                r"(?:'([^'\n]+)'|\"([^\"\n]+)\"|([^'\"\s;]+))"
+                r"|^[ \t]*\.[ \t\n]+"
+                r"(?:'([^'\n]+\.ps1)'|\"([^\"\n]+\.ps1)\"|([^'\"\s;]+\.ps1))",
                 re.I | re.M,
             ),
             # ownership: Authorship indicators in comments or metadata.
@@ -3927,7 +3993,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Positional parameters and expansion markers.
-            "args": re.compile(r'\$(?:[1-9]|\{[1-9]\w*\}|@|\*|#)|"\$@"|"\$\*"'),
+            # BUG FIX (epic #813/#835): the braced form only matched a bare
+            # `${1}`/`${10}` -- it had no allowance for the extremely common
+            # bash default-value/error-message expansion operators (`:-`,
+            # `:=`, `:?`, `:+`), so `${1:-default}` (arguably the single most
+            # common way positional params actually appear in real scripts)
+            # was entirely invisible to this rule. Added an optional
+            # `:[-=?+]...` suffix using the same one-level-nesting-safe idiom
+            # already established elsewhere in this file's `safety` rule
+            # (`(?:[^{}]|\{[^{}]*\})*`), so a nested default like
+            # `${1:-${DEFAULT:-x}}` is captured in full instead of truncating
+            # at the inner `}`. Confirmed linear-time (no ReDoS) up to a
+            # 200k-char adversarial input before landing.
+            "args": re.compile(r'\$(?:[1-9]|\{[1-9]\w*(?::[-=?+](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*"'),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries and straight-line execution verbs.
             # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
@@ -3947,8 +4025,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # keyword and the identifier name.
                 # FIX: Upgraded horizontal spaces `[ \t]+` to `[ \t\n]+` for the
                 # `function` keyword path, allowing it to easily consume weird formatting.
+                #
+                # BUG FIX (epic #813/#835): the POSIX `name()` branch's keyword
+                # exclusion only listed 5 of bash's ~17 word-based reserved words
+                # (if/while/for/case/until) -- `done() {`, `elif() {`, `select() {`,
+                # `function() {`, etc. all falsely matched as function definitions.
+                # None of these are ever valid bash (a reserved word can't be used
+                # as a POSIX function name -- the real parser errors on it), but
+                # this is a regex-only engine scanning arbitrary/malformed text, so
+                # the same defensive intent that motivated the original 5-word list
+                # applies equally to the rest. Widened to the full reserved-word set.
                 # =====================================================================
-                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.-]*)|(?!(?:if|while|for|case|until)\b)([a-zA-Z_][a-zA-Z0-9_.-]*)[ \t\n]*\(\))",
+                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.-]*)|"
+                r"(?!(?:if|then|elif|else|fi|case|esac|while|until|for|in|do|done|function|select|time|coproc)\b)"
+                r"([a-zA-Z_][a-zA-Z0-9_.-]*)[ \t\n]*\(\))",
                 re.M,
             ),
             # 5. class_start
@@ -4783,7 +4873,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `<[^>]{0,100}>`, truncating at the FIRST `>` and breaking any nested generic
                 # bound (`fun <T, U : Comparable<U>> foo(x: T, y: U): T {`, a realistic bounded
                 # generic function). Widened to the established one-level-nesting idiom.
-                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#899): the name step-over required a plain
+                # `[a-zA-Z_]\w*`, so backtick-quoted arbitrary identifiers never matched. Added
+                # as an alternative, not a widened class.
+                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
                 re.M,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -4800,10 +4893,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # =====================================================================
                 # RULE 11 FIX (epic #813/#823): same generic-parameter nesting gap as args above
                 # -- widened to the established one-level-nesting idiom.
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#899): same backtick-identifier gap as `args`
+                # above (doc's Rule 16) -- added as an alternative capture group.
                 r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t\n]*){0,10}"
                 r"(?:(?:public|private|protected|internal|open|override|abstract|final|suspend|inline|tailrec|infix|operator|external|expect|actual)[ \t\n]+){0,5}"
                 r"(?:context\s*\([^)]*\)\s*)?"
-                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:[a-zA-Z_]\w*\.)?([a-zA-Z_]\w*)|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))|(init)|(constructor))(?=[ \t\n]*[\(\{])",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -4817,7 +4912,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # positive on object EXPRESSIONS (`object : Base() {`, an anonymous object literal used
             # inline, a different construct from an object DECLARATION).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+[a-zA-Z_]\w*|companion[ \t\n]+object(?:\s+[a-zA-Z_]\w*)?)",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)|companion[ \t\n]+object(?:\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -5043,8 +5138,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks and input coupling. Bounded to prevent ReDoS on massive IN clauses.
             # Now explicitly captures CTE scoped arguments: cte_name (col1, col2)
+            # BUG FIX (epic #813/#836), two findings:
+            # 1. Rule 11 shape: the VALUES/IN clause's `\([^)]{0,2000}\)` was a
+            #    flat, unnested paren match -- a nested subquery (`IN (SELECT
+            #    id FROM (SELECT id FROM other))`, common real SQL) truncated
+            #    at the FIRST closing paren (the inner subquery's own),
+            #    silently ending the match one paren early instead of
+            #    covering the whole clause. Widened to the established
+            #    one-level-nesting-safe idiom, bounded on both the inner and
+            #    outer repetition to stay ReDoS-safe.
+            # 2. The CTE alternative required the CTE name to be at TRUE line
+            #    start (`^[ \t]*`) -- but the single most common way to
+            #    actually write a CTE is inline, right after the `WITH`
+            #    keyword on the same line (`WITH cte_name (col1, col2) AS
+            #    (...)`), which this pattern never matched at all. Added an
+            #    alternative anchor: immediately after `WITH` or `WITH
+            #    RECURSIVE`, in addition to (not instead of) true line start
+            #    (multi-CTE statements formatted one-per-line still hit the
+            #    original anchor). Kept as a non-capturing addition -- this
+            #    rule has zero capture groups by design (every alternative is
+            #    checked via whole-match substring, not a captured group), so
+            #    adding a real group here would have changed that convention
+            #    for every OTHER alternative too.
             "args": re.compile(
-                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\([^)]{0,2000}\)|^[ \t]*[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
+                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\((?:[^()]|\([^()]{0,2000}\)){0,2000}\)|"
+                r"(?:^[ \t]*|\bWITH(?:[ \t\n]+RECURSIVE)?[ \t\n]+)[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
                 re.I | re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5063,16 +5181,60 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Upgraded the `\s+` and `[ \t]+` modifier bounds to `[ \t\n]+`.
                 # Critically, the `IF NOT EXISTS` block previously failed to capture
                 # the vertical gap, causing the engine to capture `IF` as the target name.
+                #
+                # BUG FIX (epic #813/#836), two findings:
+                # 1. No allowance for a schema-qualified name (`CREATE
+                #    TRIGGER main.my_trigger ...`) -- standard, common SQLite
+                #    syntax when working with ATTACHed databases or
+                #    explicitly targeting `temp.`. Since `\w` never spans a
+                #    literal `.`, the old pattern couldn't capture "main.my_
+                #    trigger" as one token and had no fallback to skip the
+                #    schema prefix and capture just the real name -- the
+                #    whole match failed outright. Added an optional
+                #    `(?:[a-zA-Z_]\w*\.)?` schema-prefix skip before the
+                #    capture.
+                # 2. No allowance for any of SQLite's three quoted-identifier
+                #    styles (`"name"`, `` `name` ``, `[name]`) -- so even a
+                #    plain quoted name with no special characters at all
+                #    (`CREATE VIEW "group" AS ...`, quoting a name that
+                #    happens to collide with a reserved word -- the single
+                #    most common real reason to quote an identifier) failed
+                #    outright. Added the three quoted forms as alternatives
+                #    inside the SAME capture group (quotes included in the
+                #    captured text) rather than as separate numbered groups,
+                #    since detector.py reserves capture group 2 specifically
+                #    for class_start's inheritance-parent extraction on other
+                #    languages -- adding new numbered groups here would have
+                #    silently shifted that convention.
                 # =====================================================================
                 r"^[ \t]*CREATE[ \t\n]+(?:TEMP|TEMPORARY)?[ \t\n]*(?:UNIQUE[ \t\n]+)?(?:TRIGGER|VIEW|INDEX)[ \t\n]+"
-                r"(?:IF[ \t\n]+NOT[ \t\n]+EXISTS[ \t\n]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;]|$)",
+                r"(?:IF[ \t\n]+NOT[ \t\n]+EXISTS[ \t\n]+)?(?:[a-zA-Z_]\w*\.)?"
+                r"((?:\"[^\"]+\"|`[^`]+`|\[[^\]]+\]|[a-zA-Z_]\w*))(?=[ \t\(\n;]|$)",
                 re.I | re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Physical entity instantiation (Tables).
+            # BUG FIX (epic #813/#836), three findings:
+            # 1/2. Same schema-qualifier and quoted-identifier gaps as
+            #    func_start above -- `CREATE TABLE main.users (...)` and
+            #    `CREATE TABLE "my table" (...)` were both entirely
+            #    invisible. Same fix, same single-group approach.
+            # 3. Pre-existing (not introduced by the above): the "IF NOT
+            #    EXISTS" clause's own trailing gap used `[ \t]+` -- unlike
+            #    its internal `NOT`/`EXISTS` gaps (`\s+`, which already
+            #    included newlines), the FINAL gap before the table name
+            #    didn't allow a newline. func_start's own "VERTICAL MODIFIER
+            #    SHIELD" fix (see its comment above) already covers this
+            #    exact shape for TRIGGER/VIEW/INDEX, but was never applied to
+            #    class_start's parallel TABLE clause -- so `CREATE TABLE IF
+            #    NOT EXISTS\n    users (...)` (a real, common vertical
+            #    formatting style) silently captured "IF" as the table name
+            #    instead of "users". Widened to `[ \t\n]+`, matching
+            #    func_start's existing idiom.
             "class_start": re.compile(
                 r"^[ \t]*CREATE\s+(?:TEMP|TEMPORARY)?\s*(?:VIRTUAL[ \t]+)?TABLE\s+"
-                r"(?:IF\s+NOT\s+EXISTS[ \t]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;]|$)",
+                r"(?:IF\s+NOT\s+EXISTS[ \t\n]+)?(?:[a-zA-Z_]\w*\.)?"
+                r"((?:\"[^\"]+\"|`[^`]+`|\[[^\]]+\]|[a-zA-Z_]\w*))(?=[ \t\(\n;]|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -5168,8 +5330,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(ATTACH\s+DATABASE|load_extension)\b|^[ \t]*\.(?:read|load|import)\s+",
                 re.I | re.M,
             ),
+            # BUG FIX (epic #813/#836): the ATTACH clause's optional-quote-pair
+            # idiom (`['"]?...['"]?`) excluded whitespace from the capture
+            # regardless of whether a quote was actually present -- the same
+            # bug class already confirmed for PowerShell's _dependency_capture
+            # (recurring class 39), but a worse "total failure" variant here:
+            # because the mandatory literal `AS` keyword must immediately
+            # follow the (optional) closing quote, a quoted path containing a
+            # space (a real, common Windows/macOS absolute path shape) didn't
+            # just truncate -- it failed to match AT ALL, since there was no
+            # way to reach "AS" with the space excluded from the capture.
+            # Fixed with real per-quote-style alternatives (single-quoted,
+            # double-quoted, bare), consistent with the PowerShell fix.
             "_dependency_capture": re.compile(
-                r"\bATTACH\s+(?:DATABASE\s+)?['\"]?([^'\"\s;]+)['\"]?\s+AS|\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s]+)['\"]?",
+                r"\bATTACH\s+(?:DATABASE\s+)?(?:'([^']+)'|\"([^\"]+)\"|([^'\"\s;]+))\s+AS|"
+                r"\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s]+)['\"]?",
                 re.I | re.M,
             ),
             # 25. ownership (Authorship Metadata)
@@ -6262,9 +6437,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
-            # Assembly uses ABI registers for parameter coupling.
+            # Assembly uses ABI registers for parameter coupling. Also covers the
+            # legacy 8/16-bit x86 register forms (al/ah/ax, etc.) and the r8/r9
+            # sub-register suffixes (r8d/r8w/r8b), since this language's own
+            # _meta declares it "Backwards Compatible" and real corpus code
+            # (e.g. 16-bit real-mode bootloaders) uses exactly these forms for
+            # register-coupling. (#856 follow-up) Previously `[er][89]` matched
+            # the nonexistent registers "e8"/"e9" while failing to match the
+            # real r8d/r9d/r8w/r9w/r8b/r9b forms, since the trailing `\b` never
+            # fires between two word characters (the digit and the size suffix).
             "args": re.compile(
-                r"\b([er]di|[er]si|[er]dx|[er]cx|[er][89]|x[0-7]|w[0-7]|v[0-7]|xmm[0-7])\b",
+                r"\b([er]di|[er]si|[er]dx|[er]cx|r[89][dwb]?|x[0-7]|w[0-7]|v[0-7]|xmm[0-7]|r[0-7]"
+                r"|a[xhl]|b[xhl]|c[xhl]|d[xhl]|si|di)\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6276,12 +6460,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # Subroutine entry points. EXCLUDES data labels or local loop markers.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_][a-zA-Z0-9_.$]*)(?=[ \t]*:)",
+                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Maps to assembler structure definition macros.
-            "class_start": re.compile(r"^[ \t]*(?:struc|STRUCT|\.struct)\s+[a-zA-Z_]\w*", re.M | re.I),
+            "class_start": re.compile(
+                r"^[ \t]*(?:(?:struc|STRUCT|\.struct)\s+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*\s+(?:struc|STRUCT|\.struct))\b",
+                re.M | re.I,
+            ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             # Stack preservation and defensive frame setups.
@@ -6354,9 +6541,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Complex SIB addressing and block replication.
             "reflection_metaprogramming": re.compile(r"\[\s*[a-zA-Z0-9_]+\s*\+\s*[a-zA-Z0-9_]+\s*\*\s*\d+", re.I),
             # 24. import (Dependency Inclusions)
-            "import": re.compile(r"^[ \t]*(?:%include|\.include|\.incbin)\b", re.M | re.I),
+            "import": re.compile(r"^[ \t]*(?:%include|\.include|\.incbin|INCLUDE|INCLUDELIB)\b", re.M | re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:%include|\.include|\.incbin)\s+(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
+                r"^[ \t]*(?:%include|\.include|\.incbin|INCLUDE|INCLUDELIB)\s+(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
                 re.M | re.I,
             ),
             # 25. ownership (Authorship Metadata)
@@ -6498,10 +6685,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Safely captures hardware registers (A, Q, L, Z) ONLY when they are
             # explicitly coupled to an AGC mathematical/memory opcode.
             # Also captures the Bank assignment declarations.
+            # BUG FIX (epic #813/#857): AUG/DIM/INCR (real register-mutating
+            # instructions already recognized by this file's own
+            # `state_mutation` rule) were missing from the opcode list, so
+            # `AUG A`/`DIM Q`/`INCR A` -- real, common coupling of a hardware
+            # register to an instruction -- were invisible.
             "args": re.compile(
                 r"\b(?:[EFB]BANK)="
                 r"|"
-                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX)[ \t]+(?:A|Q|L|Z)\b",
+                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX|AUG|DIM|INCR)[ \t]+(?:A|Q|L|Z)\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6519,8 +6711,30 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # incorrectly captured MYLABEL. Real AGC label+opcode pairs are
             # always on the same physical line (fixed-column YUL/GAP
             # format); bounded to `[ \t]+`.
+            # BUG FIX (epic #813/#857): the opcode whitelist was a small,
+            # ad hoc subset of the real AGC instruction set -- missing
+            # instructions this SAME file's own sibling rules already
+            # recognize as legitimate (`args`'s CA|CS|TS|AD|SU|MULT|DV|MASK|
+            # DXCH|LXCH|QXCH|XCH|INDEX, `branch`'s TCF|BZE|BMN|RESUME|
+            # RETURN|TCR|GOTO|OVSK|BVBZ, `safety`'s RELINT|EDRUPT,
+            # `state_mutation`'s INCR|AUG|DIM|DAS), so a label followed by
+            # ANY of these real, common opcodes was invisible as a
+            # subroutine entry. Confirmed empirically against the real
+            # Apollo 11 (Luminary/Comanche) source corpus in
+            # language-crucible: the old pattern matched 609 label+opcode
+            # pairs across the corpus; `CAF` alone (Clear and Add Fixed --
+            # arguably the single most common AGC instruction after
+            # TC/CS/TS/CA, 94 occurrences in this corpus) was entirely
+            # missing. Widened to the union of opcodes already vetted
+            # elsewhere in this file, confirmed against the real corpus to
+            # raise total matches to 812 (+33%) with zero new false
+            # positives against data/constant pseudo-ops (OCT/OCTAL/DEC/
+            # 2DEC/ADRES/CADR/EQUALS/etc. all correctly stay excluded --
+            # those mark data declarations, not subroutine entries).
             "func_start": re.compile(
-                r"^([A-Z0-9_-]+)(?=[ \t]+(?:TC|CA|CS|TS|DXCH|CCS|DLOAD|STORE|CALL|INDEX|EXTEND|INHINT|BZF|BZMF|BPL|BMI)\b)",
+                r"^([A-Z0-9_-]+)(?=[ \t]+(?:TC|TCF|CA|CAF|CS|TS|DXCH|LXCH|QXCH|XCH|CCS|DLOAD|STORE|CALL|INDEX|"
+                r"EXTEND|INHINT|RELINT|EDRUPT|BZF|BZMF|BPL|BMI|BZE|BMN|RESUME|RETURN|TCR|GOTO|OVSK|BVBZ|"
+                r"AD|ADS|SU|MULT|DV|MASK|INCR|AUG|DIM|DAS|RVQ)\b)",
                 re.M | re.I,
             ),
             # 5. class_start
@@ -7674,8 +7888,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures USING and RETURNING signatures in PROCEDURE division or CALLs.
+            # BUG FIX (epic #813/#854): the parameter-name repetition had no
+            # exclusion for the literal word "RETURNING" -- so
+            # `PROCEDURE DIVISION USING WS-A RETURNING WS-B.` (declaring both
+            # a parameter AND a return value in one division header,
+            # extremely common real Enterprise COBOL/GnuCOBOL) had USING's
+            # own capture bleed straight through "RETURNING" and swallow
+            # WS-B too, instead of stopping at the clause boundary. Fixed
+            # with a negative lookahead excluding "RETURNING" from the
+            # parameter-name alternative, so `finditer` now correctly yields
+            # two separate matches (USING -> WS-A, RETURNING -> WS-B).
             "args": re.compile(
-                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)[ \t]+)?[A-Z0-9_-]+[ \t]*,?){0,20})",
+                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)[ \t]+)?(?!RETURNING\b)[A-Z0-9_-]+[ \t]*,?){0,20})",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -7741,12 +7965,46 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
                 # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.
                 # THE "SQL GHOST" FIX: `(?:\s|$)` blocks SQL qualifiers (e.g., "POLICY.CUSTOMERNUMBER").
-                r"(?=(?:[ \t\n]+SECTION)?[ \t]*\.(?:[ \t\n]|$))",
+                # BUG FIX (epic #813/#854): SECTION had no allowance for a
+                # trailing SEGMENT-NUMBER (`MAIN-PARA SECTION 10.`) -- a real
+                # COBOL-68/74-era feature (program segmentation/overlay
+                # structuring for early mainframes' limited memory) still
+                # accepted by modern compilers for legacy program support.
+                # Without it, any segmented section header was entirely
+                # invisible. Added an optional 1-2-digit segment number.
+                r"(?=(?:[ \t\n]+SECTION(?:[ \t\n]+[0-9]{1,2})?)?[ \t]*\.(?:[ \t\n]|$))",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural program and modern OO boundaries.
+            # BUG FIX (epic #813/#854), two findings:
+            # 1. The lookahead required the entity name to be IMMEDIATELY
+            #    followed by a period/newline/EOS, with no allowance for the
+            #    standard trailing clauses these paragraphs actually support
+            #    -- `PROGRAM-ID. Foo IS INITIAL PROGRAM.`, `PROGRAM-ID. Foo
+            #    IS COMMON PROGRAM.`, `CLASS-ID. Foo FINAL.`, `CLASS-ID. Foo
+            #    INHERITS Base.`, `INTERFACE-ID. Foo INHERITS Base.` -- all
+            #    real, documented Enterprise COBOL syntax -- were entirely
+            #    invisible. Fixed with a bounded (max 6) run of additional
+            #    space-separated clause words between the captured name and
+            #    the terminating period; the loop can't cross into an
+            #    unrelated following paragraph since it requires whitespace
+            #    before each word and a bare period (not preceded by
+            #    whitespace) always stops it at the real statement boundary.
+            # 2. That widening itself reopened a DIFFERENT false-positive
+            #    vector, caught before shipping: FACTORY./OBJECT. are
+            #    standalone structural markers (never followed by a real
+            #    name), always immediately followed by a division header
+            #    (`FACTORY.\n    IDENTIFICATION DIVISION.`) -- with the
+            #    trailing-clause loop now wide enough to eat one extra word,
+            #    "IDENTIFICATION"/"PROCEDURE"/etc. got captured as the name
+            #    and "DIVISION" got swallowed as if it were a trailing
+            #    clause word. Fixed by excluding "DIVISION" from the
+            #    trailing-clause loop specifically -- no real PROGRAM-ID/
+            #    CLASS-ID/INTERFACE-ID clause ever legitimately contains
+            #    that word, since a division header always starts its own
+            #    separate paragraph.
             "class_start": re.compile(
-                r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\.\s+([A-Za-z0-9_-]+)(?=[ \t]*\.|\n|$)",
+                r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\.\s+([A-Za-z0-9_-]+)(?:[ \t\n]+(?!DIVISION\b)[A-Za-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8680,8 +8938,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures parameters in method signatures and lambdas.
+            # RULE 11 FIX (epic #813/#825): the generic-parameter step-over was the flat
+            # `\[[^\]]*\]`, truncating at the FIRST `]` and breaking any nested generic bound
+            # (`def foo[T <: Comparable[T]](x: T): T = {`, a realistic bounded generic method --
+            # the square-bracket variant of the same Rule-11 bug class already fixed for
+            # java/typescript/python/rust/csharp/kotlin/swift).
+            # IDENTIFIER-GRAMMAR FIX (epic #813/#825): the name step-over required a plain
+            # `[a-zA-Z_]\w*`, so any backtick-quoted arbitrary identifier (Scala's escape hatch for
+            # reserved-word/space-containing method names, e.g. `` def `must not fail`(x: Int): Int
+            # = x ``, a realistic idiom for Java-interop/reserved-word names) never matched at all
+            # (doc's Rule 16 shape). Added as an alternative, not a widened class, so it can't loosen
+            # the plain-identifier path.
             "args": re.compile(
-                r"\bdef\s+[a-zA-Z_]\w*(?:\[[^\]]*\])?\s*\([^)]*\)|\([^)]*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
+                r"\bdef\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\([^)]*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
             "structural_boundaries": re.compile(
@@ -8697,9 +8966,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # across the attribute stepper and modifier capture, explicitly allowing
                 # the engine to wrap lines without triggering ReDoS.
                 # =====================================================================
+                # IDENTIFIER-GRAMMAR FIX (epic #813/#825): same backtick-identifier gap as `args`
+                # above (doc's Rule 16) -- added as an alternative capture group, not a widened
+                # class. detector.py already resolves the fired group via `match.lastindex` for
+                # exactly this kind of multi-alternative name capture (see java's `(init)|
+                # (constructor)` groups), so no downstream change is needed.
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:override|private|protected|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
-                r"def[ \t\n]+([a-zA-Z_]\w*)(?=[ \t\n]*[\[(:=]|$)",
+                r"def[ \t\n]+(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))(?=[ \t\n]*[\[(:=]|$)",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities and OO boundaries.
@@ -8800,11 +9074,29 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 #
                 # [ THE BLOCK DESTRUCTURING SHIELD ]
                 # Scala relies heavily on bracketed block imports: `import java.util.{List, Map}`.
-                # The capture group `([\w.{}\s,]+)` is expanded to swallow the entire
-                # comma-separated block. The downstream parser must flatten this string
-                # and split on commas/brackets to extract the individual modules.
+                # A trailing `{...}` block is captured as its own alternative below so its content
+                # (which may span multiple lines and contain `=>` renames) is swallowed whole. The
+                # downstream parser (galaxyscope.py) flattens this string and splits on commas/
+                # brackets to extract the individual modules.
+                #
+                # BUG FIX (epic #813/#825): the previous capture, `[\w.{}\s,]+`, was a single flat
+                # character class with no statement boundary at all -- since `\s` matches newlines,
+                # it kept consuming across subsequent, unrelated lines (including a SECOND import
+                # statement) until it happened to hit some character outside the class. Confirmed on
+                # a realistic 2-import file: the first match's capture group swallowed the entire
+                # second `import` line plus part of the following `case class` line, so the second
+                # import was never separately detected at all. The same flat class also truncated at
+                # the first `*`/`=`/`>`, so Scala 3 wildcard imports (`import scala.util.chaining.*`)
+                # lost their trailing `*` and `=>`-renamed block imports (`import scala.util.{Try =>
+                # STry}`) were cut off mid-block. Replaced with a properly bounded
+                # segmented-dotted-path grammar: repeat `identifier.` segments, then end on either a
+                # `{...}` block (unrestricted content except braces themselves, so `=>` renames and
+                # multi-line layouts both work) or a bare trailing identifier/wildcard segment
+                # (`[\w*]+`, covering both Scala 2 `_` and Scala 3 `*` wildcards via `\w`/`*`). This
+                # is bounded per-statement by construction -- there is no `\s`/`.` left dangling
+                # outside an explicit brace block for it to bleed through.
                 # =====================================================================
-                r"\b(?:import|export)\s+([\w.{}\s,]+)",
+                r"\b(?:import|export)\s+((?:[\w]+\.)*(?:\{[^{}]*\}|[\w*]+))",
                 re.M,
             ),
             # 25. ownership: Authorship indicators.
@@ -10268,7 +10560,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.
-            "args": re.compile(r"\$\([0-9]+\)|\$[0-9]\b|\$\(call[ \t]+[a-zA-Z0-9_.-]+"),
+            # BUG FIX (epic #813/#844): had no awareness of Make's own `$$`
+            # escaping convention (a doubled `$` means "a literal `$`,
+            # unescaped, for whatever consumes this text next"). Recipe lines
+            # commonly write `$$1`/`$$(1)` specifically to pass a literal
+            # `$1` through to the SHELL (the shell's own first positional
+            # parameter, or any other shell variable) -- unrelated to Make's
+            # own macro-call mechanism entirely, since Make's own `$`
+            # expansion already happened one layer up. The old pattern had no
+            # way to tell these apart from a real Make-level reference. Fixed
+            # with a negative lookbehind so a `$` immediately preceded by
+            # another `$` can never start a match.
+            "args": re.compile(r"(?<!\$)\$(?:\([0-9]+\)|[0-9]\b|\(call[ \t]+[a-zA-Z0-9_.-]+)"),
             # Smooth structural boundaries: variable assignments (:=, =, ?=) and native structural controls like vpath.
             # Explicitly excludes the append operator `+=` which belongs in flux.
             "structural_boundaries": re.compile(
@@ -10277,9 +10580,52 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # Strict capture group and positive lookahead applied for both Obj-C methods and C-functions.
+            # BUG FIX (epic #813/#844), two findings:
+            # 1. The trailing lookahead only checked for a bare `:`/`::`, with
+            #    no exclusion for an immediately-following `=` -- so
+            #    `MY_VAR := value` and `MY_VAR ::= value` (GNU Make's two
+            #    immediate-expansion assignment operators, arguably THE most
+            #    common modern Make idiom) were both misidentified as real
+            #    target declarations. Fixed with a negative lookahead so
+            #    neither colon form can be immediately followed by `=`.
+            # 2. A multi-target rule (`a b c: deps`, a real and common Make
+            #    idiom for sharing one recipe across several targets) wasn't
+            #    detected AT ALL -- the identifier class stopped at the first
+            #    space, then the colon lookahead failed against the next
+            #    target name instead of a colon, and there's no second `^`
+            #    anchor point later on the same line to retry from. Fixed by
+            #    allowing additional space-separated co-target tokens (same
+            #    char class) between the captured first name and the colon
+            #    lookahead -- but this alone reopened a NEW false-positive
+            #    vector: a recipe line with multiple words where a later word
+            #    contains a colon not followed by `=` (a URL's `://`, a bare
+            #    time value `10:30`) would misparse as "co-target tokens then
+            #    a real target-defining colon". Recipe lines are ALWAYS
+            #    tab-indented in Make's own lexical rules (a leading tab means
+            #    "recipe", unconditionally, absent a custom .RECIPEPREFIX) --
+            #    so the leading-whitespace class was narrowed from `[ \t]*` to
+            #    `[ ]*` (spaces only), which structurally excludes every
+            #    recipe line from ever reaching the target-declaration path at
+            #    all, closing the new vector without limiting the multi-target
+            #    fix itself.
+            #
+            # Considered and DELIBERATELY NOT fixed: a variable-referenced
+            # target name (`$(TARGET): $(OBJECTS)`, also common) is still
+            # invisible -- `$`/`(`/`)` are still outside the char class. This
+            # is intentional, not an oversight: test_language_standards_strict
+            # .py's test_makefile_func_start_and_macros_no_false_collision
+            # deliberately locks in that `$(1): $(2)` (a `define...endef`
+            # template's macro-positional-parameter placeholder) must NOT
+            # satisfy func_start, and this rule has no block/context tracking
+            # (line_exclusive lexical family) to distinguish that shape from a
+            # real `$(TARGET):` reference at the regex level. Safely
+            # separating the two would need a structured token (real
+            # variable names vs. bare positional-parameter digits), not a
+            # flat character-class widening -- judged out of scope for this
+            # issue; documented as a known limitation instead.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
-                r"([a-zA-Z0-9_./%-]+)(?=[ \t]*::?)",
+                r"^[ ]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
+                r"([a-zA-Z0-9_./%-]+)(?:[ \t]+[a-zA-Z0-9_./%-]+)*(?=[ \t]*(?:::(?!=)|:(?!:?=)))",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -10350,7 +10696,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # Linking isolated segments of the graph execution via modular file resolution.
             "import": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
-            "_dependency_capture": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
+            # BUG FIX (epic #813/#844): the leading `[ \t]*` allowed a TAB, but
+            # a tab-initial line is ALWAYS a recipe command in Make's own
+            # lexical rules (never a directive, absent a custom
+            # .RECIPEPREFIX) -- same root cause and fix as func_start's fix
+            # above. A recipe line whose command happens to be literally
+            # named "include"/"sinclude" (e.g. `\tinclude /etc/motd`) was
+            # misidentified as a real include directive. Narrowed to `[ ]*`
+            # (spaces only), matching func_start's fix. `import` (a sibling,
+            # non-gauntlet-scoped rule with the same pattern) deliberately
+            # left unfixed, out of the four-gauntlet scope for this issue --
+            # same precedent as #843's identical call for yaml.
+            "_dependency_capture": re.compile(r"^[ ]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
             # Metadata anchoring authorship and structural domain owners.
             "ownership": re.compile(
                 r"^[ \t]*#[ \t]*(?:@author\b|author:|maintainer:|created by:)",
@@ -10770,15 +11127,27 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
-            "args": re.compile(r"^[ \t]*with:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
+            # BUG FIX (epic #813/#843): required `with:` to be immediately followed by a newline,
+            # so a trailing same-line comment (`with: # inputs for this action`, a real authoring
+            # style) broke the match entirely -- the block's own header line has to tolerate a
+            # comment the same way a job/step name line would.
+            "args": re.compile(r"^[ \t]*with:[ \t]*(?:#.*)?\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*)+", re.M | re.I),
             "structural_boundaries": re.compile(r"^[ \t]*(?:env|needs|runs-on|steps|strategy|matrix):", re.M | re.I),
             # Executable Logic Anchors: Explicit execution blocks
             "func_start": re.compile(
                 r"^[ \t]*(?:-?[ \t]*run:|script:|before_script:|after_script:)[ \t]*[|>]*",
                 re.M | re.I,
             ),
+            # MISSING-DECLARATION-SHAPE FIX (epic #813/#843): the reusable-workflow-call/
+            # container-job detection required `uses:`/`image:` to be the LITERAL FIRST line
+            # after the job name -- but real jobs of this shape routinely have other keys
+            # (`needs:`, `if:`, `permissions:`, etc.) before `uses:`/`image:`, e.g.
+            # `call-workflow:\n  needs: [build]\n  uses: ./reusable.yml`. Added a bounded
+            # (max 10, to stay safely linear -- real jobs never have anywhere near that many
+            # top-level keys before uses:/image:) step-over for intervening key:value lines.
             "class_start": re.compile(
-                r"^[ \t]*(?:jobs:|workflow_call:|[a-zA-Z0-9_-]+:[ \t]*\n[ \t]+(?:uses|image):)",
+                r"^[ \t]*(?:jobs:|workflow_call:"
+                r"|[a-zA-Z0-9_-]+:[ \t]*\n(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*\n){0,10}[ \t]+(?:uses|image):)",
                 re.M | re.I,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10836,8 +11205,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t]+([a-zA-Z0-9_./@:-]+)",
                 re.M | re.I,
             ),
+            # BUG FIX (epic #813/#843): the bare capture class required the value to start
+            # immediately with an identifier character, so a quoted `uses:`/`image:` value
+            # (`uses: "actions/checkout@v4"`, a real -- if less common -- authoring style, e.g.
+            # for YAML-lint rules that require consistent scalar quoting) never matched at all,
+            # since the leading quote character isn't in the class. Added quoted alternatives
+            # (permitting the same identifier charset inside real quotes) alongside the original
+            # bare form.
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t\n]+([a-zA-Z0-9_./@:-]+)",
+                r"^[ \t]*(?:-?[ \t]*uses:|image:)[ \t\n]+"
+                r"(?:'([a-zA-Z0-9_./@:-]+)'|\"([a-zA-Z0-9_./@:-]+)\"|([a-zA-Z0-9_./@:-]+))",
                 re.M | re.I,
             ),
             "ownership": None,

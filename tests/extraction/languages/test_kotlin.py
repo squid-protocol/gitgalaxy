@@ -101,7 +101,7 @@ def test_kotlin_func_start_nested_generic_bound_regression():
     """
     func_start = KOTLIN_RULES["func_start"]
     m = func_start.search("fun <T, U : Comparable<U>> TargetFunc(x: T, y: U): T {")
-    assert m and m.group(1) == "TargetFunc", "nested generic bound detection regressed"
+    assert m and m.group(m.lastindex) == "TargetFunc", "nested generic bound detection regressed"
 
 
 def test_kotlin_func_start_redos_immunity():

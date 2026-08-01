@@ -126,8 +126,21 @@ ARGS_CASES: dict[str, Any] = {
         ("mov esi, 2", "esi"),
         ("mov edx, 3", "edx"),
         ("mov ecx, 4", "ecx"),
-        ("mov e8, 5", "e8"),
-        ("mov e9, 6", "e9"),
+        ("mov r8d, 5", "r8d"),
+        ("mov r9d, 6", "r9d"),
+        ("mov r8w, 5", "r8w"),
+        ("mov r9b, 6", "r9b"),
+        ("xor ax, ax", "ax"),
+        ("mov al, 1", "al"),
+        ("mov ah, 2", "ah"),
+        ("mov bl, 3", "bl"),
+        ("mov bh, 4", "bh"),
+        ("mov cl, 5", "cl"),
+        ("mov ch, 6", "ch"),
+        ("mov dl, 7", "dl"),
+        ("mov dh, 8", "dh"),
+        ("mov si, boot", "si"),
+        ("mov di, osbase", "di"),
     ],
     "invalid": [
         "mov rax, 1",
@@ -143,6 +156,11 @@ ARGS_CASES: dict[str, Any] = {
         "str w8, [x8]",
         "mov ymm0, ymm0",  # Not supported by current args
         "mov zmm0, zmm0",  # Not supported by current args
+        "mov e8, 5",  # (#856 follow-up) fictional register, not a real x86 form
+        "mov e9, 6",  # (#856 follow-up) fictional register, not a real x86 form
+        "mov sp, 1",
+        "mov bp, 1",
+        "mov lr, 1",
     ],
     "pathological": [
         ("mov\trdi,\t1", "rdi"),
@@ -172,6 +190,45 @@ def test_assembly_args_pathological(payload, expected_name):
 
 def test_assembly_args_redos_immunity():
     assert_redos_immune(ASSEMBLY_RULES["args"], "mov" + " \t" * 50000 + "rdi", timeout_sec=1.0)
+
+
+def test_assembly_args_phantom_register_vs_real_r8_r9_suffixes():
+    """(#856 follow-up) `[er][89]` matched the nonexistent registers "e8"/"e9"
+    (no such x86 registers exist) while failing to match the real r8d/r9d/
+    r8w/r9w/r8b/r9b sub-register forms, because the trailing `\\b` never
+    fires between two word characters (the digit and the size suffix).
+    Verified against the real assembly corpus (language-crucible/data/assembly)
+    through the actual Prism comment-stripping pipeline (not raw file text):
+    matches went from 84 to 305 (+263%), with the biggest gains in bootos's
+    16-bit real-mode bootloader code, which the old pattern missed entirely
+    (0 matches) since it had no legacy 8/16-bit register support at all.
+    """
+    match = ASSEMBLY_RULES["args"].search("mov e8, 5")
+    assert match is None, "Fictional register 'e8' must not match"
+
+    for real_form in ("r8d", "r9d", "r8w", "r9w", "r8b", "r9b"):
+        match = ASSEMBLY_RULES["args"].search(f"mov {real_form}, 1")
+        assert match is not None, f"Real register form '{real_form}' must match"
+        assert match.group(1).lower() == real_form
+
+
+def test_assembly_args_legacy_8_16_bit_registers_regression():
+    """(#856 follow-up) assembly's own `_meta.target_version` states
+    "Backwards Compatible", and real corpus code (bootos's 16-bit real-mode
+    BIOS bootloader) uses the legacy 8/16-bit register set (ax/al/ah, etc.)
+    as its de facto argument-coupling convention. The original pattern had
+    zero support for these forms.
+    """
+    for reg in ("ax", "bx", "cx", "dx", "al", "ah", "bl", "bh", "cl", "ch", "dl", "dh", "si", "di"):
+        match = ASSEMBLY_RULES["args"].search(f"mov {reg}, 1")
+        assert match is not None, f"Legacy register '{reg}' must match"
+        assert match.group(1).lower() == reg
+
+    # Real ABI/architecture registers must still be excluded even though they
+    # share characters with the new legacy-register alternatives.
+    for excluded in ("sp", "bp", "lr", "rax", "rbx", "r12", "r15"):
+        match = ASSEMBLY_RULES["args"].search(f"mov {excluded}, 1")
+        assert match is None, f"'{excluded}' must remain excluded (not an argument register)"
 
 
 # ==============================================================================

@@ -6437,9 +6437,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
-            # Assembly uses ABI registers for parameter coupling.
+            # Assembly uses ABI registers for parameter coupling. Also covers the
+            # legacy 8/16-bit x86 register forms (al/ah/ax, etc.) and the r8/r9
+            # sub-register suffixes (r8d/r8w/r8b), since this language's own
+            # _meta declares it "Backwards Compatible" and real corpus code
+            # (e.g. 16-bit real-mode bootloaders) uses exactly these forms for
+            # register-coupling. (#856 follow-up) Previously `[er][89]` matched
+            # the nonexistent registers "e8"/"e9" while failing to match the
+            # real r8d/r9d/r8w/r9w/r8b/r9b forms, since the trailing `\b` never
+            # fires between two word characters (the digit and the size suffix).
             "args": re.compile(
-                r"\b([er]di|[er]si|[er]dx|[er]cx|[er][89]|x[0-7]|w[0-7]|v[0-7]|xmm[0-7]|r[0-7])\b",
+                r"\b([er]di|[er]si|[er]dx|[er]cx|r[89][dwb]?|x[0-7]|w[0-7]|v[0-7]|xmm[0-7]|r[0-7]"
+                r"|a[xhl]|b[xhl]|c[xhl]|d[xhl]|si|di)\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)

@@ -114,11 +114,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["import_state = True"],
         "pathological": [("from \n uasyncio \n import \n sleep", "uasyncio")],
     },
-    "cobol": {
-        "valid": [("COPY MYLIB.", "MYLIB"), ("INCLUDE SQLCA.", "SQLCA")],
-        "invalid": ["01 COPY-FILE PIC X(10)."],
-        "pathological": [("COPY \n 'Z_MACROS'", "Z_MACROS")],
-    },
     "zig": {
         "valid": [
             ('const std = @import("std");', "std"),

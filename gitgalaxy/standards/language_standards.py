@@ -7764,8 +7764,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures USING and RETURNING signatures in PROCEDURE division or CALLs.
+            # BUG FIX (epic #813/#854): the parameter-name repetition had no
+            # exclusion for the literal word "RETURNING" -- so
+            # `PROCEDURE DIVISION USING WS-A RETURNING WS-B.` (declaring both
+            # a parameter AND a return value in one division header,
+            # extremely common real Enterprise COBOL/GnuCOBOL) had USING's
+            # own capture bleed straight through "RETURNING" and swallow
+            # WS-B too, instead of stopping at the clause boundary. Fixed
+            # with a negative lookahead excluding "RETURNING" from the
+            # parameter-name alternative, so `finditer` now correctly yields
+            # two separate matches (USING -> WS-A, RETURNING -> WS-B).
             "args": re.compile(
-                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)[ \t]+)?[A-Z0-9_-]+[ \t]*,?){0,20})",
+                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)[ \t]+)?(?!RETURNING\b)[A-Z0-9_-]+[ \t]*,?){0,20})",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -7831,12 +7841,46 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
                 # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.
                 # THE "SQL GHOST" FIX: `(?:\s|$)` blocks SQL qualifiers (e.g., "POLICY.CUSTOMERNUMBER").
-                r"(?=(?:[ \t\n]+SECTION)?[ \t]*\.(?:[ \t\n]|$))",
+                # BUG FIX (epic #813/#854): SECTION had no allowance for a
+                # trailing SEGMENT-NUMBER (`MAIN-PARA SECTION 10.`) -- a real
+                # COBOL-68/74-era feature (program segmentation/overlay
+                # structuring for early mainframes' limited memory) still
+                # accepted by modern compilers for legacy program support.
+                # Without it, any segmented section header was entirely
+                # invisible. Added an optional 1-2-digit segment number.
+                r"(?=(?:[ \t\n]+SECTION(?:[ \t\n]+[0-9]{1,2})?)?[ \t]*\.(?:[ \t\n]|$))",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural program and modern OO boundaries.
+            # BUG FIX (epic #813/#854), two findings:
+            # 1. The lookahead required the entity name to be IMMEDIATELY
+            #    followed by a period/newline/EOS, with no allowance for the
+            #    standard trailing clauses these paragraphs actually support
+            #    -- `PROGRAM-ID. Foo IS INITIAL PROGRAM.`, `PROGRAM-ID. Foo
+            #    IS COMMON PROGRAM.`, `CLASS-ID. Foo FINAL.`, `CLASS-ID. Foo
+            #    INHERITS Base.`, `INTERFACE-ID. Foo INHERITS Base.` -- all
+            #    real, documented Enterprise COBOL syntax -- were entirely
+            #    invisible. Fixed with a bounded (max 6) run of additional
+            #    space-separated clause words between the captured name and
+            #    the terminating period; the loop can't cross into an
+            #    unrelated following paragraph since it requires whitespace
+            #    before each word and a bare period (not preceded by
+            #    whitespace) always stops it at the real statement boundary.
+            # 2. That widening itself reopened a DIFFERENT false-positive
+            #    vector, caught before shipping: FACTORY./OBJECT. are
+            #    standalone structural markers (never followed by a real
+            #    name), always immediately followed by a division header
+            #    (`FACTORY.\n    IDENTIFICATION DIVISION.`) -- with the
+            #    trailing-clause loop now wide enough to eat one extra word,
+            #    "IDENTIFICATION"/"PROCEDURE"/etc. got captured as the name
+            #    and "DIVISION" got swallowed as if it were a trailing
+            #    clause word. Fixed by excluding "DIVISION" from the
+            #    trailing-clause loop specifically -- no real PROGRAM-ID/
+            #    CLASS-ID/INTERFACE-ID clause ever legitimately contains
+            #    that word, since a division header always starts its own
+            #    separate paragraph.
             "class_start": re.compile(
-                r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\.\s+([A-Za-z0-9_-]+)(?=[ \t]*\.|\n|$)",
+                r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\.\s+([A-Za-z0-9_-]+)(?:[ \t\n]+(?!DIVISION\b)[A-Za-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

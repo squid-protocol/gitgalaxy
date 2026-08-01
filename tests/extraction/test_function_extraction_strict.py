@@ -52,21 +52,6 @@ EXTRACTION_CASES = {
             ("def \n self. \n TargetFunc \n (", "TargetFunc")
         ],
     },
-    "cobol": {
-        "valid": [
-            ("       TargetFunc SECTION.", "TargetFunc"),
-            ("       TargetFunc.", "TargetFunc"),
-        ],
-        "invalid": [
-            "       01 TargetFunc.",
-            "           PERFORM TargetFunc.",
-            "       END-TargetFunc.",
-        ],
-        "pathological": [
-            # Margin hugging and separated section headers
-            ("TargetFunc \n           SECTION.", "TargetFunc")
-        ],
-    },
     "apex": {
         "valid": [
             ("public static void TargetFunc()", "TargetFunc"),

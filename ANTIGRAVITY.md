@@ -70,7 +70,21 @@ GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture
   - Fastest path in an active session: `python tests/tools/self_scan.py` regenerates it in place.
   - If you'd rather not run a local scan, the `gitgalaxy.yml` workflow's "Full Report" job now publishes a fresh copy as a `gitgalaxy-self-scan-db` build artifact on every merge to main -- pull the latest one from that workflow's most recent run instead.
 
-## 7. Submitting Pull Requests
+## 7. Extraction Hardening & Adversarial Testing
+
+When tasked with "hardening extraction coverage" or similar testing epics, you must avoid **Self-Consistency Bias** (writing tests that merely pass against the *current implementation* instead of the *actual ground truth*). 
+
+To ensure rigorous, adversarial testing:
+1. **Define "Valid" from Ground Truth First**: Before looking at the current regex implementation, determine what syntax is valid by consulting official language documentation, a ground-truth corpus, or other established rules in the same file (e.g. cross-referencing `branch`, `safety`, and `state_mutation` rules to find missing opcodes).
+2. **Do Not Cement Implementation Flaws**: If a structurally valid syntax does not match the current regex, the regex is buggy, NOT the syntax. Never write a negative/invalid test to "prove" the regex correctly ignores it.
+3. **Cross-Rule Validation**: Actively check sibling rules in `language_standards.py`. If `args` extracts registers, make sure it covers the instructions listed in `state_mutation` that mutate those registers.
+4. **Corpus Grepping**: When in doubt about whether a syntax exists or how common it is, `grep` the actual corpus (e.g. in `language-crucible`) to find empirical evidence of the shape and frequency of certain keywords or patterns.
+5. **Multi-Round Adversarial Checks**: 
+   - *Round 1 (Breadth)*: Gather keywords, opcodes, and structures from external docs and sibling rules.
+   - *Round 2 (Regex)*: Check the regex against this gathered ground truth. Identify missing captures and false positives.
+   - *Round 3 (Corpus)*: Verify fixes against real corpus data using `crucible_check.py` to ensure the modifications match reality.
+
+## 8. Submitting Pull Requests
 
 When working in this repository, **always work on a side branch and submit a PR to `main`. Do not merge or push directly to `main`.**
 

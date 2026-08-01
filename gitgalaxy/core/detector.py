@@ -1460,10 +1460,19 @@ class StructuralExtractor:
             return "\n".join(" " * len(line) for line in text.split("\n"))
 
         # 2. The Single-Pass Lexer (Massive I/O Reduction)
-        # We use the generic shield pattern for all brace-style and c-style families
-        combined_pattern = r'""".*?"""|@"[^"]*(?:""[^"]*)*"|R"([a-zA-Z0-9_]*)\(.*?\)\1"|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/'
+        # We use the generic shield pattern for all brace-style and c-style families.
+        # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
+        single_quote = r"'(?:\\.|[^'\\])*'"
+        if lang_id == "rust":
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
 
-        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
+        combined_pattern = (
+            r'""".*?"""|@"[^"]*(?:""[^"]*)*"|R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
+            r'"(?:\\.|[^"\\])*"|' + single_quote + r'|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/'
+        )
+
+        lexed_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
+        safe_code = lexed_code
 
         # 3. Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):
@@ -1541,16 +1550,10 @@ class StructuralExtractor:
         # this gate to other Mode B languages is unblocked -- but still do
         # it as its own audited PR (confirm no other language has a similar
         # latent prism.py gap first), not as a drive-by expansion here.
-        if lang_id in ("javascript", "typescript"):
-            try:
-                matches = list(func_start.finditer(safe_code))
-            except Exception:
-                return [], 0.0
-        else:
-            try:
-                matches = list(func_start.finditer(code))
-            except Exception:
-                return [], 0.0
+        try:
+            matches = list(func_start.finditer(lexed_code))
+        except Exception:
+            return [], 0.0
 
         last_end_idx = 0
         current_line_count = offset + 1

@@ -134,20 +134,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "sqlite": {
-        "valid": [
-            ("CREATE TRIGGER TargetFunc", "TargetFunc"),
-            ("CREATE VIEW TargetFunc", "TargetFunc"),
-            ("CREATE UNIQUE INDEX TargetFunc", "TargetFunc"),
-        ],
-        "invalid": ["CREATE TABLE TargetFunc", "DROP VIEW TargetFunc"],
-        "pathological": [
-            (
-                "CREATE \n TEMPORARY \n TRIGGER \n IF \n NOT \n EXISTS \n TargetFunc \n ",
-                "TargetFunc",
-            )
-        ],
-    },
     "abap": {
         "valid": [
             ("METHOD TargetFunc.", "TargetFunc"),

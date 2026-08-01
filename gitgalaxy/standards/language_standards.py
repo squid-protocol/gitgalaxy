@@ -5133,8 +5133,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks and input coupling. Bounded to prevent ReDoS on massive IN clauses.
             # Now explicitly captures CTE scoped arguments: cte_name (col1, col2)
+            # BUG FIX (epic #813/#836), two findings:
+            # 1. Rule 11 shape: the VALUES/IN clause's `\([^)]{0,2000}\)` was a
+            #    flat, unnested paren match -- a nested subquery (`IN (SELECT
+            #    id FROM (SELECT id FROM other))`, common real SQL) truncated
+            #    at the FIRST closing paren (the inner subquery's own),
+            #    silently ending the match one paren early instead of
+            #    covering the whole clause. Widened to the established
+            #    one-level-nesting-safe idiom, bounded on both the inner and
+            #    outer repetition to stay ReDoS-safe.
+            # 2. The CTE alternative required the CTE name to be at TRUE line
+            #    start (`^[ \t]*`) -- but the single most common way to
+            #    actually write a CTE is inline, right after the `WITH`
+            #    keyword on the same line (`WITH cte_name (col1, col2) AS
+            #    (...)`), which this pattern never matched at all. Added an
+            #    alternative anchor: immediately after `WITH` or `WITH
+            #    RECURSIVE`, in addition to (not instead of) true line start
+            #    (multi-CTE statements formatted one-per-line still hit the
+            #    original anchor). Kept as a non-capturing addition -- this
+            #    rule has zero capture groups by design (every alternative is
+            #    checked via whole-match substring, not a captured group), so
+            #    adding a real group here would have changed that convention
+            #    for every OTHER alternative too.
             "args": re.compile(
-                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\([^)]{0,2000}\)|^[ \t]*[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
+                r"\?[0-9]*|[:@$][a-zA-Z_]\w*|\b(?:VALUES|IN)\s*\((?:[^()]|\([^()]{0,2000}\)){0,2000}\)|"
+                r"(?:^[ \t]*|\bWITH(?:[ \t\n]+RECURSIVE)?[ \t\n]+)[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
                 re.I | re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5153,16 +5176,60 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Upgraded the `\s+` and `[ \t]+` modifier bounds to `[ \t\n]+`.
                 # Critically, the `IF NOT EXISTS` block previously failed to capture
                 # the vertical gap, causing the engine to capture `IF` as the target name.
+                #
+                # BUG FIX (epic #813/#836), two findings:
+                # 1. No allowance for a schema-qualified name (`CREATE
+                #    TRIGGER main.my_trigger ...`) -- standard, common SQLite
+                #    syntax when working with ATTACHed databases or
+                #    explicitly targeting `temp.`. Since `\w` never spans a
+                #    literal `.`, the old pattern couldn't capture "main.my_
+                #    trigger" as one token and had no fallback to skip the
+                #    schema prefix and capture just the real name -- the
+                #    whole match failed outright. Added an optional
+                #    `(?:[a-zA-Z_]\w*\.)?` schema-prefix skip before the
+                #    capture.
+                # 2. No allowance for any of SQLite's three quoted-identifier
+                #    styles (`"name"`, `` `name` ``, `[name]`) -- so even a
+                #    plain quoted name with no special characters at all
+                #    (`CREATE VIEW "group" AS ...`, quoting a name that
+                #    happens to collide with a reserved word -- the single
+                #    most common real reason to quote an identifier) failed
+                #    outright. Added the three quoted forms as alternatives
+                #    inside the SAME capture group (quotes included in the
+                #    captured text) rather than as separate numbered groups,
+                #    since detector.py reserves capture group 2 specifically
+                #    for class_start's inheritance-parent extraction on other
+                #    languages -- adding new numbered groups here would have
+                #    silently shifted that convention.
                 # =====================================================================
                 r"^[ \t]*CREATE[ \t\n]+(?:TEMP|TEMPORARY)?[ \t\n]*(?:UNIQUE[ \t\n]+)?(?:TRIGGER|VIEW|INDEX)[ \t\n]+"
-                r"(?:IF[ \t\n]+NOT[ \t\n]+EXISTS[ \t\n]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;]|$)",
+                r"(?:IF[ \t\n]+NOT[ \t\n]+EXISTS[ \t\n]+)?(?:[a-zA-Z_]\w*\.)?"
+                r"((?:\"[^\"]+\"|`[^`]+`|\[[^\]]+\]|[a-zA-Z_]\w*))(?=[ \t\(\n;]|$)",
                 re.I | re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Physical entity instantiation (Tables).
+            # BUG FIX (epic #813/#836), three findings:
+            # 1/2. Same schema-qualifier and quoted-identifier gaps as
+            #    func_start above -- `CREATE TABLE main.users (...)` and
+            #    `CREATE TABLE "my table" (...)` were both entirely
+            #    invisible. Same fix, same single-group approach.
+            # 3. Pre-existing (not introduced by the above): the "IF NOT
+            #    EXISTS" clause's own trailing gap used `[ \t]+` -- unlike
+            #    its internal `NOT`/`EXISTS` gaps (`\s+`, which already
+            #    included newlines), the FINAL gap before the table name
+            #    didn't allow a newline. func_start's own "VERTICAL MODIFIER
+            #    SHIELD" fix (see its comment above) already covers this
+            #    exact shape for TRIGGER/VIEW/INDEX, but was never applied to
+            #    class_start's parallel TABLE clause -- so `CREATE TABLE IF
+            #    NOT EXISTS\n    users (...)` (a real, common vertical
+            #    formatting style) silently captured "IF" as the table name
+            #    instead of "users". Widened to `[ \t\n]+`, matching
+            #    func_start's existing idiom.
             "class_start": re.compile(
                 r"^[ \t]*CREATE\s+(?:TEMP|TEMPORARY)?\s*(?:VIRTUAL[ \t]+)?TABLE\s+"
-                r"(?:IF\s+NOT\s+EXISTS[ \t]+)?([a-zA-Z_]\w*)(?=[ \t\(\n;]|$)",
+                r"(?:IF\s+NOT\s+EXISTS[ \t\n]+)?(?:[a-zA-Z_]\w*\.)?"
+                r"((?:\"[^\"]+\"|`[^`]+`|\[[^\]]+\]|[a-zA-Z_]\w*))(?=[ \t\(\n;]|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -5258,8 +5325,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(ATTACH\s+DATABASE|load_extension)\b|^[ \t]*\.(?:read|load|import)\s+",
                 re.I | re.M,
             ),
+            # BUG FIX (epic #813/#836): the ATTACH clause's optional-quote-pair
+            # idiom (`['"]?...['"]?`) excluded whitespace from the capture
+            # regardless of whether a quote was actually present -- the same
+            # bug class already confirmed for PowerShell's _dependency_capture
+            # (recurring class 39), but a worse "total failure" variant here:
+            # because the mandatory literal `AS` keyword must immediately
+            # follow the (optional) closing quote, a quoted path containing a
+            # space (a real, common Windows/macOS absolute path shape) didn't
+            # just truncate -- it failed to match AT ALL, since there was no
+            # way to reach "AS" with the space excluded from the capture.
+            # Fixed with real per-quote-style alternatives (single-quoted,
+            # double-quoted, bare), consistent with the PowerShell fix.
             "_dependency_capture": re.compile(
-                r"\bATTACH\s+(?:DATABASE\s+)?['\"]?([^'\"\s;]+)['\"]?\s+AS|\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s]+)['\"]?",
+                r"\bATTACH\s+(?:DATABASE\s+)?(?:'([^']+)'|\"([^\"]+)\"|([^'\"\s;]+))\s+AS|"
+                r"\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s]+)['\"]?",
                 re.I | re.M,
             ),
             # 25. ownership (Authorship Metadata)

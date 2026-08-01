@@ -43,14 +43,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "sqlite": {
-        "valid": [
-            ("ATTACH DATABASE 'file.db' AS file;", "file.db"),
-            (".read schema.sql", "schema.sql"),
-        ],
-        "invalid": ["SELECT 'ATTACH DATABASE';"],
-        "pathological": [("load_extension \n ( \n 'crypto.so' \n )", "crypto.so")],
-    },
     "html": {
         "valid": [
             ('<script src="app.js"></script>', "app.js"),

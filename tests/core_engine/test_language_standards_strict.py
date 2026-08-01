@@ -4195,17 +4195,27 @@ def test_sqlite_dependency_capture_extracts_path():
     _dependency_capture is paired with `import` and must extract the exact
     dependency path/module string into a capture group, not just detect
     presence. Covers all three import shapes sqlite supports.
+
+    Checks "any non-None group" rather than a hardcoded group index,
+    matching how galaxyscope.py's own consumer actually reads this rule
+    (`next((g for g in match.groups() if g), None)`, not `match.group(N)`)
+    -- the real contract is "the path is in SOME group", not "group 1/2/3
+    specifically". The ATTACH alternative below has three of its own
+    sub-groups (single-quoted/double-quoted/bare, epic #813/#836's quoted-
+    path-with-space fix), which already shifted load_extension's and the
+    dot-command's own group numbers once; a hardcoded index would have
+    been re-broken by the next legitimate restructuring too.
     """
     pattern = SQLITE_RULES["_dependency_capture"]
 
     m = pattern.search("ATTACH DATABASE 'other.db' AS other;")
-    assert m and m.group(1) == "other.db"
+    assert m and next((g for g in m.groups() if g), None) == "other.db"
 
     m = pattern.search("SELECT load_extension('json1');")
-    assert m and m.group(2) == "json1"
+    assert m and next((g for g in m.groups() if g), None) == "json1"
 
     m = pattern.search(".import data.csv mytable")
-    assert m and m.group(3) == "data.csv"
+    assert m and next((g for g in m.groups() if g), None) == "data.csv"
 
 
 def test_sqlite_high_risk_execution_dot_command_leading_boundary_and_case_regression():

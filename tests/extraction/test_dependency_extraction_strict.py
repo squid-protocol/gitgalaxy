@@ -75,7 +75,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["include_flag db 1"],
         "pathological": [('%include \n "syscalls.inc"', "syscalls.inc")],
     },
-
     "lua": {
         "valid": [("require 'math'", "math"), ('local ffi = require("ffi")', "ffi")],
         "invalid": ["local require_path = ''"],

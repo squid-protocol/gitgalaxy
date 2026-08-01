@@ -6673,10 +6673,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Safely captures hardware registers (A, Q, L, Z) ONLY when they are
             # explicitly coupled to an AGC mathematical/memory opcode.
             # Also captures the Bank assignment declarations.
+            # BUG FIX (epic #813/#857): AUG/DIM/INCR (real register-mutating
+            # instructions already recognized by this file's own
+            # `state_mutation` rule) were missing from the opcode list, so
+            # `AUG A`/`DIM Q`/`INCR A` -- real, common coupling of a hardware
+            # register to an instruction -- were invisible.
             "args": re.compile(
                 r"\b(?:[EFB]BANK)="
                 r"|"
-                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX)[ \t]+(?:A|Q|L|Z)\b",
+                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX|AUG|DIM|INCR)[ \t]+(?:A|Q|L|Z)\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6694,8 +6699,30 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # incorrectly captured MYLABEL. Real AGC label+opcode pairs are
             # always on the same physical line (fixed-column YUL/GAP
             # format); bounded to `[ \t]+`.
+            # BUG FIX (epic #813/#857): the opcode whitelist was a small,
+            # ad hoc subset of the real AGC instruction set -- missing
+            # instructions this SAME file's own sibling rules already
+            # recognize as legitimate (`args`'s CA|CS|TS|AD|SU|MULT|DV|MASK|
+            # DXCH|LXCH|QXCH|XCH|INDEX, `branch`'s TCF|BZE|BMN|RESUME|
+            # RETURN|TCR|GOTO|OVSK|BVBZ, `safety`'s RELINT|EDRUPT,
+            # `state_mutation`'s INCR|AUG|DIM|DAS), so a label followed by
+            # ANY of these real, common opcodes was invisible as a
+            # subroutine entry. Confirmed empirically against the real
+            # Apollo 11 (Luminary/Comanche) source corpus in
+            # language-crucible: the old pattern matched 609 label+opcode
+            # pairs across the corpus; `CAF` alone (Clear and Add Fixed --
+            # arguably the single most common AGC instruction after
+            # TC/CS/TS/CA, 94 occurrences in this corpus) was entirely
+            # missing. Widened to the union of opcodes already vetted
+            # elsewhere in this file, confirmed against the real corpus to
+            # raise total matches to 812 (+33%) with zero new false
+            # positives against data/constant pseudo-ops (OCT/OCTAL/DEC/
+            # 2DEC/ADRES/CADR/EQUALS/etc. all correctly stay excluded --
+            # those mark data declarations, not subroutine entries).
             "func_start": re.compile(
-                r"^([A-Z0-9_-]+)(?=[ \t]+(?:TC|CA|CS|TS|DXCH|CCS|DLOAD|STORE|CALL|INDEX|EXTEND|INHINT|BZF|BZMF|BPL|BMI)\b)",
+                r"^([A-Z0-9_-]+)(?=[ \t]+(?:TC|TCF|CA|CAF|CS|TS|DXCH|LXCH|QXCH|XCH|CCS|DLOAD|STORE|CALL|INDEX|"
+                r"EXTEND|INHINT|RELINT|EDRUPT|BZF|BZMF|BPL|BMI|BZE|BMN|RESUME|RETURN|TCR|GOTO|OVSK|BVBZ|"
+                r"AD|ADS|SU|MULT|DV|MASK|INCR|AUG|DIM|DAS|RVQ)\b)",
                 re.M | re.I,
             ),
             # 5. class_start

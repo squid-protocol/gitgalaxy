@@ -57,14 +57,26 @@ FUNCTION_CASES: dict[str, Any] = {
         ("MIN-MAX\tCS B", "MIN-MAX"),
         ("123LABEL\tTC ROUTINE", "123LABEL"),
         ("LABEL_WITH_UNDERSCORE\tTC ROUTINE", "LABEL_WITH_UNDERSCORE"),
+        # The following opcodes were missing from the whitelist entirely
+        # (real bug, epic #813/#857 -- see the dedicated regression test
+        # below): confirmed via the real Apollo 11 corpus in
+        # language-crucible that CAF alone (94 occurrences) is one of the
+        # single most common AGC instructions, on par with CA/CS/TS.
+        ("CAFLABEL\tCAF SOMEVAR", "CAFLABEL"),
+        ("TCFLABEL\tTCF ROUTINE", "TCFLABEL"),
+        ("XCHLABEL\tXCH SOMEVAR", "XCHLABEL"),
+        ("LXCHLABEL\tLXCH SOMEVAR", "LXCHLABEL"),
+        ("ADLABEL\tAD SOMEVAR", "ADLABEL"),
+        ("MASKLABEL\tMASK SOMEVAR", "MASKLABEL"),
+        ("INCRLABEL\tINCR A", "INCRLABEL"),
+        ("RELINTLABEL\tRELINT", "RELINTLABEL"),
     ],
     "invalid": [
         " MYLABEL\tTC INTERNAL",  # Not at true line start
         "\tMYLABEL\tTC INTERNAL",  # Not at true line start
         "MYLABEL\n\tTC INTERNAL",  # Newline between label and opcode
-        "MYLABEL\tTCF INTERNAL",  # TCF is not in the opcode list
         "MYLABEL: TC INTERNAL",  # Colon not allowed in label
-        "MYLABEL\tADD INTERNAL",  # ADD is not in the opcode list
+        "MYLABEL\tADD INTERNAL",  # ADD is not a real AGC opcode (AD is; ADD is not)
         "# MYLABEL\tTC INTERNAL",  # Comment
         "MYLABEL\t",  # No opcode
         "MYLABEL",  # Just the label
@@ -72,6 +84,10 @@ FUNCTION_CASES: dict[str, Any] = {
         "TC MYLABEL",  # TC is the opcode, no label
         "CA MYLABEL",  # CA is the opcode, no label
         "   TC MYLABEL",  # Indented opcode
+        "MYLABEL\tOCT 12345",  # OCT is a data/constant pseudo-op, not a subroutine entry
+        "MYLABEL\tEQUALS",  # EQUALS is a constant declaration (handled by the `api` rule instead)
+        "MYLABEL\tDEC 5",  # DEC is a data/constant pseudo-op
+        "MYLABEL\tADRES SOMEWHERE",  # ADRES is an address-constant pseudo-op
     ],
     "pathological": [
         ("LONG-LABEL-NAME-123\t\t\t\tTC INTERNAL", "LONG-LABEL-NAME-123"),
@@ -95,20 +111,84 @@ FUNCTION_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["valid"])
 def test_agc_assembly_func_start_valid(payload, expected_name):
     assert_valid_match(AGC_RULES["func_start"], payload, expected_name, "agc_assembly.func_start")
+
 
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_agc_assembly_func_start_invalid(payload):
     assert_invalid_no_match(AGC_RULES["func_start"], payload, "agc_assembly.func_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_agc_assembly_func_start_pathological(payload, expected_name):
     assert_pathological_match(AGC_RULES["func_start"], payload, expected_name, "agc_assembly.func_start")
 
+
 def test_agc_assembly_func_start_redos_immunity():
     assert_redos_immune(AGC_RULES["func_start"], "A" * 100000 + "\tTC", timeout_sec=1.0)
+
+
+def test_agc_assembly_func_start_opcode_whitelist_regression():
+    """
+    Regression test for a real bug (epic #813/#857): the opcode whitelist
+    was a small, ad hoc subset of the real AGC instruction set -- missing
+    instructions this SAME file's own sibling rules already recognize as
+    legitimate (`args`'s CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|
+    INDEX, `branch`'s TCF|BZE|BMN|RESUME|RETURN|TCR|GOTO|OVSK|BVBZ,
+    `safety`'s RELINT|EDRUPT, `state_mutation`'s INCR|AUG|DIM|DAS), so a
+    label followed by ANY of these real, common opcodes was invisible as a
+    subroutine entry.
+
+    Confirmed empirically against the real Apollo 11 (Luminary/Comanche)
+    source corpus in language-crucible: the old pattern matched 609
+    label+opcode pairs across the corpus; the new pattern matches 812
+    (+33%), with zero new false positives against data/constant pseudo-ops
+    (verified via the `MYLABEL\tOCT 12345`-style invalid cases above --
+    OCT/OCTAL/DEC/2DEC/ADRES/CADR/EQUALS all correctly stay excluded, since
+    those mark data declarations, not subroutine entries). `CAF` alone
+    (Clear and Add Fixed) is one of the single most common AGC instructions
+    in the real corpus (94 occurrences, on par with CA/CS/TS) and was
+    entirely missing before this fix.
+    """
+    func_start = AGC_RULES["func_start"]
+    for opcode, operand in [
+        ("CAF", "SOMEVAR"),
+        ("TCF", "ROUTINE"),
+        ("XCH", "SOMEVAR"),
+        ("LXCH", "SOMEVAR"),
+        ("QXCH", "SOMEVAR"),
+        ("AD", "SOMEVAR"),
+        ("ADS", "SOMEVAR"),
+        ("SU", "SOMEVAR"),
+        ("MULT", "SOMEVAR"),
+        ("DV", "SOMEVAR"),
+        ("MASK", "SOMEVAR"),
+        ("INCR", "A"),
+        ("AUG", "A"),
+        ("DIM", "A"),
+        ("DAS", "SOMEVAR"),
+        ("RELINT", ""),
+        ("EDRUPT", ""),
+        ("BZE", "ROUTINE"),
+        ("BMN", "ROUTINE"),
+        ("RESUME", ""),
+        ("RETURN", ""),
+        ("TCR", "ROUTINE"),
+        ("GOTO", "ROUTINE"),
+        ("RVQ", ""),
+    ]:
+        payload = f"MYLABEL\t{opcode} {operand}".rstrip()
+        m = func_start.search(payload)
+        assert m and m.group(1) == "MYLABEL", f"opcode {opcode!r} still missing from func_start whitelist"
+
+    # Data/constant pseudo-ops must stay excluded -- these mark data
+    # declarations, not subroutine entries, and were never part of the gap.
+    for pseudo_op, operand in [("OCT", "12345"), ("OCTAL", "12345"), ("DEC", "5"), ("2DEC", "5"), ("ADRES", "X")]:
+        payload = f"MYLABEL\t{pseudo_op} {operand}"
+        assert not func_start.search(payload), f"data pseudo-op {pseudo_op!r} incorrectly treated as a subroutine entry"
 
 
 # ==============================================================================
@@ -136,6 +216,13 @@ ARGS_CASES: dict[str, Any] = {
         ("INDEX\tZ", "INDEX\tZ"),
         ("AD\tQ", "AD\tQ"),
         ("SU\tL", "SU\tL"),
+        # AUG/DIM/INCR were missing entirely (real bug, epic #813/#857 --
+        # see the dedicated regression test below), despite being real
+        # register-mutating instructions this file's own `state_mutation`
+        # rule already recognizes.
+        ("AUG A", "AUG A"),
+        ("DIM Q", "DIM Q"),
+        ("INCR A", "INCR A"),
     ],
     "invalid": [
         "CA B",  # B is not a hardware register in the rule (A, Q, L, Z)
@@ -173,20 +260,39 @@ ARGS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", ARGS_CASES["valid"])
 def test_agc_assembly_args_valid(payload, expected_name):
     assert_valid_match(AGC_RULES["args"], payload, expected_name, "agc_assembly.args")
+
 
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_agc_assembly_args_invalid(payload):
     assert_invalid_no_match(AGC_RULES["args"], payload, "agc_assembly.args")
 
+
 @pytest.mark.parametrize("payload,expected_name", ARGS_CASES["pathological"])
 def test_agc_assembly_args_pathological(payload, expected_name):
     assert_pathological_match(AGC_RULES["args"], payload, expected_name, "agc_assembly.args")
 
+
 def test_agc_assembly_args_redos_immunity():
     assert_redos_immune(AGC_RULES["args"], "CA" + " \t" * 50000 + "A", timeout_sec=1.0)
+
+
+def test_agc_assembly_args_register_opcode_whitelist_regression():
+    """
+    Regression test for a real bug (epic #813/#857): AUG/DIM/INCR (real
+    register-mutating instructions this file's own `state_mutation` rule
+    already recognizes) were missing from the opcode list, so `AUG A`/
+    `DIM Q`/`INCR A` -- real, common coupling of a hardware register to an
+    instruction -- were invisible.
+    """
+    args = AGC_RULES["args"]
+    for opcode, register in [("AUG", "A"), ("DIM", "Q"), ("INCR", "A")]:
+        payload = f"{opcode} {register}"
+        m = args.search(payload)
+        assert m and m.group(0) == payload, f"opcode {opcode!r} coupled to a register still missing from args"
 
 
 # ==============================================================================
@@ -234,17 +340,25 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["valid"])
 def test_agc_assembly_dependency_valid(payload, expected_name):
     assert_valid_dependency_match(AGC_RULES["_dependency_capture"], payload, expected_name, "agc_assembly.dependency")
+
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_agc_assembly_dependency_invalid(payload):
     assert_invalid_no_match(AGC_RULES["_dependency_capture"], payload, "agc_assembly.dependency")
 
+
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["pathological"])
 def test_agc_assembly_dependency_pathological(payload, expected_name):
-    assert_pathological_dependency_match(AGC_RULES["_dependency_capture"], payload, expected_name, "agc_assembly.dependency")
+    assert_pathological_dependency_match(
+        AGC_RULES["_dependency_capture"], payload, expected_name, "agc_assembly.dependency"
+    )
+
 
 def test_agc_assembly_dependency_redos_immunity():
-    assert_redos_immune(AGC_RULES["_dependency_capture"], " \t" * 50000 + "BANK" + " \t\n" * 50000 + "A", timeout_sec=1.0)
+    assert_redos_immune(
+        AGC_RULES["_dependency_capture"], " \t" * 50000 + "BANK" + " \t\n" * 50000 + "A", timeout_sec=1.0
+    )

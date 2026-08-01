@@ -222,7 +222,6 @@ EXTRACTION_CASES = {
         "invalid": ["//TargetFunc DD DSN=", "//* TargetFunc EXEC"],
         "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")]
     },
-
     "m4": {
         "valid": [("m4_define(`TargetFunc',", "m4_define"), ("AC_DEFUN([TargetFunc],", "AC_DEFUN")],
         "invalid": ["TargetFunc()", "define TargetFunc"],

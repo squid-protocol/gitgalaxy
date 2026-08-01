@@ -6061,9 +6061,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Signatures defining input parameters. Drives the physical size/mass of the function.
             # Upgraded to capture both the declaration block and explicit INTENT binding markers
-            # that act as the true coupling mass in legacy Fortran.
+            # that act as the true coupling mass in legacy Fortran, as well as VALUE and OPTIONAL.
             "args": re.compile(
-                r"\b(?:SUBROUTINE|FUNCTION|ENTRY)\s+[A-Za-z_]\w*(?:\s*\([^)]*\))?|\bINTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)",
+                r"\b(?:SUBROUTINE|FUNCTION|ENTRY)\s+[A-Za-z_]\w*(?:\s*\([^)]*\))?|\b(?:INTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|VALUE\b|OPTIONAL\b)",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6110,14 +6110,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 3. THE RETURN TYPE
                 # Optional for Subroutines/Programs, mandatory for explicit Functions.
                 r"(?:"
-                # 3a. Base Types (Primitives + Derived + Classes + Legacy)
-                r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS|DOUBLE[ \t\n]+PRECISION)"
-                # 3b. Legacy Sizing (*8) or Modern Kinds/Lengths ((KIND=4, LEN=*))
-                r"(?:[ \t\n]*(?:\*[ \t\n]*\d+|\([^)]*\)))?"
-                r"[ \t\n]+"
+                # 3a. Base Types (Primitives + Derived + Classes + Legacy + Complex)
+                r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS|DOUBLE[ \t\n]+PRECISION|DOUBLE[ \t\n]+COMPLEX)"
+                # 3b. Legacy Sizing (*8) or Modern Kinds/Lengths ((KIND=4, LEN=*)) and Attributes
+                r"[A-Za-z0-9_ \t\n&*,()=]*?"
                 r")?"
                 # 4. THE EXECUTION BLOCK KEYWORD
-                r"(?:FUNCTION|SUBROUTINE|PROGRAM|ENTRY)[ \t\n]+"
+                # Supports multi-line continuation `&` inside the spaces
+                r"(?:FUNCTION|SUBROUTINE|PROGRAM|ENTRY)[ \t\n&+]+"
                 # 5. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
                 # Extracts the actual block name.
                 r"([A-Za-z_]\w*)"
@@ -6130,9 +6130,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines object-oriented and structural boundaries. Drives API Surface Area math.
             # Maps to Fortran MODULEs, SUBMODULEs, INTERFACEs, and structural TYPE definitions (Fortran's struct/class equivalent).
+            # Upgraded to handle SUBMODULE (parent) child syntax and trailing comments.
             "class_start": re.compile(
-                r"^[ \t]*(?!\bEND\b)(?:MODULE|SUBMODULE|BLOCK\s+DATA|INTERFACE)\s+([A-Za-z_]\w*)|"
-                r"^[ \t]*(?!\bEND\b)TYPE(?:,[^:]*::\s*|\s+)([A-Za-z_]\w*)(?=[ \t]*\n|[ \t]*$)",
+                r"^[ \t]*(?!\bEND\b)(?:(?:MODULE|BLOCK\s+DATA|INTERFACE)\s+|SUBMODULE\s*(?:\([^)]*\))?\s+)([A-Za-z_]\w*)|"
+                r"^[ \t]*(?!\bEND\b)TYPE(?:[ \t]*::\s*|,[^:]*::\s*|\s+)([A-Za-z_]\w*)(?=[ \t]*(?:!|\n|$))",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -6281,7 +6282,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Dependency linkage across Fortran modules and files.
             "import": re.compile(r"\b(USE|INCLUDE|IMPORT)\b", re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:USE(?:\s*,\s*\w+\s*::)?\s+([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"])",
+                r"^[ \t]*(?:USE\s*(?:,[^:]*)?(?:::\s*)?\s+([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"]|SUBMODULE\s*\(\s*([^):]+)[^)]*\))",
                 re.I | re.M,
             ),
             # 25. ownership (Authorship Metadata)

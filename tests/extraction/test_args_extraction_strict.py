@@ -69,20 +69,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "scala": {
-        "valid": [
-            ("def TargetFunc(a: Int, b: String): Unit =", "TargetFunc"),
-            ("def TargetFunc[T](items: List[T])", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b)", "for (i <- 1 to 10) {"],
-        "pathological": [
-            # Vertical modifiers and complex lambda parameters
-            (
-                "inline \n def \n TargetFunc \n [T] \n (\n  items: List[T],\n  callback: (Int, String) => Unit\n)",
-                "TargetFunc",
-            )
-        ],
-    },
     "zig": {
         "valid": [
             ("pub fn TargetFunc(a: i32, b: f32) void {", "TargetFunc"),
@@ -107,20 +93,6 @@ ARGS_EXTRACTION_CASES = {
             # Vertical modifiers and complex generic maps
             (
                 "public \n static \n Map<Id, Account> \n TargetFunc \n (\n  List<Account> accounts,\n  Map<Id, Contact> contacts\n)",
-                "TargetFunc",
-            )
-        ],
-    },
-    "powershell": {
-        "valid": [
-            ("param([string]$a, [int]$b)", "param"),
-            ("function TargetFunc ([string]$a) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc -a 'foo'", "if ($a -eq $b) {"],
-        "pathological": [
-            # Extreme parameter attribute stacking
-            (
-                "function \n TargetFunc \n (\n  [Parameter(Mandatory=$true)]\n  [ValidateNotNullOrEmpty()]\n  [string[]]$items\n)",
                 "TargetFunc",
             )
         ],

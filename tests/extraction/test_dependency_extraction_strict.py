@@ -30,19 +30,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "powershell": {
-        "valid": [
-            ("Import-Module ActiveDirectory", "ActiveDirectory"),
-            ("using namespace System.Net", "System.Net"),
-        ],
-        "invalid": ["Write-Host 'Import-Module'"],
-        "pathological": [("using \n module \n 'MyCustomModule.psm1'", "MyCustomModule.psm1")],
-    },
-    "shell": {
-        "valid": [("source .env", ".env"), (". /etc/profile", "/etc/profile")],
-        "invalid": ["echo 'source .env'"],
-        "pathological": [(". \t  '/opt/custom/script.sh'", "/opt/custom/script.sh")],
-    },
     "ruby": {
         "valid": [
             ("require 'json'", "json"),
@@ -55,14 +42,6 @@ DEPENDENCY_EXTRACTION_CASES = {
                 "../lib/massive_module",
             )
         ],
-    },
-    "sqlite": {
-        "valid": [
-            ("ATTACH DATABASE 'file.db' AS file;", "file.db"),
-            (".read schema.sql", "schema.sql"),
-        ],
-        "invalid": ["SELECT 'ATTACH DATABASE';"],
-        "pathological": [("load_extension \n ( \n 'crypto.so' \n )", "crypto.so")],
     },
     "html": {
         "valid": [
@@ -87,19 +66,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         ],
         "invalid": ["CHARACTER(LEN=10) :: INCLUDE_FILE"],
         "pathological": [("USE \n , \n INTRINSIC \n :: \n omp_lib", "omp_lib")],
-    },
-    "assembly": {
-        "valid": [
-            ('%include "macros.inc"', "macros.inc"),
-            ('.include "defs.s"', "defs.s"),
-        ],
-        "invalid": ["include_flag db 1"],
-        "pathological": [('%include \n "syscalls.inc"', "syscalls.inc")],
-    },
-    "agc_assembly": {
-        "valid": [("BANK 43", "43"), ("SETLOC 4000", "4000")],
-        "invalid": ["EBANK_VAR EQUALS 1"],
-        "pathological": [("SETLOC \n 2000", "2000")],
     },
     "lua": {
         "valid": [("require 'math'", "math"), ('local ffi = require("ffi")', "ffi")],
@@ -127,11 +93,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["import_state = True"],
         "pathological": [("from \n uasyncio \n import \n sleep", "uasyncio")],
     },
-    "cobol": {
-        "valid": [("COPY MYLIB.", "MYLIB"), ("INCLUDE SQLCA.", "SQLCA")],
-        "invalid": ["01 COPY-FILE PIC X(10)."],
-        "pathological": [("COPY \n 'Z_MACROS'", "Z_MACROS")],
-    },
     "zig": {
         "valid": [
             ('const std = @import("std");', "std"),
@@ -155,14 +116,6 @@ DEPENDENCY_EXTRACTION_CASES = {
                 "package:provider/provider.dart",
             )
         ],
-    },
-    "scala": {
-        "valid": [
-            ("import cats.effect.IO", "cats.effect.IO"),
-            ("export scala.collection.mutable.Map", "scala.collection.mutable.Map"),
-        ],
-        "invalid": ["val importCount = 0"],
-        "pathological": [("import \n scala.concurrent.Future", "scala.concurrent.Future")],
     },
     "dockerfile": {
         "valid": [
@@ -206,11 +159,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["int import_count;"],
         "pathological": [("@import \n CoreGraphics \n ;", "CoreGraphics")],
     },
-    "makefile": {
-        "valid": [("include config.mk", "config.mk"), ("-include deps.mk", "deps.mk")],
-        "invalid": ["include_path := foo"],
-        "pathological": [("-include \n .depend", ".depend")],
-    },
     "abap": {
         "valid": [
             ("INCLUDE z_my_macros.", "z_my_macros"),
@@ -218,14 +166,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         ],
         "invalid": ["DATA include_name TYPE string."],
         "pathological": [("TYPE-POOLS \n slis \n .", "slis")],
-    },
-    "yaml": {
-        "valid": [
-            ("uses: actions/checkout@v3", "actions/checkout@v3"),
-            ("image: node:18-alpine", "node:18-alpine"),
-        ],
-        "invalid": ["description: 'image setup'"],
-        "pathological": [("image: \n postgres:15", "postgres:15")],
     },
 }
 

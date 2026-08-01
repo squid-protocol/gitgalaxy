@@ -274,9 +274,9 @@ class GuideStarLens:
                 scripts = data.get("scripts", {})
                 for name, cmd in scripts.items():
                     files = re.findall(r"([a-zA-Z0-9_\-\./]+\.(?:js|ts|mjs|cjs))", cmd)
-                    for f in files:
+                    for file_path in files:
                         self._inject_intent_lock(
-                            f, "javascript", 0.85, f"Manifest Script (package.json:scripts:{name})"
+                            file_path, "javascript", 0.85, f"Manifest Script (package.json:scripts:{name})"
                         )
         except Exception as e:
             self.logger.debug(f"GuideStar: failed to parse manifest '{path}': {e}")
@@ -291,9 +291,9 @@ class GuideStarLens:
                 matches = re.findall(r"(?:SRCS|SOURCES|FILES|TARGET)\s*[+:]?=\s*(.*)", content, re.I)
                 for m in matches:
                     files = m.split()
-                    for f in files:
-                        if "." in f:
-                            self._inject_intent_lock(f, "unknown", 0.85, "Manifest Source (Makefile)")
+                    for file_path in files:
+                        if "." in file_path:
+                            self._inject_intent_lock(file_path, "unknown", 0.85, "Manifest Source (Makefile)")
 
                 # Strategy 2: Find target lines like 'build: main.o'
                 targets = re.findall(r"^([a-zA-Z0-9_\-]+)\s*:", content, re.M)

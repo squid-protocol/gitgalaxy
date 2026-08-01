@@ -64,8 +64,8 @@ def main():
         epilog="""
 ==============================================================================
 JSON IR State Structure:
-If using --input_state, the script expects a GitGalaxy Intermediate 
-Representation (IR) JSON file. It specifically targets the 'known_programs' 
+If using --input_state, the script expects a GitGalaxy Intermediate
+Representation (IR) JSON file. It specifically targets the 'known_programs'
 array to detect execution patterns and identify dead code.
 
 Expected JSON Schema:

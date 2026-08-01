@@ -95,7 +95,7 @@ def main():
         epilog="""
 ==============================================================================
 SCANNING CAPABILITIES:
-This engine bypasses standard indexing to stream raw binary logs or database 
+This engine bypasses standard indexing to stream raw binary logs or database
 dumps. It currently detects and actively masks the following patterns:
   - VISA Credit Cards
   - MASTERCARD Credit Cards

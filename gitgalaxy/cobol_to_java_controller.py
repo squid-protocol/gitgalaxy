@@ -103,7 +103,7 @@ import org.slf4j.LoggerFactory;
 /**
  * ⚠️ AUTO-GENERATED MOCK SERVICE
  * This module intercepts unresolved COBOL calls to '{subroutine_name}'.
- * It allows the Spring Context to load and the AI Agent to write code 
+ * It allows the Spring Context to load and the AI Agent to write code
  * without crashing due to missing dependencies.
  */
 @Service

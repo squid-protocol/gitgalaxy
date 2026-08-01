@@ -38,9 +38,9 @@ class {class_name}ApplicationTests {{
     void contextLoads() {{
         // =====================================================================
         // DEFENSIVE DESIGN (CONTEXT VALIDATION):
-        // If the application.yml is broken, a database driver is missing, or 
-        // the AI hallucinates a @Service dependency without implementing it, 
-        // this test will fail immediately upon context initialization, catching 
+        // If the application.yml is broken, a database driver is missing, or
+        // the AI hallucinates a @Service dependency without implementing it,
+        // this test will fail immediately upon context initialization, catching
         // architectural regressions before runtime.
         // =====================================================================
     }}

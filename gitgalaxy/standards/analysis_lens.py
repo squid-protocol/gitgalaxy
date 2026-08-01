@@ -17,8 +17,8 @@ from typing import ClassVar, TypedDict
 analysis_lens.py
 Phase 4+: Structural Policies, Threat Policies, and Mathematical Constants.
 
-This file contains the immutable mathematical constants, security thresholds, 
-and spatial modifiers used by the Signal Processor to calculate risk exposures 
+This file contains the immutable mathematical constants, security thresholds,
+and spatial modifiers used by the Signal Processor to calculate risk exposures
 and structural magnitude.
 """
 

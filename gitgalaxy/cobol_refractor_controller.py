@@ -87,7 +87,7 @@ class IRStateManager:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Graveyard (
                 program_id TEXT,
-                entity_type TEXT, 
+                entity_type TEXT,
                 entity_name TEXT,
                 UNIQUE(program_id, entity_type, entity_name)
             )

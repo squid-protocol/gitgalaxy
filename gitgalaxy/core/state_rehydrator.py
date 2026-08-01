@@ -51,8 +51,8 @@ class StateRehydrator:
             # 1. Retrieve the most recent commit hash for this specific repository
             cursor.execute(
                 """
-                SELECT commit_hash FROM repo_data 
-                WHERE repo_name = ? 
+                SELECT commit_hash FROM repo_data
+                WHERE repo_name = ?
                 ORDER BY commit_date DESC LIMIT 1
             """,
                 (repo_name,),
@@ -70,7 +70,7 @@ class StateRehydrator:
             # 2. Extract the structural metrics for the baseline commit
             cursor.execute(
                 """
-                SELECT * FROM file_data 
+                SELECT * FROM file_data
                 WHERE repo_name = ? AND commit_hash = ?
             """,
                 (repo_name, latest_hash),

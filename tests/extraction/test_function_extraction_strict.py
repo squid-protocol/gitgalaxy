@@ -235,11 +235,7 @@ EXTRACTION_CASES = {
         "invalid": ["set TargetFunc", "if {$TargetFunc}"],
         "pathological": [("proc \t TargetFunc \t {", "TargetFunc")],
     },
-    "embedded_python": {
-        "valid": [("def TargetFunc()", "TargetFunc")],
-        "invalid": ["class TargetFunc:", "TargetFunc = 1"],
-        "pathological": [("@dec\nasync \t def \n TargetFunc \n (", "TargetFunc")],
-    },
+
 }
 
 

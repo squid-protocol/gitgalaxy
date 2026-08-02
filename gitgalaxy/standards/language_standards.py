@@ -7628,7 +7628,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
             "args": re.compile(
-                r"(?:async[ \t]+)?def\s+[a-zA-Z_]\w*\s*\([^)]*\)|\blambda\s+[^:]+:",
+                r"(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\blambda\s+[^:]+:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -7639,12 +7639,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ONLY executable logic blocks. EXCLUDES classes. Steps safely over hardware decorators.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?=[ \t]*[\(:]|\n|$)",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:\s*\(\s*([a-zA-Z0-9_., \t]*)\s*\))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

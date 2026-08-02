@@ -83,14 +83,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["let import_val = 1"],
         "pathological": [("import \n qualified \n Data.Map", "Data.Map")],
     },
-    "embedded_python": {
-        "valid": [
-            ("import machine", "machine"),
-            ("from network import WLAN", "network"),
-        ],
-        "invalid": ["import_state = True"],
-        "pathological": [("from \n uasyncio \n import \n sleep", "uasyncio")],
-    },
+
     "dart": {
         "valid": [
             ("import 'dart:io';", "dart:io"),

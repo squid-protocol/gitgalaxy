@@ -1,5 +1,6 @@
-import pytest
 import sqlite3
+
+import pytest
 
 # Adjust this import to match your actual directory structure
 from gitgalaxy.core.state_rehydrator import StateRehydrator

@@ -1,8 +1,9 @@
-import pytest
-import re
-import math
 import logging
+import math
+import re
 from unittest.mock import patch
+
+import pytest
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.spatial_mapper import SpatialMapper
@@ -618,9 +619,8 @@ def test_detector_catastrophic_fallbacks():
         opt_detector,
         "_partition_segments",
         side_effect=TimeoutError("Hardware thread timeout exceeded"),
-    ):
-        with pytest.raises(TimeoutError):
-            opt_detector.splice("def foo(): pass", "")
+    ), pytest.raises(TimeoutError):
+        opt_detector.splice("def foo(): pass", "")
 
 
 # ==============================================================================
@@ -1765,8 +1765,8 @@ def test_detector_yaml_json_csv_now_flow_through_normally():
     markdown fix.
     """
     from gitgalaxy.core.prism import Prism
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 

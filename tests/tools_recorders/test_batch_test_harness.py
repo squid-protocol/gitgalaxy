@@ -1,7 +1,8 @@
-import pytest
 import subprocess
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Import your orchestrator script
 from gitgalaxy.tools.cobol_to_java import batch_test_harness

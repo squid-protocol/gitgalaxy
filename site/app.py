@@ -7,12 +7,13 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import os
 import logging
-import stripe
+import os
+
 import requests
-from flask import Flask, send_from_directory, jsonify, request
+import stripe
 from dotenv import load_dotenv
+from flask import Flask, jsonify, request, send_from_directory
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -94,11 +95,11 @@ def list_galaxies():
         manifest_path = os.path.join(BACKEND_DATA_PATH, "manifest.json")
         import json
 
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest_data = json.load(f)
         return jsonify(manifest_data)
     except Exception as e:
-        logger.error(f"Discovery Error (Manifest likely missing): {str(e)}")
+        logger.error(f"Discovery Error (Manifest likely missing): {e!s}")
         return jsonify([]), 500
 
 
@@ -194,11 +195,11 @@ def create_checkout_session():
         return jsonify({"id": session.id, "url": session.url})
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Printify Upload Failed: {str(e)}")
+        logger.error(f"Printify Upload Failed: {e!s}")
         return jsonify(error="Image upload failed. Please try again."), 500
     except Exception as e:
         # Keep the raw error in YOUR logs, but give the user a sanitized message
-        logger.error(f"Stripe Session Error: {str(e)}")
+        logger.error(f"Stripe Session Error: {e!s}")
         return (
             jsonify(error="An internal payment processing error occurred. Please contact support."),
             500,
@@ -337,7 +338,7 @@ def stripe_webhook():
             # 🚨 THE ULTIMATE FAILSAFE (DEAD-LETTER)
             # ==========================================
             # Printify is down, returned invalid JSON, or crashed. The customer paid, but the order failed.
-            error_msg = f"CRITICAL DROP: Printify failed to process Stripe Session {session.get('id')}. Error: {str(e)}"
+            error_msg = f"CRITICAL DROP: Printify failed to process Stripe Session {session.get('id')}. Error: {e!s}"
 
             # Logs to the special 'gitgalaxy_dropped_orders.log' file
             logger.error(error_msg)

@@ -4,11 +4,11 @@ GitGalaxy Utility: Bitbucket Code Insights Publisher
 Parses GitGalaxy SARIF telemetry and publishes native PR annotations via the Bitbucket REST API.
 """
 
+import json
 import os
 import sys
-import json
-import urllib.request
 import urllib.error
+import urllib.request
 
 
 def publish_insights(sarif_path: str):
@@ -27,7 +27,7 @@ def publish_insights(sarif_path: str):
 
     # 2. Parse the SARIF File
     try:
-        with open(sarif_path, "r", encoding="utf-8") as f:
+        with open(sarif_path, encoding="utf-8") as f:
             sarif_data = json.load(f)
     except Exception as e:
         print(f"❌ Failed to parse SARIF: {e}")

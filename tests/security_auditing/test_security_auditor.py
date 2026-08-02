@@ -1,6 +1,7 @@
-import pytest
-import numpy as np
 from unittest.mock import patch
+
+import numpy as np
+import pytest
 
 # We patch the schemas before importing so the Auditor doesn't fail on boot
 MOCK_SCHEMAS = {

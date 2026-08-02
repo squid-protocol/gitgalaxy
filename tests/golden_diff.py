@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import json
-import sys
 import hashlib
+import json
 import math
+import sys
 from typing import Any, Dict
 
 # Parallel file processing means per-language/per-repo float sums (e.g.
@@ -15,7 +15,7 @@ FLOAT_ABS_TOL = 1e-6
 
 def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     """Loads JSON and strips volatile execution metadata."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         data = json.load(f)
 
     # Strip out volatile metadata that changes every run

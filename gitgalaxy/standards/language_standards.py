@@ -5785,7 +5785,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # alternatives never match overlapping text, so it stays linear).
             "args": re.compile(
                 r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)"
-                r"\s*\((?:[^()]|\([^()]*\))*\)",
+                r"\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\)|\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))*\)",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5799,23 +5799,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ONLY executable logic blocks (Selectors). EXCLUDES classes/IDs to avoid False Positives.
             "func_start": re.compile(
-                r"^[ \t]*(@(?:media|supports|container|layer|keyframes)\b)(?=[^{]*\{)",
+                r"^[ \t]*(@(?:media|supports|container|layer|keyframes|-webkit-keyframes)\b)(?=[^{]*\{)",
                 re.M | re.I,
             ),
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
-            # BUG FIX: confirmed O(n^2) ReDoS -- the lookahead's first
-            # quantifier `[ \t,>+~:]*` is a strict subset of the second's
-            # `[^{]*` (everything the first matches, the second also
-            # matches), so on a run of combinator/whitespace characters
-            # with no `{` ever appearing, the engine tries every possible
-            # split point between the two adjacent quantifiers before
-            # failing. Measured ~4x runtime per size doubling
-            # (n=500/1000/2000/4000 -> 0.006s/0.023s/0.092s/0.367s). The
-            # first quantifier is redundant -- `[^{]*` already matches
-            # everything it does -- so it's simply dropped.
             "class_start": re.compile(
-                r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[^{]*\{)",
+                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]])+)(?=[^{]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -5856,20 +5846,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "state_mutation": None,
             # 12. dead_code (Commented Logic / Deprecated Trails)
             # Commented-out structural rules.
-            # BUG FIX (2 issues): (1) `\.[a-zA-Z]`/`#[a-zA-Z]` matched
-            # exactly ONE letter after the dot/hash with no continuation
-            # quantifier, so a realistic multi-character class/id name
-            # (`.old-class`, `#old-id`) never matched -- only ever a
-            # single-letter name would, via the shared trailing `\b`.
-            # (2) that same shared trailing `\b` also broke the
-            # `{`-ending tag-selector alternative: `{` is non-word, and
-            # the character immediately after a real opening brace is
-            # very commonly whitespace (`div { display: none; }`, also
-            # non-word) -- `\b` between two non-word chars can't fire, so
-            # only the no-space form (`div{display`) ever matched. Fixed
-            # by adding `[\w-]*` to the class/id alternatives and pulling
-            # the brace-ending alternative into its own branch with no
-            # shared trailing `\b` (self-delimiting on `{`).
             "dead_code": re.compile(
                 r"/\*[ \t]*(?:@media|@container|@supports|@keyframes|\.[a-zA-Z][\w-]*|#[a-zA-Z][\w-]*)\b"
                 r"|/\*[ \t]*[a-zA-Z][\w-]*[ \t]*\{",
@@ -5904,10 +5880,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 21. comprehensions
             "comprehensions": None,
             # 22. scientific (Numerical / Compute Libraries)
-            # Modern CSS trigonometry and rendering math.
-            # BUG FIX (Rule 11): same nested-call truncation as `args` above
-            # -- `round(var(--x), 1px)` truncated to `round(var(--x)`.
-            # Upgraded to the same one-level-nesting bounded form.
             "scientific": re.compile(
                 r"\b(?:sin|cos|tan|asin|acos|atan|atan2|hypot|abs|sign|mod|rem|round|pow|sqrt|exp|log)"
                 r"\s*\((?:[^()]|\([^()]*\))*\)",
@@ -5922,7 +5894,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import (Dependency Inclusions)
             "import": re.compile(r"@import\b", re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*@import[ \t\n]+(?:url\(\s*['\"]?|['\"])([^'\"\)]+)",
+                r"^[ \t]*@import[ \t\n]+(?:url\(\s*['\"]?|['\"])([^'\"\)\s;]+)",
                 re.I | re.M,
             ),
             # 25. ownership (Authorship Metadata)

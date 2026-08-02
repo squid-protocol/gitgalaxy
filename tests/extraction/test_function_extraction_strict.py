@@ -1,8 +1,7 @@
 import pytest
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-# ==============================================================================
-# THE UNIVERSAL EXTRACTION GAUNTLET
+# =======================================================================# THE UNIVERSAL EXTRACTION GAUNTLET
 # Proves that the `func_start` spawner accurately isolates EXACTLY the function
 # name ("TargetFunc") across 32 distinct programming languages and architectures.
 #
@@ -11,9 +10,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 #     "valid": [ ("Payload String", "Expected Extracted Name") ],
 #     "invalid": [ "Strings that look like functions but MUST NOT match" ]
 # }
-# ==============================================================================
-# ==============================================================================
-# THE UNIVERSAL EXTRACTION GAUNTLET
+# =======================================================================# =======================================================================# THE UNIVERSAL EXTRACTION GAUNTLET
 # Proves that the `func_start` spawner accurately isolates EXACTLY the function
 # name ("TargetFunc") across 32 distinct programming languages and architectures.
 #
@@ -23,7 +20,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 #     "invalid": [ "Strings that look like functions but MUST NOT match" ],
 #     "pathological": [ "Frankenstein formatting designed to break the regex" ]
 # }
-# ==============================================================================
+# =======================================================================
 EXTRACTION_CASES = {
     "ruby": {
         "valid": [
@@ -37,6 +34,22 @@ EXTRACTION_CASES = {
             ("def \n self. \n TargetFunc \n (", "TargetFunc")
         ],
     },
+    "php": {
+        "valid": [
+            ("function TargetFunc()", "TargetFunc"),
+            ("public static function TargetFunc(", "TargetFunc"),
+            ("final protected function TargetFunc()", "TargetFunc"),
+        ],
+        "invalid": ["class TargetFunc", "$var = TargetFunc()", "new TargetFunc()"],
+        "pathological": [
+            # PHP 8 attributes and erratic reference ampersands
+            (
+                "#[\\ReturnTypeWillChange]\nfinal \n public \n static \n function \n & \n TargetFunc \n (",
+                "TargetFunc",
+            )
+        ],
+    },
+
     "apex": {
         "valid": [
             ("public static void TargetFunc()", "TargetFunc"),

@@ -1,18 +1,15 @@
 import pytest
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-# ==============================================================================
-# THE GRAVITY LINK GAUNTLET
+# =======================================================================# THE GRAVITY LINK GAUNTLET
 # Proves that the `_dependency_capture` spawner accurately isolates EXACTLY
 # the imported file/module path across major languages, surviving destructuring,
 # aliases, and multi-line formatting without capturing the wrong variables.
-# ==============================================================================
-# ==============================================================================
-# THE GRAVITY LINK GAUNTLET (37-LANGUAGE MEGA SUITE)
+# =======================================================================# =======================================================================# THE GRAVITY LINK GAUNTLET (37-LANGUAGE MEGA SUITE)
 # Proves that the `_dependency_capture` spawner accurately isolates EXACTLY
 # the imported file/module path across ALL supported languages, surviving
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
-# ==============================================================================
+# =======================================================================
 DEPENDENCY_EXTRACTION_CASES = {
     "ruby": {
         "valid": [
@@ -27,6 +24,23 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
+    "php": {
+        "valid": [
+            (
+                "use Illuminate\\Support\\Facades\\Route;",
+                "Illuminate\\Support\\Facades\\Route",
+            ),
+            ("require_once 'vendor/autoload.php';", "vendor/autoload.php"),
+        ],
+        "invalid": ["$useCache = true;"],
+        "pathological": [
+            (
+                "use \n function \n My\\Custom\\Namespace\\target_function \n ;",
+                "My\\Custom\\Namespace\\target_function",
+            )
+        ],
+    },
+
     "html": {
         "valid": [
             ('<script src="app.js"></script>', "app.js"),

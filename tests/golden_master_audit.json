@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-02T13:33:29.417906+00:00",
-            "Total Scan Duration": "27.29 seconds"
+            "Analysis ISO Timestamp": "2026-08-02T13:49:53.850965+00:00",
+            "Total Scan Duration": "26.41 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -4112,8 +4112,8 @@
             }
         },
         "network_macro": {
-            "modularity": 0.7114,
-            "assortativity": -0.3482,
+            "modularity": 0.7049,
+            "assortativity": -0.3494,
             "cyclic_density": 0.0128,
             "avg_path_length": 3.9488,
             "articulation_points": 66
@@ -4129,7 +4129,7 @@
             },
             "firewall": {
                 "imports_whitelisted": 0,
-                "imports_unknown": 8384,
+                "imports_unknown": 8398,
                 "imports_blacklisted": 0,
                 "threats_found": 139,
                 "threats_allowed": 0
@@ -6145,32 +6145,32 @@
             "undocumented_critical_path": [
                 {
                     "path": "python/fastapi/fastapi/exceptions.py",
-                    "score": 1523.9,
-                    "pr": 15.299,
+                    "score": 1524.796,
+                    "pr": 15.308,
                     "doc": 99.6078
                 },
                 {
                     "path": "python/fastapi/fastapi/responses.py",
-                    "score": 1204.38,
-                    "pr": 12.473,
+                    "score": 1205.153,
+                    "pr": 12.481,
                     "doc": 96.559
                 },
                 {
                     "path": "zig/zig/Zcu.zig",
-                    "score": 1046.455,
-                    "pr": 14.346,
+                    "score": 1047.038,
+                    "pr": 14.354,
                     "doc": 72.944
                 },
                 {
                     "path": "zig/zig/Type.zig",
-                    "score": 835.121,
-                    "pr": 8.607,
+                    "score": 835.703,
+                    "pr": 8.613,
                     "doc": 97.0281
                 },
                 {
                     "path": "zig/zig/InternPool.zig",
-                    "score": 790.347,
-                    "pr": 9.805,
+                    "score": 790.83,
+                    "pr": 9.811,
                     "doc": 80.6065
                 }
             ]
@@ -143661,7 +143661,7 @@
                         "Documentation LOC": 713,
                         "Structural Magnitude": 325.12,
                         "Control Flow Ratio": "51.8%",
-                        "Popularity Rank": 1,
+                        "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
@@ -143969,9 +143969,9 @@
                     },
                     "8. Dependency Network": {
                         "Direct Upstream (Fragility)": 11,
-                        "Direct Downstream (Dependency Blast Radius)": 1,
+                        "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
-                        "Total Downstream (Absolute Dependency Blast Radius)": 1
+                        "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
                         "$callback ) \n\tif ( is_array( $callback ) && is_object( $callback[0] ) ) \n\t\t_doing_it_wrong( __FUNCTION__",
@@ -168205,26 +168205,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 11.438,
+                        "Repository Drift (Z-Score)": 11.482,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.093,
-                            "file_cluster_1": 12.273,
-                            "file_cluster_2": 12.33,
-                            "file_cluster_3": 13.318,
-                            "file_cluster_4": 12.265,
-                            "file_cluster_5": 12.858,
-                            "file_cluster_6": 12.376,
-                            "file_cluster_7": 12.035,
-                            "file_cluster_8": 11.438,
-                            "file_cluster_9": 12.314,
-                            "file_cluster_10": 13.142,
-                            "file_cluster_11": 11.884,
-                            "file_cluster_12": 12.563,
-                            "file_cluster_13": 11.663,
-                            "file_cluster_14": 15.612,
-                            "file_cluster_15": 12.146,
-                            "file_cluster_16": 12.453,
-                            "file_cluster_17": 11.706
+                            "file_cluster_0": 12.132,
+                            "file_cluster_1": 12.314,
+                            "file_cluster_2": 12.371,
+                            "file_cluster_3": 13.355,
+                            "file_cluster_4": 12.306,
+                            "file_cluster_5": 12.896,
+                            "file_cluster_6": 12.416,
+                            "file_cluster_7": 12.077,
+                            "file_cluster_8": 11.482,
+                            "file_cluster_9": 12.353,
+                            "file_cluster_10": 13.18,
+                            "file_cluster_11": 11.925,
+                            "file_cluster_12": 12.603,
+                            "file_cluster_13": 11.705,
+                            "file_cluster_14": 15.64,
+                            "file_cluster_15": 12.188,
+                            "file_cluster_16": 12.493,
+                            "file_cluster_17": 11.748
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -168289,7 +168289,7 @@
                         "Sequential Logic Declarations": 114,
                         "Function Parameters": 49,
                         "Function/Method Declarations": 49,
-                        "Class/Entity Declarations": 4,
+                        "Class/Entity Declarations": 5,
                         "Defensive Programming Constructs": 12,
                         "Type/Safety Bypasses": 0,
                         "High-Risk Execution Commands": 1,
@@ -168381,12 +168381,14 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 9,
+                        "Direct Upstream (Fragility)": 11,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 2,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
+                        "TSort",
+                        "Utils::Output::Mixin",
                         "bundle/brew_services",
                         "bundle/package_type",
                         "formula",
@@ -168598,11 +168600,11 @@
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
+                        "Cachable",
                         "api",
                         "api/cask/cask_struct_generator",
                         "api/source_download",
                         "cachable",
-                        "cask_tap_migrations.jws.json",
                         "download_queue"
                     ]
                 },
@@ -168625,26 +168627,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 13.057,
+                        "Repository Drift (Z-Score)": 13.13,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 13.452,
-                            "file_cluster_1": 13.529,
-                            "file_cluster_2": 13.651,
-                            "file_cluster_3": 14.464,
-                            "file_cluster_4": 13.755,
-                            "file_cluster_5": 13.907,
-                            "file_cluster_6": 13.438,
-                            "file_cluster_7": 13.261,
-                            "file_cluster_8": 13.057,
-                            "file_cluster_9": 13.656,
-                            "file_cluster_10": 14.33,
-                            "file_cluster_11": 13.193,
-                            "file_cluster_12": 13.862,
-                            "file_cluster_13": 13.175,
-                            "file_cluster_14": 16.79,
-                            "file_cluster_15": 13.494,
-                            "file_cluster_16": 13.394,
-                            "file_cluster_17": 13.35
+                            "file_cluster_0": 13.519,
+                            "file_cluster_1": 13.6,
+                            "file_cluster_2": 13.72,
+                            "file_cluster_3": 14.529,
+                            "file_cluster_4": 13.824,
+                            "file_cluster_5": 13.975,
+                            "file_cluster_6": 13.508,
+                            "file_cluster_7": 13.332,
+                            "file_cluster_8": 13.13,
+                            "file_cluster_9": 13.724,
+                            "file_cluster_10": 14.396,
+                            "file_cluster_11": 13.263,
+                            "file_cluster_12": 13.931,
+                            "file_cluster_13": 13.247,
+                            "file_cluster_14": 16.839,
+                            "file_cluster_15": 13.564,
+                            "file_cluster_16": 13.465,
+                            "file_cluster_17": 13.42
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -168801,12 +168803,18 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 14,
+                        "Direct Upstream (Fragility)": 20,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
+                        "Context",
+                        "FileUtils",
+                        "SystemCommand::Mixin",
+                        "T::Helpers",
+                        "Utils::Curl",
+                        "Utils::Output::Mixin",
                         "github_packages",
                         "json",
                         "lazy_object",
@@ -168841,26 +168849,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 9.799,
+                        "Repository Drift (Z-Score)": 9.825,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 10.795,
-                            "file_cluster_1": 10.523,
-                            "file_cluster_2": 10.839,
-                            "file_cluster_3": 11.902,
-                            "file_cluster_4": 11.306,
-                            "file_cluster_5": 10.932,
-                            "file_cluster_6": 11.03,
-                            "file_cluster_7": 10.293,
-                            "file_cluster_8": 9.799,
-                            "file_cluster_9": 10.983,
-                            "file_cluster_10": 11.851,
-                            "file_cluster_11": 10.804,
-                            "file_cluster_12": 11.194,
-                            "file_cluster_13": 10.129,
-                            "file_cluster_14": 14.933,
-                            "file_cluster_15": 10.796,
-                            "file_cluster_16": 10.12,
-                            "file_cluster_17": 11.003
+                            "file_cluster_0": 10.818,
+                            "file_cluster_1": 10.548,
+                            "file_cluster_2": 10.863,
+                            "file_cluster_3": 11.924,
+                            "file_cluster_4": 11.33,
+                            "file_cluster_5": 10.956,
+                            "file_cluster_6": 11.054,
+                            "file_cluster_7": 10.318,
+                            "file_cluster_8": 9.825,
+                            "file_cluster_9": 11.006,
+                            "file_cluster_10": 11.873,
+                            "file_cluster_11": 10.827,
+                            "file_cluster_12": 11.217,
+                            "file_cluster_13": 10.155,
+                            "file_cluster_14": 14.947,
+                            "file_cluster_15": 10.82,
+                            "file_cluster_16": 10.146,
+                            "file_cluster_17": 11.026
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -169017,12 +169025,13 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 6,
+                        "Direct Upstream (Fragility)": 7,
                         "Direct Downstream (Dependency Blast Radius)": 1,
                         "Total Upstream (Absolute Fragility)": 1,
                         "Total Downstream (Absolute Dependency Blast Radius)": 1
                     },
                     "9. Extracted Dependencies": [
+                        "Cachable",
                         "api",
                         "api/formula/formula_struct_generator",
                         "api/source_download",
@@ -247884,26 +247893,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 10.892,
+                        "Repository Drift (Z-Score)": 10.869,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 11.453,
-                            "file_cluster_1": 11.775,
-                            "file_cluster_2": 11.81,
-                            "file_cluster_3": 12.785,
-                            "file_cluster_4": 11.682,
-                            "file_cluster_5": 12.141,
-                            "file_cluster_6": 11.827,
-                            "file_cluster_7": 11.482,
-                            "file_cluster_8": 10.892,
-                            "file_cluster_9": 11.706,
-                            "file_cluster_10": 12.616,
-                            "file_cluster_11": 11.234,
-                            "file_cluster_12": 12.09,
-                            "file_cluster_13": 10.915,
-                            "file_cluster_14": 15.205,
-                            "file_cluster_15": 11.314,
-                            "file_cluster_16": 11.904,
-                            "file_cluster_17": 11.123
+                            "file_cluster_0": 11.433,
+                            "file_cluster_1": 11.754,
+                            "file_cluster_2": 11.789,
+                            "file_cluster_3": 12.766,
+                            "file_cluster_4": 11.661,
+                            "file_cluster_5": 12.121,
+                            "file_cluster_6": 11.807,
+                            "file_cluster_7": 11.461,
+                            "file_cluster_8": 10.869,
+                            "file_cluster_9": 11.685,
+                            "file_cluster_10": 12.596,
+                            "file_cluster_11": 11.213,
+                            "file_cluster_12": 12.07,
+                            "file_cluster_13": 10.893,
+                            "file_cluster_14": 15.192,
+                            "file_cluster_15": 11.292,
+                            "file_cluster_16": 11.884,
+                            "file_cluster_17": 11.101
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -248070,14 +248079,13 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 8,
+                        "Direct Upstream (Fragility)": 7,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
                         "../tools/strict_warnings",
-                        "^^^ +++",
                         "active_support",
                         "bundler/setup",
                         "minitest/rails_plugin",
@@ -248105,26 +248113,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 11.131,
+                        "Repository Drift (Z-Score)": 11.203,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 11.662,
-                            "file_cluster_1": 11.891,
-                            "file_cluster_2": 12.011,
-                            "file_cluster_3": 12.946,
-                            "file_cluster_4": 11.832,
-                            "file_cluster_5": 12.329,
-                            "file_cluster_6": 11.916,
-                            "file_cluster_7": 11.593,
-                            "file_cluster_8": 11.285,
-                            "file_cluster_9": 11.843,
-                            "file_cluster_10": 12.792,
-                            "file_cluster_11": 11.664,
-                            "file_cluster_12": 12.042,
-                            "file_cluster_13": 11.131,
-                            "file_cluster_14": 15.549,
-                            "file_cluster_15": 12.241,
-                            "file_cluster_16": 12.071,
-                            "file_cluster_17": 11.695
+                            "file_cluster_0": 11.728,
+                            "file_cluster_1": 11.959,
+                            "file_cluster_2": 12.079,
+                            "file_cluster_3": 13.009,
+                            "file_cluster_4": 11.901,
+                            "file_cluster_5": 12.395,
+                            "file_cluster_6": 11.984,
+                            "file_cluster_7": 11.662,
+                            "file_cluster_8": 11.357,
+                            "file_cluster_9": 11.91,
+                            "file_cluster_10": 12.855,
+                            "file_cluster_11": 11.732,
+                            "file_cluster_12": 12.11,
+                            "file_cluster_13": 11.203,
+                            "file_cluster_14": 15.594,
+                            "file_cluster_15": 12.307,
+                            "file_cluster_16": 12.138,
+                            "file_cluster_17": 11.764
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -248189,7 +248197,7 @@
                         "Sequential Logic Declarations": 52,
                         "Function Parameters": 11,
                         "Function/Method Declarations": 25,
-                        "Class/Entity Declarations": 3,
+                        "Class/Entity Declarations": 4,
                         "Defensive Programming Constructs": 1,
                         "Type/Safety Bypasses": 2,
                         "High-Risk Execution Commands": 0,
@@ -248281,12 +248289,14 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 5,
+                        "Direct Upstream (Fragility)": 7,
                         "Direct Downstream (Dependency Blast Radius)": 10,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 6
                     },
                     "9. Extracted Dependencies": [
+                        "ActiveSupport::DescendantsTracker",
+                        "DidYouMean::Correctable",
                         "abstract_controller/error",
                         "active_support/core_ext/module/anonymous",
                         "active_support/core_ext/module/attr_internal",
@@ -248313,26 +248323,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 10.233,
+                        "Repository Drift (Z-Score)": 10.279,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 10.805,
-                            "file_cluster_1": 10.988,
-                            "file_cluster_2": 11.217,
-                            "file_cluster_3": 12.295,
-                            "file_cluster_4": 11.375,
-                            "file_cluster_5": 11.466,
-                            "file_cluster_6": 11.393,
-                            "file_cluster_7": 10.751,
-                            "file_cluster_8": 10.233,
-                            "file_cluster_9": 11.286,
-                            "file_cluster_10": 12.164,
-                            "file_cluster_11": 10.999,
-                            "file_cluster_12": 11.437,
-                            "file_cluster_13": 11.02,
-                            "file_cluster_14": 15.13,
-                            "file_cluster_15": 10.991,
-                            "file_cluster_16": 11.346,
-                            "file_cluster_17": 11.141
+                            "file_cluster_0": 10.845,
+                            "file_cluster_1": 11.03,
+                            "file_cluster_2": 11.258,
+                            "file_cluster_3": 12.332,
+                            "file_cluster_4": 11.416,
+                            "file_cluster_5": 11.506,
+                            "file_cluster_6": 11.433,
+                            "file_cluster_7": 10.793,
+                            "file_cluster_8": 10.279,
+                            "file_cluster_9": 11.325,
+                            "file_cluster_10": 12.203,
+                            "file_cluster_11": 11.039,
+                            "file_cluster_12": 11.478,
+                            "file_cluster_13": 11.061,
+                            "file_cluster_14": 15.155,
+                            "file_cluster_15": 11.033,
+                            "file_cluster_16": 11.386,
+                            "file_cluster_17": 11.182
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -248397,7 +248407,7 @@
                         "Sequential Logic Declarations": 57,
                         "Function Parameters": 27,
                         "Function/Method Declarations": 41,
-                        "Class/Entity Declarations": 1,
+                        "Class/Entity Declarations": 2,
                         "Defensive Programming Constructs": 9,
                         "Type/Safety Bypasses": 0,
                         "High-Risk Execution Commands": 0,
@@ -248489,15 +248499,16 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 3,
+                        "Direct Upstream (Fragility)": 4,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
-                        "and can work with deployments like Heroku that do not provide large amounts of disk space.\n#\n# Blobs are intended to be immutable in as-so-far",
-                        "composed",
-                        "re not using your own server"
+                        "Analyzable",
+                        "Identifiable",
+                        "Representable",
+                        "Servable"
                     ]
                 },
                 "ruby/rails/generator.rb": {
@@ -248518,26 +248529,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 11.413,
+                        "Repository Drift (Z-Score)": 11.43,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.067,
-                            "file_cluster_1": 12.246,
-                            "file_cluster_2": 11.988,
-                            "file_cluster_3": 13.317,
-                            "file_cluster_4": 12.171,
-                            "file_cluster_5": 12.84,
-                            "file_cluster_6": 12.433,
-                            "file_cluster_7": 12.014,
-                            "file_cluster_8": 11.424,
-                            "file_cluster_9": 12.3,
-                            "file_cluster_10": 13.055,
-                            "file_cluster_11": 11.923,
-                            "file_cluster_12": 12.571,
-                            "file_cluster_13": 11.413,
-                            "file_cluster_14": 15.61,
-                            "file_cluster_15": 12.257,
-                            "file_cluster_16": 12.429,
-                            "file_cluster_17": 11.802
+                            "file_cluster_0": 12.082,
+                            "file_cluster_1": 12.262,
+                            "file_cluster_2": 12.005,
+                            "file_cluster_3": 13.332,
+                            "file_cluster_4": 12.188,
+                            "file_cluster_5": 12.856,
+                            "file_cluster_6": 12.449,
+                            "file_cluster_7": 12.03,
+                            "file_cluster_8": 11.442,
+                            "file_cluster_9": 12.316,
+                            "file_cluster_10": 13.07,
+                            "file_cluster_11": 11.939,
+                            "file_cluster_12": 12.586,
+                            "file_cluster_13": 11.43,
+                            "file_cluster_14": 15.62,
+                            "file_cluster_15": 12.273,
+                            "file_cluster_16": 12.444,
+                            "file_cluster_17": 11.819
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -248694,12 +248705,13 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 11,
+                        "Direct Upstream (Fragility)": 12,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
+                        "Helpers",
                         "action_controller",
                         "action_view",
                         "active_support/core_ext/object/blank",
@@ -248732,26 +248744,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 9.361,
+                        "Repository Drift (Z-Score)": 9.252,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 10.055,
-                            "file_cluster_1": 10.328,
-                            "file_cluster_2": 10.518,
-                            "file_cluster_3": 11.708,
-                            "file_cluster_4": 10.473,
-                            "file_cluster_5": 11.069,
-                            "file_cluster_6": 10.788,
-                            "file_cluster_7": 10.104,
-                            "file_cluster_8": 9.361,
-                            "file_cluster_9": 10.669,
-                            "file_cluster_10": 11.64,
-                            "file_cluster_11": 10.305,
-                            "file_cluster_12": 10.952,
-                            "file_cluster_13": 9.616,
-                            "file_cluster_14": 14.615,
-                            "file_cluster_15": 10.676,
-                            "file_cluster_16": 10.64,
-                            "file_cluster_17": 10.404
+                            "file_cluster_0": 9.968,
+                            "file_cluster_1": 10.229,
+                            "file_cluster_2": 10.423,
+                            "file_cluster_3": 11.622,
+                            "file_cluster_4": 10.376,
+                            "file_cluster_5": 10.978,
+                            "file_cluster_6": 10.696,
+                            "file_cluster_7": 10.006,
+                            "file_cluster_8": 9.252,
+                            "file_cluster_9": 10.58,
+                            "file_cluster_10": 11.551,
+                            "file_cluster_11": 10.213,
+                            "file_cluster_12": 10.859,
+                            "file_cluster_13": 9.513,
+                            "file_cluster_14": 14.57,
+                            "file_cluster_15": 10.581,
+                            "file_cluster_16": 10.545,
+                            "file_cluster_17": 10.309
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -248898,16 +248910,13 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 4,
+                        "Direct Upstream (Fragility)": 1,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
-                        ":mailgun_signing_key) || ENV[",
-                        "\\n",
-                        "body-mime",
-                        "s\n            encrypted credentials or provide the MAILGUN_INGRESS_SIGNING_KEY environment variable.\n          MESSAGE\n        end\n      end\n\n      def key\n        Rails.app.credentials.dig(:action_mailbox"
+                        "body-mime"
                     ]
                 },
                 "ruby/rails/metal.rb": {
@@ -248929,26 +248938,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_11",
-                        "Repository Drift (Z-Score)": 15.791,
+                        "Repository Drift (Z-Score)": 15.892,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 15.945,
-                            "file_cluster_1": 16.477,
-                            "file_cluster_2": 16.479,
-                            "file_cluster_3": 17.027,
-                            "file_cluster_4": 16.127,
-                            "file_cluster_5": 16.755,
-                            "file_cluster_6": 15.994,
-                            "file_cluster_7": 16.219,
-                            "file_cluster_8": 16.056,
-                            "file_cluster_9": 15.962,
-                            "file_cluster_10": 16.879,
-                            "file_cluster_11": 15.791,
-                            "file_cluster_12": 16.341,
-                            "file_cluster_13": 15.865,
-                            "file_cluster_14": 18.922,
-                            "file_cluster_15": 16.094,
-                            "file_cluster_16": 16.533,
-                            "file_cluster_17": 15.932
+                            "file_cluster_0": 16.041,
+                            "file_cluster_1": 16.578,
+                            "file_cluster_2": 16.579,
+                            "file_cluster_3": 17.124,
+                            "file_cluster_4": 16.23,
+                            "file_cluster_5": 16.853,
+                            "file_cluster_6": 16.097,
+                            "file_cluster_7": 16.32,
+                            "file_cluster_8": 16.16,
+                            "file_cluster_9": 16.062,
+                            "file_cluster_10": 16.978,
+                            "file_cluster_11": 15.892,
+                            "file_cluster_12": 16.444,
+                            "file_cluster_13": 15.967,
+                            "file_cluster_14": 18.993,
+                            "file_cluster_15": 16.197,
+                            "file_cluster_16": 16.633,
+                            "file_cluster_17": 16.035
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -249013,7 +249022,7 @@
                         "Sequential Logic Declarations": 41,
                         "Function Parameters": 24,
                         "Function/Method Declarations": 25,
-                        "Class/Entity Declarations": 4,
+                        "Class/Entity Declarations": 6,
                         "Defensive Programming Constructs": 0,
                         "Type/Safety Bypasses": 1,
                         "High-Risk Execution Commands": 0,
@@ -249105,12 +249114,16 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 2,
+                        "Direct Upstream (Fragility)": 6,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
+                        "AbstractController::Rendering",
+                        "ActionController::Redirecting",
+                        "ActionView::Layouts",
+                        "Rails",
                         "action_dispatch/middleware/stack",
                         "active_support/core_ext/array/extract_options"
                     ]
@@ -249133,26 +249146,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_9",
-                        "Repository Drift (Z-Score)": 23.269,
+                        "Repository Drift (Z-Score)": 23.282,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 23.365,
-                            "file_cluster_1": 24.052,
-                            "file_cluster_2": 24.05,
-                            "file_cluster_3": 24.27,
-                            "file_cluster_4": 23.579,
-                            "file_cluster_5": 24.207,
-                            "file_cluster_6": 23.31,
-                            "file_cluster_7": 23.82,
-                            "file_cluster_8": 23.805,
-                            "file_cluster_9": 23.269,
-                            "file_cluster_10": 24.237,
-                            "file_cluster_11": 23.484,
-                            "file_cluster_12": 24.008,
-                            "file_cluster_13": 23.591,
-                            "file_cluster_14": 25.469,
-                            "file_cluster_15": 23.693,
-                            "file_cluster_16": 24.003,
-                            "file_cluster_17": 23.405
+                            "file_cluster_0": 23.377,
+                            "file_cluster_1": 24.066,
+                            "file_cluster_2": 24.064,
+                            "file_cluster_3": 24.284,
+                            "file_cluster_4": 23.594,
+                            "file_cluster_5": 24.221,
+                            "file_cluster_6": 23.324,
+                            "file_cluster_7": 23.833,
+                            "file_cluster_8": 23.819,
+                            "file_cluster_9": 23.282,
+                            "file_cluster_10": 24.251,
+                            "file_cluster_11": 23.497,
+                            "file_cluster_12": 24.022,
+                            "file_cluster_13": 23.605,
+                            "file_cluster_14": 25.476,
+                            "file_cluster_15": 23.707,
+                            "file_cluster_16": 24.018,
+                            "file_cluster_17": 23.42
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -249299,13 +249312,14 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 1,
+                        "Direct Upstream (Fragility)": 2,
                         "Direct Downstream (Dependency Blast Radius)": 0,
-                        "Total Upstream (Absolute Fragility)": 1,
+                        "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
                     "9. Extracted Dependencies": [
-                        "plugin"
+                        "ActiveSupport::Autoload",
+                        "the"
                     ]
                 }
             }

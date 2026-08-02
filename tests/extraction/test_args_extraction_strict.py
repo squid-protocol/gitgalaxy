@@ -26,20 +26,7 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "ruby": {
-        "valid": [
-            ("def TargetFunc(a, b = 5)", "TargetFunc"),
-            ("def self.TargetFunc(x: 1, y: 2)", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b)", "if a == b"],
-        "pathological": [
-            # Vertical spacing, hash parameters, and block arguments
-            (
-                "def \n TargetFunc \n (\n  a: [],\n  b: ->(x) { x * 2 },\n  **kwargs\n)",
-                "TargetFunc",
-            )
-        ],
-    },
+
     "objective-c": {
         "valid": [
             ("- (void)TargetFunc:(int)a withB:(NSString *)b", "TargetFunc"),

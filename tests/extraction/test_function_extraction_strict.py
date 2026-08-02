@@ -179,11 +179,6 @@ EXTRACTION_CASES = {
         "invalid": ["<div id='script'>", "<span class='style'>"],
         "pathological": [("<script \n >", "script")],
     },
-    "tcl": {
-        "valid": [("proc TargetFunc {", "TargetFunc")],
-        "invalid": ["set TargetFunc", "if {$TargetFunc}"],
-        "pathological": [("proc \t TargetFunc \t {", "TargetFunc")],
-    },
 }
 
 

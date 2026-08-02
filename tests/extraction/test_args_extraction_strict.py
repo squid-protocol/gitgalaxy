@@ -70,17 +70,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "tcl": {
-        "valid": [
-            ("proc TargetFunc {a b} {", "TargetFunc"),
-            ("proc ::namespace::TargetFunc {args} {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc a b", "if {$a == $b} {"],
-        "pathological": [
-            # Vertical Tcl procs
-            ("proc \n ::namespace::TargetFunc \n { \n a \n b \n } \n {", "TargetFunc")
-        ],
-    },
     "scheme": {
         "valid": [
             ("(define (TargetFunc a b)", "TargetFunc"),

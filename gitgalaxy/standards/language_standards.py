@@ -11961,11 +11961,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # MUST HAVE EXACTLY ONE CAPTURE GROUP.
             # Captures standard procs and namespaced procs (e.g., `proc ::my::func`).
-            "func_start": re.compile(r"^[ \t]*proc[ \t]+([a-zA-Z0-9_:]+)(?=[ \t]*\{|[ \t\n]|$)", re.M),
+            "func_start": re.compile(r"^[ \t]*proc[ \t\n]+([a-zA-Z0-9_:]+)(?=[ \t]*\{|[ \t\n]|$)", re.M),
             # 5. class_start (Object / Entity Declarations)
             # Captures TclOO, Snit, and Itcl class definitions.
             "class_start": re.compile(
-                r"^[ \t]*(?:oo::class[ \t]+create|snit::type|itcl::class)[ \t]+([a-zA-Z0-9_:]+)(?=[ \t]*\{|[ \t\n]|$)",
+                r"^[ \t]*(?:oo::class[ \t\n]+create|snit::type|itcl::class)[ \t\n]+([a-zA-Z0-9_:]+)(?=[ \t]*\{|[ \t\n]|$)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -12036,6 +12036,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import (Dependency Inclusions)
             # Package and module loading.
             "import": re.compile(r"^[ \t]*(?:package[ \t]+require|source|load)\b", re.M),
+            "dependency_injection": None,
+            "_dependency_capture": re.compile(r"^[ \t]*(?:package[ \t\n]+require|source|load)[ \t\n]+(?:-exact[ \t\n]+)?(?:\{?[\"']?)([^\"'\s#{}]+)", re.M),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(
                 r"^[ \t]*#[ \t]*(?:Author|Created by|Maintainer|Copyright):\s+(.*)",

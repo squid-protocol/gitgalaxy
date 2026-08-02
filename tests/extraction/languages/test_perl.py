@@ -9,14 +9,16 @@ monolithic dict files.
 
 import sys
 from pathlib import Path
+
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 _EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
 if _EXTRACTION_DIR not in sys.path:
     sys.path.insert(0, _EXTRACTION_DIR)
 
-from typing import Any
+from typing import Any  # noqa: E402
 
 from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
@@ -41,8 +43,8 @@ FUNCTION_CASES: dict[str, Any] = {
         ("sub TargetFunc : lvalue : method {", "TargetFunc"), # attributes
     ],
     "invalid": [
-        "package TargetFunc", 
-        "my $TargetFunc", 
+        "package TargetFunc",
+        "my $TargetFunc",
         "goto TargetFunc"
     ],
     "pathological": [

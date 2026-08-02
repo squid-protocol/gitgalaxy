@@ -31,10 +31,10 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-import golden_diff  # noqa: E402
+import golden_diff
 
-from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_TIKTOKEN, HAS_PYYAML  # noqa: E402
-from gitgalaxy.security.security_auditor import ML_AVAILABLE  # noqa: E402
+from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_PYYAML, HAS_TIKTOKEN
+from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"

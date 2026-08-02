@@ -3344,7 +3344,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Signatures for functions and arrow functions. Bounded to prevent ReDoS.
             "args": re.compile(
-                r"\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*)*(?:[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t\n]*)?\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\)",
+                r"\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}(?:[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t\n]*)?\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\)",
                 re.M | re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -3355,12 +3355,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "func_start": re.compile(
                 r"(?:^|[^a-zA-Z0-9_])(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
                 r"(?:(?:public|protected|private|static|final|abstract)[ \t\n]+){0,5}"
-                r"function[ \t\n]+(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*)*([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)[ \t\n]*(?=\()",
+                r"function[ \t\n]+(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)[ \t\n]*(?=\()",
                 re.M | re.I,
             ),
             "class_start": re.compile(
                 r"^[ \t]*(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
-                r"(?:(?:abstract|final|readonly)[ \t\n]+){0,3}(?:class|interface|trait|enum)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)*([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)(?![a-zA-Z0-9_\x80-\xff])",
+                r"(?:(?:abstract|final|readonly)[ \t\n]+){0,3}(?:class|interface|trait|enum)[ \t\n]+(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)(?![a-zA-Z0-9_\x80-\xff])",
                 re.M | re.I,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8618,16 +8618,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Captures parameters in function, method, and lambda signatures.
             "args": re.compile(
-                # =====================================================================
-                # [ THE GHOST ARGS & STRICT NESTING SHIELD (DART) ]
-                # Dart functions can take inline typed callbacks like `void Function(int)`.
-                # FIX 1 (Catastrophic Backtracking): Used strictly linear nesting `[^()]*(?:\([^()]*\)[^()]*)*`.
-                # FIX 2 (Ghost Args): `if (a > b) {` matched the anonymous block lambda branch.
-                # Because block lambdas `(a) {` are structurally identical to `while (a) {`,
-                # we restrict the lambda branch EXCLUSIVELY to arrow functions `=>` to
-                # mathematically prevent Ghost Args and ReDoS spirals.
-                # =====================================================================
-                r"(?!(?:if|for|while|switch|catch)\b)\b[A-Za-z_$][\w$]*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\([^()]*(?:\([^()]*\)[^()]*)*\)(?=[ \t\n]*(?:\{|=>|:|async|sync))|\([^()]*(?:\([^()]*\)[^()]*)*\)[ \t\n]*=>",
+                r"(?!(?:if|for|while|switch|catch)\b)\b[A-Za-z_$][\w$]*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?=[ \t\n]*(?:\{|=>|:|async|sync))|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*=>",
                 re.I | re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
@@ -8638,10 +8629,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture group and positive lookahead applied.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}"
-                r"(?:(?:static|external|abstract|covariant|late)[ \t]+){0,5}"
-                r"(?:[\w<>\[\]?]+[ \t]+)?(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch)\b)"
-                r"(?:get\s+|set\s+|factory\s+|operator\s+\S+\s*)?([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:@[a-zA-Z_$][\w$]*(?:\([^)]*\))?[ \t\n]*){0,5}"
+                r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
+                r"(?!(?:[\w<>\[\], \t\n?(){}]{1,100}?[ \t\n]+)?(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch)\b)"
+                r"(?:[\w<>\[\], \t\n?(){}]{1,100}?[ \t\n]+)?"
+                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|Function)\b)"
+                r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -8656,8 +8649,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # =====================================================================
             "class_start": re.compile(
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
-                r"(?:(?:abstract|sealed|base|interface|final|macro)[ \t\n]+){0,5}"
-                r"(?:class|mixin|enum|extension[ \t\n]+type|extension)[ \t\n]+([A-Z_]\w*)(?:[ \t\n]+(?:extends|implements|with)[ \t\n]+[A-Za-z_$][\w_<>, \t\n]*)?",
+                r"(?:(?:abstract|sealed|base|interface|final|macro|mixin)[ \t\n]+){0,5}"
+                r"(?:class|mixin|enum|extension(?:[ \t\n]+type(?:[ \t\n]+const)?)?|extension)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)?([A-Z_]\w*)(?:[ \t\n]+(?:extends|implements|with)[ \t\n]+[A-Za-z_$][\w_<>, \t\n]*)?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8760,7 +8753,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import: Dependency Inclusions. Dependency resolution and library partitions.
             "import": re.compile(r'^[ \t]*(?:import|export|part|part\s+of)\b\s*[\'"][^\'"]+[\'"]', re.M),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*['\"]([^'\"]+)['\"]",
+                r"(?:^|[ \t;{}])(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*(?:['\"]([^'\"]+)['\"]|([a-zA-Z_$][\w$]*)[ \t\n]*;)",
                 re.M,
             ),
             # 25. ownership: Authorship indicators.

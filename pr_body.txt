@@ -1,0 +1,10 @@
+Fix Extraction hardening: ruby #826: Harden Ruby extraction rules against operator overloads, unicode, class singletons, block arguments, and diverse require syntax.
+
+This fix addresses critical extraction flaws in Ruby:
+1. `func_start` and `args` ignored operator overloads (like `[]=` or `<<`) and unicode names, heavily restricting the definition namespace. They were upgraded to properly permit these.
+2. `class_start` was updated to support singleton injection syntax like `class << self`.
+3. `_dependency_capture` completely ignored `include` and `extend`, which are key dependency injectors in Ruby. Also, `%q(...)` and `%Q{...}` syntaxes for requiring strings were added to prevent dependency spoofing.
+4. Escaped quotes and heavily nested arguments were fixed by switching the arguments block parser to a fully non-capturing recursive structure.
+
+Agent tests generated via the strict 5-stage pipeline are fully checked in to `tests/extraction/languages/test_ruby.py`.
+Golden masters were updated.

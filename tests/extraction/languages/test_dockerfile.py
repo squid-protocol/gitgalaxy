@@ -29,34 +29,38 @@ DOCKERFILE_RULES = LANGUAGE_DEFINITIONS["dockerfile"]["rules"]
 # ==============================================================================
 FUNC_START_VALID = [
     ("RUN apt-get update", "RUN"),
-    ("cMd [\"echo\", \"hello\"]", "cMd"),
-    ("EnTrYpOInT [\"sh\", \"-c\"]", "EnTrYpOInT"),
+    ('cMd ["echo", "hello"]', "cMd"),
+    ('EnTrYpOInT ["sh", "-c"]', "EnTrYpOInT"),
     ("hEaLtHcHeCk CMD curl -f http://localhost/", "hEaLtHcHeCk"),
 ]
 
 FUNC_START_PATHOLOGICAL = [
-    ("RUN \\ \n  echo \"hello\"", "RUN"),
+    ('RUN \\ \n  echo "hello"', "RUN"),
     ("RUN --mount=type=cache,target=/root/.cache/pip pip install", "RUN"),
     ("RUN <<EOF\necho hello\nEOF", "RUN"),
 ]
 
 FUNC_START_INVALID = [
-    ("ENV MY_VAR=\"HEALTHCHECK NONE\""),
-    ("LABEL fake_cmd=\"CMD echo hi\""),
+    ('ENV MY_VAR="HEALTHCHECK NONE"'),
+    ('LABEL fake_cmd="CMD echo hi"'),
     ("# RUN apt-get install -y evil"),
 ]
+
 
 @pytest.mark.parametrize("payload,expected", FUNC_START_VALID)
 def test_func_start_valid(payload, expected):
     assert_valid_match(DOCKERFILE_RULES["func_start"], payload, expected, "func_start")
 
+
 @pytest.mark.parametrize("payload,expected", FUNC_START_PATHOLOGICAL)
 def test_func_start_pathological(payload, expected):
     assert_pathological_match(DOCKERFILE_RULES["func_start"], payload, expected, "func_start")
 
+
 @pytest.mark.parametrize("payload", FUNC_START_INVALID)
 def test_func_start_invalid(payload):
     assert_invalid_no_match(DOCKERFILE_RULES["func_start"], payload, "func_start")
+
 
 def test_func_start_redos():
     assert_redos_immune(DOCKERFILE_RULES["func_start"], "RUN " + " " * 50000 + "!")
@@ -73,18 +77,21 @@ CLASS_START_VALID = [
 ]
 
 CLASS_START_INVALID = [
-    ("RUN echo \"FROM ubuntu\""),
+    ('RUN echo "FROM ubuntu"'),
     ("# FROM fake_base"),
-    ("ENV BASE=\"FROM node:18\""),
+    ('ENV BASE="FROM node:18"'),
 ]
+
 
 @pytest.mark.parametrize("payload,expected", CLASS_START_VALID)
 def test_class_start_valid(payload, expected):
     assert_valid_match(DOCKERFILE_RULES["class_start"], payload, expected, "class_start")
 
+
 @pytest.mark.parametrize("payload", CLASS_START_INVALID)
 def test_class_start_invalid(payload):
     assert_invalid_no_match(DOCKERFILE_RULES["class_start"], payload, "class_start")
+
 
 def test_class_start_redos():
     assert_redos_immune(DOCKERFILE_RULES["class_start"], "FROM " + " " * 50000 + "!")
@@ -96,22 +103,25 @@ def test_class_start_redos():
 ARGS_VALID = [
     ("ARG VERSION=latest", "ARG"),
     ("aRg BUILD_DATE", "aRg"),
-    ("ARG MY_VAR=\"value with spaces\"", "ARG"),
+    ('ARG MY_VAR="value with spaces"', "ARG"),
 ]
 
 ARGS_INVALID = [
     ("# ARG FOO=bar"),
-    ("RUN echo \"ARG BAZ=qux\""),
-    ("LABEL my.arg=\"ARG HELLO\""),
+    ('RUN echo "ARG BAZ=qux"'),
+    ('LABEL my.arg="ARG HELLO"'),
 ]
+
 
 @pytest.mark.parametrize("payload,expected", ARGS_VALID)
 def test_args_valid(payload, expected):
     assert_valid_match(DOCKERFILE_RULES["args"], payload, expected, "args")
 
+
 @pytest.mark.parametrize("payload", ARGS_INVALID)
 def test_args_invalid(payload):
     assert_invalid_no_match(DOCKERFILE_RULES["args"], payload, "args")
+
 
 def test_args_redos():
     assert_redos_immune(DOCKERFILE_RULES["args"], "ARG " + " " * 50000 + "!")
@@ -130,16 +140,19 @@ DEP_VALID = [
 DEP_INVALID = [
     ("# FROM ubuntu:latest"),
     ("# COPY --from=build / /"),
-    ("RUN echo \"FROM alpine\""),
+    ('RUN echo "FROM alpine"'),
 ]
+
 
 @pytest.mark.parametrize("payload,expected", DEP_VALID)
 def test_dependency_valid(payload, expected):
     assert_valid_dependency_match(DOCKERFILE_RULES["_dependency_capture"], payload, expected, "_dependency_capture")
 
+
 @pytest.mark.parametrize("payload", DEP_INVALID)
 def test_dependency_invalid(payload):
     assert_invalid_no_match(DOCKERFILE_RULES["_dependency_capture"], payload, "_dependency_capture")
+
 
 def test_dependency_redos():
     assert_redos_immune(DOCKERFILE_RULES["_dependency_capture"], "FROM " + " " * 50000 + "!")

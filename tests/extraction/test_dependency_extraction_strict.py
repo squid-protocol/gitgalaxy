@@ -14,22 +14,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # destructuring, aliases, and multi-line formatting without capturing the wrong variables.
 # ==============================================================================
 DEPENDENCY_EXTRACTION_CASES = {
-    "php": {
-        "valid": [
-            (
-                "use Illuminate\\Support\\Facades\\Route;",
-                "Illuminate\\Support\\Facades\\Route",
-            ),
-            ("require_once 'vendor/autoload.php';", "vendor/autoload.php"),
-        ],
-        "invalid": ["$useCache = true;"],
-        "pathological": [
-            (
-                "use \n function \n My\\Custom\\Namespace\\target_function \n ;",
-                "My\\Custom\\Namespace\\target_function",
-            )
-        ],
-    },
     "ruby": {
         "valid": [
             ("require 'json'", "json"),

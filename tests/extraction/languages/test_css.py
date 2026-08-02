@@ -13,7 +13,7 @@ from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
     assert_redos_immune,
     assert_valid_match,
-    assert_valid_dependency_match
+    assert_valid_dependency_match,
 )
 
 CSS_DEFS = LANGUAGE_DEFINITIONS["css"]["rules"]
@@ -32,7 +32,7 @@ VALID_FUNC_STARTS = [
 ]
 
 INVALID_FUNC_STARTS = [
-    "/* @media print { body { display: none; } } */ .fake { content: \"@keyframes spin { 0% {} }\"; }",
+    '/* @media print { body { display: none; } } */ .fake { content: "@keyframes spin { 0% {} }"; }',
 ]
 
 PATHOLOGICAL_FUNC_STARTS = [
@@ -55,7 +55,7 @@ VALID_CLASS_STARTS = [
 ]
 
 INVALID_CLASS_STARTS = [
-    "input[value=\".not-a-class\"] { content: \"#not-an-id\"; } /* .comment-class {} */",
+    'input[value=".not-a-class"] { content: "#not-an-id"; } /* .comment-class {} */',
 ]
 
 PATHOLOGICAL_CLASS_STARTS = [
@@ -79,7 +79,7 @@ VALID_ARGS = [
 ]
 
 INVALID_ARGS = [
-    "content: \"calc(100% - 10px)\"; /* color: var(--hacked); */",
+    'content: "calc(100% - 10px)"; /* color: var(--hacked); */',
 ]
 
 PATHOLOGICAL_ARGS = [
@@ -88,7 +88,7 @@ PATHOLOGICAL_ARGS = [
 
 VALID_DEPENDENCIES = [
     (
-        "@import \"style.css\";\n@import 'print.css' print;\n@import url(\"mobile.css\") screen and (max-width: 600px);",
+        '@import "style.css";\n@import \'print.css\' print;\n@import url("mobile.css") screen and (max-width: 600px);',
         "style.css",
     ),
     (
@@ -98,54 +98,65 @@ VALID_DEPENDENCIES = [
 ]
 
 INVALID_DEPENDENCIES = [
-    "/* @import \"malware.css\"; */\nbody { font-family: '@import \"font.css\"'; content: \"@import url('fake.css');\"; }",
+    '/* @import "malware.css"; */\nbody { font-family: \'@import "font.css"\'; content: "@import url(\'fake.css\');"; }',
 ]
 
 PATHOLOGICAL_DEPENDENCIES = [
-    "@import" + " \n\t" * 1000 + "url( \n\t" * 100 + "\"file.css\"",
+    "@import" + " \n\t" * 1000 + "url( \n\t" * 100 + '"file.css"',
 ]
 
 # --- TESTS ---
+
 
 @pytest.mark.parametrize("payload,expected_matches", VALID_FUNC_STARTS)
 def test_css_func_start_valid(payload, expected_matches):
     assert_valid_match(CSS_DEFS["func_start"], payload, expected_matches, "css.func_start")
 
+
 @pytest.mark.parametrize("payload", INVALID_FUNC_STARTS)
 def test_css_func_start_invalid(payload):
     assert_invalid_no_match(CSS_DEFS["func_start"], payload, "css.func_start")
+
 
 @pytest.mark.parametrize("payload", PATHOLOGICAL_FUNC_STARTS)
 def test_css_func_start_redos(payload):
     assert_redos_immune(CSS_DEFS["func_start"], payload)
 
+
 @pytest.mark.parametrize("payload,expected_matches", VALID_CLASS_STARTS)
 def test_css_class_start_valid(payload, expected_matches):
     assert_valid_match(CSS_DEFS["class_start"], payload, expected_matches, "css.class_start")
+
 
 @pytest.mark.parametrize("payload", INVALID_CLASS_STARTS)
 def test_css_class_start_invalid(payload):
     assert_invalid_no_match(CSS_DEFS["class_start"], payload, "css.class_start")
 
+
 @pytest.mark.parametrize("payload", PATHOLOGICAL_CLASS_STARTS)
 def test_css_class_start_redos(payload):
     assert_redos_immune(CSS_DEFS["class_start"], payload)
+
 
 @pytest.mark.parametrize("payload,expected_matches", VALID_ARGS)
 def test_css_args_valid(payload, expected_matches):
     assert_valid_match(CSS_DEFS["args"], payload, expected_matches, "css.args")
 
+
 @pytest.mark.parametrize("payload", PATHOLOGICAL_ARGS)
 def test_css_args_redos(payload):
     assert_redos_immune(CSS_DEFS["args"], payload)
+
 
 @pytest.mark.parametrize("payload,expected_matches", VALID_DEPENDENCIES)
 def test_css_dependency_valid(payload, expected_matches):
     assert_valid_dependency_match(CSS_DEFS["_dependency_capture"], payload, expected_matches, "css._dependency_capture")
 
+
 @pytest.mark.parametrize("payload", INVALID_DEPENDENCIES)
 def test_css_dependency_invalid(payload):
     assert_invalid_no_match(CSS_DEFS["_dependency_capture"], payload, "css._dependency_capture")
+
 
 @pytest.mark.parametrize("payload", PATHOLOGICAL_DEPENDENCIES)
 def test_css_dependency_redos(payload):

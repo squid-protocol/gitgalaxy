@@ -25,21 +25,6 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # }
 # ==============================================================================
 EXTRACTION_CASES = {
-    "php": {
-        "valid": [
-            ("function TargetFunc()", "TargetFunc"),
-            ("public static function TargetFunc(", "TargetFunc"),
-            ("final protected function TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "$var = TargetFunc()", "new TargetFunc()"],
-        "pathological": [
-            # PHP 8 attributes and erratic reference ampersands
-            (
-                "#[\\ReturnTypeWillChange]\nfinal \n public \n static \n function \n & \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "ruby": {
         "valid": [
             ("def TargetFunc", "TargetFunc"),

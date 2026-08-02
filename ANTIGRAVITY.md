@@ -86,7 +86,7 @@ To ensure rigorous, adversarial testing, structure your work into a strict **5-s
 
 ## 8. Submitting Pull Requests
 
-When working in this repository, **always work on a side branch and submit a PR to `main`. Do not merge or push directly to `main`.**
+When working in this repository, **you MUST ALWAYS work on a side branch and submit a PR to `main`. NEVER merge or push your changes directly to `main` without a PR.** This strict workflow ensures that tests and multi-agent pipelines are run in isolation.
 
 Before submitting a Pull Request, you must run the following deterministic tools in your belt to test out and fix your changes, acting as your local CI pipeline:
 1. **Unit Tests:** `venv/bin/python -m pytest tests/`
@@ -94,7 +94,10 @@ Before submitting a Pull Request, you must run the following deterministic tools
 3. **Golden Fixtures (Crucible):** `venv/bin/python tests/tools/crucible_check.py` (run with `--update --yes` if the output intentionally changed due to better parsing rules).
 
 When generating or submitting a Pull Request for this repository, it is critical to provide comprehensive context for reviewers. 
-- **Always add a thorough description:** Outline the changes, the rationale, and any structural boundaries or tests added. Explain *why* any golden masters changed. Do not leave the PR body blank or sparse.
+- **Descriptive PR Title:** The title must be highly descriptive and directly summarize the core outcome of the PR (e.g., instead of "Fix extraction", use "Fix #855: Harden Fortran extraction rules against pathological syntax").
+- **Thorough PR Description:** Outline all technical changes, the specific reasoning behind the choices, and any edge-cases solved. 
+  - For extraction hardening specifically, detail the pipeline steps used (Linguist, Red Team, etc.), explain any structural boundaries or tests added, and definitively explain *why* any golden masters changed.
+  - **Do not leave the PR body blank, sparse, or lame.** A poor description will cause the PR to be rejected.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.
 
 ## CI Ruff Audit

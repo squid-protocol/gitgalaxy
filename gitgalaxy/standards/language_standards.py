@@ -11284,7 +11284,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Excludes C/C++ constructs that share the identical "identifier:" shape
             # (switch-case default labels, C++ access specifiers in embedded .ypp code).
             "func_start": re.compile(
-                r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=(?:[ \t\n]|/\*(?:[^*]|\*[^/])*\*/)*:)", re.M
+                r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=(?:[ \t\n]|/\*(?:[^*]|\*[^/])*\*/)*:)",
+                re.M,
             ),
             "class_start": None,
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

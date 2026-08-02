@@ -32,6 +32,22 @@ def test_php_func_start():
         ("function\t \n weirdSpace \n ( )", "weirdSpace"),
         ("function foo(): \n    array|\n    null", "foo"),
         ("function & myFunc()", "myFunc"),
+        (
+            "#[Attr]\n    public static fUnCtIoN /* case insensitivity test */ extract_me (\n"
+            "        #[Inject] \n"
+            "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
+            "            \"string with ) and , inside\", \n"
+            "            ['array', 'with', 'function() {}']\n"
+            "        ),\n"
+            "        int|float $var2 = (1 + (2 * 3)),\n"
+            "        ...$variadic,\n"
+            "    ) : (X&Y)|Z {",
+            "extract_me"
+        ),
+        (
+            "function\n    \n        spaced_out_func\n    (\n        \n        $arg1\n        ,\n        $arg2\n        \n    )\n    :\n    void",
+            "spaced_out_func"
+        )
     ]
 
     invalid = [
@@ -48,6 +64,11 @@ def test_php_func_start():
         ("public /* wtf */ function /* inline */ commentFunc()", None),
         ("$str = 'function foo() {';", None),
         ('$str = "public function bar()\\n";', None),
+        ("function fake_func_heredoc() {}", None),
+        ("function ( $with_args ) {", None),
+        ("function commentFunc(int $x) {}", None),
+        ("function not_php() {}", None),
+        ("function() use ($x)", None),
     ]
 
     for payload, expected in valid:
@@ -76,6 +97,25 @@ def test_php_class_start():
         ("class Complex extends Base implements A, B", "Complex"),
         ("#[AllowDynamicProperties]\nclass DynamicClass", "DynamicClass"),
         ("class Multiline\n    extends Base\n    implements \n        InterfaceA,\n        InterfaceB", "Multiline"),
+        (
+            "#[\\\n    \\Attribute1,\n"
+            "    \\Attribute2('string containing \"class Fake {\" to break regex'),\n"
+            "    \\Attribute3(fn($x) => $x),\n"
+            "    \\Attribute4(new class { public function inner() {} })\n"
+            "]\n"
+            "final readonly class\n"
+            "/* sneaky block comment */\n"
+            "DeviousClass \n"
+            "extends \\Some\\Base\\Class \n"
+            "implements \n"
+            "    \\Interface1, \n"
+            "    \\Interface2",
+            "DeviousClass"
+        ),
+        (
+            "class\n    \n    SpacedOutClass",
+            "SpacedOutClass"
+        )
     ]
 
     invalid = [
@@ -90,6 +130,11 @@ def test_php_class_start():
         ("class /* evil */ Foo /* extends */ extends Bar", None),
         ("$s = 'class Foo {}';", None),
         ("$class = 'MyClass';", None),
+        ("class FakeClassHeredoc {", None),
+        ("class NotPhpClass {}", None),
+        ("class RealClass {}", None),
+        ("class NotAnotherClass {}", None),
+        ("class ClassInArray {}", None),
     ]
 
     for payload, expected in valid:
@@ -120,6 +165,26 @@ def test_php_args():
         ("function foo($callback = function($x) { return $x; })", "($callback = function($x) { return $x; })"),
         ("function foo(int $a, string $b,)", "(int $a, string $b,)"),
         ("function foo( (A&B)|C $obj )", "( (A&B)|C $obj )"),
+        (
+            "function extract_me (\n"
+            "        #[Inject] \n"
+            "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
+            "            \"string with ) and , inside\", \n"
+            "            ['array', 'with', 'function() {}']\n"
+            "        ),\n"
+            "        int|float $var2 = (1 + (2 * 3)),\n"
+            "        ...$variadic,\n"
+            "    )",
+            "(\n"
+            "        #[Inject] \n"
+            "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
+            "            \"string with ) and , inside\", \n"
+            "            ['array', 'with', 'function() {}']\n"
+            "        ),\n"
+            "        int|float $var2 = (1 + (2 * 3)),\n"
+            "        ...$variadic,\n"
+            "    )"
+        ),
     ]
 
     invalid = [
@@ -130,6 +195,13 @@ def test_php_args():
 
     xfail_invalid = [
         ("('($a, $b)')", None),
+        (
+            "function deeply_nested_args(\n"
+            "    $a = [[[['function func_in_array() {}', \"class ClassInArray {}\"]]]],\n"
+            "    $b = array(array(array('use Deep\\Dep;'))),\n"
+            "    $c = fn($x) => (fn($y) => $y)($x)\n"
+            ")", None
+        )
     ]
 
     for payload, expected in valid:
@@ -159,17 +231,34 @@ def test_php_dependency_capture():
         ("require dirname(__FILE__) . '/../bootstrap.php';", "dirname(__FILE__) . '/../bootstrap.php'"),
         ("use App\\Models\\\n    {\n        User,\n        Post\n    };", "App\\Models\\\n    {\n        User,\n        Post\n    }"),
         ("require_once /* load it */ 'file.php';", "file.php"),
+        (
+            "uSe \\Vendor\\Package\\{\n"
+            "    ClassA,\n"
+            "    SubNamespace\\ClassB as AliasB,\n"
+            "    fUnCtIoN func_c,\n"
+            "    const CONST_D,\n"
+            "};",
+            "\\Vendor\\Package\\{\n"
+            "    ClassA,\n"
+            "    SubNamespace\\ClassB as AliasB,\n"
+            "    fUnCtIoN func_c,\n"
+            "    const CONST_D,\n"
+            "}"
+        ),
     ]
 
     invalid = [
         ("namespace App\\Http;", None),
         ("function($x) use ($y, &$z) {", None),
+        ("use SomeTrait, AnotherTrait {", None),
+        ("AnotherTrait::method as alias;", None),
     ]
     
     xfail_invalid = [
         ("// require 'test.php';", None),
         ("$str = 'require \"foo.php\";';", None),
         ("$str = 'use App\\\\Foo;';", None),
+        ("use Fake\\Dependency\\Nowdoc;", None),
     ]
 
     for payload, expected in valid:

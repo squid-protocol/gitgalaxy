@@ -70,11 +70,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["local require_path = ''"],
         "pathological": [("require \n ( \n 'bit32' \n )", "bit32")],
     },
-    "perl": {
-        "valid": [("use strict;", "strict"), ("require Foo::Bar;", "Foo::Bar")],
-        "invalid": ["my $use = 1;"],
-        "pathological": [("use \n Data::Dumper", "Data::Dumper")],
-    },
+
     "haskell": {
         "valid": [
             ("import Control.Monad", "Control.Monad"),

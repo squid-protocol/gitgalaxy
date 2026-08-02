@@ -7128,7 +7128,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
             "args": re.compile(
-                r"\b(?:sub|method)\s+(?:[a-zA-Z_]\w*\s*)?\([^)]*\)|\bmy\s*\([^)]*\)[ \t]*=\s*@_|\bshift\b"
+                r"\b(?:sub|method)\s+(?:[a-zA-Z_]\w*\s*)?\([^)]*\)|\bmy\s*\([^)]*\)\s*=\s*@_|\bshift\b"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
             "structural_boundaries": re.compile(
@@ -7161,7 +7161,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start: Object / Entity Declarations. Defines object-oriented and structural boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:package|class|role)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)(?=[ \t]*[;\{]|\n|$)",
+                r"^[ \t]*(?:package|class|role)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)(?=[ \t\n]*[;\{]|$)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

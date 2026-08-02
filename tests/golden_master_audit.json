@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-02T16:11:55.693693+00:00",
-            "Total Scan Duration": "26.33 seconds"
+            "Analysis ISO Timestamp": "2026-08-02T17:58:04.102317+00:00",
+            "Total Scan Duration": "27.03 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -395,7 +395,7 @@
             "perl": {
                 "files": 22,
                 "loc": 32191,
-                "impact": 82098.32
+                "impact": 82143.22
             },
             "php": {
                 "files": 36,
@@ -3287,7 +3287,7 @@
             },
             "perl/bugzilla": {
                 "file_count": 5,
-                "total_mass": 16352.94,
+                "total_mass": 16397.84,
                 "avg_exposures": {
                     "cognitive_load": 52.81,
                     "safety_score": 46.02,
@@ -55203,7 +55203,7 @@
             }
         },
         "perl/bugzilla": {
-            "Directory Group Magnitude": 16352.94,
+            "Directory Group Magnitude": 16397.84,
             "File Count": 5,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_0": "80.0%",
@@ -55551,26 +55551,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_0",
-                        "Repository Drift (Z-Score)": 14.444,
+                        "Repository Drift (Z-Score)": 14.45,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.444,
-                            "file_cluster_1": 14.909,
-                            "file_cluster_2": 15.022,
-                            "file_cluster_3": 15.816,
-                            "file_cluster_4": 14.891,
-                            "file_cluster_5": 15.287,
-                            "file_cluster_6": 15.076,
-                            "file_cluster_7": 14.669,
-                            "file_cluster_8": 14.511,
-                            "file_cluster_9": 15.056,
-                            "file_cluster_10": 15.652,
-                            "file_cluster_11": 14.696,
-                            "file_cluster_12": 15.185,
-                            "file_cluster_13": 14.542,
-                            "file_cluster_14": 17.864,
-                            "file_cluster_15": 15.134,
-                            "file_cluster_16": 15.12,
-                            "file_cluster_17": 14.595
+                            "file_cluster_0": 14.45,
+                            "file_cluster_1": 14.916,
+                            "file_cluster_2": 15.028,
+                            "file_cluster_3": 15.822,
+                            "file_cluster_4": 14.898,
+                            "file_cluster_5": 15.294,
+                            "file_cluster_6": 15.082,
+                            "file_cluster_7": 14.676,
+                            "file_cluster_8": 14.518,
+                            "file_cluster_9": 15.063,
+                            "file_cluster_10": 15.659,
+                            "file_cluster_11": 14.702,
+                            "file_cluster_12": 15.191,
+                            "file_cluster_13": 14.548,
+                            "file_cluster_14": 17.87,
+                            "file_cluster_15": 15.14,
+                            "file_cluster_16": 15.126,
+                            "file_cluster_17": 14.602
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -55578,7 +55578,7 @@
                         "Total LOC": 5124,
                         "Coding LOC": 3528,
                         "Documentation LOC": 696,
-                        "Structural Magnitude": 9816.96,
+                        "Structural Magnitude": 9861.86,
                         "Control Flow Ratio": "50.4%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -55659,6 +55659,16 @@
                             "End Line": 4325
                         },
                         {
+                            "Function Name": "LogActivityEntry",
+                            "Structural Impact": 69.5,
+                            "Lines of Code (LOC)": 41,
+                            "Control Flow Branches": 14,
+                            "Input Parameters": 8,
+                            "Control Flow Ratio": "63.6%",
+                            "Start Line": 4416,
+                            "End Line": 4456
+                        },
+                        {
                             "Function Name": "_check_dependencies",
                             "Structural Impact": 67.4,
                             "Lines of Code (LOC)": 74,
@@ -55737,16 +55747,6 @@
                             "Control Flow Ratio": "53.8%",
                             "Start Line": 4201,
                             "End Line": 4241
-                        },
-                        {
-                            "Function Name": "LogActivityEntry",
-                            "Structural Impact": 24.6,
-                            "Lines of Code (LOC)": 41,
-                            "Control Flow Branches": 14,
-                            "Input Parameters": 0,
-                            "Control Flow Ratio": "63.6%",
-                            "Start Line": 4416,
-                            "End Line": 4456
                         },
                         {
                             "Function Name": "_check_component",
@@ -55923,7 +55923,7 @@
                     "7. Structural Signatures (Net Mitigated Signals)": {
                         "Control Flow Branches": 1349,
                         "Sequential Logic Declarations": 1327,
-                        "Function Parameters": 150,
+                        "Function Parameters": 151,
                         "Function/Method Declarations": 194,
                         "Class/Entity Declarations": 1,
                         "Defensive Programming Constructs": 10,

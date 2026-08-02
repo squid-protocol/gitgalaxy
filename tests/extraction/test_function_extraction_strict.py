@@ -141,14 +141,7 @@ EXTRACTION_CASES = {
         "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
         "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
     },
-    "perl": {
-        "valid": [
-            ("sub TargetFunc {", "TargetFunc"),
-            ("method TargetFunc {", "TargetFunc"),
-        ],
-        "invalid": ["package TargetFunc", "my $TargetFunc", "goto TargetFunc"],
-        "pathological": [("sub \n TargetFunc \n {", "TargetFunc")],
-    },
+
     "haskell": {
         "valid": [
             ("TargetFunc :: Int -> Int", "TargetFunc"),

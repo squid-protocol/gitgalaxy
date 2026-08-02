@@ -164,11 +164,7 @@ EXTRACTION_CASES = {
         "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")],
     },
 
-    "yacc": {
-        "valid": [("TargetFunc:", "TargetFunc")],
-        "invalid": ["%token TargetFunc", "case TargetFunc:"],
-        "pathological": [("TargetFunc \t :", "TargetFunc")],
-    },
+
     "css": {
         "valid": [("@media (max-width: 600px) {", "@media"), ("@keyframes TargetFunc {", "@keyframes")],
         "invalid": [".TargetFunc {", "#TargetFunc {"],

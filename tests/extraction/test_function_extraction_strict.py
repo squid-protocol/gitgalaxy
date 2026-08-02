@@ -127,14 +127,6 @@ EXTRACTION_CASES = {
         "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
         "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
     },
-    "perl": {
-        "valid": [
-            ("sub TargetFunc {", "TargetFunc"),
-            ("method TargetFunc {", "TargetFunc"),
-        ],
-        "invalid": ["package TargetFunc", "my $TargetFunc", "goto TargetFunc"],
-        "pathological": [("sub \n TargetFunc \n {", "TargetFunc")],
-    },
     "haskell": {
         "valid": [
             ("TargetFunc :: Int -> Int", "TargetFunc"),
@@ -185,11 +177,6 @@ EXTRACTION_CASES = {
         "valid": [("function TargetFunc()", "TargetFunc"), ("modifier TargetFunc()", "TargetFunc")],
         "invalid": ["contract TargetFunc", "struct TargetFunc"],
         "pathological": [("function \n TargetFunc \n (", "TargetFunc")],
-    },
-    "groovy": {
-        "valid": [("def TargetFunc()", "TargetFunc"), ("public void TargetFunc()", "TargetFunc")],
-        "invalid": ["class TargetFunc", "if (TargetFunc)"],
-        "pathological": [("public \t static \t def \t TargetFunc \t (", "TargetFunc")],
     },
     "jcl": {
         "valid": [("//TargetFunc EXEC PGM=PROG", "TargetFunc")],

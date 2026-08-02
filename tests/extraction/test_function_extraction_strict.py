@@ -1,4 +1,5 @@
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # =======================================================================# THE UNIVERSAL EXTRACTION GAUNTLET

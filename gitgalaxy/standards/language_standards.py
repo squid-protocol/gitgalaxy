@@ -12066,7 +12066,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 32. events (Event Emitters / Pub-Sub)
             # Tcl event bindings and file event handlers.
             "events": re.compile(r"\b(?:bind|fileevent|vwait|trace[ \t]+add)\b"),
-            "dependency_injection": None,
             "macros": None,
             "pointers": None,
             "memory_alloc": None,

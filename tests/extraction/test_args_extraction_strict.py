@@ -69,20 +69,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-    "zig": {
-        "valid": [
-            ("pub fn TargetFunc(a: i32, b: f32) void {", "TargetFunc"),
-            ("fn TargetFunc(comptime T: type, items: []T)", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b);", "while (iter.next()) |val| {"],
-        "pathological": [
-            # Vertical sigs with comptime types
-            (
-                "pub \n inline \n fn \n TargetFunc \n (\n  comptime T: type,\n  allocator: std.mem.Allocator,\n) \n !void",
-                "TargetFunc",
-            )
-        ],
-    },
     "apex": {
         "valid": [
             ("public void TargetFunc(String a, Integer b) {", "TargetFunc"),

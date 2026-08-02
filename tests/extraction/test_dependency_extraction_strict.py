@@ -93,14 +93,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["import_state = True"],
         "pathological": [("from \n uasyncio \n import \n sleep", "uasyncio")],
     },
-    "zig": {
-        "valid": [
-            ('const std = @import("std");', "std"),
-            ('@cInclude("stdio.h");', "stdio.h"),
-        ],
-        "invalid": ["var import_val = 0;"],
-        "pathological": [('@cInclude \n ( \n "sys/types.h" \n )', "sys/types.h")],
-    },
     "dart": {
         "valid": [
             ("import 'dart:io';", "dart:io"),

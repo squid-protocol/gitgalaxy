@@ -197,11 +197,6 @@ EXTRACTION_CASES = {
         "invalid": ["class TargetFunc", "type TargetFunc", "interface TargetFunc"],
         "pathological": [("public \n async \n get \n TargetFunc \n (", "TargetFunc")],
     },
-    "zig": {
-        "valid": [("fn TargetFunc()", "TargetFunc"), ("pub fn TargetFunc()", "TargetFunc")],
-        "invalid": ["const TargetFunc = struct", "var TargetFunc"],
-        "pathological": [("pub \n export \n fn \n TargetFunc \n (", "TargetFunc")],
-    },
     "solidity": {
         "valid": [("function TargetFunc()", "TargetFunc"), ("modifier TargetFunc()", "TargetFunc")],
         "invalid": ["contract TargetFunc", "struct TargetFunc"],

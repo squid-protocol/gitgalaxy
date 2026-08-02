@@ -8184,24 +8184,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
             "branch": re.compile(r"\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b|&&|\|\|"),
             # 2. args: Parameters / Coupling. Captures parameters in function signatures.
-            # BUG FIX (Rule 11): `[^)]*` is a flat negated class -- can't
-            # represent even one level of nesting. Zig function-pointer-type
-            # parameters nest constantly (`fn foo(callback: fn(i32) void)
-            # void`) -- confirmed the old pattern truncated at the inner
-            # `)`. Upgraded to the one-level-nesting bounded form.
-            "args": re.compile(r"\bfn\s*(?:[a-zA-Z_]\w*\s*)?\((?:[^()]|\([^()]*\))*\)"),
+            "args": re.compile(
+                r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)"
+            ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
             "structural_boundaries": re.compile(
                 r"\b(var|return|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b"
             ),
             # 4. func_start: Executable Logic Anchors. Anchors logic blocks (fn). EXCLUDES struct/enum/union headers.
             "func_start": re.compile(
-                r"^[ \t]*(?:(?:pub|export|extern|inline|noinline|callconv\([^)]*\))[ \t]+){0,5}fn\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:(?:pub|export|extern(?:[ \t]+\"[^\"]+\")?|inline|noinline|callconv\([^)]*\)|linksection\([^)]*\)|align\([^)]*\))[ \t\n]+)*fn[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (struct, enum, union, error, opaque).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t]+)?const[ \t]+([a-zA-Z_]\w*)[ \t]*=[ \t]*(?:packed[ \t]+|extern[ \t]+)?(?:struct|enum|union|error|opaque)(?=[ \t]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?const[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t\n]*=[ \t\n]*(?:packed[ \t\n]+|extern[ \t\n]+)?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8279,7 +8276,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # bug. None ever matched.
             "import": re.compile(r"@import\b|@cImport\b|@cInclude\b"),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:const[ \t]+[a-zA-Z_]\w*[ \t]*=[ \t]*)?(?:@import|@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
+                r"(?:^[ \t]*(?:(?:pub[ \t]+)?const[ \t]+(?:@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t]*=[ \t]*|_[ \t]*=[ \t]*)?@import|(?:^[ \t]*(?:const[ \t]+(?:@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t]*=[ \t]*)?@cImport[ \t\n]*\{[ \t\n]*)?@cInclude|[ \t]*@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
                 re.M,
             ),
             # 25. ownership: Authorship indicators in comments.

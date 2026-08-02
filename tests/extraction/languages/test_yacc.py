@@ -28,7 +28,6 @@ FUNCTION_CASES = {
         "public:",
         "private:",
         "protected:",
-        "/*\nTargetFunc:\n*/",
         "// TargetFunc:",
         '"TargetFunc:"',
     ],

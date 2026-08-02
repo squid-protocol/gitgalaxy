@@ -5,16 +5,14 @@ _EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
 if _EXTRACTION_DIR not in sys.path:
     sys.path.insert(0, _EXTRACTION_DIR)
 
-import pytest
-
+import pytest  # noqa: E402
 from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
-    assert_redos_immune,
     assert_valid_dependency_match,
     assert_valid_match,
 )
 
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
 RUBY_RULES = LANGUAGE_DEFINITIONS["ruby"]["rules"]
 
@@ -100,7 +98,7 @@ def test_ruby_class_start():
 
     for payload, _ in invalid:
         assert_invalid_no_match(RUBY_RULES["class_start"], payload, "ruby.class_start")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
 
@@ -147,7 +145,7 @@ def test_ruby_args():
 
     for payload, _ in invalid:
         assert_invalid_no_match(RUBY_RULES["args"], payload, "ruby.args")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
 
@@ -178,7 +176,7 @@ def test_ruby_dependency_capture():
         ("require_all 'foo'", None),
         ("alias require old_require", None),
     ]
-    
+
     xfail_invalid = [
         ("# require 'foo'", None),
         ('puts "require \'foo\'"', None),
@@ -190,7 +188,7 @@ def test_ruby_dependency_capture():
 
     for payload, _ in invalid:
         assert_invalid_no_match(RUBY_RULES["_dependency_capture"], payload, "ruby._dependency_capture")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
 

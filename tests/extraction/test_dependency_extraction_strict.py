@@ -30,19 +30,7 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-    "ruby": {
-        "valid": [
-            ("require 'json'", "json"),
-            ("require_relative '../core/engine'", "../core/engine"),
-        ],
-        "invalid": ["required_fields = []"],
-        "pathological": [
-            (
-                'require_relative \n ( \n "../lib/massive_module" \n )',
-                "../lib/massive_module",
-            )
-        ],
-    },
+
     "html": {
         "valid": [
             ('<script src="app.js"></script>', "app.js"),

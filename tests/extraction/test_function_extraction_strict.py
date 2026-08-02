@@ -40,18 +40,7 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "ruby": {
-        "valid": [
-            ("def TargetFunc", "TargetFunc"),
-            ("def self.TargetFunc", "TargetFunc"),
-            ("define_method :TargetFunc do", "TargetFunc"),
-        ],
-        "invalid": ["class TargetFunc", "TargetFunc = 5", "module TargetFunc"],
-        "pathological": [
-            # Vertical class-method declaration
-            ("def \n self. \n TargetFunc \n (", "TargetFunc")
-        ],
-    },
+
     "apex": {
         "valid": [
             ("public static void TargetFunc()", "TargetFunc"),

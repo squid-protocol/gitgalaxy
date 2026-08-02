@@ -10287,7 +10287,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `\b[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:\{|;)` hallucinated `if (a) {` as a function.
                 # FIX: Injected `(?!(?:if|for|while|switch|catch|return)\b)` to block control flow.
                 # =====================================================================
-                r":\s*\([^)]+\)\s*[a-zA-Z_]\w*|\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\([^)]*\)|(?!(?:if|for|while|switch|catch|return)\b)\b[a-zA-Z_]\w*[ \t\n]*\([^)]*\)[ \t\n]*(?:\{|;)",
+                r":\s*\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\)\s*[a-zA-Z_]\w*|\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\)|(?!(?:if|for|while|switch|catch|return)\b)\b[a-zA-Z_]\w*[ \t\n]*\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\)[ \t\n]*(?:\{|;)",
                 re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
@@ -10299,22 +10299,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start: Executable Logic Anchors. Anchors executable logic.
             # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax
             "func_start": re.compile(
-                # =====================================================================
-                # [ THE VERTICAL RETURN TYPE SHIELD (OBJECTIVE-C) ]
-                # Objective-C developers (and macros) can fragment the method sign `-`,
-                # the return type `(NSDictionary *)`, the name, and the colon `:`
-                # across multiple lines.
-                # FIX: `\s*` already covers newlines in the prefix, but the trailing
-                # positive lookahead `(?=[ \t]*[:\{;])` blocked newlines before the colon.
-                # Upgraded the lookahead to `(?=[ \t\n]*[:\{;]|$)` to clear the vertical gap.
-                # =====================================================================
-                r"^[ \t]*[-+][ \t\n]*(?:\([^)]+\))?[ \t\n]*([a-zA-Z_]\w*)(?=[ \t\n]*[:\{;]|$)|"
-                r"^[ \t]*(?:static[ \t\n]+|inline[ \t\n]+)?(?:[a-zA-Z_]\w*(?:[ \t\n]*\*+)?[ \t\n]+)+([a-zA-Z_]\w*)(?=[ \t\n]*\()",
+                r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\((?:[^()]+|\([^()]*\))*\)\s+)*[-+][ \t\n]*(?:\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\))?[ \t\n]*([a-zA-Z_]\w*)(?=[ \t\n]*(?:__attribute__\s*\((?:[^()]+|\([^()]*\))*\)|[A-Z_0-9]+(?:\([^)]*\))?)*[ \t\n]*[:\{;]|$)|"
+                r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\((?:[^()]+|\([^()]*\))*\)|template\s*<[^>]*>)[ \t\n]+)*(?:(?:[a-zA-Z_]\w*|extern\s+\"C\")[ \t\n]*\**[ \t\n]+)+([a-zA-Z_]\w*)(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines OO boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:@interface|@implementation|@protocol)\s+([a-zA-Z_]\w*)(?=[ \t]*[:(<{\n]|$)",
+                r"^[ \t]*@\s*(?:interface|implementation|protocol)(?:\\?\s)+([a-zA-Z_]\w*)(?=(?:\\?\s)*[:(<{\n]|$)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10403,7 +10394,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import: Dependency Inclusions. Module and header inclusion.
             "import": re.compile(r"^[ \t]*(?:#import|#include|@import)\b", re.M),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:#import|#include)\s*(?:<([^>]+)>|[\"']([^\"']+)[\"'])|^[ \t]*@import\s+([\w.]+)",
+                r"^[ \t]*(?:#\s*import|#\s*include)\s*(?:\\?\n\s*)?(?:<([^>]+)>|[\"']([^\"']+)[\"'])|^[ \t]*@\s*import\s+([\w.]+)",
                 re.M,
             ),
             # 25. ownership: Authorship metadata.

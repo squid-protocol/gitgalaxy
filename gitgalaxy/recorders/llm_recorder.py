@@ -326,19 +326,19 @@ class LLMRecorder:
             lines.append("| Metric | Value | Interpretation |")
             lines.append("|---|---|---|")
             lines.append(
-                f"| Modularity | {net_macro.get('modularity', 0.0)} | High = Clean micro-boundaries. Low = Spaghetti coupling. |"
+                f"| Modularity | {(net_macro.get('modularity') or 0.0)} | High = Clean micro-boundaries. Low = Spaghetti coupling. |"
             )
             lines.append(
-                f"| Assortativity | {net_macro.get('assortativity', 0.0)} | Positive = Resilient core. Negative = Fragile single-points-of-failure. |"
+                f"| Assortativity | {(net_macro.get('assortativity') or 0.0)} | Positive = Resilient core. Negative = Fragile single-points-of-failure. |"
             )
             lines.append(
-                f"| Cyclic Density | {net_macro.get('cyclic_density', 0.0) * 100:.1f}% | % of files trapped in dependency loops (Static Friction). |"
+                f"| Cyclic Density | {(net_macro.get('cyclic_density') or 0.0) * 100:.1f}% | % of files trapped in dependency loops (Static Friction). |"
             )
             lines.append(
-                f"| Avg Path Length | {net_macro.get('avg_path_length', 0.0)} | Hops between files. Lower = Tighter coupling. |"
+                f"| Avg Path Length | {(net_macro.get('avg_path_length') or 0.0)} | Hops between files. Lower = Tighter coupling. |"
             )
             lines.append(
-                f"| Articulation Pts | {net_macro.get('articulation_points', 0)} | Number of single files that, if removed, shatter the network. |"
+                f"| Articulation Pts | {(net_macro.get('articulation_points') or 0)} | Number of single files that, if removed, shatter the network. |"
             )
             lines.append("")
 

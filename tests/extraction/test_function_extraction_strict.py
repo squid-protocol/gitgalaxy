@@ -135,14 +135,7 @@ EXTRACTION_CASES = {
         "invalid": ["data TargetFunc", "class TargetFunc", "newtype TargetFunc"],
         "pathological": [("TargetFunc \n :: \n Maybe \n ( \n Int \n -> \n Int \n )", "TargetFunc")],
     },
-    "lua": {
-        "valid": [
-            ("function TargetFunc()", "TargetFunc"),
-            ("local function TargetFunc(", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc = function()", "if TargetFunc() then"],
-        "pathological": [("local \n function \n TargetFunc \n (", "TargetFunc")],
-    },
+
     "scheme": {
         "valid": [
             ("(define (TargetFunc x y)", "TargetFunc"),

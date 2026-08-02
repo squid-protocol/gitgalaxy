@@ -6897,7 +6897,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
             "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|goto|and|or|not)\b"),
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
-            "args": re.compile(r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?\([^)]*\)"),
+            "args": re.compile(r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)"),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
                 r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"
@@ -6917,7 +6917,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start: Object / Entity Declarations. Captures proto-tables or EmmyLua class definitions.
             "class_start": re.compile(
-                r"^[ \t]*---@class\s+([a-zA-Z_]\w*)|^[ \t]*(?:local[ \t]+)?(?:export[ \t]+)?([A-Z][a-zA-Z0-9_]*)(?=[ \t]*=[ \t]*\{)",
+                r"^[ \t]*---@class\s+([a-zA-Z_]\w*)|^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?([A-Z][a-zA-Z0-9_]*)(?=[ \t\n]*=[ \t\n]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

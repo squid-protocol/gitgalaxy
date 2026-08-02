@@ -38,28 +38,27 @@ FUNCTION_CASES: dict[str, Any] = {
     "valid": [
         ("sub TargetFunc {", "TargetFunc"),
         ("method TargetFunc {", "TargetFunc"),
-        ("sub TargetFunc($$) {", "TargetFunc"), # legacy prototypes
-        ("sub TargetFunc ($a, $b) {", "TargetFunc"), # modern signatures
-        ("sub TargetFunc : lvalue : method {", "TargetFunc"), # attributes
+        ("sub TargetFunc($$) {", "TargetFunc"),  # legacy prototypes
+        ("sub TargetFunc ($a, $b) {", "TargetFunc"),  # modern signatures
+        ("sub TargetFunc : lvalue : method {", "TargetFunc"),  # attributes
     ],
-    "invalid": [
-        "package TargetFunc",
-        "my $TargetFunc",
-        "goto TargetFunc"
-    ],
+    "invalid": ["package TargetFunc", "my $TargetFunc", "goto TargetFunc"],
     "pathological": [
         ("sub \n TargetFunc \n {", "TargetFunc"),
         ("method \n TargetFunc \n ( \n $a, \n $b \n ) \n {", "TargetFunc"),
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["valid"])
 def test_perl_func_start_valid(payload, expected_name):
     assert_valid_match(PERL_RULES["func_start"], payload, expected_name, "perl.func_start")
 
+
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_perl_func_start_invalid(payload):
     assert_invalid_no_match(PERL_RULES["func_start"], payload, "perl.func_start")
+
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_perl_func_start_pathological(payload, expected_name):
@@ -87,18 +86,22 @@ ARGS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected", ARGS_CASES["valid"])
 def test_perl_args_valid(payload, expected):
     assert_valid_match(PERL_RULES["args"], payload, expected, "perl.args")
+
 
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_perl_args_invalid(payload):
     assert_invalid_no_match(PERL_RULES["args"], payload, "perl.args")
 
+
 @pytest.mark.parametrize("payload,expected", ARGS_CASES["pathological"])
 def test_perl_args_pathological(payload, expected):
     assert_pathological_match(PERL_RULES["args"], payload, expected, "perl.args")
     assert_redos_immune(PERL_RULES["args"], payload)
+
 
 # ==============================================================================
 # CLASS_START (class_start)
@@ -119,18 +122,22 @@ CLASS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["valid"])
 def test_perl_class_start_valid(payload, expected_name):
     assert_valid_match(PERL_RULES["class_start"], payload, expected_name, "perl.class_start")
+
 
 @pytest.mark.parametrize("payload", CLASS_CASES["invalid"])
 def test_perl_class_start_invalid(payload):
     assert_invalid_no_match(PERL_RULES["class_start"], payload, "perl.class_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["pathological"])
 def test_perl_class_start_pathological(payload, expected_name):
     assert_pathological_match(PERL_RULES["class_start"], payload, expected_name, "perl.class_start")
     assert_redos_immune(PERL_RULES["class_start"], payload)
+
 
 # ==============================================================================
 # DEPENDENCY (_dependency_capture)
@@ -151,15 +158,20 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_perl_dependency_capture_valid(payload, expected_path):
     assert_valid_dependency_match(PERL_RULES["_dependency_capture"], payload, expected_path, "perl._dependency_capture")
+
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_perl_dependency_capture_invalid(payload):
     assert_invalid_no_match(PERL_RULES["_dependency_capture"], payload, "perl._dependency_capture")
 
+
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["pathological"])
 def test_perl_dependency_capture_pathological(payload, expected_path):
-    assert_pathological_dependency_match(PERL_RULES["_dependency_capture"], payload, expected_path, "perl._dependency_capture")
+    assert_pathological_dependency_match(
+        PERL_RULES["_dependency_capture"], payload, expected_path, "perl._dependency_capture"
+    )
     assert_redos_immune(PERL_RULES["_dependency_capture"], payload)

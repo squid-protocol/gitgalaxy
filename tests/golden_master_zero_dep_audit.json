@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-02T01:38:50.838136+00:00",
-            "Total Scan Duration": "24.03 seconds"
+            "Analysis ISO Timestamp": "2026-08-02T01:55:31.568055+00:00",
+            "Total Scan Duration": "24.05 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -4129,7 +4129,7 @@
             },
             "firewall": {
                 "imports_whitelisted": 0,
-                "imports_unknown": 7627,
+                "imports_unknown": 7626,
                 "imports_blacklisted": 0,
                 "threats_found": 139,
                 "threats_allowed": 0
@@ -264970,26 +264970,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 11.006,
+                        "Repository Drift (Z-Score)": 10.999,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 11.967,
-                            "file_cluster_1": 12.083,
-                            "file_cluster_2": 12.262,
-                            "file_cluster_3": 13.098,
-                            "file_cluster_4": 12.26,
-                            "file_cluster_5": 12.608,
-                            "file_cluster_6": 12.197,
-                            "file_cluster_7": 11.827,
-                            "file_cluster_8": 11.398,
-                            "file_cluster_9": 12.111,
-                            "file_cluster_10": 13.027,
-                            "file_cluster_11": 11.87,
-                            "file_cluster_12": 11.618,
-                            "file_cluster_13": 11.006,
-                            "file_cluster_14": 15.747,
-                            "file_cluster_15": 12.491,
-                            "file_cluster_16": 12.304,
-                            "file_cluster_17": 12.088
+                            "file_cluster_0": 11.961,
+                            "file_cluster_1": 12.077,
+                            "file_cluster_2": 12.256,
+                            "file_cluster_3": 13.093,
+                            "file_cluster_4": 12.254,
+                            "file_cluster_5": 12.602,
+                            "file_cluster_6": 12.191,
+                            "file_cluster_7": 11.821,
+                            "file_cluster_8": 11.392,
+                            "file_cluster_9": 12.105,
+                            "file_cluster_10": 13.021,
+                            "file_cluster_11": 11.864,
+                            "file_cluster_12": 11.612,
+                            "file_cluster_13": 10.999,
+                            "file_cluster_14": 15.743,
+                            "file_cluster_15": 12.485,
+                            "file_cluster_16": 12.298,
+                            "file_cluster_17": 12.082
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -265146,7 +265146,7 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 55,
+                        "Direct Upstream (Fragility)": 54,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 2,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
@@ -265168,7 +265168,6 @@
                         "containerutil-",
                         "containerutil-build",
                         "containerutil-windows-",
-                        "criu",
                         "crun",
                         "debian:",
                         "delve",

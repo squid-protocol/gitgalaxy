@@ -1,8 +1,7 @@
+import pytest
 import importlib
 import re
 from unittest.mock import patch
-
-import pytest
 
 from gitgalaxy.standards import language_lens
 from gitgalaxy.standards.language_lens import LanguageDetector
@@ -175,6 +174,7 @@ def test_tier_3_lexical_scan(isolated_detector):
 # ==============================================================================
 # TEST 6: Tier 4 (Heuristic Discovery)
 # ==============================================================================
+from unittest.mock import patch
 
 
 def test_tier_4_heuristic_discovery(isolated_detector):

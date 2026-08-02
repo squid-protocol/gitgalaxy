@@ -1,10 +1,10 @@
+import pytest
 import json
-
-# ruff: noqa: S101
+import sys
 import logging
 from unittest.mock import patch
 
-from gitgalaxy.recorders.sbom_recorder import SbomRecorder, UniversalManifestSlicer
+from gitgalaxy.recorders.sbom_recorder import UniversalManifestSlicer, SbomRecorder
 
 
 # ==============================================================================

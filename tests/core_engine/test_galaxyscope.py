@@ -1,9 +1,9 @@
+import unittest
+from unittest.mock import patch, MagicMock
 import os
 import re
 import tempfile
-import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 # Adjust imports to match your architecture
 from gitgalaxy.galaxyscope import Orchestrator, _process_file_worker, _worker_state
@@ -239,8 +239,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         However, the GitHub Action CLI command explicitly passes --max-risk-exposure 80.0.
         The engine MUST ingest the YAML, but the CLI flags MUST maintain absolute priority.
         """
+        import yaml
         import sys
-
         from gitgalaxy.galaxyscope import main
 
         # 1. Create a valid mock YAML configuration file
@@ -305,7 +305,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         """
         import sys
         import tempfile
-
         from gitgalaxy.galaxyscope import main
 
         fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
@@ -353,7 +352,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         """
         import sys
         import tempfile
-
         from gitgalaxy.galaxyscope import main
 
         fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
@@ -391,10 +389,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         INFO by the time the YAML value was applied to args.debug. Fixed by
         computing log_level after the YAML merge + real-default resolution.
         """
-        import logging
         import sys
         import tempfile
-
+        import logging
         from gitgalaxy.galaxyscope import main
 
         fd, temp_yaml_path = tempfile.mkstemp(suffix=".yaml")
@@ -646,9 +643,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         _process_file_worker (the core CPU engine) is completely untested. We must directly
         invoke the global worker initialization and process a file to cover lines 196-558.
         """
-        import logging
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        import logging
 
         # Mock the heavy lifting to avoid disk I/O during the unit test
         mock_aperture_inst = MockAperture.return_value
@@ -720,10 +716,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         security_lens.py contribution, and asserts the final count is their SUM,
         not just security_lens.py's value alone.
         """
-        import logging
-        from unittest.mock import mock_open
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
 
         mock_aperture_inst = MockAperture.return_value
         mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
@@ -804,10 +799,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         real worker path and asserts its positions survive into
         result["data"]["threat_locations"], prefixed exactly like its counts.
         """
-        import logging
-        from unittest.mock import mock_open
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
 
         mock_aperture_inst = MockAperture.return_value
         mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
@@ -880,10 +874,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         "debug_prints" hit (from actual regex parsing) on the same line,
         via the shared threat_locations ledger.
         """
-        import logging
-        from unittest.mock import mock_open
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
 
         mock_aperture_inst = MockAperture.return_value
         mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
@@ -962,10 +955,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         register as amplified_sql_injection via correlate_against_ledger(),
         exactly like the Active Hemorrhage's post-hoc reimplementation above.
         """
-        import logging
-        from unittest.mock import mock_open
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        from unittest.mock import mock_open
+        import logging
 
         mock_aperture_inst = MockAperture.return_value
         mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
@@ -1238,7 +1230,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         and APERTURE_CONFIG before passing them to the Orchestrator.
         """
         import sys
-
         from gitgalaxy.galaxyscope import main
 
         # Mock sys.argv to target a project named "chameleon_project"
@@ -1253,10 +1244,11 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                     "python": {"extensions": [".chameleon"]},
                 }
             },
-        ), patch.object(sys, "argv", test_args):
-            # Force the mock to simulate a clean run
-            mock_orchestrator.return_value.policy_failed = False
-            main()
+        ):
+            with patch.object(sys, "argv", test_args):
+                # Force the mock to simulate a clean run
+                mock_orchestrator.return_value.policy_failed = False
+                main()
 
         # Intercept the configuration dictionary passed to the Orchestrator
         args, _ = mock_orchestrator.call_args
@@ -1321,9 +1313,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         Tests the worker's ability to intercept weaponized binaries and handle
         catastrophic I/O permissions errors.
         """
-        import logging
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        import logging
 
         mock_aperture = MockAperture.return_value
         mock_security = MockSecurity.return_value
@@ -1480,7 +1471,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         """
         import sys
         from unittest.mock import MagicMock
-
         from gitgalaxy.galaxyscope import main
 
         # Safely mock the state rehydrator into sys.modules to avoid ImportError/AttributeError
@@ -1501,11 +1491,12 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         test_args = ["galaxyscope", ".", "--incremental", "old.db"]
 
-        with patch.object(sys, "argv", test_args), patch("gitgalaxy.licensing.enforce_licensing_guard"):
-            try:
-                main()
-            except SystemExit as exc:
-                self.assertIn(exc.code, (None, 0), f"Unexpected SystemExit code: {exc.code}")
+        with patch.object(sys, "argv", test_args):
+            with patch("gitgalaxy.licensing.enforce_licensing_guard"):
+                try:
+                    main()
+                except SystemExit as exc:
+                    self.assertIn(exc.code, (None, 0), f"Unexpected SystemExit code: {exc.code}")
 
         # Extract the arguments passed to execute_incremental_scan
         mock_execute_inc.assert_called_once()
@@ -1589,10 +1580,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         Tests the CI/CD failsafes. If a delta scan is requested but the baseline DB
         is missing, or the `git diff` fails, it MUST degrade gracefully into a full scan.
         """
-        import subprocess
         import sys
+        import subprocess
         from unittest.mock import MagicMock
-
         from gitgalaxy.galaxyscope import main
 
         # Safely mock the state rehydrator into sys.modules
@@ -1667,7 +1657,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             },
         }
         scope.stem_map = {k: k for k in scope.ram_cache.keys()}
-        scope.popularity_scores = dict.fromkeys(scope.ram_cache.keys(), 0)
+        scope.popularity_scores = {k: 0 for k in scope.ram_cache.keys()}
 
         # Run Phase 3
         scope._calculate_risk_exposures()
@@ -1812,9 +1802,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         import or token capture phases, the isolated worker catches the exception
         and successfully returns the payload without paralyzing the multiprocessing pool.
         """
-        import logging
-
         from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+        import logging
 
         mock_aperture = MockAperture.return_value
         mock_aperture.evaluate_path_integrity.return_value = (True, 1024, "Passed")
@@ -1893,7 +1882,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         """
         import sys
         import tempfile
-
         from gitgalaxy.galaxyscope import main
 
         # Write invalid YAML syntax to a temporary file
@@ -2019,7 +2007,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         resolve_config(), those keys must actually show up in full_config.
         """
         import sys
-
         from gitgalaxy.galaxyscope import main
 
         yaml_payload = """
@@ -2064,7 +2051,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         what this whole effort exists to close.
         """
         import sys
-
         from gitgalaxy.galaxyscope import main
 
         yaml_payload = """

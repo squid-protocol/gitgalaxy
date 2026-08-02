@@ -1,9 +1,7 @@
-import base64
-import os
-from unittest.mock import patch
-
 import pytest
-
+import os
+import base64
+from unittest.mock import patch
 from gitgalaxy.security.security_lens import SecurityLens
 
 

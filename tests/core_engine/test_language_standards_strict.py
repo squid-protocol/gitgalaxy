@@ -1,9 +1,7 @@
-import multiprocessing
+import pytest
 import re
 import time
-
-import pytest
-
+import multiprocessing
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 

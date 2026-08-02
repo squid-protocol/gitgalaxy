@@ -1,10 +1,9 @@
-import multiprocessing as mp
-import os
-import queue
-import re
 import unittest
-
 import pytest
+import re
+import multiprocessing as mp
+import queue
+import os
 
 # Adjust these imports to match your project structure
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS

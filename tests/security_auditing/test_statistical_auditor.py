@@ -1,6 +1,5 @@
-from unittest.mock import patch
-
 import pytest
+from unittest.mock import patch
 
 # Adjust this import to match your project structure
 from gitgalaxy.metrics.statistical_auditor import StatisticalAuditor

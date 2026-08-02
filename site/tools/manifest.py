@@ -7,8 +7,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import json
 import os
+import json
 
 MUSEUM_DIR = "/srv/storage_16tb/projects/gitgalaxy/museum"
 

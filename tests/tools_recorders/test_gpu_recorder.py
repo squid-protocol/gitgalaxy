@@ -1,5 +1,4 @@
 import pytest
-
 from gitgalaxy.recorders.gpu_recorder import GPURecorder
 
 

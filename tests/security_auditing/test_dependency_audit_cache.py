@@ -1,9 +1,8 @@
+import pytest
 from unittest.mock import patch
 
-import pytest
-
-from gitgalaxy.recorders.sbom_recorder import SbomRecorder
 from gitgalaxy.security.dependency_audit_cache import DependencyAuditCache
+from gitgalaxy.recorders.sbom_recorder import SbomRecorder
 
 
 @pytest.fixture

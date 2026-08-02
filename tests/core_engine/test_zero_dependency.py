@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from gitgalaxy.core.detector import get_token_mass
 from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.metrics.signal_processor import SignalProcessor
+from gitgalaxy.core.detector import get_token_mass
 
 
 class TestZeroDependencyMode(unittest.TestCase):
@@ -179,9 +179,8 @@ class TestZeroDependencyMode(unittest.TestCase):
         file is completely corrupted (invalid YAML syntax). The engine must catch
         the parsing exception and boot with default settings rather than fatally crashing.
         """
-        import os
         import tempfile
-
+        import os
         import yaml
 
         # Create a physically corrupted YAML file
@@ -192,7 +191,7 @@ class TestZeroDependencyMode(unittest.TestCase):
         config_file_data = {}
         try:
             # Replicate the exact interceptor logic from galaxyscope.py
-            with open(temp_yaml_path) as f:
+            with open(temp_yaml_path, "r") as f:
                 config_file_data = yaml.safe_load(f) or {}
             self.fail("yaml.safe_load should have raised a YAMLError on corrupted syntax.")
         except yaml.YAMLError:
@@ -214,9 +213,8 @@ class TestZeroDependencyMode(unittest.TestCase):
         recursive 'Billion Laughs' anchor bomb designed to consume gigabytes of RAM
         during the parsing phase.
         """
-        import os
         import tempfile
-
+        import os
         import yaml
 
         # The classic YAML anchor expansion bomb
@@ -236,11 +234,11 @@ class TestZeroDependencyMode(unittest.TestCase):
         config_file_data = {}
         try:
             # Replicate the YAML ingest
-            with open(temp_yaml_path) as f:
+            with open(temp_yaml_path, "r") as f:
                 # safe_load is inherently protected against arbitrary code execution,
                 # but we must ensure it also rejects recursive alias expansion limits.
                 config_file_data = yaml.safe_load(f) or {}
-        except Exception:
+        except Exception as e:
             # PyYAML should throw a ConstructorError due to max alias depth
             pass
 

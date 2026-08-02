@@ -1,8 +1,7 @@
-import json
-import sys
-from unittest.mock import patch
-
 import pytest
+import sys
+import json
+from unittest.mock import patch
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.terabyte_log_scanning.terabyte_log_scanner as scanner_module

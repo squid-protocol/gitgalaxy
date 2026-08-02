@@ -8629,6 +8629,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "func_start": re.compile(
                 r"^[ \t]*(?:@[a-zA-Z_$][\w$]*(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
+                r"(?!(?:[\w<>\[\], \t\n?(){}]{1,100}?[ \t\n]+)?(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch)\b)"
                 r"(?:[\w<>\[\], \t\n?(){}]{1,100}?[ \t\n]+)?"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|Function)\b)"
                 r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))",

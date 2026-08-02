@@ -1,10 +1,7 @@
-# ruff: noqa: S101
 import json
 import sqlite3
-from unittest.mock import patch
-
 import pytest
-
+from unittest.mock import patch
 from gitgalaxy.recorders.llm_recorder import LLMRecorder
 
 
@@ -258,7 +255,7 @@ def test_llm_recorder_empty_state(recorder, tmp_path):
     assert output_db.exists()
 
     # Verify Markdown handled empty lists gracefully
-    with open(output_md, encoding="utf-8") as f:
+    with open(output_md, "r", encoding="utf-8") as f:
         content = f.read()
         assert "SECURE_NO_THREATS_DETECTED" in content
         assert "*No complex functions detected.*" in content

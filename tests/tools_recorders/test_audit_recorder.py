@@ -1,8 +1,6 @@
 import json
-from unittest.mock import patch
-
 import pytest
-
+from unittest.mock import patch
 from gitgalaxy.recorders.audit_recorder import AuditRecorder
 
 
@@ -78,7 +76,7 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
 
     recorder.generate_report(mock_parsed, mock_unparsable, mock_summary, {}, mock_session, str(output_file))
 
-    with open(output_file, encoding="utf-8") as f:
+    with open(output_file, "r", encoding="utf-8") as f:
         payload = json.load(f)
 
     # Validate File Identity overrides
@@ -124,7 +122,7 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
 
     recorder.generate_report(mock_parsed, [], {}, {}, {}, str(output_file))
 
-    with open(output_file, encoding="utf-8") as f:
+    with open(output_file, "r", encoding="utf-8") as f:
         payload = json.load(f)
 
     security = payload["3. Forensic Security & Vulnerability Audit"]
@@ -169,7 +167,7 @@ def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
 
     recorder.generate_report(mock_parsed, [], {}, {}, {}, str(output_file))
 
-    with open(output_file, encoding="utf-8") as f:
+    with open(output_file, "r", encoding="utf-8") as f:
         payload = json.load(f)
 
     files = payload["6. Parsed Files (Scanned Artifacts)"]["__monolith__"]["Files"]
@@ -197,7 +195,7 @@ def test_audit_recorder_empty_state(recorder, tmp_path):
 
     assert output_file.exists(), "Recorder crashed on an empty repository state!"
 
-    with open(output_file, encoding="utf-8") as f:
+    with open(output_file, "r", encoding="utf-8") as f:
         payload = json.load(f)
 
     assert payload["6. Parsed Files (Scanned Artifacts)"] == {}

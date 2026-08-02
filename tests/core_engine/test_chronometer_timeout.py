@@ -1,5 +1,5 @@
-import time
 import unittest
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 

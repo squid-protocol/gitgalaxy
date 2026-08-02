@@ -1,9 +1,6 @@
 import sqlite3
-from unittest.mock import patch
-
-# ruff: noqa: S101
 import pytest
-
+from unittest.mock import patch
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
 

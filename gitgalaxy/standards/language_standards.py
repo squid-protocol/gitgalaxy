@@ -11612,7 +11612,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # missed the extremely common `<TypeName>` angle-bracket naming
             # convention for record types (SRFI-9/R6RS idiom, e.g. `<point>`).
             "class_start": re.compile(
-                r"^[ \t]*\([ \t]*define-record-type\s+([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?=[ \t)\]\n\r])",
+                r"^[ \t\n]*\([ \t\n]*define-record-type[ \t\n]+(?:\([ \t\n]*)?([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?=[ \t\n)\]\r])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

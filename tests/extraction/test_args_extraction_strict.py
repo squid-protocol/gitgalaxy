@@ -70,8 +70,6 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-        ],
-    },
 }
 
 

@@ -7429,7 +7429,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # branch: decisions that split flow. Includes guards (|) and modern \cases.
             "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
             # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
-            "args": re.compile(r"::\s*[^=\n]+(?:->|=>|⊸)|\\[a-zA-Z0-9_\'\s,()\[\]]+->|@[A-Z][a-zA-Z0-9_\']*"),
+            "args": re.compile(
+                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)+|\\[a-zA-Z0-9_\'\s,()\[\]{} -]+->|@[A-Z][a-zA-Z0-9_\']*"
+            ),
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
                 r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern)\b|%1\s*->|⊸"
@@ -7437,20 +7439,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start: Executable Logic Anchors. Anchors executable logic (Type Signatures).
             # EXCLUDES data/type/class declarations to fix False Positives.
             "func_start": re.compile(
-                # =====================================================================
-                # THE HASKELL UPPERCASE TRAP:
-                # While Haskell idiomatic convention strongly enforces lowercase `[a-z_]`
-                # for function names, enforcing this strictly at the regex level caused
-                # the engine to miss valid (but non-standard) functions or FFI exports.
-                # FIX: Opened the leading character class to `[a-zA-Z_]`. The negative
-                # lookahead `(?!(?:data|type...))` already prevents collisions with types.
-                # =====================================================================
-                r"^[ \t]*(?!(?:data|type|newtype|class|instance)\b)([a-zA-Z_][a-zA-Z0-9_\']*)(?=\s*::)",
+                r"^[ \t]*(?:foreign\s+export\s+ccall\s+\"[^\"]*\"\s+)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:data|newtype|class|type(?:\s+family)?)\s+([A-Z][a-zA-Z0-9_\']*)(?=\s*[=|]|\n|$)",
+                r"^[ \t]*(?:data|newtype|class|type(?:\s+family)?)(?:(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:\([^)]+\)(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>|[A-Z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>))?(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*([A-Z][a-zA-Z0-9_\']*)(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*)*(?:=|\||where|deriving|\n|$))",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -7528,7 +7522,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # import: Dependency Inclusions. Module resolution.
             "import": re.compile(r"^[ \t]*import\s+(?:qualified[ \t]+)?[A-Z][a-zA-Z0-9_.]*", re.M),
-            "_dependency_capture": re.compile(r"^[ \t]*import\s+(?:qualified\s+)?([A-Z][a-zA-Z0-9_.]*)", re.M),
+            "_dependency_capture": re.compile(
+                r"^[ \t]*import\b[\s\S]{0,100}?(?:qualified\b[\s\S]{0,100}?)?([A-Z][a-zA-Z0-9_.]*)", re.M
+            ),
             # ownership: Authorship indicators in comments.
             "ownership": re.compile(r"--\s*\|?\s*(?:Author|Maintainer|Copyright|License):\s+([^\n]+)", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

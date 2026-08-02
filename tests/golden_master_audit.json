@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-02T01:38:17.702757+00:00",
-            "Total Scan Duration": "26.36 seconds"
+            "Analysis ISO Timestamp": "2026-08-02T02:23:11.249843+00:00",
+            "Total Scan Duration": "29.16 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -270,7 +270,7 @@
             "jcl": {
                 "files": 15,
                 "loc": 919,
-                "impact": 244.38000000000005
+                "impact": 251.02000000000004
             },
             "yacc": {
                 "files": 1,
@@ -2412,7 +2412,7 @@
             },
             "jcl/cics-genapp/base/cntl": {
                 "file_count": 3,
-                "total_mass": 50.4,
+                "total_mass": 57.04,
                 "avg_exposures": {
                     "cognitive_load": 11.73,
                     "safety_score": 23.29,
@@ -294089,7 +294089,7 @@
             }
         },
         "jcl/cics-genapp/base/cntl": {
-            "Directory Group Magnitude": 50.4,
+            "Directory Group Magnitude": 57.04,
             "File Count": 3,
             "Ecosystem Fingerprint (Archetypes)": {
                 "file_cluster_8": "100.0%"
@@ -294128,9 +294128,9 @@
                         "Identity Proof": "Single Indicator (Ext: .jcl)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -5841.09,
-                        "Y": 138.61,
-                        "Z": -2487.2
+                        "X": -6066.75,
+                        "Y": 140.93,
+                        "Z": -2281.81
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
@@ -294308,32 +294308,32 @@
                         "Identity Proof": "Single Indicator (Ext: .jcl)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -5830.84,
-                        "Y": 89.53,
-                        "Z": -2586.3
+                        "X": -5863.63,
+                        "Y": 93.03,
+                        "Z": -2224.54
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",
-                        "Repository Drift (Z-Score)": 6.35,
+                        "Repository Drift (Z-Score)": 6.669,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 8.18,
-                            "file_cluster_1": 7.774,
-                            "file_cluster_2": 8.31,
-                            "file_cluster_3": 9.834,
-                            "file_cluster_4": 8.57,
-                            "file_cluster_5": 8.877,
-                            "file_cluster_6": 8.701,
-                            "file_cluster_7": 7.622,
-                            "file_cluster_8": 6.35,
-                            "file_cluster_9": 8.297,
-                            "file_cluster_10": 9.947,
-                            "file_cluster_11": 9.067,
-                            "file_cluster_12": 8.97,
-                            "file_cluster_13": 8.275,
-                            "file_cluster_14": 13.017,
-                            "file_cluster_15": 9.42,
-                            "file_cluster_16": 8.482,
-                            "file_cluster_17": 8.242
+                            "file_cluster_0": 8.43,
+                            "file_cluster_1": 8.036,
+                            "file_cluster_2": 8.556,
+                            "file_cluster_3": 10.043,
+                            "file_cluster_4": 8.808,
+                            "file_cluster_5": 9.108,
+                            "file_cluster_6": 8.936,
+                            "file_cluster_7": 7.889,
+                            "file_cluster_8": 6.669,
+                            "file_cluster_9": 8.543,
+                            "file_cluster_10": 10.153,
+                            "file_cluster_11": 9.293,
+                            "file_cluster_12": 9.198,
+                            "file_cluster_13": 8.522,
+                            "file_cluster_14": 13.175,
+                            "file_cluster_15": 9.638,
+                            "file_cluster_16": 8.723,
+                            "file_cluster_17": 8.49
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -294341,7 +294341,7 @@
                         "Total LOC": 15,
                         "Coding LOC": 15,
                         "Documentation LOC": 0,
-                        "Structural Magnitude": 15.3,
+                        "Structural Magnitude": 21.94,
                         "Control Flow Ratio": "0.0%",
                         "Popularity Rank": 0,
                         "Raw Churn Frequency": 0.0,
@@ -294375,7 +294375,7 @@
                     "7. Structural Signatures (Net Mitigated Signals)": {
                         "Control Flow Branches": 0,
                         "Sequential Logic Declarations": 8,
-                        "Function Parameters": 0,
+                        "Function Parameters": 1,
                         "Function/Method Declarations": 1,
                         "Class/Entity Declarations": 1,
                         "Defensive Programming Constructs": 0,
@@ -294488,9 +294488,9 @@
                         "Identity Proof": "Single Indicator (Ext: .jcl)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -6068.47,
-                        "Y": 153.2,
-                        "Z": -2144.57
+                        "X": -5815.17,
+                        "Y": 147.4,
+                        "Z": -2712.14
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_8",

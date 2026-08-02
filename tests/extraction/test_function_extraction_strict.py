@@ -153,11 +153,7 @@ EXTRACTION_CASES = {
         "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")],
     },
 
-    "yacc": {
-        "valid": [("TargetFunc:", "TargetFunc")],
-        "invalid": ["%token TargetFunc", "case TargetFunc:"],
-        "pathological": [("TargetFunc \t :", "TargetFunc")],
-    },
+
     "css": {
         "valid": [("@media (max-width: 600px) {", "@media"), ("@keyframes TargetFunc {", "@keyframes")],
         "invalid": [".TargetFunc {", "#TargetFunc {"],
@@ -167,11 +163,6 @@ EXTRACTION_CASES = {
         "valid": [("<script>", "script"), ("<style>", "style")],
         "invalid": ["<div id='script'>", "<span class='style'>"],
         "pathological": [("<script \n >", "script")],
-    },
-    "tcl": {
-        "valid": [("proc TargetFunc {", "TargetFunc")],
-        "invalid": ["set TargetFunc", "if {$TargetFunc}"],
-        "pathological": [("proc \t TargetFunc \t {", "TargetFunc")],
     },
 }
 

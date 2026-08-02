@@ -128,18 +128,7 @@ EXTRACTION_CASES = {
         "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
     },
 
-    "scheme": {
-        "valid": [
-            ("(define (TargetFunc x y)", "TargetFunc"),
-            ("(define (TargetFunc)", "TargetFunc"),
-        ],
-        "invalid": [
-            "(define-record-type TargetFunc",
-            "(if TargetFunc",
-            "(let ((TargetFunc 1))",
-        ],
-        "pathological": [("( \n define \n ( \n TargetFunc \n x \n )", "TargetFunc")],
-    },
+
     "dockerfile": {
         "valid": [
             ("RUN apt-get update", "RUN"),

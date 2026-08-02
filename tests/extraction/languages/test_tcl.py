@@ -8,8 +8,9 @@ args, class_start, _dependency_capture.
 
 import sys
 from pathlib import Path
-import pytest
 from typing import Any
+
+import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +22,6 @@ from _extraction_harness import (  # noqa: E402
     assert_invalid_no_match,
     assert_pathological_dependency_match,
     assert_pathological_match,
-    assert_redos_immune,
     assert_valid_dependency_match,
     assert_valid_match,
 )
@@ -40,7 +40,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "TargetFunc a b",
         "if {$a == $b} {",
         "set proc TargetFunc",
-        "puts \"proc TargetFunc {\""
+        'puts "proc TargetFunc {"',
     ],
     "pathological": [
         ("proc \t TargetFunc \t {", "TargetFunc"),
@@ -56,13 +56,13 @@ ARGS_CASES: dict[str, Any] = {
         ("proc TargetFunc {{a 1} b} {", "TargetFunc"),
     ],
     "invalid": [
-        "TargetFunc a b", 
+        "TargetFunc a b",
         "if {$a == $b} {",
     ],
     "pathological": [
         ("proc \n ::namespace::TargetFunc \n { \n a \n b \n } \n {", "TargetFunc"),
         ("proc TargetFunc \n { \n {a 1} \n {b 2} \n } \n {", "TargetFunc"),
-        ("proc \\\n TargetFunc \\\n { \\\n a \\\n b \\\n } \\\n {", "TargetFunc")
+        ("proc \\\n TargetFunc \\\n { \\\n a \\\n b \\\n } \\\n {", "TargetFunc"),
     ],
 }
 
@@ -72,11 +72,7 @@ CLASS_CASES: dict[str, Any] = {
         ("snit::type TargetClass {", "TargetClass"),
         ("itcl::class TargetClass {", "TargetClass"),
     ],
-    "invalid": [
-        "set TargetClass", 
-        "if {$TargetClass}",
-        "TargetClass create foo"
-    ],
+    "invalid": ["set TargetClass", "if {$TargetClass}", "TargetClass create foo"],
     "pathological": [
         ("oo::class \t create \t TargetClass \t {", "TargetClass"),
         ("oo::class \n create \n TargetClass \n {", "TargetClass"),
@@ -90,12 +86,12 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ("source TargetPkg.tcl", "TargetPkg.tcl"),
         ("load TargetPkg.so", "TargetPkg.so"),
         ("package require -exact TargetPkg 1.0", "TargetPkg"),
-        ("source \"TargetPkg.tcl\"", "TargetPkg.tcl"),
+        ('source "TargetPkg.tcl"', "TargetPkg.tcl"),
     ],
     "invalid": [
-        "puts TargetPkg", 
+        "puts TargetPkg",
         "set package TargetPkg",
-        "puts \"package require TargetPkg\"",
+        'puts "package require TargetPkg"',
     ],
     "pathological": [
         ("package \\\n require \\\n TargetPkg", "TargetPkg"),

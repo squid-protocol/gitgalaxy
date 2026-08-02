@@ -12037,7 +12037,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Package and module loading.
             "import": re.compile(r"^[ \t]*(?:package[ \t]+require|source|load)\b", re.M),
             "dependency_injection": None,
-            "_dependency_capture": re.compile(r"^[ \t]*(?:package[ \t\n]+require|source|load)[ \t\n]+(?:-exact[ \t\n]+)?(?:\{?[\"']?)([^\"'\s#{}]+)", re.M),
+            "_dependency_capture": re.compile(
+                r"^[ \t]*(?:package[ \t\n]+require|source|load)[ \t\n]+(?:-exact[ \t\n]+)?(?:\{?[\"']?)([^\"'\s#{}]+)",
+                re.M,
+            ),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(
                 r"^[ \t]*#[ \t]*(?:Author|Created by|Maintainer|Copyright):\s+(.*)",

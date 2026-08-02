@@ -10140,9 +10140,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 23. heat_triggers: Metaprogramming & Reflection. Low-level assembly injections and fallback routers.
             "reflection_metaprogramming": re.compile(r"\b(fallback|receive|assembly|delegatecall|call|staticcall)\b"),
             # 24. import: Dependency Inclusions. Resolving dependencies across files.
-            "import": re.compile(r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"'][^\"']+[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;", re.M),
+            "import": re.compile(
+                r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"'][^\"']+[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;",
+                re.M,
+            ),
             # 24b. _dependency_capture: Graph resolution extracting exactly ONE path string.
-            "_dependency_capture": re.compile(r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"']([^\"']+)[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;", re.M),
+            "_dependency_capture": re.compile(
+                r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"']([^\"']+)[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;",
+                re.M,
+            ),
             # 25. ownership: Authorship indicators. Strictly targets SPDX license tags and authorship notes.
             "ownership": re.compile(r"//[ \t]*SPDX-License-Identifier:|(?:@author|Created by):\s+(.*)", re.I),
             # --- 🌌 PHASE 4: EXTENDED DIMENSIONS (Specialized Sub-Equations) ---

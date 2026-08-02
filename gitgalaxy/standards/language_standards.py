@@ -11275,7 +11275,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             "branch": re.compile(r"\b(if|else|switch|case|for|while|do)\b|\|"),
-            "args": re.compile(r"\$\d+|\$\$"),
+            "args": re.compile(r"(?<!\$)(?:\$\d+|\$\$)(?!\$|\d)"),
             "structural_boundaries": re.compile(
                 r"\b(return|goto|break|continue)\b|%token\b|%type\b|%left\b|%right\b|%nonassoc\b"
             ),
@@ -11284,7 +11284,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Excludes C/C++ constructs that share the identical "identifier:" shape
             # (switch-case default labels, C++ access specifiers in embedded .ypp code).
             "func_start": re.compile(
-                r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=[ \t]*:)", re.M
+                r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=(?:[ \t\n]|/\*(?:[^*]|\*[^/])*\*/)*:)", re.M
             ),
             "class_start": None,
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

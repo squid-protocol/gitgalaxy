@@ -3359,7 +3359,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M | re.I,
             ),
             "class_start": re.compile(
-                r"(?:^|[^a-zA-Z0-9_])(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
+                r"^[ \t]*(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
                 r"(?:(?:abstract|final|readonly)[ \t\n]+){0,3}(?:class|interface|trait|enum)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)*([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)(?![a-zA-Z0-9_\x80-\xff])",
                 re.M | re.I,
             ),

@@ -591,9 +591,11 @@ Parity, not something to force.)
 - [ ] Every case empirically verified against the real compiled regex before being added
 - [ ] Any genuine bug found is fixed (full ReDoS/lint/type/crucible discipline) or filed separately
       if it's a multi-language architectural fix
+- [ ] Quality gates passed: `ruff check . --select=F63,F7,F82 --show-fixes --statistics`, `mypy .`, and `pytest tests/ -v` run locally before pushing
+- [ ] PR created from a side branch merging into `main`, with a description explicitly listing: the number of adversarial tests added, exact errors/false-positives fixed, and any known remaining regex limitations
 - [ ] Migrated out of the four old monolithic dict files into
       `tests/extraction/languages/test_<lang>.py`
-- [ ] Epic updated with any new recurring-bug-class findings before closing this issue
+- [ ] Epic updated with any new recurring-bug-class findings and lessons learned before closing this issue
 ```
 
 ## Suggested ordering

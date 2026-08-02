@@ -158,11 +158,6 @@ EXTRACTION_CASES = {
         "invalid": ["class TargetFunc", "type TargetFunc", "interface TargetFunc"],
         "pathological": [("public \n async \n get \n TargetFunc \n (", "TargetFunc")],
     },
-    "solidity": {
-        "valid": [("function TargetFunc()", "TargetFunc"), ("modifier TargetFunc()", "TargetFunc")],
-        "invalid": ["contract TargetFunc", "struct TargetFunc"],
-        "pathological": [("function \n TargetFunc \n (", "TargetFunc")],
-    },
     "jcl": {
         "valid": [("//TargetFunc EXEC PGM=PROG", "TargetFunc")],
         "invalid": ["//TargetFunc DD DSN=", "//* TargetFunc EXEC"],

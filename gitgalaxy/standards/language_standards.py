@@ -10065,7 +10065,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
             # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
             "args": re.compile(
-                r"\b(?:function|modifier|error|event|constructor)\s+(?:[a-zA-Z_]\w*[ \t]*)?\([^)]{0,500}\)"
+                r"\b(?:function|modifier|error|event)\s+(?:[a-zA-Z_]\w*[ \t]*)?\([^)]{0,500}\)|\b(?:constructor|fallback|receive)\s*\([^)]{0,500}\)"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
@@ -10074,7 +10074,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start: Executable Logic Anchors. Anchors executable logic (Functions, Modifiers, Custom Errors, Events).
             # LOOKAHEAD MANDATE APPLIED: Stops exactly at the identifier name before the parenthesis.
             "func_start": re.compile(
-                r"^[ \t]*(?:function|modifier|error|event)\s+([a-zA-Z_]\w*)(?=\s*\()",
+                r"^[ \t]*(?:function|modifier|error|event)\s+([a-zA-Z_]\w*)(?=\s*\()|^[ \t]*(constructor|fallback|receive)(?=\s*\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Contracts, Interfaces, Libraries).
@@ -10140,9 +10140,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 23. heat_triggers: Metaprogramming & Reflection. Low-level assembly injections and fallback routers.
             "reflection_metaprogramming": re.compile(r"\b(fallback|receive|assembly|delegatecall|call|staticcall)\b"),
             # 24. import: Dependency Inclusions. Resolving dependencies across files.
-            "import": re.compile(r"^[ \t]*import\s+(?:\{[^}]+\}\s+from\s+)?[\"'][^\"']+[\"'];", re.M),
+            "import": re.compile(r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"'][^\"']+[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;", re.M),
             # 24b. _dependency_capture: Graph resolution extracting exactly ONE path string.
-            "_dependency_capture": re.compile(r"^[ \t]*import\s+(?:\{[^}]+\}\s+from\s+)?[\"']([^\"']+)[\"'];", re.M),
+            "_dependency_capture": re.compile(r"^[ \t]*import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[a-zA-Z_]\w*)\s+from\s+)?[\"']([^\"']+)[\"'](?:\s+as\s+[a-zA-Z_]\w*)?;", re.M),
             # 25. ownership: Authorship indicators. Strictly targets SPDX license tags and authorship notes.
             "ownership": re.compile(r"//[ \t]*SPDX-License-Identifier:|(?:@author|Created by):\s+(.*)", re.I),
             # --- 🌌 PHASE 4: EXTENDED DIMENSIONS (Specialized Sub-Equations) ---

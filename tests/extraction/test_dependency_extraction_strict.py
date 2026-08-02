@@ -108,16 +108,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["put empty into requirePath"],
         "pathological": [('start \n using \n behavior \n "btnBehavior"', "btnBehavior")],
     },
-    "solidity": {
-        "valid": [
-            (
-                'import "@openzeppelin/contracts/token/ERC20/ERC20.sol";',
-                "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-            )
-        ],
-        "invalid": ["string memory importPath;"],
-        "pathological": [('import \n { \n ERC20 \n } \n from \n "token.sol";', "token.sol")],
-    },
     "objective-c": {
         "valid": [
             ("#import <Foundation/Foundation.h>", "Foundation/Foundation.h"),

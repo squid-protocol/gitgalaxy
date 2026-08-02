@@ -6282,8 +6282,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Dependency linkage across Fortran modules and files.
             "import": re.compile(r"\b(USE|INCLUDE|IMPORT)\b", re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:USE\s*(?:,[^:]*)?(?:::\s*)?\s+([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"]|SUBMODULE\s*\(\s*([^):]+)[^)]*\))",
-                re.I | re.M,
+                r"^[ \t]*(?:USE(?:\s+|\s*(?:,[^:]*)?::\s*)([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"]|SUBMODULE\s*\(\s*([^):]+)[^)]*\))",
+                re.IGNORECASE | re.MULTILINE,
             ),
             # 25. ownership (Authorship Metadata)
             # Identifying the developer, maintainer, or copyright holder natively.

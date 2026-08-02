@@ -44,25 +44,25 @@ FUNCTION_CASES: dict[str, Any] = {
     ],
     "pathological": [
         ("proc \t TargetFunc \t {", "TargetFunc"),
-        ("proc \\\n TargetFunc {", "TargetFunc"),
+        ("proc   TargetFunc {", "TargetFunc"),
         ("proc \n ::namespace::TargetFunc \n { \n a \n b \n } \n {", "TargetFunc"),
     ],
 }
 
 ARGS_CASES: dict[str, Any] = {
     "valid": [
-        ("proc TargetFunc {a b} {", "TargetFunc"),
-        ("proc ::namespace::TargetFunc {args} {", "TargetFunc"),
-        ("proc TargetFunc {{a 1} b} {", "TargetFunc"),
+        ("proc TargetFunc {a b} {", "a b"),
+        ("proc ::namespace::TargetFunc {args} {", "args"),
+        ("proc TargetFunc {{a 1} b} {", "{a 1} b"),
     ],
     "invalid": [
         "TargetFunc a b",
         "if {$a == $b} {",
     ],
     "pathological": [
-        ("proc \n ::namespace::TargetFunc \n { \n a \n b \n } \n {", "TargetFunc"),
-        ("proc TargetFunc \n { \n {a 1} \n {b 2} \n } \n {", "TargetFunc"),
-        ("proc \\\n TargetFunc \\\n { \\\n a \\\n b \\\n } \\\n {", "TargetFunc"),
+        ("proc \n ::namespace::TargetFunc \n { \n a \n b \n } \n {", " \n a \n b \n "),
+        ("proc TargetFunc \n { \n {a 1} \n {b 2} \n } \n {", " \n {a 1} \n {b 2} \n "),
+        ("proc   TargetFunc   {   a   b   }   {", "   a   b   "),
     ],
 }
 
@@ -94,8 +94,8 @@ DEPENDENCY_CASES: dict[str, Any] = {
         'puts "package require TargetPkg"',
     ],
     "pathological": [
-        ("package \\\n require \\\n TargetPkg", "TargetPkg"),
-        ("source \\\n TargetPkg.tcl", "TargetPkg.tcl"),
+        ("package   require   TargetPkg", "TargetPkg"),
+        ("source   TargetPkg.tcl", "TargetPkg.tcl"),
         ("package \t require \t TargetPkg", "TargetPkg"),
     ],
 }

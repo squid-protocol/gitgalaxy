@@ -45,7 +45,8 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 2. **Maintain the Contract:** Ensure that any backend changes to the CLI do not break the universal JSON schema contract expected by the frontend Observatory. 
 3. **Test Visually:** Run your newly generated `_galaxy.json` through either **[GitGalaxy.io](https://gitgalaxy.io)** or your local **Airgap Observatory** to verify that 3D WebGPU rendering and visual physics constraints remain intact. 
 4. **Document:** If you are adding new language phenotypes or altering the parsing logic, please update the [Language Lens](docs/wiki/02-05-language-lens.md) documentation in the wiki.
-5. **Submit:** Open a PR with a clear title. Explain the *why* behind your structural changes, not just the *what*. Be sure to include the link to the target repository so we can include it in the Differential Scan.
+5. **Pass the CI Pipeline Locally:** Before pushing, always run `ruff check .` to check for linter errors (like the strict `flake8-bandit` rules which require you to append `# noqa: S101` to all `assert` statements in tests). You should also verify that all `pytest` checks pass.
+6. **Submit:** Open a PR with a clear title. Explain the *why* behind your structural changes, not just the *what*. Be sure to include the link to the target repository so we can include it in the Differential Scan.
 
 ---
 

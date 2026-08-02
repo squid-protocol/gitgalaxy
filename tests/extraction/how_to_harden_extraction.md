@@ -191,7 +191,8 @@ reasonable *floor*. Push further — aim for 10-15 per major language covering, 
    - `python tests/tools/audit_check.py` (add `--regenerate` if it reports pure line-shifts — see its
      own docstring) instead of running `ruff format`/`ruff_audit.py --ci`/`mypy_audit.py --ci`/
      `dead_key_audit.py --ci` as four separate commands and manually eyeballing each diff.
-   - Full relevant test suites.
+   - **Crucial Linter Step**: Run `ruff check .` to catch issues before the CI pipeline rejects them. GitGalaxy uses `flake8-bandit` which aggressively flags `assert` usage. Any `assert` you use in your test files MUST be appended with `# noqa: S101` (e.g., `assert match is not None  # noqa: S101`).
+   - Full relevant test suites (run `pytest tests/extraction/languages/test_<lang>.py` to verify).
    - If the fix touches `language_standards.py`, `detector.py`, or `prism.py`:
      `python tests/tools/crucible_check.py` (never hand-build venvs — see `CLAUDE.md`'s Differential
      Scan section for why a stale/shared venv silently scans the wrong checkout). A real diff must be

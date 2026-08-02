@@ -9358,11 +9358,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import (Dependency Inclusions)
             # Base images or dependencies pulled from other build stages (`COPY --from=`).
             "import": re.compile(
-                r"^[ \t]*(?:FROM[ \t\\]+(?:--[\w-]+=[^\s]+[ \t\\]+)*[a-zA-Z0-9_./:-]+|COPY[ \t\\]+(?:--[\w-]+(?:=[^\s]+)?[ \t\\]+)*--from=[a-zA-Z0-9_./:-]+)",
+                r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*[a-zA-Z0-9_./:-]+|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=[a-zA-Z0-9_./:-]+)",
                 re.M | re.I,
             ),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:FROM[ \t\\]+(?:--[\w-]+=[^\s]+[ \t\\]+)*([a-zA-Z0-9_./:-]+)|COPY[ \t\\]+(?:--[\w-]+(?:=[^\s]+)?[ \t\\]+)*--from=([a-zA-Z0-9_./:-]+))",
+                r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*([a-zA-Z0-9_./:-]+)|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=([a-zA-Z0-9_./:-]+))",
                 re.M | re.I,
             ),
             # 25. ownership (Authorship Metadata)

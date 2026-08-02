@@ -4322,7 +4322,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks of methods, lambdas, and blocks. Bounded to prevent ReDoS.
             "args": re.compile(
-                r"\bdef\s+(?:self\.)?[a-zA-Z_]\w*[=!?]?\s*\([^)]*\)|\bdo\s*\|[^|]*\||\{\s*\|[^|]*\||->\s*\([^)]*\)",
+                r"\bdef\s+(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?(?:[^\W\d]\w*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])\s*\((?:(?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*)\)|\bdo\s*\|(?:[^|]*)\||\{\s*\|(?:[^|]*)\||->\s*\((?:(?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*)\)",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -4340,13 +4340,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # FIX: Replaced `\s+` with `[ \t\n]+` and explicitly allowed `[ \t\n]*`
                 # after `self.` so the parser doesn't break when tracking singleton methods.
                 # Upgraded the trailing lookahead to safely handle newlines before `(`.
+                # Upgraded name parsing to support operator overloads, unicode, and explicit namespace contexts.
                 # =====================================================================
-                r'^[ \t]*(?:def[ \t\n]+(?:self\.[ \t\n]*)?|define_method[ \t\n]*\(?[ \t\n]*[:\'"]?)([a-zA-Z_]\w*[=!?]?)(?=[ \t\n]*[)\(]|[\'"]?[ \t\n]*(?:\{|do)|[ \t\n]|$)',
+                r'^[ \t]*(?:def[ \t\n]+(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?|define_method[ \t\n]*\(?[ \t\n]*[:\'"]?)([^\W\d]\w*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])(?=[ \t\n]*[)(]|[\'"]?[ \t\n]*(?:\{|do)|[ \t\n]|$)',
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             "class_start": re.compile(
-                r"^[ \t]*(?:class|module)\s+([A-Z]\w*(?:::[A-Z]\w*)*)(?:\s*<\s*([A-Z]\w*(?:::[A-Z]\w*)*))?",
+                r"^[ \t]*(?:class|module)\s+(?:::)?([^\W\d]\w*(?:::[^\W\d]\w*)*|<<\s*self|<<\s*@[a-zA-Z_]\w*)(?:\s*<\s*(?:::)?([^\W\d]\w*(?:::[^\W\d]\w*)*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -4466,7 +4467,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # safely bridges across optional parentheses, whitespace, and `autoload` symbol arguments
                 # to securely capture the target string.
                 # =====================================================================
-                r"\b(?:require|require_relative|load|autoload)\b[^'\"]*['\"]([^'\"]+)['\"]",
+                r"\b(?:require|require_relative|load|autoload)\b[ \t\n(]*(?:['\"]([^'\"]+)['\"]|%[qQwW]\W([^ \t\n\W]+)\W)|\b(?:include|extend)\b[ \t\n(]+([^\W\d]\w*(?:::[^\W\d]\w*)*)",
                 re.M,
             ),
             # 25. ownership (Authorship Metadata)

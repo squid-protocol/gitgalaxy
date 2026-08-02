@@ -52,18 +52,7 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-    "ruby": {
-        "valid": [
-            ("class TargetEntity", "TargetEntity"),
-            ("module TargetEntity", "TargetEntity"),
-            ("class TargetEntity < Base", "TargetEntity"),
-        ],
-        "invalid": ["def class_method", "TargetEntity.new", "include TargetEntity"],
-        "pathological": [
-            # Ruby module nesting and vertical spacing
-            ("class \n TargetEntity \n < \n Base", "TargetEntity")
-        ],
-    },
+
     "apex": {
         "valid": [
             ("public class TargetEntity {", "TargetEntity"),

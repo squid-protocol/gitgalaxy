@@ -5492,8 +5492,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Attribute signatures defining input coupling. Bounded to prevent ReDoS on massive data attrs.
             "args": re.compile(
-                r"\b(?:data-[a-zA-Z0-9_-]+|aria-[a-z]+|name|value|placeholder|for|alt|step|min|max)=[\"'][^\"']*[\"']",
-                re.I,
+                r"\b(data-[a-zA-Z0-9_-]+|aria-[a-z]+|name|value|placeholder|for|alt|step|min|max)(?:[ \t\n\r\f]*=[ \t\n\r\f]*(?:\"[^\"]*\"|'[^']*'|[^ \t\n\r\f>\"']+))?",
+                re.IGNORECASE,
             ),
             # 3. linear (Sequential Boundaries)
             # Structural document flow tags. Includes 1990 CERN tags (<nextid>, <address>) alongside modern semantic ones.
@@ -5503,11 +5503,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # ONLY executable behavior blocks.
-            "func_start": re.compile(r"<([Ss]cript|[Ss]tyle)(?=[ \t>])"),
+            "func_start": re.compile(r"<(script|style)(?=[ \t\n\r\f/>])", re.IGNORECASE),
             # 5. class_start (Object / Entity Declarations)
             # Defines structural entities, Web Components, and template boundaries.
             "class_start": re.compile(
-                r"<([Ff]orm|[Tt]able|[Ss]vg|[Cc]anvas|[Pp]icture|[Vv]ideo|[Aa]udio|[Dd]ialog|[Tt]emplate|[Ff]ieldset|[Ll]egend|[a-zA-Z0-9]+-[a-zA-Z0-9-]+)(?=[ \t>])"
+                r"<(form|table|svg|canvas|picture|video|audio|dialog|template|fieldset|legend|[a-z][a-z0-9]*-[a-z0-9-]+)(?=[ \t\n\r\f/>])",
+                re.IGNORECASE,
             ),
             # --- PHASE 2: RISK ENGINE (Structural Integrity & Debt) ---
             # 6. safety (Defensive Programming / Validation)
@@ -5639,7 +5640,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"<script\s+type=[\"'](?:importmap|module)[\"']|<link\s+(?:rel=[\"']stylesheet[\"']|rev=[\"'][^\"']*[\"'])",
                 re.I,
             ),
-            "_dependency_capture": re.compile(r'<(?:script[^>]+src|link[^>]+href)\s*=\s*["\']([^"\']+)["\']', re.I),
+            "_dependency_capture": re.compile(
+                r'<(?:script\b[^>]*?\bsrc|link\b[^>]*?\bhref)[ \t\n\r\f]*=[ \t\n\r\f]*(?:"([^"]*)"|\'([^\']*)\'|([^ \t\n\r\f>"\']+))',
+                re.IGNORECASE,
+            ),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(
                 r"<meta\s+name=[\"'](?:author|creator|publisher)[\"']\s+content=[\"']([^\"']+)[\"']|<link\s+rev=[\"']made[\"']\s+href=[\"']mailto:[^\"']+[\"']",

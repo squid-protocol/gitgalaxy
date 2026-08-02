@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 import pytest
 
 # Insert the parent directory (tests/extraction) onto sys.path so we can import the harness
@@ -29,7 +30,7 @@ FUNCTION_CASES = {
         "contract TargetFunc",
         "struct TargetFunc",
         "bool functionLike = true;",
-        "string memory s = \"function TargetFunc() {\";",
+        'string memory s = "function TargetFunc() {";',
     ],
     "pathological": [
         ("function \n TargetFunc \n (", "TargetFunc"),
@@ -86,7 +87,7 @@ DEPENDENCY_CASES = {
         ('import "token.sol" as Token;', "token.sol"),
     ],
     "invalid": [
-        "string memory importPath = \"token.sol\";",
+        'string memory importPath = "token.sol";',
     ],
     "pathological": [
         ('import \n { \n ERC20 \n } \n from \n "token.sol";', "token.sol"),
@@ -94,49 +95,61 @@ DEPENDENCY_CASES = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload, expected_name", FUNCTION_CASES["valid"])
 def test_valid_function_extraction(payload, expected_name):
     harness.assert_valid_match(FUNC_START, payload, expected_name, "solidity valid func")
+
 
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_invalid_function_extraction(payload):
     harness.assert_invalid_no_match(FUNC_START, payload, "solidity invalid func")
 
+
 @pytest.mark.parametrize("payload, expected_name", FUNCTION_CASES["pathological"])
 def test_pathological_function_extraction(payload, expected_name):
     harness.assert_pathological_match(FUNC_START, payload, expected_name, "solidity pathological func")
+
 
 @pytest.mark.parametrize("payload, expected_name", ARGS_CASES["valid"])
 def test_valid_args_extraction(payload, expected_name):
     harness.assert_valid_match(ARGS, payload, expected_name, "solidity valid args")
 
+
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_invalid_args_extraction(payload):
     harness.assert_invalid_no_match(ARGS, payload, "solidity invalid args")
+
 
 @pytest.mark.parametrize("payload, expected_name", ARGS_CASES["pathological"])
 def test_pathological_args_extraction(payload, expected_name):
     harness.assert_pathological_match(ARGS, payload, expected_name, "solidity pathological args")
 
+
 @pytest.mark.parametrize("payload, expected_name", CLASS_CASES["valid"])
 def test_valid_class_extraction(payload, expected_name):
     harness.assert_valid_match(CLASS_START, payload, expected_name, "solidity valid class")
+
 
 @pytest.mark.parametrize("payload", CLASS_CASES["invalid"])
 def test_invalid_class_extraction(payload):
     harness.assert_invalid_no_match(CLASS_START, payload, "solidity invalid class")
 
+
 @pytest.mark.parametrize("payload, expected_name", CLASS_CASES["pathological"])
 def test_pathological_class_extraction(payload, expected_name):
     harness.assert_pathological_match(CLASS_START, payload, expected_name, "solidity pathological class")
+
 
 @pytest.mark.parametrize("payload, expected_path", DEPENDENCY_CASES["valid"])
 def test_valid_dependency_extraction(payload, expected_path):
     harness.assert_valid_dependency_match(DEPENDENCY, payload, expected_path, "solidity valid dep")
 
+
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_invalid_dependency_extraction(payload):
     harness.assert_invalid_no_match(DEPENDENCY, payload, "solidity invalid dep")
+
 
 @pytest.mark.parametrize("payload, expected_path", DEPENDENCY_CASES["pathological"])
 def test_pathological_dependency_extraction(payload, expected_path):

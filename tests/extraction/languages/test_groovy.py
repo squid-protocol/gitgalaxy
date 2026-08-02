@@ -49,22 +49,25 @@ FUNCTION_CASES: dict[str, Any] = {
         "synchronized (lock) {",
         "for (Map.Entry<String, String> entry : map.entrySet()) {",
         "/* def hiddenMethod() { */",
-        "\"def stringMethod() {\"",
+        '"def stringMethod() {"',
         "def myClosure = { -> }",
     ],
     "pathological": [
         ("public \n void \n weirdSpacing \n ( \n ) \n {", "weirdSpacing"),
-        ("def \n \"pathological string name\" \n ( \n ) \n {", "\"pathological string name\""),
+        ('def \n "pathological string name" \n ( \n ) \n {', '"pathological string name"'),
     ],
 }
+
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["valid"])
 def test_groovy_func_start_valid(payload, expected_name):
     assert_valid_match(GROOVY_RULES["func_start"], payload, expected_name, "groovy.func_start")
 
+
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_groovy_func_start_invalid(payload):
     assert_invalid_no_match(GROOVY_RULES["func_start"], payload, "groovy.func_start")
+
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_groovy_func_start_pathological(payload, expected_name):
@@ -79,7 +82,7 @@ ARGS_CASES: dict[str, Any] = {
     "valid": [
         ("def foo(int a, String b) {", ""),
         ("void bar(Map<String, ? extends List<Object>> complex, int... varargs) {", ""),
-        ("def baz(\n  @Inject\n  MyType myVar,\n  @Qualifier(\"foo\") String foo\n) {", ""),
+        ('def baz(\n  @Inject\n  MyType myVar,\n  @Qualifier("foo") String foo\n) {', ""),
         ("{ a, b ->", ""),
         ("{ String x, def y ->", ""),
         ("{ ->", ""),
@@ -91,26 +94,33 @@ ARGS_CASES: dict[str, Any] = {
         "while (matcher.find())",
         "catch (Exception e)",
         "/* (a, b) */",
-        "\"(String a, int b)\"",
+        '"(String a, int b)"',
         "def foo = (a + b) * c",
     ],
     "pathological": [
-        ("def \n foo \n ( \n String \n a \n = \n \"default), with, commas\", \n int \n b \n = \n [1,2,3].size() \n ) \n {", ""),
+        (
+            'def \n foo \n ( \n String \n a \n = \n "default), with, commas", \n int \n b \n = \n [1,2,3].size() \n ) \n {',
+            "",
+        ),
     ],
 }
+
 
 @pytest.mark.parametrize("payload,expected", ARGS_CASES["valid"])
 def test_groovy_args_valid(payload, expected):
     assert_valid_match(GROOVY_RULES["args"], payload, expected, "groovy.args")
 
+
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_groovy_args_invalid(payload):
     assert_invalid_no_match(GROOVY_RULES["args"], payload, "groovy.args")
+
 
 @pytest.mark.parametrize("payload,expected", ARGS_CASES["pathological"])
 def test_groovy_args_pathological(payload, expected):
     assert_pathological_match(GROOVY_RULES["args"], payload, expected, "groovy.args")
     assert_redos_immune(GROOVY_RULES["args"], payload)
+
 
 # ==============================================================================
 # CLASS_START (class_start)
@@ -118,7 +128,10 @@ def test_groovy_args_pathological(payload, expected):
 CLASS_CASES: dict[str, Any] = {
     "valid": [
         ("class SimpleClass {", "SimpleClass"),
-        ("public abstract class ComplexClass<T extends Number & Comparable<T>> extends BaseClass<T> implements InterfaceA, InterfaceB {", "ComplexClass"),
+        (
+            "public abstract class ComplexClass<T extends Number & Comparable<T>> extends BaseClass<T> implements InterfaceA, InterfaceB {",
+            "ComplexClass",
+        ),
         ("trait MyTrait {", "MyTrait"),
         ("interface MyInterface extends BaseInterface {", "MyInterface"),
         ("@CompileStatic\n@EqualsAndHashCode(callSuper = true)\nclass AnnotatedClass {", "AnnotatedClass"),
@@ -135,18 +148,22 @@ CLASS_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["valid"])
 def test_groovy_class_start_valid(payload, expected_name):
     assert_valid_match(GROOVY_RULES["class_start"], payload, expected_name, "groovy.class_start")
+
 
 @pytest.mark.parametrize("payload", CLASS_CASES["invalid"])
 def test_groovy_class_start_invalid(payload):
     assert_invalid_no_match(GROOVY_RULES["class_start"], payload, "groovy.class_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["pathological"])
 def test_groovy_class_start_pathological(payload, expected_name):
     assert_pathological_match(GROOVY_RULES["class_start"], payload, expected_name, "groovy.class_start")
     assert_redos_immune(GROOVY_RULES["class_start"], payload)
+
 
 # ==============================================================================
 # DEPENDENCY (_dependency_capture)
@@ -161,9 +178,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
     "invalid": [
         "def importData() {",
-        "String myImport = \"import foo.bar\"",
+        'String myImport = "import foo.bar"',
         "// import java.util.List",
-        "String s = \"import java.util.List\"",
+        'String s = "import java.util.List"',
         "importantVariable = true",
     ],
     "pathological": [
@@ -172,15 +189,22 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["valid"])
 def test_groovy_dependency_capture_valid(payload, expected_path):
-    assert_valid_dependency_match(GROOVY_RULES["_dependency_capture"], payload, expected_path, "groovy._dependency_capture")
+    assert_valid_dependency_match(
+        GROOVY_RULES["_dependency_capture"], payload, expected_path, "groovy._dependency_capture"
+    )
+
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_groovy_dependency_capture_invalid(payload):
     assert_invalid_no_match(GROOVY_RULES["_dependency_capture"], payload, "groovy._dependency_capture")
 
+
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["pathological"])
 def test_groovy_dependency_capture_pathological(payload, expected_path):
-    assert_pathological_dependency_match(GROOVY_RULES["_dependency_capture"], payload, expected_path, "groovy._dependency_capture")
+    assert_pathological_dependency_match(
+        GROOVY_RULES["_dependency_capture"], payload, expected_path, "groovy._dependency_capture"
+    )
     assert_redos_immune(GROOVY_RULES["_dependency_capture"], payload)

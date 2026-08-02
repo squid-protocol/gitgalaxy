@@ -1,3 +1,4 @@
+# ruff: noqa: S101
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -50,7 +51,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-
     "apex": {
         "valid": [
             ("public static void TargetFunc()", "TargetFunc"),
@@ -231,7 +231,6 @@ EXTRACTION_CASES = {
         "invalid": ["set TargetFunc", "if {$TargetFunc}"],
         "pathological": [("proc \t TargetFunc \t {", "TargetFunc")],
     },
-
 }
 
 

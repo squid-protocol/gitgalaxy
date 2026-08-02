@@ -12296,7 +12296,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `import` with a `_dependency_capture` group. Groovy imports
             # follow the identical syntax, so this was a coverage gap, not
             # an intentional Strict-Feature-Parity `None`.
-            "_dependency_capture": re.compile(r"^[ \t]*import[ \t\n\\]+(?:static[ \t\n\\]+)?([\w*]+(?:[ \t\n]*\.[ \t\n]*[\w*]+)*)[ \t]*;?", re.M),
+            "_dependency_capture": re.compile(
+                r"^[ \t]*import[ \t\n\\]+(?:static[ \t\n\\]+)?([\w*]+(?:[ \t\n]*\.[ \t\n]*[\w*]+)*)[ \t]*;?", re.M
+            ),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(r"@author\s+(.*)", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

@@ -1,7 +1,15 @@
+import sys
+from pathlib import Path
+
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-from tests.extraction._extraction_harness import (
+
+_EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
+if _EXTRACTION_DIR not in sys.path:
+    sys.path.insert(0, _EXTRACTION_DIR)
+
+from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
     assert_redos_immune,
     assert_valid_match,

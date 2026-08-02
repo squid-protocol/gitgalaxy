@@ -40,6 +40,19 @@ Any PR touching parsing logic (`detector.py`, `prism.py`, etc.) is checked again
 - **Rule:** Never use dotted imports for test sibling modules (e.g., `tests.x.y.some_module`). Instead, append the sibling's directory to `sys.path` and import the top-level module.
 - **Verification:** To reproduce the CI environment locally, run `pytest <file>` directly from an unrelated working directory instead of `python -m pytest <file>` to ensure imports don't accidentally resolve via CWD prepending.
 
+## 4.1 Pull Request & Quality Guidelines
+
+- **Pre-Push Quality Checks:** Before committing and pushing your branch, you MUST run the following commands locally to verify code quality and prevent CI failures:
+  - `venv/bin/ruff check .`
+  - `venv/bin/mypy .`
+  - `venv/bin/python -m pytest tests/ -v`
+- **Workflow Branching:** ALWAYS work on a side branch and merge to `main`. Never commit directly to `main`.
+- **PR Descriptions:** PR bodies must NOT be generic agent summaries. You must explicitly list:
+  1. What exactly the agents found (specific flaws, bugs, ReDoS vulnerabilities).
+  2. The exact number of adversarial tests created.
+  3. The number of errors/failures initially found and fixed.
+  4. Any known regex limitations or edge cases that remain (e.g., tag masking in string literals).
+
 ## 5. Working Token Efficiently
 
 As Antigravity, adhere to these practices to manage context and tokens efficiently:

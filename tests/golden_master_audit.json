@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-02T21:00:34.380214+00:00",
-            "Total Scan Duration": "27.12 seconds"
+            "Analysis ISO Timestamp": "2026-08-02T22:35:36.465352+00:00",
+            "Total Scan Duration": "28.45 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -4129,7 +4129,7 @@
             },
             "firewall": {
                 "imports_whitelisted": 0,
-                "imports_unknown": 8398,
+                "imports_unknown": 8400,
                 "imports_blacklisted": 0,
                 "threats_found": 139,
                 "threats_allowed": 0
@@ -9238,11 +9238,11 @@
                             "file_cluster_4": 11.947,
                             "file_cluster_5": 12.007,
                             "file_cluster_6": 11.805,
-                            "file_cluster_7": 11.126,
+                            "file_cluster_7": 11.127,
                             "file_cluster_8": 10.51,
                             "file_cluster_9": 11.766,
                             "file_cluster_10": 12.467,
-                            "file_cluster_11": 11.466,
+                            "file_cluster_11": 11.467,
                             "file_cluster_12": 11.576,
                             "file_cluster_13": 11.512,
                             "file_cluster_14": 15.505,
@@ -9292,7 +9292,7 @@
                         "Sequential Logic Declarations": 488,
                         "Function Parameters": 65,
                         "Function/Method Declarations": 65,
-                        "Class/Entity Declarations": 6,
+                        "Class/Entity Declarations": 7,
                         "Defensive Programming Constructs": 14,
                         "Type/Safety Bypasses": 0,
                         "High-Risk Execution Commands": 0,
@@ -246917,26 +246917,26 @@
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_17",
-                        "Repository Drift (Z-Score)": 14.511,
+                        "Repository Drift (Z-Score)": 14.547,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 14.576,
-                            "file_cluster_1": 15.253,
-                            "file_cluster_2": 15.098,
-                            "file_cluster_3": 15.905,
-                            "file_cluster_4": 14.675,
-                            "file_cluster_5": 15.692,
-                            "file_cluster_6": 14.863,
-                            "file_cluster_7": 14.988,
-                            "file_cluster_8": 14.527,
-                            "file_cluster_9": 14.736,
-                            "file_cluster_10": 15.479,
-                            "file_cluster_11": 14.527,
-                            "file_cluster_12": 15.254,
-                            "file_cluster_13": 14.7,
-                            "file_cluster_14": 17.825,
-                            "file_cluster_15": 15.28,
-                            "file_cluster_16": 15.243,
-                            "file_cluster_17": 14.511
+                            "file_cluster_0": 14.602,
+                            "file_cluster_1": 15.29,
+                            "file_cluster_2": 15.133,
+                            "file_cluster_3": 15.94,
+                            "file_cluster_4": 14.713,
+                            "file_cluster_5": 15.726,
+                            "file_cluster_6": 14.898,
+                            "file_cluster_7": 15.023,
+                            "file_cluster_8": 14.566,
+                            "file_cluster_9": 14.768,
+                            "file_cluster_10": 15.515,
+                            "file_cluster_11": 14.559,
+                            "file_cluster_12": 15.291,
+                            "file_cluster_13": 14.735,
+                            "file_cluster_14": 17.832,
+                            "file_cluster_15": 15.316,
+                            "file_cluster_16": 15.279,
+                            "file_cluster_17": 14.547
                         },
                         "File Archetype": null,
                         "File Drift (Z-Score)": 0.0,
@@ -247903,12 +247903,15 @@
                         "Agentic Rce": 0
                     },
                     "8. Dependency Network": {
-                        "Direct Upstream (Fragility)": 0,
+                        "Direct Upstream (Fragility)": 2,
                         "Direct Downstream (Dependency Blast Radius)": 0,
                         "Total Upstream (Absolute Fragility)": 0,
                         "Total Downstream (Absolute Dependency Blast Radius)": 0
                     },
-                    "9. Extracted Dependencies": []
+                    "9. Extracted Dependencies": [
+                        "$testdir/malloc_common.tcl",
+                        "$testdir/thread_common.tcl"
+                    ]
                 }
             }
         },

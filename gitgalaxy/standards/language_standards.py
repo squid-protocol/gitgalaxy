@@ -12471,7 +12471,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
             "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
-            "args": None,
+            # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.
+            "args": re.compile(
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:EXEC(?:[ \t].*?)?,[ \t]*PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)|PROC[ \t]+(.+))",
+                re.M | re.I,
+            ),
             # Structural boundaries (Any line starting with // and a command)
             # BUG FIX (2 issues): (1) the name segment was required (`+`), missing
             # the very common unnamed continuation-DD form (`//         DD DSN=...`,
@@ -12487,7 +12491,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
             ),
             # Functions (EXEC steps). Same `\s+` -> `[ \t]+` cross-line fix as above.
-            "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)[ \t]+EXEC\b", re.M | re.I),
+            # BUG FIX: stepname is optional (`*` not `+`), unnamed EXEC steps are valid.
+            "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]*)[ \t]+EXEC\b", re.M | re.I),
             # Classes/Entities (JOB cards). Same `\s+` -> `[ \t]+` cross-line fix as above.
             "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)[ \t]+JOB\b", re.M | re.I),
             # Danger (Execution of arbitrary programs)
@@ -12521,9 +12526,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # _dependency_capture was missing entirely for jcl (unlike nearly every
             # other language with a non-None `import`), so the dependency graph never
             # captured which member a JCL job/proc pulls in via INCLUDE. Captures the
-            # MEMBER= name for the network/blast-radius graph.
+            # MEMBER= name for the network/blast-radius graph. Also captures dataset
+            # names in DD statements and JCLLIB orders, ignoring temporary/internal ptrs (&&, *).
             "_dependency_capture": re.compile(
-                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+INCLUDE[ \t]+MEMBER=([A-Za-z0-9_#$@]+)", re.M | re.I
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:INCLUDE[ \t]+MEMBER=([A-Za-z0-9_#$@]+)|JCLLIB[ \t]+ORDER=\(?([A-Za-z0-9_#$@.]+)\)?|DD[ \t]+(?:.*?[ \t,])?DSN(?:AME)?=(?!(?:&&|\*))([A-Za-z0-9_#$@.&()]+))",
+                re.M | re.I,
             ),
             # BUG FIX: `\s+` before the capture group could cross a newline (re.M),
             # so an Author line with the value wrapped to the next physical line

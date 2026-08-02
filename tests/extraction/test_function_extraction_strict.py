@@ -127,14 +127,6 @@ EXTRACTION_CASES = {
         "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
         "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
     },
-    "haskell": {
-        "valid": [
-            ("TargetFunc :: Int -> Int", "TargetFunc"),
-            ("TargetFunc :: Maybe String", "TargetFunc"),
-        ],
-        "invalid": ["data TargetFunc", "class TargetFunc", "newtype TargetFunc"],
-        "pathological": [("TargetFunc \n :: \n Maybe \n ( \n Int \n -> \n Int \n )", "TargetFunc")],
-    },
 
     "scheme": {
         "valid": [

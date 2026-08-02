@@ -67,14 +67,6 @@ DEPENDENCY_EXTRACTION_CASES = {
     },
 
 
-    "haskell": {
-        "valid": [
-            ("import Control.Monad", "Control.Monad"),
-            ("import qualified Data.Text as T", "Data.Text"),
-        ],
-        "invalid": ["let import_val = 1"],
-        "pathological": [("import \n qualified \n Data.Map", "Data.Map")],
-    },
 
     "dart": {
         "valid": [

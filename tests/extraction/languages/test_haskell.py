@@ -24,7 +24,6 @@ from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
     assert_pathological_dependency_match,
     assert_pathological_match,
-    assert_redos_immune,
     assert_valid_dependency_match,
     assert_valid_match,
 )

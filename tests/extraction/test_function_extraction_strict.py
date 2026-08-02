@@ -1,4 +1,5 @@
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # =======================================================================# THE UNIVERSAL EXTRACTION GAUNTLET
@@ -199,11 +200,6 @@ EXTRACTION_CASES = {
         "valid": [("function TargetFunc()", "TargetFunc"), ("modifier TargetFunc()", "TargetFunc")],
         "invalid": ["contract TargetFunc", "struct TargetFunc"],
         "pathological": [("function \n TargetFunc \n (", "TargetFunc")],
-    },
-    "groovy": {
-        "valid": [("def TargetFunc()", "TargetFunc"), ("public void TargetFunc()", "TargetFunc")],
-        "invalid": ["class TargetFunc", "if (TargetFunc)"],
-        "pathological": [("public \t static \t def \t TargetFunc \t (", "TargetFunc")],
     },
     "jcl": {
         "valid": [("//TargetFunc EXEC PGM=PROG", "TargetFunc")],

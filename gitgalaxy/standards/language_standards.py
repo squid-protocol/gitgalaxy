@@ -12158,10 +12158,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # lookahead func_start already uses.
             "args": re.compile(
                 r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}"
-                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[A-Z][a-zA-Z0-9_<>\[\]?,]*)[ \t]+){0,3}"
+                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+){0,3}"
                 r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
-                r"[A-Za-z_$][\w_$]*\s*\((?:[^()]|\([^()]*\))*\)"
-                r"|(?:\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})\s*->",
+                r"[A-Za-z_$][\w_$]*[ \t\n]*\((?:[^()]|\([^()]*\))*\)"
+                r"|(?:(?:\{[ \t\n]*)?(?:\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})?)[ \t\n]*->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -12182,10 +12182,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # return-type fix above); added to the exclusion list alongside
             # the other control-flow-shaped keywords.
             "func_start": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def)[ \t]+){0,5}"
-                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[A-Z][a-zA-Z0-9_<>\[\]?,]*)[ \t]+){0,3}"
+                r"^[ \t]*(?:@[A-Za-z0-9_.]+(?:\([^)]*\))?[ \t\n]+){0,5}"
+                r"(?:(?:public|private|protected|static|final|def)[ \t\n]+){0,5}"
+                r"(?:<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>[ \t\n]+)?"
+                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){0,3}"
                 r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
-                r"([A-Za-z_$][\w_$]*)(?=[ \t]*\()",
+                r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -12294,7 +12296,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `import` with a `_dependency_capture` group. Groovy imports
             # follow the identical syntax, so this was a coverage gap, not
             # an intentional Strict-Feature-Parity `None`.
-            "_dependency_capture": re.compile(r"^[ \t]*import[ \t]+(?:static[ \t]+)?([\w.]+)[ \t]*;?", re.M),
+            "_dependency_capture": re.compile(r"^[ \t]*import[ \t\n\\]+(?:static[ \t\n\\]+)?([\w*]+(?:[ \t\n]*\.[ \t\n]*[\w*]+)*)[ \t]*;?", re.M),
             # 25. ownership (Authorship Metadata)
             "ownership": re.compile(r"@author\s+(.*)", re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

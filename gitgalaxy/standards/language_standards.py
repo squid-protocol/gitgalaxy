@@ -5785,7 +5785,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # alternatives never match overlapping text, so it stays linear).
             "args": re.compile(
                 r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)"
-                r"\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\)|\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))*\)",
+                r"\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -5805,7 +5805,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
             "class_start": re.compile(
-                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]])+)(?=[^{]*\{)",
+                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+)(?=[^{]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

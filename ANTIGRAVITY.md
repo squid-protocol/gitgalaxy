@@ -96,7 +96,7 @@ Before submitting a Pull Request, you must run the following deterministic tools
 When generating or submitting a Pull Request for this repository, it is critical to provide comprehensive context for reviewers. 
 - **Descriptive PR Title:** The title must be highly descriptive and directly summarize the core outcome of the PR (e.g., instead of "Fix extraction", use "Fix #855: Harden Fortran extraction rules against pathological syntax").
 - **Thorough PR Description:** Outline all technical changes, the specific reasoning behind the choices, and any edge-cases solved. 
-  - For extraction hardening specifically, detail the pipeline steps used (Linguist, Red Team, etc.), explain any structural boundaries or tests added, and definitively explain *why* any golden masters changed.
+  - For extraction hardening specifically, detail the pipeline steps used (Linguist, Red Team, etc.), but **do NOT write generic descriptions of the agents**. You must explicitly detail **WHAT they found**. (e.g., instead of "Linguist researched syntax gaps", write "Linguist found that CSS `@media` queries can be nested and contain complex `calc()` functions"). Explain any structural boundaries or tests added, and definitively explain *why* any golden masters changed.
   - **Metrics & Limitations:** You must explicitly list: (1) How many adversarial tests were created, (2) How many errors/failures were initially found by these tests, and (3) Any known regex limitations or edge-cases that remain for this language.
   - **Do not leave the PR body blank, sparse, or lame.** A poor description will cause the PR to be rejected.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.

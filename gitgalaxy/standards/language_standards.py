@@ -9526,7 +9526,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the optional `(?:\[[^\]]*\]...)?` output array matcher, allowing the
                 # regex to crawl down to the assignment operator `=` and map the name.
                 # =====================================================================
-                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function(?:[ \t]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?=(?:[ \t]|\.\.\.[^\n]*\n)*\(|$)",
+                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?=(?:[ \t\n]|\.\.\.[^\n]*\n)*\(|$)",
                 re.M,
             ),
             # class_start: Defines an object-oriented boundary.

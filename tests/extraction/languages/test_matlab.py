@@ -39,6 +39,10 @@ FUNCTION_CASES: dict[str, Any] = {
         ("function [out1, out2] = TargetFunc(in1, in2)", "TargetFunc"),
         ("function out = TargetFunc(in)", "TargetFunc"),
         ("function  [out]  =  TargetFunc ( in )", "TargetFunc"),  # Spacing
+        # Line continuation
+        ("function [out] = ...\n    TargetFunc(in)", "TargetFunc"),
+        ("function ...\n    TargetFunc(in)", "TargetFunc"),
+        # Block comments lookalike
     ],
     "invalid": [
         # Carried forward
@@ -48,6 +52,9 @@ FUNCTION_CASES: dict[str, Any] = {
         # Ghost Prevention
         "disp('function TargetFunc()')",
         "% function TargetFunc()",
+        # KNOWN LIMITATION (Class 3): Block comments and string literals are unshielded in Mode D
+        # "%{ \n function TargetFunc() \n %}",
+        # "x = \"function TargetFunc()\"",
     ],
     "pathological": [
         # Splitting output arrays across newlines (carried forward)
@@ -95,6 +102,7 @@ ARGS_CASES: dict[str, Any] = {
         ("function TargetFunc(in1)", None),
         ("function TargetFunc()", None),
         ("@(x, y)", None),  # anonymous function
+        ("function [out] = ...\n    TargetFunc(in1, in2)", None),
     ],
     "invalid": [
         "if TargetFunc(in1, in2)",
@@ -141,6 +149,8 @@ CLASS_CASES: dict[str, Any] = {
         ("classdef (ConstructOnLoad) TargetClass", "TargetClass"),
         ("classdef TargetClass < handle", "TargetClass"),
         ("classdef (Sealed = true, Hidden = false) TargetClass < handle & matlab.mixin.Copyable", "TargetClass"),
+        ("classdef TargetClass<handle", "TargetClass"),
+        ("classdef ...\n    TargetClass", "TargetClass"),
     ],
     "invalid": [
         "if classdef TargetClass",
@@ -183,6 +193,7 @@ DEPENDENCY_CASES: dict[str, Any] = {
         # Carried forward
         ("import matlab.unittest.*", "matlab.unittest.*"),
         ("import mypack.myclass", "mypack.myclass"),
+        ("import ...\n    mypack.myclass", "mypack.myclass"),
     ],
     "invalid": [
         # Carried forward

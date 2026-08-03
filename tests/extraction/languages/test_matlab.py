@@ -59,19 +59,19 @@ FUNCTION_CASES: dict[str, Any] = {
     "pathological": [
         # Splitting output arrays across newlines (carried forward)
         (
-            "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc \n (",
+            "function ...\n [ \n out1 \n , \n out2 \n ] ...\n = ...\n TargetFunc ...\n (",
             "TargetFunc",
         ),
         (
-            "function\nout\n=\nTargetFunc\n(",
+            "function...\nout...\n=...\nTargetFunc...\n(",
             "TargetFunc",
         ),
         (
-            "function \n TargetFunc \n (",
+            "function ...\n TargetFunc ...\n (",
             "TargetFunc",
         ),
         (
-            "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc",
+            "function ...\n [ \n out1 \n , \n out2 \n ] ...\n = ...\n TargetFunc",
             "TargetFunc",
         ),
     ],
@@ -110,15 +110,15 @@ ARGS_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc \n (\n in1 \n , \n in2 \n )",
+            "function ...\n [ \n out1 \n , \n out2 \n ] ...\n = ...\n TargetFunc ...\n (\n in1 \n , \n in2 \n )",
             None,
         ),
         (
-            "function\nout\n=\nTargetFunc\n(\n in1 \n )",
+            "function...\nout...\n=...\nTargetFunc...\n(\n in1 \n )",
             None,
         ),
         (
-            "@\n(\nx\n,\ny\n)",
+            "@...\n(\nx\n,\ny\n)",
             None,
         ),
     ],
@@ -159,11 +159,11 @@ CLASS_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "classdef \n ( \n ConstructOnLoad \n ) \n TargetClass \n < \n handle",
+            "classdef ...\n ( \n ConstructOnLoad \n ) ...\n TargetClass ...\n < ...\n handle",
             "TargetClass",
         ),
         (
-            "classdef \n TargetClass",
+            "classdef ...\n TargetClass",
             "TargetClass",
         ),
     ],
@@ -203,7 +203,7 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
     "pathological": [
         # Carried forward
-        ("import \n parallel.Pool", "parallel.Pool"),
+        ("import ...\n parallel.Pool", "parallel.Pool"),
     ],
 }
 

@@ -9507,7 +9507,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # args: Captures standard function inputs and return signatures `function [out1, out2] = myFun(in1, in2)`.
             # CRITICAL GUARDRAIL: Safely bounds `\([^)]*\)` and `\[[^\]]*\]`.
             "args": re.compile(
-                r"\bfunction[ \t]+(?:\[[^\]]*\][ \t]*=[ \t]*|[a-zA-Z_]\w*[ \t]*=[ \t]*)?[a-zA-Z_]\w*[ \t]*\([^)]*\)|@[ \t]*\([^)]*\)"
+                r"\bfunction(?:[ \t]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*)?[a-zA-Z_]\w*(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\)|@(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\)"
             ),
             # linear: Structural boundaries defining straight-line execution.
             # CRITICAL GUARDRAIL: Access modifiers (private, protected) explicitly omitted.
@@ -9526,13 +9526,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the optional `(?:\[[^\]]*\]...)?` output array matcher, allowing the
                 # regex to crawl down to the assignment operator `=` and map the name.
                 # =====================================================================
-                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function[ \t\n]+(?:\[[^\]]*\][ \t\n]*=[ \t\n]*|[a-zA-Z_]\w*[ \t\n]*=[ \t\n]*)?([a-zA-Z_]\w*)(?=[ \t\n]*\(|$)",
+                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?=(?:[ \t\n]|\.\.\.[^\n]*\n)*\(|$)",
                 re.M,
             ),
             # class_start: Defines an object-oriented boundary.
             # Safely steps over optional class attributes like `classdef (ConstructOnLoad) MyClass`
             "class_start": re.compile(
-                r"^[ \t]*classdef(?:[ \t]*\([^)]*\))?[ \t]+([a-zA-Z_]\w*)(?=[ \t\n]|$)",
+                r"^[ \t]*classdef(?:(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\))?(?:[ \t]|\.\.\.[^\n]*\n)+([a-zA-Z_]\w*)(?=(?:[ \t]|\.\.\.[^\n]*\n)|<|$)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -9630,7 +9630,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # import: Namespace/Class loading.
             "import": re.compile(r"^[ \t]*import[ \t]+[a-zA-Z0-9_.*]+", re.M),
-            "_dependency_capture": re.compile(r"^[ \t]*import[ \t\n]+([a-zA-Z0-9_.*]+)", re.M),
+            "_dependency_capture": re.compile(r"^[ \t]*import(?:[ \t]|\.\.\.[^\n]*\n)+([a-zA-Z0-9_.*]+)", re.M),
             # ownership: Standard MATLAB comment authorship signatures.
             "ownership": re.compile(r"^[ \t]*%[ \t]*(?:Author|Created by|Copyright)[ \t]*:(.*)", re.M | re.I),
             # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -10781,7 +10781,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures explicit parameter binding keywords.
             "args": re.compile(
-                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?:VALUE\s*\([^)]*\)[ \t]+)?[a-zA-Z_][a-zA-Z0-9_-]*",
+                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?!TYPE\b)(?:VALUE\s*\([^)]*\)\s+)?[a-zA-Z_][a-zA-Z0-9_-]*",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
@@ -10804,7 +10804,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # VIEW` instead of a same-tier alternative.
             "class_start": re.compile(
                 r"^[ \t]*(?:CLASS|INTERFACE)\s+([a-zA-Z0-9_-]+)(?=[ \t]+DEFINITION|[ \t\n\.]|$)"
-                r"|^[ \t]*DEFINE\s+(?:ROOT[ \t]+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR)\s+([a-zA-Z0-9_-]+)",
+                r"|^[ \t]*DEFINE\s+(?:ROOT\s+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR\s+FOR)\s+([a-zA-Z0-9_-]+)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

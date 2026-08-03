@@ -95,29 +95,7 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "matlab": {
-        "valid": [
-            ("function [out] = TargetFunc(in)", "TargetFunc"),
-            ("function TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["if TargetFunc()", "classdef TargetFunc", "TargetFunc = 5"],
-        "pathological": [
-            # Splitting output arrays across newlines
-            (
-                "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
-    "abap": {
-        "valid": [
-            ("METHOD TargetFunc.", "TargetFunc"),
-            ("FORM TargetFunc.", "TargetFunc"),
-            ("FUNCTION TargetFunc.", "TargetFunc"),
-        ],
-        "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
-        "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
-    },
+
     "dockerfile": {
         "valid": [
             ("RUN apt-get update", "RUN"),

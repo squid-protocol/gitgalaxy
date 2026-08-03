@@ -9742,7 +9742,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
             "args": re.compile(
-                r"(?:on|command|function|getprop|setprop)\s+[a-zA-Z0-9_-]+\s+([^\n]+)",
+                r"(?:on|command|function|getprop|setprop)\s+[a-zA-Z0-9_-]+\s+((?:(?!--|//|#|/\*)[^\n])+?)(?=[ \t]*(?:--|//|#|/\*|\n|$))",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
@@ -9755,7 +9755,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).
             "func_start": re.compile(
-                r"^[ \t]*(?:private\s+|public[ \t]+)?(?:on|command|function|getprop|setprop)\s+([a-zA-Z0-9_-]+)(?=[ \t\n]|$)",
+                r"^[ \t]*(?:private\s+|public\s+)?(?:on|command|function|getprop|setprop)\s+([a-zA-Z0-9_-]+)(?=[ \t\n]|--|//|#|/\*|$)",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Stacks, Behaviors, Widgets).
@@ -9772,7 +9772,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # after would break the same lookahead, so it never actually
             # matched anything either).
             "class_start": re.compile(
-                r"^[ \t]*(?:script|behavior|widget|module|library)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t\n]|$)",
+                r"^[ \t]*(?:script|behavior|widget|module|library)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t\n]|--|//|#|/\*|$)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

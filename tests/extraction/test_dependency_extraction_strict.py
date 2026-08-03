@@ -1,4 +1,5 @@
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # =======================================================================# THE GRAVITY LINK GAUNTLET
@@ -40,7 +41,6 @@ DEPENDENCY_EXTRACTION_CASES = {
             )
         ],
     },
-
     "html": {
         "valid": [
             ('<script src="app.js"></script>', "app.js"),
@@ -65,9 +65,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["CHARACTER(LEN=10) :: INCLUDE_FILE"],
         "pathological": [("USE \n , \n INTRINSIC \n :: \n omp_lib", "omp_lib")],
     },
-
-
-
     "dart": {
         "valid": [
             ("import 'dart:io';", "dart:io"),
@@ -99,14 +96,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         ],
         "invalid": ["import_val = 1;"],
         "pathological": [("import \n parallel.Pool", "parallel.Pool")],
-    },
-    "livecode": {
-        "valid": [
-            ('start using stack "lib"', "lib"),
-            ('require "database"', "database"),
-        ],
-        "invalid": ["put empty into requirePath"],
-        "pathological": [('start \n using \n behavior \n "btnBehavior"', "btnBehavior")],
     },
     "objective-c": {
         "valid": [

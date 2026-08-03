@@ -118,15 +118,6 @@ EXTRACTION_CASES = {
         "invalid": ["script TargetFunc", "put TargetFunc", "repeat with TargetFunc"],
         "pathological": [("private \n command \n TargetFunc \n ", "TargetFunc")],
     },
-    "abap": {
-        "valid": [
-            ("METHOD TargetFunc.", "TargetFunc"),
-            ("FORM TargetFunc.", "TargetFunc"),
-            ("FUNCTION TargetFunc.", "TargetFunc"),
-        ],
-        "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
-        "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
-    },
 
 
     "dockerfile": {

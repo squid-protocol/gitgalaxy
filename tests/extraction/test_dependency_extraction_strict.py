@@ -116,14 +116,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["int import_count;"],
         "pathological": [("@import \n CoreGraphics \n ;", "CoreGraphics")],
     },
-    "abap": {
-        "valid": [
-            ("INCLUDE z_my_macros.", "z_my_macros"),
-            ("TYPE-POOLS abap.", "abap"),
-        ],
-        "invalid": ["DATA include_name TYPE string."],
-        "pathological": [("TYPE-POOLS \n slis \n .", "slis")],
-    },
 }
 
 

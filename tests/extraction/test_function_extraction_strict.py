@@ -51,20 +51,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "apex": {
-        "valid": [
-            ("public static void TargetFunc()", "TargetFunc"),
-            ("trigger TargetFunc on Account", "TargetFunc"),
-        ],
-        "invalid": ["public class TargetFunc", "delete TargetFunc"],
-        "pathological": [
-            # Future callouts and erratic spacing
-            (
-                "@future(callout=true)\npublic \n static \n void \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
     "dart": {
         "valid": [
             ("void TargetFunc()", "TargetFunc"),

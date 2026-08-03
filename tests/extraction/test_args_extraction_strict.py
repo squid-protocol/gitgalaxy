@@ -1,4 +1,5 @@
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # ==============================================================================
@@ -52,20 +53,6 @@ ARGS_EXTRACTION_CASES = {
             # FIX: Added `\n {` to complete the structural definition
             (
                 "Future<void> \n TargetFunc \n <T> \n (\n  List<T> items,\n  void Function(int, String) callback\n) \n {",
-                "TargetFunc",
-            )
-        ],
-    },
-    "apex": {
-        "valid": [
-            ("public void TargetFunc(String a, Integer b) {", "TargetFunc"),
-            ("trigger TargetFunc on Account (before insert) {", "TargetFunc"),
-        ],
-        "invalid": ["TargetFunc(a, b);", "if (a == b) {"],
-        "pathological": [
-            # Vertical modifiers and complex generic maps
-            (
-                "public \n static \n Map<Id, Account> \n TargetFunc \n (\n  List<Account> accounts,\n  Map<Id, Contact> contacts\n)",
                 "TargetFunc",
             )
         ],

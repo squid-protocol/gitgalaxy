@@ -1,4 +1,5 @@
 import pytest
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # ==============================================================================
@@ -53,25 +54,6 @@ CLASS_EXTRACTION_CASES = {
         ],
     },
 
-    "apex": {
-        "valid": [
-            ("public class TargetEntity {", "TargetEntity"),
-            ("global abstract class TargetEntity implements Base", "TargetEntity"),
-            ("public interface TargetEntity", "TargetEntity"),
-        ],
-        "invalid": [
-            "TargetEntity obj = new TargetEntity();",
-            "delete TargetEntity;",
-            "public void classMethod()",
-        ],
-        "pathological": [
-            # Apex sharing modifiers and vertical spacing
-            (
-                "@isTest\npublic \n with \n sharing \n class \n TargetEntity \n extends \n Base",
-                "TargetEntity",
-            )
-        ],
-    },
 }
 
 

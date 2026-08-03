@@ -8378,8 +8378,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.
             "args": re.compile(
-                r"\b[a-z_]\w*(?:<[^>]*>)?\s+[a-z_]\w*\s*\([^)]*\)|\btrigger\s+[a-z_]\w*\s+on\s+[a-z_]\w*\s*\([^)]*\)",
-                re.I,
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
+                r"(?:[a-zA-Z_]\w*(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)[a-zA-Z_]\w*\s*\([^)]*\)|"
+                r"^[ \t]*trigger\s+[a-zA-Z_]\w*\s+on\s+[a-zA-Z_]\w*\s*\([^)]*\)",
+                re.M | re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and sharing keywords.
             "structural_boundaries": re.compile(
@@ -8389,17 +8392,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture groups and lookaheads for both Methods and Triggers.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}"
-                r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)[ \t]+){0,5}"
-                r"(?:[\w<>\[\]?]+[ \t]+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
+                r"(?:[a-zA-Z_]\w*(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)(?=\s+on\b)",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             # ReDoS clamped. Strict capture group and positive lookahead applied.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}"
-                r"(?:(?:public|private|global|virtual|abstract|with\s+sharing|without\s+sharing|inherited\s+sharing)[ \t]+){0,5}"
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"(?:(?:public|private|global|virtual|abstract|with\s+sharing|without\s+sharing|inherited\s+sharing)\s+){0,5}"
                 r"(?:class|interface|enum)\s+([a-zA-Z_]\w*)(?=\s+implements|\s+extends|\s*\{|\n|$)",
                 re.M,
             ),
@@ -8499,7 +8502,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             "_dependency_capture": re.compile(
-                r"\bType\.forName\s*\(\s*['\"]([^'\"]+)['\"](?:[ \t\n]*,[ \t\n]*['\"]([^'\"]+)['\"])?\s*\)",
+                r"\bType\s*\.\s*forName\s*\(\s*['\"]([^'\"]+)['\"](?:[ \t\n]*,[ \t\n]*['\"]([^'\"]+)['\"])?\s*\)",
                 re.I,
             ),
             # 25. ownership: Authorship indicators.

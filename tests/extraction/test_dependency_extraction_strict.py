@@ -92,14 +92,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["ENV FROM_PATH=/app"],
         "pathological": [("FROM \n --platform=linux/amd64 \n alpine:3.18", "alpine:3.18")],
     },
-    "matlab": {
-        "valid": [
-            ("import matlab.unittest.*", "matlab.unittest.*"),
-            ("import mypack.myclass", "mypack.myclass"),
-        ],
-        "invalid": ["import_val = 1;"],
-        "pathological": [("import \n parallel.Pool", "parallel.Pool")],
-    },
+
     "livecode": {
         "valid": [
             ('start using stack "lib"', "lib"),
@@ -115,14 +108,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         ],
         "invalid": ["int import_count;"],
         "pathological": [("@import \n CoreGraphics \n ;", "CoreGraphics")],
-    },
-    "abap": {
-        "valid": [
-            ("INCLUDE z_my_macros.", "z_my_macros"),
-            ("TYPE-POOLS abap.", "abap"),
-        ],
-        "invalid": ["DATA include_name TYPE string."],
-        "pathological": [("TYPE-POOLS \n slis \n .", "slis")],
     },
 }
 

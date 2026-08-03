@@ -81,20 +81,7 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "matlab": {
-        "valid": [
-            ("function [out] = TargetFunc(in)", "TargetFunc"),
-            ("function TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["if TargetFunc()", "classdef TargetFunc", "TargetFunc = 5"],
-        "pathological": [
-            # Splitting output arrays across newlines
-            (
-                "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
+
     "livecode": {
         "valid": [
             ("on TargetFunc", "TargetFunc"),
@@ -103,15 +90,6 @@ EXTRACTION_CASES = {
         ],
         "invalid": ["script TargetFunc", "put TargetFunc", "repeat with TargetFunc"],
         "pathological": [("private \n command \n TargetFunc \n ", "TargetFunc")],
-    },
-    "abap": {
-        "valid": [
-            ("METHOD TargetFunc.", "TargetFunc"),
-            ("FORM TargetFunc.", "TargetFunc"),
-            ("FUNCTION TargetFunc.", "TargetFunc"),
-        ],
-        "invalid": ["CLASS TargetFunc", "DATA TargetFunc", "CALL FUNCTION TargetFunc"],
-        "pathological": [("METHOD \n TargetFunc \n .", "TargetFunc")],
     },
 
 

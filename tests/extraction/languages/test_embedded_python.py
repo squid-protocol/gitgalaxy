@@ -73,11 +73,11 @@ FUNCTION_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "@route('/api')\n@auth(role='admin')\n    async   def \n TargetFunc \n (",
+            "@route('/api')\n@auth(role='admin')\n    async   def  TargetFunc  (",
             "TargetFunc",
         ),  # carried-forward: stacked decorators w/ args, extreme spacing, vertical
         (
-            "def TargetFunc[T: Sequence[int]] \n ( \n x: T \n ) \n -> \n T \n :",
+            "def TargetFunc[T: Sequence[int]]   ( \n x: T \n ) \n -> \n T \n :",
             "TargetFunc",
         ),  # nested-bracket PEP 695 generic, rest of signature split vertically
         (
@@ -204,7 +204,7 @@ ARGS_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "def \n TargetFunc \n (\n    a: Callable[[int, str], bool],\n    b = lambda x: x * 2\n):",
+            "def  TargetFunc  (\n    a: Callable[[int, str], bool],\n    b = lambda x: x * 2\n):",
             "TargetFunc",
         ),  # carried-forward: vertical, nested-generic callable param, default lambda
         (
@@ -269,11 +269,11 @@ CLASS_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "@dataclass\n@decorated(args)\nclass \n TargetEntity \n ( \n Base \n ) \n :",
+            "@dataclass\n@decorated(args)\nclass  TargetEntity  ( \n Base \n ) \n :",
             "TargetEntity",
         ),  # carried-forward: stacked decorators, extreme vertical spacing
         (
-            "class TargetEntity[T: Sequence[int]] \n ( \n Base \n ) \n :",
+            "class TargetEntity[T: Sequence[int]]   ( \n Base \n ) \n :",
             "TargetEntity",
         ),  # nested-bracket PEP 695 generic class, rest of signature split vertically
         (
@@ -348,11 +348,11 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            "from \n core.networking.sockets \n import ( \n    TCPSocket \n )",
+            "from  core.networking.sockets  import ( \n    TCPSocket \n )",
             "core.networking.sockets",
         ),  # carried-forward: vertical from-import with parenthesized names
         (
-            "from \n ..deeply.nested.relative.pkg \n import \n Foo",
+            "from  ..deeply.nested.relative.pkg  import \n Foo",
             "..deeply.nested.relative.pkg",
         ),  # deeply nested relative import, vertical
     ],

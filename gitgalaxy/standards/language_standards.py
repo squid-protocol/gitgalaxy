@@ -7635,7 +7635,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ONLY executable logic blocks. EXCLUDES classes. Steps safely over hardware decorators.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\(",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

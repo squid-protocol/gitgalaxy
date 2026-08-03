@@ -10781,7 +10781,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures explicit parameter binding keywords.
             "args": re.compile(
-                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?:VALUE\s*\([^)]*\)[ \t]+)?[a-zA-Z_][a-zA-Z0-9_-]*",
+                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?!TYPE\b)(?:VALUE\s*\([^)]*\)\s+)?[a-zA-Z_][a-zA-Z0-9_-]*",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
@@ -10804,7 +10804,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # VIEW` instead of a same-tier alternative.
             "class_start": re.compile(
                 r"^[ \t]*(?:CLASS|INTERFACE)\s+([a-zA-Z0-9_-]+)(?=[ \t]+DEFINITION|[ \t\n\.]|$)"
-                r"|^[ \t]*DEFINE\s+(?:ROOT[ \t]+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR)\s+([a-zA-Z0-9_-]+)",
+                r"|^[ \t]*DEFINE\s+(?:ROOT\s+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR\s+FOR)\s+([a-zA-Z0-9_-]+)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

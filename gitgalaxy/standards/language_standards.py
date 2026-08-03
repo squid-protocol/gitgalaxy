@@ -9507,7 +9507,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # args: Captures standard function inputs and return signatures `function [out1, out2] = myFun(in1, in2)`.
             # CRITICAL GUARDRAIL: Safely bounds `\([^)]*\)` and `\[[^\]]*\]`.
             "args": re.compile(
-                r"\bfunction[ \t]+(?:\[[^\]]*\][ \t]*=[ \t]*|[a-zA-Z_]\w*[ \t]*=[ \t]*)?[a-zA-Z_]\w*[ \t]*\([^)]*\)|@[ \t]*\([^)]*\)"
+                r"\bfunction[ \t\n]+(?:\[[^\]]*\][ \t\n]*=[ \t\n]*|[a-zA-Z_]\w*[ \t\n]*=[ \t\n]*)?[a-zA-Z_]\w*[ \t\n]*\([^)]*\)|@[ \t\n]*\([^)]*\)"
             ),
             # linear: Structural boundaries defining straight-line execution.
             # CRITICAL GUARDRAIL: Access modifiers (private, protected) explicitly omitted.
@@ -9532,7 +9532,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # class_start: Defines an object-oriented boundary.
             # Safely steps over optional class attributes like `classdef (ConstructOnLoad) MyClass`
             "class_start": re.compile(
-                r"^[ \t]*classdef(?:[ \t]*\([^)]*\))?[ \t]+([a-zA-Z_]\w*)(?=[ \t\n]|$)",
+                r"^[ \t]*classdef(?:[ \t\n]*\([^)]*\))?[ \t\n]+([a-zA-Z_]\w*)(?=[ \t\n]|$)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

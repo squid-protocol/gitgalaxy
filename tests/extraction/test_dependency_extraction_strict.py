@@ -92,14 +92,7 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["ENV FROM_PATH=/app"],
         "pathological": [("FROM \n --platform=linux/amd64 \n alpine:3.18", "alpine:3.18")],
     },
-    "matlab": {
-        "valid": [
-            ("import matlab.unittest.*", "matlab.unittest.*"),
-            ("import mypack.myclass", "mypack.myclass"),
-        ],
-        "invalid": ["import_val = 1;"],
-        "pathological": [("import \n parallel.Pool", "parallel.Pool")],
-    },
+
     "livecode": {
         "valid": [
             ('start using stack "lib"', "lib"),

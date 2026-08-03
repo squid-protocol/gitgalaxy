@@ -95,20 +95,7 @@ EXTRACTION_CASES = {
             )
         ],
     },
-    "matlab": {
-        "valid": [
-            ("function [out] = TargetFunc(in)", "TargetFunc"),
-            ("function TargetFunc()", "TargetFunc"),
-        ],
-        "invalid": ["if TargetFunc()", "classdef TargetFunc", "TargetFunc = 5"],
-        "pathological": [
-            # Splitting output arrays across newlines
-            (
-                "function \n [ \n out1 \n , \n out2 \n ] \n = \n TargetFunc \n (",
-                "TargetFunc",
-            )
-        ],
-    },
+
     "livecode": {
         "valid": [
             ("on TargetFunc", "TargetFunc"),

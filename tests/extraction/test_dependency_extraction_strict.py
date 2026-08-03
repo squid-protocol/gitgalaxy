@@ -89,8 +89,6 @@ DEPENDENCY_EXTRACTION_CASES = {
         "invalid": ["ENV FROM_PATH=/app"],
         "pathological": [("FROM \n --platform=linux/amd64 \n alpine:3.18", "alpine:3.18")],
     },
-
-    },
     "objective-c": {
         "valid": [
             ("#import <Foundation/Foundation.h>", "Foundation/Foundation.h"),

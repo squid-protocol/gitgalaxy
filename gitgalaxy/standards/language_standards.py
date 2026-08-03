@@ -318,7 +318,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # nested-bracket bound (e.g. `def Foo[T: Sequence[int]](x: T) -> T:`, a realistic bounded
             # generic). Widened to the established one-level-nesting idiom (square-bracket variant).
             "args": re.compile(
-                r"(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\blambda\s+[^:]+:",
+                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda[ \t]+[^:]+:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -331,7 +331,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # RULE 11 FIX (epic #813/#818): see args' comment above -- same PEP 695 nested-bracket
             # gap, same fix (widened generic-parameter step-over).
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\(",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -341,7 +341,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # easy miss for the same reason java's #816 class_start bug was (name looks fine,
             # inheritance info silently vanishes).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:\s*\(\s*([a-zA-Z0-9_., \t]*)\s*\))?",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class[ \t]+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\([ \t]*([a-zA-Z0-9_., \t]*)[ \t]*\))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -442,12 +442,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
             # 24. import (Dependency Inclusions)
             "import": re.compile(
-                r"\b(?:from\s+[a-zA-Z0-9_.]+\s+import\b|import\s+[a-zA-Z0-9_., \t]+|\b__import__\s*\(|\bimportlib\.import_module\s*\()",
+                r"\b(?:from[ \t]+[a-zA-Z0-9_.]+[ \t]+import\b|import[ \t]+[a-zA-Z0-9_., \t]+|\b__import__[ \t]*\(|\bimportlib\.import_module[ \t]*\()",
                 re.M,
             ),
             "_dependency_capture": re.compile(
-                r"\bfrom\s+([a-zA-Z0-9_.]+)\s+import\b|"
-                r"\bimport\s+([a-zA-Z0-9_.]+(?:[ \t]*,[ \t]*[a-zA-Z0-9_.]+)*)|"
+                r"\bfrom[ \t]+([a-zA-Z0-9_.]+)[ \t]+import\b|"
+                r"\bimport[ \t]+([a-zA-Z0-9_.]+(?:[ \t]*,[ \t]*[a-zA-Z0-9_.]+)*)|"
                 r"\b(?:__import__|importlib\.import_module)\s*\(\s*['\"]([a-zA-Z0-9_.]+)['\"]",
                 re.M,
             ),
@@ -7624,7 +7624,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
             "args": re.compile(
-                r"(?:async[ \t]+)?def\s+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\blambda\s+[^:]+:",
+                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda[ \t]+[^:]+:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -7640,7 +7640,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start (Object / Entity Declarations)
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class\s+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:\s*\(\s*([a-zA-Z0-9_., \t]*)\s*\))?",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class[ \t]+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\([ \t]*([a-zA-Z0-9_., \t]*)[ \t]*\))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

@@ -29,6 +29,8 @@ def test_livecode_func_start():
         ("private function TargetFunc", "TargetFunc"),
         ("public command TargetFunc", "TargetFunc"),
         ("private on TargetFunc", "TargetFunc"),
+        ("public on TargetFunc", "TargetFunc"),
+        ("private getprop TargetFunc", "TargetFunc"),
     ]
 
     invalid = [
@@ -39,14 +41,15 @@ def test_livecode_func_start():
         ("command_name", None),
         ('put "on TargetFunc" into x', None),
         ("on", None),
+        ("function TargetFunc()", None),
     ]
 
     pathological = [
-        ("private \n command \n TargetFunc \n ", "TargetFunc"),
-        ("public \n function \n TargetFunc", "TargetFunc"),
+        ("private \t command \t TargetFunc \t ", "TargetFunc"),
+        ("public \t function \t TargetFunc", "TargetFunc"),
         ("public \t function \t TargetFunc", "TargetFunc"),
         ("on \tTargetFunc\t", "TargetFunc"),
-        ("private\n\ncommand\n\nTargetFunc", "TargetFunc"),
+        ("private\t\tcommand\t\tTargetFunc", "TargetFunc"),
         ("on TargetFunc--comment", "TargetFunc"),
         ("command TargetFunc//comment", "TargetFunc"),
         ("function TargetFunc#comment", "TargetFunc"),
@@ -78,13 +81,14 @@ def test_livecode_class_start():
         ("widget_not_start = 1", None),
         ('put "script TargetScript" into x', None),
         ("module ", None),
+        ("script TargetScript pArg", None),
     ]
 
     pathological = [
-        ("script \n TargetScript", "TargetScript"),
-        ("module \n com.livecode.library", "com.livecode.library"),
+        ("script \t TargetScript", "TargetScript"),
+        ("module \t com.livecode.library", "com.livecode.library"),
         ("widget \t TargetWidget \t ", "TargetWidget"),
-        ("behavior\n\nTargetBehavior", "TargetBehavior"),
+        ("behavior\t\tTargetBehavior", "TargetBehavior"),
         ("script TargetScript--comment", "TargetScript"),
         ("widget TargetWidget//comment", "TargetWidget"),
     ]
@@ -105,6 +109,7 @@ def test_livecode_args():
         ("command TargetFunc pArg1, pArg2", "pArg1, pArg2"),
         ("function TargetFunc pArg1, pArg2, pArg3", "pArg1, pArg2, pArg3"),
         ("setprop TargetFunc pArg1", "pArg1"),
+        ("on TargetFunc @pArray", "@pArray"),
     ]
 
     invalid = [
@@ -142,6 +147,7 @@ def test_livecode_dependency_capture():
         ('module "com.livecode.math"', "com.livecode.math"),
         ("start using behavior my_behavior", "my_behavior"),
         ('start using "stack_name"', "stack_name"),
+        ("start using stack my_stack", "my_stack"),
     ]
 
     invalid = [
@@ -155,10 +161,10 @@ def test_livecode_dependency_capture():
     ]
 
     pathological = [
-        ('start \n using \n behavior \n "btnBehavior"', "btnBehavior"),
+        ('start \t using \t behavior \t "btnBehavior"', "btnBehavior"),
         ('start \t using \t stack \t "lib"', "lib"),
-        ('require \n "database"', "database"),
-        ('module \n "com.livecode.math"', "com.livecode.math"),
+        ('require \t "database"', "database"),
+        ('module \t "com.livecode.math"', "com.livecode.math"),
     ]
 
     for payload, expected in valid:

@@ -9755,7 +9755,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).
             "func_start": re.compile(
-                r"^[ \t]*(?:private\s+|public\s+)?(?:on|command|function|getprop|setprop)\s+([a-zA-Z0-9_-]+)(?=[ \t\n]|--|//|#|/\*|$)",
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z0-9_-]+)(?=[ \t\n]|--|//|#|/\*|$)",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Stacks, Behaviors, Widgets).
@@ -9772,7 +9772,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # after would break the same lookahead, so it never actually
             # matched anything either).
             "class_start": re.compile(
-                r"^[ \t]*(?:script|behavior|widget|module|library)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t\n]|--|//|#|/\*|$)",
+                r"^[ \t]*(?:script|behavior|widget|module|library)[ \t]+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t]*(?:--|//|#|/\*|$))",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -9817,7 +9817,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 10. api: Public Surface Area. Exposed surface area (Any non-private handler).
             "api": re.compile(
-                r"^[ \t]*(?:public[ \t]+)?(?!(?:private)\s+)(?:on|command|function|getprop|setprop)\s+[a-zA-Z0-9_-]+",
+                r"^[ \t]*(?:public[ \t]+)?(?!(?:private)[ \t]+)(?:on|command|function|getprop|setprop)[ \t]+[a-zA-Z0-9_-]+",
                 re.I | re.M,
             ),
             # 11. flux: State Mutation. State mutation (The 'put into' core of xTalk).
@@ -9925,7 +9925,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 24. import: Dependency Inclusions. Library and stack loading.
             "import": re.compile(r"\b(start\s+using\s+(?:stack|behavior)|require|include|module)\b", re.I),
             "_dependency_capture": re.compile(
-                r"^[ \t]*(?:start[ \t\n]+using[ \t\n]+(?:stack[ \t\n]+|behavior[ \t\n]+)?|require[ \t\n]+|include[ \t\n]+|module[ \t\n]+)(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
+                r"^[ \t]*(?:start[ \t]+using[ \t]+(?:stack[ \t]+|behavior[ \t]+)?|require[ \t]+|include[ \t]+|module[ \t]+)(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
                 re.I | re.M,
             ),
             # 25. ownership: Authorship metadata in comments.

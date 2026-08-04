@@ -120,7 +120,6 @@ class FunctionNode(TypedDict, total=False):
 
     big_o_depth: int
     is_recursive: bool
-    db_complexity: int
     docstring: str
     calls_out_to: list[str]
     hit_vector: dict[str, int]
@@ -2136,16 +2135,6 @@ class StructuralExtractor:
             if occurrence_count > 1:
                 is_recursive = True
 
-        # --- NEW: FUNCTION-LEVEL DATABASE COMPLEXITY (Data Gravity) ---
-        # Mapped to active v6 schemas: 'io' (DB connections/SQL), 'state_mutation' (mutations), and 'serialization_parsing' (JSON/ORMs).
-        db_complexity = 0
-        if hit_vector:
-            db_complexity = (
-                (hit_vector.get("io", 0) * 3)
-                + (hit_vector.get("serialization_parsing", 0) * 2)
-                + (hit_vector.get("state_mutation", 0) * 1)
-            )
-
         # --- NEW: FUNCTION-LEVEL KEYWORD DENSITY (The Micro-Auditor) ---
         # Total structural signals divided by the physical lines of the function.
         total_keyword_hits = sum(hit_vector.values()) if hit_vector else total_hits
@@ -2287,7 +2276,6 @@ class StructuralExtractor:
             "args_count": args_count,
             "big_o_depth": big_o_depth,
             "is_recursive": is_recursive,
-            "db_complexity": db_complexity,
             "docstring": docstring,
             "logic_angle": round(angle, 2),
             "angle": round(angle, 2),

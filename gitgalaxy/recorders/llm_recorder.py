@@ -555,19 +555,6 @@ class LLMRecorder:
                     lines.append(f"  * *Intent:* {clean_doc}")
             lines.append("")
 
-        sorted_by_db = sorted(all_functions, key=lambda x: x[0].get("db_complexity", 0), reverse=True)
-        db_functions = [s for s in sorted_by_db if s[0].get("db_complexity", 0) > 0]
-
-        if db_functions:
-            lines.append("### Highest Data Gravity (Database Complexity)")
-            for f, file_path in db_functions[:10]:
-                lines.append(f"- `{f.get('name')}` (@ `{file_path}`) -> DB Complexity: **{f.get('db_complexity', 0)}**")
-                doc = f.get("docstring", "").strip()
-                if doc:
-                    clean_doc = " ".join(doc.split())[:150] + ("..." if len(doc) > 150 else "")
-                    lines.append(f"  * *Intent:* {clean_doc}")
-            lines.append("")
-
         # --- 9. DIRECTORY GROUPS ---
         lines.append("## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)")
         dir_groups = summary.get("directory_groups", {})
@@ -924,9 +911,7 @@ class LLMRecorder:
             lines.append(
                 f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
             )
-            lines.append(
-                f"- **Algorithmic:** {tel.get('max_algorithmic_complexity', 'O(N)')} | **DB Complexity:** {tel.get('max_db_complexity', 0)}"
-            )
+            lines.append(f"- **Algorithmic:** {tel.get('max_algorithmic_complexity', 'O(N)')}")
             lines.append(f"- **Risk Profile:** Cognitive Load ({cog}%), Tech Debt ({debt}%)")
 
             hv = s.get("hit_vector", [])
@@ -950,8 +935,7 @@ class LLMRecorder:
                 lines.append("**Top Internal Functions/Classes:**")
                 for sat in sats:
                     o_str = "O(2^N)" if sat.get("is_recursive", False) else f"O(N^{sat.get('big_o_depth', 1)})"
-                    db_str = f" | DB: {sat.get('db_complexity', 0)}" if sat.get("db_complexity", 0) > 0 else ""
-                    lines.append(f"  * `{sat.get('name')}` (Impact: {sat.get('impact')} | {o_str}{db_str})")
+                    lines.append(f"  * `{sat.get('name')}` (Impact: {sat.get('impact')} | {o_str})")
                     doc = sat.get("docstring", "").strip()
                     if doc:
                         clean_doc = " ".join(doc.split())[:100] + ("..." if len(doc) > 100 else "")
@@ -1329,7 +1313,6 @@ class LLMRecorder:
                     ecosystem_baseline TEXT,
                     repo_z_score REAL,
                     max_algorithmic_complexity TEXT,
-                    max_db_complexity INTEGER,
                     {risk_cols}
                 )
             """)
@@ -1358,7 +1341,6 @@ class LLMRecorder:
                     impact REAL,
                     big_o_depth INTEGER,
                     is_recursive BOOLEAN,
-                    db_complexity INTEGER,
                     docstring TEXT,
                     calls_out_to TEXT,
                     FOREIGN KEY(artifact_id) REFERENCES artifacts(id)
@@ -1445,10 +1427,10 @@ class LLMRecorder:
                         control_flow_ratio, author_distribution, ownership_entropy,
                         raw_churn_freq, cog_raw, ownership, popularity,
                         archetype, global_drift, local_archetype, local_drift,
-                        ecosystem_baseline, repo_z_score, max_algorithmic_complexity, max_db_complexity,
+                        ecosystem_baseline, repo_z_score, max_algorithmic_complexity,
                         {", ".join(self.RISK_SCHEMA)}
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
                 """,  # noqa: S608
                     (
                         p,
@@ -1475,7 +1457,6 @@ class LLMRecorder:
                         str(repo_macro),
                         repo_z,
                         tel.get("max_algorithmic_complexity", "O(N)"),
-                        tel.get("max_db_complexity", 0),
                         *rv,
                     ),
                 )
@@ -1496,7 +1477,6 @@ class LLMRecorder:
                             func.get("impact"),
                             func.get("big_o_depth", 1),
                             func.get("is_recursive", False),
-                            func.get("db_complexity", 0),
                             func.get("docstring", ""),
                             calls_json,
                         )
@@ -1512,7 +1492,7 @@ class LLMRecorder:
 
             cursor.executemany("INSERT INTO dna_hits VALUES (?, ?, ?)", all_dna_data)
             cursor.executemany(
-                "INSERT INTO functions (artifact_id, name, type_id, loc, impact, big_o_depth, is_recursive, db_complexity, docstring, calls_out_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO functions (artifact_id, name, type_id, loc, impact, big_o_depth, is_recursive, docstring, calls_out_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 all_functions,
             )
             cursor.executemany("INSERT INTO outbound_dependencies VALUES (?, ?)", all_outbound)

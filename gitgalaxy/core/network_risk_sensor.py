@@ -188,7 +188,6 @@ class NetworkRiskSensor:
                 risk_vector=f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA)),
                 max_big_o=max_big_o,
                 is_recursive=is_recursive,
-                db_complexity=(max([func.get("db_complexity", 0) for func in funcs]) if funcs else 0),
             )
 
         # 2. Wire the Edges (File-to-File Level 1 & Entity Level 2)

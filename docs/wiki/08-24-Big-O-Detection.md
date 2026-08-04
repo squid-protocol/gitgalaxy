@@ -3,7 +3,7 @@
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
-Performance and algorithmic complexity directly impact application security. Deeply nested loops ($O(N^2)$, $O(N^3)$) or exponential recursion ($O(2^N)$) connected to public API endpoints, network I/O, or database queries present severe Algorithmic Denial of Service (DoS) vulnerabilities. GitGalaxy evaluates function nesting depth and correlates it with public exposure and data operations. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Algorithmic DoS & Big-O Detection metric.
+Performance and algorithmic complexity directly impact application security. Deeply nested loops ($O(N^2)$, $O(N^3)$) or exponential recursion ($O(2^N)$) connected to public API endpoints or network I/O present severe Algorithmic Denial of Service (DoS) vulnerabilities. GitGalaxy evaluates function nesting depth and correlates it with public exposure and data operations. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Algorithmic DoS & Big-O Detection metric.
 
 ## Purpose
 The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
@@ -12,25 +12,30 @@ The metric calculates a density-based risk score (0-100) to flag files containin
 Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
 ## Design
-The engine analyzes function complexity depth, choke point multipliers, database gravity, and guardrail mitigations:
+The engine analyzes function complexity depth, choke point multipliers, and guardrail mitigations:
 
 | Variable | Signal Focus | Role / Multiplier | Description |
 | :--- | :--- | :--- | :--- |
 | `big_o_depth` | Algorithmic Depth | **Exponential Base** | Evaluates nesting depth. $O(N)$ ($\text{depth} < 2$) is ignored. $O(N^2)$ yields base threat of $4$; $O(N^3)$ yields base threat of $9$. |
 | `api` / `io` | Choke Points | **Additive Multiplier** | Functions exposed to public APIs or network I/O act as weaponizable triggers. |
-| `db_complexity` | Database Gravity | **Additive Multiplier** | Heavy loops paired with database queries generate severe locking and latency risks ($1.0 + \text{DBComplexity} \times 0.5$). |
 | `state_mutation` / `globals` | State Mutation | **Additive Multiplier** | Mutating state inside high-depth loops increases risk. |
 | `safety` / `panics_and_aborts` | Guardrails | **0.5x Dampener** | Break statements, return limits, and try/catch blocks reduce function threat mass by $50\%$. |
 | `popularity` | Network Posture | **0.1x – 3.0x** | Repository-wide import popularity scales the final threat mass. Safely isolated orphans are scaled to $0.10$. |
 
+> **#1013:** this metric used to also fold in a per-function `db_complexity` score
+> as a "Database Gravity" multiplier. It was removed engine-wide: despite the name,
+> it never looked for databases at all, it just summed unrelated `io` (x3),
+> `serialization_parsing` (x2), and `state_mutation` (x1) signature hits -- so any
+> IO-heavy or mutation-heavy function scored as "database complex" even with zero
+> database or ORM involvement. `api`/`io` choke points below already cover the real
+> IO signal this used to (partially, and inaccurately) proxy for.
 
 ### 1. Function Base Threat & Amplifiers
 For each function with nesting depth $\ge 2$:
 
 $$\text{BaseThreat} = \text{big\_o\_depth}^2$$
-$$\text{GravityMultiplier} = 1.0 + (\text{db\_complexity} \times 0.5)$$
 $$\text{ChokeMultiplier} = 1.0 + \text{api\_hits} + \text{io\_hits} + \text{flux\_hits}$$
-$$\text{FuncThreat} = \text{BaseThreat} \times \text{GravityMultiplier} \times \text{ChokeMultiplier}$$
+$$\text{FuncThreat} = \text{BaseThreat} \times \text{ChokeMultiplier}$$
 
 ### 2. Guardrail Mitigation
 If safety guardrails (`safety`, `panics_and_aborts`, `cleanup`) exist within the function, threat mass is halved:
@@ -60,7 +65,7 @@ def _calc_algorithmic_dos(
     popularity: int,
 ) -> float:
     """
-    Calculates Algorithmic DoS Exposure based on Big-O depth, data gravity, and network choke points.
+    Calculates Algorithmic DoS Exposure based on Big-O depth and network choke points.
     """
     if not functions:
         return 0.0
@@ -76,11 +81,7 @@ def _calc_algorithmic_dos(
         # 2. Base Threat (Exponential decay of performance)
         func_threat = float(depth**2)
 
-        # 3. Data Gravity & Network Choke Points
-        db_complex = func.get("db_complexity", 0)
-        if db_complex > 0:
-            func_threat *= 1.0 + (db_complex * 0.5)
-
+        # 3. Network Choke Points
         hv = func.get("hit_vector", {})
         api_hits = hv.get("api", 0)
         io_hits = hv.get("io", 0) + hv.get("sec_io", 0)
@@ -126,7 +127,7 @@ def _calc_algorithmic_dos(
 **Risk Classification:**
 * 🟦 **VERY LOW (Score 0–19):** Linear $O(N)$ execution or safely bounded stream iterations.
 * 🟨 **INTERMEDIATE (Score 40–59):** Isolated $O(N^2)$ logic guarded by safety bailouts or low exposure.
-* 🟥 **VERY HIGH (Score 80–100):** Recursive $O(2^N)$ or $O(N^3)$ loops directly wired into unauthenticated public API routes, I/O operations, or state-mutating database calls.
+* 🟥 **VERY HIGH (Score 80–100):** Recursive $O(2^N)$ or $O(N^3)$ loops directly wired into unauthenticated public API routes or state-mutating I/O operations.
 
 ## Pipeline Integration
 Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.

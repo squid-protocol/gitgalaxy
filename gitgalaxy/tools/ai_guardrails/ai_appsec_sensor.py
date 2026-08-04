@@ -41,7 +41,6 @@ class AIAppSecSensor:
 
             arch_api = equations.get("api", 0) > 0  # Publicly exposed
             arch_io = (equations.get("io", 0) + equations.get("sec_io", 0)) > 0  # Network/Disk I/O
-            db_complexity = file_data.get("max_db_complexity", 0)  # Data gravity
 
             # Security Structural Signatures
             sec_danger = equations.get("sec_high_risk_execution", 0) > 0  # eval, exec, subprocess
@@ -87,10 +86,17 @@ class AIAppSecSensor:
             # detectable proxy for "this file has agentic tool-binding capability" --
             # library-identity detection, exactly the kind of signal #323 said this
             # engine is good at, not the behavioral one it isn't.
-            if ai_orchestrator and (db_complexity >= 2 or arch_io) and safety_density < 0.5:
+            #
+            # #1013: this used to also gate on `db_complexity >= 2`, a per-function
+            # score removed engine-wide because it just summed unrelated io/
+            # serialization_parsing/state_mutation hits and called it "database
+            # complexity" -- it fired on any IO-heavy or mutation-heavy function
+            # regardless of whether a database was involved. `arch_io` alone
+            # already covers the "raw IO write access" signal this rule needs.
+            if ai_orchestrator and arch_io and safety_density < 0.5:
                 appsec_report["over_permissioned_agent"] = True
                 appsec_report["critical_warnings"].append(
-                    "CRITICAL [Over-Permissioned Agent]: AI is bound to tools with raw Database/IO write access and < 50% safety density. High risk of autonomous data corruption."
+                    "CRITICAL [Over-Permissioned Agent]: AI is bound to tools with raw Network/Disk IO write access and < 50% safety density. High risk of autonomous data corruption."
                 )
 
             # 3. Agentic Exfiltration Vector (Unsandboxed Sockets)

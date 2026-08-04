@@ -59,7 +59,7 @@ GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture
 - **The SQLite Database (`docs/self_scan/gitgalaxy_master.db`):** Instead of reading an entire heavy file to figure out dependencies or function bounds, run targeted SQL queries.
   - *Example:* Find complexity and out-bound calls before touching a function: 
     ```bash
-    sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT db_complexity, is_recursive, calls_out_to FROM function_data WHERE func_name = 'execute_pipeline';"
+    sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT big_o_depth, is_recursive, calls_out_to FROM function_data WHERE func_name = 'execute_pipeline';"
     ```
   - *Example:* Check a file's risk exposure before adding features (e.g. `risk_cognitive_load`, `risk_state_flux`):
     ```bash

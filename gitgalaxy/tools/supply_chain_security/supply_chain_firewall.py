@@ -27,14 +27,11 @@ from typing import Any, Optional, Union
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
 
-# The five behavioral categories this firewall gates on, mapped to their names
-# in SignalProcessor.RISK_SCHEMA -- Phase 3 computes these once; the firewall
-# reads them back instead of recomputing risk from raw hit counts.
+# The behavioral category this firewall gates on, mapped to its name in
+# SignalProcessor.RISK_SCHEMA -- Phase 3 computes it once; the firewall
+# reads it back instead of recomputing risk from raw hit counts.
 _FIREWALL_RISK_MAP = {
-    "Hidden Malware Risk": "obscured_payload",
-    "Data Injection Risk": "injection_surface",
     "Secrets Leak Risk": "secrets_risk",
-    "Memory Corruption Risk": "memory_corruption",
 }
 _FIREWALL_RISK_INDEXES = {
     label: SignalProcessor.RISK_SCHEMA.index(key)

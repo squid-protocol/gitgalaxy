@@ -10,7 +10,7 @@ def recorder():
     """Initializes the LLMRecorder with a controlled schema for deterministic testing."""
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "cognitive_load", "state_flux"],
-        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "prompt_injection"],
+        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "sec_tainted_injection"],
         "EXPOSURE_LABELS": {"tech_debt": "Tech Debt Exposure", "cognitive_load": "Cognitive Load Exposure"},
     }
     with patch("gitgalaxy.recorders.llm_recorder.config.RECORDING_SCHEMAS", mock_schemas):
@@ -43,7 +43,7 @@ def mock_pipeline_state():
             },
             "is_ml_threat": True,
             "risk_vector": [80.0, 60.0, 10.0],  # debt, cog_load, flux
-            "hit_vector": [2, 5, 1],  # danger, io, prompt_injection
+            "hit_vector": [2, 5, 1],  # danger, io, tainted_injection
             "functions": [
                 {
                     "name": "process_request",
@@ -155,9 +155,6 @@ def test_build_markdown_generates_context(recorder, mock_pipeline_state):
     # 4. Verify Architectural Choke Points
     assert "Top I/O Latency Risks" in md_text
     assert "src/api/handler.py" in md_text  # Our mock file has I/O hits
-
-    # 5. Verify Prompt Injection / Agentic RCE surfacing
-    assert "Prompt Injection Surface" in md_text
 
 
 def test_house_of_cards_section_reads_fragile_dependency_chain(recorder, mock_pipeline_state):

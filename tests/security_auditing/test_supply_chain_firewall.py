@@ -12,7 +12,7 @@ from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
 
 
 def _risk_vector(**scores):
-    """Builds a risk_vector fixture, e.g. _risk_vector(obscured_payload=70.0)."""
+    """Builds a risk_vector fixture, e.g. _risk_vector(secrets_risk=70.0)."""
     vector = [0.0] * len(SignalProcessor.RISK_SCHEMA)
     for key, value in scores.items():
         vector[SignalProcessor.RISK_SCHEMA.index(key)] = value
@@ -122,7 +122,7 @@ def test_threats_found_counts_unique_files_only():
             "path": "infected_file.js",
             "raw_imports": ["malware-one", "malware-two"],
             # Also add a structural threat to ensure it doesn't double count
-            "risk_vector": _risk_vector(obscured_payload=80.0),
+            "risk_vector": _risk_vector(secrets_risk=80.0),
             "equations": {},
             "coding_loc": 50,
         },
@@ -218,7 +218,7 @@ def test_behavioral_threat_evaluation(tmp_path):
                 "Files": {
                     "logic.js": {
                         "raw_imports": [],
-                        "risk_vector": _risk_vector(obscured_payload=70.0),
+                        "risk_vector": _risk_vector(secrets_risk=70.0),
                         "coding_loc": 50,
                     }
                 }
@@ -246,7 +246,7 @@ def test_build_time_execution_multiplier():
     risk_vector score scaled by the 10x build-time multiplier post-hoc, making
     them hyper-sensitive to anomalous logic that a normal file would not block on.
 
-    injection_surface=8.0 is chosen deliberately: below the 50.0 block threshold
+    secrets_risk=8.0 is chosen deliberately: below the 50.0 block threshold
     on its own (8.0 < 50.0), but 8.0 * 10.0 = 80.0 clears it. This is a real
     numeric re-verification of the post-hoc-scalar design (scaling the sigmoid
     OUTPUT), not a mechanical port of the old pre-sigmoid density multiplier.
@@ -258,13 +258,13 @@ def test_build_time_execution_multiplier():
         {
             "path": "setup.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(injection_surface=8.0),
+            "risk_vector": _risk_vector(secrets_risk=8.0),
             "coding_loc": 1000,
         },
         {
             "path": "standard_app.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(injection_surface=8.0),
+            "risk_vector": _risk_vector(secrets_risk=8.0),
             "coding_loc": 1000,
         },
     ]
@@ -420,42 +420,6 @@ def test_firewall_allowlist_loophole_guard():
 
 
 # ==============================================================================
-# TEST 11: INJECTION SURFACE RISK CATEGORY EVALUATION
-# ==============================================================================
-def test_behavioral_threat_evaluation_strips_prefix(tmp_path):
-    """
-    Proves the firewall correctly blocks on the 'injection_surface' risk_vector category.
-
-    Historically this test guarded a bug where the firewall's clone-and-strip of
-    the 'sec_' prefix from Phase 1 equations silently dropped keys. That whole
-    translation step is gone now -- the firewall reads risk_vector[idx] directly,
-    keyed off SignalProcessor.RISK_SCHEMA, with no prefix involved. Kept as a
-    distinct regression test (separate risk category from TEST 5) rather than
-    deleted, since it's still real coverage of the schema-index lookup.
-    """
-    mock_ram_graph = {
-        "6. Parsed Files (Scanned Artifacts)": {
-            "src": {
-                "Files": {
-                    "logic.js": {
-                        "raw_imports": [],
-                        "risk_vector": _risk_vector(injection_surface=65.0),
-                        "coding_loc": 50,
-                    }
-                }
-            }
-        }
-    }
-
-    graph_file = tmp_path / "results.json"
-    graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
-
-    with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
-        with pytest.raises(SystemExit):
-            firewall_module.main()
-
-
-# ==============================================================================
 # TEST 12: ISSUE #157 - THE TUPLE CRASH
 # ==============================================================================
 def test_tuple_import_handling(tmp_path):
@@ -569,33 +533,6 @@ def test_density_dilution_fix_for_build_scripts(tmp_path):
                         "raw_imports": [],
                         "risk_vector": _risk_vector(secrets_risk=7.0),
                         "coding_loc": 5,
-                    }
-                }
-            }
-        }
-    }
-
-    graph_file = tmp_path / "results.json"
-    graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
-
-    with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
-        with pytest.raises(SystemExit):
-            firewall_module.main()
-
-
-# ==============================================================================
-# TEST 16: ISSUE #161 - MISSING THREAT VECTORS (MEMORY CORRUPTION)
-# ==============================================================================
-def test_memory_corruption_detection(tmp_path):
-    """Proves 'Memory Corruption Risk' triggers a blocking action when detected."""
-    mock_ram_graph = {
-        "6. Parsed Files (Scanned Artifacts)": {
-            "root": {
-                "Files": {
-                    "payload.c": {
-                        "raw_imports": [],
-                        "risk_vector": _risk_vector(memory_corruption=80.0),
-                        "coding_loc": 50,
                     }
                 }
             }

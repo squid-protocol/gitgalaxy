@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-# galaxyscope:ignore sec_high_risk_execution, agentic_rce
+# galaxyscope:ignore sec_high_risk_execution
 class StateRehydrator:
     """
     Restores the GitGalaxy engine's memory state from a previous SQLite audit.

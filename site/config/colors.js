@@ -100,10 +100,7 @@ const Colors = {
         documentation: { title: "Documentation Risk", bins: [20, 40, 60, 90], labels: ["THOROUGH", "LOW", "MODERATE", "HIGH", "UNDOCUMENTED"] },
         ownership: { title: "Authorship", bins: [20, 40, 60, 80], labels: ["INDIVIDUAL", "SMALL TEAM", "SQUAD", "DEPT", "COMMUNITY"] },
         algorithmic_dos: { title: "Algorithmic DoS Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
-        obscured_payload: { title: "Obfuscation & Evasion Surface", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
         logic_bomb: { title: "Logic Bomb Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
-        injection_surface: { title: "Injection Surface Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
-        memory_corruption: { title: "Raw Memory Manipulation Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
         secrets_risk: { title: "Hardcoded Secrets Exposure", bins: [10, 40, 60, 80], labels: ["SECURE", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
 
         // Custom Diverging Spectrum (Excluded from Universal Injection)

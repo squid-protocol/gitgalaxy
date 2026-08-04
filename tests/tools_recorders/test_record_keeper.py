@@ -9,7 +9,7 @@ def keeper():
     """Initializes the RecordKeeper with a controlled schema for deterministic testing."""
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "cognitive_load"],
-        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "prompt_injection"],
+        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "sec_tainted_injection"],
     }
     with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
         return RecordKeeper()
@@ -60,7 +60,7 @@ def mock_pipeline_state():
                 "sec_extension_mismatch": 1,  # Maps to binary_anomaly, #368
             },
             "risk_vector": [80.0, 60.0],  # debt, cog_load
-            "hit_vector": [2, 5, 1],  # danger, io, prompt_injection
+            "hit_vector": [2, 5, 1],  # danger, io, tainted_injection
             "classes": [{"name": "APIRouter", "inheritance": ["BaseRouter"], "method_count": 5}],
             "functions": [
                 {

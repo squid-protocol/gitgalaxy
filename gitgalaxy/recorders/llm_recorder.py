@@ -627,9 +627,6 @@ class LLMRecorder:
         )
 
         vuln_keys = [
-            "obscured_payload",
-            "injection_surface",
-            "memory_corruption",
             "secrets_risk",
         ]
         vuln_found = False
@@ -657,70 +654,11 @@ class LLMRecorder:
             lines.append("*No critical vulnerabilities or security lens thresholds breached.*")
         lines.append("")
 
-        # --- 10.7 AUTONOMOUS AI VULNERABILITIES ---
-        lines.append("## 10.7 AUTONOMOUS AI VULNERABILITIES (AGENTIC RCE & PROMPT INJECTION)")
-        lines.append(
-            "> **AI CONTEXT:** Identifies untrusted data flowing into LLM context windows (Prompt Injection) and LLM outputs flowing into dynamic execution (Agentic RCE).\n"
-        )
-
-        pi_idx = self.SIGNAL_SCHEMA.index("prompt_injection") if "prompt_injection" in self.SIGNAL_SCHEMA else -1
-        rce_idx = self.SIGNAL_SCHEMA.index("agentic_rce") if "agentic_rce" in self.SIGNAL_SCHEMA else -1
-
-        ai_vuln_found = False
-
-        if rce_idx >= 0:
-            rce_files = sorted(
-                [
-                    s
-                    for s in parsed_files
-                    if len(s.get("hit_vector", [])) > rce_idx and s.get("hit_vector", [])[rce_idx] > 0
-                ],
-                key=lambda x: x.get("hit_vector", [])[rce_idx],
-                reverse=True,
-            )
-            if rce_files:
-                ai_vuln_found = True
-                lines.append("### 🚨 Agentic RCE (Critical)")
-                lines.append(
-                    "The following files pass autonomous LLM output directly into system execution commands. This allows the AI to run arbitrary code on the host machine.\n"
-                )
-                for s in rce_files[:5]:
-                    lines.append(
-                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[rce_idx]}** confirmed execution vectors"
-                    )
-                lines.append("")
-
-        if pi_idx >= 0:
-            pi_files = sorted(
-                [
-                    s
-                    for s in parsed_files
-                    if len(s.get("hit_vector", [])) > pi_idx and s.get("hit_vector", [])[pi_idx] > 0
-                ],
-                key=lambda x: x.get("hit_vector", [])[pi_idx],
-                reverse=True,
-            )
-            if pi_files:
-                ai_vuln_found = True
-                lines.append("### 💉 Prompt Injection Surface")
-                lines.append(
-                    "The following files pass raw, untrusted external I/O directly into an LLM context window without sanitization.\n"
-                )
-                for s in pi_files[:5]:
-                    lines.append(
-                        f"- `{s.get('path')}` -> **{s.get('hit_vector', [])[pi_idx]}** exposed injection surfaces"
-                    )
-                lines.append("")
-
-        if not ai_vuln_found:
-            lines.append("*No autonomous AI vulnerabilities detected.*")
-        lines.append("")
-
         # ======================================================================
-        # 10.8 ECOSYSTEM SECURITY AUDITS
+        # 10.7 ECOSYSTEM SECURITY AUDITS
         # ======================================================================
         audits = summary.get("ecosystem_audits", {})
-        lines.append("## 10.8 ECOSYSTEM SECURITY AUDITS")
+        lines.append("## 10.7 ECOSYSTEM SECURITY AUDITS")
         lines.append(
             "> **AI CONTEXT:** High-level perimeter defense metrics from the X-Ray, Supply Chain Firewall, and API Network Mapper."
         )

@@ -154,19 +154,6 @@ class SecurityLens:
                 r"ssh-(?:rsa|ed25519)[ \t]+[A-Za-z0-9+/]+[=]{0,2}",
                 re.I,
             ),
-            # 11. Raw Memory Overrides & Corruption Vectors
-            "memory_corruption": re.compile(
-                r"\bEXEC\s+CICS\s+(?:GETMAIN|FREEMAIN)\b|"
-                r"\bSET\s+ADDRESS\s+OF\b|"
-                r"\b(?:malloc|calloc|realloc|free|memcpy|memset|memmove|strcpy|strcat|sprintf)\b\s*\(|"
-                r"\b(?:asm|__asm__|__asm)\b\s*[\(\{]",
-                re.I,
-            ),
-            # 12. Agentic RCE & Prompt Injection Boundaries
-            "llm_hooks": re.compile(
-                r"\b(?:openai|anthropic|cohere|litellm|langchain|llama_index|bedrock|chat\.completions\.create|invoke|generate)\b",
-                re.I,
-            ),
             # 13. Raw Database Sinks
             "db_hooks": re.compile(
                 r"\b(?:execute|query|raw|cursor|execute_sql|executeBatch|query_db)\b\s*\(",
@@ -254,7 +241,6 @@ class SecurityLens:
                     if not is_auto_gen and key in {
                         "io",
                         "high_risk_execution",
-                        "llm_hooks",
                         "db_hooks",
                         "hardcoded_secrets",
                     }:
@@ -285,22 +271,14 @@ class SecurityLens:
 
         # ---> 4. DATA FLOW & TAINT TRACKING (O(H) Offset Mapper) <---
         taint_hits = 0
-        prompt_injection_hits = 0
-        agentic_rce_hits = 0
         taint_snippets: list[str] = []
 
         has_global_io = counts.get("io", 0) > 0
         has_global_danger = counts.get("high_risk_execution", 0) > 0
-        has_global_llm = counts.get("llm_hooks", 0) > 0
         has_global_db = counts.get("db_hooks", 0) > 0
 
-        if (
-            (has_global_io or has_global_llm)
-            and (has_global_danger or has_global_llm or has_global_db)
-            and not is_auto_gen
-        ):
+        if has_global_io and (has_global_danger or has_global_db) and not is_auto_gen:
             tainted_vars = set()
-            llm_tainted_vars = set()
             common_keywords = {
                 "const",
                 "let",
@@ -326,7 +304,6 @@ class SecurityLens:
 
                 has_io = "io" in threats
                 has_danger = "high_risk_execution" in threats
-                has_llm = "llm_hooks" in threats
                 has_db = "db_hooks" in threats
 
                 # Scenario A: Same-Line Detonation
@@ -334,17 +311,9 @@ class SecurityLens:
                     taint_hits += 1
                     if len(taint_snippets) < 3:
                         taint_snippets.append(f"[I/O -> Exec/DB]: {line[:60]}...")
-                if has_io and has_llm:
-                    prompt_injection_hits += 1
-                    if len(taint_snippets) < 3:
-                        taint_snippets.append(f"[I/O -> LLM]: {line[:60]}...")
-                if has_llm and has_danger:
-                    agentic_rce_hits += 1
-                    if len(taint_snippets) < 3:
-                        taint_snippets.append(f"[LLM -> RCE]: {line[:60]}...")
 
                 # Scenario B: Left-Hand Side (LHS) Assignment Extraction
-                if has_io or has_llm:
+                if has_io:
                     # Prevent splitting on comparison operators (==, ===, !=, !==, <=, >=)
                     if re.search(r"[=!<>]=", line):
                         assign_op = None
@@ -356,38 +325,20 @@ class SecurityLens:
                         possible_vars = re.findall(r"\b[a-zA-Z_]\w*\b", lhs)
                         for v in possible_vars:
                             if v not in common_keywords:
-                                if has_io:
-                                    tainted_vars.add(v)
-                                if has_llm:
-                                    llm_tainted_vars.add(v)
+                                tainted_vars.add(v)
 
                 # Scenario C: Downward Flow Scan (Check Execution Sink)
                 # Because execution requires a sink, the sink line MUST be in threat_lines!
-                if (has_danger or has_db or has_llm) and (tainted_vars or llm_tainted_vars):
+                if (has_danger or has_db) and tainted_vars:
                     for t_var in tainted_vars:
                         # O(1) string check before running full regex
                         if t_var in line and re.search(rf"\b{re.escape(t_var)}\b", line):
-                            if has_danger or has_db:
-                                taint_hits += 1
-                                if len(taint_snippets) < 3:
-                                    taint_snippets.append(f"[Taint -> Exec/DB]: {line[:60]}...")
-                            if has_llm:
-                                prompt_injection_hits += 1
-                                if len(taint_snippets) < 3:
-                                    taint_snippets.append(f"[Taint -> LLM]: {line[:60]}...")
-
-                    for l_var in llm_tainted_vars:
-                        if l_var in line and re.search(rf"\b{re.escape(l_var)}\b", line) and has_danger:
-                            agentic_rce_hits += 1
+                            taint_hits += 1
                             if len(taint_snippets) < 3:
-                                taint_snippets.append(f"[LLM State -> RCE]: {line[:60]}...")
+                                taint_snippets.append(f"[Taint -> Exec/DB]: {line[:60]}...")
 
         counts["tainted_injection"] = taint_hits
-        counts["prompt_injection"] = prompt_injection_hits
-        counts["agentic_rce"] = agentic_rce_hits
         snippets["tainted_injection"] = taint_snippets
-        snippets["prompt_injection"] = [s for s in taint_snippets if "LLM" in s]
-        snippets["agentic_rce"] = [s for s in taint_snippets if "RCE" in s]
 
         return {"counts": counts, "snippets": snippets, "positions": dict(positions)}
 

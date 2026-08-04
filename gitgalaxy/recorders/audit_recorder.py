@@ -381,18 +381,6 @@ class AuditRecorder:
         # ==========================================================
         sec_risk_mapping = {
             "secrets_risk": {"label": "Secrets Risk Exposure", "threshold": 0.1},
-            "obscured_payload": {
-                "label": "Hidden Malware Risk Exposure",
-                "threshold": 60.0,
-            },
-            "injection_surface": {
-                "label": "Injection Surface Risk Exposure",
-                "threshold": 65.0,
-            },
-            "memory_corruption": {
-                "label": "Memory Corruption Risk Exposure",
-                "threshold": 60.0,
-            },
         }
 
         sec_hit_mapping = {
@@ -484,7 +472,6 @@ class AuditRecorder:
         # Count actual malicious regex hits (ignoring the _description metadata string)
         malicious_hits_total = sum(v for k, v in raw_threat_hits.items() if isinstance(v, int))
 
-        has_malware = vuln_exposures["Hidden Malware Risk Exposure"]["Artifacts Flagged"] > 0
         has_secrets = vuln_exposures["Secrets Risk Exposure"]["Artifacts Flagged"] > 0
 
         # Explicit tie-break by Path so equal-confidence files (very common at
@@ -510,7 +497,7 @@ class AuditRecorder:
 
         if ml_threat_files:
             audit_status = "ML_CONFIRMED_THREAT_DETECTED"
-        elif quarantined_files or has_malware or has_secrets or malicious_hits_total > 0:
+        elif quarantined_files or has_secrets or malicious_hits_total > 0:
             audit_status = "CRITICAL_THREATS_DETECTED (Rule-Based)"
         elif any(v["Artifacts Flagged"] > 0 for v in vuln_exposures.values()):
             audit_status = "ELEVATED_SURFACE_RISK"

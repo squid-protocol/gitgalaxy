@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 
@@ -324,19 +326,28 @@ def test_signal_processor_aggregations(processor):
 # ==============================================================================
 # TEST 11: THE MINIFIED VENDOR TRIPWIRE
 # ==============================================================================
-def test_signal_processor_minified_tripwire(processor):
-    """Proves minified files bypass standard math and trigger explicit risk spikes."""
+def test_signal_processor_minified_tripwire(processor, caplog):
+    """
+    Proves minified files bypass standard math and surface malicious intent via a
+    critical log, rather than fabricating a risk-vector spike on a metric this
+    AST-less engine can't structurally back (#1020 removed the obscured_payload/
+    injection_surface composites this tripwire used to spike).
+    """
     meta, sig = create_synthetic_star(processor, "vendor_bundle", 1000, {"sec_high_risk_execution": 50})
     meta["is_minified"] = True  # Trigger the tripwire
 
-    res = processor.calculate_risk_vector(meta, sig)
+    with caplog.at_level(logging.CRITICAL, logger="processing"):
+        res = processor.calculate_risk_vector(meta, sig)
 
     # Standard cognitive load should be 0.0, and the file impact forced to 1.0
     assert res["risk_vector"][0] == 0.0, "Standard cognitive load should be bypassed for minified files!"
     assert res["file_impact"] == 1.0, "Minified files should have an impact of exactly 1.0!"
 
-    # We don't know the exact index, but the 100.0 spike MUST exist in the array
-    assert 100.0 in res["risk_vector"], "Minified tripwire failed to spike the malicious exposure vector!"
+    # All standard risk math is bypassed for minified files -- the whole vector stays zeroed.
+    assert all(v == 0.0 for v in res["risk_vector"]), "Minified files should bypass all standard risk math!"
+
+    # The malicious intent is still surfaced, just via a critical log instead.
+    assert "OBFUSCATION DETECTED" in caplog.text, "Minified tripwire failed to flag malicious intent!"
 
 
 # ==============================================================================
@@ -478,83 +489,6 @@ def test_signal_processor_ai_topology(processor):
     insights = " ".join(topology["insights"])
     assert "catastrophically across the system" in insights, "Failed to detect high PageRank blast radius!"
     assert "Cognitive Choke Point" in insights, "Failed to detect high Betweenness!"
-
-
-# ==============================================================================
-# TEST 16: WEAPONIZABLE SURFACE EXPOSURES (Security Lenses)
-# ==============================================================================
-def test_signal_processor_security_lenses(processor):
-    """Ensures all security lens risk equations return valid floats and properly scale."""
-
-    # 1. Obscured Payload (Requires intent_mass via sec_danger to bypass the 95% false-positive shield)
-    m_ob, sig_ob = create_synthetic_star(
-        processor,
-        "obscured",
-        100,
-        {
-            "sec_reflection_metaprogramming": 20,
-            "sec_bitwise_ops": 50,
-            "sec_shadow_imports": 5,
-            "sec_high_risk_execution": 10,
-        },
-    )
-
-    # 3. Injection Surface
-    m_inj, sig_inj = create_synthetic_star(processor, "injection", 100, {"sec_io": 30, "sec_high_risk_execution": 30})
-
-    # 4. Memory Corruption (Requires native memory language like 'c' + malicious intent to bypass the 95% shield)
-    m_mem, sig_mem = create_synthetic_star(
-        processor,
-        "memory",
-        100,
-        {"pointers": 50, "memory_alloc": 20, "sec_high_risk_execution": 10},
-    )
-    m_mem["lang_id"] = "c"
-
-    r_ob = processor.calculate_risk_vector(m_ob, sig_ob)
-    r_inj = processor.calculate_risk_vector(m_inj, sig_inj)
-    r_mem = processor.calculate_risk_vector(m_mem, sig_mem)
-
-    idx_ob = processor.RISK_SCHEMA.index("obscured_payload")
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
-    idx_mem = processor.RISK_SCHEMA.index("memory_corruption")
-
-    assert isinstance(r_ob["risk_vector"][idx_ob], float), "Obscured payload must return a float!"
-    assert r_ob["risk_vector"][idx_ob] > 10.0, "Obscured payload failed to register!"
-
-    assert isinstance(r_inj["risk_vector"][idx_inj], float), "Injection surface must return a float!"
-    assert r_inj["risk_vector"][idx_inj] > 10.0, "Injection surface failed to register!"
-
-    assert isinstance(r_mem["risk_vector"][idx_mem], float), "Memory corruption must return a float!"
-    assert r_mem["risk_vector"][idx_mem] >= 9.0, "Memory corruption failed to register!"
-
-
-# ==============================================================================
-# TEST 16.1: THE DB INJECTION FUNNEL (#105)
-# ==============================================================================
-def test_signal_processor_db_injection_funnel(processor):
-    """
-    sec_amplified_sql_injection (galaxyscope.py's post-hoc correlation of a
-    public API route against a raw DB sink via correlate_against_ledger(),
-    #105) must spike Injection Surface Exposure exactly like the deterministic
-    sec_tainted_injection signal does, even with no other io/exec signals
-    present -- it is proof of a real funnel, not a probabilistic guess.
-    """
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
-
-    m_bare, sig_bare = create_synthetic_star(processor, "bare", 100, {})
-    m_funnel, sig_funnel = create_synthetic_star(processor, "funnel", 100, {"sec_amplified_sql_injection": 1})
-
-    r_bare = processor.calculate_risk_vector(m_bare, sig_bare)
-    r_funnel = processor.calculate_risk_vector(m_funnel, sig_funnel)
-
-    assert r_bare["risk_vector"][idx_inj] == 0.0, (
-        "A file with zero signals should have zero injection surface exposure!"
-    )
-    assert r_funnel["risk_vector"][idx_inj] > 10.0, (
-        "A confirmed DB injection funnel must spike Injection Surface Exposure "
-        "even without a separate sec_high_risk_execution/sec_io signal!"
-    )
 
 
 # ==============================================================================
@@ -802,74 +736,6 @@ def test_signal_processor_civil_war_void(processor):
 
 
 # ==============================================================================
-# TEST 29: LLM EXECUTION VULNERABILITY
-# ==============================================================================
-def test_signal_processor_llm_execution_vulnerability(processor):
-    """Proves that pairing an LLM Orchestrator with dynamic execution creates a massive Injection Surface spike."""
-    # 1. Standard dynamic execution
-    m_std, sig_std = create_synthetic_star(processor, "std_exec", 100, {"sec_high_risk_execution": 10})
-
-    # 2. Agentic dynamic execution
-    # #323: ai_tools removed here -- it was removed from SIGNAL_SCHEMA
-    # entirely, so it was already inert dead data in this fixture even
-    # before that (calculate_risk_vector never read it directly; only
-    # llm_orchestrator drives the amplification this test verifies).
-    m_agent, sig_agent = create_synthetic_star(
-        processor,
-        "agent_exec",
-        100,
-        {"sec_high_risk_execution": 10, "llm_orchestrator": 5},
-    )
-
-    r_std = processor.calculate_risk_vector(m_std, sig_std)
-    r_agent = processor.calculate_risk_vector(m_agent, sig_agent)
-
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
-
-    assert r_agent["risk_vector"][idx_inj] > r_std["risk_vector"][idx_inj], (
-        "LLM execution vulnerability failed to amplify injection risk!"
-    )
-
-
-# ==============================================================================
-# TEST 30: CRYPTOGRAPHY & PROFESSIONALISM SHIELDS
-# ==============================================================================
-def test_signal_processor_crypto_professionalism_shield(processor):
-    """Proves that heavy documentation, safety blocks, and crypto math dampen obfuscation false positives."""
-    # 1. Raw obfuscation (High entropy, bitwise math) + malicious intent
-    m_raw, sig_raw = create_synthetic_star(
-        processor,
-        "raw_obf",
-        100,
-        {"sec_reflection_metaprogramming": 50, "sec_bitwise_ops": 50, "sec_high_risk_execution": 10},
-    )
-
-    # 2. Professional cryptography (Same obfuscation, but heavily documented and safe)
-    m_pro, sig_pro = create_synthetic_star(
-        processor,
-        "pro_crypto",
-        100,
-        {
-            "sec_reflection_metaprogramming": 50,
-            "sec_bitwise_ops": 50,
-            "sec_high_risk_execution": 10,
-            "doc": 100,
-            "safety": 20,
-            "cryptography": 10,
-        },
-    )
-
-    r_raw = processor.calculate_risk_vector(m_raw, sig_raw)
-    r_pro = processor.calculate_risk_vector(m_pro, sig_pro)
-
-    idx_ob = processor.RISK_SCHEMA.index("obscured_payload")
-
-    assert r_pro["risk_vector"][idx_ob] < r_raw["risk_vector"][idx_ob], (
-        "Crypto/Professionalism shield failed to dampen obfuscation risk!"
-    )
-
-
-# ==============================================================================
 # TEST 31: LLM API SECRETS LEAK
 # ==============================================================================
 def test_signal_processor_llm_api_secrets(processor):
@@ -1003,32 +869,6 @@ def test_signal_processor_ai_topology_dl_ml(processor):
     sum_ml = processor.summarize_galaxy_metrics([m_ml], [])
     assert sum_ml["ai_topology"]["classification"] == "Statistical Machine Learning", (
         "Failed to classify Traditional ML!"
-    )
-
-
-# ==============================================================================
-# TEST 35: PARANOID MODE ACTIVATION
-# ==============================================================================
-def test_signal_processor_paranoid_mode(processor):
-    """Proves that Paranoid Mode tightens the Sigmoid thresholds across security lenses."""
-    m_para, sig_para = create_synthetic_star(
-        processor, "paranoid_file", 500, {"sec_high_risk_execution": 5, "sec_io": 5}
-    )
-
-    # Calculate in Standard Mode
-    processor.is_paranoid = False
-    r_std = processor.calculate_risk_vector(m_para, sig_para)
-
-    # Calculate in Paranoid Mode
-    processor.is_paranoid = True
-    r_para = processor.calculate_risk_vector(m_para, sig_para)
-
-    # Reset the engine state so subsequent tests aren't affected
-    processor.is_paranoid = False
-
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
-    assert r_para["risk_vector"][idx_inj] > r_std["risk_vector"][idx_inj], (
-        "Paranoid mode failed to amplify the risk exposure!"
     )
 
 
@@ -1268,32 +1108,6 @@ def test_signal_processor_darkness_ratio(processor):
 
 
 # ==============================================================================
-# TEST 45: HARDWARE BRIDGE DAMPENERS
-# ==============================================================================
-def test_signal_processor_hardware_bridge_shield(processor):
-    """Proves that Hardware Bridges (Serial/USB I/O) are forgiven for dynamic execution."""
-    # 1. Raw Execution (Malicious)
-    m_raw, sig_raw = create_synthetic_star(processor, "raw_exec", 100, {"sec_high_risk_execution": 10, "sec_io": 10})
-
-    # 2. Hardware Execution (Expected Arduino/Serial behavior)
-    m_hw, sig_hw = create_synthetic_star(
-        processor,
-        "hw_exec",
-        100,
-        {"sec_high_risk_execution": 10, "sec_io": 10, "hardware_bridge": 10},
-    )
-
-    r_raw = processor.calculate_risk_vector(m_raw, sig_raw)
-    r_hw = processor.calculate_risk_vector(m_hw, sig_hw)
-
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
-
-    assert r_hw["risk_vector"][idx_inj] < r_raw["risk_vector"][idx_inj], (
-        "Hardware bridge shield failed to dampen injection risk!"
-    )
-
-
-# ==============================================================================
 # TEST 47: TIER 3 LANGUAGE FALLBACK
 # ==============================================================================
 def test_signal_processor_tier_3_language(processor):
@@ -1416,13 +1230,13 @@ def test_signal_processor_inline_suppressions(processor):
     res = processor.calculate_risk_vector(meta, sig)
 
     idx_debt = processor.RISK_SCHEMA.index("tech_debt")
-    idx_inj = processor.RISK_SCHEMA.index("injection_surface")
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
 
     # 1. Assert the targeted risk was zeroed out
     assert res["risk_vector"][idx_debt] == 0.0, "Inline suppression failed to zero out Tech Debt!"
 
     # 2. Assert un-suppressed risks are still 100% lethal
-    assert res["risk_vector"][idx_inj] > 80.0, "Inline suppression accidentally wiped out Injection Surface!"
+    assert res["risk_vector"][idx_cog] > 80.0, "Inline suppression accidentally wiped out Cognitive Load!"
 
     # 3. Assert the metadata passed cleanly to the telemetry for the UI
     assert "made_up_phantom_123" in res["telemetry"]["mitigation_telemetry"], (

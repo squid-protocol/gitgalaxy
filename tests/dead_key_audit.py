@@ -95,7 +95,7 @@ ALLOWLIST = {
     # --- External YAML/env config ---
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",
-    "vulnerability_density_min": "optional risk_tuning YAML key (signal_processor.py._calc_injection_surface-style tuning)",
+    "vulnerability_density_min": "optional risk_tuning YAML key (signal_processor.py risk-equation-style tuning)",
     "asymptotic_dampener": "optional risk_tuning YAML key (signal_processor.py)",
     "quarantine": "STATIC_ARCHETYPES app-config constant, read with a graceful string fallback",
     # --- Explicit dual/legacy-schema compatibility shims ---

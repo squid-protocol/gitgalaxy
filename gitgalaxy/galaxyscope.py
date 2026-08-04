@@ -2964,7 +2964,7 @@ def main():
         scope = Orchestrator(args.target, full_config)
 
         if args.incremental:
-            from gitgalaxy.state_rehydrator import StateRehydrator
+            from gitgalaxy.core.state_rehydrator import StateRehydrator
 
             logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
 

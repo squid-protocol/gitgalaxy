@@ -18,9 +18,15 @@ orientation and prioritization, not symbol lookup.
 
 The DB is gitignored (*.db, see .gitignore) and NOT committed -- it's a local,
 disposable, cheaply-regenerable artifact, same spirit as .crucible_venvs/.
-Regenerate it whenever it's gone stale enough to matter (e.g. after a batch
-of merged PRs); there's no incremental-staleness tracking here, just a fast
-full rescan (~6-8s on this repo as of 2026-07).
+
+Regeneration uses galaxyscope's own `--incremental` Delta Scan (gitgalaxy/state_rehydrator.py)
+when a usable baseline already exists at DB_PATH: it rehydrates the previous structural state
+from SQLite, diffs the working tree against the baseline commit, and only re-parses
+added/modified files -- the same mechanism CI uses for large repos. If the DB already exactly
+matches current HEAD with a clean working tree, the scan is skipped entirely. First run (or a
+DB from before this existed) falls back to a full scan. Either way, run() prunes the DB back
+down to a single commit's rows afterward -- see _prune_stale_commits()'s docstring for why that
+matters.
 
 USAGE
     python tests/tools/self_scan.py               # regenerate, print a summary
@@ -47,11 +53,15 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SELF_SCAN_DIR = REPO_ROOT / "docs" / "self_scan"
 DB_PATH = SELF_SCAN_DIR / "gitgalaxy_master.db"
+# Matches target_path.name in galaxyscope.py's main() -- the exact string both
+# the recorder (repo_name column) and StateRehydrator.load_latest_state() key on.
+PROJECT_NAME = REPO_ROOT.name
 
 # Mirrors the HAS_NETWORKX / HAS_TIKTOKEN / ML_AVAILABLE / HAS_PYYAML checks in
 # galaxyscope.py / network_risk_sensor.py / security_auditor.py. Without every
@@ -78,30 +88,97 @@ def _check_full_precision_deps() -> None:
         )
 
 
-def regenerate() -> None:
+def _git(*args: str) -> str:
+    return subprocess.check_output(  # noqa: S603 -- fixed "git" binary via PATH, args are literals/constants only
+        ["git", *args], cwd=REPO_ROOT, text=True, stderr=subprocess.DEVNULL
+    ).strip()
+
+
+def _current_head() -> str:
+    return _git("rev-parse", "HEAD")
+
+
+def _working_tree_dirty() -> bool:
+    return bool(_git("status", "--porcelain"))
+
+
+def _db_commit_hashes() -> set[str]:
+    if not DB_PATH.exists():
+        return set()
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        rows = conn.execute(
+            "SELECT DISTINCT commit_hash FROM file_data WHERE repo_name = ?", (PROJECT_NAME,)
+        ).fetchall()
+        return {r[0] for r in rows}
+    except sqlite3.OperationalError:
+        # Pre-existing DB predates a column/table this query relies on -- treat as unusable.
+        return set()
+    finally:
+        conn.close()
+
+
+def _prune_stale_commits(keep_hash: str) -> None:
+    """
+    record_mission() (gitgalaxy/recorders/record_keeper.py) DELETEs-then-INSERTs keyed on
+    (repo_name, commit_hash) -- a Delta Scan against a moved HEAD writes a NEW commit_hash's
+    rows without touching the old baseline's, so left alone they'd accumulate forever as HEAD
+    moves. This DB is meant to reflect current state only (no history queries), so collapse it
+    back down to a single commit after every scan, incremental or not.
+
+    file_data/folder_data/repo_data all carry commit_hash directly and have no FK relationship
+    to each other (checked: file_data has no FK back to repo_data), so each needs its own
+    DELETE. function_data/class_data are NOT touched directly -- they cascade automatically via
+    their file_id -> file_data(id) ON DELETE CASCADE foreign key.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("PRAGMA foreign_keys = ON;")
+        for table in ("repo_data", "folder_data", "file_data"):
+            conn.execute(f"DELETE FROM {table} WHERE repo_name = ? AND commit_hash != ?", (PROJECT_NAME, keep_hash))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def regenerate() -> bool:
+    """Returns True if a scan actually ran, False if the existing DB was already current."""
     _check_full_precision_deps()
     SELF_SCAN_DIR.mkdir(parents=True, exist_ok=True)
     galaxyscope = shutil.which("galaxyscope")
     if not galaxyscope:
         sys.exit("galaxyscope not found on PATH -- activate the venv with gitgalaxy installed (pip install -e .)")
 
-    # The recorder DELETEs-then-INSERTs keyed on (repo_name, commit_hash), so it
-    # only replaces rows from a run at the SAME commit -- rows from a previous
-    # commit would otherwise accumulate forever as HEAD moves. Since this DB is
-    # meant to reflect current state only (no history queries), just start
-    # from a clean file every time instead of relying on that keyed replace.
-    DB_PATH.unlink(missing_ok=True)
+    head = _current_head()
+    existing = _db_commit_hashes()
 
+    # DB already reflects exactly this commit with nothing uncommitted on top -- a rescan
+    # (incremental or not) would produce byte-identical structural facts. Skip the subprocess.
+    if existing == {head} and not _working_tree_dirty():
+        return False
+
+    # StateRehydrator.load_latest_state() needs a real baseline row to rehydrate from -- if the
+    # DB is missing, or predates this repo_name/schema, there's nothing to diff against, so
+    # start clean instead of passing --incremental at a baseline it can't use.
+    incremental = DB_PATH.exists() and bool(existing)
+    if not incremental:
+        DB_PATH.unlink(missing_ok=True)
+
+    cmd = [
+        galaxyscope,
+        str(REPO_ROOT),
+        "--config",
+        str(REPO_ROOT / ".galaxyscope.yaml"),
+        "--db-only",
+        "--output",
+        str(SELF_SCAN_DIR / "gitgalaxy.json"),
+    ]
+    if incremental:
+        cmd += ["--incremental", str(DB_PATH)]
+
+    start = time.time()
     result = subprocess.run(  # noqa: S603 -- galaxyscope resolved absolute via shutil.which, fixed args
-        [
-            galaxyscope,
-            str(REPO_ROOT),
-            "--config",
-            str(REPO_ROOT / ".galaxyscope.yaml"),
-            "--db-only",
-            "--output",
-            str(SELF_SCAN_DIR / "gitgalaxy.json"),
-        ],
+        cmd,
         cwd=REPO_ROOT,
         # Merge with (not replace) the parent env -- galaxyscope shells out to
         # `git` to resolve commit_hash, which needs PATH/HOME/etc. A bare
@@ -112,19 +189,33 @@ def regenerate() -> None:
         text=True,
         timeout=120,
     )
+    elapsed = time.time() - start
     if result.returncode != 0 or not DB_PATH.exists():
         print(result.stdout)
         print(result.stderr, file=sys.stderr)
         sys.exit(f"self-scan failed -- {DB_PATH} was not produced")
 
+    # galaxyscope falls back to a full scan internally if the delta (git diff against the
+    # baseline commit) fails, so the DB may hold more than just {head} even on the incremental
+    # path -- and on the happy path, the keyed DELETE-then-INSERT above never touches the old
+    # baseline's rows either way. Collapse to current HEAD regardless of which path ran.
+    _prune_stale_commits(_current_head())
 
-def print_summary() -> None:
+    mode = "incremental" if incremental else "full"
+    print(f"   ({mode} scan, {elapsed:.1f}s)")
+    return True
+
+
+def print_summary(ran: bool) -> None:
     conn = sqlite3.connect(DB_PATH)
     try:
         (total_files,) = conn.execute("SELECT COUNT(*) FROM file_data").fetchone()
         (total_funcs,) = conn.execute("SELECT COUNT(*) FROM function_data").fetchone()
         (total_classes,) = conn.execute("SELECT COUNT(*) FROM class_data").fetchone()
-        print(f"✅ Regenerated {DB_PATH.relative_to(REPO_ROOT)}")
+        if ran:
+            print(f"✅ Regenerated {DB_PATH.relative_to(REPO_ROOT)}")
+        else:
+            print(f"✅ {DB_PATH.relative_to(REPO_ROOT)} already current at HEAD -- scan skipped")
         print(f"   {total_files} files, {total_funcs} functions, {total_classes} classes indexed.")
 
         # Belt-and-suspenders: _check_full_precision_deps() confirms the
@@ -149,8 +240,8 @@ def main() -> int:
     parser.add_argument("--query", help="Ad hoc SQL to run against the DB after regenerating, printed as rows")
     args = parser.parse_args()
 
-    regenerate()
-    print_summary()
+    ran = regenerate()
+    print_summary(ran)
 
     if args.query:
         conn = sqlite3.connect(DB_PATH)

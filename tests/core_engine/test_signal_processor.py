@@ -481,80 +481,12 @@ def test_signal_processor_ai_topology(processor):
 
 
 # ==============================================================================
-# TEST 15: ALGORITHMIC DOS EXPOSURE
-# ==============================================================================
-def test_signal_processor_algorithmic_dos(processor):
-    """Proves the Big-O risk exposure scales with network choke points, and is dampened by safety guardrails."""
-
-    # 1. Isolated Harmless Loop: O(N^3) but no IO/API and 0 popularity.
-    m_iso, sig_iso = create_synthetic_star(processor, "isolated", 100, {"api": 0})
-    m_iso["popularity"] = 0
-    m_iso["functions"] = [
-        {
-            "name": "safe_loop",
-            "loc": 50,
-            "big_o_depth": 3,
-            "hit_vector": {},
-        }
-    ]
-
-    # 2. API DoS Bomb: O(N^3) + Exposed to API
-    m_bomb, sig_bomb = create_synthetic_star(processor, "exposed_bomb", 500, {"api": 4})
-    m_bomb["popularity"] = 2
-    m_bomb["functions"] = [
-        {
-            "name": "dos_bomb",
-            "loc": 250,
-            "big_o_depth": 3,
-            "hit_vector": {"api": 4},
-        }
-    ]
-
-    # 3. Guarded DoS Bomb: Same as above but mitigated by safety bailouts
-    m_guard, sig_guard = create_synthetic_star(processor, "guarded_bomb", 500, {"api": 4})
-    m_guard["popularity"] = 2
-    m_guard["functions"] = [
-        {
-            "name": "safe_bomb",
-            "loc": 250,
-            "big_o_depth": 3,
-            "hit_vector": {"api": 4, "safety": 1, "panics_and_aborts": 2},
-        }
-    ]
-
-    res_iso = processor.calculate_risk_vector(m_iso, sig_iso)
-    res_bomb = processor.calculate_risk_vector(m_bomb, sig_bomb)
-    res_guard = processor.calculate_risk_vector(m_guard, sig_guard)
-
-    # Index 13 is the new algorithmic_dos vector
-    iso_score = res_iso["risk_vector"][13]
-    bomb_score = res_bomb["risk_vector"][13]
-    guard_score = res_guard["risk_vector"][13]
-
-    assert iso_score < bomb_score, "Isolated loop should have significantly lower risk than exposed bomb!"
-    assert guard_score < bomb_score, "Safety guardrails failed to dampen the Algorithmic DoS threat!"
-    # #1013: this threshold used to be 50.0, tuned to include a `db_complexity`
-    # amplifier removed engine-wide as a flawed metric -- without it the same
-    # fixture legitimately scores lower, so the bar is recalibrated here rather
-    # than reintroducing the amplifier to hit an arbitrary number.
-    assert bomb_score > 10.0, "API DoS bomb failed to spike the risk exposure!"
-
-
-# ==============================================================================
 # TEST 16: WEAPONIZABLE SURFACE EXPOSURES (Security Lenses)
 # ==============================================================================
 def test_signal_processor_security_lenses(processor):
     """Ensures all security lens risk equations return valid floats and properly scale."""
 
-    # 1. Logic Bomb
-    m_lb, sig_lb = create_synthetic_star(
-        processor,
-        "logic_bomb",
-        100,
-        {"branch": 50, "sec_high_risk_execution": 20, "sec_tainted_injection": 5},
-    )
-
-    # 2. Obscured Payload (Requires intent_mass via sec_danger to bypass the 95% false-positive shield)
+    # 1. Obscured Payload (Requires intent_mass via sec_danger to bypass the 95% false-positive shield)
     m_ob, sig_ob = create_synthetic_star(
         processor,
         "obscured",
@@ -579,18 +511,13 @@ def test_signal_processor_security_lenses(processor):
     )
     m_mem["lang_id"] = "c"
 
-    r_lb = processor.calculate_risk_vector(m_lb, sig_lb)
     r_ob = processor.calculate_risk_vector(m_ob, sig_ob)
     r_inj = processor.calculate_risk_vector(m_inj, sig_inj)
     r_mem = processor.calculate_risk_vector(m_mem, sig_mem)
 
-    idx_lb = processor.RISK_SCHEMA.index("logic_bomb")
     idx_ob = processor.RISK_SCHEMA.index("obscured_payload")
     idx_inj = processor.RISK_SCHEMA.index("injection_surface")
     idx_mem = processor.RISK_SCHEMA.index("memory_corruption")
-
-    assert isinstance(r_lb["risk_vector"][idx_lb], float), "Logic bomb must return a float!"
-    assert r_lb["risk_vector"][idx_lb] > 10.0, "Logic bomb failed to register!"
 
     assert isinstance(r_ob["risk_vector"][idx_ob], float), "Obscured payload must return a float!"
     assert r_ob["risk_vector"][idx_ob] > 10.0, "Obscured payload failed to register!"
@@ -853,67 +780,6 @@ def test_signal_processor_extension_deception(processor):
 
     idx_mismatch = processor.SIGNAL_SCHEMA.index("sec_extension_mismatch")
     assert r_dec["hit_vector"][idx_mismatch] == 1, "Extension Deception Sensor failed to flag the mismatch!"
-
-
-# ==============================================================================
-# TEST 25: CONTEXTUAL MISMATCH PENALTIES
-# ==============================================================================
-def test_signal_processor_contextual_mismatch(processor):
-    """Proves that a Systems language hiding in a Web folder receives severe ecosystem mismatch multipliers."""
-    # 1. Native C (C code inside a C/CPP folder)
-    m_native, sig_native = create_synthetic_star(
-        processor,
-        "native",
-        100,
-        {"branch": 50, "sec_high_risk_execution": 20, "sec_tainted_injection": 5},
-    )
-    m_native["lang_id"] = "c"
-    m_native["metadata"] = {"folder_dominant_lang": "cpp"}
-
-    # 2. Alien C (C code inside a Javascript/Web folder)
-    m_alien, sig_alien = create_synthetic_star(
-        processor,
-        "alien",
-        100,
-        {"branch": 50, "sec_high_risk_execution": 20, "sec_tainted_injection": 5},
-    )
-    m_alien["lang_id"] = "c"
-    m_alien["metadata"] = {"folder_dominant_lang": "javascript"}
-
-    r_native = processor.calculate_risk_vector(m_native, sig_native)
-    r_alien = processor.calculate_risk_vector(m_alien, sig_alien)
-
-    idx_lb = processor.RISK_SCHEMA.index("logic_bomb")
-
-    assert r_alien["risk_vector"][idx_lb] > r_native["risk_vector"][idx_lb], (
-        "Contextual mismatch penalty failed to apply!"
-    )
-
-
-# ==============================================================================
-# TEST 26: STATIC AI COMPUTE & SCIENCE SHIELD
-# ==============================================================================
-def test_signal_processor_science_shield(processor):
-    """Proves that Scientific/Math logic dampens the false-positive threat of Logic Bombs."""
-    # 1. Standard executable with dangerous triggers
-    m_std, sig_std = create_synthetic_star(processor, "standard", 100, {"branch": 30, "sec_high_risk_execution": 20})
-
-    # 2. Scientific executable with the exact same triggers
-    m_sci, sig_sci = create_synthetic_star(
-        processor,
-        "science",
-        100,
-        {"branch": 30, "sec_high_risk_execution": 20, "scientific": 10},
-    )
-
-    r_std = processor.calculate_risk_vector(m_std, sig_std)
-    r_sci = processor.calculate_risk_vector(m_sci, sig_sci)
-
-    idx_lb = processor.RISK_SCHEMA.index("logic_bomb")
-
-    assert r_sci["risk_vector"][idx_lb] < r_std["risk_vector"][idx_lb], (
-        "Scientific shield failed to dampen the Logic Bomb false positive!"
-    )
 
 
 # ==============================================================================
@@ -1443,22 +1309,6 @@ def test_signal_processor_hardware_bridge_shield(processor):
 
 
 # ==============================================================================
-# TEST 46: ALGORITHMIC DOS O(N) BYPASS
-# ==============================================================================
-def test_signal_processor_algorithmic_dos_linear_bypass(processor):
-    """Ensures O(N) linear loops are ignored by the Algorithmic DoS equations."""
-    m_linear, sig_linear = create_synthetic_star(processor, "linear_loop", 100, {"api": 10})
-    # big_o_depth = 1 is standard O(N)
-    m_linear["functions"] = [{"name": "safe_loop", "loc": 50, "big_o_depth": 1}]
-
-    r_linear = processor.calculate_risk_vector(m_linear, sig_linear)
-    idx_dos = processor.RISK_SCHEMA.index("algorithmic_dos")
-
-    # Because depth is < 2, the loop `continue` triggers and mass remains 0.0
-    assert r_linear["risk_vector"][idx_dos] == 0.0, "O(N) linear loops should not trigger Algorithmic DoS!"
-
-
-# ==============================================================================
 # TEST 47: TIER 3 LANGUAGE FALLBACK
 # ==============================================================================
 def test_signal_processor_tier_3_language(processor):
@@ -1577,19 +1427,16 @@ def test_signal_processor_inline_suppressions(processor):
 
     # Inject the developer suppressions
     meta["mitigations"] = [
-        "logic_bomb",  # Valid override
         "tech_debt",  # Valid override
         "made_up_phantom_123",  # Schema drift / fake risk
     ]
 
     res = processor.calculate_risk_vector(meta, sig)
 
-    idx_lb = processor.RISK_SCHEMA.index("logic_bomb")
     idx_debt = processor.RISK_SCHEMA.index("tech_debt")
     idx_inj = processor.RISK_SCHEMA.index("injection_surface")
 
-    # 1. Assert the targeted risks were zeroed out
-    assert res["risk_vector"][idx_lb] == 0.0, "Inline suppression failed to zero out Logic Bomb!"
+    # 1. Assert the targeted risk was zeroed out
     assert res["risk_vector"][idx_debt] == 0.0, "Inline suppression failed to zero out Tech Debt!"
 
     # 2. Assert un-suppressed risks are still 100% lethal

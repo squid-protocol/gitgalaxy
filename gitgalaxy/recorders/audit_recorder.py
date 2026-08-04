@@ -385,10 +385,6 @@ class AuditRecorder:
                 "label": "Hidden Malware Risk Exposure",
                 "threshold": 60.0,
             },
-            "logic_bomb": {
-                "label": "Logic Bomb / Sabotage Risk Exposure",
-                "threshold": 50.0,
-            },
             "injection_surface": {
                 "label": "Injection Surface Risk Exposure",
                 "threshold": 65.0,

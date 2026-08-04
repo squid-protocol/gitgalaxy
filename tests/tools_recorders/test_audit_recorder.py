@@ -9,12 +9,12 @@ def recorder():
     """Initializes the AuditRecorder for forensic JSON generation testing."""
     # We patch the schema dynamically so our tests are immune to upstream schema changes
     mock_schemas = {
-        "RISK_SCHEMA": ["secrets_risk", "indentation_faction", "logic_bomb"],
+        "RISK_SCHEMA": ["secrets_risk", "indentation_faction", "obscured_payload"],
         "SIGNAL_SCHEMA": ["sec_hardcoded_secrets", "sec_high_risk_execution"],
         "EXPOSURE_LABELS": {
             "secrets_risk": "Secrets Risk Exposure",
             "indentation_faction": "Indentation Consistency",
-            "logic_bomb": "Logic Bomb / Sabotage Risk Exposure",
+            "obscured_payload": "Obfuscation & Evasion Surface",
         },
     }
     with patch("gitgalaxy.recorders.audit_recorder.config.RECORDING_SCHEMAS", mock_schemas):

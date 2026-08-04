@@ -127,9 +127,7 @@ class SignalProcessor:
             {
                 "systems_in_web": {
                     "memory": 5.0,
-                    "logic_bomb": 3.0,
                 },  # C code hiding in a JS app = Trojan
-                "infra_in_web": {"logic_bomb": 4.0},  # Shell script hiding in a JS app = Backdoor
                 "web_in_systems": {"state_mutation": 3.0},  # JS embedded in C firmware = Bizarre architecture
             },
         )
@@ -174,7 +172,7 @@ class SignalProcessor:
         Detects architectural boundary violations and embedded payloads (e.g., C code in a JS directory).
         """
         # Default multipliers if no specific context rules apply
-        multipliers = {"memory": 1.0, "logic_bomb": 1.0, "state_mutation": 1.0, "injection": 1.0}
+        multipliers = {"memory": 1.0, "state_mutation": 1.0, "injection": 1.0}
 
         file_lang = file_lang.lower()
         folder_lang = folder_lang.lower() if folder_lang else file_lang
@@ -384,8 +382,6 @@ class SignalProcessor:
                     self.logger.critical(f"🚨 OBFUSCATION DETECTED: {rel_path} contains obscured execution/IO!")
                     if "obscured_payload" in self.RISK_SCHEMA:
                         blanket_risk_vector[self.RISK_SCHEMA.index("obscured_payload")] = 100.0
-                    if "logic_bomb" in self.RISK_SCHEMA:
-                        blanket_risk_vector[self.RISK_SCHEMA.index("logic_bomb")] = 100.0
                     if "injection_surface" in self.RISK_SCHEMA:
                         blanket_risk_vector[self.RISK_SCHEMA.index("injection_surface")] = 100.0
 
@@ -741,13 +737,6 @@ class SignalProcessor:
                 "churn": 0.0,
                 "documentation": doc_score,
                 "tabs_vs_spaces": self._calc_civil_war(raw_signals),
-                "algorithmic_dos": self._calc_algorithmic_dos(
-                    loc,
-                    raw_signals,
-                    mp_map.get("algorithmic_dos", 1.0),
-                    functions,
-                    popularity,
-                ),
                 # ---> BIAXIAL WEAPONIZATION <---
                 "obscured_payload": self._calc_obscured_payload(
                     loc,
@@ -756,15 +745,6 @@ class SignalProcessor:
                     global_archetype,
                     global_drift,
                     local_drift,
-                ),
-                "logic_bomb": self._calc_logic_bomb(
-                    loc,
-                    raw_signals,
-                    mp_map.get("logic_bomb", 1.0) * eco_mp.get("logic_bomb", 1.0),
-                    global_archetype,
-                    global_drift,
-                    local_drift,
-                    max_big_o,
                 ),
                 "injection_surface": self._calc_injection_surface(
                     loc,
@@ -1875,102 +1855,6 @@ class SignalProcessor:
 
         return min(score * mp, 100.0)
 
-    def _calc_logic_bomb(
-        self,
-        loc: int,
-        raw_signals: dict[str, int],
-        mp: float,
-        archetype: str,
-        global_drift: float,
-        local_drift: float,
-        max_big_o: int = 1,
-    ) -> float:
-        """
-        Calculates Logic Bomb / Sabotage Exposure.
-        Looks for delayed or condition-heavy execution leading to destructive commands.
-        """
-        # Fetch the archetype multiplier
-        arch_matrix = self.CONTEXT_VIOLATION_MATRIX.get(archetype, {})
-        arch_multiplier = arch_matrix.get("logic_bomb_multiplier", 1.0)
-
-        trigger = raw_signals.get("branch", 0) + (raw_signals.get("thread_sleeps", 0) * 3.0)
-        payload = (
-            (raw_signals.get("panics_and_aborts", 0) * 2.0)
-            + (raw_signals.get("cleanup", 0) * 1.5)
-            + (raw_signals.get("sec_high_risk_execution", 0) * 4.0)
-        )
-
-        # ---> THE AGENTIC SHIELD <---
-        # AI/Robotics natively use dynamic execution. Dampen the payload if ML math is present.
-        agent_dampener = (
-            1.0
-            + (raw_signals.get("scientific", 0) * 2.0)
-            + (raw_signals.get("llm_orchestrator", 0) * 3.0)
-            + (raw_signals.get("llm_local_compute", 0) * 2.0)
-        )
-        hardware_dampener = 1.0 + (raw_signals.get("hardware_bridge", 0) * 3.0)
-        payload = payload / agent_dampener
-        payload = payload / hardware_dampener
-
-        # ---> APPLY THE ARCHETYPE CONTEXT <---
-        sabotage_mass = (trigger * payload) * arch_multiplier
-
-        # ---> THE ALGORITHMIC DOS SPIKE (Big-O Vulnerability) <---
-        if max_big_o >= 3:
-            # 1. API/IO Choke Point (User-Controlled N or Network Latency)
-            attack_surface = raw_signals.get("api", 0) + raw_signals.get("sec_io", 0) + raw_signals.get("io", 0)
-            dos_mass = attack_surface * (max_big_o**2) * 10.0
-
-            # 2. State Flux Bomb (Memory Exhaustion)
-            flux = raw_signals.get("state_mutation", 0) + raw_signals.get("globals", 0)
-            dos_mass += flux * (max_big_o**2) * 5.0
-
-            # 3. The Shielding Dampener (Safety Guardrails)
-            if raw_signals.get("safety", 0) > 0 or raw_signals.get("panics_and_aborts", 0) > 0:
-                dos_mass *= 0.25  # 75% reduction if guardrails exist
-
-            sabotage_mass += dos_mass
-
-        # ---> THE TAINT SPIKE <---
-        # If the LHS Slicer confirmed data crossed from I/O to Danger, risk is absolute.
-        taint_confirmed = raw_signals.get("sec_tainted_injection", 0)
-        if taint_confirmed > 0:
-            sabotage_mass += taint_confirmed * 500.0
-
-        # ---> THE CONTEXTUAL DRIFT ANOMALY <---
-        if local_drift > 0 and global_drift > 0:
-            drift_delta = local_drift / global_drift
-            if drift_delta > 1.5:
-                sabotage_mass *= drift_delta
-
-        if sabotage_mass == 0:
-            return 0.0
-
-        explicit_threats = raw_signals.get("sec_dead_code", 0) + raw_signals.get("sec_reflection_metaprogramming", 0)
-        if max_big_o >= 3:
-            explicit_threats += 1  # Preserve DoS Mass from being zeroed out
-
-        if explicit_threats == 0 and taint_confirmed == 0 and not getattr(self, "is_paranoid", False):
-            sabotage_mass *= 0.05
-
-        # Fetch tuning parameters
-        t = self.risk_tuning.get("logic_bomb", {})
-        density = (sabotage_mass / max(loc + t.get("loc_padding", 150), 1)) * 100.0
-
-        if getattr(self, "is_paranoid", False):
-            threshold = t.get("paranoid_threshold", 10.0)
-            slope = t.get("paranoid_slope", 0.5)
-        else:
-            threshold = t.get("std_threshold", 75.0)
-            slope = t.get("std_slope", 0.2)
-
-        try:
-            score = 100.0 / (1.0 + math.exp(-slope * (density - threshold)))
-        except OverflowError:
-            score = 100.0 if density > threshold else 0.0
-
-        return min(score * mp, 100.0)
-
     def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: float, archetype: str) -> float:
         """
         Calculates Injection Surface Exposure (XSS, SQLi, RCE, SSTI).
@@ -2172,72 +2056,6 @@ class SignalProcessor:
 
         return min(score * mp, 100.0)
 
-    def _calc_algorithmic_dos(
-        self,
-        loc: int,
-        raw_signals: dict[str, int],
-        mp: float,
-        functions: list[dict[str, Any]],
-        popularity: int,
-    ) -> float:
-        """
-        Calculates Algorithmic DoS Exposure based on Big-O depth, data gravity, and dependency bottlenecks.
-        """
-        if not functions:
-            return 0.0
-
-        dos_mass = 0.0
-
-        for func in functions:
-            depth = func.get("big_o_depth", 1)
-            if depth < 2:
-                continue
-
-            # 1. The Base Threat (Exponential decay of performance)
-            func_threat = float(depth**2)
-
-            # 2. The Amplifiers (Network Chokepoints)
-            hv = func.get("hit_vector", {})
-            api_hits = hv.get("api", 0)
-            io_hits = hv.get("io", 0) + hv.get("sec_io", 0)
-            flux_hits = hv.get("state_mutation", 0) + hv.get("globals", 0)
-
-            choke_multiplier = 1.0 + api_hits + io_hits + flux_hits
-            func_threat *= choke_multiplier
-
-            # 3. The Dampeners (Guardrails)
-            safety_hits = hv.get("safety", 0) + hv.get("panics_and_aborts", 0) + hv.get("cleanup", 0)
-            if safety_hits > 0:
-                func_threat *= 0.5  # 50% reduction for bounded iteration
-
-            dos_mass += func_threat
-
-        if dos_mass == 0.0:
-            return 0.0
-
-        # Apply File-Level Network Dampeners/Amplifiers
-        network_multiplier = 1.0
-        if popularity == 0 and raw_signals.get("api", 0) == 0:
-            network_multiplier = 0.10  # Safely isolated orphan
-        elif popularity > 0:
-            network_multiplier = min(1.0 + (math.log1p(popularity) / 5.0), 3.0)
-
-        total_threat_mass = dos_mass * network_multiplier
-
-        # Fetch tuning parameters
-        t = self.risk_tuning.get("algorithmic_dos", {})
-        density = (total_threat_mass / max(loc + t.get("loc_padding", 150), 1)) * 100.0
-
-        threshold = t.get("threshold_base", 15.0)
-        slope = t.get("sigmoid_slope", 0.3)
-
-        try:
-            score = 100.0 / (1.0 + math.exp(-slope * (density - threshold)))
-        except OverflowError:
-            score = 100.0 if density > threshold else 0.0
-
-        return min(score * mp, 100.0)
-
     # --------------------------------------------------------------------------
     # REPORTING UTILITIES
     # --------------------------------------------------------------------------
@@ -2398,10 +2216,8 @@ class SignalProcessor:
             "State Flux Exposure": "state_mutation",
             "Specification Exposure": "spec",
             "Churn Exposure": "churn",
-            "Algorithmic DoS Exposure": "algorithmic_dos",
             # --- SECURITY LENSES ---
             "Obscured Payload Exposure": "obscured",
-            "Logic Bomb Exposure": "logic_bomb",
             "Injection Vector Exposure": "injection",
             "Memory Corruption Exposure": "memory",
             "Hardcoded Secrets Exposure": "secrets",

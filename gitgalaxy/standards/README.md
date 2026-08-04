@@ -32,7 +32,7 @@ AST parsers typically collapse when analyzing massive machine-generated files (e
 
 The true flexibility of GitGalaxy lies in its decoupled architecture. The core execution logic is entirely separated from the mathematical constants that govern it. This directory exposes over **175 discrete tuning variables**—from sigmoid curve slopes and anomaly thresholds to architectural mass dampeners.
 
-* **Risk Equation Tuning (75+ Variables):** Highly specific parameters (sigmoid slopes, offsets, clamps, and threshold floors) for multiple risk dimensions. The math curves for `cognitive_load`, `concurrency`, or `logic_bomb` can be stretched or compressed independently.
+* **Risk Equation Tuning (75+ Variables):** Highly specific parameters (sigmoid slopes, offsets, clamps, and threshold floors) for multiple risk dimensions. The math curves for `cognitive_load`, `concurrency`, or `injection_surface` can be stretched or compressed independently.
 * **Path & Impact Modifiers (35+ Variables):** Regex-targeted multipliers that artificially increase or decrease Structural Impact Scores based on domain context (e.g., dampening UI framework cognitive load by 0.50x, or multiplying global state manipulation by 1.15x).
 * **Security & Ecosystem Matrices (50+ Variables):** Specific baseline weights for systems vs. web vs. infrastructure, cross-ecosystem mismatch penalties (e.g., `systems_in_web`), and the 10-cluster Archetype Violation Matrix.
 * **Hardware & Ingestion Limits (15+ Variables):** Hard operational ceilings like `MAX_FILE_SIZE_MB`, `MAX_LINE_LENGTH`, `HANDSHAKE_LOOKAHEAD_LIMIT`, and `NESTED_PEEL_LIMIT` to tune exactly how hard the engine pushes the CPU before backing off.

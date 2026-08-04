@@ -653,11 +653,9 @@ class LLMRecorder:
 
         vuln_keys = [
             "obscured_payload",
-            "logic_bomb",
             "injection_surface",
             "memory_corruption",
             "secrets_risk",
-            "algorithmic_dos",
         ]
         vuln_found = False
         for v_key in vuln_keys:

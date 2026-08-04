@@ -670,7 +670,7 @@ def test_prism_inline_suppression_extraction(prism_engine):
     """
     content = """
     // Normal suppression
-    // galaxyscope:ignore logic_bomb
+    // galaxyscope:ignore obscured_payload
 
     /* Weird casing suppression */
     /* GALAXYscope:IGNORE MeMoRy_CoRrUpTiOn */
@@ -686,7 +686,7 @@ def test_prism_inline_suppression_extraction(prism_engine):
     mitigations = result.get("mitigations", [])
 
     # Assert it caught everything and lowercased the risk names
-    assert "logic_bomb" in mitigations, "Failed to extract standard suppression."
+    assert "obscured_payload" in mitigations, "Failed to extract standard suppression."
     assert "memory_corruption" in mitigations, "Failed to handle erratic casing."
     assert "tech_debt" in mitigations, "Failed to extract multiple tags (1)."
     assert "secrets-risk" in mitigations, "Failed to handle dashes in risk names."

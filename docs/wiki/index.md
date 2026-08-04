@@ -116,7 +116,6 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [08-16: State Flux Exposure](08-16-state-flux-exposure.md)
 * [08-18: Specification Alignment](08-18-specification-alignment.md)
 * [08-19: Obscured Payload Exposure](08-19-obscured-payload-exposure.md)
-* [08-20: Logic Bomb Exposure](08-20-logic-bomb-exposure.md)
 * [08-21: Injection Surface Exposure](08-21-injection-surface-exposure.md)
 * [08-22: Memory Corruption Exposure](08-22-memory-corruption-exposure.md)
 * [08-23: Hardcoded Secrets Exposure](08-23-hardcoded-secrets-exposure.md)

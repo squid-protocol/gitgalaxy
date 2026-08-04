@@ -111,7 +111,7 @@ def test_threats_found_counts_unique_files_only():
     """
     Validates that the threats_found counter increments exactly once per file,
     even if the file contains multiple risk occurrences (e.g. multiple blacklisted
-    imports or a combination of blacklisted imports and a structural logic bomb).
+    imports or a combination of blacklisted imports and a structural threat).
     """
     config = _make_config(
         BLACKLISTED_IMPORTS=["malware-one", "malware-two"],
@@ -122,7 +122,7 @@ def test_threats_found_counts_unique_files_only():
             "path": "infected_file.js",
             "raw_imports": ["malware-one", "malware-two"],
             # Also add a structural threat to ensure it doesn't double count
-            "risk_vector": _risk_vector(logic_bomb=80.0),
+            "risk_vector": _risk_vector(obscured_payload=80.0),
             "equations": {},
             "coding_loc": 50,
         },
@@ -420,11 +420,11 @@ def test_firewall_allowlist_loophole_guard():
 
 
 # ==============================================================================
-# TEST 11: LOGIC BOMB RISK CATEGORY EVALUATION
+# TEST 11: INJECTION SURFACE RISK CATEGORY EVALUATION
 # ==============================================================================
 def test_behavioral_threat_evaluation_strips_prefix(tmp_path):
     """
-    Proves the firewall correctly blocks on the 'logic_bomb' risk_vector category.
+    Proves the firewall correctly blocks on the 'injection_surface' risk_vector category.
 
     Historically this test guarded a bug where the firewall's clone-and-strip of
     the 'sec_' prefix from Phase 1 equations silently dropped keys. That whole
@@ -439,7 +439,7 @@ def test_behavioral_threat_evaluation_strips_prefix(tmp_path):
                 "Files": {
                     "logic.js": {
                         "raw_imports": [],
-                        "risk_vector": _risk_vector(logic_bomb=65.0),
+                        "risk_vector": _risk_vector(injection_surface=65.0),
                         "coding_loc": 50,
                     }
                 }
@@ -630,7 +630,7 @@ def test_network_weighting_disabled_by_default():
             "path": "hub.py",
             "raw_imports": [],
             # 40.0 alone is well under the 50.0 block threshold.
-            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "risk_vector": _risk_vector(secrets_risk=40.0),
             "telemetry": {"network_metrics": {"normalized_blast_radius": 9.0, "betweenness_score": 0.5}},
             "coding_loc": 50,
         }
@@ -650,7 +650,7 @@ def test_network_weighting_amplifies_high_centrality_hub():
     to cross the block threshold, while a peripheral file with the identical
     raw score (normalized_blast_radius=0.5 <= 1.0) does not.
 
-    logic_bomb=40.0 alone stays under 50.0. The hub's multiplier is
+    secrets_risk=40.0 alone stays under 50.0. The hub's multiplier is
     1.0 + (3.0 * 0.5) = 2.5, so 40.0 * 2.5 = 100.0 (capped) clears it. This is
     the "only-amplify" design: a low-centrality file is never given a
     discount, it just isn't boosted.
@@ -661,14 +661,14 @@ def test_network_weighting_amplifies_high_centrality_hub():
         {
             "path": "hub.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "risk_vector": _risk_vector(secrets_risk=40.0),
             "telemetry": {"network_metrics": {"normalized_blast_radius": 3.0, "betweenness_score": 0.0}},
             "coding_loc": 50,
         },
         {
             "path": "leaf.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "risk_vector": _risk_vector(secrets_risk=40.0),
             "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.0}},
             "coding_loc": 50,
         },
@@ -688,7 +688,7 @@ def test_network_weighting_betweenness_bonus():
     multiplier bonus even when its blast radius alone (0.5 <= 1.0) would not
     have amplified it.
 
-    logic_bomb=40.0 alone stays under 50.0. Multiplier here is 1.0 + 0.5 = 1.5,
+    secrets_risk=40.0 alone stays under 50.0. Multiplier here is 1.0 + 0.5 = 1.5,
     so 40.0 * 1.5 = 60.0 clears the threshold. The identical file without the
     high betweenness score stays unblocked.
     """
@@ -698,14 +698,14 @@ def test_network_weighting_betweenness_bonus():
         {
             "path": "bridge.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "risk_vector": _risk_vector(secrets_risk=40.0),
             "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.1}},
             "coding_loc": 50,
         },
         {
             "path": "isolated.py",
             "raw_imports": [],
-            "risk_vector": _risk_vector(logic_bomb=40.0),
+            "risk_vector": _risk_vector(secrets_risk=40.0),
             "telemetry": {"network_metrics": {"normalized_blast_radius": 0.5, "betweenness_score": 0.0}},
             "coding_loc": 50,
         },

@@ -34,7 +34,6 @@ _FIREWALL_RISK_MAP = {
     "Hidden Malware Risk": "obscured_payload",
     "Data Injection Risk": "injection_surface",
     "Secrets Leak Risk": "secrets_risk",
-    "Logic Bomb Risk": "logic_bomb",
     "Memory Corruption Risk": "memory_corruption",
 }
 _FIREWALL_RISK_INDEXES = {

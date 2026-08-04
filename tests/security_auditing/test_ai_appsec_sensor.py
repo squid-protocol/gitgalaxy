@@ -38,19 +38,20 @@ def test_over_permissioned_agent_detection():
     Proves that an agent orchestration framework (langchain/llama_index --
     #365/#323: the closest lexically-detectable proxy for agentic tool-binding
     this engine has, since "ai_tools" was removed from SIGNAL_SCHEMA in #323
-    as fundamentally undetectable via regex), combined with write-access to
-    complex databases and low defensive programming density, triggers the
-    Over-Permissioned Agent alert.
+    as fundamentally undetectable via regex), combined with raw network/disk
+    IO write access and low defensive programming density, triggers the
+    Over-Permissioned Agent alert. (#1013: this used to also accept
+    `max_db_complexity` as an alternate trigger, removed as a flawed metric.)
     """
     sensor = AIAppSecSensor()
 
     mock_files = [
         {
-            "max_db_complexity": 3,  # Heavy database write access
             "coding_loc": 100,
             "telemetry": {},
             "equations": {
                 "llm_orchestrator": 1,  # langchain/llama_index present -> agentic tool-binding
+                "io": 1,  # Raw network/disk IO write access
                 "safety": 0,  # Dangerously low defensive programming -> density 0.0
             },
         }
@@ -77,11 +78,11 @@ def test_over_permissioned_agent_no_longer_reads_dead_ai_tools_key():
 
     mock_files = [
         {
-            "max_db_complexity": 3,
             "coding_loc": 100,
             "telemetry": {},
             "equations": {
                 "ai_tools": 1,  # dead key -- must be inert
+                "io": 1,  # Raw network/disk IO write access
                 "safety": 0,
             },
         }
@@ -135,7 +136,6 @@ def test_safe_baseline():
 
     mock_files = [
         {
-            "max_db_complexity": 0,
             "coding_loc": 50,
             "telemetry": {},
             "equations": {

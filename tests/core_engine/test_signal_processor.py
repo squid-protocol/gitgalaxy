@@ -484,7 +484,7 @@ def test_signal_processor_ai_topology(processor):
 # TEST 15: ALGORITHMIC DOS EXPOSURE
 # ==============================================================================
 def test_signal_processor_algorithmic_dos(processor):
-    """Proves the Big-O risk exposure scales with data gravity and choke points, and is dampened by safety guardrails."""
+    """Proves the Big-O risk exposure scales with network choke points, and is dampened by safety guardrails."""
 
     # 1. Isolated Harmless Loop: O(N^3) but no IO/API and 0 popularity.
     m_iso, sig_iso = create_synthetic_star(processor, "isolated", 100, {"api": 0})
@@ -494,12 +494,11 @@ def test_signal_processor_algorithmic_dos(processor):
             "name": "safe_loop",
             "loc": 50,
             "big_o_depth": 3,
-            "db_complexity": 0,
             "hit_vector": {},
         }
     ]
 
-    # 2. API DoS Bomb: O(N^3) + DB Complexity + Exposed to API
+    # 2. API DoS Bomb: O(N^3) + Exposed to API
     m_bomb, sig_bomb = create_synthetic_star(processor, "exposed_bomb", 500, {"api": 4})
     m_bomb["popularity"] = 2
     m_bomb["functions"] = [
@@ -507,7 +506,6 @@ def test_signal_processor_algorithmic_dos(processor):
             "name": "dos_bomb",
             "loc": 250,
             "big_o_depth": 3,
-            "db_complexity": 2,
             "hit_vector": {"api": 4},
         }
     ]
@@ -520,7 +518,6 @@ def test_signal_processor_algorithmic_dos(processor):
             "name": "safe_bomb",
             "loc": 250,
             "big_o_depth": 3,
-            "db_complexity": 2,
             "hit_vector": {"api": 4, "safety": 1, "panics_and_aborts": 2},
         }
     ]
@@ -536,7 +533,11 @@ def test_signal_processor_algorithmic_dos(processor):
 
     assert iso_score < bomb_score, "Isolated loop should have significantly lower risk than exposed bomb!"
     assert guard_score < bomb_score, "Safety guardrails failed to dampen the Algorithmic DoS threat!"
-    assert bomb_score > 50.0, "API DoS bomb failed to spike the risk exposure!"
+    # #1013: this threshold used to be 50.0, tuned to include a `db_complexity`
+    # amplifier removed engine-wide as a flawed metric -- without it the same
+    # fixture legitimately scores lower, so the bar is recalibrated here rather
+    # than reintroducing the amplifier to hit an arbitrary number.
+    assert bomb_score > 10.0, "API DoS bomb failed to spike the risk exposure!"
 
 
 # ==============================================================================
@@ -1448,7 +1449,7 @@ def test_signal_processor_algorithmic_dos_linear_bypass(processor):
     """Ensures O(N) linear loops are ignored by the Algorithmic DoS equations."""
     m_linear, sig_linear = create_synthetic_star(processor, "linear_loop", 100, {"api": 10})
     # big_o_depth = 1 is standard O(N)
-    m_linear["functions"] = [{"name": "safe_loop", "loc": 50, "big_o_depth": 1, "db_complexity": 5}]
+    m_linear["functions"] = [{"name": "safe_loop", "loc": 50, "big_o_depth": 1}]
 
     r_linear = processor.calculate_risk_vector(m_linear, sig_linear)
     idx_dos = processor.RISK_SCHEMA.index("algorithmic_dos")

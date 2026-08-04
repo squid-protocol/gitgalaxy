@@ -512,7 +512,6 @@ class SignalProcessor:
             avg_func_args = 0.0
             func_gini = 0.0
             max_big_o = 1
-            max_db_complexity = 0
 
             func_ml_brain = getattr(analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", {})
             f_medians = func_ml_brain.get("SCALER_MEDIANS", [])
@@ -553,7 +552,6 @@ class SignalProcessor:
                 max_func_comp = max(complexities)
                 avg_func_args = sum([f.get("args", 0) for f in functions]) / len(functions)
                 max_big_o = max([f.get("big_o_depth", 1) for f in functions])
-                max_db_complexity = max([f.get("db_complexity", 0) for f in functions])
                 has_recursion = any([f.get("is_recursive", False) for f in functions])
 
                 # 1. Z-Scores Mathematics
@@ -852,7 +850,6 @@ class SignalProcessor:
                 "max_algorithmic_complexity": (
                     "O(2^N) [Recursive]" if has_recursion else (f"O(N^{max_big_o})" if max_big_o > 1 else "O(N)")
                 ),
-                "max_db_complexity": max_db_complexity,
                 "ownership_entropy": ownership_score,
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
@@ -2199,11 +2196,7 @@ class SignalProcessor:
             # 1. The Base Threat (Exponential decay of performance)
             func_threat = float(depth**2)
 
-            # 2. The Amplifiers (Network & Data Gravity)
-            db_complex = func.get("db_complexity", 0)
-            if db_complex > 0:
-                func_threat *= 1.0 + (db_complex * 0.5)
-
+            # 2. The Amplifiers (Network Chokepoints)
             hv = func.get("hit_vector", {})
             api_hits = hv.get("api", 0)
             io_hits = hv.get("io", 0) + hv.get("sec_io", 0)

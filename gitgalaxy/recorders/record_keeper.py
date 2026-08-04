@@ -290,7 +290,6 @@ class RecordKeeper:
                 ecosystem_baseline TEXT,
                 repo_z_score REAL,
                 max_algorithmic_complexity TEXT,
-                max_db_complexity INTEGER,
                 ai_threat_score REAL,
                 is_malware INTEGER,
                 has_credentials INTEGER,
@@ -338,7 +337,6 @@ class RecordKeeper:
                 func_z_score REAL DEFAULT 0.0,
                 big_o_depth INTEGER,
                 is_recursive INTEGER,
-                db_complexity INTEGER,
                 docstring TEXT,
                 calls_out_to TEXT,
                 token_mass INTEGER DEFAULT 0,
@@ -613,7 +611,6 @@ class RecordKeeper:
                 repo_macro,
                 repo_z,
                 tel.get("max_algorithmic_complexity", "O(N)"),
-                int(tel.get("max_db_complexity", 0)),
                 ai_score,
                 is_malware,
                 has_creds,
@@ -653,7 +650,7 @@ class RecordKeeper:
                     func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15, 
                     file_archetype, file_fingerprint,
                     ecosystem_baseline, repo_z_score,
-                    max_algorithmic_complexity, max_db_complexity,
+                    max_algorithmic_complexity,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_rce_funnel, appsec_god_mode, appsec_exfiltration, hallucination_zone, silent_mutation_risk,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
@@ -710,7 +707,6 @@ class RecordKeeper:
                         float(func.get("z_score", 0.0)),
                         int(func.get("big_o_depth", 1)),
                         1 if func.get("is_recursive", False) else 0,
-                        int(func.get("db_complexity", 0)),
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
                         (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
@@ -726,7 +722,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, args, usage_status, keyword_density, func_archetype, func_z_score, big_o_depth, is_recursive, db_complexity, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
+                (file_id, parent_class_id, func_name, complexity, loc, args, usage_status, keyword_density, func_archetype, func_z_score, big_o_depth, is_recursive, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

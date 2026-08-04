@@ -52,7 +52,6 @@ def mock_pipeline_state():
                     "impact": 15.0,
                     "big_o_depth": 2,
                     "is_recursive": False,
-                    "db_complexity": 3,
                     "docstring": "Handles incoming API requests.",
                     "calls_out_to": ["validate_token"],
                 }

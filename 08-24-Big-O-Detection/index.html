@@ -8714,13 +8714,13 @@
 <p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Performance and algorithmic complexity directly impact application security. Deeply nested loops (<span class="arithmatex">\(O(N^2)\)</span>, <span class="arithmatex">\(O(N^3)\)</span>) or exponential recursion (<span class="arithmatex">\(O(2^N)\)</span>) connected to public API endpoints, network I/O, or database queries present severe Algorithmic Denial of Service (DoS) vulnerabilities. GitGalaxy evaluates function nesting depth and correlates it with public exposure and data operations. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Algorithmic DoS &amp; Big-O Detection metric.</p>
+<p>Performance and algorithmic complexity directly impact application security. Deeply nested loops (<span class="arithmatex">\(O(N^2)\)</span>, <span class="arithmatex">\(O(N^3)\)</span>) or exponential recursion (<span class="arithmatex">\(O(2^N)\)</span>) connected to public API endpoints or network I/O present severe Algorithmic Denial of Service (DoS) vulnerabilities. GitGalaxy evaluates function nesting depth and correlates it with public exposure and data operations. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Algorithmic DoS &amp; Big-O Detection metric.</p>
 <h2 id="purpose">Purpose</h2>
 <p>The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
 <p>Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.</p>
 <h2 id="design">Design</h2>
-<p>The engine analyzes function complexity depth, choke point multipliers, database gravity, and guardrail mitigations:</p>
+<p>The engine analyzes function complexity depth, choke point multipliers, and guardrail mitigations:</p>
 <table>
 <thead>
 <tr>
@@ -8744,12 +8744,6 @@
 <td style="text-align: left;">Functions exposed to public APIs or network I/O act as weaponizable triggers.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>db_complexity</code></td>
-<td style="text-align: left;">Database Gravity</td>
-<td style="text-align: left;"><strong>Additive Multiplier</strong></td>
-<td style="text-align: left;">Heavy loops paired with database queries generate severe locking and latency risks (<span class="arithmatex">\(1.0 + \text{DBComplexity} \times 0.5\)</span>).</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>state_mutation</code> / <code>globals</code></td>
 <td style="text-align: left;">State Mutation</td>
 <td style="text-align: left;"><strong>Additive Multiplier</strong></td>
@@ -8769,12 +8763,20 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>#1013:</strong> this metric used to also fold in a per-function <code>db_complexity</code> score
+as a "Database Gravity" multiplier. It was removed engine-wide: despite the name,
+it never looked for databases at all, it just summed unrelated <code>io</code> (x3),
+<code>serialization_parsing</code> (x2), and <code>state_mutation</code> (x1) signature hits -- so any
+IO-heavy or mutation-heavy function scored as "database complex" even with zero
+database or ORM involvement. <code>api</code>/<code>io</code> choke points below already cover the real
+IO signal this used to (partially, and inaccurately) proxy for.</p>
+</blockquote>
 <h3 id="1-function-base-threat-amplifiers">1. Function Base Threat &amp; Amplifiers</h3>
 <p>For each function with nesting depth <span class="arithmatex">\(\ge 2\)</span>:</p>
 <div class="arithmatex">\[\text{BaseThreat} = \text{big\_o\_depth}^2$$
-$$\text{GravityMultiplier} = 1.0 + (\text{db\_complexity} \times 0.5)$$
 $$\text{ChokeMultiplier} = 1.0 + \text{api\_hits} + \text{io\_hits} + \text{flux\_hits}$$
-$$\text{FuncThreat} = \text{BaseThreat} \times \text{GravityMultiplier} \times \text{ChokeMultiplier}\]</div>
+$$\text{FuncThreat} = \text{BaseThreat} \times \text{ChokeMultiplier}\]</div>
 <h3 id="2-guardrail-mitigation">2. Guardrail Mitigation</h3>
 <p>If safety guardrails (<code>safety</code>, <code>panics_and_aborts</code>, <code>cleanup</code>) exist within the function, threat mass is halved:</p>
 <div class="arithmatex">\[\text{FuncThreat} = \text{FuncThreat} \times 0.5\]</div>
@@ -8795,7 +8797,7 @@ $$\text{FinalScore} = \min(\text{Sigmoid}(\text{Density}, \text{Threshold}=15.0,
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">popularity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    Calculates Algorithmic DoS Exposure based on Big-O depth, data gravity, and network choke points.</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    Calculates Algorithmic DoS Exposure based on Big-O depth and network choke points.</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">functions</span><span class="p">:</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="k">return</span> <span class="mf">0.0</span>
@@ -8811,56 +8813,52 @@ $$\text{FinalScore} = \min(\text{Sigmoid}(\text{Density}, \text{Threshold}=15.0,
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="c1"># 2. Base Threat (Exponential decay of performance)</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="n">func_threat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="c1"># 3. Data Gravity &amp; Network Choke Points</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">db_complex</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_complexity&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="k">if</span> <span class="n">db_complex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>            <span class="n">func_threat</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">db_complex</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>        <span class="n">hv</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hit_vector&quot;</span><span class="p">,</span> <span class="p">{})</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="n">api_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="n">io_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;io&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sec_io&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        <span class="n">flux_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state_mutation&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;globals&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>        <span class="n">choke_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">api_hits</span> <span class="o">+</span> <span class="n">io_hits</span> <span class="o">+</span> <span class="n">flux_hits</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>        <span class="n">func_threat</span> <span class="o">*=</span> <span class="n">choke_multiplier</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>        <span class="c1"># 4. Structural Dampeners (Guardrails)</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="n">safety_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;safety&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;panics_and_aborts&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cleanup&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>        <span class="k">if</span> <span class="n">safety_hits</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>            <span class="n">func_threat</span> <span class="o">*=</span> <span class="mf">0.5</span>  <span class="c1"># 50% reduction for bounded iteration</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>        <span class="n">dos_mass</span> <span class="o">+=</span> <span class="n">func_threat</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="k">if</span> <span class="n">dos_mass</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>        <span class="k">return</span> <span class="mf">0.0</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>    <span class="c1"># 5. Network Posture (Blast Radius)</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>    <span class="n">network_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>    <span class="k">if</span> <span class="n">popularity</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>        <span class="n">network_multiplier</span> <span class="o">=</span> <span class="mf">0.10</span>  <span class="c1"># Safely isolated orphan</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>    <span class="k">elif</span> <span class="n">popularity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>        <span class="n">network_multiplier</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">popularity</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.0</span><span class="p">),</span> <span class="mf">3.0</span><span class="p">)</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>    <span class="n">total_threat_mass</span> <span class="o">=</span> <span class="n">dos_mass</span> <span class="o">*</span> <span class="n">network_multiplier</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="c1"># 3. Network Choke Points</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">hv</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hit_vector&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="n">api_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="n">io_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;io&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sec_io&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="n">flux_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state_mutation&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;globals&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="n">choke_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">api_hits</span> <span class="o">+</span> <span class="n">io_hits</span> <span class="o">+</span> <span class="n">flux_hits</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="n">func_threat</span> <span class="o">*=</span> <span class="n">choke_multiplier</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>        <span class="c1"># 4. Structural Dampeners (Guardrails)</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>        <span class="n">safety_hits</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;safety&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;panics_and_aborts&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">hv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cleanup&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>        <span class="k">if</span> <span class="n">safety_hits</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>            <span class="n">func_threat</span> <span class="o">*=</span> <span class="mf">0.5</span>  <span class="c1"># 50% reduction for bounded iteration</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="n">dos_mass</span> <span class="o">+=</span> <span class="n">func_threat</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>    <span class="k">if</span> <span class="n">dos_mass</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>        <span class="k">return</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>    <span class="c1"># 5. Network Posture (Blast Radius)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="n">network_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>    <span class="k">if</span> <span class="n">popularity</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>        <span class="n">network_multiplier</span> <span class="o">=</span> <span class="mf">0.10</span>  <span class="c1"># Safely isolated orphan</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>    <span class="k">elif</span> <span class="n">popularity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>        <span class="n">network_multiplier</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">popularity</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.0</span><span class="p">),</span> <span class="mf">3.0</span><span class="p">)</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>    <span class="n">total_threat_mass</span> <span class="o">=</span> <span class="n">dos_mass</span> <span class="o">*</span> <span class="n">network_multiplier</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>    <span class="c1"># 6. The Sigmoid Curve</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;algorithmic_dos&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_threat_mass</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loc_padding&quot;</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
 <a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>    <span class="c1"># 6. The Sigmoid Curve</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;algorithmic_dos&quot;</span><span class="p">,</span> <span class="p">{})</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_threat_mass</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loc_padding&quot;</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>
-<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold_base&quot;</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">)</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sigmoid_slope&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>
-<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">density</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)))</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>    <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="k">if</span> <span class="n">density</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mf">0.0</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a>
-<a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">score</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold_base&quot;</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">)</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sigmoid_slope&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">density</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)))</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="k">if</span> <span class="n">density</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">score</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Risk Classification:</strong>
 * 🟦 <strong>VERY LOW (Score 0–19):</strong> Linear <span class="arithmatex">\(O(N)\)</span> execution or safely bounded stream iterations.
 * 🟨 <strong>INTERMEDIATE (Score 40–59):</strong> Isolated <span class="arithmatex">\(O(N^2)\)</span> logic guarded by safety bailouts or low exposure.
-* 🟥 <strong>VERY HIGH (Score 80–100):</strong> Recursive <span class="arithmatex">\(O(2^N)\)</span> or <span class="arithmatex">\(O(N^3)\)</span> loops directly wired into unauthenticated public API routes, I/O operations, or state-mutating database calls.</p>
+* 🟥 <strong>VERY HIGH (Score 80–100):</strong> Recursive <span class="arithmatex">\(O(2^N)\)</span> or <span class="arithmatex">\(O(N^3)\)</span> loops directly wired into unauthenticated public API routes or state-mutating I/O operations.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR

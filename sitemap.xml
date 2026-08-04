@@ -397,10 +397,6 @@
          <lastmod>2026-08-04</lastmod>
     </url>
     <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/08-20-logic-bomb-exposure/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-21-injection-surface-exposure/</loc>
          <lastmod>2026-08-04</lastmod>
     </url>
@@ -410,10 +406,6 @@
     </url>
     <url>
          <loc>https://squid-protocol.github.io/gitgalaxy/08-23-hardcoded-secrets-exposure/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://squid-protocol.github.io/gitgalaxy/08-24-Big-O-Detection/</loc>
          <lastmod>2026-08-04</lastmod>
     </url>
     <url>

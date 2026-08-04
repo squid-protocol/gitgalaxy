@@ -2047,6 +2047,77 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
+    def _count_top_level_args(self, args_str: str) -> int:
+        """
+        Depth- and string-aware comma counter for a captured function signature.
+
+        `args` regexes capture the whole signature (e.g. "def foo(x, y)",
+        "(x, y) =>"), so the real argument list sits one bracket level inside the
+        first "(...)"; bracket-less forms (Python lambda, Lisp/space-separated)
+        have no such wrapper, so top level IS depth 0 for them. Either way, only
+        commas at that top level are real argument separators -- commas trapped
+        inside nested (), [], {}, <> (generic type hints, default dict/list
+        literals, nested callback signatures) or inside string literals must be
+        ignored, or a single `data: Dict[str, int]` argument gets miscounted as
+        two.
+        """
+
+        def _matching_paren_end(text: str, open_idx: int) -> int:
+            depth = 0
+            in_string = False
+            quote_char = ""
+            i = open_idx
+            while i < len(text):
+                ch = text[i]
+                if in_string:
+                    if ch == "\\":
+                        i += 2
+                        continue
+                    if ch == quote_char:
+                        in_string = False
+                elif ch in ("'", '"', "`"):
+                    in_string = True
+                    quote_char = ch
+                elif ch == "(":
+                    depth += 1
+                elif ch == ")":
+                    depth -= 1
+                    if depth == 0:
+                        return i
+                i += 1
+            return len(text)
+
+        body = args_str
+        open_idx = args_str.find("(")
+        if open_idx != -1:
+            body = args_str[open_idx + 1 : _matching_paren_end(args_str, open_idx)]
+
+        depth = 0
+        in_string = False
+        quote_char = ""
+        count = 0
+        i = 0
+        while i < len(body):
+            ch = body[i]
+            if in_string:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == quote_char:
+                    in_string = False
+            elif ch in ("'", '"', "`"):
+                in_string = True
+                quote_char = ch
+            elif ch in "([{<":
+                depth += 1
+            elif ch in ")]}>":
+                if depth > 0:
+                    depth -= 1
+            elif ch == "," and depth == 0:
+                count += 1
+            i += 1
+        return count
+
     def _calculate_block_metrics(
         self,
         name: str,
@@ -2121,7 +2192,7 @@ class StructuralExtractor:
                     args_str = arg_match.group(arg_match.lastindex) if arg_match.lastindex else arg_match.group(0)
                     if args_str and args_str.strip() != "()":
                         if "," in args_str:
-                            args_count = args_str.count(",") + 1
+                            args_count = self._count_top_level_args(args_str) + 1
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())

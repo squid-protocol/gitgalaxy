@@ -112,6 +112,16 @@ correctness, strict-testing prompt) lives in
 a summary here; it's long because the rules matter and drift if paraphrased. Tests for this
 live in `tests/core_engine/test_language_standards_strict.py`, one section per language.
 
+**Hardening the four extraction gauntlets** (func_start/args/class_start/_dependency_capture
+test depth per language) is a related but distinct exercise, driven by
+`tests/extraction/how_to_harden_extraction.md` — the companion doc epic #813 (closed) used to
+take all 44 in-scope languages through a documented valid/invalid/pathological methodology, a
+43-entry (and growing) recurring-bug-class list, and a strict verification chain
+(`tests/extraction/tools/verify_candidates.py` → `audit_check.py` → `crucible_check.py`). Per-
+language cases now live in `tests/extraction/languages/test_<lang>.py`, not the four old
+monolithic dict files. Use the `harden-language-extraction` skill to pick this up for a new
+language or a follow-on bug sweep rather than re-deriving the process from scratch.
+
 ## Baseline-gated audits (ruff / mypy / dead-key)
 
 These are regression gates, not zero-tolerance floors: each has a committed baseline file

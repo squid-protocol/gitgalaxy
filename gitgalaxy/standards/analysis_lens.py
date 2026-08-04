@@ -40,7 +40,6 @@ class ThreatPolicy:
         "baseline": {
             "secrets_risk_threshold": 0.001,  # 0.1% density
             "hidden_malware_threshold": 0.60,  # 60% density
-            "logic_bomb_threshold": 0.50,  # 50% density
             "injection_surface_threshold": 0.65,  # 65% density
             "memory_corruption_threshold": 0.60,  # 60% density
         },
@@ -48,7 +47,6 @@ class ThreatPolicy:
         "paranoid": {
             "secrets_risk_threshold": 0.0001,  # Any trace is critical
             "hidden_malware_threshold": 0.15,  # 15% density trips the wire
-            "logic_bomb_threshold": 0.20,  # 20% density
             "injection_surface_threshold": 0.25,  # 25% density
             "memory_corruption_threshold": 0.10,  # 10% density
         },
@@ -811,11 +809,6 @@ RISK_EQUATION_TUNING = {
         "threshold_base": 6.0,  # Lowered from 15.0 (6% mutation density is much more realistic)
         "sigmoid_slope": 0.40,  # Increased from 0.20 to stretch the curve
     },
-    "algorithmic_dos": {
-        "loc_padding": 150,  # Standard padding to forgive O(N^2) in tiny scripts
-        "threshold_base": 15.0,  # The density tipping point where risk spikes
-        "sigmoid_slope": 0.3,  # Stretches the curve to reward partial mitigations
-    },
     # ---> DECOUPLED SECURITY EQUATION TUNING <---
     "obscured_payload": {
         "loc_padding": 500,  # Raised from 150. Dilutes the density of massive framework files.
@@ -823,13 +816,6 @@ RISK_EQUATION_TUNING = {
         "std_slope": 0.6,
         "paranoid_threshold": 2.0,
         "paranoid_slope": 1.5,
-    },
-    "logic_bomb": {
-        "loc_padding": 500,  # Raised from 150.
-        "std_threshold": 90.0,
-        "std_slope": 0.2,
-        "paranoid_threshold": 10.0,
-        "paranoid_slope": 0.5,
     },
     "injection_surface": {
         "loc_padding": 500,  # Raised from 150.
@@ -923,25 +909,21 @@ LANGUAGE_SECURITY_PROFILES = {
     "NATIVE_WEIGHTS": {
         "systems": {
             "memory": 0.1,
-            "logic_bomb": 0.2,
             "state_mutation": 1.0,
             "injection": 1.0,
         },  # Pointer math is normal
         "web": {
             "memory": 1.0,
-            "logic_bomb": 1.0,
             "state_mutation": 0.3,
             "injection": 2.0,
         },  # DOM flux is normal, XSS is deadly
         "infra": {
             "memory": 1.0,
-            "logic_bomb": 0.0,
             "state_mutation": 1.0,
             "injection": 1.0,
         },  # OS commands are literally the point
         "backend": {
             "memory": 1.5,
-            "logic_bomb": 1.0,
             "state_mutation": 1.5,
             "injection": 1.5,
         },  # Standard aggressive baseline
@@ -957,9 +939,7 @@ LANGUAGE_SECURITY_PROFILES = {
     "ECOSYSTEM_MISMATCH_WEIGHTS": {
         "systems_in_web": {
             "memory": 5.0,
-            "logic_bomb": 3.0,
         },  # C code hiding in a JS app = Trojan
-        "infra_in_web": {"logic_bomb": 4.0},  # Shell script hiding in a JS app = Backdoor
         "web_in_systems": {"state_mutation": 3.0},  # JS embedded in C firmware = Bizarre architecture
     },
     # ---> THE ARCHETYPE VIOLATION MATRIX (k=10 Edition) <---
@@ -968,7 +948,6 @@ LANGUAGE_SECURITY_PROFILES = {
         "Cluster 1: High-Dependency Config & Object Nodes": {
             # The New Config/JSON/Typescript Interface nodes.
             # These should NEVER execute logic, manage memory, or be obfuscated.
-            "logic_bomb_multiplier": 25.0,
             "injection_surface_multiplier": 20.0,
             "memory_corruption_multiplier": 20.0,
             "obscured_payload_multiplier": 10.0,
@@ -977,18 +956,15 @@ LANGUAGE_SECURITY_PROFILES = {
         "Cluster 0: Native Memory & Systems Pointers": {
             # Heavy C/C++. Memory manipulation is literally their job.
             "memory_corruption_multiplier": 0.1,
-            "logic_bomb_multiplier": 1.0,
             "injection_surface_multiplier": 1.5,
         },
         "Cluster 3: Low-Level Bitwise Systems Core": {
             # Rust/C Core. Bitwise operations are fine, but they shouldn't be dropping OS shells.
             "memory_corruption_multiplier": 0.05,
-            "logic_bomb_multiplier": 5.0,
             "injection_surface_multiplier": 2.5,
         },
         "Cluster 2: Asynchronous & Concurrent Orchestrators": {
             # Python/TS Async logic.
-            "logic_bomb_multiplier": 8.0,
             "memory_corruption_multiplier": 5.0,
             "injection_surface_multiplier": 0.8,
         },
@@ -996,12 +972,10 @@ LANGUAGE_SECURITY_PROFILES = {
             # UI Frameworks / React / View Layers.
             # Frontend views shouldn't trigger OS/eval commands or touch memory.
             "memory_corruption_multiplier": 10.0,
-            "logic_bomb_multiplier": 10.0,
             "injection_surface_multiplier": 1.5,
         },
         "Cluster 7: Exception Handling & Defensive Wrappers": {
             # Try/Catch heavy logic. Malware loves to hide payloads in exception handlers.
-            "logic_bomb_multiplier": 15.0,
             "obscured_payload_multiplier": 5.0,
             "memory_corruption_multiplier": 2.0,
         },
@@ -1013,13 +987,11 @@ LANGUAGE_SECURITY_PROFILES = {
         "Cluster 5: Async Closures & Memory Allocation": {
             # JS/TS node allocating memory.
             "memory_corruption_multiplier": 0.5,  # Expected behavior
-            "logic_bomb_multiplier": 5.0,
             "injection_surface_multiplier": 1.0,
         },
         "Cluster 8: Downstream Execution Triggers": {
             # The New "God Nodes" (Extreme direct downstream).
-            # Massive blast radius if an injection surface or logic bomb is placed here.
-            "logic_bomb_multiplier": 5.0,
+            # Massive blast radius if an injection surface is placed here.
             "injection_surface_multiplier": 3.0,
             "obscured_payload_multiplier": 8.0,
         },
@@ -1073,10 +1045,8 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "churn",
         "documentation",
         "tabs_vs_spaces",
-        "algorithmic_dos",
         # --- THE SECURITY & VULNERABILITY LENSES ---
         "obscured_payload",
-        "logic_bomb",
         "injection_surface",
         "memory_corruption",
         "secrets_risk",
@@ -1316,11 +1286,9 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_hardcoded_secrets": "Embedded Credentials & Keys",
         # --- VULNERABILITY EXPOSURE MAPPINGS (Plain English) ---
         "obscured_payload": "Obfuscation & Evasion Surface",
-        "logic_bomb": "Destructive Execution Surface",
         "injection_surface": "Weaponizable Injection Vectors",
         "memory_corruption": "Weaponizable Memory Operations",
         "secrets_risk": "Hardcoded Credential Exposure",
-        "algorithmic_dos": "Algorithmic DoS Exposure",
     },
     "EXPOSURE_LABELS": {
         "cognitive_load": "Cognitive Load Exposure",
@@ -1336,10 +1304,8 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "churn": "Volatility Exposure",
         "documentation": "Documentation Exposure",
         "tabs_vs_spaces": "Civil War Exposure",
-        "algorithmic_dos": "Algorithmic DoS Exposure",
         # --- SECURITY LENS UI LABELS (Plain English) ---
         "obscured_payload": "Obfuscation & Evasion Surface",
-        "logic_bomb": "Exploit Generation Surface",
         "injection_surface": "Weaponizable Injection Vectors",
         "memory_corruption": "Raw Memory Manipulation",
         "secrets_risk": "Hardcoded Payload Artifacts",

@@ -53,7 +53,7 @@ GalaxyScope utilizes strict exit codes to allow CI/CD pipelines to autonomously 
 
 * **`0` (Success):** The repository was successfully mapped, and the resulting `_galaxy.json` was generated without critical warnings.
 * **`1` (Fatal Error):** The engine encountered a catastrophic runtime failure (e.g., target directory not found, insufficient read permissions, out of disk space).
-* **`3` (Security Breach):** The Biaxial Security Lens detected a critical threat mass (e.g., Logic Bomb, Obscured Payload, or Hardcoded Secret leak). The pipeline is halted and the repository should be quarantined.
+* **`3` (Security Breach):** The Biaxial Security Lens detected a critical threat mass (e.g., Injection Surface, Obscured Payload, or Hardcoded Secret leak). The pipeline is halted and the repository should be quarantined.
 * **`4` (Architectural Deadlock):** The DAG Architect detected an unresolvable cyclic dependency (e.g., File A blocks File B, which blocks File A) preventing a topological sort.
 
 ---

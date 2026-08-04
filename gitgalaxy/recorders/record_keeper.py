@@ -316,7 +316,6 @@ class RecordKeeper:
                 inheritance_parents TEXT,
                 method_count INTEGER,
                 state_entanglement REAL,
-                lcom_score REAL,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -665,9 +664,9 @@ class RecordKeeper:
                 cursor.execute(
                     """
                     INSERT INTO class_data (
-                        file_id, class_name, inheritance_parents, 
-                        method_count, state_entanglement, lcom_score
-                    ) VALUES (?, ?, ?, ?, ?, ?)
+                        file_id, class_name, inheritance_parents,
+                        method_count, state_entanglement
+                    ) VALUES (?, ?, ?, ?, ?)
                 """,
                     (
                         file_id,
@@ -675,7 +674,6 @@ class RecordKeeper:
                         json.dumps(cls.get("inheritance", [])),
                         cls.get("method_count", 0),
                         cls.get("state_entanglement", 0.0),
-                        cls.get("lcom_score", 0.0),
                     ),
                 )
                 class_id_map[cls.get("name")] = cursor.lastrowid

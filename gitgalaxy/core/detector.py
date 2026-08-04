@@ -67,7 +67,6 @@ class ClassInfo(TypedDict):
     inheritance: list[str]
     method_count: int
     state_entanglement: float
-    lcom_score: float
 
 
 class _ClassInfoWithBounds(ClassInfo, total=False):
@@ -552,7 +551,6 @@ class StructuralExtractor:
                         "_end_line": end_line,
                         "method_count": 0,
                         "state_entanglement": 0.0,
-                        "lcom_score": 0.0,
                     }
                 )
 
@@ -570,14 +568,6 @@ class StructuralExtractor:
                 # State Entanglement: Density of state mutations (flux) inside the class methods
                 total_flux = sum(m.get("hit_vector", {}).get("state_mutation", 0) for m in class_methods)
                 cls["state_entanglement"] = round((total_flux / max(cls["method_count"], 1)) * 5.0, 2)
-
-                # LCOM (Lack of Cohesion of Methods): Approximation using arguments vs mutations
-                total_args = sum(m.get("args", 0) for m in class_methods)
-                if cls["method_count"] > 1:
-                    cohesion_ratio = total_flux / max(total_args, 1)
-                    cls["lcom_score"] = round(max(0.0, min(100.0, 100.0 - (cohesion_ratio * 25.0))), 2)
-                else:
-                    cls["lcom_score"] = 0.0
 
                 # Erase the temporary spatial boundaries
                 del cls["_start_line"]

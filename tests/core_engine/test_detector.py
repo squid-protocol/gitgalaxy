@@ -187,10 +187,10 @@ def test_detector_terminator_cleaving():
         assert any("UPDATE" in name for name in func_names), "Failed to ignite the UPDATE block!"
 
 
-def test_detector_class_extraction_and_lcom():
+def test_detector_class_extraction_and_state_entanglement():
     """
     Proves the engine accurately bounds OOP entities, links internal methods,
-    and calculates LCOM/State Entanglement without full AST parsing.
+    and calculates State Entanglement without full AST parsing.
     """
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     code = (
@@ -212,7 +212,6 @@ def test_detector_class_extraction_and_lcom():
     cls = result["classes"][0]
     assert cls["name"] == "UserManager"
     assert cls["method_count"] == 2, "Failed to spatially link methods to the parent class!"
-    assert cls["lcom_score"] < 100.0, "LCOM calculation failed or defaulted to 100!"
     assert cls["state_entanglement"] > 0.0, "State entanglement failed to register mutations!"
 
 

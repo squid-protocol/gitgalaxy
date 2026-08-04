@@ -8401,10 +8401,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-thread-starvation-multiplier" class="md-nav__link">
+  <a href="#2-density-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Thread Starvation Multiplier
+        2. Density Calculation
       
     </span>
   </a>
@@ -8412,21 +8412,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-density-calculation" class="md-nav__link">
+  <a href="#3-sigmoid-transformation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Density Calculation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-sigmoid-transformation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Sigmoid Transformation
+        3. Sigmoid Transformation
       
     </span>
   </a>
@@ -8799,10 +8788,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-thread-starvation-multiplier" class="md-nav__link">
+  <a href="#2-density-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Thread Starvation Multiplier
+        2. Density Calculation
       
     </span>
   </a>
@@ -8810,21 +8799,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-density-calculation" class="md-nav__link">
+  <a href="#3-sigmoid-transformation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Density Calculation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-sigmoid-transformation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Sigmoid Transformation
+        3. Sigmoid Transformation
       
     </span>
   </a>
@@ -8927,7 +8905,7 @@
 <p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Evaluates the density of asynchronous execution primitives, multithreading logic, and potential thread starvation within a source file. Concurrent programming increases non-deterministic execution paths, raising cognitive load and introducing risks such as race conditions, deadlocks, and resource contention. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Concurrency Exposure metric.</p>
+<p>Evaluates the density of asynchronous execution primitives and multithreading logic within a source file. Concurrent programming increases non-deterministic execution paths, raising cognitive load and introducing risks such as race conditions, deadlocks, and resource contention. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Concurrency Exposure metric.</p>
 <h2 id="purpose">Purpose</h2>
 <p>The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -8957,12 +8935,6 @@
 <td style="text-align: left;">Synchronization primitives (mutexes, locks, semaphores). Each lock mitigates 1.5 thread spawns.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>starvation_multiplier</code></td>
-<td style="text-align: left;">Resource Guard</td>
-<td style="text-align: left;"><strong>1.0x – 5.0x</strong></td>
-<td style="text-align: left;">Escalates risk if concurrent functions contain <span class="arithmatex">\(O(N^2)\)</span>, <span class="arithmatex">\(O(N^3)\)</span>, or recursive logic.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>loc</code></td>
 <td style="text-align: left;">Denominator</td>
 <td style="text-align: left;"><strong>Base Density</strong></td>
@@ -8982,20 +8954,15 @@
 </tr>
 </tbody>
 </table>
-<p>The calculation balances raw concurrency against synchronization locks, evaluates resource exhaustion risk, and applies a sigmoid transformation.</p>
+<p>The calculation balances raw concurrency against synchronization locks and applies a sigmoid transformation.</p>
 <h3 id="1-net-concurrency-balance">1. Net Concurrency Balance</h3>
 <p>Subtract synchronization primitives from raw concurrency signals:</p>
 <div class="arithmatex">\[\text{net\_concurrency} = \max(0.0, \text{raw\_concurrency} - (\text{sync\_locks} \times 1.5))\]</div>
 <p>If <span class="arithmatex">\(\text{net\_concurrency} = 0\)</span>, the metric immediately returns <span class="arithmatex">\(0.0\)</span>.</p>
-<h3 id="2-thread-starvation-multiplier">2. Thread Starvation Multiplier</h3>
-<p>Inspects individual functions to identify high-complexity loops operating within concurrent contexts:
-* <strong>Recursive Functions:</strong> Sets <code>starvation_multiplier</code> to <span class="arithmatex">\(5.0\)</span>.
-* <strong><span class="arithmatex">\(O(N^3)\)</span> or Higher Complexity:</strong> Sets <code>starvation_multiplier</code> to <span class="arithmatex">\(4.0\)</span>.
-* <strong><span class="arithmatex">\(O(N^2)\)</span> Complexity:</strong> Sets <code>starvation_multiplier</code> to <span class="arithmatex">\(2.0\)</span>.</p>
-<h3 id="3-density-calculation">3. Density Calculation</h3>
+<h3 id="2-density-calculation">2. Density Calculation</h3>
 <p>Density measures concurrent logic per line of code, factoring in implicit language risk (<span class="arithmatex">\(\text{IRC} \times 0.1\)</span>):</p>
-<div class="arithmatex">\[\text{Density} = \left( \frac{\text{net\_concurrency} \times \text{starvation\_multiplier}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.1)\]</div>
-<h3 id="4-sigmoid-transformation">4. Sigmoid Transformation</h3>
+<div class="arithmatex">\[\text{Density} = \left( \frac{\text{net\_concurrency}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.1)\]</div>
+<h3 id="3-sigmoid-transformation">3. Sigmoid Transformation</h3>
 <p>Maps density to a 0–100 score using a base threshold of <span class="arithmatex">\(4.0\)</span> and slope of <span class="arithmatex">\(0.4\)</span>, scaled by the path modifier (<span class="arithmatex">\(Mp\)</span>):</p>
 <div class="arithmatex">\[\text{RawScore} = \frac{1.0}{1.0 + e^{-0.4 \times (\text{Density} - 4.0)}}$$
 $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div>
@@ -9005,10 +8972,10 @@ $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">irc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">functions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    Calculates Concurrency Exposure &amp; Thread Starvation Risk.</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sd">    RISK: Threads/Async execution.</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    MITIGATION: Mutex/Locks/Semaphores (sync_locks).</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">tuning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concurrency&quot;</span><span class="p">,</span> <span class="p">{})</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">loc_padding</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loc_padding&quot;</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
@@ -9016,38 +8983,24 @@ $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">raw_concurrency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concurrency&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">sync_locks</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sync_locks&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="c1"># Resource exhaustion guard</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">starvation_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">if</span> <span class="n">functions</span><span class="p">:</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>            <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hit_vector&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concurrency&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                <span class="n">big_o</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;big_o_depth&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                <span class="n">is_rec</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_recursive&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                <span class="k">if</span> <span class="n">is_rec</span><span class="p">:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                    <span class="n">starvation_multiplier</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">starvation_multiplier</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                <span class="k">elif</span> <span class="n">big_o</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                    <span class="n">starvation_multiplier</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">starvation_multiplier</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                <span class="k">elif</span> <span class="n">big_o</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                    <span class="n">starvation_multiplier</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">starvation_multiplier</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="c1"># Balance concurrency with synchronization locks</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="n">net_concurrency</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">raw_concurrency</span> <span class="o">-</span> <span class="p">(</span><span class="n">sync_locks</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="k">if</span> <span class="n">net_concurrency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>        <span class="k">return</span> <span class="mf">0.0</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">((</span><span class="n">net_concurrency</span> <span class="o">*</span> <span class="n">starvation_multiplier</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">loc_padding</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>    <span class="n">density</span> <span class="o">+=</span> <span class="n">irc</span> <span class="o">*</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;irc_mult&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold_base&quot;</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sigmoid_slope&quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="c1"># Balance concurrency with synchronization locks</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">net_concurrency</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">raw_concurrency</span> <span class="o">-</span> <span class="p">(</span><span class="n">sync_locks</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="k">if</span> <span class="n">net_concurrency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="k">return</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">net_concurrency</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">loc_padding</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">density</span> <span class="o">+=</span> <span class="n">irc</span> <span class="o">*</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;irc_mult&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold_base&quot;</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sigmoid_slope&quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Risk Classification:</strong>
 * 🟦 <strong>LOW (Score 0–19):</strong> Sequential execution. Logic runs deterministically with minimal or no asynchronous branching.
 * 🟨 <strong>MODERATE (Score 40–59):</strong> Standard asynchronous operations (e.g., standard <code>async</code>/<code>await</code> patterns or thread management) with bounded execution.
-* 🟥 <strong>VERY HIGH (Score 80–100):</strong> High-density multithreading, unmitigated concurrency channels, or concurrent functions containing high algorithmic complexity (potential thread starvation).</p>
+* 🟥 <strong>VERY HIGH (Score 80–100):</strong> High-density multithreading or unmitigated concurrency channels.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR

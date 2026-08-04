@@ -530,31 +530,6 @@ class LLMRecorder:
             lines.append("*No complex functions detected.*")
         lines.append("")
 
-        lines.append("## 8.5 ALGORITHMIC & DATABASE BOTTLENECKS")
-        lines.append(
-            "> Highlights the most computationally expensive and database-heavy functions across the repository.\n"
-        )
-
-        sorted_by_big_o = sorted(
-            all_functions,
-            key=lambda x: (x[0].get("is_recursive", False), x[0].get("big_o_depth", 1)),
-            reverse=True,
-        )
-        complex_functions = [
-            s for s in sorted_by_big_o if s[0].get("is_recursive", False) or s[0].get("big_o_depth", 1) > 2
-        ]
-
-        if complex_functions:
-            lines.append("### Highest Time Complexity (Big-O)")
-            for f, file_path in complex_functions[:10]:
-                o_str = "O(2^N) [Recursive]" if f.get("is_recursive", False) else f"O(N^{f.get('big_o_depth', 1)})"
-                lines.append(f"- `{f.get('name')}` (@ `{file_path}`) -> **{o_str}**")
-                doc = f.get("docstring", "").strip()
-                if doc:
-                    clean_doc = " ".join(doc.split())[:150] + ("..." if len(doc) > 150 else "")
-                    lines.append(f"  * *Intent:* {clean_doc}")
-            lines.append("")
-
         # --- 9. DIRECTORY GROUPS ---
         lines.append("## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)")
         dir_groups = summary.get("directory_groups", {})
@@ -909,7 +884,6 @@ class LLMRecorder:
             lines.append(
                 f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
             )
-            lines.append(f"- **Algorithmic:** {tel.get('max_algorithmic_complexity', 'O(N)')}")
             lines.append(f"- **Risk Profile:** Cognitive Load ({cog}%), Tech Debt ({debt}%)")
 
             hv = s.get("hit_vector", [])
@@ -932,8 +906,7 @@ class LLMRecorder:
             if sats:
                 lines.append("**Top Internal Functions/Classes:**")
                 for sat in sats:
-                    o_str = "O(2^N)" if sat.get("is_recursive", False) else f"O(N^{sat.get('big_o_depth', 1)})"
-                    lines.append(f"  * `{sat.get('name')}` (Impact: {sat.get('impact')} | {o_str})")
+                    lines.append(f"  * `{sat.get('name')}` (Impact: {sat.get('impact')})")
                     doc = sat.get("docstring", "").strip()
                     if doc:
                         clean_doc = " ".join(doc.split())[:100] + ("..." if len(doc) > 100 else "")
@@ -1310,7 +1283,6 @@ class LLMRecorder:
                     local_drift REAL,
                     ecosystem_baseline TEXT,
                     repo_z_score REAL,
-                    max_algorithmic_complexity TEXT,
                     {risk_cols}
                 )
             """)
@@ -1337,8 +1309,6 @@ class LLMRecorder:
                     type_id TEXT,
                     loc INTEGER,
                     impact REAL,
-                    big_o_depth INTEGER,
-                    is_recursive BOOLEAN,
                     docstring TEXT,
                     calls_out_to TEXT,
                     FOREIGN KEY(artifact_id) REFERENCES artifacts(id)
@@ -1425,10 +1395,10 @@ class LLMRecorder:
                         control_flow_ratio, author_distribution, ownership_entropy,
                         raw_churn_freq, cog_raw, ownership, popularity,
                         archetype, global_drift, local_archetype, local_drift,
-                        ecosystem_baseline, repo_z_score, max_algorithmic_complexity,
+                        ecosystem_baseline, repo_z_score,
                         {", ".join(self.RISK_SCHEMA)}
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
                 """,  # noqa: S608
                     (
                         p,
@@ -1454,7 +1424,6 @@ class LLMRecorder:
                         tel.get("local_drift", 0.0),
                         str(repo_macro),
                         repo_z,
-                        tel.get("max_algorithmic_complexity", "O(N)"),
                         *rv,
                     ),
                 )
@@ -1473,8 +1442,6 @@ class LLMRecorder:
                             func.get("type_id"),
                             func.get("loc"),
                             func.get("impact"),
-                            func.get("big_o_depth", 1),
-                            func.get("is_recursive", False),
                             func.get("docstring", ""),
                             calls_json,
                         )
@@ -1490,7 +1457,7 @@ class LLMRecorder:
 
             cursor.executemany("INSERT INTO dna_hits VALUES (?, ?, ?)", all_dna_data)
             cursor.executemany(
-                "INSERT INTO functions (artifact_id, name, type_id, loc, impact, big_o_depth, is_recursive, docstring, calls_out_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO functions (artifact_id, name, type_id, loc, impact, docstring, calls_out_to) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 all_functions,
             )
             cursor.executemany("INSERT INTO outbound_dependencies VALUES (?, ?)", all_outbound)

@@ -40,7 +40,6 @@ class DevAgentFirewall:
 
             # Extract relevant structural metrics, safely handling None values from Zero-Dependency Mode
             pagerank = network_metrics.get("normalized_blast_radius") or 0.0
-            max_big_o = file_data.get("max_big_o") or 1
 
             guardrails: dict[str, Any] = {
                 "is_agentic_black_hole": False,
@@ -56,11 +55,11 @@ class DevAgentFirewall:
                 state_flux = risk_vector[risk_schema.index("state_flux")]
 
             # 1. Context Window Exhaustion (Agentic Black Hole)
-            # If a file exceeds token limits AND has severe algorithmic complexity, the AI will lose context.
-            if token_mass is not None and token_mass > 8000 and max_big_o >= 3:
+            # If a file exceeds token limits, the AI will lose context.
+            if token_mass is not None and token_mass > 8000:
                 guardrails["is_agentic_black_hole"] = True
                 guardrails["warnings"].append(
-                    f"CRITICAL [Context Window Exhaustion]: Token mass ({token_mass}) and O(N^{max_big_o}) complexity will exceed agent context capabilities and induce severe hallucination."
+                    f"CRITICAL [Context Window Exhaustion]: Token mass ({token_mass}) will exceed agent context capabilities and induce severe hallucination."
                 )
 
             # 2. The HITL Mandate (Downstream Exposure + Severe Risk Debt)

@@ -177,17 +177,10 @@ class NetworkRiskSensor:
         for f in parsed_files:
             path = f.get("path", "")
 
-            # Extract Max Algorithmic Complexity for the node
-            funcs = f.get("functions", [])
-            max_big_o = max([func.get("big_o_depth", 1) for func in funcs]) if funcs else 1
-            is_recursive = any([func.get("is_recursive", False) for func in funcs])
-
-            # Add Node with Vector and O(N) properties
+            # Add Node with Vector
             G.add_node(
                 path,
                 risk_vector=f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA)),
-                max_big_o=max_big_o,
-                is_recursive=is_recursive,
             )
 
         # 2. Wire the Edges (File-to-File Level 1 & Entity Level 2)
@@ -280,26 +273,9 @@ class NetworkRiskSensor:
                 # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
                 systemic_threat_vector.append(round(pr_normalized * (local_risk / 100.0), 3))
 
-            # --- Algorithmic Network Bottleneck Detection ---
-            max_big_o = G.nodes[path].get("max_big_o", 1)
-            is_recursive = G.nodes[path].get("is_recursive", False)
-
-            # A node is an Algorithmic Bottleneck if it is highly central AND highly complex
-            is_algorithmic_bottleneck = False
-            if pr_normalized > 1.0 and (is_recursive or max_big_o >= 3):
-                is_algorithmic_bottleneck = True
-
             # 5. Write Telemetry Back to the File Node
             if "telemetry" not in f:
                 f["telemetry"] = {}
-
-            # #372: max_big_o was already read from the graph node (above) to
-            # compute is_algorithmic_bottleneck, but never copied back onto the
-            # file dict itself -- dev_agent_firewall.py's Agentic Black Hole
-            # check reads file_data.get("max_big_o") directly (a different
-            # object than this function's own G.nodes[path]), so it was always
-            # falling back to 1 and could never trigger on real complexity.
-            f["max_big_o"] = max_big_o
 
             f["telemetry"]["network_metrics"] = {
                 "pagerank_score": round(pr_score, 6),
@@ -311,7 +287,6 @@ class NetworkRiskSensor:
                 "producer_ratio": round(producer_ratio, 3),
                 "ecosystem_role": ecosystem_role,
                 "systemic_threat_vector": systemic_threat_vector,
-                "is_algorithmic_bottleneck": is_algorithmic_bottleneck,
             }
 
             # Overwrite the old "popularity" integer with the strict directed in_degree
@@ -450,16 +425,8 @@ class NetworkRiskSensor:
                 "producer_ratio": round(producer_ratio, 3),
                 "ecosystem_role": ecosystem_role,
                 "systemic_threat_vector": [],
-                "is_algorithmic_bottleneck": False,
             }
             f["telemetry"]["popularity"] = in_d
-
-            # #372: computing max_big_o doesn't actually need networkx (it's
-            # pure Python off "functions"), so Zero-Dependency Mode shouldn't
-            # leave dev_agent_firewall.py's Agentic Black Hole check any more
-            # broken here than in the main path.
-            funcs = f.get("functions", [])
-            f["max_big_o"] = max([func.get("big_o_depth", 1) for func in funcs]) if funcs else 1
 
         # #473: None, not 0.0/0 -- zero-dependency mode means these were never
         # attempted at all (networkx isn't installed), not measured as zero.

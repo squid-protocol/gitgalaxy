@@ -683,10 +683,10 @@ def test_signal_processor_god_object_gini(processor):
 
 
 # ==============================================================================
-# TEST 21: CONCURRENCY MITIGATION BALANCE (Locks & Starvation)
+# TEST 21: CONCURRENCY MITIGATION BALANCE (Locks)
 # ==============================================================================
 def test_signal_processor_concurrency_mitigation_balance(processor):
-    """Proves sync locks mitigate async risk, and high Big-O spikes thread starvation."""
+    """Proves sync locks mitigate async risk."""
 
     # 1. High Async, No Locks
     m_async, sig_async = create_synthetic_star(processor, "pure_async", 100, {"concurrency": 20})
@@ -694,28 +694,13 @@ def test_signal_processor_concurrency_mitigation_balance(processor):
     # 2. High Async, Mitigated by Locks (1 lock mitigates 1.5 async hits)
     m_sync, sig_sync = create_synthetic_star(processor, "locked_async", 100, {"concurrency": 20, "sync_locks": 15})
 
-    # 3. Thread Starvation (Async + High Big-O)
-    m_starve, sig_starve = create_synthetic_star(processor, "starved_async", 100, {"concurrency": 20})
-    m_starve["functions"] = [
-        {
-            "name": "heavy_thread",
-            "loc": 50,
-            "big_o_depth": 3,
-            "hit_vector": {"concurrency": 5},
-        }
-    ]
-
     r_async = processor.calculate_risk_vector(m_async, sig_async)
     r_sync = processor.calculate_risk_vector(m_sync, sig_sync)
-    r_starve = processor.calculate_risk_vector(m_starve, sig_starve)
 
     idx_async = processor.RISK_SCHEMA.index("concurrency")
 
     assert r_sync["risk_vector"][idx_async] < r_async["risk_vector"][idx_async], (
         "Sync locks failed to mitigate concurrency risk!"
-    )
-    assert r_starve["risk_vector"][idx_async] > r_async["risk_vector"][idx_async], (
-        "Thread starvation (Big-O + Async) failed to amplify risk!"
     )
 
 
@@ -1152,14 +1137,14 @@ def test_signal_processor_load_bearer_penalty(processor):
 # TEST 40: OPAQUE EXECUTION RISK (Documentation Risk)
 # ==============================================================================
 def test_signal_processor_opaque_execution_risk(processor):
-    """Proves that deeply nested/heavy functions lacking docstrings spike documentation risk."""
-    # 1. Complex function WITH a docstring
+    """Proves that heavy-impact functions lacking docstrings spike documentation risk."""
+    # 1. High-impact function WITH a docstring
     m_doc, sig_doc = create_synthetic_star(processor, "documented_heavy", 100, {"doc": 10})
-    m_doc["functions"] = [{"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": True}]
+    m_doc["functions"] = [{"name": "heavy_func", "loc": 50, "impact": 60.0, "docstring": True}]
 
-    # 2. Complex function WITHOUT a docstring
+    # 2. High-impact function WITHOUT a docstring
     m_blind, sig_blind = create_synthetic_star(processor, "blind_heavy", 100, {"doc": 10})
-    m_blind["functions"] = [{"name": "heavy_func", "loc": 50, "big_o_depth": 3, "docstring": False}]
+    m_blind["functions"] = [{"name": "heavy_func", "loc": 50, "impact": 60.0, "docstring": False}]
 
     r_doc = processor.calculate_risk_vector(m_doc, sig_doc)
     r_blind = processor.calculate_risk_vector(m_blind, sig_blind)
@@ -1383,15 +1368,12 @@ def test_signal_processor_external_test_coverage(processor):
 def test_signal_processor_concurrency_threshold_scaling(processor):
     """
     Proves the (* 100.0) mathematical scalar correctly converts low-ratio concurrency
-    signals into valid density percentages, catching thread starvation.
+    signals into valid density percentages.
     """
-    # 5 threads in a 100-line file = 0.05 ratio.
-    # Scaled to percentage = 5.0%. Threshold is 4.0%.
+    # 5 threads in a 100-line file = 0.04 ratio (with the 25-line concurrency padding).
+    # Scaled to percentage = 4.0%. Threshold is 2.5%.
     # This MUST trigger a high risk exposure.
     meta, sig = create_synthetic_star(processor, "thread_router", 100, {"concurrency": 5})
-
-    # Give it a heavy O(N^3) big_o_depth to spike the thread starvation multiplier
-    meta["functions"] = [{"name": "heavy_thread", "loc": 50, "big_o_depth": 3, "hit_vector": {"concurrency": 5}}]
 
     res = processor.calculate_risk_vector(meta, sig)
     idx_async = processor.RISK_SCHEMA.index("concurrency")

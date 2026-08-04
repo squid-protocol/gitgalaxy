@@ -50,8 +50,6 @@ def mock_pipeline_state():
                     "type_id": "function",
                     "loc": 50,
                     "impact": 15.0,
-                    "big_o_depth": 2,
-                    "is_recursive": False,
                     "docstring": "Handles incoming API requests.",
                     "calls_out_to": ["validate_token"],
                 }
@@ -222,11 +220,11 @@ def test_generate_sqlite_graph(recorder, mock_pipeline_state, tmp_path):
     assert ("src/api", 1, 45.5) in groups
 
     # Verify Functions Table & JSON Serialization
-    cursor.execute("SELECT name, big_o_depth, calls_out_to FROM functions")
+    cursor.execute("SELECT name, impact, calls_out_to FROM functions")
     functions = cursor.fetchall()
     assert len(functions) == 1
     assert functions[0][0] == "process_request"
-    assert functions[0][1] == 2
+    assert functions[0][1] == 15.0
     assert "validate_token" in json.loads(functions[0][2])
 
     # Verify Dependency Network Links (Updated to artifact_id)

@@ -22,7 +22,7 @@ Simple comment line counts fail to evaluate whether the comments actually explai
 
 ## Design
 Evaluates four contextual dimensions:
-1. **Undocumented Logic Complexity:** Measures the structural `impact` and `big_o_depth` of unannotated functions.
+1. **Undocumented Logic Complexity:** Measures the structural `impact` of unannotated functions.
 2. **Directory Documentation Shield:** Sweeps for "Knowledge Anchors" (`README.md`, `ARCHITECTURE.md`) applying a `doc_umbrella` defense value.
 3. **Markdown Formatting Density:** Parses structural indicators in markdown (code blocks, diagrams, headers, links).
 4. **Blast Radius & Bus Factor:** Scales risk if the file is heavily imported (network multiplier) or authored by one person (silo multiplier).
@@ -32,7 +32,7 @@ Evaluates four contextual dimensions:
 $$\text{UmbrellaDefense} = \text{doc\_umbrella} \times 50.0$$
 $$\text{DefenseHits} = \left( \text{InlineDocs} + (\text{Ownership} \times 0.5) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense} \right) \times Fc$$
 2. **Undocumented Risk Calculation:**
-$$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + (\ln(\text{Impact}) \times (\text{BigO} \times 0.5)) \right)$$
+$$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Impact}) \right)$$
 $$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc$$
 3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
@@ -49,7 +49,7 @@ flowchart LR
     D[Git Analytics] -->|Silo / Popularity| B
     B -->|Density Map| E[Final Documentation Score]
 ```
-- **Inputs received:** Function metrics (`impact`, `big_o_depth`), documentation hits, directory shields (`doc_umbrella`), file popularity, and silo exposure.
+- **Inputs received:** Function metrics (`impact`), documentation hits, directory shields (`doc_umbrella`), file popularity, and silo exposure.
 - **Outputs produced:** A normalized documentation risk score (0-100).
 - **Dependencies:** Relies heavily on the Directory Resolver for umbrella logic and Git Analytics for author concentration.
 

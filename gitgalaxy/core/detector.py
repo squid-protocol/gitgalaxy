@@ -118,8 +118,6 @@ class FunctionNode(TypedDict, total=False):
     start_idx: int
     end_idx: int
 
-    big_o_depth: int
-    is_recursive: bool
     docstring: str
     calls_out_to: list[str]
     hit_vector: dict[str, int]
@@ -2110,31 +2108,6 @@ class StructuralExtractor:
         raw_lines = [l for l in block.splitlines() if l.strip() and not l.lstrip().startswith(("#", "//", "/*", "*"))]
         coding_loc = len(raw_lines)
 
-        # --- NEW: BIG-O ALGORITHMIC COMPLEXITY TRACKER ---
-        # Uses standard code indentation as a universal proxy for AST nesting depth.
-        max_indent = 0
-        if raw_lines:
-            base_indent = len(raw_lines[0]) - len(raw_lines[0].lstrip())
-            for line in raw_lines:
-                indent = len(line) - len(line.lstrip())
-                # Assume standard 4-space or 1-tab format per scope level
-                depth = (indent - base_indent) // 4
-                if depth > max_indent:
-                    max_indent = depth
-
-        # Clamp between O(1) and O(N^6) to prevent runaway formatting bugs from declaring infinite mass
-        big_o_depth = min(max(max_indent, 1), 6)
-
-        # --- NEW: EXPONENTIAL O(2^N) RECURSION TRACKER ---
-        # Check if the function's name appears followed by a parenthesis/space inside its own body.
-        # We check for > 1 because the first hit is the function definition itself!
-        is_recursive = False
-        if name and len(name) > 2 and name not in {"Unknown_Sat", "Anonymous_Block", "Main"}:
-            # Fast heuristic: Count occurrences. If it appears more than once, it's highly likely recursive.
-            occurrence_count = len(re.findall(r"\b" + re.escape(name) + r"\b", block))
-            if occurrence_count > 1:
-                is_recursive = True
-
         # --- NEW: FUNCTION-LEVEL KEYWORD DENSITY (The Micro-Auditor) ---
         # Total structural signals divided by the physical lines of the function.
         total_keyword_hits = sum(hit_vector.values()) if hit_vector else total_hits
@@ -2168,16 +2141,8 @@ class StructuralExtractor:
         # on edge-case mega-functions, while preserving the core structural philosophy.
         arg_multiplier = math.sqrt(args_count + 1)
 
-        # Apply Big O Depth as an exponential gravity multiplier.
-        # O(N)=1.0x, O(N^2)=1.5x, O(N^3)=2.0x, etc.
-        complexity_multiplier = 1.0 + ((big_o_depth - 1) * 0.5)
-
-        # Recursive functions are dangerous and mathematically dense. Double their magnitude.
-        if is_recursive:
-            complexity_multiplier *= 2.0
-
-        # Calculate magnitude using the dampened arguments, Big-O depth, and logic-bounded length
-        magnitude = float((branch_hits + 1) * arg_multiplier * complexity_multiplier + (0.05 * effective_loc))
+        # Calculate magnitude using the dampened arguments and logic-bounded length
+        magnitude = float((branch_hits + 1) * arg_multiplier + (0.05 * effective_loc))
 
         # ---> THE FIX: LOGIC TOPOLOGY MATH <---
         # Calculate the Control Flow Ratio and the Fractal Fibonacci Angle (Theta)
@@ -2274,8 +2239,6 @@ class StructuralExtractor:
             "branch": branch_hits,
             "args": args_count,
             "args_count": args_count,
-            "big_o_depth": big_o_depth,
-            "is_recursive": is_recursive,
             "docstring": docstring,
             "logic_angle": round(angle, 2),
             "angle": round(angle, 2),

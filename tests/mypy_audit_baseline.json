@@ -1,5 +1,5 @@
 {
   "gitgalaxy/core/network_risk_sensor.py:173: var-annotated": "Need type annotation for \"G\"",
-  "gitgalaxy/core/network_risk_sensor.py:357: assignment": "Incompatible types in assignment (expression has type \"list[set[Any]] | list[frozenset[Any]]\", variable has type \"list[set[Any]]\")",
+  "gitgalaxy/core/network_risk_sensor.py:331: assignment": "Incompatible types in assignment (expression has type \"list[set[Any]] | list[frozenset[Any]]\", variable has type \"list[set[Any]]\")",
   "gitgalaxy/tools/network_auditing/full_api_network_map.py:32: assignment": "Incompatible types in assignment (expression has type \"None\", variable has type Module)"
 }

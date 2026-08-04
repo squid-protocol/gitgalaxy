@@ -81,7 +81,7 @@ thing" rather than "what does this specific code do."
     # Heaviest/most complex functions in a file before editing it -- avoids reading the
     # whole file just to find what's risky inside it.
     sqlite3 docs/self_scan/gitgalaxy_master.db \
-      "SELECT f.func_name, f.complexity, f.loc, f.is_recursive, f.calls_out_to
+      "SELECT f.func_name, f.complexity, f.loc, f.calls_out_to
        FROM function_data f JOIN file_data fd ON f.file_id = fd.id
        WHERE fd.file_path LIKE '%detector.py%' ORDER BY f.complexity DESC LIMIT 5;"
 

@@ -68,8 +68,6 @@ def mock_pipeline_state():
                     "type_id": "function",
                     "loc": 50,
                     "impact": 15.0,
-                    "big_o_depth": 2,
-                    "is_recursive": False,
                     "docstring": "Handles incoming API requests.",
                     "calls_out_to": ["validate_token"],
                     "hit_vector": {"high_risk_execution": 1, "io": 2},
@@ -202,7 +200,6 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     cursor.execute("SELECT * FROM function_data WHERE file_id=?", (file_id,))
     func_row = cursor.fetchone()
     assert func_row["func_name"] == "process_request"
-    assert func_row["big_o_depth"] == 2
     assert "validate_token" in func_row["calls_out_to"]
 
     # Verify the specific signal mapped properly in the function table

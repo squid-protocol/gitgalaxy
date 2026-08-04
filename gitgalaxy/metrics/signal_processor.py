@@ -507,7 +507,6 @@ class SignalProcessor:
             max_func_comp = 0
             avg_func_args = 0.0
             func_gini = 0.0
-            max_big_o = 1
 
             func_ml_brain = getattr(analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", {})
             f_medians = func_ml_brain.get("SCALER_MEDIANS", [])
@@ -540,15 +539,10 @@ class SignalProcessor:
                     f"⚠️ FUNCTION ML SILENT BYPASS: Brain loaded? {bool(func_ml_brain)} | Centroids: {len(f_centroids)} | Arch Key: {f_arch_key}"
                 )
 
-            # Initialize has_recursion before the if block
-            has_recursion = False
-
             if functions:
                 complexities = [f.get("branch", 0) for f in functions]
                 max_func_comp = max(complexities)
                 avg_func_args = sum([f.get("args", 0) for f in functions]) / len(functions)
-                max_big_o = max([f.get("big_o_depth", 1) for f in functions])
-                has_recursion = any([f.get("is_recursive", False) for f in functions])
 
                 # 1. Z-Scores Mathematics
                 func_count = len(functions)
@@ -729,7 +723,7 @@ class SignalProcessor:
                 "tech_debt": debt_score,
                 "verification": test_score,
                 "api_exposure": self._calc_api_exposure(raw_signals, total_loc, popularity),
-                "concurrency": self._calc_concurrency(loc, raw_signals, irc, mp_map.get("async", 1.0), functions),
+                "concurrency": self._calc_concurrency(loc, raw_signals, irc, mp_map.get("async", 1.0)),
                 "state_flux": self._calc_state_flux(loc, raw_signals, irc, mp_map.get("state_mutation", 1.0)),
                 "dead_code": self._calc_graveyard(total_loc, raw_signals, mp_map.get("dead", 1.0)),
                 "spec_match": spec_score,
@@ -827,9 +821,6 @@ class SignalProcessor:
                 "densities": {"cog_raw": round(cog_raw, 3)},
                 "raw_churn_freq": raw_churn_freq,
                 "func_complexity_gini": func_gini,
-                "max_algorithmic_complexity": (
-                    "O(2^N) [Recursive]" if has_recursion else (f"O(N^{max_big_o})" if max_big_o > 1 else "O(N)")
-                ),
                 "ownership_entropy": ownership_score,
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
@@ -1494,11 +1485,10 @@ class SignalProcessor:
         if functions:
             for func in functions:
                 impact = func.get("impact", 0.0)
-                big_o = func.get("big_o_depth", 1)
 
-                # If a load-bearing or deeply nested block lacks a semantic tether
-                if (impact > 50.0 or big_o >= 3) and not func.get("docstring"):
-                    opaque_execution += 5.0 + (math.log1p(impact) * (big_o * 0.5))
+                # If a load-bearing block lacks a semantic tether
+                if impact > 50.0 and not func.get("docstring"):
+                    opaque_execution += 5.0 + math.log1p(impact)
 
         # Add Implicit Risk Correction (Maintenance Overhead) to the risk
         risk_hits = opaque_execution + api_exposure + irc
@@ -1680,10 +1670,9 @@ class SignalProcessor:
         raw_signals: dict[str, int],
         irc: int,
         mp: float,
-        functions: Optional[list[dict[str, Any]]] = None,
     ) -> float:
         """
-        RISK: Threads/Async execution + Thread Starvation (O(N) Bombs).
+        RISK: Threads/Async execution.
         MITIGATION: Mutex/Locks/Semaphores (sync_locks).
         """
         tuning = self.risk_tuning.get("concurrency", {})
@@ -1692,28 +1681,13 @@ class SignalProcessor:
         raw_concurrency = float(raw_signals.get("concurrency", 0))
         sync_locks = float(raw_signals.get("sync_locks", 0))
 
-        # --- RESOURCE EXHAUSTION GUARD ---
-        # If an individual function has concurrency hits AND terrible Big-O, it spikes the risk.
-        starvation_multiplier = 1.0
-        if functions:
-            for func in functions:
-                if func.get("hit_vector", {}).get("concurrency", 0) > 0:
-                    big_o = func.get("big_o_depth", 1)
-                    is_rec = func.get("is_recursive", False)
-                    if is_rec:
-                        starvation_multiplier = max(starvation_multiplier, 5.0)
-                    elif big_o >= 3:
-                        starvation_multiplier = max(starvation_multiplier, 4.0)
-                    elif big_o == 2:
-                        starvation_multiplier = max(starvation_multiplier, 2.0)
-
         # MITIGATION BALANCE: 1 lock mitigates 1.5 thread spawns.
         net_concurrency = max(0.0, raw_concurrency - (sync_locks * 1.5))
 
         if net_concurrency == 0:
             return 0.0
 
-        density = ((net_concurrency * starvation_multiplier) / max(loc + loc_padding, 1)) * 100.0
+        density = (net_concurrency / max(loc + loc_padding, 1)) * 100.0
         density += irc * tuning.get("irc_mult", 0.1)
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!

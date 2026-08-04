@@ -70,34 +70,6 @@ MOCK_LANG_DEFS = {
 
 
 # ==============================================================================
-# TEST 1: ALGORITHMIC PHYSICS (Big-O & Recursion)
-# ==============================================================================
-def test_detector_big_o_and_recursion():
-    """
-    Proves the engine accurately calculates nesting depth based on indentation,
-    and flags exponential O(2^N) recursion without building an AST.
-    """
-    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
-    code = (
-        "def calculate_fibonacci(n):\n"
-        "    if n <= 1:\n"
-        "        return n\n"
-        "    for i in range(10):\n"  # Indent Level 1
-        "        if i == 5:\n"  # Indent Level 2
-        "            print(i)\n"  # Indent Level 3 (Deepest)
-        "    return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)\n"
-    )
-
-    result = opt_detector.splice(code, "")
-    assert len(result["functions"]) == 1
-
-    func = result["functions"][0]
-    assert func["name"] == "calculate_fibonacci"
-    assert func["is_recursive"] is True, "Failed to flag recursive execution!"
-    assert func["big_o_depth"] >= 3, "Failed to calculate Big-O nesting depth!"
-
-
-# ==============================================================================
 # TEST 2: SPATIAL THREAT CORRELATION (The AppSec Sensor)
 # ==============================================================================
 def test_detector_spatial_appsec_correlation():

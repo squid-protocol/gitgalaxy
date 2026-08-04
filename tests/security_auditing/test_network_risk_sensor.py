@@ -16,7 +16,6 @@ MOCK_PARSED_FILES = [
         "path": "/src/core/foundation.py",
         "raw_imports": [],  # Imports nothing. Pure Producer.
         "risk_vector": [10.0] * 18,
-        "functions": [{"big_o_depth": 1, "is_recursive": False}],
     },
     {
         "path": "/src/utils/transceiver.py",
@@ -47,8 +46,6 @@ MOCK_PARSED_FILES = [
         "path": "/src/math/heavy_calc.py",
         "raw_imports": [],
         "risk_vector": [50.0] * 18,
-        # Extreme algorithmic complexity (Recursive + Big O 4)
-        "functions": [{"big_o_depth": 4, "is_recursive": True}],
     },
 ]
 
@@ -119,39 +116,6 @@ def test_network_ecosystem_roles(sensor, parsed_files_universe):
 
 
 # ==============================================================================
-# TEST 4: THE ALGORITHMIC BOTTLENECK SENSOR
-# ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_network_algorithmic_bottleneck(sensor, parsed_files_universe):
-    """
-    Proves that a file requires BOTH high network gravity (PageRank > 1.0)
-    AND extreme internal logic (Big-O >= 3) to be flagged as a systemic bottleneck.
-    """
-    # Artificially pump up the gravity of heavy_calc by making Orchestrator and Cycle A import it too
-    parsed_files_universe[2]["raw_imports"].append("/src/math/heavy_calc.py")
-    parsed_files_universe[3]["raw_imports"].append("/src/math/heavy_calc.py")
-
-    mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
-
-    # 1. Foundation has high gravity (PageRank), but simple internal logic (Big O 1). Should be False.
-    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
-    assert foundation["telemetry"]["network_metrics"]["normalized_blast_radius"] > 1.0
-    assert foundation["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is False
-
-    # 2. Heavy Calc has high gravity AND extreme logic (Big O 4 + Recursive). Should be True!
-    heavy_calc = next(f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py")
-    assert heavy_calc["telemetry"]["network_metrics"]["normalized_blast_radius"] > 1.0
-    assert heavy_calc["telemetry"]["network_metrics"]["is_algorithmic_bottleneck"] is True
-
-    # 3. #372: max_big_o itself must be copied onto the file dict, not just used
-    # internally to compute is_algorithmic_bottleneck -- dev_agent_firewall.py
-    # reads file_data.get("max_big_o") directly, a different object than this
-    # function's own G.nodes[path].
-    assert foundation["max_big_o"] == 1
-    assert heavy_calc["max_big_o"] == 4
-
-
-# ==============================================================================
 # TEST 5: ZERO-DEPENDENCY FALLBACK
 # ==============================================================================
 def test_network_fallback_mode(sensor, parsed_files_universe):
@@ -163,12 +127,6 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
         assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
         assert foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0  # Math is disabled
-
-        # #372: max_big_o computation is pure Python (off "functions"), so it
-        # must still work in Zero-Dependency Mode, not just the networkx path.
-        heavy_calc = next(f for f in mapped_files if f["path"] == "/src/math/heavy_calc.py")
-        assert foundation["max_big_o"] == 1
-        assert heavy_calc["max_big_o"] == 4
 
 
 # ==============================================================================

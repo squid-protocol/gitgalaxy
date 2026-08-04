@@ -22,13 +22,12 @@ def firewall():
 # ==============================================================================
 def test_black_hole_detection(firewall):
     """
-    Proves that files exceeding 8k tokens with O(N^3) or worse complexity
-    are correctly flagged as Context Window Shredders.
+    Proves that files exceeding 8k tokens are correctly flagged as Context
+    Window Shredders.
     """
     mock_files = [
         {
             "token_mass": 8500,  # ☢️ Exceeds 8k limit
-            "max_big_o": 3,  # ☢️ High algorithmic complexity
             "telemetry": {},
             "risk_vector": [],
         }
@@ -42,40 +41,6 @@ def test_black_hole_detection(firewall):
 
 
 # ==============================================================================
-# TEST 1.5: THE BLACK HOLE, END TO END (#372 -- the real pipeline, not a mock)
-# ==============================================================================
-def test_black_hole_detection_from_real_network_risk_sensor_output(firewall):
-    """
-    Regression test for #372: dev_agent_firewall.py read file_data["max_big_o"]
-    directly, but the only real producer set it as a networkx graph node
-    attribute (network_risk_sensor.py) that was never copied back onto the
-    file dict -- so this check could never fire on real data, only on a
-    hand-mocked "max_big_o" like the test above. Drives a REAL
-    NetworkRiskSensor.build_dependency_graph() output into the REAL firewall.
-    """
-    from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
-
-    parsed_files = [
-        {
-            "path": "src/math/heavy_calc.py",
-            "raw_imports": [],
-            "risk_vector": [],
-            "token_mass": 8500,  # Exceeds 8k limit
-            "functions": [{"big_o_depth": 4, "is_recursive": True}],  # O(N^4)
-            "telemetry": {},
-        }
-    ]
-
-    mapped_files, _ = NetworkRiskSensor().build_dependency_graph(parsed_files)
-    result = firewall.evaluate_ecosystem(mapped_files)
-    guardrails = result[0]["telemetry"]["ai_guardrails"]
-
-    assert guardrails["is_agentic_black_hole"] is True, (
-        "max_big_o from the real network sensor output must reach the firewall!"
-    )
-
-
-# ==============================================================================
 # TEST 2: The HITL Mandate (Blast Radius + Risk Debt)
 # ==============================================================================
 def test_hitl_mandate_detection(firewall):
@@ -86,7 +51,6 @@ def test_hitl_mandate_detection(firewall):
     mock_files = [
         {
             "token_mass": 1000,
-            "max_big_o": 1,
             "risk_vector": [100, 50, 60],  # ☢️ Sum = 210 (> 200 threshold)
             "telemetry": {
                 "network_metrics": {"normalized_blast_radius": 1.5}  # ☢️ > 1.0 threshold
@@ -241,7 +205,6 @@ def test_safe_agentic_baseline(firewall):
     mock_files = [
         {
             "token_mass": 2000,
-            "max_big_o": 1,
             "risk_vector": [10, 5, 0],  # ✅ Low risk debt
             "hit_vector": [0, 0],  # ✅ No dynamic execution
             "test_coverage_map": {"handler": [{"impact": 1.0}]},  # ✅ Real test coverage

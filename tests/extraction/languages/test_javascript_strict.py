@@ -75,6 +75,31 @@ _JS_SIMPLE_CASES = [
     ("regex_execution", "str.match(/foo/);", None),
     ("time_date_logic", "Date.now();", None),
     ("ipc_rpc_bridges", "worker.postMessage(data);", None),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("bitwise_ops", "const mask = flags << 2;", "const power = base ** exponent;"),
+    ("closures", "const add = (x) => { return x + 1; };", "const add = (x) => x + 1;"),
+    ("cryptography", "import bcrypt from 'bcrypt';", "const hash = require('hash.js');"),
+    (
+        "dl_frameworks",
+        "import * as tf from '@tensorflow/tfjs';",
+        "import { RandomForestClassifier } from 'ml-random-forest';",
+    ),
+    (
+        "exfiltration_camouflage",
+        "fetch('https://telemetry.example.com/collect', { method: 'POST', body: JSON.stringify(payload) })",
+        "fetch('https://api.example.com/users', { method: 'POST', body: JSON.stringify(payload) })",
+    ),
+    ("hardware_bridge", "import { SerialPort } from 'serialport';", "import net from 'net';"),
+    ("import", "import React from 'react';", "important = true;"),
+    ("lazy_evaluation", "function* generator() { yield 1; }", "function regular() { return 1; }"),
+    ("llm_api", "import OpenAI from 'openai';", "import axios from 'axios';"),
+    ("llm_orchestrator", "import { LLMChain } from 'langchain';", "import express from 'express';"),
+    ("llm_vector_store", "import { ChromaClient } from 'chromadb';", "import mongoose from 'mongoose';"),
+    ("ml_traditional", "import x from 'sklearn';", "import * as tf from 'tensorflow';"),
+    ("rce_funnel", "child_process.exec('bash deploy.sh')", "child_process.exec('./cleanup.sh')"),
+    ("structural_boundaries", "export class Widget {}", "function widget() {}"),
+    ("test", "describe('widget', () => { expect(true).toBe(true); })", "myRegex.test('x')"),
+    ("vectorized_math", "const result = matmul(a, b);", "const result = a * b;"),
 ]
 
 

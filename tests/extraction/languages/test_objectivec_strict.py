@@ -78,6 +78,10 @@ _OBJC_SIMPLE_CASES = [
     ),
     ("time_date_logic", "NSDate *now = [NSDate date];", None),
     ("ipc_rpc_bridges", "NSTask *task = [[NSTask alloc] init];", None),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("api", "@property (nonatomic, strong) NSString *name;", "static NSString *name;"),
+    ("bitwise_ops", "NSUInteger mask = flags & 0x0F;", "if (a && b) {"),
+    ("import", "#import <Foundation/Foundation.h>", "// #import <Foundation/Foundation.h>"),
 ]
 
 

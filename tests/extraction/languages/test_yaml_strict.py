@@ -91,6 +91,8 @@ _YAML_SIMPLE_CASES = [
     ),
     ("listeners", "webhook: http://example.com/hook", "endpoint: http://example.com/hook"),
     ("test_skip", "run: npm test -- --passWithNoTests", "run: npm test"),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("hardcoded_secrets", 'api_key: "AKIAIOSFODNN7EXAMPLE1"', 'name: "AKIAIOSFODNN7EXAMPLE1"'),
 ]
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"

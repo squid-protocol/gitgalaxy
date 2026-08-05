@@ -67,6 +67,8 @@ _SOLIDITY_SIMPLE_CASES = [
     ("regex_execution", "keccak256(abi.encodePacked(a, b));", None),
     ("time_date_logic", "uint256 x = block.timestamp + 1 days;", None),
     ("ipc_rpc_bridges", "target.delegatecall(data);", None),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("hardcoded_secrets", 'secret = "0xABCDEF1234567890";', 'secretary = "Jane Doe";'),
 ]
 
 

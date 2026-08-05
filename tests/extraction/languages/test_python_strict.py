@@ -66,6 +66,30 @@ _PY_SIMPLE_CASES = [
     ("regex_execution", "re.compile(r'foo')", None),
     ("time_date_logic", "datetime.datetime.now()", None),
     ("ipc_rpc_bridges", "import multiprocessing", None),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("api", "@app.get('/users')\ndef list_users():\n    pass", "def _internal_helper():\n    pass"),
+    ("bitwise_ops", "x = a << 2", "result = base ** exponent"),
+    ("closures", "f = lambda x: x + 1", "def f(x):\n    return x + 1"),
+    ("comprehensions", "[x**2 for x in range(10)]", "for x in range(10):\n    print(x)"),
+    ("cryptography", "import bcrypt", "import hashlib"),
+    ("dl_frameworks", "import torch", "import sklearn"),
+    ("encapsulation", "self._private_value = 1", "self.public_value = 1"),
+    (
+        "exfiltration_camouflage",
+        "requests.post('https://telemetry.example.com/collect', json=payload)",
+        "requests.post('https://api.example.com/users', json=payload)",
+    ),
+    ("hardware_bridge", "import usb.core", "import socket"),
+    ("import", "import os", "importance = 1"),
+    ("lazy_evaluation", "yield x", "return x"),
+    ("llm_api", "import openai", "import requests"),
+    ("llm_orchestrator", "from langchain.chains import LLMChain", "from flask import Flask"),
+    ("llm_vector_store", "import chromadb", "import sqlite3"),
+    ("memory_scraping", "path = '/proc/' + str(pid) + '/mem'", "path = '/proc/self/status'"),
+    ("ml_traditional", "from sklearn.linear_model import LogisticRegression", "from scipy import stats"),
+    ("structural_boundaries", "return x", "yield x"),
+    ("test", "def test_addition():\n    assert 1 + 1 == 2", "def calculate_addition(a, b):\n    return a + b"),
+    ("vectorized_math", "result = A @ B", "result = a * b"),
 ]
 
 

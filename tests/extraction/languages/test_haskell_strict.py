@@ -73,6 +73,15 @@ _HS_SIMPLE_CASES = [
     ("regex_execution", "text =~ pattern", None),
     ("time_date_logic", "getCurrentTime", None),
     ("ipc_rpc_bridges", "createProcess someProc", None),
+    # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
+    ("api", "module MyLib (foo, bar) where", "import MyLib (foo, bar)"),
+    ("bitwise_ops", "y = shiftL x 2", "y = x + 2"),
+    (
+        "encapsulation",
+        "module Data.Vector (Vector, empty, fromList) where",
+        "module MyLib where",
+    ),
+    ("import", "import qualified Data.Map as Map", "-- import Data.Map"),
 ]
 
 

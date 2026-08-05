@@ -535,8 +535,17 @@ class StructuralExtractor:
 
             class_matches = list(class_pattern.finditer(code_stream))
 
-            # #1040: resolve class boundaries via depth-aware slicing (indentation
-            # or brace based) so nested classes don't truncate outer class scope.
+            # #1040: a flat "ends at the next class match" boundary truncates
+            # an outer class's scope the instant it contains a nested class,
+            # since the nested class's own `class` keyword becomes that "next
+            # match". Resolve each class's real end via brace-depth (or, for
+            # indentation-scoped languages, dedent-depth) tracking instead --
+            # same dispatch this engine already uses for Mode B vs Mode C
+            # function slicing -- so a nested class's body is correctly
+            # consumed as part of its enclosing class rather than cutting it
+            # off early. Computed unconditionally (not just when class_matches
+            # is non-empty) so class_safe_stream/use_indentation_scoping are
+            # never referenced uninitialized below.
             lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
             use_indentation_scoping = self.primary_lang_id in ("python", "yaml") or lang_family in (
                 "single_line_only",
@@ -547,17 +556,6 @@ class StructuralExtractor:
                 if use_indentation_scoping
                 else self._build_brace_safe_stream(code_stream, self.primary_lang_id)
             )
-
-            if class_matches:
-                # #1040: a flat "ends at the next class match" boundary truncates
-                # an outer class's scope the instant it contains a nested class,
-                # since the nested class's own `class` keyword becomes that "next
-                # match". Resolve each class's real end via brace-depth (or, for
-                # indentation-scoped languages, dedent-depth) tracking instead --
-                # same dispatch this engine already uses for Mode B vs Mode C
-                # function slicing -- so a nested class's body is correctly
-                # consumed as part of its enclosing class rather than cutting it
-                # off early.
 
             for i, match in enumerate(class_matches):
                 # Anchored on the class NAME's own position (group 1), not

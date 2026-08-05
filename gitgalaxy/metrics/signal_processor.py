@@ -1296,7 +1296,6 @@ class SignalProcessor:
                         "state_mutation",
                         "concurrency",
                         "reflection_metaprogramming",
-                        "high_risk_execution",
                     ]
                 ]
             ) / safe_loc + (irc / safe_loc)
@@ -1316,15 +1315,10 @@ class SignalProcessor:
         flux_density = raw_signals.get("state_mutation", 0) / safe_loc
         concurrency_density = raw_signals.get("concurrency", 0) / safe_loc
         heat_density = raw_signals.get("reflection_metaprogramming", 0) / safe_loc
-        danger_density = raw_signals.get("high_risk_execution", 0) / safe_loc
 
         clamped_branch = min(branch_density * 1.0, t.get("branch_clamp", 0.5))
         clamped_flux = min(flux_density * t.get("flux_mult", 2.0), t.get("flux_clamp", 0.75))
-        heavy_logic = (
-            (concurrency_density * t.get("async_mult", 3.0))
-            + (heat_density * t.get("heat_mult", 5.0))
-            + (danger_density * t.get("danger_mult", 5.0))
-        )
+        heavy_logic = (concurrency_density * t.get("async_mult", 3.0)) + (heat_density * t.get("heat_mult", 5.0))
 
         # ---> GOD OBJECT ANTI-PATTERN PENALTY <---
         # If complexity is heavily skewed into a single massive function (High Gini),

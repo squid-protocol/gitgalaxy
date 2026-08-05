@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-05T01:01:03.127098+00:00",
-            "Total Scan Duration": "24.66 seconds"
+            "Analysis ISO Timestamp": "2026-08-05T19:42:31.585623+00:00",
+            "Total Scan Duration": "26.92 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -196,7 +196,7 @@
             }
         },
         "health": {
-            "avg_cognitive_load": 24.187,
+            "avg_cognitive_load": 24.045,
             "avg_safety_score": 23.725,
             "avg_tech_debt": 29.581,
             "avg_documentation": 22.871
@@ -579,7 +579,7 @@
                 "file_count": 6,
                 "total_mass": 137.86,
                 "avg_exposures": {
-                    "cognitive_load": 7.69,
+                    "cognitive_load": 7.1,
                     "safety_score": 2.15,
                     "tech_debt": 45.98,
                     "verification": 1.27,
@@ -679,7 +679,7 @@
                 "file_count": 12,
                 "total_mass": 8563.96,
                 "avg_exposures": {
-                    "cognitive_load": 49.97,
+                    "cognitive_load": 49.67,
                     "safety_score": 35.52,
                     "tech_debt": 37.58,
                     "verification": 60.21,
@@ -739,7 +739,7 @@
                 "file_count": 12,
                 "total_mass": 4291.0,
                 "avg_exposures": {
-                    "cognitive_load": 28.48,
+                    "cognitive_load": 28.17,
                     "safety_score": 22.41,
                     "tech_debt": 34.27,
                     "verification": 46.88,
@@ -759,7 +759,7 @@
                 "file_count": 16,
                 "total_mass": 10338.08,
                 "avg_exposures": {
-                    "cognitive_load": 51.71,
+                    "cognitive_load": 51.44,
                     "safety_score": 39.21,
                     "tech_debt": 42.48,
                     "verification": 45.58,
@@ -819,7 +819,7 @@
                 "file_count": 7,
                 "total_mass": 5105.7,
                 "avg_exposures": {
-                    "cognitive_load": 57.84,
+                    "cognitive_load": 57.75,
                     "safety_score": 71.05,
                     "tech_debt": 2.61,
                     "verification": 13.03,
@@ -839,7 +839,7 @@
                 "file_count": 6,
                 "total_mass": 19623.16,
                 "avg_exposures": {
-                    "cognitive_load": 49.51,
+                    "cognitive_load": 49.49,
                     "safety_score": 43.38,
                     "tech_debt": 19.6,
                     "verification": 40.77,
@@ -919,7 +919,7 @@
                 "file_count": 3,
                 "total_mass": 1935.18,
                 "avg_exposures": {
-                    "cognitive_load": 54.22,
+                    "cognitive_load": 54.17,
                     "safety_score": 58.82,
                     "tech_debt": 49.19,
                     "verification": 53.33,
@@ -959,7 +959,7 @@
                 "file_count": 11,
                 "total_mass": 491.88,
                 "avg_exposures": {
-                    "cognitive_load": 45.02,
+                    "cognitive_load": 44.69,
                     "safety_score": 58.08,
                     "tech_debt": 41.32,
                     "verification": 36.78,
@@ -1079,7 +1079,7 @@
                 "file_count": 4,
                 "total_mass": 113.84,
                 "avg_exposures": {
-                    "cognitive_load": 14.49,
+                    "cognitive_load": 11.5,
                     "safety_score": 13.18,
                     "tech_debt": 24.89,
                     "verification": 2.42,
@@ -1099,7 +1099,7 @@
                 "file_count": 8,
                 "total_mass": 16957.64,
                 "avg_exposures": {
-                    "cognitive_load": 79.71,
+                    "cognitive_load": 79.62,
                     "safety_score": 43.29,
                     "tech_debt": 45.88,
                     "verification": 31.55,
@@ -1119,7 +1119,7 @@
                 "file_count": 6,
                 "total_mass": 3118.46,
                 "avg_exposures": {
-                    "cognitive_load": 48.78,
+                    "cognitive_load": 48.65,
                     "safety_score": 34.65,
                     "tech_debt": 11.96,
                     "verification": 41.15,
@@ -1159,7 +1159,7 @@
                 "file_count": 4,
                 "total_mass": 1574.66,
                 "avg_exposures": {
-                    "cognitive_load": 26.16,
+                    "cognitive_load": 25.91,
                     "safety_score": 21.62,
                     "tech_debt": 43.72,
                     "verification": 40.64,
@@ -1179,7 +1179,7 @@
                 "file_count": 13,
                 "total_mass": 2958.84,
                 "avg_exposures": {
-                    "cognitive_load": 33.78,
+                    "cognitive_load": 33.76,
                     "safety_score": 34.57,
                     "tech_debt": 16.63,
                     "verification": 31.82,
@@ -1279,7 +1279,7 @@
                 "file_count": 7,
                 "total_mass": 209731.41,
                 "avg_exposures": {
-                    "cognitive_load": 34.84,
+                    "cognitive_load": 34.83,
                     "safety_score": 30.72,
                     "tech_debt": 12.13,
                     "verification": 24.17,
@@ -1359,7 +1359,7 @@
                 "file_count": 7,
                 "total_mass": 16430.74,
                 "avg_exposures": {
-                    "cognitive_load": 26.55,
+                    "cognitive_load": 26.49,
                     "safety_score": 41.25,
                     "tech_debt": 77.41,
                     "verification": 57.52,
@@ -1399,7 +1399,7 @@
                 "file_count": 14,
                 "total_mass": 48660.66,
                 "avg_exposures": {
-                    "cognitive_load": 70.41,
+                    "cognitive_load": 70.37,
                     "safety_score": 66.53,
                     "tech_debt": 31.2,
                     "verification": 57.69,
@@ -1419,7 +1419,7 @@
                 "file_count": 8,
                 "total_mass": 16156.56,
                 "avg_exposures": {
-                    "cognitive_load": 34.03,
+                    "cognitive_load": 33.83,
                     "safety_score": 71.44,
                     "tech_debt": 33.76,
                     "verification": 60.31,
@@ -1559,7 +1559,7 @@
                 "file_count": 8,
                 "total_mass": 1439.76,
                 "avg_exposures": {
-                    "cognitive_load": 48.62,
+                    "cognitive_load": 47.88,
                     "safety_score": 9.47,
                     "tech_debt": 75.26,
                     "verification": 60.33,
@@ -1639,7 +1639,7 @@
                 "file_count": 8,
                 "total_mass": 4621.84,
                 "avg_exposures": {
-                    "cognitive_load": 33.46,
+                    "cognitive_load": 33.41,
                     "safety_score": 32.34,
                     "tech_debt": 56.26,
                     "verification": 31.24,
@@ -1659,7 +1659,7 @@
                 "file_count": 8,
                 "total_mass": 9555.22,
                 "avg_exposures": {
-                    "cognitive_load": 27.78,
+                    "cognitive_load": 27.68,
                     "safety_score": 36.29,
                     "tech_debt": 3.87,
                     "verification": 50.57,
@@ -1759,7 +1759,7 @@
                 "file_count": 8,
                 "total_mass": 857.3,
                 "avg_exposures": {
-                    "cognitive_load": 28.52,
+                    "cognitive_load": 26.44,
                     "safety_score": 14.03,
                     "tech_debt": 10.26,
                     "verification": 50.62,
@@ -1799,7 +1799,7 @@
                 "file_count": 9,
                 "total_mass": 2143.54,
                 "avg_exposures": {
-                    "cognitive_load": 28.18,
+                    "cognitive_load": 28.05,
                     "safety_score": 16.35,
                     "tech_debt": 40.41,
                     "verification": 36.31,
@@ -1899,7 +1899,7 @@
                 "file_count": 11,
                 "total_mass": 1017.03,
                 "avg_exposures": {
-                    "cognitive_load": 29.63,
+                    "cognitive_load": 29.61,
                     "safety_score": 58.74,
                     "tech_debt": 63.96,
                     "verification": 37.25,
@@ -1999,7 +1999,7 @@
                 "file_count": 4,
                 "total_mass": 2271.04,
                 "avg_exposures": {
-                    "cognitive_load": 81.14,
+                    "cognitive_load": 81.12,
                     "safety_score": 37.97,
                     "tech_debt": 23.63,
                     "verification": 60.57,
@@ -2039,7 +2039,7 @@
                 "file_count": 3,
                 "total_mass": 57.04,
                 "avg_exposures": {
-                    "cognitive_load": 11.73,
+                    "cognitive_load": 5.69,
                     "safety_score": 23.29,
                     "tech_debt": 0.0,
                     "verification": 2.31,
@@ -2079,7 +2079,7 @@
                 "file_count": 11,
                 "total_mass": 38162.72,
                 "avg_exposures": {
-                    "cognitive_load": 31.8,
+                    "cognitive_load": 31.63,
                     "safety_score": 30.94,
                     "tech_debt": 30.11,
                     "verification": 37.47,
@@ -2119,7 +2119,7 @@
                 "file_count": 4,
                 "total_mass": 8564.06,
                 "avg_exposures": {
-                    "cognitive_load": 24.58,
+                    "cognitive_load": 24.56,
                     "safety_score": 33.52,
                     "tech_debt": 87.17,
                     "verification": 41.13,
@@ -2159,7 +2159,7 @@
                 "file_count": 204,
                 "total_mass": 9179.84,
                 "avg_exposures": {
-                    "cognitive_load": 4.97,
+                    "cognitive_load": 4.91,
                     "safety_score": 3.92,
                     "tech_debt": 0.0,
                     "verification": 0.0,
@@ -2219,7 +2219,7 @@
                 "file_count": 6,
                 "total_mass": 5205.14,
                 "avg_exposures": {
-                    "cognitive_load": 55.19,
+                    "cognitive_load": 54.49,
                     "safety_score": 36.8,
                     "tech_debt": 56.67,
                     "verification": 67.05,
@@ -2239,7 +2239,7 @@
                 "file_count": 11,
                 "total_mass": 5074.04,
                 "avg_exposures": {
-                    "cognitive_load": 31.29,
+                    "cognitive_load": 30.23,
                     "safety_score": 27.36,
                     "tech_debt": 29.46,
                     "verification": 44.75,
@@ -2739,7 +2739,7 @@
                 "file_count": 5,
                 "total_mass": 31515.04,
                 "avg_exposures": {
-                    "cognitive_load": 53.87,
+                    "cognitive_load": 53.18,
                     "safety_score": 45.75,
                     "tech_debt": 47.1,
                     "verification": 80.0,
@@ -2779,7 +2779,7 @@
                 "file_count": 8,
                 "total_mass": 11713.7,
                 "avg_exposures": {
-                    "cognitive_load": 71.49,
+                    "cognitive_load": 71.47,
                     "safety_score": 62.32,
                     "tech_debt": 61.26,
                     "verification": 80.0,
@@ -2819,7 +2819,7 @@
                 "file_count": 7,
                 "total_mass": 4835.16,
                 "avg_exposures": {
-                    "cognitive_load": 48.58,
+                    "cognitive_load": 48.51,
                     "safety_score": 44.3,
                     "tech_debt": 35.32,
                     "verification": 80.0,
@@ -2899,7 +2899,7 @@
                 "file_count": 7,
                 "total_mass": 2041.58,
                 "avg_exposures": {
-                    "cognitive_load": 22.48,
+                    "cognitive_load": 22.38,
                     "safety_score": 23.45,
                     "tech_debt": 77.03,
                     "verification": 2.36,
@@ -2919,7 +2919,7 @@
                 "file_count": 7,
                 "total_mass": 774.0,
                 "avg_exposures": {
-                    "cognitive_load": 14.81,
+                    "cognitive_load": 13.49,
                     "safety_score": 51.71,
                     "tech_debt": 48.12,
                     "verification": 13.4,
@@ -2959,7 +2959,7 @@
                 "file_count": 11,
                 "total_mass": 1796.88,
                 "avg_exposures": {
-                    "cognitive_load": 40.12,
+                    "cognitive_load": 40.09,
                     "safety_score": 23.73,
                     "tech_debt": 49.92,
                     "verification": 2.16,
@@ -3319,7 +3319,7 @@
                 "file_count": 4,
                 "total_mass": 4428.62,
                 "avg_exposures": {
-                    "cognitive_load": 31.03,
+                    "cognitive_load": 30.98,
                     "safety_score": 7.31,
                     "tech_debt": 62.58,
                     "verification": 80.0,
@@ -3339,7 +3339,7 @@
                 "file_count": 5,
                 "total_mass": 16951.5,
                 "avg_exposures": {
-                    "cognitive_load": 26.53,
+                    "cognitive_load": 25.29,
                     "safety_score": 33.79,
                     "tech_debt": 39.16,
                     "verification": 80.0,
@@ -3379,7 +3379,7 @@
                 "file_count": 8,
                 "total_mass": 4051.0,
                 "avg_exposures": {
-                    "cognitive_load": 16.95,
+                    "cognitive_load": 16.74,
                     "safety_score": 21.87,
                     "tech_debt": 74.26,
                     "verification": 60.48,
@@ -5605,7 +5605,7 @@
                 "Static: Literature & Documentation": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "34.84%",
+                "Cognitive Load Exposure": "34.83%",
                 "Error & Exception Exposure": "30.72%",
                 "Tech Debt Exposure": "12.13%",
                 "Testing Exposure": "24.17%",
@@ -5678,10 +5678,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.572
+                        "Raw Cognitive Density": 1.566
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "94.53%",
+                        "Cognitive Load Exposure": "94.46%",
                         "Error & Exception Exposure": "94.58%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -7417,10 +7417,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.415
+                        "Raw Cognitive Density": 0.414
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "20.54%",
+                        "Cognitive Load Exposure": "20.51%",
                         "Error & Exception Exposure": "8.89%",
                         "Tech Debt Exposure": "8.89%",
                         "Testing Exposure": "2.3%",
@@ -8080,7 +8080,7 @@
                 "file_cluster_0": "7.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "70.41%",
+                "Cognitive Load Exposure": "70.37%",
                 "Error & Exception Exposure": "66.53%",
                 "Tech Debt Exposure": "31.2%",
                 "Testing Exposure": "57.69%",
@@ -9281,10 +9281,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.818
+                        "Raw Cognitive Density": 1.796
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "98.62%",
+                        "Cognitive Load Exposure": "98.5%",
                         "Error & Exception Exposure": "98.36%",
                         "Tech Debt Exposure": "9.49%",
                         "Testing Exposure": "80.0%",
@@ -9481,10 +9481,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.792
+                        "Raw Cognitive Density": 1.769
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "98.48%",
+                        "Cognitive Load Exposure": "98.33%",
                         "Error & Exception Exposure": "98.02%",
                         "Tech Debt Exposure": "9.59%",
                         "Testing Exposure": "80.0%",
@@ -10897,10 +10897,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.794
+                        "Raw Cognitive Density": 1.793
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "98.31%",
+                        "Cognitive Load Exposure": "98.3%",
                         "Error & Exception Exposure": "95.36%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -11530,10 +11530,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.93
+                        "Raw Cognitive Density": 0.928
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "67.01%",
+                        "Cognitive Load Exposure": "66.82%",
                         "Error & Exception Exposure": "17.24%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -12433,7 +12433,7 @@
                 "file_cluster_17": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "31.8%",
+                "Cognitive Load Exposure": "31.63%",
                 "Error & Exception Exposure": "30.94%",
                 "Tech Debt Exposure": "30.11%",
                 "Testing Exposure": "37.47%",
@@ -14050,10 +14050,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.411
+                        "Raw Cognitive Density": 1.399
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "46.68%",
+                        "Cognitive Load Exposure": "46.54%",
                         "Error & Exception Exposure": "75.7%",
                         "Tech Debt Exposure": "91.73%",
                         "Testing Exposure": "80.0%",
@@ -15938,10 +15938,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.332
+                        "Raw Cognitive Density": 1.284
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "91.12%",
+                        "Cognitive Load Exposure": "89.43%",
                         "Error & Exception Exposure": "76.63%",
                         "Tech Debt Exposure": "63.4%",
                         "Testing Exposure": "2.3%",
@@ -16251,7 +16251,7 @@
                 "file_cluster_8": "20.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "53.87%",
+                "Cognitive Load Exposure": "53.18%",
                 "Error & Exception Exposure": "45.75%",
                 "Tech Debt Exposure": "47.1%",
                 "Testing Exposure": "80.0%",
@@ -16318,10 +16318,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.095
+                        "Raw Cognitive Density": 1.015
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "39.94%",
+                        "Cognitive Load Exposure": "37.12%",
                         "Error & Exception Exposure": "29.34%",
                         "Tech Debt Exposure": "16.34%",
                         "Testing Exposure": "80.0%",
@@ -16615,10 +16615,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.627
+                        "Raw Cognitive Density": 1.623
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "73.97%",
+                        "Cognitive Load Exposure": "73.94%",
                         "Error & Exception Exposure": "67.94%",
                         "Tech Debt Exposure": "100.0%",
                         "Testing Exposure": "80.0%",
@@ -18523,10 +18523,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.771
+                        "Raw Cognitive Density": 1.715
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "62.14%",
+                        "Cognitive Load Exposure": "61.89%",
                         "Error & Exception Exposure": "82.83%",
                         "Tech Debt Exposure": "82.7%",
                         "Testing Exposure": "80.0%",
@@ -19211,10 +19211,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.062
+                        "Raw Cognitive Density": 1.055
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "50.67%",
+                        "Cognitive Load Exposure": "50.35%",
                         "Error & Exception Exposure": "29.77%",
                         "Tech Debt Exposure": "19.72%",
                         "Testing Exposure": "80.0%",
@@ -22492,7 +22492,7 @@
                 "Static: Literature & Documentation": "16.7%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "49.51%",
+                "Cognitive Load Exposure": "49.49%",
                 "Error & Exception Exposure": "43.38%",
                 "Tech Debt Exposure": "19.6%",
                 "Testing Exposure": "40.77%",
@@ -22891,10 +22891,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.754
+                        "Raw Cognitive Density": 1.751
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "98.23%",
+                        "Cognitive Load Exposure": "98.21%",
                         "Error & Exception Exposure": "80.43%",
                         "Tech Debt Exposure": "14.58%",
                         "Testing Exposure": "80.0%",
@@ -24517,10 +24517,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.756
+                        "Raw Cognitive Density": 1.735
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "77.24%",
+                        "Cognitive Load Exposure": "77.13%",
                         "Error & Exception Exposure": "80.0%",
                         "Tech Debt Exposure": "8.93%",
                         "Testing Exposure": "80.0%",
@@ -24897,7 +24897,7 @@
                 "file_cluster_13": "25.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "79.71%",
+                "Cognitive Load Exposure": "79.62%",
                 "Error & Exception Exposure": "43.29%",
                 "Tech Debt Exposure": "45.88%",
                 "Testing Exposure": "31.55%",
@@ -24964,10 +24964,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.106
+                        "Raw Cognitive Density": 0.063
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "4.95%",
+                        "Cognitive Load Exposure": "4.21%",
                         "Error & Exception Exposure": "60.38%",
                         "Tech Debt Exposure": "9.95%",
                         "Testing Exposure": "2.3%",
@@ -31561,7 +31561,7 @@
                 "file_cluster_8": "100.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "26.53%",
+                "Cognitive Load Exposure": "25.29%",
                 "Error & Exception Exposure": "33.79%",
                 "Tech Debt Exposure": "39.16%",
                 "Testing Exposure": "80.0%",
@@ -33654,10 +33654,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.359
+                        "Raw Cognitive Density": 0.358
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "8.95%",
+                        "Cognitive Load Exposure": "8.91%",
                         "Error & Exception Exposure": "53.65%",
                         "Tech Debt Exposure": "80.64%",
                         "Testing Exposure": "80.0%",
@@ -38358,10 +38358,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.722
+                        "Raw Cognitive Density": 0.598
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "23.62%",
+                        "Cognitive Load Exposure": "17.65%",
                         "Error & Exception Exposure": "56.52%",
                         "Tech Debt Exposure": "48.16%",
                         "Testing Exposure": "80.0%",
@@ -39282,10 +39282,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.881
+                        "Raw Cognitive Density": 0.879
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "61.07%",
+                        "Cognitive Load Exposure": "60.88%",
                         "Error & Exception Exposure": "4.64%",
                         "Tech Debt Exposure": "9.84%",
                         "Testing Exposure": "80.0%",
@@ -39659,7 +39659,7 @@
                 "file_cluster_13": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "26.55%",
+                "Cognitive Load Exposure": "26.49%",
                 "Error & Exception Exposure": "41.25%",
                 "Tech Debt Exposure": "77.41%",
                 "Testing Exposure": "57.52%",
@@ -42431,10 +42431,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.126
+                        "Raw Cognitive Density": 1.117
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "64.36%",
+                        "Cognitive Load Exposure": "63.95%",
                         "Error & Exception Exposure": "78.78%",
                         "Tech Debt Exposure": "50.74%",
                         "Testing Exposure": "80.0%",
@@ -46506,7 +46506,7 @@
                 "file_cluster_12": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "34.03%",
+                "Cognitive Load Exposure": "33.83%",
                 "Error & Exception Exposure": "71.44%",
                 "Tech Debt Exposure": "33.76%",
                 "Testing Exposure": "60.31%",
@@ -46729,10 +46729,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.01
+                        "Raw Cognitive Density": 0.97
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "36.94%",
+                        "Cognitive Load Exposure": "35.34%",
                         "Error & Exception Exposure": "93.64%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -62895,7 +62895,7 @@
                 "file_cluster_4": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "71.49%",
+                "Cognitive Load Exposure": "71.47%",
                 "Error & Exception Exposure": "62.32%",
                 "Tech Debt Exposure": "61.26%",
                 "Testing Exposure": "80.0%",
@@ -63847,10 +63847,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.784
+                        "Raw Cognitive Density": 1.764
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "68.9%",
+                        "Cognitive Load Exposure": "68.81%",
                         "Error & Exception Exposure": "47.57%",
                         "Tech Debt Exposure": "93.2%",
                         "Testing Exposure": "80.0%",
@@ -64973,10 +64973,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.733
+                        "Raw Cognitive Density": 1.731
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "66.95%",
+                        "Cognitive Load Exposure": "66.93%",
                         "Error & Exception Exposure": "82.22%",
                         "Tech Debt Exposure": "72.55%",
                         "Testing Exposure": "80.0%",
@@ -65487,10 +65487,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.763
+                        "Raw Cognitive Density": 1.743
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "50.64%",
+                        "Cognitive Load Exposure": "50.57%",
                         "Error & Exception Exposure": "51.06%",
                         "Tech Debt Exposure": "31.75%",
                         "Testing Exposure": "80.0%",
@@ -65931,7 +65931,7 @@
                 "Static: Literature & Documentation": "18.8%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "51.71%",
+                "Cognitive Load Exposure": "51.44%",
                 "Error & Exception Exposure": "39.21%",
                 "Tech Debt Exposure": "42.48%",
                 "Testing Exposure": "45.58%",
@@ -68923,10 +68923,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.068
+                        "Raw Cognitive Density": 1.041
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "76.48%",
+                        "Cognitive Load Exposure": "74.62%",
                         "Error & Exception Exposure": "89.42%",
                         "Tech Debt Exposure": "9.71%",
                         "Testing Exposure": "80.0%",
@@ -72040,10 +72040,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.363
+                        "Raw Cognitive Density": 1.32
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "82.57%",
+                        "Cognitive Load Exposure": "81.37%",
                         "Error & Exception Exposure": "51.85%",
                         "Tech Debt Exposure": "99.99%",
                         "Testing Exposure": "80.0%",
@@ -72595,10 +72595,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.946
+                        "Raw Cognitive Density": 0.927
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "50.73%",
+                        "Cognitive Load Exposure": "49.49%",
                         "Error & Exception Exposure": "25.4%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.32%",
@@ -79221,7 +79221,7 @@
                 "file_cluster_13": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "27.78%",
+                "Cognitive Load Exposure": "27.68%",
                 "Error & Exception Exposure": "36.29%",
                 "Tech Debt Exposure": "3.87%",
                 "Testing Exposure": "50.57%",
@@ -79625,10 +79625,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.47
+                        "Raw Cognitive Density": 1.448
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "47.34%",
+                        "Cognitive Load Exposure": "47.12%",
                         "Error & Exception Exposure": "85.48%",
                         "Tech Debt Exposure": "11.8%",
                         "Testing Exposure": "80.0%",
@@ -80178,10 +80178,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.382
+                        "Raw Cognitive Density": 1.349
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "46.31%",
+                        "Cognitive Load Exposure": "45.82%",
                         "Error & Exception Exposure": "84.42%",
                         "Tech Debt Exposure": "10.01%",
                         "Testing Exposure": "80.0%",
@@ -81108,10 +81108,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.047
+                        "Raw Cognitive Density": 1.045
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "38.33%",
+                        "Cognitive Load Exposure": "38.25%",
                         "Error & Exception Exposure": "55.29%",
                         "Tech Debt Exposure": "9.17%",
                         "Testing Exposure": "80.0%",
@@ -85866,7 +85866,7 @@
                 "file_cluster_16": "0.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "4.97%",
+                "Cognitive Load Exposure": "4.91%",
                 "Error & Exception Exposure": "3.92%",
                 "Tech Debt Exposure": "0.0%",
                 "Testing Exposure": "0.0%",
@@ -137833,10 +137833,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.567
+                        "Raw Cognitive Density": 0.067
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "16.22%",
+                        "Cognitive Load Exposure": "3.05%",
                         "Error & Exception Exposure": "80.0%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "0.0%",
@@ -147795,7 +147795,7 @@
                 "file_cluster_13": "25.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "24.58%",
+                "Cognitive Load Exposure": "24.56%",
                 "Error & Exception Exposure": "33.52%",
                 "Tech Debt Exposure": "87.17%",
                 "Testing Exposure": "41.13%",
@@ -148756,10 +148756,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.95
+                        "Raw Cognitive Density": 0.949
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "61.95%",
+                        "Cognitive Load Exposure": "61.88%",
                         "Error & Exception Exposure": "11.28%",
                         "Tech Debt Exposure": "99.24%",
                         "Testing Exposure": "80.0%",
@@ -150814,7 +150814,7 @@
                 "Static: Literature & Documentation": "16.7%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "49.97%",
+                "Cognitive Load Exposure": "49.67%",
                 "Error & Exception Exposure": "35.52%",
                 "Tech Debt Exposure": "37.58%",
                 "Testing Exposure": "60.21%",
@@ -151413,10 +151413,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.288
+                        "Raw Cognitive Density": 1.168
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "59.48%",
+                        "Cognitive Load Exposure": "55.9%",
                         "Error & Exception Exposure": "42.06%",
                         "Tech Debt Exposure": "98.37%",
                         "Testing Exposure": "80.0%",
@@ -161687,7 +161687,7 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 5.838
+                        "Raw Cognitive Density": 5.798
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "50.0%",
@@ -174075,7 +174075,7 @@
                 "file_cluster_8": "16.7%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "55.19%",
+                "Cognitive Load Exposure": "54.49%",
                 "Error & Exception Exposure": "36.8%",
                 "Tech Debt Exposure": "56.67%",
                 "Testing Exposure": "67.05%",
@@ -174328,10 +174328,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.137
+                        "Raw Cognitive Density": 1.061
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "71.17%",
+                        "Cognitive Load Exposure": "67.0%",
                         "Error & Exception Exposure": "45.19%",
                         "Tech Debt Exposure": "75.17%",
                         "Testing Exposure": "80.0%",
@@ -175926,7 +175926,7 @@
                 "file_cluster_8": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "57.84%",
+                "Cognitive Load Exposure": "57.75%",
                 "Error & Exception Exposure": "71.05%",
                 "Tech Debt Exposure": "2.61%",
                 "Testing Exposure": "13.03%",
@@ -176335,10 +176335,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.048
+                        "Raw Cognitive Density": 1.039
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "76.68%",
+                        "Cognitive Load Exposure": "76.05%",
                         "Error & Exception Exposure": "71.6%",
                         "Tech Debt Exposure": "8.78%",
                         "Testing Exposure": "80.0%",
@@ -177242,7 +177242,7 @@
                 "file_cluster_12": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "31.29%",
+                "Cognitive Load Exposure": "30.23%",
                 "Error & Exception Exposure": "27.36%",
                 "Tech Debt Exposure": "29.46%",
                 "Testing Exposure": "44.75%",
@@ -177309,10 +177309,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.292
+                        "Raw Cognitive Density": 1.083
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "89.72%",
+                        "Cognitive Load Exposure": "79.14%",
                         "Error & Exception Exposure": "86.45%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.45%",
@@ -177495,10 +177495,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 2.058
+                        "Raw Cognitive Density": 1.948
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "92.91%",
+                        "Cognitive Load Exposure": "92.64%",
                         "Error & Exception Exposure": "91.67%",
                         "Tech Debt Exposure": "99.99%",
                         "Testing Exposure": "2.56%",
@@ -177731,10 +177731,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.701
+                        "Raw Cognitive Density": 0.692
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "33.43%",
+                        "Cognitive Load Exposure": "32.81%",
                         "Error & Exception Exposure": "7.21%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -179055,10 +179055,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.139
+                        "Raw Cognitive Density": 0.131
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "3.99%",
+                        "Cognitive Load Exposure": "3.88%",
                         "Error & Exception Exposure": "3.99%",
                         "Tech Debt Exposure": "10.3%",
                         "Testing Exposure": "2.3%",
@@ -181395,7 +181395,7 @@
                 "file_cluster_8": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "48.58%",
+                "Cognitive Load Exposure": "48.51%",
                 "Error & Exception Exposure": "44.3%",
                 "Tech Debt Exposure": "35.32%",
                 "Testing Exposure": "80.0%",
@@ -182921,10 +182921,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.356
+                        "Raw Cognitive Density": 1.332
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "66.19%",
+                        "Cognitive Load Exposure": "65.67%",
                         "Error & Exception Exposure": "80.0%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "80.0%",
@@ -184828,7 +184828,7 @@
                 "Static: Literature & Documentation": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "33.46%",
+                "Cognitive Load Exposure": "33.41%",
                 "Error & Exception Exposure": "32.34%",
                 "Tech Debt Exposure": "56.26%",
                 "Testing Exposure": "31.24%",
@@ -186825,10 +186825,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.395
+                        "Raw Cognitive Density": 1.367
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "46.48%",
+                        "Cognitive Load Exposure": "46.09%",
                         "Error & Exception Exposure": "85.22%",
                         "Tech Debt Exposure": "67.36%",
                         "Testing Exposure": "80.0%",
@@ -194538,7 +194538,7 @@
                 "file_cluster_8": "100.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "31.03%",
+                "Cognitive Load Exposure": "30.98%",
                 "Error & Exception Exposure": "7.31%",
                 "Tech Debt Exposure": "62.58%",
                 "Testing Exposure": "80.0%",
@@ -195825,10 +195825,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.381
+                        "Raw Cognitive Density": 0.376
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "15.71%",
+                        "Cognitive Load Exposure": "15.5%",
                         "Error & Exception Exposure": "5.41%",
                         "Tech Debt Exposure": "73.32%",
                         "Testing Exposure": "80.0%",
@@ -197156,7 +197156,7 @@
                 "file_cluster_0": "8.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "28.48%",
+                "Cognitive Load Exposure": "28.17%",
                 "Error & Exception Exposure": "22.41%",
                 "Tech Debt Exposure": "34.27%",
                 "Testing Exposure": "46.88%",
@@ -200633,10 +200633,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.029
+                        "Raw Cognitive Density": 0.981
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "75.29%",
+                        "Cognitive Load Exposure": "71.58%",
                         "Error & Exception Exposure": "30.56%",
                         "Tech Debt Exposure": "64.46%",
                         "Testing Exposure": "80.0%",
@@ -201759,7 +201759,7 @@
                 "file_cluster_2": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "16.95%",
+                "Cognitive Load Exposure": "16.74%",
                 "Error & Exception Exposure": "21.87%",
                 "Tech Debt Exposure": "74.26%",
                 "Testing Exposure": "60.48%",
@@ -201827,10 +201827,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.28
+                        "Raw Cognitive Density": 0.228
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "6.61%",
+                        "Cognitive Load Exposure": "5.52%",
                         "Error & Exception Exposure": "9.74%",
                         "Tech Debt Exposure": "76.47%",
                         "Testing Exposure": "80.0%",
@@ -203434,10 +203434,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.194
+                        "Raw Cognitive Density": 1.171
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "42.75%",
+                        "Cognitive Load Exposure": "42.16%",
                         "Error & Exception Exposure": "52.93%",
                         "Tech Debt Exposure": "83.93%",
                         "Testing Exposure": "80.0%",
@@ -204524,10 +204524,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.078
+                        "Raw Cognitive Density": 0.077
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "6.37%",
+                        "Cognitive Load Exposure": "6.34%",
                         "Error & Exception Exposure": "48.72%",
                         "Tech Debt Exposure": "83.25%",
                         "Testing Exposure": "80.0%",
@@ -214898,7 +214898,7 @@
                 "file_cluster_13": "16.7%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "48.78%",
+                "Cognitive Load Exposure": "48.65%",
                 "Error & Exception Exposure": "34.65%",
                 "Tech Debt Exposure": "11.96%",
                 "Testing Exposure": "41.15%",
@@ -214965,10 +214965,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.352
+                        "Raw Cognitive Density": 1.316
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "64.23%",
+                        "Cognitive Load Exposure": "63.41%",
                         "Error & Exception Exposure": "50.49%",
                         "Tech Debt Exposure": "12.44%",
                         "Testing Exposure": "2.3%",
@@ -216708,7 +216708,7 @@
                 "file_cluster_9": "7.7%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "33.78%",
+                "Cognitive Load Exposure": "33.76%",
                 "Error & Exception Exposure": "34.57%",
                 "Tech Debt Exposure": "16.63%",
                 "Testing Exposure": "31.82%",
@@ -216781,10 +216781,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.412
+                        "Raw Cognitive Density": 1.402
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "93.38%",
+                        "Cognitive Load Exposure": "93.15%",
                         "Error & Exception Exposure": "73.93%",
                         "Tech Debt Exposure": "16.6%",
                         "Testing Exposure": "80.0%",
@@ -242902,7 +242902,7 @@
                 "file_cluster_11": "25.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "81.14%",
+                "Cognitive Load Exposure": "81.12%",
                 "Error & Exception Exposure": "37.97%",
                 "Tech Debt Exposure": "23.63%",
                 "Testing Exposure": "60.57%",
@@ -243978,10 +243978,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.73
+                        "Raw Cognitive Density": 1.718
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "97.57%",
+                        "Cognitive Load Exposure": "97.48%",
                         "Error & Exception Exposure": "39.72%",
                         "Tech Debt Exposure": "12.06%",
                         "Testing Exposure": "80.0%",
@@ -244364,7 +244364,7 @@
                 "file_cluster_13": "11.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "28.18%",
+                "Cognitive Load Exposure": "28.05%",
                 "Error & Exception Exposure": "16.35%",
                 "Tech Debt Exposure": "40.41%",
                 "Testing Exposure": "36.31%",
@@ -245032,10 +245032,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.868
+                        "Raw Cognitive Density": 0.857
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "61.54%",
+                        "Cognitive Load Exposure": "60.52%",
                         "Error & Exception Exposure": "10.33%",
                         "Tech Debt Exposure": "13.48%",
                         "Testing Exposure": "80.0%",
@@ -245444,10 +245444,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.561
+                        "Raw Cognitive Density": 0.556
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "15.96%",
+                        "Cognitive Load Exposure": "15.78%",
                         "Error & Exception Exposure": "5.15%",
                         "Tech Debt Exposure": "30.09%",
                         "Testing Exposure": "80.0%",
@@ -246200,7 +246200,7 @@
                 "file_cluster_16": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "22.48%",
+                "Cognitive Load Exposure": "22.38%",
                 "Error & Exception Exposure": "23.45%",
                 "Tech Debt Exposure": "77.03%",
                 "Testing Exposure": "2.36%",
@@ -247419,10 +247419,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.836
+                        "Raw Cognitive Density": 0.822
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "29.25%",
+                        "Cognitive Load Exposure": "28.6%",
                         "Error & Exception Exposure": "16.69%",
                         "Tech Debt Exposure": "97.9%",
                         "Testing Exposure": "2.35%",
@@ -253839,7 +253839,7 @@
                 "file_cluster_17": "33.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "54.22%",
+                "Cognitive Load Exposure": "54.17%",
                 "Error & Exception Exposure": "58.82%",
                 "Tech Debt Exposure": "49.19%",
                 "Testing Exposure": "53.33%",
@@ -254608,10 +254608,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.497
+                        "Raw Cognitive Density": 1.488
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "95.2%",
+                        "Cognitive Load Exposure": "95.04%",
                         "Error & Exception Exposure": "89.88%",
                         "Tech Debt Exposure": "76.96%",
                         "Testing Exposure": "80.0%",
@@ -259551,7 +259551,7 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.545
+                        "Raw Cognitive Density": 0.455
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "5.0%",
@@ -259726,7 +259726,7 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.462
+                        "Raw Cognitive Density": 0.385
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "5.0%",
@@ -261438,7 +261438,7 @@
                 "file_cluster_13": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "40.12%",
+                "Cognitive Load Exposure": "40.09%",
                 "Error & Exception Exposure": "23.73%",
                 "Tech Debt Exposure": "49.92%",
                 "Testing Exposure": "2.16%",
@@ -261878,10 +261878,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.942
+                        "Raw Cognitive Density": 1.846
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "99.16%",
+                        "Cognitive Load Exposure": "98.77%",
                         "Error & Exception Exposure": "60.27%",
                         "Tech Debt Exposure": "35.96%",
                         "Testing Exposure": "2.38%",
@@ -271104,7 +271104,7 @@
                 "file_cluster_8": "100.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "26.16%",
+                "Cognitive Load Exposure": "25.91%",
                 "Error & Exception Exposure": "21.62%",
                 "Tech Debt Exposure": "43.72%",
                 "Testing Exposure": "40.64%",
@@ -272386,10 +272386,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.167
+                        "Raw Cognitive Density": 1.148
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "83.24%",
+                        "Cognitive Load Exposure": "82.24%",
                         "Error & Exception Exposure": "80.42%",
                         "Tech Debt Exposure": "9.49%",
                         "Testing Exposure": "80.0%",
@@ -278423,7 +278423,7 @@
                 "Static: Literature & Documentation": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "48.62%",
+                "Cognitive Load Exposure": "47.88%",
                 "Error & Exception Exposure": "9.47%",
                 "Tech Debt Exposure": "75.26%",
                 "Testing Exposure": "60.33%",
@@ -278971,10 +278971,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.062
+                        "Raw Cognitive Density": 0.984
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "77.73%",
+                        "Cognitive Load Exposure": "71.86%",
                         "Error & Exception Exposure": "24.97%",
                         "Tech Debt Exposure": "46.1%",
                         "Testing Exposure": "80.0%",
@@ -284575,7 +284575,7 @@
                 "file_cluster_16": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "29.63%",
+                "Cognitive Load Exposure": "29.61%",
                 "Error & Exception Exposure": "58.74%",
                 "Tech Debt Exposure": "63.96%",
                 "Testing Exposure": "37.25%",
@@ -284965,10 +284965,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.037
+                        "Raw Cognitive Density": 0.024
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "3.69%",
+                        "Cognitive Load Exposure": "3.51%",
                         "Error & Exception Exposure": "46.38%",
                         "Tech Debt Exposure": "8.56%",
                         "Testing Exposure": "2.3%",
@@ -293794,7 +293794,7 @@
                 "file_cluster_9": "12.5%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "28.52%",
+                "Cognitive Load Exposure": "26.44%",
                 "Error & Exception Exposure": "14.03%",
                 "Tech Debt Exposure": "10.26%",
                 "Testing Exposure": "50.62%",
@@ -294017,10 +294017,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.866
+                        "Raw Cognitive Density": 0.765
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "61.37%",
+                        "Cognitive Load Exposure": "51.51%",
                         "Error & Exception Exposure": "20.43%",
                         "Tech Debt Exposure": "30.53%",
                         "Testing Exposure": "80.0%",
@@ -294638,10 +294638,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.896
+                        "Raw Cognitive Density": 0.825
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "64.17%",
+                        "Cognitive Load Exposure": "57.41%",
                         "Error & Exception Exposure": "34.02%",
                         "Tech Debt Exposure": "14.32%",
                         "Testing Exposure": "80.0%",
@@ -297763,7 +297763,7 @@
                 "file_cluster_0": "14.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "14.81%",
+                "Cognitive Load Exposure": "13.49%",
                 "Error & Exception Exposure": "51.71%",
                 "Tech Debt Exposure": "48.12%",
                 "Testing Exposure": "13.4%",
@@ -298011,10 +298011,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.354
+                        "Raw Cognitive Density": 0.25
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "17.03%",
+                        "Cognitive Load Exposure": "11.92%",
                         "Error & Exception Exposure": "96.9%",
                         "Tech Debt Exposure": "65.14%",
                         "Testing Exposure": "2.36%",
@@ -299039,10 +299039,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.598
+                        "Raw Cognitive Density": 0.526
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "23.08%",
+                        "Cognitive Load Exposure": "18.98%",
                         "Error & Exception Exposure": "84.62%",
                         "Tech Debt Exposure": "96.51%",
                         "Testing Exposure": "80.0%",
@@ -308701,7 +308701,7 @@
                 "file_cluster_8": "9.1%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "45.02%",
+                "Cognitive Load Exposure": "44.69%",
                 "Error & Exception Exposure": "58.08%",
                 "Tech Debt Exposure": "41.32%",
                 "Testing Exposure": "36.78%",
@@ -309402,10 +309402,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.25
+                        "Raw Cognitive Density": 0.094
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "8.2%",
+                        "Cognitive Load Exposure": "4.64%",
                         "Error & Exception Exposure": "71.09%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.31%",
@@ -309996,10 +309996,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 2.476
+                        "Raw Cognitive Density": 2.453
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "96.61%",
+                        "Cognitive Load Exposure": "96.6%",
                         "Error & Exception Exposure": "96.22%",
                         "Tech Debt Exposure": "55.33%",
                         "Testing Exposure": "80.0%",
@@ -311434,7 +311434,7 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 3.975
+                        "Raw Cognitive Density": 3.967
                     },
                     "4. Vulnerability & Risk Exposures": {
                         "Cognitive Load Exposure": "99.16%",
@@ -323603,7 +323603,7 @@
                 "file_cluster_13": "33.3%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "7.69%",
+                "Cognitive Load Exposure": "7.1%",
                 "Error & Exception Exposure": "2.15%",
                 "Tech Debt Exposure": "45.98%",
                 "Testing Exposure": "1.27%",
@@ -324195,10 +324195,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.249
+                        "Raw Cognitive Density": 0.149
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "11.87%",
+                        "Cognitive Load Exposure": "8.3%",
                         "Error & Exception Exposure": "6.21%",
                         "Tech Debt Exposure": "99.98%",
                         "Testing Exposure": "2.42%",
@@ -324901,7 +324901,7 @@
                 "file_cluster_8": "100.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "14.49%",
+                "Cognitive Load Exposure": "11.5%",
                 "Error & Exception Exposure": "13.18%",
                 "Tech Debt Exposure": "24.89%",
                 "Testing Exposure": "2.42%",
@@ -324968,10 +324968,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.591
+                        "Raw Cognitive Density": 0.364
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "24.22%",
+                        "Cognitive Load Exposure": "12.3%",
                         "Error & Exception Exposure": "52.73%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.33%",
@@ -330501,7 +330501,7 @@
                 "file_cluster_8": "100.0%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "11.73%",
+                "Cognitive Load Exposure": "5.69%",
                 "Error & Exception Exposure": "23.29%",
                 "Tech Debt Exposure": "0.0%",
                 "Testing Exposure": "2.31%",
@@ -330743,10 +330743,10 @@
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 0.667
+                        "Raw Cognitive Density": 0.333
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "29.22%",
+                        "Cognitive Load Exposure": "11.12%",
                         "Error & Exception Exposure": "63.33%",
                         "Tech Debt Exposure": "0.0%",
                         "Testing Exposure": "2.34%",

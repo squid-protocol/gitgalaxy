@@ -745,7 +745,6 @@ RISK_EQUATION_TUNING = {
         "flux_mult": 2.0,
         "async_mult": 3.0,
         "heat_mult": 5.0,
-        "danger_mult": 5.0,
         "sigmoid_slope": 4.0,
         "sigmoid_offset": 0.75,
         "doc_mult": 10.0,

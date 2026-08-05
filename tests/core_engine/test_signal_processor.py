@@ -1214,6 +1214,8 @@ def test_signal_processor_inline_suppressions(processor):
         100,
         {
             "branch": 5000,
+            "state_mutation": 5000,
+            "concurrency": 5000,
             "high_risk_execution": 5000,
             "sec_high_risk_execution": 5000,
             "sec_io": 5000,

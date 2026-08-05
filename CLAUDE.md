@@ -57,6 +57,12 @@ session cheaper and safer to run — reach for these *before* an Explore subagen
 or reading a large file cold, when the question is really "how big/risky/depended-on is this
 thing" rather than "what does this specific code do."
 
+This still applies even when a task already points at exact file/line locations — e.g. a GitHub
+issue that quotes the specific lines to change. Knowing *where* to edit isn't the same as knowing
+the file's risk standing: check the brief's blast-radius/risk lists (Sections 7, 8, 11) or query
+the DB for that file's complexity/fan-in anyway before editing, so "how conservative should this
+diff be" is answered from data instead of a guess informed only by the issue text.
+
 - **`docs/gitgalaxy_architecture_brief.md`** — auto-committed on every merge to main (a byproduct
   of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. This scan
   always installs `networkx`/`tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s

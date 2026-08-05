@@ -535,14 +535,55 @@ class StructuralExtractor:
             )
 
             class_matches = list(class_pattern.finditer(code_stream))
+
+            if class_matches:
+                # #1040: a flat "ends at the next class match" boundary truncates
+                # an outer class's scope the instant it contains a nested class,
+                # since the nested class's own `class` keyword becomes that "next
+                # match". Resolve each class's real end via brace-depth (or, for
+                # indentation-scoped languages, dedent-depth) tracking instead --
+                # same dispatch this engine already uses for Mode B vs Mode C
+                # function slicing -- so a nested class's body is correctly
+                # consumed as part of its enclosing class rather than cutting it
+                # off early.
+                lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
+                use_indentation_scoping = self.primary_lang_id in ("python", "yaml") or lang_family in (
+                    "single_line_only",
+                    "multi_style_dash",
+                )
+                class_safe_stream = (
+                    self._build_indentation_safe_stream(code_stream)
+                    if use_indentation_scoping
+                    else self._build_brace_safe_stream(code_stream, self.primary_lang_id)
+                )
+
             for i, match in enumerate(class_matches):
-                start_idx = match.start()
-                # Scope ends at the next class declaration, or the end of the file
-                end_idx = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(code_stream)
+                # Anchored on the class NAME's own position (group 1), not
+                # match.start(0): class_pattern's leading `\s*` can itself
+                # swallow a blank line sitting before "class", landing
+                # match.start(0) on that blank line instead of the
+                # declaration's real line -- which would corrupt the
+                # brace/indent-depth math below. The name always sits on the
+                # class's own line, so it's a reliable anchor regardless.
+                start_idx = match.start(1)
+                # Old flat boundary, now used only as a fallback for brace-less
+                # forward declarations where no real body can be located.
+                fallback_end_idx = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(code_stream)
+                end_idx = self._resolve_class_scope_end(
+                    class_safe_stream, start_idx, fallback_end_idx, use_indentation_scoping
+                )
 
                 # Convert raw string indices to line numbers for spatial bounding
                 start_line = code_stream.count("\n", 0, start_idx) + 1
                 end_line = code_stream.count("\n", 0, end_idx) + 1
+                # If end_idx sits exactly at the start of a new line (the
+                # indentation resolver's dedent point, or the flat fallback,
+                # both land there by construction) that line belongs to
+                # whatever comes *next* -- a sibling method after a nested
+                # class dedents, or the next class's own header -- not to
+                # this class, so don't count it as part of this class's range.
+                if 0 < end_idx <= len(code_stream) and code_stream[end_idx - 1] == "\n":
+                    end_line -= 1
 
                 classes.append(
                     {
@@ -557,14 +598,26 @@ class StructuralExtractor:
                 )
 
             # ---> LINK FUNCTIONS TO CLASSES & CALCULATE CLASS PHYSICS <---
-            for cls in classes:
-                class_methods = []
-                for func in functions:
-                    # If the function falls within the spatial bounds of the class
-                    if cls["_start_line"] <= func.get("start_line", 0) <= cls["_end_line"]:
-                        func["parent_class_name"] = cls["name"]
-                        class_methods.append(func)
+            # Assign each function to its innermost (most specific) enclosing
+            # class first. Nesting-aware scopes mean an outer class's span now
+            # correctly contains everything a nested class's span also contains
+            # -- so without this step, a nested class's methods would double-
+            # count toward every enclosing outer class too, not just the nested
+            # class itself.
+            class_methods_by_id: dict[int, list[FunctionNode]] = {id(cls): [] for cls in classes}
+            for func in functions:
+                func_line = func.get("start_line", 0)
+                innermost_cls: Optional[_ClassInfoWithBounds] = None
+                for cls in classes:
+                    if cls["_start_line"] <= func_line <= cls["_end_line"]:
+                        if innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]:
+                            innermost_cls = cls
+                if innermost_cls is not None:
+                    func["parent_class_name"] = innermost_cls["name"]
+                    class_methods_by_id[id(innermost_cls)].append(func)
 
+            for cls in classes:
+                class_methods = class_methods_by_id[id(cls)]
                 cls["method_count"] = len(class_methods)
 
                 # State Entanglement: Density of state mutations (flux) inside the class methods
@@ -915,6 +968,63 @@ class StructuralExtractor:
                     return pos
 
         return limit
+
+    def _resolve_class_scope_end(
+        self,
+        safe_stream: str,
+        header_start: int,
+        fallback_end_idx: int,
+        use_indentation: bool,
+    ) -> int:
+        """
+        Resolves a class declaration's true end boundary via brace-depth (or,
+        for indentation-scoped languages, dedent-depth) tracking, instead of a
+        flat "ends at the next class match" boundary -- which truncates an
+        outer class's scope the instant it contains a nested class, since the
+        nested class's own `class` keyword becomes that "next match" (#1040).
+        `fallback_end_idx` -- the old flat boundary -- is used only when no
+        real body can be located (e.g. a brace-less forward declaration).
+        `safe_stream` must be the same length as the original code_stream
+        (shielding preserves newlines), so indices computed here stay valid
+        against it.
+
+        Deliberately anchored on `header_start` (`match.start()`) only, never
+        `match.end()`: class_pattern's optional inheritance capture
+        (`:\\s*([a-zA-Z0-9_]+)`) lets `\\s*` cross a newline, so for a
+        brace-less header like `class Inner:` it can walk onto the *next*
+        line and capture its first identifier (e.g. the `def` of a nested
+        method) as a bogus "inheritance" token -- pushing `match.end()` well
+        past the header's own line. Recomputing the header line directly
+        from `header_start` sidesteps that pre-existing regex quirk instead
+        of relying on a `match.end()` that isn't trustworthy here.
+        """
+        line_start_idx = safe_stream.rfind("\n", 0, header_start) + 1
+        header_line_end = safe_stream.find("\n", header_start)
+        header_line_end = len(safe_stream) if header_line_end == -1 else header_line_end
+
+        if use_indentation:
+            header_line = safe_stream[line_start_idx:header_line_end]
+            base_indent = len(header_line) - len(header_line.lstrip())
+
+            scan_pos = header_line_end + 1 if header_line_end < len(safe_stream) else len(safe_stream)
+
+            while scan_pos < len(safe_stream):
+                next_nl = safe_stream.find("\n", scan_pos)
+                line_end = len(safe_stream) if next_nl == -1 else next_nl + 1
+                line = safe_stream[scan_pos:line_end]
+                stripped = line.lstrip()
+                if stripped:
+                    indent = len(line) - len(stripped)
+                    if indent <= base_indent:
+                        return scan_pos
+                scan_pos = line_end
+            return len(safe_stream)
+
+        search_limit = min(header_start + 2000, len(safe_stream))
+        brace_idx = safe_stream.find("{", header_start, search_limit)
+        if brace_idx == -1:
+            return fallback_end_idx
+        return self._find_balanced_end(safe_stream, brace_idx, "{", "}")
 
     def _correlate_signals(self, targets: list[int], dampeners: list[int], max_distance: int = 500) -> tuple[int, int]:
         """
@@ -1427,37 +1537,23 @@ class StructuralExtractor:
 
         return satellites, sum_fxn_impact
 
-    def _slice_by_braces(
-        self,
-        code: str,
-        lang_id: str,
-        rules: dict[str, Any],
-        offset: int,
-        spatial_map: dict[str, list[int]],
-    ) -> tuple[list[FunctionNode], float]:
-        """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
-        satellites: list[FunctionNode] = []
-        sum_fxn_impact = 0.0
-        func_start = rules.get("func_start")
+    def _build_brace_safe_stream(self, code: str, lang_id: str) -> str:
+        """
+        Shields string/char literals and (for C-family languages) dead
+        #if/#else macro branches so a brace-balance scan isn't fooled by a
+        literal `{`/`}` inside them. Shared by `_slice_by_braces` and the
+        nesting-aware class-boundary scanner (#1040), both of which need a
+        text stream whose only real braces are structural code -- same
+        length as `code` (shielding preserves newlines) so every index
+        computed against it stays valid against the original.
+        """
 
-        if not func_start:
-            return [], 0.0
-
-        # Dynamically set scope bounds based on lexical family
-        # We now consistently use curly braces for standard block-style languages.
-        opener, closer = "{", "}"
-        if lang_id == "lisp":
-            opener, closer = "(", ")"
-
-        # 1. High-Performance C-Backed Shield Function
         def fast_shield(m):
             text = m.group(0)
             if "\n" not in text:
                 return " " * len(text)
             return "\n".join(" " * len(line) for line in text.split("\n"))
 
-        # 2. The Single-Pass Lexer (Massive I/O Reduction)
-        # We use the generic shield pattern for all brace-style and c-style families.
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
         if lang_id == "rust":
@@ -1468,10 +1564,9 @@ class StructuralExtractor:
             r'"(?:\\.|[^"\\])*"|' + single_quote + r"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/"
         )
 
-        lexed_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
-        safe_code = lexed_code
+        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
 
-        # 3. Macro Shields (Strictly Gated to C-Family)
+        # Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):
             lines = safe_code.splitlines(keepends=True)
             in_dead_branch = False
@@ -1514,6 +1609,32 @@ class StructuralExtractor:
 
             safe_code = "".join(lines)
 
+        return safe_code
+
+    def _slice_by_braces(
+        self,
+        code: str,
+        lang_id: str,
+        rules: dict[str, Any],
+        offset: int,
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
+        """[INTEGRATION MODE B] - Global Recursive Scope Analysis (C-Family & Lisp)."""
+        satellites: list[FunctionNode] = []
+        sum_fxn_impact = 0.0
+        func_start = rules.get("func_start")
+
+        if not func_start:
+            return [], 0.0
+
+        # Dynamically set scope bounds based on lexical family
+        # We now consistently use curly braces for standard block-style languages.
+        opener, closer = "{", "}"
+        if lang_id == "lisp":
+            opener, closer = "(", ")"
+
+        safe_code = self._build_brace_safe_stream(code, lang_id)
+
         # BUG FIX (epic #813, extraction hardening, #814/#815): func_start
         # used to be matched against the raw, unshielded `code` -- computed
         # above, BEFORE `safe_code` existed. That let a single-line string
@@ -1548,7 +1669,7 @@ class StructuralExtractor:
         # it as its own audited PR (confirm no other language has a similar
         # latent prism.py gap first), not as a drive-by expansion here.
         try:
-            matches = list(func_start.finditer(lexed_code))
+            matches = list(func_start.finditer(safe_code))
         except Exception:
             return [], 0.0
 
@@ -1641,6 +1762,33 @@ class StructuralExtractor:
 
         return satellites, sum_fxn_impact
 
+    def _build_indentation_safe_stream(self, code: str) -> str:
+        """
+        Index-aligned shield for indentation-depth scans: blanks out
+        triple/single-quoted string and `#`-comment content so a dedented
+        line inside a docstring can't be mistaken for the real end of a
+        function/class body, while preserving newlines so every index
+        still maps 1:1 to `code`. Shared by `_slice_by_indentation` and
+        the nesting-aware class-boundary scanner (#1040).
+        """
+
+        def index_aligned_shield(m):
+            text = m.group(0)
+            return "".join("\n" if c == "\n" else " " for c in text)
+
+        # Shield Python triple-quotes first to prevent inner-quote collisions
+        safe_code = re.sub(r"\"\"\"(.*?)\"\"\"", index_aligned_shield, code, flags=re.DOTALL)
+        safe_code = re.sub(r"\'\'\'(.*?)\'\'\'", index_aligned_shield, safe_code, flags=re.DOTALL)
+
+        # Shield standard strings
+        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', index_aligned_shield, safe_code, flags=re.DOTALL)
+        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", index_aligned_shield, safe_code, flags=re.DOTALL)
+
+        # Shield comments (Python and YAML use #)
+        safe_code = re.sub(r"#.*", lambda m: " " * len(m.group(0)), safe_code)
+
+        return safe_code
+
     def _slice_by_indentation(
         self,
         code: str,
@@ -1658,20 +1806,7 @@ class StructuralExtractor:
 
         # 1. Apply the Index-Aligned Shield
         # Preserves exact character indices and newline counts so safe_code maps 1:1 with code.
-        def index_aligned_shield(m):
-            text = m.group(0)
-            return "".join("\n" if c == "\n" else " " for c in text)
-
-        # Shield Python triple-quotes first to prevent inner-quote collisions
-        safe_code = re.sub(r"\"\"\"(.*?)\"\"\"", index_aligned_shield, code, flags=re.DOTALL)
-        safe_code = re.sub(r"\'\'\'(.*?)\'\'\'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield standard strings
-        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', index_aligned_shield, safe_code, flags=re.DOTALL)
-        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield comments (Python and YAML use #)
-        safe_code = re.sub(r"#.*", lambda m: " " * len(m.group(0)), safe_code)
+        safe_code = self._build_indentation_safe_stream(code)
 
         # Match against safe_code to prevent triggering on words inside docstrings!
         try:

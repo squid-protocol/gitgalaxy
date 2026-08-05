@@ -140,12 +140,5 @@ markers = [
     "smoke: quick core engine tests for CI/CD pipelines",
     "golden_crucible: opt-in end-to-end regression test against the language-crucible corpus; needs a local checkout. Run explicitly via `pytest -m golden_crucible`.",
 ]
-# --import-mode=importlib: required because tests/core_engine/languages/ and
-# tests/extraction/languages/ both hold same-basename per-language files
-# (test_python.py, test_php.py, ...) with no tests/__init__.py anywhere in this
-# repo (a deliberate convention -- see CLAUDE.md's Testing conventions). Under
-# the default "prepend" mode, pytest keys imported test modules by basename
-# alone, so two same-named files across those dirs collide ("import file
-# mismatch"); importlib mode keys them by full path instead.
-addopts = "-m 'not golden_crucible' --import-mode=importlib"
+addopts = "-m 'not golden_crucible'"
 norecursedirs = ["tests/fixtures"]

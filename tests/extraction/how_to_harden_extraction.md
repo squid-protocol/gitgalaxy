@@ -55,9 +55,11 @@ re-deriving the same language's regex quirks from scratch four times instead of 
 The four existing files are flat dicts keyed by language (`EXTRACTION_CASES["python"] = {...}`)
 inside one shared module per gauntlet. That layout was fine at 2-3 cases per language; it will not
 survive 10-15 pathological cases × dozens of invalid/valid cases × ~40 languages — one file would
-balloon into a many-thousand-line dict no single edit could safely navigate (see
-`test_language_standards_strict.py`, already 14,000+ lines, for what that endgame looks like for a
-*single* file covering one concern).
+balloon into a many-thousand-line dict no single edit could safely navigate (this happened for real:
+`tests/core_engine/test_language_standards_strict.py` grew to 14,664 lines/621 tests covering one
+concern in a single file, before it was split the same way this doc proposes — see
+`tests/core_engine/languages/` for the result, and that file's git history for what the monolith
+looked like).
 
 **New layout, one file per language:**
 

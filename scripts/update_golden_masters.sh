@@ -6,7 +6,7 @@ echo "    GitGalaxy Extraction Hardening & Crucible Automator"
 echo "============================================================"
 echo ""
 echo "[1/4] Running pytest to ensure all static analysis and extraction rules pass..."
-venv/bin/pytest tests/core_engine/test_language_standards_strict.py tests/extraction/
+venv/bin/pytest tests/core_engine/ tests/extraction/
 echo "✅ Pytest passed!"
 echo ""
 echo "[2/4] Regenerating Golden Masters (Full Precision and Zero Dependency)..."

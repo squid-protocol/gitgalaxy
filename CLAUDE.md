@@ -110,7 +110,11 @@ Full protocol (LLM generation prompt, the 12 numbered engine rules for ReDoS/bou
 correctness, strict-testing prompt) lives in
 `gitgalaxy/standards/how_to_add_a_language.md` — read that file directly rather than expecting
 a summary here; it's long because the rules matter and drift if paraphrased. Tests for this
-live in `tests/core_engine/test_language_standards_strict.py`, one section per language.
+live in `tests/core_engine/languages/test_<lang>.py`, one file per language (mirroring
+`tests/extraction/languages/`, sharing a `_strict_harness.py` ReDoS-testing helper module the
+same way extraction's per-language files share `_extraction_harness.py`);
+`tests/core_engine/test_language_standards_strict.py` now holds only the handful of genuinely
+cross-language/global tests (registry-wide sanity checks, the harness's own self-tests).
 
 **Hardening the four extraction gauntlets** (func_start/args/class_start/_dependency_capture
 test depth per language) is a related but distinct exercise, driven by

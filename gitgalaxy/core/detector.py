@@ -535,6 +535,19 @@ class StructuralExtractor:
 
             class_matches = list(class_pattern.finditer(code_stream))
 
+            # #1040: resolve class boundaries via depth-aware slicing (indentation
+            # or brace based) so nested classes don't truncate outer class scope.
+            lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
+            use_indentation_scoping = self.primary_lang_id in ("python", "yaml") or lang_family in (
+                "single_line_only",
+                "multi_style_dash",
+            )
+            class_safe_stream = (
+                self._build_indentation_safe_stream(code_stream)
+                if use_indentation_scoping
+                else self._build_brace_safe_stream(code_stream, self.primary_lang_id)
+            )
+
             if class_matches:
                 # #1040: a flat "ends at the next class match" boundary truncates
                 # an outer class's scope the instant it contains a nested class,
@@ -545,16 +558,6 @@ class StructuralExtractor:
                 # function slicing -- so a nested class's body is correctly
                 # consumed as part of its enclosing class rather than cutting it
                 # off early.
-                lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
-                use_indentation_scoping = self.primary_lang_id in ("python", "yaml") or lang_family in (
-                    "single_line_only",
-                    "multi_style_dash",
-                )
-                class_safe_stream = (
-                    self._build_indentation_safe_stream(code_stream)
-                    if use_indentation_scoping
-                    else self._build_brace_safe_stream(code_stream, self.primary_lang_id)
-                )
 
             for i, match in enumerate(class_matches):
                 # Anchored on the class NAME's own position (group 1), not

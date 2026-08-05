@@ -6,6 +6,14 @@ Building a planetary-scale parser without an Abstract Syntax Tree (AST) is widel
 
 This test suite exists to mathematically prove that our heuristic **blAST Engine** securely and deterministically isolates exact structural identifiers across 30+ programming languages, surviving the most pathological formatting a developer (or obfuscator) can throw at it.
 
+**Note:** most languages' cases have since migrated out of the four dict files below into
+`languages/test_<lang>.py`, one file per language (see `how_to_harden_extraction.md`). That same
+`languages/` directory also colocates a second, independent test concern: `test_<lang>_strict.py`
+per language, proving `language_standards.py`'s *structural signature* rules (branch, io,
+safety_bypasses, ReDoS immunity, etc. — not the func_start/args/class_start/dependency extraction
+this readme describes). The `_strict` suffix and a separate `_strict_harness.py` helper module
+keep the two concerns' files distinguishable and independently importable side by side.
+
 ---
 
 ### 🧪 Execution Protocols

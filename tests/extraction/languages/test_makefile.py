@@ -150,7 +150,7 @@ def test_makefile_func_start_known_limitation_variable_referenced_target_not_mat
     Documents a known, deliberately-NOT-fixed limitation: a
     variable-referenced target name (`$(TARGET): $(OBJECTS)`, also common in
     real Makefiles) is invisible to func_start -- `$`/`(`/`)` are outside the
-    character class. NOT an oversight: tests/core_engine/languages/test_makefile_strict.py's
+    character class. NOT an oversight: tests/extraction/languages/test_makefile_strict.py's
     test_makefile_func_start_and_macros_no_false_collision deliberately locks
     in that `$(1): $(2)` (a `define...endef` template's macro-positional-
     parameter placeholder) must NOT satisfy func_start, and this rule has no

@@ -58,7 +58,7 @@ survive 10-15 pathological cases × dozens of invalid/valid cases × ~40 languag
 balloon into a many-thousand-line dict no single edit could safely navigate (this happened for real:
 `tests/core_engine/test_language_standards_strict.py` grew to 14,664 lines/621 tests covering one
 concern in a single file, before it was split the same way this doc proposes — see
-`tests/core_engine/languages/` for the result, and that file's git history for what the monolith
+`tests/extraction/languages/` for the result, and that file's git history for what the monolith
 looked like).
 
 **New layout, one file per language:**

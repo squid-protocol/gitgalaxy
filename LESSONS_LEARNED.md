@@ -18,7 +18,7 @@ Instead, strictly follow this pattern:
 1. `git merge origin/main` (this will pause with conflicts)
 2. `git checkout --theirs tests/golden_master_audit.json tests/golden_master_zero_dep_audit.json`
 3. Resolve any Python regex file conflicts and ensure `EXTRACTION_CASES` dicts are syntactically valid (watch for missing commas and syntax errors when stipping markers).
-4. Run `venv/bin/pytest tests/core_engine/ tests/extraction/` to ensure syntax is valid (strict structural-signature tests now live under `tests/core_engine/languages/`, not just `test_language_standards_strict.py`).
+4. Run `venv/bin/pytest tests/core_engine/ tests/extraction/` to ensure syntax is valid (strict structural-signature tests now live under `tests/extraction/languages/test_<lang>_strict.py`, colocated with the extraction gauntlets, not just `tests/core_engine/test_language_standards_strict.py`).
 5. Run `scripts/update_golden_masters.sh` to fuse the changes from `main` with your side-branch changes.
 
 ### 3. Verification & Hook Timers

@@ -253,8 +253,8 @@ registered, not a continuation of the generation conversation.
 ### Step 4: Generate the Strict Testing Suite (Separate Pass)
 Open a **new** conversation (or at minimum a clearly separate turn) and feed the LLM the finished
 `rules` dict for the language plus the **Strict Testing Prompt** below. The output should be a
-pytest module in the shape of `tests/core_engine/languages/test_<lang>_strict.py`'s existing files (see
-e.g. `tests/core_engine/languages/test_php_strict.py`'s `_PHP_SIMPLE_CASES` / `test_php_*` for a concrete
+pytest module in the shape of `tests/extraction/languages/test_<lang>_strict.py`'s existing files (see
+e.g. `tests/extraction/languages/test_php_strict.py`'s `_PHP_SIMPLE_CASES` / `test_php_*` for a concrete
 template).
 
 **Strict Testing Prompt:**

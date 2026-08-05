@@ -2,11 +2,14 @@
 Global / genuinely cross-language structural-signature tests.
 
 Per-language strict structural-signature coverage lives in
-tests/core_engine/languages/test_<lang>.py (one file per language, mirroring
-tests/extraction/languages/). This file keeps only what doesn't belong to any
-single language: registry-wide sanity checks, the ReDoS test-harness's own
-self-tests, and the one test explicitly written (issue #713) as a single
-parametrized cross-language test rather than duplicated per language.
+tests/extraction/languages/test_<lang>_strict.py (one file per language,
+colocated with the extraction gauntlets' own test_<lang>.py files -- the
+`_strict` suffix keeps the basenames from colliding under pytest's default
+import mode, since this repo has no tests/__init__.py anywhere). This file
+keeps only what doesn't belong to any single language: registry-wide sanity
+checks, the ReDoS test-harness's own self-tests, and the one test explicitly
+written (issue #713) as a single parametrized cross-language test rather
+than duplicated per language.
 """
 
 import sys
@@ -17,7 +20,7 @@ import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-_LANGUAGES_DIR = str(Path(__file__).resolve().parent / "languages")
+_LANGUAGES_DIR = str(Path(__file__).resolve().parent.parent / "extraction" / "languages")
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 

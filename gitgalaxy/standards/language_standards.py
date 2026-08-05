@@ -3104,7 +3104,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # NOTE: a trailing-`{` requirement was tried and reverted -- it would have "fixed" this
             # rule matching bare variable declarations of an existing struct type
             # (`struct foo_ops ops;`), but test_c_intentional_double_classification_sweep
-            # (tests/core_engine/languages/test_c_strict.py) documents that co-firing as DELIBERATE: it's how
+            # (tests/extraction/languages/test_c_strict.py) documents that co-firing as DELIBERATE: it's how
             # the `_ops`-vtable-style dependency_injection heuristic pairs with class_start for
             # exactly this shape. Any future change here must keep that test passing.
             "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)(?:\s+[a-zA-Z_]\w*)?", re.M),
@@ -10580,7 +10580,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Considered and DELIBERATELY NOT fixed: a variable-referenced
             # target name (`$(TARGET): $(OBJECTS)`, also common) is still
             # invisible -- `$`/`(`/`)` are still outside the char class. This
-            # is intentional, not an oversight: tests/core_engine/languages/test_makefile_strict
+            # is intentional, not an oversight: tests/extraction/languages/test_makefile_strict
             # .py's test_makefile_func_start_and_macros_no_false_collision
             # deliberately locks in that `$(1): $(2)` (a `define...endef`
             # template's macro-positional-parameter placeholder) must NOT

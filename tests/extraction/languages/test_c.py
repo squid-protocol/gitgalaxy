@@ -237,7 +237,7 @@ def test_c_class_start_intentional_variable_declaration_match():
     (`struct foo_ops ops;`), because it has no trailing-`{` requirement.
     A version of this fix that added one was tried and reverted: it broke
     test_c_intentional_double_classification_sweep
-    (tests/core_engine/languages/test_c_strict.py), which documents this exact
+    (tests/extraction/languages/test_c_strict.py), which documents this exact
     co-firing as intentional -- `struct foo_ops ops;` is meant to match
     BOTH class_start ("any struct declaration") AND the
     dependency_injection rule's `_ops`-vtable-style-suffix heuristic

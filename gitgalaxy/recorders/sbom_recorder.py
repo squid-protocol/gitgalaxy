@@ -19,7 +19,11 @@ from typing import Any, Optional
 # UniversalManifestSlicer now lives in the canonical manifest module (PR A of
 # the dependency-audit overhaul). Re-imported here so existing consumers and
 # tests importing it from this module keep working unchanged.
-from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_FILENAMES, UniversalManifestSlicer
+from gitgalaxy.security.manifest_parser import (
+    SUPPORTED_MANIFEST_FILENAMES,
+    SUPPORTED_MANIFEST_SUFFIXES,
+    UniversalManifestSlicer,
+)
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.security.security_lens import SecurityLens
@@ -94,6 +98,10 @@ class SbomRecorder:
             manifests_found = [
                 (target_path / m, target_path) for m in self._MANIFEST_NAMES if (target_path / m).exists()
             ]
+            # Suffix-matched manifests (e.g. *.csproj) can't be enumerated by exact
+            # name; glob for them at the root, matching the non-recursive scope above.
+            for suffix in SUPPORTED_MANIFEST_SUFFIXES:
+                manifests_found += [(p, target_path) for p in target_path.glob(f"*{suffix}")]
 
         if not manifests_found:
             self.logger.warning("SBOM: No supported manifests found. Outputting empty BOM.")

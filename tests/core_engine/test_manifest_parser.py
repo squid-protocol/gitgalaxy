@@ -266,6 +266,84 @@ def test_pip_conf_repository_keyword_with_equals_in_value(parser, tmp_path):
 
 
 # ==============================================================================
+# 4b. Issue #702 -- Expanded Security Auditing (pyproject.toml, yarn.lock, Gradle)
+# ==============================================================================
+def test_pyproject_toml_pep621_direct_uri_reference(parser, tmp_path):
+    """Verifies PEP 621 `dependencies = [...]` entries with a direct `@ git+...`/URL
+    reference (which bypass PyPI registry verification) are flagged, same as requirements.txt."""
+    pyproject_file = tmp_path / "pyproject.toml"
+    pyproject_file.write_text(
+        '[project]\nname = "test"\ndependencies = [\n'
+        '    "requests>=2.0",\n'
+        '    "evil-pkg @ git+https://github.com/hacker/malware.git",\n'
+        "]\n"
+    )
+
+    resolution_map = parser.build_resolution_map([str(pyproject_file)])
+
+    assert "requests" not in resolution_map, "Standard packages shouldn't be added to the resolution map"
+    assert resolution_map["evil-pkg"] == "git+https://github.com/hacker/malware.git"
+
+
+def test_pyproject_toml_poetry_direct_git_reference(parser, tmp_path):
+    """Verifies Poetry-style `[tool.poetry.dependencies]` table entries with an inline
+    git/url table are flagged, and the `python` version constraint entry is ignored."""
+    pyproject_file = tmp_path / "pyproject.toml"
+    pyproject_file.write_text(
+        '[tool.poetry.dependencies]\npython = "^3.9"\nnumpy = "^1.21"\n'
+        'evil-pkg = {git = "https://github.com/hacker/malware.git"}\n'
+    )
+
+    resolution_map = parser.build_resolution_map([str(pyproject_file)])
+
+    assert "python" not in resolution_map
+    assert "numpy" not in resolution_map, "Standard packages shouldn't be added to the resolution map"
+    assert resolution_map["evil-pkg"] == "git+https://github.com/hacker/malware.git"
+
+
+def test_yarn_lock_registry_spoofing(parser, tmp_path):
+    """Verifies yarn.lock's counterpart to package-lock.json's registry-spoofing check:
+    resolutions outside the standard Yarn/npm registries must be intercepted."""
+    yarn_lock = tmp_path / "yarn.lock"
+    yarn_lock.write_text(
+        'ansi-styles@^3.2.1:\n  version "3.2.1"\n'
+        '  resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.1.tgz#cafebabe"\n\n'
+        '"@hacker-scope/evil-pkg@^1.0.0":\n  version "1.0.0"\n'
+        '  resolved "https://evil-registry.com/evil-pkg-1.0.0.tgz"\n'
+    )
+
+    resolution_map = parser.build_resolution_map([str(yarn_lock)])
+
+    assert "ansi-styles" not in resolution_map, "Standard registry resolutions should be trusted"
+    assert resolution_map["@hacker-scope/evil-pkg"] == "https://evil-registry.com/evil-pkg-1.0.0.tgz"
+
+
+def test_gradle_insecure_repository(parser, tmp_path):
+    """Verifies build.gradle repository blocks using an insecure `http://` URL are flagged,
+    the Maven/Gradle equivalent of pip.conf's insecure index-url check."""
+    gradle_file = tmp_path / "build.gradle"
+    gradle_file.write_text(
+        "repositories {\n    mavenCentral()\n    maven {\n        url 'http://insecure-mirror.example.com/repo'\n"
+        "    }\n}\n"
+    )
+
+    resolution_map = parser.build_resolution_map([str(gradle_file)])
+
+    assert "INSECURE_REGISTRY_build.gradle" in resolution_map
+    assert resolution_map["INSECURE_REGISTRY_build.gradle"] == "http://insecure-mirror.example.com/repo"
+
+
+def test_gradle_trusted_repository(parser, tmp_path):
+    """Ensures a Gradle build script using only HTTPS repositories does not false-positive."""
+    gradle_file = tmp_path / "build.gradle"
+    gradle_file.write_text("repositories {\n    mavenCentral()\n    google()\n}\n")
+
+    resolution_map = parser.build_resolution_map([str(gradle_file)])
+
+    assert resolution_map == {}, "Trusted HTTPS-only repositories falsely flagged as insecure!"
+
+
+# ==============================================================================
 # 5. Global Monorepo Tests
 # ==============================================================================
 
@@ -298,14 +376,14 @@ def test_unsupported_manifest_bypass(parser, tmp_path):
 def test_manifest_parser_scope_is_npm_and_pypi_only(parser, tmp_path):
     """
     Documents current scope, not a bug: ManifestParser.build_resolution_map
-    only builds an alias/registry-spoofing map for npm and PyPI-family files.
-    It does NOT recognize composer.json, Cargo.toml, Gemfile, or pom.xml --
-    even though UniversalManifestSlicer (this module's OTHER class, used for
-    the SBOM) parses all of those. Since galaxyscope's Phase 10 now feeds the
-    SAME manifest_paths list to both consumers, these filenames silently
-    no-op here. Locking this in so a future contributor extending
-    SUPPORTED_MANIFEST_FILENAMES doesn't assume ManifestParser gained
-    matching coverage for free.
+    only builds an alias/registry-spoofing map for npm-family, PyPI-family,
+    and (since issue #702) Gradle files. It does NOT recognize composer.json,
+    Cargo.toml, Gemfile, or pom.xml -- even though UniversalManifestSlicer
+    (this module's OTHER class, used for the SBOM) parses all of those. Since
+    galaxyscope's Phase 10 now feeds the SAME manifest_paths list to both
+    consumers, these filenames silently no-op here. Locking this in so a
+    future contributor extending SUPPORTED_MANIFEST_FILENAMES doesn't assume
+    ManifestParser gained matching coverage for free.
     """
     cargo_file = tmp_path / "Cargo.toml"
     cargo_file.write_text('[dependencies]\nserde = "1.0"')

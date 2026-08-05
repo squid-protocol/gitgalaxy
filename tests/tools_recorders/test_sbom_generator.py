@@ -5,13 +5,15 @@ import logging
 from unittest.mock import patch
 
 from gitgalaxy.recorders.sbom_recorder import UniversalManifestSlicer, SbomRecorder
+from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_SUFFIXES
 
 
 # ==============================================================================
 # TEST 1: The Multi-Ecosystem Slicer Guard (Full Ecosystem Matrix)
 # ==============================================================================
 def test_universal_manifest_slicer_all_ecosystems(tmp_path):
-    """Proves regex and parsing logic flawlessly extracts dependencies across all 7 supported ecosystems."""
+    """Proves regex and parsing logic flawlessly extracts dependencies across the original 7 supported ecosystems.
+    See test_universal_manifest_slicer_expanded_ecosystems_702 for the ecosystems added by issue #702."""
     slicer = UniversalManifestSlicer()
 
     # 1. NPM
@@ -129,6 +131,172 @@ def test_locate_physical_package(tmp_path):
 
     # 7. Unknown Ecosystem
     assert slicer.locate_physical_package(tmp_path, "pkg", "alien_eco") is None
+
+
+# ==============================================================================
+# TEST 2b: Issue #702 -- Expanded Ecosystem Coverage
+# ==============================================================================
+def test_universal_manifest_slicer_expanded_ecosystems_702(tmp_path):
+    """Proves slice_manifest() extracts dependencies from every ecosystem added by issue #702."""
+    slicer = UniversalManifestSlicer()
+
+    # Modern Python: pyproject.toml (PEP 621 + Poetry)
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\nname = "test"\ndependencies = [\n    "requests>=2.0",\n    "flask",\n]\n\n'
+        '[tool.poetry.dependencies]\npython = "^3.9"\nnumpy = "^1.21"\n',
+        encoding="utf-8",
+    )
+    eco, deps = slicer.slice_manifest(pyproject)
+    assert eco == "pypi"
+    assert deps == {"requests": "latest", "flask": "latest", "numpy": "^1.21"}
+
+    # Modern Python: poetry.lock
+    poetry_lock = tmp_path / "poetry.lock"
+    poetry_lock.write_text(
+        '[[package]]\nname = "requests"\nversion = "2.26.0"\n\n[[package]]\nname = "flask"\nversion = "2.0.1"\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(poetry_lock) == ("pypi", {"requests": "2.26.0", "flask": "2.0.1"})
+
+    # Modern Python: Pipfile
+    pipfile = tmp_path / "Pipfile"
+    pipfile.write_text(
+        '[packages]\nrequests = "*"\nflask = ">=1.0"\n\n[dev-packages]\npytest = "*"\n', encoding="utf-8"
+    )
+    assert slicer.slice_manifest(pipfile) == (
+        "pypi",
+        {"requests": "latest", "flask": ">=1.0", "pytest": "latest"},
+    )
+
+    # .NET: packages.config
+    packages_config = tmp_path / "packages.config"
+    packages_config.write_text(
+        '<packages>\n  <package id="Newtonsoft.Json" version="12.0.3" targetFramework="net472" />\n'
+        '  <package id="NUnit" />\n</packages>\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(packages_config) == (
+        "nuget",
+        {"Newtonsoft.Json": "12.0.3", "NUnit": "latest"},
+    )
+
+    # .NET: *.csproj (PackageReference), suffix-matched rather than exact filename
+    csproj = tmp_path / "MyApp.csproj"
+    csproj.write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="Serilog" Version="2.10.0" />\n'
+        '    <PackageReference Include="AutoMapper" />\n  </ItemGroup>\n</Project>\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(csproj) == ("nuget", {"Serilog": "2.10.0", "AutoMapper": "latest"})
+
+    # C/C++: conanfile.txt
+    conanfile = tmp_path / "conanfile.txt"
+    conanfile.write_text("[requires]\nboost/1.75.0\nzlib/1.2.11\n\n[generators]\ncmake\n", encoding="utf-8")
+    assert slicer.slice_manifest(conanfile) == ("conan", {"boost": "1.75.0", "zlib": "1.2.11"})
+
+    # C/C++: vcpkg.json
+    vcpkg_json = tmp_path / "vcpkg.json"
+    vcpkg_json.write_text(
+        json.dumps({"name": "myapp", "dependencies": ["fmt", {"name": "curl", "features": ["ssl"]}]}),
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(vcpkg_json) == ("vcpkg", {"fmt": "latest", "curl": "latest"})
+
+    # Java/Kotlin/Android: build.gradle
+    gradle = tmp_path / "build.gradle"
+    gradle.write_text(
+        "dependencies {\n    implementation 'com.google.guava:guava:30.1-jre'\n"
+        '    testImplementation("junit:junit:4.13")\n}\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(gradle) == (
+        "gradle",
+        {"com.google.guava:guava": "30.1-jre", "junit:junit": "4.13"},
+    )
+
+    # Mobile: Podfile (CocoaPods)
+    podfile = tmp_path / "Podfile"
+    podfile.write_text("platform :ios, '13.0'\npod 'Alamofire', '~> 5.4'\npod 'SDWebImage'\n", encoding="utf-8")
+    assert slicer.slice_manifest(podfile) == ("cocoapods", {"Alamofire": "~> 5.4", "SDWebImage": "latest"})
+
+    # Mobile: Package.swift (Swift Package Manager)
+    package_swift = tmp_path / "Package.swift"
+    package_swift.write_text(
+        'let package = Package(\n    name: "MyLib",\n    dependencies: [\n'
+        '        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),\n'
+        '        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.0.0"),\n    ]\n)\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(package_swift) == (
+        "swiftpm",
+        {"swift-log": "1.4.0", "swift-algorithms": "1.0.0"},
+    )
+
+    # Dart/Flutter: pubspec.yaml
+    pubspec = tmp_path / "pubspec.yaml"
+    pubspec.write_text(
+        "name: myapp\ndependencies:\n  flutter:\n    sdk: flutter\n  http: ^0.13.3\n  provider: ^6.0.0\n\n"
+        "dev_dependencies:\n  test: ^1.16.0\n",
+        encoding="utf-8",
+    )
+    eco, deps = slicer.slice_manifest(pubspec)
+    assert eco == "pub"
+    assert deps == {"flutter": "latest", "http": "^0.13.3", "provider": "^6.0.0"}
+    assert "test" not in deps, "dev_dependencies should not be conflated with the top-level dependencies block"
+
+    # JS/TS alternative lockfile: yarn.lock
+    yarn_lock = tmp_path / "yarn.lock"
+    yarn_lock.write_text(
+        '"@babel/core@^7.0.0":\n  version "7.12.3"\n'
+        '  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.12.3.tgz#deadbeef"\n\n'
+        'ansi-styles@^3.2.1:\n  version "3.2.1"\n'
+        '  resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.1.tgz#cafebabe"\n',
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(yarn_lock) == (
+        "npm",
+        {"@babel/core": "7.12.3", "ansi-styles": "3.2.1"},
+    )
+
+    # JS/TS alternative lockfile: pnpm-lock.yaml
+    pnpm_lock = tmp_path / "pnpm-lock.yaml"
+    pnpm_lock.write_text(
+        "lockfileVersion: '6.0'\n\ndependencies:\n  express:\n    specifier: ^4.18.0\n    version: 4.18.2\n"
+        "  lodash:\n    specifier: ^4.17.21\n    version: 4.17.21\n\n"
+        "devDependencies:\n  jest:\n    specifier: ^29.0.0\n    version: 29.0.3\n",
+        encoding="utf-8",
+    )
+    assert slicer.slice_manifest(pnpm_lock) == (
+        "npm",
+        {"express": "4.18.2", "lodash": "4.17.21", "jest": "29.0.3"},
+    )
+
+
+def test_locate_physical_package_expanded_ecosystems_702(tmp_path):
+    """Proves locate_physical_package() finds packages for every ecosystem added by issue #702."""
+    slicer = UniversalManifestSlicer()
+
+    # NuGet: project-local packages/ dir
+    (tmp_path / "packages" / "Serilog").mkdir(parents=True)
+    assert slicer.locate_physical_package(tmp_path, "Serilog", "nuget") is not None
+    assert slicer.locate_physical_package(tmp_path, "ghost", "nuget") is None
+
+    # Conan: project-local vcpkg_installed/
+    (tmp_path / "vcpkg_installed" / "x64-linux" / "fmt").mkdir(parents=True)
+    assert slicer.locate_physical_package(tmp_path, "fmt", "vcpkg") is not None
+    assert slicer.locate_physical_package(tmp_path, "ghost", "vcpkg") is None
+
+    # CocoaPods: Pods/
+    (tmp_path / "Pods" / "Alamofire").mkdir(parents=True)
+    assert slicer.locate_physical_package(tmp_path, "Alamofire", "cocoapods") is not None
+    assert slicer.locate_physical_package(tmp_path, "ghost", "cocoapods") is None
+
+    # Swift Package Manager: .build/checkouts/
+    (tmp_path / ".build" / "checkouts" / "swift-log").mkdir(parents=True)
+    assert slicer.locate_physical_package(tmp_path, "swift-log", "swiftpm") is not None
+    assert slicer.locate_physical_package(tmp_path, "ghost", "swiftpm") is None
 
 
 # ==============================================================================
@@ -275,6 +443,20 @@ def test_manifest_names_match_slicer_support(tmp_path):
         "go.mod": "golang",
         "Gemfile": "rubygems",
         "pom.xml": "maven",
+        # Issue #702 additions
+        "pyproject.toml": "pypi",
+        "poetry.lock": "pypi",
+        "Pipfile": "pypi",
+        "packages.config": "nuget",
+        "conanfile.txt": "conan",
+        "vcpkg.json": "vcpkg",
+        "build.gradle": "gradle",
+        "build.gradle.kts": "gradle",
+        "Podfile": "cocoapods",
+        "Package.swift": "swiftpm",
+        "pubspec.yaml": "pub",
+        "yarn.lock": "npm",
+        "pnpm-lock.yaml": "npm",
     }
 
     assert set(SbomRecorder._MANIFEST_NAMES) == set(expected_ecosystems), (
@@ -290,6 +472,26 @@ def test_manifest_names_match_slicer_support(tmp_path):
             f"{filename} is in _MANIFEST_NAMES but slice_manifest identified it as "
             f"'{ecosystem}' instead of '{expected_eco}' -- the two are out of sync!"
         )
+
+
+def test_manifest_suffixes_match_slicer_support(tmp_path):
+    """
+    Suffix-based counterpart to test_manifest_names_match_slicer_support:
+    SUPPORTED_MANIFEST_SUFFIXES (issue #702's *.csproj addition) exists
+    because some manifests -- unlike every other entry in
+    SUPPORTED_MANIFEST_FILENAMES -- are named arbitrarily per-project rather
+    than with one fixed filename, so they can't live in that exact-name set.
+    """
+    slicer = UniversalManifestSlicer()
+    assert SUPPORTED_MANIFEST_SUFFIXES == (".csproj",)
+
+    f = tmp_path / "SomeArbitraryProjectName.csproj"
+    f.write_text("")
+    ecosystem, _ = slicer.slice_manifest(f)
+    assert ecosystem == "nuget", (
+        f"*.csproj is in SUPPORTED_MANIFEST_SUFFIXES but slice_manifest identified it as "
+        f"'{ecosystem}' instead of 'nuget' -- the two are out of sync!"
+    )
 
 
 def test_locate_physical_package_hoisted_dependency(tmp_path):

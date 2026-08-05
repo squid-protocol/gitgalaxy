@@ -970,14 +970,20 @@ class Orchestrator:
             # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
             # requirements.txt) silently never reach the SBOM whenever any other
             # manifest is also present in the repo.
-            from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_FILENAMES, ManifestParser
+            from gitgalaxy.security.manifest_parser import (
+                SUPPORTED_MANIFEST_FILENAMES,
+                SUPPORTED_MANIFEST_SUFFIXES,
+                ManifestParser,
+            )
 
             guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
             target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
             manifest_paths = [
                 str(self.root / rel_path)
                 for rel_path in self.stem_map.values()
-                if Path(rel_path).name in target_manifests
+                # Suffix check covers per-project-named manifests (e.g. *.csproj)
+                # that can't live in the exact-filename SUPPORTED_MANIFEST_FILENAMES set.
+                if Path(rel_path).name in target_manifests or Path(rel_path).suffix in SUPPORTED_MANIFEST_SUFFIXES
             ]
 
             # 2. Build the global translation map

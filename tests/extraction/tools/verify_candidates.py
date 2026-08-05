@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
 Reusable "verify a candidate test case against the real compiled regex
-before adding it" harness for extraction-hardening work (epic #813).
+before adding it" harness. Originally built for extraction-hardening work
+(epic #813, the func_start/args/class_start/_dependency_capture pillars),
+but check_case/check_many/check_redos_scaling only ever call
+`pattern.search()` against whatever rule_key is passed in -- there's
+nothing extraction-pillar-specific about them. Epic #1069 (hardening the
+OTHER ~43 structural-signature rules in test_<lang>_strict.py: branch, io,
+safety_bypasses, etc.) reuses this same module rather than duplicating it;
+only the CLI's --rule flag used to be hard-restricted to the 4 pillars,
+loosened below since the underlying check works for any LANGUAGE_DEFINITIONS
+rule key.
 
 Why this exists: the methodology doc's own non-negotiable step is
 "empirically verify every candidate case against the real compiled regex
@@ -130,7 +139,12 @@ def check_redos_scaling(lang: str, rule_key: str, payload_fn, sizes=(2000, 4000,
 def _cli() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--lang", required=True)
-    parser.add_argument("--rule", required=True, choices=["func_start", "args", "class_start", "_dependency_capture"])
+    parser.add_argument(
+        "--rule",
+        required=True,
+        help="any LANGUAGE_DEFINITIONS rule key for this language (not restricted to the 4 "
+        "extraction pillars -- e.g. 'branch', 'safety_bypasses', 'llm_api' work too)",
+    )
     parser.add_argument("--payload", required=True)
     parser.add_argument("--expect-match", action="store_true")
     parser.add_argument("--expect-name", default=None)

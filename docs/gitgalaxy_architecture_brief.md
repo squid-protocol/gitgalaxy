@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-05T01:43:52.569218+00:00` |
-| **Scan Duration** | `8.96s` |
+| **Timestamp** | `2026-08-05T02:47:45.140091+00:00` |
+| **Scan Duration** | `9.91s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `917f317eeda148852d0cf51b573498a60091e52b` |
+| **Git Commit** | `f1c212a09ba9abdd2f72d352fd8fa4624a0ff994` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -65,7 +65,7 @@
 | Total Artifacts | 699 |
 | Analyzed Artifacts (Scanned) | 223 |
 | Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 476 |
-| Total LOC | 56175 |
+| Total LOC | 56650 |
 | Volatility Index | 0.009 |
 | % Scanned of codebase = | 31.9% |
 | Dominant Lang | PYTHON |
@@ -73,16 +73,16 @@
 ## 3.5 MACRO-NETWORK TOPOLOGY (Resilience & Coupling)
 | Metric | Value | Interpretation |
 |---|---|---|
-| Modularity | 0.6291 | High = Clean micro-boundaries. Low = Spaghetti coupling. |
-| Assortativity | -0.3396 | Positive = Resilient core. Negative = Fragile single-points-of-failure. |
+| Modularity | 0.6309 | High = Clean micro-boundaries. Low = Spaghetti coupling. |
+| Assortativity | -0.3378 | Positive = Resilient core. Negative = Fragile single-points-of-failure. |
 | Cyclic Density | 0.0% | % of files trapped in dependency loops (Static Friction). |
-| Avg Path Length | 2.8138 | Hops between files. Lower = Tighter coupling. |
-| Articulation Pts | 37 | Number of single files that, if removed, shatter the network. |
+| Avg Path Length | 2.8135 | Hops between files. Lower = Tighter coupling. |
+| Articulation Pts | 36 | Number of single files that, if removed, shatter the network. |
 
 ## 4. COMPOSITION
 | Lang | Files | LOC | Share |
 |---|---|---|---|
-| PYTHON | 179 | 55671 | 80.3% |
+| PYTHON | 179 | 56146 | 80.3% |
 | MARKDOWN | 29 | 0 | 13.0% |
 | YAML | 8 | 482 | 3.6% |
 | PLAINTEXT | 6 | 0 | 2.7% |
@@ -136,8 +136,8 @@
 | State Flux Exposure | 0.0 | 100.0 | 8.2 | 0.0 | 0.0 |
 | Commented Logic Exposure | 0.0 | 9.8 | 0.2 | 0.0 | 0.0 |
 | Specification Exposure | 0.0 | 100.0 | 15.7 | 0.0 | 0.0 |
-| Instability Exposure | 0.0 | 33.2 | 1.0 | 0.0 | 0.0 |
-| Volatility Exposure | 0.0 | 79.3 | 7.0 | 0.0 | 0.0 |
+| Instability Exposure | 0.0 | 33.2 | 0.9 | 0.0 | 0.0 |
+| Volatility Exposure | 0.0 | 79.7 | 7.0 | 0.0 | 0.0 |
 | Documentation Exposure | 0.0 | 100.0 | 5.1 | 0.0 | 0.0 |
 | Algorithmic DoS Exposure | 0.0 | 100.0 | 8.5 | 0.0 | 0.0 |
 | Obfuscation & Evasion Surface | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
@@ -173,9 +173,10 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 8. CORE FUNCTION HITLIST (Heaviest Functions)
 > *Note: The 'Impact' metric below represents Structural Magnitude (complexity, arguments, and length), NOT operational risk. These are the load-bearing pillars of the logic.*
 
-- `_process_file_worker` (@ `gitgalaxy/galaxyscope.py`) -> Impact: **7419.7** | LOC: 2794
+- `_process_file_worker` (@ `gitgalaxy/galaxyscope.py`) -> Impact: **7434.0** | LOC: 2800
 - `ipc_rpc_bridges` (@ `gitgalaxy/standards/language_standards.py`) -> Impact: **1913.2** | LOC: 679
 - `_resolve_target` (@ `gitgalaxy/core/network_risk_sensor.py`) -> Impact: **1561.8** | LOC: 372
+- `_parse_pyproject_toml` (@ `gitgalaxy/security/manifest_parser.py`) -> Impact: **1175.2** | LOC: 404
 - `audit` (@ `gitgalaxy/metrics/statistical_auditor.py`) -> Impact: **1026.0** | LOC: 361
 - `foo` (@ `tests/core_engine/test_language_standards_strict.py`) -> Impact: **806.5** | LOC: 1249
   * *Intent:* # sanity: all still match their real positive cases after the sweep assert ZIG_RULES["func_start"].search("pub fn main() void {") assert ZIG_RULES["cl...
@@ -186,7 +187,6 @@ These files pull in the most external dependencies. They are highly coupled and 
 - `_compile_regex_matrix` (@ `gitgalaxy/core/prism.py`) -> Impact: **565.4** | LOC: 396
   * *Intent:* # 4. GENERIC STRIPPER pattern = self.REGEX_MATRIX.get(family) if not pattern: # Restore mask tokens before returning if no pattern is registered code ...
 - `closures` (@ `gitgalaxy/standards/language_standards.py`) -> Impact: **514.6** | LOC: 493
-- `slice_manifest` (@ `gitgalaxy/security/manifest_parser.py`) -> Impact: **505.6** | LOC: 173
 
 ## 8.5 ALGORITHMIC & DATABASE BOTTLENECKS
 > Highlights the most computationally expensive and database-heavy functions across the repository.
@@ -209,13 +209,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 - `_process_file_worker` (@ `gitgalaxy/galaxyscope.py`) -> DB Complexity: **121**
 - `foo` (@ `tests/core_engine/test_language_standards_strict.py`) -> DB Complexity: **107**
   * *Intent:* # sanity: all still match their real positive cases after the sweep assert ZIG_RULES["func_start"].search("pub fn main() void {") assert ZIG_RULES["cl...
+- `_parse_pyproject_toml` (@ `gitgalaxy/security/manifest_parser.py`) -> DB Complexity: **74**
 - `test_git_null_byte_path_injection` (@ `tests/core_engine/test_galaxyscope.py`) -> DB Complexity: **50**
   * *Intent:* # When entering the context manager, return our mock instance # Mock Path.exists to pass the initial validation check with patch("gitgalaxy.galaxyscop...
 - `generate_build_jcl` (@ `gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py`) -> DB Complexity: **34**
 - `generate_rest_controller` (@ `gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py`) -> DB Complexity: **34**
   * *Intent:* """Generates the API endpoints and auto-wires the Service layer."""
 - `publish_insights` (@ `templates/bitbucket/bitbucket_insights.py`) -> DB Complexity: **34**
-- `slice_manifest` (@ `gitgalaxy/security/manifest_parser.py`) -> DB Complexity: **32**
 - `generate_java_entity` (@ `gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py`) -> DB Complexity: **31**
 - `main` (@ `gitgalaxy/tools/network_auditing/full_api_network_map.py`) -> DB Complexity: **26**
 - `audit` (@ `gitgalaxy/metrics/statistical_auditor.py`) -> DB Complexity: **22**
@@ -223,15 +223,15 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)
 | Folder Path | Files | Total Impact | Avg Cog Load | Avg Debt |
 |---|---|---|---|---|
-| `gitgalaxy` | 6 | 8326.4 | 8.61% | 0.0% |
-| `tests/core_engine` | 16 | 6995.06 | 2.92% | 0.0% |
+| `gitgalaxy` | 6 | 8340.78 | 8.61% | 0.0% |
+| `tests/core_engine` | 16 | 7006.78 | 2.9% | 0.0% |
 | `tests/extraction/languages` | 44 | 4896.21 | 3.03% | 0.0% |
 | `gitgalaxy/standards` | 8 | 4196.58 | 9.66% | 18.61% |
 | `gitgalaxy/core` | 9 | 3974.92 | 14.81% | 4.06% |
+| `gitgalaxy/security` | 5 | 2204.0 | 14.49% | 0.0% |
 | `gitgalaxy/metrics` | 5 | 2199.8 | 17.02% | 4.57% |
 | `tests/security_auditing` | 15 | 1556.42 | 2.0% | 0.0% |
-| `gitgalaxy/security` | 5 | 1511.46 | 12.13% | 0.0% |
-| `gitgalaxy/recorders` | 8 | 1289.22 | 20.95% | 1.81% |
+| `gitgalaxy/recorders` | 8 | 1289.34 | 20.96% | 1.81% |
 | `tests/extraction` | 7 | 1115.44 | 4.24% | 0.0% |
 
 ## 10. TARGETED RISK VECTORS (Top 5 by Exposure)
@@ -282,13 +282,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### ☢️ X-Ray & 🧱 Supply Chain Firewall
 - **Binary Anomalies (X-Ray):** `0` (High entropy, packed payloads, or magic byte mismatches).
 - **Blacklisted Dependencies:** `0` explicitly banned packages imported.
-- **Unknown Dependencies:** `1191` packages imported that bypass the Zero-Trust whitelist.
+- **Unknown Dependencies:** `1192` packages imported that bypass the Zero-Trust whitelist.
 
 ## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)
 > Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.
 
-### 1. `gitgalaxy/core/spatial_mapper.py` (PYTHON) -> Cumulative Risk: **740.31**
-- **Archetype:** `file_cluster_13` (Distance: 11.405 IQR)
+### 1. `gitgalaxy/core/spatial_mapper.py` (PYTHON) -> Cumulative Risk: **740.3**
+- **Archetype:** `file_cluster_13` (Distance: 11.404 IQR)
 - **Magnitude:** 254.06 | **LOC:** 230 | **CtrlFlow:** 61.7% | **Authorship Centralization:** 63.6%
 - **Primary Risk Drivers:** Spec Match (100.0%), Documentation (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%)
 - **Heaviest Functions:** `map_repository` (Impact: 189.1), `__init__` (Impact: 11.5), `_hash_jitter` (Impact: 8.6)
@@ -299,19 +299,19 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), State Flux (99.3259%)
 - **Heaviest Functions:** `audit` (Impact: 1026.0), `_is_dead_code` (Impact: 26.1), `_is_threat` (Impact: 25.9)
 
-### 3. `gitgalaxy/metrics/chronometer.py` (PYTHON) -> Cumulative Risk: **670.81**
-- **Archetype:** `file_cluster_13` (Distance: 11.682 IQR)
+### 3. `gitgalaxy/metrics/chronometer.py` (PYTHON) -> Cumulative Risk: **670.78**
+- **Archetype:** `file_cluster_13` (Distance: 11.681 IQR)
 - **Magnitude:** 639.08 | **LOC:** 458 | **CtrlFlow:** 60.6% | **Authorship Centralization:** 78.6%
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), State Flux (94.9042%)
 - **Heaviest Functions:** `_load_ignored_revs` (Impact: 448.1), `_determine_commit_bounds` (Impact: 112.5), `_initialize_history_scan` (Impact: 33.3)
 
-### 4. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **666.5**
+### 4. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **666.53**
 - **Archetype:** `file_cluster_16` (Distance: 12.12 IQR)
 - **Magnitude:** 909.92 | **LOC:** 744 | **CtrlFlow:** 63.0% | **Authorship Centralization:** 88.2%
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), State Flux (99.9826%)
 - **Heaviest Functions:** `_compile_regex_matrix` (Impact: 565.4), `split_streams` (Impact: 125.2), `_strip_segment_comments` (Impact: 59.7)
 
-### 5. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **657.48**
+### 5. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **657.51**
 - **Archetype:** `file_cluster_13` (Distance: 10.964 IQR)
 - **Magnitude:** 358.6 | **LOC:** 434 | **CtrlFlow:** 50.9% | **Authorship Centralization:** 63.6%
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), State Flux (97.3782%)
@@ -323,42 +323,42 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** None
 - **Heaviest Functions:** `_merge_value` (Impact: 74.3), `_load_yaml_section` (Impact: 32.9), `_get_default` (Impact: 20.4)
 
-### 7. `gitgalaxy/galaxyscope.py` (PYTHON) -> Cumulative Risk: **649.02**
-- **Archetype:** `file_cluster_8` (Distance: 12.502 IQR)
-- **Magnitude:** 7653.96 | **LOC:** 3044 | **CtrlFlow:** 70.9% | **Authorship Centralization:** 88.9%
+### 7. `gitgalaxy/galaxyscope.py` (PYTHON) -> Cumulative Risk: **649.03**
+- **Archetype:** `file_cluster_8` (Distance: 12.506 IQR)
+- **Magnitude:** 7668.34 | **LOC:** 3050 | **CtrlFlow:** 71.0% | **Authorship Centralization:** 89.1%
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), Verification (80.0%)
-- **Heaviest Functions:** `_process_file_worker` (Impact: 7419.7), `execution_timeout_failsafe` (Impact: 1.9), `_init_worker` (Impact: 1.4)
+- **Heaviest Functions:** `_process_file_worker` (Impact: 7434.0), `execution_timeout_failsafe` (Impact: 1.9), `_init_worker` (Impact: 1.4)
 
-### 8. `gitgalaxy/core/network_risk_sensor.py` (PYTHON) -> Cumulative Risk: **637.25**
+### 8. `gitgalaxy/core/network_risk_sensor.py` (PYTHON) -> Cumulative Risk: **637.28**
 - **Archetype:** `file_cluster_13` (Distance: 11.326 IQR)
 - **Magnitude:** 1624.12 | **LOC:** 442 | **CtrlFlow:** 68.1% | **Authorship Centralization:** 81.8%
 - **Primary Risk Drivers:** Spec Match (100.0%), Algorithmic Dos (100.0%), Logic Bomb (100.0%), Verification (80.0%)
 - **Heaviest Functions:** `_resolve_target` (Impact: 1561.8), `_build_resolution_map` (Impact: 25.9), `__init__` (Impact: 7.9)
 
-### 9. `gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py` (PYTHON) -> Cumulative Risk: **631.26**
+### 9. `gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py` (PYTHON) -> Cumulative Risk: **631.25**
 - **Archetype:** `Unknown Archetype` (Distance: N/A IQR)
 - **Magnitude:** 0.34 | **LOC:** 215 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
 - **Primary Risk Drivers:** None
 - **Heaviest Functions:** `flatten_copybooks` (Impact: 184.3), `generate_build_jcl` (Impact: 34.5), `main` (Impact: 23.0)
 
-### 10. `gitgalaxy/recorders/sbom_recorder.py` (PYTHON) -> Cumulative Risk: **629.38**
-- **Archetype:** `file_cluster_13` (Distance: 10.605 IQR)
-- **Magnitude:** 196.62 | **LOC:** 351 | **CtrlFlow:** 51.9% | **Authorship Centralization:** 100.0%
-- **Primary Risk Drivers:** Spec Match (100.0%), Logic Bomb (100.0%), Algorithmic Dos (99.9999%), State Flux (97.3595%)
-- **Heaviest Functions:** `_audit_with_cache` (Impact: 151.3), `generate_report` (Impact: 1.9), `__init__` (Impact: 1.8)
+### 10. `gitgalaxy/security/dependency_audit_cache.py` (PYTHON) -> Cumulative Risk: **627.61**
+- **Archetype:** `Unknown Archetype` (Distance: N/A IQR)
+- **Magnitude:** 84.18 | **LOC:** 141 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
+- **Primary Risk Drivers:** None
+- **Heaviest Functions:** `hash_file` (Impact: 24.6), `close` (Impact: 14.2), `__init__` (Impact: 12.5)
 
 ## 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files)
 > *Note: 'Magnitude' represents the file's total Structural Magnitude and impact within the system. It is independent of its Risk Profile. High magnitude implies high structural importance and centralization.*
 
 ### `gitgalaxy/galaxyscope.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
-- **Global Archetype:** `file_cluster_8` (Drift: 12.502 IQR)
-- **Local Micro-Species:** `Cluster 1: Declarative Glue & Initialization` (Drift: 4.579 IQR)
-- **Top Global Matches:** file_cluster_8: 12.502, file_cluster_13: 12.618, file_cluster_7: 12.88
-- **Magnitude:** 7653.96 | **LOC:** 3044 | **CtrlFlow:** 70.9% | **Authorship Centralization:** 88.9%
+- **Global Archetype:** `file_cluster_8` (Drift: 12.506 IQR)
+- **Local Micro-Species:** `Cluster 1: Declarative Glue & Initialization` (Drift: 4.575 IQR)
+- **Top Global Matches:** file_cluster_8: 12.506, file_cluster_13: 12.623, file_cluster_7: 12.884
+- **Magnitude:** 7668.34 | **LOC:** 3050 | **CtrlFlow:** 71.0% | **Authorship Centralization:** 89.1%
 - **Algorithmic:** O(2^N) [Recursive] | **DB Complexity:** 121
-- **Risk Profile:** Cognitive Load (20.7687%), Tech Debt (0.0%)
+- **Risk Profile:** Cognitive Load (20.7487%), Tech Debt (0.0%)
 **Top Internal Functions/Classes:**
-  * `_process_file_worker` (Impact: 7419.7 | O(2^N) | DB: 121)
+  * `_process_file_worker` (Impact: 7434.0 | O(2^N) | DB: 121)
   * `execution_timeout_failsafe` (Impact: 1.9 | O(N^1))
     * *Intent:* """ Hardware-level OS interrupt for Catastrophic Backtracking (ReDoS) protection. Registered via the...
   * `_init_worker` (Impact: 1.4 | O(N^1))
@@ -366,14 +366,14 @@ These files pull in the most external dependencies. They are highly coupled and 
 **Contextual Mitigations & Amplifications:**
 * *Sec High Risk Execution:* 1 instances
 **Structural Signatures (Net Mitigated Signals):**
-* *Structure:* `branch: 527`, `structural_boundaries: 216`, `args: 32`, `func_start: 23`, `class_start: 1`
+* *Structure:* `branch: 528`, `structural_boundaries: 216`, `args: 32`, `func_start: 23`, `class_start: 1`
 * *Risk/State:* `safety_bypasses: 77`, `state_mutation: 182`
 * *Architecture:* `io: 13`, `api: 6`, `concurrency: 3`, `import: 63`
 * *Defense:* `safety: 73`, `doc: 36`, `test: 2`, `cleanup: 6`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 5.925
+  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 5.933
   * `Choke Point (Betweenness):` 0.001753 | `Ripple Effect (Closeness):` 0.013514
-  * `Imports (Out-Degree: 30):` gitgalaxy.metrics.chronometer, gitgalaxy.recorders.sarif_recorder, gitgalaxy.standards.config_resolver, gitgalaxy.security.manifest_parser, sys, os, graphs, shutil...
+  * `Imports (Out-Degree: 30):` gitgalaxy.recorders.sbom_recorder, gitgalaxy.recorders.record_keeper, gitgalaxy.licensing, gitgalaxy.core.network_risk_sensor, gitgalaxy.metrics.chronometer, gitgalaxy.recorders.llm_recorder, gitgalaxy.security.security_auditor, gitgalaxy.standards.analysis_lens...
   * `Imported By (In-Degree: 3):` (Excluded from Brief to save tokens)
 
 ### `tests/core_engine/test_language_standards_strict.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -396,7 +396,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` streamlit, sys, com.example.gradle.Plugin, Brick, mypackage.MyClass, os, url, time...
+  * `Imports (Out-Degree: 0):` java.util.List, com.example.foo.Bar, shapes, pytest, com.example.gradle.Plugin, re, machine, ulab...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/standards/language_standards.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -420,7 +420,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` path, keyword., was, type, inside, scala.util.chaining., re, java.util....
+  * `Imports (Out-Degree: 0):` scala.util., keyword., type, typing, path, was, form, scala.util.chaining....
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/core/network_risk_sensor.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -440,15 +440,39 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 1`, `api: 4`, `import: 10`
 * *Defense:* `safety: 21`, `doc: 10`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 6.304
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 6.312
   * `Choke Point (Betweenness):` 2.7e-05 | `Ripple Effect (Closeness):` 0.018018
-  * `Imports (Out-Degree: 1):` warnings, token, networkx.algorithms, pathlib, gitgalaxy.standards.analysis_lens, collections, networkx, logging...
+  * `Imports (Out-Degree: 1):` networkx.algorithms, typing, pathlib, gitgalaxy.standards.analysis_lens, collections, networkx, token, warnings...
   * `Imported By (In-Degree: 3):` (Excluded from Brief to save tokens)
+
+### `gitgalaxy/security/manifest_parser.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
+- **Global Archetype:** `Unknown Archetype` (Drift: N/A IQR)
+- **Magnitude:** 1579.4 | **LOC:** 748 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
+- **Algorithmic:** O(N) | **DB Complexity:** 0
+- **Risk Profile:** Cognitive Load (0.0%), Tech Debt (0.0%)
+**Top Internal Functions/Classes:**
+  * `_parse_pyproject_toml` (Impact: 1175.2 | O(N^6) | DB: 74)
+  * `_parse_requirements_txt` (Impact: 170.3 | O(N^6) | DB: 6)
+    * *Intent:* # DEFENSIVE GUARD: Registry Spoofing # If the resolved URL points to a non-standard domain or a dire...
+  * `_parse_package_json` (Impact: 67.5 | O(N^5) | DB: 3)
+  * `build_resolution_map` (Impact: 64.4 | O(N^5))
+    * *Intent:* # Matches standard Python packages, extracting the base name and dropping version constraints (==, >...
+  * `_parse_package_lock` (Impact: 49.1 | O(N^5) | DB: 3)
+**Structural Signatures (Net Mitigated Signals):**
+* *Structure:* None
+* *Risk/State:* None
+* *Architecture:* None
+* *Defense:* None
+* *Network Topology:*
+  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
+  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
+  * `Imports (Out-Degree: 0):` os, json, typing, pathlib, re, logging
+  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/metrics/statistical_auditor.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 11.262 IQR)
 - **Local Micro-Species:** `Cluster 1: Declarative Glue & Initialization` (Drift: 4.422 IQR)
-- **Top Global Matches:** file_cluster_8: 11.262, file_cluster_16: 11.428, file_cluster_13: 11.468
+- **Top Global Matches:** file_cluster_8: 11.262, file_cluster_16: 11.427, file_cluster_13: 11.468
 - **Magnitude:** 1175.2 | **LOC:** 536 | **CtrlFlow:** 70.2% | **Authorship Centralization:** 62.5%
 - **Algorithmic:** O(2^N) [Recursive] | **DB Complexity:** 22
 - **Risk Profile:** Cognitive Load (39.0051%), Tech Debt (0.0%)
@@ -467,9 +491,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 2`, `api: 3`, `import: 5`
 * *Defense:* `safety: 9`, `doc: 14`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.672
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.679
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.014077
-  * `Imports (Out-Degree: 0):` statistics, os, logging, typing, math
+  * `Imports (Out-Degree: 0):` os, typing, statistics, logging, math
   * `Imported By (In-Degree: 2):` (Excluded from Brief to save tokens)
 
 ### `gitgalaxy/standards/language_lens.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -492,7 +516,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` pathlib, time, re, gitgalaxy.standards.gitgalaxy_config, logging, gitgalaxy.standards.language_standards, typing, math
+  * `Imports (Out-Degree: 0):` typing, pathlib, gitgalaxy.standards.language_standards, time, re, logging, math, gitgalaxy.standards.gitgalaxy_config
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/core/prism.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -517,34 +541,10 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 12`, `import: 4`
 * *Defense:* `safety: 4`, `doc: 34`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.491
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.497
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.018018
-  * `Imports (Out-Degree: 1):` logging, gitgalaxy.standards.language_standards, re, typing
+  * `Imports (Out-Degree: 1):` re, logging, gitgalaxy.standards.language_standards, typing
   * `Imported By (In-Degree: 3):` (Excluded from Brief to save tokens)
-
-### `gitgalaxy/security/manifest_parser.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
-- **Global Archetype:** `Unknown Archetype` (Drift: N/A IQR)
-- **Magnitude:** 886.86 | **LOC:** 398 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
-- **Algorithmic:** O(N) | **DB Complexity:** 0
-- **Risk Profile:** Cognitive Load (0.0%), Tech Debt (0.0%)
-**Top Internal Functions/Classes:**
-  * `slice_manifest` (Impact: 505.6 | O(N^6) | DB: 32)
-  * `_parse_requirements_txt` (Impact: 170.3 | O(N^6) | DB: 6)
-    * *Intent:* # DEFENSIVE GUARD: Registry Spoofing # If the resolved URL points to a non-standard domain or a dire...
-  * `_parse_package_json` (Impact: 67.5 | O(N^5) | DB: 3)
-  * `_parse_package_lock` (Impact: 49.1 | O(N^5) | DB: 3)
-  * `build_resolution_map` (Impact: 48.5 | O(N^5))
-    * *Intent:* # Matches standard Python packages, extracting the base name and dropping version constraints (==, >...
-**Structural Signatures (Net Mitigated Signals):**
-* *Structure:* None
-* *Risk/State:* None
-* *Architecture:* None
-* *Defense:* None
-* *Network Topology:*
-  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
-  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` json, pathlib, os, re, logging, typing
-  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/core/detector.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 11.345 IQR)
@@ -569,9 +569,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 14`, `concurrency: 1`, `import: 12`
 * *Defense:* `safety: 39`, `doc: 73`, `test: 2`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.281
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.286
   * `Choke Point (Betweenness):` 8.8e-05 | `Ripple Effect (Closeness):` 0.018018
-  * `Imports (Out-Degree: 3):` tiktoken, gitgalaxy.standards.analysis_lens, bisect, time, gitgalaxy.core.spatial_correlation, collections, re, logging...
+  * `Imports (Out-Degree: 3):` typing, gitgalaxy.standards.analysis_lens, tiktoken, collections, gitgalaxy.standards.language_standards, bisect, gitgalaxy.core.spatial_correlation, time...
   * `Imported By (In-Degree: 3):` (Excluded from Brief to save tokens)
 
 ### `tests/core_engine/test_galaxyscope.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -596,7 +596,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` sys, os, or, name, passes, concurrent.futures, gitgalaxy.core.aperture, unittest.mock...
+  * `Imports (Out-Degree: 0):` gitgalaxy.galaxyscope, name, gitgalaxy.standards.analysis_lens, yaml, unittest.mock, re, tempfile, logging...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/recorders/llm_recorder.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -619,9 +619,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 2`, `api: 4`, `concurrency: 12`, `import: 10`
 * *Defense:* `safety: 13`, `doc: 27`, `cleanup: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.672
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.679
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.014077
-  * `Imports (Out-Degree: 0):` statistics, sqlite3, heapq, json, pathlib, collections, gitgalaxy.standards, logging...
+  * `Imports (Out-Degree: 0):` sqlite3, heapq, json, typing, pathlib, statistics, collections, gitgalaxy.standards...
   * `Imported By (In-Degree: 2):` (Excluded from Brief to save tokens)
 
 ### `tests/extraction/languages/test_yacc.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -637,13 +637,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` sys, extraction._extraction_harness, pathlib, gitgalaxy.standards.language_standards, pytest
+  * `Imports (Out-Degree: 0):` pytest, pathlib, sys, gitgalaxy.standards.language_standards, extraction._extraction_harness
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/metrics/chronometer.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
-- **Global Archetype:** `file_cluster_13` (Drift: 11.682 IQR)
+- **Global Archetype:** `file_cluster_13` (Drift: 11.681 IQR)
 - **Local Micro-Species:** `Cluster 1: Declarative Glue & Initialization` (Drift: 5.08 IQR)
-- **Top Global Matches:** file_cluster_13: 11.682, file_cluster_8: 11.695, file_cluster_16: 11.939
+- **Top Global Matches:** file_cluster_13: 11.681, file_cluster_8: 11.694, file_cluster_16: 11.938
 - **Magnitude:** 639.08 | **LOC:** 458 | **CtrlFlow:** 60.6% | **Authorship Centralization:** 78.6%
 - **Algorithmic:** O(2^N) [Recursive] | **DB Complexity:** 12
 - **Risk Profile:** Cognitive Load (14.2661%), Tech Debt (14.7229%)
@@ -660,9 +660,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 8`, `api: 3`, `import: 8`
 * *Defense:* `safety: 18`, `doc: 18`, `test: 1`, `cleanup: 2`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 5.672
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 5.679
   * `Choke Point (Betweenness):` 2e-05 | `Ripple Effect (Closeness):` 0.014077
-  * `Imports (Out-Degree: 1):` gitgalaxy.standards.config_resolver, pathlib, subprocess, os, shutil, time, gitgalaxy.standards, logging...
+  * `Imports (Out-Degree: 1):` os, subprocess, typing, pathlib, gitgalaxy.standards.config_resolver, time, gitgalaxy.standards, shutil...
   * `Imported By (In-Degree: 2):` (Excluded from Brief to save tokens)
 
 ### `tests/extraction/languages/test_makefile.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -678,7 +678,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` only, sys, pathlib, _extraction_harness, gitgalaxy.standards.language_standards, typing, pytest
+  * `Imports (Out-Degree: 0):` only, pytest, pathlib, sys, typing, _extraction_harness, gitgalaxy.standards.language_standards
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/core_engine/test_detector.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -703,7 +703,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` unittest.mock, gitgalaxy.core.spatial_mapper, gitgalaxy.core.prism, gitgalaxy.core.detector, re, gitgalaxy.standards.gitgalaxy_config, logging, gitgalaxy.standards.language_standards...
+  * `Imports (Out-Degree: 0):` gitgalaxy.core.spatial_mapper, pytest, unittest.mock, gitgalaxy.core.detector, gitgalaxy.standards.language_standards, re, gitgalaxy.core.prism, logging...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/security/security_auditor.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -724,7 +724,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` xgboost, pathlib, gitgalaxy.standards.analysis_lens, numpy, collections, pandas, networkx, logging...
+  * `Imports (Out-Degree: 0):` typing, pathlib, gitgalaxy.standards.analysis_lens, collections, numpy, pandas, xgboost, networkx...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/extraction/test_args_extraction_strict.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -756,7 +756,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` only, com.example.MyClass, sys, java.util.List, pathlib, statement, _extraction_harness, static...
+  * `Imports (Out-Degree: 0):` statement, java.util.List, only, pytest, pathlib, sys, typing, _extraction_harness...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/extraction/languages/test_scheme.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -772,7 +772,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` sys, pathlib, _extraction_harness, gitgalaxy.standards.language_standards, pytest
+  * `Imports (Out-Degree: 0):` pytest, pathlib, _extraction_harness, sys, gitgalaxy.standards.language_standards
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/dead_key_audit.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -796,7 +796,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` sys, json, pathlib, ast, argparse, typing
+  * `Imports (Out-Degree: 0):` json, sys, pathlib, typing, argparse, ast
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/cobol_refractor_controller.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -822,9 +822,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 4`, `api: 9`, `import: 17`
 * *Defense:* `safety: 4`, `doc: 10`, `cleanup: 3`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 5.504
+  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 5.511
   * `Choke Point (Betweenness):` 0.000183 | `Ripple Effect (Closeness):` 0.004505
-  * `Imports (Out-Degree: 9):` typing, sqlite3, sys, gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor, json, gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge, pathlib, gitgalaxy.tools.cobol_to_cobol.cobol_microservice_slicer...
+  * `Imports (Out-Degree: 9):` sqlite3, gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder, json, gitgalaxy.licensing, sys, pathlib, typing, gitgalaxy.tools.cobol_to_cobol.cobol_jcl_auditor...
   * `Imported By (In-Degree: 1):` (Excluded from Brief to save tokens)
 
 ### `gitgalaxy/cobol_to_java_controller.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -849,9 +849,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 3`, `api: 4`, `import: 12`
 * *Defense:* `safety: 6`, `doc: 8`, `test: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 2.975
+  * `Ecosystem Role:` Pure Consumer (Orchestrator) | `Dependency Blast Radius (PageRank):` 2.979
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 6):` gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge, sys, json, gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge, pathlib, gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge, org.slf4j.Logger, org.springframework.stereotype.Service...
+  * `Imports (Out-Degree: 6):` gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge, gitgalaxy.licensing, json, sys, pathlib, gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge, gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge, argparse...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/security_auditing/test_supply_chain_firewall.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
@@ -875,7 +875,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` yaml, unittest.mock, gitgalaxy.metrics.signal_processor, gitgalaxy.standards.config_resolver, sys, was, policy, json...
+  * `Imports (Out-Degree: 0):` policy, multiprocessing, json, gitgalaxy.tools.supply_chain_security.supply_chain_firewall, sys, pytest, pathlib, was...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `tests/core_engine/test_signal_processor.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
@@ -900,13 +900,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Network Topology:*
   * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` 0.0
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.0
-  * `Imports (Out-Degree: 0):` gitgalaxy.recorders.sarif_recorder, gitgalaxy.metrics.signal_processor, tempfile, which, json, identity, os, logging...
+  * `Imports (Out-Degree: 0):` os, which, json, identity, pytest, gitgalaxy.recorders.sarif_recorder, tempfile, logging...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/core/spatial_mapper.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
-- **Global Archetype:** `file_cluster_13` (Drift: 11.405 IQR)
+- **Global Archetype:** `file_cluster_13` (Drift: 11.404 IQR)
 - **Local Micro-Species:** `Cluster 1: Declarative Glue & Initialization` (Drift: 5.369 IQR)
-- **Top Global Matches:** file_cluster_13: 11.405, file_cluster_16: 11.467, file_cluster_8: 11.554
+- **Top Global Matches:** file_cluster_13: 11.404, file_cluster_16: 11.467, file_cluster_8: 11.553
 - **Magnitude:** 254.06 | **LOC:** 230 | **CtrlFlow:** 61.7% | **Authorship Centralization:** 63.6%
 - **Algorithmic:** O(N^6) | **DB Complexity:** 9
 - **Risk Profile:** Cognitive Load (30.5977%), Tech Debt (0.0%)
@@ -922,9 +922,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 4`, `import: 4`
 * *Defense:* `doc: 10`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 3.649
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 3.653
   * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.014077
-  * `Imports (Out-Degree: 0):` logging, hashlib, typing, math
+  * `Imports (Out-Degree: 0):` typing, logging, math, hashlib
   * `Imported By (In-Degree: 2):` (Excluded from Brief to save tokens)
 
 ## 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS
@@ -933,13 +933,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### Mixed-Responsibility Refactoring Targets for: file_cluster_13
 - `gitgalaxy/metrics/chronometer.py` (PYTHON) | Magnitude: 639.08 | Delta: **0.013 IQR** | Secondary Pull: `file_cluster_8`
   * Top Architectural Signatures: indent_spaces: 259, branch: 63, structural_boundaries: 41, state_mutation: 35
-- `gitgalaxy/core/spatial_mapper.py` (PYTHON) | Magnitude: 254.06 | Delta: **0.062 IQR** | Secondary Pull: `file_cluster_16`
+- `gitgalaxy/core/spatial_mapper.py` (PYTHON) | Magnitude: 254.06 | Delta: **0.063 IQR** | Secondary Pull: `file_cluster_16`
   * Top Architectural Signatures: indent_spaces: 128, branch: 29, state_mutation: 27, encapsulation: 23
-- `gitgalaxy/recorders/sbom_recorder.py` (PYTHON) | Magnitude: 196.62 | Delta: **0.089 IQR** | Secondary Pull: `file_cluster_8`
-  * Top Architectural Signatures: indent_spaces: 218, branch: 54, structural_boundaries: 50, state_mutation: 34
+- `gitgalaxy/recorders/sbom_recorder.py` (PYTHON) | Magnitude: 196.74 | Delta: **0.075 IQR** | Secondary Pull: `file_cluster_8`
+  * Top Architectural Signatures: indent_spaces: 223, branch: 56, structural_boundaries: 50, state_mutation: 34
 - `gitgalaxy/cobol_refractor_controller.py` (PYTHON) | Magnitude: 358.6 | Delta: **0.097 IQR** | Secondary Pull: `file_cluster_8`
   * Top Architectural Signatures: indent_spaces: 259, branch: 54, structural_boundaries: 52, state_mutation: 42
-- `gitgalaxy/metrics/tensor_scanner.py` (PYTHON) | Magnitude: 145.84 | Delta: **0.112 IQR** | Secondary Pull: `file_cluster_8`
+- `gitgalaxy/metrics/tensor_scanner.py` (PYTHON) | Magnitude: 145.84 | Delta: **0.111 IQR** | Secondary Pull: `file_cluster_8`
   * Top Architectural Signatures: indent_spaces: 80, structural_boundaries: 27, branch: 25, doc: 10
 
 ### Mixed-Responsibility Refactoring Targets for: file_cluster_16
@@ -949,15 +949,15 @@ These files pull in the most external dependencies. They are highly coupled and 
   * Top Architectural Signatures: indent_spaces: 133, branch: 32, generics: 27, structural_boundaries: 19
 
 ### Mixed-Responsibility Refactoring Targets for: file_cluster_8
-- `gitgalaxy/recorders/gpu_recorder.py` (PYTHON) | Magnitude: 144.34 | Delta: **0.074 IQR** | Secondary Pull: `file_cluster_16`
+- `gitgalaxy/recorders/gpu_recorder.py` (PYTHON) | Magnitude: 144.34 | Delta: **0.073 IQR** | Secondary Pull: `file_cluster_16`
   * Top Architectural Signatures: indent_spaces: 269, state_mutation: 95, branch: 41, explicit_casts: 33
 - `gitgalaxy/core/state_rehydrator.py` (PYTHON) | Magnitude: 20.0 | Delta: **0.088 IQR** | Secondary Pull: `file_cluster_13`
   * Top Architectural Signatures: indent_spaces: 54, structural_boundaries: 14, branch: 8, doc: 8
-- `gitgalaxy/galaxyscope.py` (PYTHON) | Magnitude: 7653.96 | Delta: **0.116 IQR** | Secondary Pull: `file_cluster_13`
-  * Top Architectural Signatures: indent_spaces: 1939, branch: 527, structural_boundaries: 216, state_mutation: 182
+- `gitgalaxy/galaxyscope.py` (PYTHON) | Magnitude: 7668.34 | Delta: **0.117 IQR** | Secondary Pull: `file_cluster_13`
+  * Top Architectural Signatures: indent_spaces: 1943, branch: 528, structural_boundaries: 216, state_mutation: 182
 - `gitgalaxy/core/guidestar_lens.py` (PYTHON) | Magnitude: 252.3 | Delta: **0.123 IQR** | Secondary Pull: `file_cluster_13`
   * Top Architectural Signatures: indent_spaces: 286, branch: 90, structural_boundaries: 53, encapsulation: 41
-- `gitgalaxy/metrics/statistical_auditor.py` (PYTHON) | Magnitude: 1175.2 | Delta: **0.166 IQR** | Secondary Pull: `file_cluster_16`
+- `gitgalaxy/metrics/statistical_auditor.py` (PYTHON) | Magnitude: 1175.2 | Delta: **0.165 IQR** | Secondary Pull: `file_cluster_16`
   * Top Architectural Signatures: indent_spaces: 325, branch: 85, state_mutation: 60, structural_boundaries: 36
 
 ## 13.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)
@@ -967,13 +967,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 These files are messy, complex, and modified frequently. They are the primary source of developer friction.
 
 - `gitgalaxy/recorders/llm_recorder.py` -> Churn: **64.94%** | Cog Load: 61.5445% | Debt: 0.0%
-- `action.yml` -> Churn: **54.12%** | Cog Load: 9.3427% | Debt: 99.876%
-- `bitbucket-pipelines.yml` -> Churn: **52.59%** | Cog Load: 35.9722% | Debt: 99.4071%
+- `action.yml` -> Churn: **54.07%** | Cog Load: 9.3427% | Debt: 99.876%
+- `bitbucket-pipelines.yml` -> Churn: **52.57%** | Cog Load: 35.9722% | Debt: 99.4071%
 
 ### 👤 Key Person Dependencies (High Impact + Siloed Knowledge)
 These are massive, load-bearing files written almost entirely by a single developer. They represent severe 'Bus Factor' risk.
 
-- `gitgalaxy/galaxyscope.py` -> **Joe Esquibel** (88.9% isolated ownership) | Magnitude: 7653.96
+- `gitgalaxy/galaxyscope.py` -> **Joe Esquibel** (89.1% isolated ownership) | Magnitude: 7668.34
 - `gitgalaxy/core/network_risk_sensor.py` -> **Joe Esquibel** (81.8% isolated ownership) | Magnitude: 1624.12
 - `gitgalaxy/core/prism.py` -> **Joe Esquibel** (88.2% isolated ownership) | Magnitude: 909.92
 - `gitgalaxy/core/detector.py` -> **Joe Esquibel** (88.2% isolated ownership) | Magnitude: 840.04
@@ -985,9 +985,9 @@ These are massive, load-bearing files written almost entirely by a single develo
 ### ☣️ Cascading State Flux (Betweenness * State Flux)
 These files act as structural bridges between components, but possess highly volatile, mutating state. They cause unpredictable side-effects for all downstream consumers.
 
-- `gitgalaxy/galaxyscope.py` -> **Severity: 0.14** (Bridge: 0.0018 * Flux: 79.6351%)
+- `gitgalaxy/galaxyscope.py` -> **Severity: 0.139** (Bridge: 0.0018 * Flux: 79.5168%)
 - `gitgalaxy/cobol_refractor_controller.py` -> **Severity: 0.018** (Bridge: 0.0002 * Flux: 97.3782%)
-- `gitgalaxy/recorders/sbom_recorder.py` -> **Severity: 0.016** (Bridge: 0.0002 * Flux: 97.3595%)
+- `gitgalaxy/recorders/sbom_recorder.py` -> **Severity: 0.014** (Bridge: 0.0001 * Flux: 96.9481%)
 - `gitgalaxy/core/detector.py` -> **Severity: 0.005** (Bridge: 0.0001 * Flux: 51.588%)
 - `gitgalaxy/security/security_auditor.py` -> **Severity: 0.005** (Bridge: 0.0 * Flux: 94.7128%)
 
@@ -1003,11 +1003,11 @@ These files are deeply embedded (1 or 2 hops from the entire codebase) but posse
 ### 🙈 Opaque Critical Nodes (Dependency Blast Radius * Doc Risk)
 These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but they lack human intent, documentation, or ownership metadata. Modifying them is flying blind.
 
-- `gitgalaxy/standards/config_resolver.py` -> **Severity: 2332.6** (Blast Radius: 23.326 * Doc Risk: 100.0%)
-- `gitgalaxy/standards/language_standards.py` -> **Severity: 1624.104** (Blast Radius: 92.308 * Doc Risk: 17.5944%)
-- `gitgalaxy/metrics/tensor_scanner.py` -> **Severity: 567.2** (Blast Radius: 5.672 * Doc Risk: 100.0%)
-- `gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py` -> **Severity: 550.4** (Blast Radius: 5.504 * Doc Risk: 100.0%)
-- `gitgalaxy/tools/network_auditing/full_api_network_map.py` -> **Severity: 547.548** (Blast Radius: 5.672 * Doc Risk: 96.5352%)
+- `gitgalaxy/standards/config_resolver.py` -> **Severity: 2335.6** (Blast Radius: 23.356 * Doc Risk: 100.0%)
+- `gitgalaxy/standards/language_standards.py` -> **Severity: 1619.494** (Blast Radius: 92.046 * Doc Risk: 17.5944%)
+- `gitgalaxy/metrics/tensor_scanner.py` -> **Severity: 567.9** (Blast Radius: 5.679 * Doc Risk: 100.0%)
+- `gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py` -> **Severity: 551.1** (Blast Radius: 5.511 * Doc Risk: 100.0%)
+- `gitgalaxy/tools/network_auditing/full_api_network_map.py` -> **Severity: 548.223** (Blast Radius: 5.679 * Doc Risk: 96.5352%)
 
 ## AI SYSTEM INSTRUCTIONS (OUTPUT FORMAT)
 > **CRITICAL TONE DIRECTIVE:** Act as a Principal Staff Engineer. Use grounded, professional software engineering terminology (e.g., coupling, cohesion, technical debt, single responsibility). DO NOT use sci-fi, dramatic, or sensational jargon (e.g., 'Trojan', 'violently violates', 'parasitic', 'chimeric'). Be objective, practical, and direct.

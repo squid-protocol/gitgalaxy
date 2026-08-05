@@ -12,8 +12,8 @@
             },
             "Target Root Name": "data",
             "Absolute Project Path": "/home/joe/nyx_projects/language-crucible/data",
-            "Analysis ISO Timestamp": "2026-08-05T00:41:22.287611+00:00",
-            "Total Scan Duration": "26.55 seconds"
+            "Analysis ISO Timestamp": "2026-08-05T01:00:29.961550+00:00",
+            "Total Scan Duration": "26.97 seconds"
         },
         "Source Control Footprint (Immutable Anchor)": {
             "Active Branch": "main",
@@ -34,7 +34,7 @@
         "repo_macro_species": {
             "name": "Cluster 3",
             "id": 3,
-            "z_score": 4.663,
+            "z_score": 4.668,
             "raw_drift": 0.624
         },
         "unparsable_files": {
@@ -196,7 +196,7 @@
             }
         },
         "health": {
-            "avg_cognitive_load": 24.208,
+            "avg_cognitive_load": 24.187,
             "avg_safety_score": 23.725,
             "avg_tech_debt": 29.581,
             "avg_documentation": 22.871
@@ -245,7 +245,7 @@
             "c": {
                 "files": 44,
                 "loc": 39353,
-                "impact": 65763.08
+                "impact": 65691.38
             },
             "batch": {
                 "files": 3,
@@ -471,12 +471,12 @@
         "ecosystem_fingerprint": {
             "ml_clusters": {
                 "file_cluster_8": {
-                    "count": 487,
-                    "pct": 52.1
+                    "count": 488,
+                    "pct": 52.2
                 },
                 "file_cluster_13": {
-                    "count": 206,
-                    "pct": 22.0
+                    "count": 205,
+                    "pct": 21.9
                 },
                 "file_cluster_0": {
                     "count": 74,
@@ -757,9 +757,9 @@
             },
             "cpp/godot": {
                 "file_count": 16,
-                "total_mass": 10409.78,
+                "total_mass": 10338.08,
                 "avg_exposures": {
-                    "cognitive_load": 52.92,
+                    "cognitive_load": 51.71,
                     "safety_score": 39.21,
                     "tech_debt": 42.48,
                     "verification": 45.58,
@@ -3423,8 +3423,8 @@
         "typosquat_hits": 8,
         "Global Architectural Fingerprint": {
             "Active Execution Logic (ML Clusters)": {
-                "file_cluster_8": "52.1% (487 files)",
-                "file_cluster_13": "22.0% (206 files)",
+                "file_cluster_8": "52.2% (488 files)",
+                "file_cluster_13": "21.9% (205 files)",
                 "file_cluster_0": "7.9% (74 files)",
                 "file_cluster_4": "3.0% (28 files)",
                 "file_cluster_16": "2.1% (20 files)",
@@ -3443,7 +3443,7 @@
         },
         "Repository Ecosystem Baseline (Architecture)": {
             "Classification": "Cluster 3",
-            "Architectural Drift (Z-Score)": 4.663
+            "Architectural Drift (Z-Score)": 4.668
         }
     },
     "3. Forensic Security & Vulnerability Audit": {
@@ -65923,15 +65923,15 @@
             }
         },
         "cpp/godot": {
-            "Directory Group Magnitude": 10409.78,
+            "Directory Group Magnitude": 10338.08,
             "File Count": 16,
             "Ecosystem Fingerprint (Archetypes)": {
-                "file_cluster_8": "43.8%",
-                "file_cluster_13": "37.5%",
+                "file_cluster_8": "50.0%",
+                "file_cluster_13": "31.2%",
                 "Static: Literature & Documentation": "18.8%"
             },
             "Average Risk Exposures": {
-                "Cognitive Load Exposure": "52.92%",
+                "Cognitive Load Exposure": "51.71%",
                 "Error & Exception Exposure": "39.21%",
                 "Tech Debt Exposure": "42.48%",
                 "Testing Exposure": "45.58%",
@@ -66271,32 +66271,32 @@
                         "Identity Proof": "Sibling Anchor (.c)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -817.53,
-                        "Y": -58.23,
-                        "Z": 3777.32
+                        "X": -945.82,
+                        "Y": -122.85,
+                        "Z": 2630.21
                     },
                     "3. Architectural Profile": {
-                        "Repository Archetype": "file_cluster_13",
-                        "Repository Drift (Z-Score)": 12.302,
+                        "Repository Archetype": "file_cluster_8",
+                        "Repository Drift (Z-Score)": 12.258,
                         "Repository Fingerprint": {
-                            "file_cluster_0": 12.56,
-                            "file_cluster_1": 12.987,
-                            "file_cluster_2": 13.071,
-                            "file_cluster_3": 13.813,
-                            "file_cluster_4": 12.784,
-                            "file_cluster_5": 13.437,
-                            "file_cluster_6": 12.991,
-                            "file_cluster_7": 12.635,
-                            "file_cluster_8": 12.315,
-                            "file_cluster_9": 12.711,
-                            "file_cluster_10": 13.814,
-                            "file_cluster_11": 12.667,
-                            "file_cluster_12": 12.716,
-                            "file_cluster_13": 12.302,
-                            "file_cluster_14": 16.321,
-                            "file_cluster_15": 13.301,
-                            "file_cluster_16": 12.975,
-                            "file_cluster_17": 12.799
+                            "file_cluster_0": 12.526,
+                            "file_cluster_1": 12.962,
+                            "file_cluster_2": 13.043,
+                            "file_cluster_3": 13.794,
+                            "file_cluster_4": 12.755,
+                            "file_cluster_5": 13.426,
+                            "file_cluster_6": 12.971,
+                            "file_cluster_7": 12.616,
+                            "file_cluster_8": 12.258,
+                            "file_cluster_9": 12.683,
+                            "file_cluster_10": 13.803,
+                            "file_cluster_11": 12.644,
+                            "file_cluster_12": 12.695,
+                            "file_cluster_13": 12.281,
+                            "file_cluster_14": 16.291,
+                            "file_cluster_15": 13.291,
+                            "file_cluster_16": 12.948,
+                            "file_cluster_17": 12.766
                         },
                         "File Archetype": "Cluster 0: Defensive Downstream Logic & Immutable State",
                         "File Drift (Z-Score)": 5.648,
@@ -66310,19 +66310,19 @@
                         "Total LOC": 1155,
                         "Coding LOC": 597,
                         "Documentation LOC": 387,
-                        "Structural Magnitude": 532.14,
+                        "Structural Magnitude": 460.44,
                         "Control Flow Ratio": "13.5%",
                         "Popularity Rank": 2,
                         "Raw Churn Frequency": 0.0,
                         "Authorship Centralization": 0.0,
                         "Ownership Entropy": 0.0,
-                        "Raw Cognitive Density": 1.058
+                        "Raw Cognitive Density": 0.757
                     },
                     "4. Vulnerability & Risk Exposures": {
-                        "Cognitive Load Exposure": "56.44%",
+                        "Cognitive Load Exposure": "36.97%",
                         "Error & Exception Exposure": "9.97%",
                         "Tech Debt Exposure": "62.6%",
-                        "Testing Exposure": "2.38%",
+                        "Testing Exposure": "2.33%",
                         "API Exposure": "14.22%",
                         "Concurrency Exposure": "0.0%",
                         "State Flux Exposure": "56.61%",
@@ -66335,16 +66335,6 @@
                         "Hardcoded Payload Artifacts": "0.0%"
                     },
                     "5. Function Analysis": [
-                        {
-                            "Function Name": "initialize_class",
-                            "Structural Impact": 71.7,
-                            "Lines of Code (LOC)": 464,
-                            "Control Flow Branches": 27,
-                            "Input Parameters": 2,
-                            "Control Flow Ratio": "12.6%",
-                            "Start Line": 287,
-                            "End Line": 750
-                        },
                         {
                             "Function Name": "_instance_binding_reference",
                             "Structural Impact": 5.7,
@@ -73168,9 +73158,9 @@
                         "Identity Proof": "Sibling Anchor (C++)"
                     },
                     "2. Topological Coordinates": {
-                        "X": -943.85,
-                        "Y": -71.48,
-                        "Z": 2594.87
+                        "X": -814.84,
+                        "Y": -6.69,
+                        "Z": 3742.72
                     },
                     "3. Architectural Profile": {
                         "Repository Archetype": "file_cluster_13",

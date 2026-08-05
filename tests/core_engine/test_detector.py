@@ -215,6 +215,77 @@ def test_detector_class_extraction_and_state_entanglement():
     assert cls["state_entanglement"] > 0.0, "State entanglement failed to register mutations!"
 
 
+def test_detector_nested_class_does_not_truncate_outer_scope_braces():
+    """
+    #1040: the class-scoping logic used to end a class's scope at the
+    *next* class-declaration match, so a nested class's own `class` keyword
+    truncated its enclosing class's scope early -- silently dropping every
+    method declared after the nested class from the outer class's
+    method_count. Verifies brace-depth tracking fixes this for brace-style
+    languages, and that the nested class's own method isn't double-counted
+    into the outer class too.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "class Outer {\n"
+        "    void method1() { }\n"
+        "\n"
+        "    class Inner {\n"
+        "        void innerMethod() { }\n"
+        "    }\n"
+        "\n"
+        "    void method2() { }\n"
+        "}\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    classes_by_name = {c["name"]: c for c in result["classes"]}
+    assert set(classes_by_name) == {"Outer", "Inner"}, "Failed to extract both the outer and nested class!"
+
+    assert classes_by_name["Outer"]["method_count"] == 2, (
+        "method2 (declared after the nested class) was dropped from Outer's method_count!"
+    )
+    assert classes_by_name["Inner"]["method_count"] == 1
+
+    outer_methods = [f["name"] for f in result["functions"] if f.get("parent_class_name") == "Outer"]
+    assert "innerMethod" not in outer_methods, "Inner's method was double-counted into Outer's method list!"
+
+
+def test_detector_nested_class_does_not_truncate_outer_scope_indentation():
+    """
+    Same #1040 regression, for indentation-scoped languages (Python): a
+    nested class's dedent-tracked scope must not truncate the outer
+    class's own scope the way the old flat "next class match" boundary did.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "class Outer:\n"
+        "    def method1(self):\n"
+        "        pass\n"
+        "\n"
+        "    class Inner:\n"
+        "        def inner_method(self):\n"
+        "            pass\n"
+        "\n"
+        "    def method2(self):\n"
+        "        pass\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    classes_by_name = {c["name"]: c for c in result["classes"]}
+    assert set(classes_by_name) == {"Outer", "Inner"}, "Failed to extract both the outer and nested class!"
+
+    assert classes_by_name["Outer"]["method_count"] == 2, (
+        "method2 (declared after the nested class) was dropped from Outer's method_count!"
+    )
+    assert classes_by_name["Inner"]["method_count"] == 1
+
+    outer_methods = [f["name"] for f in result["functions"] if f.get("parent_class_name") == "Outer"]
+    assert "inner_method" not in outer_methods, "Inner's method was double-counted into Outer's method list!"
+
+
 def test_detector_atomic_literal_shield():
     """
     Proves the _apply_literal_shield safely blanks complex strings and heredocs

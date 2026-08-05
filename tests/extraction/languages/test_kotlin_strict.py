@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -227,3 +229,20 @@ def test_kotlin_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("val p: CPointer<IntVar>"), "explicit_casts incorrectly matched a Kotlin/Native pointer"
     assert pointers.search("val p: CPointer<IntVar>")
     assert not pointers.search("x as String"), "pointers incorrectly matched an explicit cast"
+
+
+def test_kotlin_redos_immunity_sweep():
+    """
+    Issue #1070: kotlin had zero per-language ReDoS regression coverage.
+    `args`/`func_start` both use the 1-level-nesting-trick paren stepper
+    plus a generic-parameter stepper `(?:[^<>]|<[^<>]*>)*`, and
+    `decorators` has an unbounded dotted-chain repeat -- the "nested
+    quantifiers" and "alternation" shapes epic #518 flagged repeatedly.
+    Diagnosed clean via `check_redos_scaling` (consistent ~2x-per-doubling
+    ratios) before writing these as permanent regression pins.
+    """
+    assert_redos_immune(KOTLIN_RULES["args"], "fun foo(" + "(" * 100000, timeout_sec=3.0)
+    assert_redos_immune(KOTLIN_RULES["args"], "fun foo<" + "<" * 100000, timeout_sec=3.0)
+    assert_redos_immune(KOTLIN_RULES["func_start"], "fun foo<" + "<" * 100000, timeout_sec=3.0)
+    assert_redos_immune(KOTLIN_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(KOTLIN_RULES["decorators"], "@a" + ".a" * 50000, timeout_sec=3.0)

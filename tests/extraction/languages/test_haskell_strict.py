@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # ==============================================================================
 # HASKELL: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #585)
@@ -172,3 +174,23 @@ def test_haskell_globals_unsafeperformio_bug():
     assert not pattern.search("counter :: IORef Int\ncounter = newIORef 0"), (
         "Incorrectly matched a plain IORef binding with no unsafePerformIO at all"
     )
+
+
+def test_haskell_redos_immunity_sweep():
+    """
+    Issue #1070: haskell had zero per-language ReDoS regression coverage.
+    `args`, `func_start`, and `class_start` all repeat the same
+    comment-skipping alternation `(?:[ \\t\\n]|--[^\\n]*\\n|\\{-(?:[^-]|-(?!\\}))*-\\})*`
+    -- three disjoint-prefix branches, one of which nests its own `*` --
+    which is exactly the "alternation with overlapping prefixes / nested
+    quantifiers" shape epic #518 found repeatedly. Diagnosed clean via
+    `check_redos_scaling` (consistent ~2x-per-doubling ratios up to
+    n=128000, reruns included to rule out timing noise) before writing
+    these as permanent regression pins.
+    """
+    assert_redos_immune(HS_RULES["args"], "x :: {-" + "-" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["func_start"], "foo {-" + "-" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["class_start"], "data Foo {-" + "-" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["class_start"], "data Foo " + "bar " * 30000, timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["generics"], "forall " + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["globals"], "counter :: IORef Int" + "\n" * 100000, timeout_sec=3.0)

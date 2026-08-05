@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # ==============================================================================
 # LUA: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #594)
@@ -160,3 +162,15 @@ def test_lua_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search('ffi.new("int[1]")'), "explicit_casts incorrectly matched an unrelated ffi.new call"
     assert pointers.search('ffi.new("int[1]")')
     assert not pointers.search("tonumber(x)"), "pointers incorrectly matched an explicit cast"
+
+
+def test_lua_redos_immunity_sweep():
+    """
+    Issue #1070: lua had zero per-language ReDoS regression coverage.
+    `args` is an explicit 3-level manually-nested paren structure
+    (`\\([^()]*(?:\\([^()]*(?:\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)`), the
+    "nested quantifiers" shape epic #518 flagged repeatedly elsewhere.
+    Diagnosed clean via `check_redos_scaling` (consistent ~2x-per-doubling
+    ratios) before writing this as a permanent regression pin.
+    """
+    assert_redos_immune(LUA_RULES["args"], "function foo(" + "(" * 100000, timeout_sec=3.0)

@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -262,3 +264,18 @@ def test_scala_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("val p: Ptr[Int] = ???"), "explicit_casts incorrectly matched a Scala Native pointer type"
     assert pointers.search("val p: Ptr[Int] = ???")
     assert not pointers.search("x.toInt"), "pointers incorrectly matched an explicit cast"
+
+
+def test_scala_redos_immunity_sweep():
+    """
+    Issue #1070: scala had zero per-language ReDoS regression coverage.
+    `args`'s generic-parameter stepper `(?:\\[(?:[^\\[\\]]|\\[[^\\[\\]]*\\])*\\])?`
+    uses the same 1-level-nesting-trick already proven for the square-
+    bracket variant elsewhere (epic #813/#825); `func_start`/`class_start`
+    both stack an unclosed-annotation-paren step-over. Diagnosed clean via
+    `check_redos_scaling` (consistent ~2x-per-doubling ratios) before
+    writing these as permanent regression pins.
+    """
+    assert_redos_immune(SCALA_RULES["args"], "def foo[" + "[" * 100000, timeout_sec=3.0)
+    assert_redos_immune(SCALA_RULES["func_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(SCALA_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)

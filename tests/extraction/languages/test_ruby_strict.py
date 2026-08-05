@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # ==============================================================================
 # RUBY: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #607)
@@ -215,3 +217,19 @@ def test_ruby_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("FFI::Pointer.new(:int)"), "explicit_casts incorrectly matched an FFI pointer type"
     assert pointers.search("FFI::Pointer.new(:int)")
     assert not pointers.search("Integer(x)"), "pointers incorrectly matched an explicit cast"
+
+
+def test_ruby_redos_immunity_sweep():
+    """
+    Issue #1070: ruby had zero per-language ReDoS regression coverage.
+    `args` is a 3-level manually-nested paren structure with an inner
+    quoted-string alternation at every level (mirrors CSS's already-proven
+    `args` shape, see test_css_strict.py) -- the "nested quantifiers"
+    shape epic #518 flagged repeatedly elsewhere. Diagnosed clean via
+    `check_redos_scaling` (consistent ~2x-per-doubling ratios) before
+    writing these as permanent regression pins.
+    """
+    assert_redos_immune(RUBY_RULES["args"], "def foo(" + "(" * 100000, timeout_sec=3.0)
+    assert_redos_immune(RUBY_RULES["args"], "def foo('" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(RUBY_RULES["args"], 'def foo("' + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(RUBY_RULES["spec_exposure"], "[SPEC-" + "1" * 100000, timeout_sec=3.0)

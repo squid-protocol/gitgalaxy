@@ -19,6 +19,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -268,3 +270,19 @@ def test_swift_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("UnsafeMutablePointer<Int>"), "explicit_casts incorrectly matched an unsafe pointer type"
     assert pointers.search("UnsafeMutablePointer<Int>")
     assert not pointers.search("let x = value as? String"), "pointers incorrectly matched an explicit cast"
+
+
+def test_swift_redos_immunity_sweep():
+    """
+    Issue #1070: swift had zero per-language ReDoS regression coverage.
+    `args`/`func_start` both use the 1-level-nesting-trick paren stepper
+    (the escaping-closure shield) plus a generic-parameter stepper
+    `(?:[^<>]|<[^<>]*>)*` -- the "nested quantifiers" shape epic #518
+    flagged repeatedly elsewhere. Diagnosed clean via `check_redos_scaling`
+    (consistent ~2x-per-doubling ratios) before writing these as permanent
+    regression pins.
+    """
+    assert_redos_immune(SWIFT_RULES["args"], "func foo(" + "(" * 100000, timeout_sec=3.0)
+    assert_redos_immune(SWIFT_RULES["args"], "func foo<" + "<" * 100000, timeout_sec=3.0)
+    assert_redos_immune(SWIFT_RULES["func_start"], "func foo<" + "<" * 100000, timeout_sec=3.0)
+    assert_redos_immune(SWIFT_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)

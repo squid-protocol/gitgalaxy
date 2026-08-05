@@ -305,6 +305,32 @@ def test_detector_c_macro_dead_branch_shield():
     assert result["equations"]["high_risk_execution"] == 0, "Failed to scrub dead preprocessor branches!"
 
 
+def test_detector_nested_function_is_counted_as_own_node_braces():
+    """
+    #1041: the brace-slicing guard used to skip any match whose start fell
+    before the previously accepted match's end ("if start_idx < last_end_idx:
+    continue"), on the theory that it must already be inside an in-progress
+    function. A nested/inner function declaration necessarily starts before
+    its enclosing function's end, so that guard silently dropped it instead
+    of ever making it its own FunctionNode. Verifies both the outer and the
+    nested function are extracted, each with its own independently correct
+    (brace-depth-tracked) scope.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = "void outer() {\n    void inner() {\n        int x = 1;\n    }\n    inner();\n}\n"
+
+    result = opt_detector.splice(code, "")
+
+    names = [f["name"] for f in result["functions"]]
+    assert set(names) == {"outer", "inner"}, "Nested function was silently dropped from extraction!"
+
+    by_name = {f["name"]: f for f in result["functions"]}
+    assert (by_name["outer"]["start_line"], by_name["outer"]["end_line"]) == (1, 6)
+    assert (by_name["inner"]["start_line"], by_name["inner"]["end_line"]) == (2, 4), (
+        "Nested function's own scope wasn't independently brace-depth-bounded!"
+    )
+
+
 # ==============================================================================
 # TEST 5: MODE D (SEMANTIC HANDSHAKE STACK)
 # ==============================================================================
@@ -387,6 +413,28 @@ def test_detector_mode_c_indentation():
     parent = result["functions"][0]
     assert parent["name"] == "parent_process"
     assert parent["loc"] == 4, "Mode C failed to accurately count lines inside the indentation block!"
+
+
+def test_detector_nested_function_is_counted_as_own_node_indentation():
+    """
+    Same #1041 regression as the brace-mode test above, for indentation-
+    scoped languages (Python): a nested `def` must be extracted as its own
+    FunctionNode with its own dedent-tracked scope, not silently merged into
+    its enclosing function.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = "def outer():\n    def inner():\n        return 42\n    return inner()\n"
+
+    result = opt_detector.splice(code, "")
+
+    names = [f["name"] for f in result["functions"]]
+    assert set(names) == {"outer", "inner"}, "Nested function was silently dropped from extraction!"
+
+    by_name = {f["name"]: f for f in result["functions"]}
+    assert (by_name["outer"]["start_line"], by_name["outer"]["end_line"]) == (1, 4)
+    assert (by_name["inner"]["start_line"], by_name["inner"]["end_line"]) == (2, 3), (
+        "Nested function's own scope wasn't independently dedent-bounded!"
+    )
 
 
 # ==============================================================================

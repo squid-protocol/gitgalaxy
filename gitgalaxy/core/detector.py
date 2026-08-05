@@ -1542,7 +1542,17 @@ class StructuralExtractor:
         except Exception:
             return [], 0.0
 
-        last_end_idx = 0
+        # #1041: this used to skip any match whose start fell before the
+        # previously accepted match's end ("if start_idx < last_end_idx:
+        # continue"), on the theory that it must already be inside an
+        # in-progress function. But a nested/inner function declaration
+        # necessarily starts before its enclosing function's end -- so that
+        # guard silently dropped every nested function instead of counting
+        # it. It's unnecessary anyway: each match below resolves its own end
+        # independently via `_find_balanced_end`'s brace-depth tracking from
+        # its OWN opening brace, so a nested match already gets a correctly
+        # bounded (and correctly nested) scope on its own, without needing
+        # to inherit or compare against any prior match's boundary.
         current_line_count = offset + 1
         last_counted_idx = 0
 
@@ -1551,8 +1561,6 @@ class StructuralExtractor:
                 break
 
             start_idx = match.start()
-            if start_idx < last_end_idx:
-                continue
 
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
@@ -1627,7 +1635,6 @@ class StructuralExtractor:
             )
             satellites.append(sat)
             sum_fxn_impact += mag
-            last_end_idx = end_idx
 
         return satellites, sum_fxn_impact
 
@@ -1669,7 +1676,12 @@ class StructuralExtractor:
         except Exception:
             return [], 0.0
 
-        last_end_idx = 0
+        # #1041: no longer skips matches whose start falls before the
+        # previously accepted match's end -- see the identical fix (and
+        # rationale) in `_slice_by_braces` above. Here each match resolves
+        # its own end independently via the dedent scan below, from its OWN
+        # indent level, so a nested def already gets a correctly bounded
+        # (and correctly nested) scope on its own.
 
         # --- FAST O(N) LINE TRACKER ---
         current_line_count = offset + 1
@@ -1680,8 +1692,6 @@ class StructuralExtractor:
                 break
 
             start_idx = match.start()
-            if start_idx < last_end_idx:
-                continue
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if raw_name is None:
@@ -1719,8 +1729,6 @@ class StructuralExtractor:
                         break
 
                 scan_pos = line_end
-
-            last_end_idx = end_idx
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()

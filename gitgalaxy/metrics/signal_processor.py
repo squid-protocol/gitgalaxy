@@ -1360,11 +1360,15 @@ class SignalProcessor:
             return 0.0
 
         smoothed_loc = safe_loc + t.get("laplace_smoothing", 20.0)
-        attack = ((attack_hits + irc) / smoothed_loc) * mp
+        # Tier2/tier3 languages (fc < 1.0) get a proportional discount on the
+        # attack signal rather than a flat subtraction: a flat subtraction of
+        # a value larger than net_exposure's typical range wipes out small-
+        # but-real attack density instead of merely tempering it (#1055).
+        systems_buffer_ratio = t.get("systems_buffer_ratio", 0.75) if fc < 1.0 else 1.0
+        attack = ((attack_hits + irc) / smoothed_loc) * mp * systems_buffer_ratio
         defense = (defense_hits / smoothed_loc) * fc
 
-        systems_buffer = t.get("systems_buffer", 0.25) if fc < 1.0 else 0.0
-        net_exposure = (attack - defense) - systems_buffer
+        net_exposure = attack - defense
 
         try:
             score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 12.0) * net_exposure))

@@ -756,7 +756,7 @@ RISK_EQUATION_TUNING = {
         "test_weight": 0.5,
         "doc_weight": 0.1,
         "laplace_smoothing": 20.0,
-        "systems_buffer": 0.25,
+        "systems_buffer_ratio": 0.75,
         "sigmoid_slope": 12.0,
         "breach_density_min": 0.03,
         "breach_floor_mult": 500.0,

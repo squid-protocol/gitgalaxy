@@ -377,7 +377,6 @@ class StructuralExtractor:
             "logic_flux": "state_mutation",
         }
 
-        self.MAX_SATELLITES = 250
         self.MAX_DEPTH = 50
         self.HANDSHAKE_LOOKAHEAD_LIMIT = 50000
 
@@ -1424,20 +1423,14 @@ class StructuralExtractor:
 
             # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
             # Runs for every segment unconditionally, using THIS segment's own
-            # satellite ranges. Deliberately placed before the MAX_SATELLITES
-            # truncation below: that cap only bounds stored function metadata,
-            # it must never silently disable risk correlation for the rest of
-            # an unusually large file.
+            # satellite ranges.
             sat_ranges = sorted(
                 (sat["start_idx"], sat["end_idx"]) for sat in sats if "start_idx" in sat and "end_idx" in sat
             )
             apply_dampener_correlations(spatial_map, sat_ranges, counts, mitigations)
             apply_amplifier_correlations(spatial_map, sat_ranges, counts, mitigations)
 
-            if len(all_satellites) < self.MAX_SATELLITES:
-                all_satellites.extend(sats)
-                if len(all_satellites) > self.MAX_SATELLITES:
-                    all_satellites = all_satellites[: self.MAX_SATELLITES]
+            all_satellites.extend(sats)
             global_impact += impact
 
         all_satellites.sort(key=lambda x: x.get("mag", 0), reverse=True)
@@ -1476,9 +1469,6 @@ class StructuralExtractor:
         last_counted_idx = 0
 
         for i, match in enumerate(matches):
-            if len(satellites) >= self.MAX_SATELLITES:
-                break
-
             start_idx = match.start()
             greedy_end_idx = matches[i + 1].start() if i + 1 < len(matches) else len(code)
 
@@ -1679,9 +1669,6 @@ class StructuralExtractor:
         last_counted_idx = 0
 
         for match_idx, match in enumerate(matches):
-            if len(satellites) >= self.MAX_SATELLITES:
-                break
-
             start_idx = match.start()
 
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
@@ -1824,9 +1811,6 @@ class StructuralExtractor:
         last_counted_idx = 0
 
         for match in matches:
-            if len(satellites) >= self.MAX_SATELLITES:
-                break
-
             start_idx = match.start()
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)

@@ -30,19 +30,19 @@ python -m pytest tests/extraction/ -v
 
 The following test suites validate the core structural spawners of the physics engine. Each file proves the engine can cleanly extract the target while stepping over massive attribute stacks, asynchronous modifiers, and preprocessor garbage.
 
-#### 1. `test_function_extraction_strict.py` (The Satellite Spawner)
+#### 1. `test_function_extraction.py` (The Satellite Spawner)
 * **Validates:** The `func_start` heuristic rules across 32 distinct architectures.
 * **Proves:** The engine can pinpoint exact function and method names (the "Satellites") while entirely stripping away C++ macros, Scala 3 transparency modifiers, Java annotations, and extreme vertical generic blobs without losing scope.
 
-#### 2. `test_class_extraction_strict.py` (The Entity Census)
+#### 2. `test_class_extraction.py` (The Entity Census)
 * **Validates:** The `class_start` boundary rules.
 * **Proves:** The engine accurately isolates the precise name of an Object-Oriented entity (Class, Struct, Interface, Trait, Enum). It mathematically proves the regex ignores complex inheritance chains, Dart mixins, and C# interface stacking to return *only* the clean entity name.
 
-#### 3. `test_args_extraction_strict.py` (The Coupling Mass)
+#### 3. `test_args_extraction.py` (The Coupling Mass)
 * **Validates:** The `args` capture rules.
 * **Proves:** Parameter extraction is the hardest structural component to parse heuristically. This gauntlet proves the engine can swallow massive parameter blocks, default array arguments, and multi-line lambda closures without collapsing into a nested-parentheses ReDoS spiral.
 
-#### 4. `test_dependency_extraction_strict.py` (The Gravity Links)
+#### 4. `test_dependency_extraction.py` (The Gravity Links)
 * **Validates:** The `_dependency_capture` rules (Tested across a 37-Language Mega Suite).
 * **Proves:** The engine can trace precise information flow by extracting the exact file path or module name from an import statement. It survives complex ES6 destructuring, Rust `pub use crate::` chains, and Python alias stacking without capturing dirty modifiers.
 

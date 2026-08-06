@@ -53,8 +53,7 @@ are not interchangeable, and #1071's framing of "migrate to the scaling-ratio me
 correction: they serve two different moments in the workflow, both visible in
 `test_css_strict.py`'s `test_css_class_start_redos_regression` (the reference example):
 
-1. **Diagnose first, with `check_redos_scaling`** (from `verify_candidates.py`, or `_best_of_timing`
-   called directly) — sweep a rule's pattern against a "never closes" adversarial payload at
+1. **Diagnose first, with `sweep_redos_scaling.py`** (or `verify_candidates.py`'s `check_redos_scaling` for single rules) — sweep a rule's pattern against a "never closes" adversarial payload at
    several geometrically increasing sizes (start at n=2000, not n=32000 — some shapes, like the
    Rule 14 adjacent-quantifier bug, blow up dramatically faster than the usual nested-delimiter
    case). A ~2x-per-doubling ratio is linear and fine — **stop here, no permanent test needed
@@ -69,7 +68,7 @@ correction: they serve two different moments in the workflow, both visible in
    pattern's quadratic signature (reconstruct it inline as a comparison, exactly like the CSS
    example's `old_pattern`), paired with `assert_redos_immune` proving the *new* pattern is immune
    at an even larger payload. This is what #1071 is actually asking for in the 37
-   `assert_redos_immune`-only languages: **run the diagnostic sweep to check for an undiscovered
+   `assert_redos_immune`-only languages: **run the diagnostic sweep (`tests/extraction/tools/sweep_redos_scaling.py`) to check for an undiscovered
    bug a single generous timeout might be masking** — not a mechanical rewrite of every passing
    test. Most of those 37 will come back clean; only the ones that don't need the two-part pattern.
 

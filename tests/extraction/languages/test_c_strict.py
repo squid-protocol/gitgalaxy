@@ -82,11 +82,47 @@ C_RULES = LANGUAGE_DEFINITIONS["c"]["rules"]
 
 _C_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-    ("branch", "if (x > 0) {", "int x = 1;"),
-    ("args", "int foo(int a, int b) {", "foo(a, b);"),
-    ("structural_boundaries", "return x;", "x = 1;"),
-    ("func_start", "int foo(int a) {", "if (x) {"),
+    
+    # --- DEEP CASES FOR branch ---
+    ("branch", "if(x) {", "ifdef FOO"),
+    ("branch", "} else if (", "form_data = 1;"),
+    ("branch", "case 1:", "case_name"),
+    ("branch", "x && y", "x & y"),
+    ("branch", "a ? b : c", "int a = 1;"),
+    
+    # --- DEEP CASES FOR args ---
+    ("args", "void myfunc(int (*cb)(int))", "foo(a, b);"),
+    ("args", "foo(const struct foo *f)", "return (int)x;"),
+    ("args", "foo(void)", "if (int a = 0)"),
+    ("args", "func\n(\nint a)", "while (int x = 1)"),
+    ("args", "int my_func(unsigned long int * x)", "sizeof(int)"),
+    ("args", "macro_like(enum x y)", "typeof(int)"),
+    ("args", "void func(char buf[10])", "_Alignof(int)"),
+    
+    # --- DEEP CASES FOR func_start ---
+    ("func_start", "int main(int argc, char **argv) {", "if (x) {"),
+    ("func_start", "static inline void * my_func(void) {", "int a = 1;"),
+    ("func_start", "__attribute__((always_inline)) void func() {", "int foo(int a);"),
+    ("func_start", "struct my_struct * get_struct(void) \n {", "void (*foo)(int a) {"),
+    ("func_start", "int \n myfunc(void) \n {", "for (int i=0; i<10; i++) {"),
+    ("func_start", "int old_style(a, b) int a; int b; {", "MACRO(x)\\nint x;"),
+    ("func_start", "void _Generic_func() {", "return (x) {"),
+    
+    # --- DEEP CASES FOR class_start ---
     ("class_start", "struct Point {", "int x;"),
+    ("class_start", "typedef struct {", "structing foo;"),
+    ("class_start", "enum foo", "instruction"),
+    ("class_start", "union bar", "unionize"),
+    ("class_start", "  typedef union bar", "reunion"),
+    
+    # --- DEEP CASES FOR structural_boundaries ---
+    ("structural_boundaries", "return x;", "return_val = 1;"),
+    ("structural_boundaries", "struct foo", "structured_data"),
+    ("structural_boundaries", "_BitInt(32)", "voidable"),
+    ("structural_boundaries", "alignas(16)", "true_story"),
+    ("structural_boundaries", "typedef int my_int;", "enum_name"),
+    
+    # Original simple cases (remaining):
     ("safety", "assert(x > 0);", "x = 1;"),
     ("safety_bypasses", "strcpy(dst, src);", "memcpy(dst, src, n);"),
     ("high_risk_execution", 'system("ls");', 'printf("hi");'),

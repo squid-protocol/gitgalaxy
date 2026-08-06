@@ -291,3 +291,59 @@ def test_java_test_vs_regex_execution_no_false_collision():
     regex_pattern = JAVA_RULES["regex_execution"]
     assert regex_pattern.search("str.matches(regex)")
     assert not test_pattern.search("str.matches(regex)"), "test incorrectly matched a regex method call"
+
+_JAVA_DEEP_CASES = [
+    # --- branch ---
+    ("branch", "if(x) {", "String shift = \"yes\";"),
+    ("branch", "for (int i=0;i<10;i++)", "int form = 1;"),
+    ("branch", "yield value;", "yields_value();"),
+    ("branch", "when (true)", "whence();"),
+    ("branch", "catch(Exception e)", "catch_it();"),
+
+    # --- args ---
+    ("args", "public void foo( @NonNull int x, String y) {", "foo(x, y);"),
+    ("args", "@Override public <T extends List<String>> void genericMethod(T x) {", "genericMethod(x);"),
+    ("args", "private static final void myMethod(int a) {", "myMethod(a);"),
+    ("args", "public MyClass() throws Exception {", "new MyClass();"),
+    ("args", "(int x, int y) -> x + y", "int x = y - z;"),
+    ("args", "String::toLowerCase", "String toLowerCase;"),
+    ("args", "public <T, U extends Comparable<U>> void multiGeneric(T a, U b) {", "return multiGeneric(a, b);"),
+
+    # --- func_start ---
+    ("func_start", "public void myFunc(int a) {", "new MyObject();"),
+    ("func_start", "public static <T extends Comparable<T>> T genericFunc() {", "return genericFunc();"),
+    ("func_start", "Map<String, List<Integer>> getComplexData() {", "return getComplexData();"),
+    ("func_start", "@Annotation(value = \"x\")\npublic void annotatedFunc() {", "return annotatedFunc();"),
+    ("func_start", "public java.util.List<String> fullyQualifiedReturn() {", "return fullyQualifiedReturn();"),
+    ("func_start", "public <T, U extends Comparable<U>> T multiGeneric(T a, U b) {", "return multiGeneric(a, b);"),
+    ("func_start", "public int[] returnArray() {", "return returnArray();"),
+    ("func_start", "public Map.Entry<K, V> returnEntry() {", "return returnEntry();"),
+    ("func_start", "@SuppressWarnings(\"unchecked\") public void foo() {", "return foo();"),
+    ("func_start", "public void\nweirdSpacing() {", "return weirdSpacing();"),
+
+    # --- class_start ---
+    ("class_start", "public abstract class AbstractNode {", "AbstractNode node = new AbstractNode();"),
+    ("class_start", "public sealed interface Expr permits Add, Mul {", "Expr expr = new Expr();"),
+    ("class_start", "record Point(int x, int y) {}", "new Point(1, 2);"),
+    ("class_start", "class Node<T extends Comparable<T>> extends BaseNode<T> implements Cloneable {", "Node<String> node;"),
+    ("class_start", "enum Color { RED, GREEN }", "Color.RED;"),
+    ("class_start", "public class MultiGeneric<T, U extends Comparable<U>> {", "MultiGeneric<String, Integer> mg;"),
+    ("class_start", "@Entity @Table(name = \"users\")\npublic class User {", "User user = new User();"),
+
+    # --- structural_boundaries ---
+    ("structural_boundaries", "public sealed interface Foo permits Bar {", "permitted = true;"),
+    ("structural_boundaries", "module com.example.foo {", "module_name = \"foo\";"),
+    ("structural_boundaries", "requires java.base;", "required = true;"),
+    ("structural_boundaries", "exports com.example.api;", "exported = true;"),
+    ("structural_boundaries", "provides com.example.Service with com.example.ServiceImpl;", "provided = true;"),
+]
+
+@pytest.mark.parametrize("signature,positive,negative", _JAVA_DEEP_CASES)
+def test_java_signature_deep_cases(signature, positive, negative):
+    pattern = JAVA_RULES[signature]
+    assert pattern is not None, f"java's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"java {signature!r} failed to match deep positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"java {signature!r} incorrectly matched an excluded/negative deep case: {negative!r}"
+        )

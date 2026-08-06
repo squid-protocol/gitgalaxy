@@ -530,8 +530,8 @@ def test_html_ownership_single_quoted_capture_group_preserved():
     ownership = HTML_RULES["ownership"]
     m_double = ownership.search('<meta name="author" content="Jane Doe">')
     m_single = ownership.search("<meta name='author' content='Jane Doe'>")
-    assert m_double and m_double.group(1) == "Jane Doe"
-    assert m_single and m_single.group(1) == "Jane Doe"
+    assert m_double and m_double.group(m_double.lastindex) == "Jane Doe"
+    assert m_single and m_single.group(m_single.lastindex) == "Jane Doe"
 
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
@@ -559,3 +559,87 @@ def test_html_single_quote_fix_does_not_introduce_redos():
     assert_redos_immune(HTML_RULES["args"], "<input data-foo='" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(HTML_RULES["telemetry"], "<script src='" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(HTML_RULES["ownership"], "<meta name='author' content='" + "a" * 100000, timeout_sec=3.0)
+
+_HTML_ADVERSARIAL_CASES = [
+    # (signature, positive snippet, text expected to NOT match / None to skip)
+    # Quotes containing opposite quotes (Issue: regex used `[\"\'][^\"\']*[\"\']` which stopped at the first nested quote)
+    ("branch", '<div v-if="a > \'b\'">', '<div class="x">'),
+    ("branch", "<div v-if='a > \"b\"'>", '<div class="x">'),
+    ("ui_framework", '<div class="flex w-full \'dark\'">', '<div class="x">'),
+    ("ui_framework", "<div class='flex w-full \"dark\"'>", '<div class="x">'),
+    ("safety", '<input pattern="[A-Z\'a-z]+">', '<input type="text">'),
+    ("safety", "<input pattern='[A-Z\"a-z]+'>", '<input type="text">'),
+    ("io", '<a href="javascript:alert(\'hello\')">', '<div>plain text</div>'), 
+
+    # Web components / hyphenated tags avoiding false matches (Issue: `\\b` matched the hyphen in `<div-custom>`)
+    ("structural_boundaries", "<div>", "<div-custom>"),
+    ("ui_framework", "<b>", "<b-button>"),
+    ("io", "<a>", "<a-link>"),
+    ("api", "<slot>", "<slot-custom>"),
+    ("dead_code", "<!-- <div> -->", "<!-- <div-custom> -->"),
+    ("generics", "<slot>", "<slot-custom>"),
+    ("scientific", "<math>", "<math-custom>"),
+    ("_dependency_capture", '<script src="a.js"></script>', '<script-custom src="a.js"></script>'),
+
+    # Spaces before the `>`
+    ("func_start", "<script >", "<div>"),
+    ("class_start", "<form >", "<div>"),
+]
+
+@pytest.mark.parametrize("signature,positive,negative", _HTML_ADVERSARIAL_CASES)
+def test_html_signature_adversarial(signature, positive, negative):
+    pattern = HTML_RULES[signature]
+    assert pattern is not None, f"html's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"html {signature!r} failed to match its own documented positive case"
+    if negative is not None:
+        assert not pattern.search(negative), f"html {signature!r} incorrectly matched an excluded case: {negative!r}"
+
+_HTML_DEEP_CASES = [
+    # --- branch ---
+    ("branch", '<div v-if="a > \'b\'">', None),
+    ("branch", "<div v-if='a > \"b\"'>", None),
+    ("branch", "<details open>", "<details-custom>"),
+    ("branch", "<summary\nclass='x'>", "<summary-panel>"),
+    ("branch", "{% if x > 0 %}", "{% include x %}"),
+    ("branch", "{{#if x}}", "{{x}}"),
+
+    # --- args ---
+    ("args", "<input data-custom='123'>", "<input type='text'>"),
+    ("args", "<input aria-hidden=\"true\">", "<input id='hidden'>"),
+    ("args", "<input data-foo=bar>", "<input data>"), # unquoted value
+    ("args", "<input\nname='email'>", "<input class='email'>"),
+    ("args", "<label for=\"email\">", "<label class=\"email\">"),
+    ("args", "<input placeholder=\"x y z\">", "<input class=\"x y z\">"),
+
+    # --- func_start ---
+    ("func_start", "<script>", "<script-custom>"),
+    ("func_start", "<style>", "<style-custom>"),
+    ("func_start", "<script\ntype='module'>", "<div>"),
+    ("func_start", "<style\nscoped>", "<div>"),
+    ("func_start", "<script/>", "<div>"),
+    ("func_start", "<style >", "<div>"),
+
+    # --- class_start ---
+    ("class_start", "<form>", "<div>"),
+    ("class_start", "<svg>", "<div>"),
+    ("class_start", "<my-custom-element>", "<my_custom_element>"), # Web components require a hyphen
+    ("class_start", "<template\n>", "<div>"),
+    ("class_start", "<picture>", "<div>"),
+    ("class_start", "<dialog open>", "<div>"),
+
+    # --- structural_boundaries ---
+    ("structural_boundaries", "<div>", "<div-custom>"),
+    ("structural_boundaries", "<main>", "<main-container>"),
+    ("structural_boundaries", "<article>", "<article-body>"),
+    ("structural_boundaries", "<h1\nclass='title'>", "<h10>"),
+    ("structural_boundaries", "<section>", "<section-header>"),
+    ("structural_boundaries", "<header>", "<header-nav>"),
+]
+
+@pytest.mark.parametrize("signature,positive,negative", _HTML_DEEP_CASES)
+def test_html_signature_deep(signature, positive, negative):
+    pattern = HTML_RULES[signature]
+    assert pattern is not None, f"html's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"html {signature!r} failed to match deep positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), f"html {signature!r} incorrectly matched deep negative case: {negative!r}"

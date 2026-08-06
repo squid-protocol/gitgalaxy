@@ -575,3 +575,99 @@ def test_cpp_redos_immunity_sweep():
     assert CPP_RULES["func_start"].search("int myFunc() {")
     assert CPP_RULES["class_start"].search("class Foo {")
     assert CPP_RULES["explicit_casts"].search("static_cast<int>(x);")
+
+def test_cpp_branch_deep_cases():
+    """Adversarial/Deep cases for branch."""
+    p = CPP_RULES["branch"]
+    # Positive
+    assert p.search("co_yield 5;")
+    assert p.search("co_await my_task();")
+    assert p.search("if constexpr (sizeof(T) > 4)")
+    assert p.search("for (auto&& x : v)")
+    assert p.search("catch (...) {")
+    assert p.search("x && y")
+    assert p.search("a ? b : c")
+    assert p.search("while(true)")
+    assert p.search("do { } while(0);")
+    assert p.search("else if(x)")
+    # Negative
+    assert not p.search("difftime()")
+    assert not p.search("gator()")
+    assert not p.search("a & b")
+    assert not p.search("a | b")
+    assert not p.search("catch_error()")
+    assert not p.search("default_value = 1")
+
+def test_cpp_args_deep_cases():
+    """Adversarial/Deep cases for args."""
+    p = CPP_RULES["args"]
+    # Positive
+    assert p.search("void Foo::bar(const std::vector<int>& v)")
+    assert p.search("TargetClass::operator=(const TargetClass& other)")
+    assert p.search("Foo::Bar<Baz<int>>(int x)")
+    assert p.search("[a, &b](int x)")
+    assert p.search("MyClass(std::string name)")
+    assert p.search("void* operator new(size_t size)")
+    assert p.search("Foo::operator==(const Foo& other)")
+    assert p.search("auto my_func(auto&& x)")
+    # Negative
+    assert not p.search("if (int x = foo())")
+    assert not p.search("(int)x")
+    assert not p.search("std::vector<int> v(10);")
+    assert not p.search("for (int i = 0; i < 10; ++i)")
+
+def test_cpp_func_start_deep_cases():
+    """Adversarial/Deep cases for func_start."""
+    p = CPP_RULES["func_start"]
+    # Positive
+    assert p.search("std::vector<int>\nmyFunc() {")
+    assert p.search("[[nodiscard]] constexpr int Foo::bar() const noexcept {")
+    assert p.search("inline void* my_alloc(size_t size) {")
+    assert p.search("TargetClass::operator=(const TargetClass& other) {")
+    assert p.search("template <typename T> void foo() {")
+    assert p.search("int \n main \n (int argc) {")
+    assert p.search("__attribute__((always_inline)) void fast() {")
+    # Negative
+    assert not p.search("if (x == 1) {")
+    assert not p.search("while (true) {")
+    assert not p.search("struct MyStruct {")
+    assert not p.search("class MyClass {")
+    assert not p.search("else if (x) {")
+    assert not p.search("try {")
+    assert not p.search("catch (const std::exception& e) {")
+
+def test_cpp_class_start_deep_cases():
+    """Adversarial/Deep cases for class_start."""
+    p = CPP_RULES["class_start"]
+    # Positive
+    assert p.search("class MyClass {")
+    assert p.search("struct MyStruct : public Base {")
+    assert p.search("template <typename T> class Foo {")
+    assert p.search("enum class Color {")
+    assert p.search("enum struct Shape {")
+    assert p.search("class [[nodiscard]] MyClass {")
+    assert p.search('class __attribute__((visibility("default"))) MyClass {')
+    assert p.search("template <typename T = std::vector<int>>\nclass Bar {")
+    # Negative
+    assert not p.search("enum Color {")
+    assert not p.search("class_name = 5;")
+    assert not p.search("int x_class = 1;")
+
+def test_cpp_structural_boundaries_deep_cases():
+    """Adversarial/Deep cases for structural_boundaries."""
+    p = CPP_RULES["structural_boundaries"]
+    # Positive
+    assert p.search("namespace my_ns {")
+    assert p.search("class MyClass {")
+    assert p.search("struct MyStruct {")
+    assert p.search("return 0;")
+    assert p.search("inline void foo();")
+    assert p.search("export module foo;")
+    assert p.search("using namespace std;")
+    assert p.search("friend class Bar;")
+    assert p.search("auto x = 5;")
+    # Negative
+    assert not p.search("x_namespace = 1;")
+    assert not p.search("my_return = 0;")
+    assert not p.search("int export_val = 5;")
+

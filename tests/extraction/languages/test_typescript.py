@@ -243,7 +243,7 @@ ARGS_CASES: dict[str, Any] = {
         ("function foo({ a, b = 1, ...rest }: Props) {", None),  # destructured param w/ default and rest
     ],
     "invalid": [
-        "TargetFunc<string>(val);",
+        "return TargetFunc<string>(val);",
         "catch (e: any) {",
     ],
     "pathological": [

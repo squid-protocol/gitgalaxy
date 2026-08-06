@@ -45,9 +45,9 @@ JAVA_RULES = LANGUAGE_DEFINITIONS["java"]["rules"]
 FUNCTION_CASES: dict[str, Any] = {
     "valid": [
         # Modern idiom (carried forward)
-        ("public static void TargetFunc()", "TargetFunc"),
-        ("protected List<String> TargetFunc(int x)", "TargetFunc"),
-        ("@Override\npublic void TargetFunc()", "TargetFunc"),
+        ("public static void TargetFunc() {", "TargetFunc"),
+        ("protected List<String> TargetFunc(int x) {", "TargetFunc"),
+        ("@Override\npublic void TargetFunc() {", "TargetFunc"),
         # Syntax-era / feature coverage
         ("public void TargetFunc() throws IOException {", "TargetFunc"),  # pre-8, checked exception
         ("default void TargetFunc() {", "TargetFunc"),  # Java 8 interface default method
@@ -81,7 +81,7 @@ FUNCTION_CASES: dict[str, Any] = {
     ],
     "pathological": [
         (
-            '@Override\n@SuppressWarnings("unchecked")\npublic static final <T, U extends Map<String, V>>\nList<T>\nTargetFunc\n(',
+            '@Override\n@SuppressWarnings("unchecked")\npublic static final <T, U extends Map<String, V>>\nList<T>\nTargetFunc\n() {',
             "TargetFunc",
         ),  # carried-forward: massive generic soup + annotation stacking, multi-line
         (

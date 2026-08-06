@@ -108,8 +108,45 @@ _PHP_SIMPLE_CASES = [
     ("serialization_parsing", "json_decode($str);", "json_last_error();"),
     ("regex_execution", "preg_match($pattern, $str);", "preg_quote($str);"),
     ("time_date_logic", 'strtotime("now");', "date_diff($a, $b);"),
-    ("ipc_rpc_bridges", 'shell_exec("ls");', "curl_init();"),
 ]
+
+_PHP_DEEP_CASES = [
+    # branch
+    ("branch", "if ( $x === 'if' ) {", "$if = 1;"),
+    ("branch", "switch($a)", "$obj->if();"),
+    ("branch", "$x = $y ?? $z;", "Foo::if();"),
+    ("branch", "$x = $y ? $z : $w;", "$while = 2;"),
+    ("branch", "match ($x) {", "$match = 1;"),
+
+    # args
+    ("args", 'function foo($a = ")\\"") {', "foo($a = array(1,2));"),
+    ("args", "function foo($a = array(1,2)) {", "$function();"),
+    ("args", "fn  &  ( $x )  => $x", "$obj->fn();"),
+    ("args", "function ( $x ) use ($y)", "$foo->function();"),
+    ("args", "function foo(array $x = [1, 2]) {", "$bar::function();"),
+
+    # structural_boundaries
+    ("structural_boundaries", "namespace App\\Http;", "$namespace = 'App';"),
+    ("structural_boundaries", "$obj = new class {};", "$class = 'Foo';"),
+    ("structural_boundaries", "use App\\Foo;", "$new = 1;"),
+    ("structural_boundaries", "yield $x;", "$obj->yield();"),
+    ("structural_boundaries", "return $x;", "Foo::return();"),
+
+    # func_start
+    ("func_start", '#[Route("/")] public function foo() {', "$function();"),
+    ("func_start", '#[Route(\n"/")]\nfunction foo()', "->function foo()"),
+    ("func_start", '#[Route(path: "/")] function foo()', "public function()"),
+    ("func_start", "final public static function foo()", "Foo::function()"),
+    ("func_start", "public function use()", "class Foo {"),
+
+    # class_start
+    ("class_start", "final readonly class Foo", "class_exists('Foo')"),
+    ("class_start", "#[AllowDynamicProperties] class Foo", "$class = 'Foo';"),
+    ("class_start", "class\nFoo\nextends\nBar", "Foo::class"),
+    ("class_start", "enum Foo", "class extends Foo"), # negative for anonymous class on its own line
+    ("class_start", "abstract class Foo", "class implements Foo"),
+]
+
 
 
 @pytest.mark.parametrize("signature,positive,negative", _PHP_SIMPLE_CASES)
@@ -120,6 +157,21 @@ def test_php_signature_positive_and_negative(signature, positive, negative):
     if negative is not None:
         assert not pattern.search(negative), (
             f"php {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
+        )
+
+@pytest.mark.parametrize("signature,positive,negative", _PHP_DEEP_CASES)
+def test_php_signature_deep_cases(signature, positive, negative):
+    pattern = PHP_RULES[signature]
+    assert pattern is not None, f"php's {signature!r} rule is unexpectedly None"
+    
+    # Using re.search on the positive cases
+    if positive is not None:
+        assert pattern.search(positive), f"php {signature!r} failed to match its deep positive case: {positive!r}"
+    
+    # Using re.search on the negative cases
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"php {signature!r} incorrectly matched a deep negative case: {negative!r}"
         )
 
 

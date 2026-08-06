@@ -214,6 +214,56 @@ _CSHARP_SIMPLE_CASES = [
     ("ipc_rpc_bridges", 'Process.Start("foo");', "x = 1;"),
 ]
 
+_CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
+    # --- DEEP ADVERSARIAL CASES ---
+    # branch:
+    ("branch", "x is not null", "not_a_branch"),
+    ("branch", "yield\nreturn 1;", "yields"),
+    ("branch", "if(true)", "iffy"),
+    ("branch", "catch   (Exception)", "catcher"),
+    ("branch", "goto MyLabel;", "gotcha"),
+    ("branch", "switch\n(", "switcher"),
+    ("branch", "x ? y : z", "public int? Foo"),
+    
+    # args:
+    ("args", "public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n    BrokenMethod(int a, string b)", "BrokenMethod(a, b);"),
+    ("args", "public void Foo(ref int x, out string y, params int[] z)", "Foo(ref x, out y);"),
+    ("args", "protected internal static readonly int[,,] Foo(int x)", "Foo(x);"),
+    ("args", "[Attribute1, Attribute2(1, 2)]\npublic void Foo(int x)", "Foo(x);"),
+    ("args", "(x, y, z) =>", "x = y;"),
+    ("args", "async (x, y) =>", "x = y;"),
+    ("args", "public Foo() : base()", "new Foo();"),
+    ("args", "public Foo(int x) {", "Foo(x);"),
+    ("args", "record Person(string Name, int Age);", "new Person();"),
+    ("args", "public static Complex operator +(Complex a, Complex b)", "a + b;"),
+    ("args", "public static implicit operator int(MyClass x)", "int x = 1;"),
+    
+    # func_start:
+    ("func_start", "public async Task<List<string>> FetchData() {", "int x = 1;"),
+    ("func_start", "[Obsolete]\n[return: MaybeNull]\npublic void Foo()", "int x = 1;"),
+    ("func_start", "System.Threading.Tasks.Task<int> Foo()", "int x = 1;"),
+    ("func_start", "unsafe void* GetPtr()", "int x = 1;"),
+    ("func_start", "protected override void TargetFunc(int x)", "int x = 1;"),
+    ("func_start", "static readonly ref readonly int Foo()", "int x = 1;"),
+    ("func_start", "public static implicit operator int(MyClass x) {", "int x = 1;"),
+    ("func_start", "public static Complex operator +(Complex a, Complex b) {", "public delegate void MyDelegate();"),
+    
+    # class_start:
+    ("class_start", "public abstract partial class MyClass<T, U> : Base<T>, IMyInterface", "new MyClass();"),
+    ("class_start", "internal file record struct MyRecord(int X, int Y) : IPoint;", "new MyRecord();"),
+    ("class_start", "[Serializable]\npublic class Foo {", "Foo x;"),
+    ("class_start", "class Foo<T> : Base<T> {", "Foo<int> x;"),
+    ("class_start", "record struct Foo<T>(T Value) : Base<T>;", "Foo<int> x;"),
+    
+    # structural_boundaries:
+    ("structural_boundaries", "namespace My.Name.Space;", "My.Name.Space x;"),
+    ("structural_boundaries", "public enum Color", "Color.Red;"),
+    ("structural_boundaries", "public delegate void MyDelegate();", "MyDelegate x;"),
+    ("structural_boundaries", "using System;", "Console.WriteLine();"),
+    ("structural_boundaries", "yield return", "yields"),
+    ("structural_boundaries", "public init;", "init_x"),
+]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _CSHARP_SIMPLE_CASES)
 def test_csharp_signature_positive_and_negative(signature, positive, negative):

@@ -234,3 +234,52 @@ def test_javascript_standard_block_redos_immunity_for_deeply_nested_jsdoc_generi
     pattern = JS_RULES["generics"]
     poison = "/**\n" + " * @template T\n" * 20000 + " */"
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+def test_javascript_args_generator_methods():
+    """args must capture generator methods (ES6)."""
+    pattern = JS_RULES["args"]
+    assert pattern.search("function * foo(a, b) {")
+    assert pattern.search("function* foo(a, b) {")
+    assert pattern.search("async function* foo(a) {")
+    assert pattern.search("static async get *#myGen(a) {")
+
+
+def test_javascript_class_start_decorators():
+    """class_start must handle decorators before the class keyword."""
+    pattern = JS_RULES["class_start"]
+    assert pattern.search("@Component\nexport default class Dog extends Animal {")
+    assert pattern.search("@Inject()\n@Singleton()\nclass Service {}")
+
+
+def test_javascript_structural_boundaries_yield():
+    """structural_boundaries should capture yield (it is a keyword like await/return)."""
+    pattern = JS_RULES["structural_boundaries"]
+    assert pattern.search("yield 1;")
+
+
+def test_javascript_func_start_generator_spacing():
+    """func_start should handle function * name() correctly."""
+    pattern = JS_RULES["func_start"]
+    assert pattern.search("function * foo() {")
+
+
+def test_javascript_import_dynamic():
+    """import regex should capture dynamic imports."""
+    pattern = JS_RULES["import"]
+    assert pattern.search("await import('lodash');")
+
+
+def test_javascript_func_start_vertical_assignment():
+    """func_start handles vertical assignment for fat arrows."""
+    pattern = JS_RULES["func_start"]
+    assert pattern.search("export const \n foo \n = \n async () => {")
+
+
+def test_javascript_dependency_capture_multiline():
+    """_dependency_capture captures multiline imports properly."""
+    pattern = JS_RULES["_dependency_capture"]
+    text = "import {\n  foo,\n  bar\n} from\n'my-module'"
+    m = pattern.search(text)
+    assert m is not None
+    assert "my-module" in m.groups()

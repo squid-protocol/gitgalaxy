@@ -323,7 +323,7 @@ def test_javascript_class_start_known_limitation_extends_captures_first_segment_
     """
     class_start = JS_RULES["class_start"]
     m = class_start.search("class Foo extends Base.SubBase {")
-    assert m and m.group(2) == "Base", "documents current (accepted) partial-capture behavior"
+    assert m and m.group(2) == "Base.SubBase", "documents current (accepted) partial-capture behavior"
 
 
 # ==============================================================================

@@ -93,6 +93,41 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("llm_vector_store", "import { Client } from 'chromadb';", "const x = 1;"),
     ("ml_traditional", "import x from 'sklearn';", "const x = 1;"),
     ("dl_frameworks", "import * as tf from 'tensorflow';", "const x = 1;"),
+
+    # --- ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
+    ("branch", "const result = (a ?? b) || c && d ? e : f;", None),
+    ("branch", "switch(x){case 1:break;default:}", None),
+    ("branch", "try{await foo()}catch(e){finally{}}", None),
+    ("branch", "}else if(x){", None),
+    ("branch", "for  ( let i = 0 ; i < 10 ; i++ )", None),
+    ("branch", "do{foo()}while(x);", None),
+
+    ("args", "  #myPrivateMethod<T extends Record<string, any>>(a: T, b: number) {", "  return (a + b);"),
+    ("args", "const f = (x: { a: string, b: number }): void => {", "  throw (a);"),
+    ("args", "public get [Symbol.iterator]() {", "  yield (x);"),
+    ("args", "public async *myGenerator<T>(arg: T) {", "  await (p);"),
+    ("args", "  *gen(a: number) {", "  typeof (x);"),
+    ("args", "export function foo \n <T> \n (x: T) {", "void (0);"),
+
+    ("func_start", "export const myFunc: React.FC<Props> = (props) => {", "type MyFunc = (a: number) => void;"),
+    ("func_start", "public async *myGenerator<T>(arg: T) {", "  return foo();"),
+    ("func_start", "const f = function <T>(x: T) {", "  typeof foo();"),
+    ("func_start", "  #myPrivateMethod(a: number) {", "class A { #myPrivateMethod(a) {} }"),
+    ("func_start", "  [Symbol.iterator]() {", None),
+    ("func_start", "  *  myGenerator () {", None),
+
+    ("structural_boundaries", "export const a = 1;", "const a = b >= c;"),
+    ("structural_boundaries", "class Foo implements Bar {", None),
+    ("structural_boundaries", "const a = b satisfies T;", None),
+    ("structural_boundaries", "using a = new Disposable();", None),
+    ("structural_boundaries", "declare module A {}", None),
+    ("structural_boundaries", "import type { A } from 'b';", None),
+    
+    ("class_start", "export abstract class Foo<T extends U> extends Bar<T> {", None),
+    ("class_start", "export class Foo<T extends Record<K, V>> extends Bar<T> {", None),
+    ("class_start", "class Foo <T> implements A, B {", None),
+    ("class_start", "class Foo<T=any> extends Bar {", None),
+    ("class_start", "declare class Foo<T> {", None),
 ]
 
 

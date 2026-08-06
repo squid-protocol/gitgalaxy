@@ -376,3 +376,73 @@ def test_rust_redos_immunity_sweep():
     assert RUST_RULES["func_start"].search("fn foo() {}")
     assert RUST_RULES["class_start"].search("struct Foo {}")
     assert RUST_RULES["debug_prints"].search('println!("hi")')
+
+def test_rust_branch_deep_cases():
+    """Deep case variants for 'branch' structural signature."""
+    branch = RUST_RULES["branch"]
+    # Positive deep cases
+    assert branch.search("if let Some(x) = y {")
+    assert branch.search("while let Ok(x) = stream.next().await {")
+    assert branch.search("foo()?.bar()")
+    assert branch.search("x && y || z")
+    assert branch.search("break 'outer;")
+    assert branch.search("continue 'inner;")
+    assert branch.search("} else if {")
+    # Negative deep cases (bugs we fixed)
+    assert not branch.search("let r#match = 1;")
+    assert not branch.search("let r#if = true;")
+    assert not branch.search("'loop: {") # The 'loop itself shouldn't trigger branch
+    assert not branch.search("T: ?Sized")
+
+def test_rust_args_deep_cases():
+    """Deep case variants for 'args' structural signature."""
+    args = RUST_RULES["args"]
+    # Positive deep cases
+    assert args.search("fn foo<'a, T: Clone + Iterator<Item = String>>(x: i32, y: &mut T) {")
+    assert args.search("let f = |x, y| x + y;")
+    assert args.search("let g = move |x: i32| {")
+    assert args.search("async fn do_work<const N: usize>(arr: [i32; N])")
+    assert args.search("fn nested_parens(f: impl Fn(i32) -> i32) {")
+    assert args.search("map(|x| x + 1)")
+    # Negative deep cases
+    assert not args.search("let x = a | b | c;")
+    assert not args.search("if a | b | c {")
+
+def test_rust_func_start_deep_cases():
+    """Deep case variants for 'func_start' structural signature."""
+    func_start = RUST_RULES["func_start"]
+    # Positive deep cases
+    assert func_start.search("pub(crate) async unsafe extern \"C\" fn do_stuff() {")
+    assert func_start.search("#[inline(always)]\n#[no_mangle]\nfn foo() {")
+    assert func_start.search("fn r#do() {")
+    assert func_start.search("fn generic<T: Trait<Associated = <Type as Trait>::Assoc>>() {")
+    assert func_start.search("extern \"system\" fn sys_call() {")
+    # Negative deep cases
+    assert not func_start.search("let fn_ptr = 1;")
+    assert not func_start.search("struct fn_struct {}")
+
+def test_rust_class_start_deep_cases():
+    """Deep case variants for 'class_start' structural signature."""
+    class_start = RUST_RULES["class_start"]
+    # Positive deep cases
+    assert class_start.search("pub(in crate::my_mod) struct Foo {")
+    assert class_start.search("pub struct r#Struct {")
+    assert class_start.search("unsafe trait Send {}")
+    assert class_start.search("pub auto trait Send {}")
+    assert class_start.search("pub unsafe auto trait Send {}")
+    # Negative deep cases
+    assert not class_start.search("let struct_name = 1;")
+    assert not class_start.search("let trait_name = 1;")
+
+def test_rust_structural_boundaries_deep_cases():
+    """Deep case variants for 'structural_boundaries' structural signature."""
+    sb = RUST_RULES["structural_boundaries"]
+    # Positive deep cases
+    assert sb.search("impl<T> Struct<T> where T: Clone {")
+    assert sb.search("let ref mut x = 1;")
+    assert sb.search("yield x;")
+    assert sb.search("await")
+    # Negative deep cases
+    assert not sb.search("r#let")
+    assert not sb.search("r#type")
+    assert not sb.search("'yield")

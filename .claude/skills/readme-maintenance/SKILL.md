@@ -41,6 +41,6 @@ heading) rather than a general impression.
 
 `tests/README.md` carries the same drift risk and is worth a glance on any dedicated tone
 pass (not every routine README.md edit) — see the "Same Pass, Two Other Files" precedent: real
-substance (2,536 tests, 45 languages) undersold by framing like "Mathematical Proofs" and
+substance (3,649 tests, 45 languages) undersold by framing like "Mathematical Proofs" and
 "widely considered impossible." Apply the same five rules there if asked to extend the pass,
 but don't rewrite it unprompted as a side effect of an unrelated README.md edit.

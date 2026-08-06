@@ -6,6 +6,13 @@ on:
     paths-ignore: ["docs/**"]
   push:
     branches: [main]
+  # Manual re-fire for the post-gate (SARIF/SBOM/LLM brief) without needing a
+  # new commit -- added after push-to-main events silently stopped creating
+  # runs for ~4.5h on 2026-08-06 (GitHub recorded the PushEvents; no run was
+  # ever created for this workflow or muninn.yml). Root cause unconfirmed
+  # (suspected Actions run-creation throttling from this repo's push volume,
+  # see the LLM-brief auto-merge loop below); this is the recovery lever.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -74,8 +81,9 @@ jobs:
   # ============================================================
   full-report:
     if: |
-      github.event_name == 'push' &&
-      !startsWith(github.event.head_commit.message, 'docs: auto-update LLM architectural brief')
+      (github.event_name == 'push' &&
+       !startsWith(github.event.head_commit.message, 'docs: auto-update LLM architectural brief')) ||
+      github.event_name == 'workflow_dispatch'
     name: Full Report (SARIF, SBOM, LLM Brief)
     runs-on: ubuntu-latest
     permissions:

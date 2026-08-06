@@ -1475,9 +1475,16 @@ class SignalProcessor:
         # Add Implicit Risk Correction (Maintenance Overhead) to the risk
         risk_hits = opaque_execution + api_exposure + irc
 
+        if risk_hits == 0:
+            return 0.0
+
         # 3. UNIVERSAL DENSITY EQUATION
+        # Small-file smoothing (mirrors _calc_safety's laplace_smoothing): without
+        # it, irc's flat additive contribution to risk_hits dominates density at
+        # tiny files, since it's divided by raw loc instead of a padded floor.
         net_exposure = max(0.0, risk_hits - (defense_hits / 2.0))
-        density = (net_exposure / max(loc, 1)) * 100.0
+        smoothed_loc = max(loc, 1) + t.get("loc_smoothing", 20.0)
+        density = (net_exposure / smoothed_loc) * 100.0
 
         # 4. THE MULTIPLIERS (Dependency Blast Radius & Authorship Centralization)
         # Undocumented code is exponentially more dangerous if it is highly

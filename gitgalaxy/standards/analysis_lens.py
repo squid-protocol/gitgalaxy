@@ -773,6 +773,7 @@ RISK_EQUATION_TUNING = {
         "doc_weight": 1.0,
         "ownership_weight": 0.5,
         "doc_loc_weight": 0.33,
+        "loc_smoothing": 20.0,
         "threshold_base": 10.0,
         "sigmoid_slope": 0.2,
     },

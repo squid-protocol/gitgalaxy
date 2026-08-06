@@ -51,7 +51,7 @@ pipelines:
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
               - pip install --upgrade pip
-              - pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+              - pip install "gitgalaxy[yaml]" networkx tiktoken xgboost pandas numpy
               - |
                 galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output gitgalaxy-results.json
               # Publishes SARIF results as native Bitbucket Code Insights PR

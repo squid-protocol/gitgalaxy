@@ -42,10 +42,17 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 VENV_BASE = REPO_ROOT / ".crucible_venvs"
 CRUCIBLE_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 
-# mode key -> (venv dir name, extra deps for full-precision mode)
+# mode key -> (venv dir name, extra deps beyond the bare editable install)
+#
+# PyYAML is in BOTH modes' list, not just "full": since #1104 it's an optional
+# extra (`gitgalaxy[yaml]`), not a core pyproject.toml dependency, so a bare
+# `pip install -e .` no longer pulls it in for either venv. "zero-dependency"
+# here has only ever meant the optional networkx/tiktoken/pandas/xgboost stack
+# is absent -- the golden-master zero-dep fixture (tests/golden_master_zero_dep_audit.json)
+# expects PyYAML present even in that mode ("pyyaml": false, i.e. NOT missing).
 MODES = {
     "full": ("full_precision", ["PyYAML", "networkx", "tiktoken", "pandas", "xgboost"]),
-    "zero": ("zero_dependency", []),
+    "zero": ("zero_dependency", ["PyYAML"]),
 }
 
 
@@ -62,10 +69,10 @@ def ensure_venv(mode_key: str) -> Path:
         print(f"[{mode_key}] Creating venv at {mode_dir} (first run only) ...")
         venv_module.create(mode_dir, with_pip=True)
         subprocess.run([str(py), "-m", "pip", "install", "-q", "--upgrade", "pip"], check=True)
-        # Full (non --no-deps) install once, so pyproject.toml's core dependencies (e.g.
-        # PyYAML, a hard requirement, not a "full-precision" extra) are actually present --
-        # "zero-dependency" only means the optional networkx/tiktoken/pandas/xgboost stack
-        # is absent, not that core deps are stripped too.
+        # Full (non --no-deps) install once so pyproject.toml's real dependency graph
+        # resolves normally, then each mode's extra_deps (see MODES above) layers on
+        # top -- PyYAML is a `pip install -e .` extra now (#1104), not a core
+        # dependency, so both modes list it explicitly rather than getting it for free.
         subprocess.run([str(py), "-m", "pip", "install", "-q", "-e", str(REPO_ROOT)], check=True)
         if extra_deps:
             subprocess.run([str(py), "-m", "pip", "install", "-q", *extra_deps], check=True)

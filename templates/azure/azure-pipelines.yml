@@ -85,7 +85,7 @@ stages:
       displayName: 'Configure Dependency Caching'
     - script: |
         python -m pip install --upgrade pip
-        pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+        pip install "gitgalaxy[yaml]" networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
     - checkout: self
       fetchDepth: 0

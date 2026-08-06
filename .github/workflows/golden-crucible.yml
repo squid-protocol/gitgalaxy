@@ -32,11 +32,18 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --upgrade pip setuptools wheel
+          # PyYAML is installed in BOTH legs -- since #1104 it's an optional
+          # `gitgalaxy[yaml]` extra, not a core dependency, so `pip install -e .`
+          # no longer pulls it in for either leg. "Zero-Dependency Mode" here has
+          # only ever meant networkx/tiktoken/pandas/xgboost are absent; the
+          # golden-master zero-dep fixture (tests/golden_master_zero_dep_audit.json)
+          # expects PyYAML present even on this leg.
           if [ "${{ matrix.mode }}" = "full-precision" ]; then
             echo "Installing heavy engines for Full-Precision Mode..."
             pip install PyYAML networkx tiktoken pandas xgboost
           else
             echo "Deliberately skipping networkx/tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
+            pip install PyYAML
           fi
           pip install -e .
           pip install pytest

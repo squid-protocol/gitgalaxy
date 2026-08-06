@@ -40,7 +40,7 @@ stages:
     # 1. Install the tool globally FIRST (Immune to Poisoned PRs)
     - script: |
         python -m pip install --upgrade pip
-        pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+        pip install "gitgalaxy[yaml]" networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
 
     # 2. NOW pull the potentially untrusted code onto the runner

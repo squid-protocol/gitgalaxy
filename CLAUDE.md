@@ -12,7 +12,7 @@ generation, dependency mapping, and 3D visualization. CLI entry points: `galaxys
 ## Commands
 
 ```bash
-pip install -e .                              # editable install
+pip install -e ".[yaml]"                      # editable install (yaml extra needed for the full test suite -- see below)
 galaxyscope <path-to-repo>                     # run a scan
 python -m pytest tests/                        # full suite (golden_crucible tests excluded by default, see pyproject.toml addopts)
 python -m pytest tests/core_engine/test_foo.py::test_bar -q   # single test

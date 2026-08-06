@@ -170,7 +170,10 @@ def parse_official_swagger(swagger_path: Path) -> set:
             if swagger_path.suffix.lower() in [".yaml", ".yml"]:
                 if yaml is None:
                     # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
-                    raise RuntimeError(f"PyYAML is required to parse .yaml Swagger files ({swagger_path.name}).")
+                    raise RuntimeError(
+                        f"PyYAML is required to parse .yaml Swagger files ({swagger_path.name}). "
+                        "Install with `pip install gitgalaxy[yaml]`."
+                    )
                 swagger_data = yaml.safe_load(f)
             else:
                 swagger_data = json.load(f)

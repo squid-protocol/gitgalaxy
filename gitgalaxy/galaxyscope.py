@@ -2788,6 +2788,11 @@ def main():
             logging.info(f"⚙️ Loaded repository configuration from {args.config}")
         except Exception as e:
             logging.error(f"Failed to load config file {args.config}: {e}")
+    elif args.config and not HAS_PYYAML:
+        logging.warning(
+            f"⚙️ PyYAML not installed -- ignoring --config {args.config}. "
+            "Install with `pip install gitgalaxy[yaml]` to enable .galaxyscope.yaml config-file support."
+        )
 
     # Map YAML configurations directly to argparse attributes if not overridden via CLI.
     # #247: `is None` -- not a truthy/falsy check -- because None is the only

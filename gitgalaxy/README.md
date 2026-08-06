@@ -72,8 +72,12 @@ If you are modifying the internal analysis logic or lexical routing, install the
 
 From the **root directory** of the repository, run:
 ~~~bash
-pip install -e .
+pip install -e ".[yaml]"
 ~~~
+
+The core install has zero hard dependencies; the `yaml` extra pulls in PyYAML, which the test
+suite exercises directly (config-file loading, Swagger/OpenAPI parsing) even though the engine
+itself only imports it lazily and degrades gracefully without it.
 
 **Important:** GitGalaxy contains an embedded commercial licensing guardrail. To prevent a 5-second execution delay while testing your code locally, you must export the Community Free Tier key into your development environment before running the orchestrator:
 ~~~bash

@@ -34,9 +34,16 @@ classifiers = [
     "Intended Audience :: Information Technology",
 ]
 
-dependencies = [
-    "PyYAML>=6.0"
-]
+dependencies = []
+
+# PyYAML is NOT a core dependency -- it's only ever imported lazily, inside
+# functions, at 3 call sites (config_resolver.py, full_api_network_map.py,
+# galaxyscope.py's --config handling), all of which already degrade
+# gracefully (a warning + skip, or a clear RuntimeError) when it's absent.
+# See #1104: it was a hard install-time dependency by accident, never
+# revisited after being added, which broke the "0 dependencies" README claim.
+[project.optional-dependencies]
+yaml = ["PyYAML>=6.0"]
 
 [project.urls]
 "Homepage" = "https://gitgalaxy.io"

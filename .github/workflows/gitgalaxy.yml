@@ -103,10 +103,10 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install GitGalaxy & Full Precision Engines   # unchanged
+      - name: Install GitGalaxy & Full Precision Engines
         run: |
           python -m pip install --upgrade pip
-          pip install gitgalaxy networkx tiktoken xgboost pandas numpy
+          pip install "gitgalaxy[yaml]" networkx tiktoken xgboost pandas numpy
 
       - name: Run GalaxyScope (single pass — all 6 outputs)   # unchanged
         env:

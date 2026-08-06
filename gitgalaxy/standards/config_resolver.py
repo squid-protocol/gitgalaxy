@@ -232,7 +232,11 @@ def _load_yaml_section(yaml_path: str) -> dict[str, Any]:
     try:
         import yaml
     except ImportError:
-        logger.warning("pyyaml not installed -- ignoring --config %s", yaml_path)
+        logger.warning(
+            "PyYAML not installed -- ignoring --config %s. Install with `pip install gitgalaxy[yaml]` "
+            "to enable .galaxyscope.yaml config-file support.",
+            yaml_path,
+        )
         return {}
 
     try:

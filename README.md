@@ -7,7 +7,7 @@
 [![PyPI version](https://badge.fury.io/py/gitgalaxy.svg)](https://badge.fury.io/py/gitgalaxy)
 [![Python 3.09+](https://img.shields.io/badge/python-3.09+-blue.svg)](https://www.python.org/downloads/)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-[![Dependencies](https://img.shields.io/badge/Dependencies-1_(PyYAML)-brightgreen.svg)](https://pypi.org/project/gitgalaxy/)
+[![Dependencies](https://img.shields.io/badge/Dependencies-0-brightgreen.svg)](https://pypi.org/project/gitgalaxy/)
 [![Airgap Ready](https://img.shields.io/badge/Security-Airgap_Ready-teal.svg)](#data-privacy--on-premise-deployment)
 
 </div>
@@ -15,7 +15,7 @@
 <div align="center">
 
 **1 scan** · **97 structural signals** · **50+ languages** · **0 need for compilation**<br>
-**19 risk exposure scores** · **6 final reports** · **1 dependency** · `pip install gitgalaxy`
+**19 risk exposure scores** · **6 final reports** · **0 dependencies** · `pip install gitgalaxy`
 
 </div>
 

@@ -44,13 +44,13 @@ runs:
       run: |
         if [ "$GG_VERSION" = "local" ]; then
           echo "Dogfooding local GitGalaxy source..."
-          pip install -e .
+          pip install -e ".[yaml]"
         elif [ "$GG_VERSION" = "latest" ]; then
           echo "Installing latest GitGalaxy from PyPI..."
-          pip install gitgalaxy
+          pip install "gitgalaxy[yaml]"
         else
           echo "Installing GitGalaxy version ${GG_VERSION}..."
-          pip install "gitgalaxy==${GG_VERSION}"
+          pip install "gitgalaxy[yaml]==${GG_VERSION}"
         fi
 
         if [ "$GG_FULL_PRECISION" = "true" ]; then

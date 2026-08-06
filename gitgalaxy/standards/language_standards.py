@@ -2002,7 +2002,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Parameter blocks for functions and methods. Bounded generics [^\]]* and params [^)]*.
-            "args": re.compile(r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?\w*(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*\([^)]*\)", re.M),
+            "args": re.compile(
+                r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?\w*(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*\([^)]*\)", re.M
+            ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: const/var (freeze_hits) and Capitalization (encapsulation).
             "structural_boundaries": re.compile(r"\b(package|import|return|type|go|defer|chan|map|interface|struct)\b"),
@@ -2147,7 +2149,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # immediately preceded the `~` -- never true for how this
             # constraint is actually written (always preceded by a space
             # or `|` inside the type-parameter brackets). Never matched.
-            "generics": re.compile(r"\[(?:[^\[\]]|\[[^\[\]]*\])*(?:\b(?:any|comparable)\b|~[a-zA-Z_]\w*\b)(?:[^\[\]]|\[[^\[\]]*\])*\]|\bany\b"),
+            "generics": re.compile(
+                r"\[(?:[^\[\]]|\[[^\[\]]*\])*(?:\b(?:any|comparable)\b|~[a-zA-Z_]\w*\b)(?:[^\[\]]|\[[^\[\]]*\])*\]|\bany\b"
+            ),
             # 21. comprehensions (Iterators / Comprehensions)
             # Functional iteration helpers from the slices/maps packages.
             "comprehensions": re.compile(r"\b(slices\.(?:Delete|Filter|Sort|Compact)|maps\.(?:Keys|Values))\b"),
@@ -2324,7 +2328,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES panic!/throw (bailout_hits).
-            "branch": re.compile(r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)|&&|\|\|"),
+            "branch": re.compile(
+                r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)|&&|\|\|"
+            ),
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions and closures. Bounded to prevent ReDoS on complex types.
             "args": re.compile(
@@ -4010,7 +4016,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `${1:-${DEFAULT:-x}}` is captured in full instead of truncating
             # at the inner `}`. Confirmed linear-time (no ReDoS) up to a
             # 200k-char adversarial input before landing.
-            "args": re.compile(r'\$(?:[1-9]|\{#?[1-9][0-9]*(?:[:#%^,/~-](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*"'),
+            "args": re.compile(
+                r'\$(?:[1-9]|\{#?[1-9][0-9]*(?:[:#%^,/~-](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*"'
+            ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries and straight-line execution verbs.
             # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
@@ -4890,9 +4898,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries defining file architecture and control returns.
-            "structural_boundaries": re.compile(
-                r"\b(package|import|return|class|interface|object|fun|typealias)\b"
-            ),
+            "structural_boundaries": re.compile(r"\b(package|import|return|class|interface|object|fun|typealias)\b"),
             # 4. func_start (Executable Logic Anchors)
             # OPTIMIZED: Bound annotation parenthesis scanning to prevent multi-line bleeding.
             "func_start": re.compile(
@@ -5648,7 +5654,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (multi-declaration, no trailing `;`) never matched under the
             # old pattern. Dropped the semicolon requirement; presence of
             # any inline style attribute is the actual intent here.
-            "reflection_metaprogramming": re.compile(r"style=(?:\"[^\"]*\"|'[^']*')|\bon[a-z]+=(?:\"[^\"]*\"|'[^']*')", re.I),
+            "reflection_metaprogramming": re.compile(
+                r"style=(?:\"[^\"]*\"|'[^']*')|\bon[a-z]+=(?:\"[^\"]*\"|'[^']*')", re.I
+            ),
             # 24. import (Dependency Inclusions)
             "import": re.compile(
                 r"<script\s+type=(?:\"(?:importmap|module)\"|'(?:importmap|module)')|<link\s+(?:rel=(?:\"stylesheet\"|'stylesheet')|rev=(?:\"[^\"]*\"|'[^']*'))",
@@ -6907,7 +6915,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
-            "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|continue|goto|and|or|not)\b"),
+            "branch": re.compile(
+                r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|continue|goto|and|or|not)\b"
+            ),
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
             "args": re.compile(
                 r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)"
@@ -8194,7 +8204,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
-            "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b(?!\")|&&|\|\|"),
+            "branch": re.compile(
+                r"(?<!@\")\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b(?!\")|&&|\|\|"
+            ),
             # 2. args: Parameters / Coupling. Captures parameters in function signatures.
             "args": re.compile(
                 r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"
@@ -9251,7 +9263,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # CRITICAL GUARDRAIL: Anchors logic blocks. ONLY executable logic blocks.
             # In Docker, `RUN`, `CMD`, and `ENTRYPOINT` execute logic, generating discrete intermediate image layers.
-            "func_start": re.compile(r"^[ \t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)(?=[ \t\[]|\\[ \t]*(?:\r?\n|$))", re.M | re.I),
+            "func_start": re.compile(
+                r"^[ \t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)(?=[ \t\[]|\\[ \t]*(?:\r?\n|$))", re.M | re.I
+            ),
             # 5. class_start (Object / Entity Declarations)
             # Defines object-oriented and structural boundaries. Drives API Surface Area math.
             # `FROM` instantiates a discrete build stage/image boundary, acting as a class wrapper.
@@ -10353,7 +10367,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(NSFileHandle|NSFileManager|NSURLSession|NSURLConnection|NSData|NXNetPath|NXSocket|NXStream|NXFile|HTLoad|HyperText|HTGet|socket|connect|send|recv)\b"
             ),
             # 10. api: Public Surface Area. Exposed interface/C-level exports and Interface Builder hooks.
-            "api": re.compile(r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction"),
+            "api": re.compile(
+                r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction"
+            ),
             # 11. flux: State Mutation. State mutation (Property setters and raw assignments).
             "state_mutation": re.compile(r"\b(?:self\.)?[a-zA-Z_]\w*[ \t]*=|\[self\s+set[A-Z]\w*:|(?:\+\+|--)"),
             # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
@@ -11113,7 +11129,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # so a trailing same-line comment (`with: # inputs for this action`, a real authoring
             # style) broke the match entirely -- the block's own header line has to tolerate a
             # comment the same way a job/step name line would.
-            "args": re.compile(r"^[ \t]*with:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*", re.M | re.I),
+            "args": re.compile(
+                r"^[ \t]*with:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*", re.M | re.I
+            ),
             "structural_boundaries": re.compile(r"^[ \t]*(?:env|needs|runs-on|steps|strategy|matrix):", re.M | re.I),
             # Executable Logic Anchors: Explicit execution blocks
             "func_start": re.compile(
@@ -11496,7 +11514,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
-            "spec_exposure": re.compile(r"\[[ \t]*(?:SPEC[ \t]*-[ \t]*\d{1,10}|\b(?:spec|audit)\b)[^\]]{0,300}\]", re.I),
+            "spec_exposure": re.compile(
+                r"\[[ \t]*(?:SPEC[ \t]*-[ \t]*\d{1,10}|\b(?:spec|audit)\b)[^\]]{0,300}\]", re.I
+            ),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries
@@ -11600,7 +11620,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries defining scope and sequential execution.
-            "structural_boundaries": re.compile(r"(?<![^ \t\n\r(\[])(let|let\*|letrec|letrec\*|begin|do)(?![^ \t)\]\n\r])"),
+            "structural_boundaries": re.compile(
+                r"(?<![^ \t\n\r(\[])(let|let\*|letrec|letrec\*|begin|do)(?![^ \t)\]\n\r])"
+            ),
             # 4. func_start (Executable Logic Anchors)
             # Anchors logic blocks. Captures the function name immediately following the parenthesis.
             # BUG FIX: the identifier capture class `[a-zA-Z0-9_!?-]+` excluded
@@ -11641,7 +11663,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Explicit, raw manipulation of cons cells or unrestricted environments.
-            "safety_bypasses": re.compile(r"(?<![^ \t\n\r(\[])(set-car!|set-cdr!|interaction-environment)(?![^ \t)\]\n\r])"),
+            "safety_bypasses": re.compile(
+                r"(?<![^ \t\n\r(\[])(set-car!|set-cdr!|interaction-environment)(?![^ \t)\]\n\r])"
+            ),
             # 8. danger (High-Risk Execution / System Calls)
             # Dynamic code execution and emergency system exits.
             "high_risk_execution": re.compile(r"(?<![^ \t\n\r(\[])(eval|exit|emergency-exit|quit)(?![^ \t)\]\n\r])"),
@@ -11740,7 +11764,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 33. dependency_injection
             "dependency_injection": None,
             # 34. macros (Preprocessor Directives / Macros)
-            "macros": re.compile(r"(?<![^ \t\n\r(\[])(define-syntax|define-macro|syntax-rules|syntax-case)(?![^ \t)\]\n\r])"),
+            "macros": re.compile(
+                r"(?<![^ \t\n\r(\[])(define-syntax|define-macro|syntax-rules|syntax-case)(?![^ \t)\]\n\r])"
+            ),
             # 35. pointers
             "pointers": None,
             # 36. memory_alloc
@@ -11752,7 +11778,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "inline_asm": None,
             # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
             # 38. telemetry (Structured Logging / Telemetry)
-            "telemetry": re.compile(r"(?<![^ \t\n\r(\[])(log-info|log-error|log-warn|log-debug|syslog)(?![^ \t)\]\n\r])"),
+            "telemetry": re.compile(
+                r"(?<![^ \t\n\r(\[])(log-info|log-error|log-warn|log-debug|syslog)(?![^ \t)\]\n\r])"
+            ),
             # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
             "debug_prints": re.compile(r"(?<![^ \t\n\r(\[])(display|write|newline|format\s+#t)(?![^ \t)\]\n\r])"),
             # # 40. explicit_casts (Explicit Type Casting)
@@ -11772,9 +11800,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "sync_locks": re.compile(r"(?<![^ \t\n\r(\[])(mutex-lock!|make-mutex)(?![^ \t)\]\n\r])"),
             # 45. immutability_locks (Immutability Constraints)
             # Immutable strings and explicit quotations (meaning the list cannot be mutated safely).
-            "immutability_locks": re.compile(r"(?<![^ \t\n\r(\[])(quote|string->immutable-string)(?![^ \t)\]\n\r])|\'(?=\()"),
+            "immutability_locks": re.compile(
+                r"(?<![^ \t\n\r(\[])(quote|string->immutable-string)(?![^ \t)\]\n\r])|\'(?=\()"
+            ),
             # 46. cleanup (Resource Cleanup / Teardown)
-            "cleanup": re.compile(r"(?<![^ \t\n\r(\[])(close-input-port|close-output-port|close-port)(?![^ \t)\]\n\r])"),
+            "cleanup": re.compile(
+                r"(?<![^ \t\n\r(\[])(close-input-port|close-output-port|close-port)(?![^ \t)\]\n\r])"
+            ),
             # 47. encapsulation (Access Modifiers / Encapsulation)
             # Module-internal definitions.
             "encapsulation": re.compile(r"^[ \t]*\([ \t]*define-private(?![^ \t)\]\n\r])", re.M),

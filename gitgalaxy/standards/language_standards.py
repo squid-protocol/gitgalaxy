@@ -318,7 +318,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # nested-bracket bound (e.g. `def Foo[T: Sequence[int]](x: T) -> T:`, a realistic bounded
             # generic). Widened to the established one-level-nesting idiom (square-bracket variant).
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda[ \t]*[^:]*:",
+                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6103,7 +6103,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 3a. Base Types (Primitives + Derived + Classes + Legacy + Complex)
                 r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS|DOUBLE[ \t\n]+PRECISION|DOUBLE[ \t\n]+COMPLEX)"
                 # 3b. Legacy Sizing (*8) or Modern Kinds/Lengths ((KIND=4, LEN=*)) and Attributes
-                r"[A-Za-z0-9_ \t\n&*,()=]*?"
+                r"[A-Za-z0-9_ \t\n&*,()=:]*?"
                 r")?"
                 # 4. THE EXECUTION BLOCK KEYWORD
                 # Supports multi-line continuation `&` inside the spaces
@@ -7442,7 +7442,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
             # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
             "args": re.compile(
-                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)+|\\[a-zA-Z0-9_\'\s,()\[\]{} -]+->|@[A-Z][a-zA-Z0-9_\']*"
+                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-zA-Z0-9_\',()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)*|\\[a-zA-Z0-9_\'\s,()\[\]{} -]+->|@[A-Z][a-zA-Z0-9_\']*"
             ),
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
@@ -7451,12 +7451,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start: Executable Logic Anchors. Anchors executable logic (Type Signatures).
             # EXCLUDES data/type/class declarations to fix False Positives.
             "func_start": re.compile(
-                r"^[ \t]*(?:foreign\s+export\s+ccall\s+\"[^\"]*\"\s+)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)",
+                r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:data|newtype|class|type(?:\s+family)?)(?:(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:\([^)]+\)(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>|[A-Z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>))?(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*([A-Z][a-zA-Z0-9_\']*)(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*)*(?:=|\||where|deriving|\n|$))",
+                r"^[ \t]*(?:data(?:\s+family)?|newtype|class|type(?:\s+family)?)(?:(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:\([^)]+\)(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>|[A-Z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>))?(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*([A-Z][a-zA-Z0-9_\']*)(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*)*(?:=|\||where|deriving|::|\n|$))",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -7636,7 +7636,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda[ \t]+[^:]+:",
+                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -9239,7 +9239,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Build arguments (`ARG`) passed into the container acting as input parameters to the satellite.
-            "args": re.compile(r"^[ \t]*ARG[ \t]+[a-zA-Z0-9_-]+", re.M | re.I),
+            "args": re.compile(r"^[ \t]*ARG(?:[ \t]|\\[ \t]*\r?\n)+[a-zA-Z0-9_-]+", re.M | re.I),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries defining straight-line execution and environment contexts.
             # CRITICAL GUARDRAIL: EXCLUDES `FROM` and `RUN`/`CMD` to maintain geometric stability.
@@ -9249,11 +9249,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # CRITICAL GUARDRAIL: Anchors logic blocks. ONLY executable logic blocks.
             # In Docker, `RUN`, `CMD`, and `ENTRYPOINT` execute logic, generating discrete intermediate image layers.
-            "func_start": re.compile(r"^[ \t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)(?=[ \t])", re.M | re.I),
+            "func_start": re.compile(r"^[ \t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)(?=[ \t\[]|\\[ \t]*(?:\r?\n|$))", re.M | re.I),
             # 5. class_start (Object / Entity Declarations)
             # Defines object-oriented and structural boundaries. Drives API Surface Area math.
             # `FROM` instantiates a discrete build stage/image boundary, acting as a class wrapper.
-            "class_start": re.compile(r"^[ \t]*(FROM)(?=[ \t])", re.M | re.I),
+            "class_start": re.compile(r"^[ \t]*(FROM)(?=[ \t]|\\[ \t]*(?:\r?\n|$))", re.M | re.I),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming)
             # Hardening the container. Dropping root privileges (`USER nonroot`), explicit `HEALTHCHECK`,
@@ -12142,7 +12142,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch (Control Flow / Branching)
-            "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in|try|catch|finally)\b|\?|:"),
+            "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in|try|catch|finally)\b|\?"),
             # 2. args (Parameters / Coupling)
             # Captures standard method arguments and Groovy closures (x, y ->)
             # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it
@@ -12170,16 +12170,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # misread as an argument list). Added the same style of negative
             # lookahead func_start already uses.
             "args": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract)[ \t]+){0,5}"
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
                 r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+){0,3}"
                 r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
-                r"[A-Za-z_$][\w_$]*[ \t\n]*\((?:[^()]|\([^()]*\))*\)"
+                r"(?:[A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*\((?:[^()]|\([^()]*\))*\)"
                 r"|(?:(?:\{[ \t\n]*)?(?:\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})?)[ \t\n]*->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
             "structural_boundaries": re.compile(
-                r"\b(def|class|interface|trait|enum|record|import|package|extends|implements|return|yield)\b"
+                r"\b(def|class|interface|trait|enum|record|import|package|extends|implements|return|yield|sealed|permits|non-sealed)\b"
             ),
             # 4. func_start (Executable Logic Anchors)
             # HIGHLY TUNED: Uses Negative Lookahead to explicitly ignore Gradle DSL keywords (implementation, api, task)
@@ -12195,8 +12195,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # return-type fix above); added to the exclusion list alongside
             # the other control-flow-shaped keywords.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[A-Za-z0-9_.]+(?:\([^)]*\))?[ \t\n]+){0,5}"
-                r"(?:(?:public|private|protected|static|final|def)[ \t\n]+){0,5}"
+                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
                 r"(?:<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>[ \t\n]+)?"
                 r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){0,3}"
                 r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
@@ -12205,7 +12204,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start (Object / Entity Declarations)
             "class_start": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|abstract)[ \t]+){0,5}(?:class|interface|trait|enum|record)\s+[A-Za-z_$][\w_$]*",
+                r"^[ \t]*(?:(?:public|private|protected|static|final|abstract|sealed|non-sealed|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
+                r"(?:class|interface|trait|enum|record)\s+[A-Za-z_$][\w_$]*",
                 re.M,
             ),
             # --- PHASE 2: RISK ENGINE (Structural Integrity) ---
@@ -12482,10 +12482,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "lexical_family": "line_exclusive",
         "rules": {
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
-            "branch": re.compile(r"\b(IF|THEN|ELSE|ENDIF)\b", re.I),
+            "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE|ENDIF)\b", re.M | re.I),
             # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.
             "args": re.compile(
-                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:EXEC(?:[ \t].*?)?,[ \t]*PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)|PROC[ \t]+(.+))",
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:EXEC(?:[ \t].*?)?,[ \t]*PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)|PROC[ \t]+(\S.*))",
                 re.M | re.I,
             ),
             # Structural boundaries (Any line starting with // and a command)

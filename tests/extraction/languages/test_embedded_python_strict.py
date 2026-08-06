@@ -95,6 +95,53 @@ EP_RULES = LANGUAGE_DEFINITIONS["embedded_python"]["rules"]
 
 _EMBEDDED_PYTHON_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
+    # --- DEEP ADVERSARIAL CASES ---
+    ('branch', 'if (a == b):', 'different'),
+    ('branch', 'while True:', 'while_loop_name'),
+    ('branch', 'match data:', 'matchable'),
+    ('branch', 'case 1:', '_case'),
+    ('branch', 'for i in range(10):', 'foraging'),
+    ('branch', 'try:', 'try_this'),
+    ('branch', 'finally:', 'finally_clause'),
+    ('branch', 'a and b', 'random'),
+    ('branch', 'a or b', 'oracle'),
+    ('branch', 'with open("f") as f:', 'without'),
+
+    ('args', 'def foo(a="bar)", b=2):', 'foo(a="bar)", b=2)'),
+    ('args', 'async def fetch(url):', 'async fetch(url)'),
+    ('args', 'lambda: 5', 'lambda_func: 5'),
+    ('args', 'lambda x, y: x+y', 'lambda_x_y'),
+    ('args', 'lambda \nx: 5', 'lambda_var = 5'),
+    ('args', 'def generic[T](x: T):', 'generic[T](x)'),
+    ('args', 'def generic_nested[T: Sequence[int]](x: T):', 'non_generic()'),
+
+    ('func_start', 'def bar():', 'bar()'),
+    ('func_start', 'async def foo():', 'foo()'),
+    ('func_start', '    @staticmethod\n    def baz():', 'def_baz():'),
+    ('func_start', '@decorator(arg=1)\ndef wrapped():', 'wrapped()'),
+    ('func_start', 'def foo[T]():', 'foo[T]()'),
+    ('func_start', 'def foo[T: List[int]]():', 'def_foo():'),
+    ('func_start', '    async   def    many_spaces():', 'def_many_spaces():'),
+
+    ('class_start', 'class Robot:', 'Robot()'),
+    ('class_start', 'class Robot(Machine):', 'Robot(Machine)'),
+    ('class_start', 'class Robot[T]:', 'Robot[T]()'),
+    ('class_start', '    @dataclass\n    class Robot(Machine, metaclass=ABCMeta):', 'dataclass_robot'),
+    ('class_start', 'class Robot[T: Sequence[int]](Machine):', 'Robot[T]()'),
+    ('class_start', 'class    SpacedClass ( object ) :', 'SpacedClass(object)'),
+
+    ('structural_boundaries', 'yield x', 'yield_value'),
+    ('structural_boundaries', 'await foo()', 'awaitable'),
+    ('structural_boundaries', 'assert x == 1', 'assertion'),
+    ('structural_boundaries', 'global x', 'global_var'),
+    ('structural_boundaries', 'nonlocal y', 'nonlocal_var'),
+    ('structural_boundaries', 'del x', 'delete'),
+    ('structural_boundaries', 'pass', 'passed'),
+    ('structural_boundaries', 'continue', 'continuation'),
+    ('structural_boundaries', 'break', 'break_point'),
+    ('structural_boundaries', 'type X = int', 'type_var'),
+    # --- END DEEP ADVERSARIAL CASES ---
+
     ('branch', 'if button.value:\n    pass', "raise ValueError('x')"),
     ('args', 'def blink(pin, times=3):', 'blink(pin, times=3)'),
     ('structural_boundaries', 'import machine', 'imported = true'),

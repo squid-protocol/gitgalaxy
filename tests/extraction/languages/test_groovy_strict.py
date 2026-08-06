@@ -92,32 +92,32 @@ GROOVY_RULES = LANGUAGE_DEFINITIONS["groovy"]["rules"]
 _GROOVY_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # --- PHASE 1 ---
-    ("branch", "if (x > 0) { return x } else { return -x }", "def x = 1"),
-    ("args", "def calculate(int x, int y = Math.max(3, 4)) {", "def x = 1"),
+    ("branch", "if (x > 0) { return x } else { return -x }", "String x = 1"),
+    ("args", "def calculate(int x, int y = Math.max(3, 4)) {", "String x = 1"),
     ("structural_boundaries", "class Foo {}", "if (x > 0) { println x }"),
     ("func_start", "void plainMethod(String x) {", "if (x) {"),
     ("class_start", "class Foo extends Bar {", "def foo() {}"),
     # --- PHASE 2 ---
-    ("safety", "try { risky() } catch (Exception e) { }", "def x = 1"),
+    ("safety", "try { risky() } catch (Exception e) { }", "String x = 1"),
     ("safety_bypasses", "def x = null", "def x = 5"),
     ("high_risk_execution", "System.exit(1)", "println 'hi'"),
-    ("io", "def f = new File('data.txt')", "def x = 1"),
+    ("io", "def f = new File('data.txt')", "String x = 1"),
     ("api", "@RestController\nclass FooController {}", "class Foo {}"),
     ("state_mutation", "count = count + 1", "count == expected"),
     ("dead_code", "// def oldMethod() {}", "// just a comment"),
     ("doc", "/**\n * @param x the value\n */", "// just a comment"),
-    ("test", "@Test\nvoid testFoo() { assert x == 1 }", "def x = 1"),
+    ("test", "@Test\nvoid testFoo() { assert x == 1 }", "String x = 1"),
     # --- PHASE 3 ---
-    ("concurrency", "def t = new Thread({ doWork() })", "def x = 1"),
-    ("ui_framework", "def frame = new JFrame('Title')", "def x = 1"),
-    ("closures", "list.each { it * 2 }", "def x = 1"),
-    ("globals", "def home = System.getProperty('user.home')", "def x = 1"),
+    ("concurrency", "def t = new Thread({ doWork() })", "String x = 1"),
+    ("ui_framework", "def frame = new JFrame('Title')", "String x = 1"),
+    ("closures", "list.each { it * 2 }", "String x = 1"),
+    ("globals", "def home = System.getProperty('user.home')", "String x = 1"),
     ("decorators", "@CompileStatic\nclass Foo {}", "class Foo {}"),
     ("generics", "Map<String, List<Id>> data", "String data"),
-    ("comprehensions", "list.collect { it.toUpperCase() }", "def x = 1"),
-    ("scientific", "def r = Math.sqrt(4)", "def x = 1"),
-    ("reflection_metaprogramming", "foo.metaClass.bar = { -> 42 }", "def x = 1"),
-    ("import", "import com.example.Foo", "def x = 1"),
+    ("comprehensions", "list.collect { it.toUpperCase() }", "String x = 1"),
+    ("scientific", "def r = Math.sqrt(4)", "String x = 1"),
+    ("reflection_metaprogramming", "foo.metaClass.bar = { -> 42 }", "String x = 1"),
+    ("import", "import com.example.Foo", "String x = 1"),
     ("ownership", "// @author Jane Doe", "// regular comment"),
     # --- PHASE 4 ---
     ("planned_debt", "// TODO: refactor this", "// regular comment"),
@@ -125,19 +125,19 @@ _GROOVY_SIMPLE_CASES = [
     ("spec_exposure", "// [SPEC-123] audit trail", "// regular comment"),
     ("ssr_boundaries", "@ResponseBody\ndef foo() {}", "def foo() {}"),
     ("events", "@EventListener\ndef onFoo() {}", "def foo() {}"),
-    ("dependency_injection", "dependencies {\n    implementation 'foo'\n}", "def x = 1"),
+    ("dependency_injection", "dependencies {\n    implementation 'foo'\n}", "String x = 1"),
     # --- PHASE 5 ---
     ("telemetry", "logger.info('starting')", "println 'starting'"),
     ("debug_prints", "println 'debug value: ' + x", "logger.info('x')"),
     ("explicit_casts", "def x = (int) y", "def x = y"),
     ("panics_and_aborts", "throw new RuntimeException('bad')", "return x"),
-    ("thread_sleeps", "Thread.sleep(1000)", "def x = 1"),
+    ("thread_sleeps", "Thread.sleep(1000)", "String x = 1"),
     ("bitwise_ops", "def flags = mask ^ other", "def flags = mask && other"),
-    ("sync_locks", "synchronized(lock) { doWork() }", "def x = 1"),
+    ("sync_locks", "synchronized(lock) { doWork() }", "String x = 1"),
     ("immutability_locks", "final String name = 'x'", "String name = 'x'"),
-    ("cleanup", "connection.close()", "def x = 1"),
+    ("cleanup", "connection.close()", "String x = 1"),
     ("encapsulation", "private String name", "String name"),
-    ("listeners", "button.addListener(handler)", "def x = 1"),
+    ("listeners", "button.addListener(handler)", "String x = 1"),
     ("test_skip", "@Ignore\nvoid testFoo() {}", "void testFoo() {}"),
 ]
 
@@ -149,7 +149,54 @@ def test_groovy_signature_positive_and_negative(signature, positive, negative):
     assert pattern.search(positive), f"groovy {signature!r} failed to match its own documented positive case"
     if negative is not None:
         assert not pattern.search(negative), (
-            f"groovy {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
+        )
+
+_GROOVY_DEEP_CASES = [
+    # (signature, positive snippet, text expected to NOT match / None to skip)
+    # branch: ternary, Elvis, safe navigation, ensure map literals are ignored
+    ("branch", "def result = (x > 5) ? 'high' : 'low'", "def map = [key: 'value']"),
+    ("branch", "def name = user?.name", "foo(a: 1)"),
+    ("branch", "def a = b ?: c", "String type"),
+    ("branch", "switch(x) { case 1: break }", "def list = [1, 2]"),
+    ("branch", "for (String s in list) {", "def map = [a: 1]"),
+
+    # args: complex generic types, string method names, intermixed annotations
+    ("args", "public static final Map<String, List<Tuple2<Integer, String>>> complexArgMethod(int x, List<String> y) {", "if (Map<String) {"),
+    ("args", "def \"a method with spaces in its name\"(int x) {", "def \"not a method\" = 1"),
+    ("args", "public @CompileStatic final void foo(int x) {", "if (x > 0) {"),
+    ("args", "def foo(int x, \n String y) {", "while (x) {"),
+    ("args", "abstract def \"test case\"(String input)", "synchronized(lock) {"),
+
+    # func_start: generics, string names, intermixed annotations
+    ("func_start", "public <T extends Number> void process(T t) {", "class List<T> {"),
+    ("func_start", "def \"a method with spaces\"() {", "String x = 1"),
+    ("func_start", "@Test\n@Timeout(value = 1)\ndef testMethod() {", "class Foo {"),
+    ("func_start", "public @CompileStatic def myMethod() {", "def var = 1"),
+    ("func_start", "abstract Map<String, Integer> calculateTotals(List<Item> items)", "if (items) {"),
+
+    # class_start: sealed, non-sealed, intermixed annotations
+    ("class_start", "abstract sealed class Shape permits Circle, Square {", "def abstract() {}"),
+    ("class_start", "final @CompileStatic class Optimizer {", "def foo() {}"),
+    ("class_start", "@Entity\npublic class User {", "def class_name = 1"),
+    ("class_start", "public non-sealed class MyClass {", "public void method() {}"),
+    ("class_start", "protected @Deprecated abstract sealed class Internal {", "String x = 1"),
+
+    # structural_boundaries: includes sealed, permits, non-sealed
+    ("structural_boundaries", "sealed class MyClass {", "int x = 1"),
+    ("structural_boundaries", "abstract sealed class Shape permits Circle, Square {", "if (Circle) {"),
+    ("structural_boundaries", "public non-sealed class MyClass {", "int y = 2"),
+    ("structural_boundaries", "package com.example.foo", "int package_name = 1"),
+    ("structural_boundaries", "import static org.junit.Assert.*", "int import_value = 2"),
+]
+
+@pytest.mark.parametrize("signature,positive,negative", _GROOVY_DEEP_CASES)
+def test_groovy_signature_deep_positive_and_negative(signature, positive, negative):
+    pattern = GROOVY_RULES[signature]
+    assert pattern is not None, f"groovy's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"groovy {signature!r} failed to match deep positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"groovy {signature!r} incorrectly matched an excluded/negative deep case: {negative!r}"
         )
 
 

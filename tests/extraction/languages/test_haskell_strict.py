@@ -46,6 +46,46 @@ _HS_SIMPLE_CASES = [
     ("args", ":: Int -> Int", "foo x ="),
     ("args", "\\x y -> x + y", "foo x y"),
     ("args", "@Int", "data Int"),
+    
+    # --- Deepened Adversarial Cases ---
+    
+    # branch deep
+    ("branch", "  | x > 0 = True", "[x | x <- xs]"),
+    ("branch", "\\case\n  Nothing -> 0", "casey = 5"),
+    ("branch", "\\cases\n  Just x, Nothing -> x", "casesy = 5"),
+    ("branch", "if True then 1 else 2", "iffy = 5"),
+    ("branch", "MultiWayIf", "MultiWayIfy = 5"),
+    
+    # args deep
+    ("args", "foo :: {- block comment -}\n  Int -> Int", "foo = bar"),
+    ("args", "\\(Foo x) y -> x", "foo x y"),
+    ("args", "\\  x   y   ->  x", "email@example.com"),
+    ("args", "@String", "data String"),
+    ("args", ":: a ⊸ b", ":: !"),
+    
+    # func_start deep
+    ("func_start", "myFunc' :: Int -> Int", "myFunc ="),
+    ("func_start", "(>>=) :: Monad m => m a -> (a -> m b) -> m b", ">>= 5"),
+    ("func_start", "foreign export ccall \"foo\" foo :: Int -> Int", "foreign imported ccall"),
+    ("func_start", "foo {- comment \n comment -} :: Int", "foo {- -} = 5"),
+    ("func_start", "foo -- comment \n  :: Int", "foo --\n = 5"),
+    ("func_start", "foreign import ccall safe \"sin\" c_sin :: Double -> Double", "let :: Int"),
+    
+    # class_start deep
+    ("class_start", "class (Eq a, Show a) => MyClass a where", "MyClass a"),
+    ("class_start", "data {-# UNPACK #-} Foo = Foo", "Foo = Foo"),
+    ("class_start", "type State s = StateT s Identity", "typey = 5"),
+    ("class_start", "class Monad m => MonadError e m | m -> e where", "MonadError e m"),
+    ("class_start", "newtype Identity a = Identity a", "Identity a"),
+    ("class_start", "type family F a :: *", "type instance F Int = Bool"),
+    ("class_start", "data family D a", "classy = 5"),
+    
+    # structural_boundaries deep
+    ("structural_boundaries", "pattern Arrow t1 t2 = App \"->\" [t1, t2]", "patterny = 5"),
+    ("structural_boundaries", "mdo\n  x <- y", "mdoy = 5"),
+    ("structural_boundaries", "a %1 -> b", "%10 ->"),
+    ("structural_boundaries", "a ⊸ b", "a -> b"),
+    ("structural_boundaries", "deriving instance Show a => Show (MyType a)", "domain = 5"),
 
     ('api', 'module MyLib (foo, bar) where', 'import MyLib (foo, bar)'),
     ('branch', 'if x then y else z', 'x = y'),

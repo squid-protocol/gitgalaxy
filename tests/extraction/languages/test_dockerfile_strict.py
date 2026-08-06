@@ -28,6 +28,45 @@ from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 # ==============================================================================
 DOCKERFILE_RULES = LANGUAGE_DEFINITIONS["dockerfile"]["rules"]
 
+_DOCKERFILE_DEEP_CASES = [
+    # --- branch ---
+    ("branch", "RUN command1 \\\n && command2", "ENV MY_VAR=iffy"),
+    ("branch", "RUN if [ -z \"$foo\" ]; then \\", "RUN echo diff"),
+    ("branch", "RUN while true; do sleep 1; done", "LABEL specific=\"value\""),
+    ("branch", "RUN command || exit 1", "RUN echo '|'"),
+    ("branch", "RUN case \"$1\" in start) ;; esac", "ENV casey=1"),
+    
+    # --- args ---
+    ("args", "ARG VERSION=latest", "ENV ARG=1"),
+    ("args", "ARG \\\n NAME=value", "RUN echo ARG"),
+    ("args", "  arg   foo", "ARG"),  # ARG with no name is invalid/should not match
+    ("args", "ARG\t_my_arg", "ARGH=1"),
+    ("args", "ARG\\\nNAME", "RUN ARG=1"),
+    
+    # --- func_start ---
+    ("func_start", "CMD[\"executable\"]", "FROM ubuntu"),
+    ("func_start", "RUN\\\n apt-get update", "RUNNING_CMD=yes"),
+    ("func_start", "ENTRYPOINT \\\n [\"/bin/sh\"]", "# RUN apt-get"),
+    ("func_start", "HEALTHCHECK --interval=5m CMD curl", "RUN=foo"),
+    ("func_start", "  cMd [\"executable\"]", "FROM\\\nubuntu"),
+    
+    # --- class_start ---
+    ("class_start", "FROM ubuntu", "FROM_IMAGE=ubuntu"),
+    ("class_start", "FROM \\\n ubuntu", "RUN echo FROM"),
+    ("class_start", "FROM\\\nscratch", "# FROM ubuntu"),
+    ("class_start", "  from   ubuntu", "FROM"),
+    ("class_start", "FROM --platform=linux/amd64 ubuntu", "ENFROM=1"),
+    
+    # --- structural_boundaries ---
+    ("structural_boundaries", "WORKDIR /app", "RUN echo WORKDIR"),
+    ("structural_boundaries", "USER root", "CMD [\"USER\", \"root\"]"),
+    ("structural_boundaries", "VOLUME [\"/data\"]", "ENV VOLUME=1"),
+    ("structural_boundaries", "STOPSIGNAL SIGKILL", "RUN STOPSIGNAL=1"),
+    ("structural_boundaries", "SHELL [\"/bin/bash\"]", "RUN SHELL=1"),
+    ("structural_boundaries", "LABEL version=\"1.0\"", "RUN LABEL=1"),
+]
+
+
 _DOCKERFILE_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # --- PHASE 1 ---
@@ -93,7 +132,7 @@ _DOCKERFILE_SIMPLE_CASES = [
 ]
 
 
-@pytest.mark.parametrize("signature,positive,negative", _DOCKERFILE_SIMPLE_CASES)
+@pytest.mark.parametrize("signature,positive,negative", _DOCKERFILE_SIMPLE_CASES + _DOCKERFILE_DEEP_CASES)
 def test_dockerfile_signature_positive_and_negative(signature, positive, negative):
     pattern = DOCKERFILE_RULES[signature]
     assert pattern is not None, f"dockerfile's {signature!r} rule is unexpectedly None"
@@ -575,3 +614,21 @@ def test_dockerfile_ownership_and_spec_exposure_redos_immunity():
     spec_exposure = DOCKERFILE_RULES["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-123 " + "a" * 100000, timeout_sec=3.0)
     assert spec_exposure.search("[SPEC-123] compliance tag")
+
+
+def test_dockerfile_updated_signatures_redos_immunity():
+    """
+    Verify ReDoS immunity for the deepened high-ambiguity signatures (Rule 5 bounds check).
+    """
+    args_pattern = DOCKERFILE_RULES["args"]
+    func_start = DOCKERFILE_RULES["func_start"]
+    class_start = DOCKERFILE_RULES["class_start"]
+    
+    # args: test long strings of continuations
+    assert_redos_immune(args_pattern, "ARG " + "\\\n" * 20000, timeout_sec=3.0)
+    
+    # func_start: test long strings of continuations
+    assert_redos_immune(func_start, "RUN " + "\\\n" * 20000, timeout_sec=3.0)
+    
+    # class_start: test long strings of continuations
+    assert_redos_immune(class_start, "FROM " + "\\\n" * 20000, timeout_sec=3.0)

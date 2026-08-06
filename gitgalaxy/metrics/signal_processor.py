@@ -119,7 +119,6 @@ class SignalProcessor:
         # We now fetch this dynamically from gitgalaxy_standards_v1.py instead of hardcoding it!
         security_profiles = getattr(config, "LANGUAGE_SECURITY_PROFILES", {})
         self.ECOSYSTEMS = security_profiles.get("ECOSYSTEMS", {})
-        self.NATIVE_WEIGHTS = security_profiles.get("NATIVE_WEIGHTS", {})
 
         # Fetch ECOSYSTEM_MISMATCH_WEIGHTS dynamically, with a fallback to the hardcoded dictionary
         self.ECOSYSTEM_MISMATCH_WEIGHTS = security_profiles.get(
@@ -170,6 +169,11 @@ class SignalProcessor:
         """
         Calculates risk multipliers by comparing an asset's language to its directory environment.
         Detects architectural boundary violations and embedded payloads (e.g., C code in a JS directory).
+
+        Native-context files (file ecosystem matches the folder's dominant ecosystem) get neutral
+        (1.0) multipliers -- NATIVE_WEIGHTS baselines are intentionally not applied here (#1053):
+        they'd re-score every file in the corpus rather than just flagging real anomalies. Only a
+        genuine ecosystem mismatch (e.g. C hiding in a JS directory) returns a penalty.
         """
         # Default multipliers if no specific context rules apply
         multipliers = {"memory": 1.0, "state_mutation": 1.0, "injection": 1.0}
@@ -191,24 +195,21 @@ class SignalProcessor:
                 folder_eco = eco
                 break
 
-        # SCENARIO 1: The Entity matches the Context (Native)
+        # SCENARIO 1: The Entity matches the Context (Native) -- no penalty
         if file_eco == folder_eco:
-            return self.NATIVE_WEIGHTS.get(file_eco, multipliers)
+            return multipliers
 
         # SCENARIO 2: The Entity is an Alien (Context Mismatch)
         alien_key = f"{file_eco}_in_{folder_eco}"
         alien_penalties = self.ECOSYSTEM_MISMATCH_WEIGHTS.get(alien_key, {})
 
-        # Apply standard weights of the file, but overwrite with severe mismatch penalties
-        base_weights = self.NATIVE_WEIGHTS.get(file_eco, multipliers).copy()
-        base_weights.update(alien_penalties)
-
         if alien_penalties:
             self.logger.debug(
                 f"🚨 CONTEXTUAL MISMATCH DETECTED: {file_lang} asset embedded in a {folder_eco} domain. Applying out-of-bounds security penalties: {alien_penalties}"
             )
+            multipliers.update(alien_penalties)
 
-        return base_weights
+        return multipliers
 
     def _calculate_silo_risk(self, authors: dict) -> float:
         """
@@ -464,6 +465,14 @@ class SignalProcessor:
             # Environmental Context (Path-based overrides)
             mp_map = self._get_locational_multipliers(rel_path)
 
+            # Ecosystem Context (Architectural boundary violations, e.g. C hiding in a JS
+            # directory). Explicit path-modifier overrides above win on key collision --
+            # this only fills in gaps mp_map didn't already cover (#1053).
+            folder_lang = ghost_meta.get("folder_dominant_lang", lang_id)
+            context_mp = self._get_context_multipliers(lang_id, folder_lang)
+            for mp_key, mp_value in context_mp.items():
+                mp_map.setdefault(mp_key, mp_value)
+
             self.logger.debug(
                 f"[{rel_path}] Structural Calc | Lang: {lang_id} (Fc: {fc:.2f}, Irc: {irc}, Ot: {ot:.2f})"
             )
@@ -672,7 +681,9 @@ class SignalProcessor:
             # Spatial correlation is now handled natively upstream in detector.py.
 
             cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, irc, fc, mp_map.get("cog", 1.0), func_gini)
-            saf_score = self._calc_safety(loc, raw_signals, irc, fc, mp_map.get("safety", 1.0))
+            saf_score = self._calc_safety(
+                loc, raw_signals, irc, fc, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
+            )
             debt_score = self._calc_tech_debt(loc, raw_signals, irc, mp_map.get("debt", 1.0))
 
             test_score = self._calc_verification(
@@ -1341,7 +1352,9 @@ class SignalProcessor:
 
         return min(raw_score * cooling * mp, 100.0), total_density
 
-    def _calc_safety(self, loc: int, raw_signals: dict[str, int], irc: int, fc: float, mp: float) -> float:
+    def _calc_safety(
+        self, loc: int, raw_signals: dict[str, int], irc: int, fc: float, mp: float, mem_mp: float = 1.0
+    ) -> float:
         safe_loc = max(loc, 1)
         t = self.risk_tuning.get("safety", {})
 
@@ -1365,7 +1378,7 @@ class SignalProcessor:
         # a value larger than net_exposure's typical range wipes out small-
         # but-real attack density instead of merely tempering it (#1055).
         systems_buffer_ratio = t.get("systems_buffer_ratio", 0.75) if fc < 1.0 else 1.0
-        attack = ((attack_hits + irc) / smoothed_loc) * mp * systems_buffer_ratio
+        attack = ((attack_hits + irc) / smoothed_loc) * mp * mem_mp * systems_buffer_ratio
         defense = (defense_hits / smoothed_loc) * fc
 
         net_exposure = attack - defense

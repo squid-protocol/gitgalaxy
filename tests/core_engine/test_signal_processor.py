@@ -1344,3 +1344,61 @@ def test_signal_processor_doc_bypass_empty_signals_still_all_zero(processor):
 
     result = processor.calculate_risk_vector(meta_doc, sig_doc)
     assert not any(result["hit_vector"]), "empty raw_signals should still yield an all-zero hit_vector"
+
+
+# ==============================================================================
+# TEST: ECOSYSTEM CONTEXT MISMATCH (#1053 -- Architectural Boundary Violations)
+# ==============================================================================
+def test_signal_processor_ecosystem_mismatch_penalizes_safety(processor):
+    """
+    Proves a systems-language file (C) embedded in a web-ecosystem folder scores a
+    higher Error/Safety risk than the identical file sitting in its native ecosystem --
+    the ECOSYSTEM_MISMATCH_WEIGHTS "systems_in_web" memory penalty, wired into
+    _calc_safety via folder_dominant_lang metadata (#1053, previously dead code).
+    """
+    danger_signals = {"high_risk_execution": 20}
+
+    native_meta, native_sig = create_synthetic_star(processor, "native_c", 50, danger_signals)
+    native_meta["lang_id"] = "c"
+    native_meta["metadata"] = {"folder_dominant_lang": "c"}
+
+    alien_meta, alien_sig = create_synthetic_star(processor, "alien_c", 50, danger_signals)
+    alien_meta["lang_id"] = "c"
+    alien_meta["metadata"] = {"folder_dominant_lang": "javascript"}  # C hiding in a JS folder
+
+    native_res = processor.calculate_risk_vector(native_meta, native_sig)
+    alien_res = processor.calculate_risk_vector(alien_meta, alien_sig)
+
+    idx_safety = processor.RISK_SCHEMA.index("safety_score")
+    native_score = native_res["risk_vector"][idx_safety]
+    alien_score = alien_res["risk_vector"][idx_safety]
+
+    assert alien_score > native_score, (
+        "Ecosystem-mismatched file (C in a JS folder) should score a higher Error/Safety "
+        f"risk than the same file native to its folder! native={native_score} alien={alien_score}"
+    )
+
+
+def test_signal_processor_ecosystem_native_match_is_neutral(processor):
+    """
+    Proves a file whose language matches its folder's dominant ecosystem scores
+    identically to a file with no folder metadata at all -- NATIVE_WEIGHTS baselines
+    are deliberately NOT applied on a native match (#1053 chose mismatch-only
+    penalties over re-scoring every file in the corpus), so this must stay a no-op.
+    """
+    danger_signals = {"high_risk_execution": 20}
+
+    no_metadata_meta, no_metadata_sig = create_synthetic_star(processor, "no_meta_c", 50, danger_signals)
+    no_metadata_meta["lang_id"] = "c"
+
+    native_meta, native_sig = create_synthetic_star(processor, "native_c2", 50, danger_signals)
+    native_meta["lang_id"] = "c"
+    native_meta["metadata"] = {"folder_dominant_lang": "c"}
+
+    no_meta_res = processor.calculate_risk_vector(no_metadata_meta, no_metadata_sig)
+    native_res = processor.calculate_risk_vector(native_meta, native_sig)
+
+    idx_safety = processor.RISK_SCHEMA.index("safety_score")
+    assert no_meta_res["risk_vector"][idx_safety] == native_res["risk_vector"][idx_safety], (
+        "A native ecosystem match should score identically to having no folder context at all!"
+    )

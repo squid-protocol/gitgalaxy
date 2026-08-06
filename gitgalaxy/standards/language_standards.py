@@ -7138,13 +7138,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
             "branch": re.compile(
-                r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|try|catch|finally|defer|goto|continue|default)\b|&&|\|\||//|\?|:"
+                r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|try|catch|finally|defer|goto|continue|default)\b|&&|\|\||//|\?|(?<!:):(?!:)"
             ),
             # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
-            "args": re.compile(r"\b(?:sub|method)\s+(?:[a-zA-Z_]\w*\s*)?\([^)]*\)|\bmy\s*\([^)]*\)\s*=\s*@_|\bshift\b"),
+            "args": re.compile(
+                r"\b(?:sub|method)(?:\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*\([^)]*\)|\bmy\s*\([^)]*\)\s*=\s*@_|\bshift\b"
+            ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
             "structural_boundaries": re.compile(
-                r"\b(my|our|state|local|field|class|role|package|return|yield|use|require|undef|do|true|false|await)\b"
+                r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await)\b"
             ),
             # 4. func_start (Executable Logic Anchors)
             # Anchors executable logic blocks. MUST HAVE EXACTLY ONE CAPTURE GROUP for the name.
@@ -7167,13 +7169,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # lookahead to safely handle vertical gaps before the opening `{` or `(`.
                 # =====================================================================
                 r"^[ \t]*(?:sub|method)[ \t\n]+"
-                r"([a-zA-Z_]\w*)"
-                r"(?=[ \t\n]*[:\(\{]|$)",
+                r"([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)"
+                r"(?=[ \t\n]*(?::(?!:)|[\(\{]|$))",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines object-oriented and structural boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:package|class|role)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)(?=[ \t\n]*[;\{]|$)",
+                r"^[ \t]*(?:package|class|role)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)(?=[ \t\n]*[\d\.v_]*[ \t\n]*(?::(?!:)|[;\{]|$))",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -9522,7 +9524,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # args: Captures standard function inputs and return signatures `function [out1, out2] = myFun(in1, in2)`.
             # CRITICAL GUARDRAIL: Safely bounds `\([^)]*\)` and `\[[^\]]*\]`.
             "args": re.compile(
-                r"\bfunction(?:[ \t]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t]|\.\.\.[^\n]*\n)*=(?:[ \t]|\.\.\.[^\n]*\n)*)?[a-zA-Z_]\w*(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\)|@(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\)"
+                r"\bfunction(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*\([^)]*\)|@(?:[ \t\n]|\.\.\.[^\n]*\n)*\([^)]*\)"
             ),
             # linear: Structural boundaries defining straight-line execution.
             # CRITICAL GUARDRAIL: Access modifiers (private, protected) explicitly omitted.
@@ -9541,13 +9543,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the optional `(?:\[[^\]]*\]...)?` output array matcher, allowing the
                 # regex to crawl down to the assignment operator `=` and map the name.
                 # =====================================================================
-                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?=(?:[ \t\n]|\.\.\.[^\n]*\n)*\(|$)",
+                r"^[ \t]*(?!(?:if|for|while|switch|catch|classdef)\b)function(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?=(?:[ \t\n]|\.\.\.[^\n]*\n)*(?:\(|%|;|$))",
                 re.M,
             ),
             # class_start: Defines an object-oriented boundary.
             # Safely steps over optional class attributes like `classdef (ConstructOnLoad) MyClass`
             "class_start": re.compile(
-                r"^[ \t]*classdef(?:(?:[ \t]|\.\.\.[^\n]*\n)*\([^)]*\))?(?:[ \t]|\.\.\.[^\n]*\n)+([a-zA-Z_]\w*)(?=(?:[ \t]|\.\.\.[^\n]*\n)|<|$)",
+                r"^[ \t]*classdef(?:(?:[ \t\n]|\.\.\.[^\n]*\n)*\([^)]*\))?(?:[ \t\n]|\.\.\.[^\n]*\n)+([a-zA-Z_]\w*)(?=(?:[ \t\n]|\.\.\.[^\n]*\n)*(?:<|%|;|$))",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -9757,7 +9759,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
             "args": re.compile(
-                r"(?:on|command|function|getprop|setprop)\s+[a-zA-Z0-9_-]+\s+((?:(?!--|//|#|/\*)[^\n])+?)(?=[ \t]*(?:--|//|#|/\*|\n|$))",
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+[a-zA-Z0-9_-]+[ \t]+((?:(?!--|//|#|/\*)[^ \t\r\n])(?:(?!--|//|#|/\*)[^\r\n])*?)(?=[ \t]*(?:--|//|#|/\*|\r|\n|$))",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
@@ -9770,7 +9772,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).
             "func_start": re.compile(
-                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z0-9_-]+)(?=[ \t\n]|--|//|#|/\*|$)",
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z0-9_-]+)(?=[ \t\r\n]|--|//|#|/\*|$)",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Stacks, Behaviors, Widgets).
@@ -9787,7 +9789,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # after would break the same lookahead, so it never actually
             # matched anything either).
             "class_start": re.compile(
-                r"^[ \t]*(?:script|behavior|widget|module|library)[ \t]+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t]*(?:--|//|#|/\*|$))",
+                r"^[ \t]*(?:script|behavior|widget|module|library)[ \t]+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t]*(?:--|//|#|/\*|\r?$))",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10294,7 +10296,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # preceded by anything else non-word (a space, line start) --
             # meaning these 3 alternatives never actually matched real code.
             "branch": re.compile(
-                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto)\b|@try|@catch|@finally|&&|\|\||\?"
+                r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto)\b|@(try|catch|finally)\b|&&|\|\||\?"
             ),
             # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
             "args": re.compile(
@@ -10304,14 +10306,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `\b[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:\{|;)` hallucinated `if (a) {` as a function.
                 # FIX: Injected `(?!(?:if|for|while|switch|catch|return)\b)` to block control flow.
                 # =====================================================================
-                r":\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*|\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)|(?!(?:if|for|while|switch|catch|return)\b)\b[a-zA-Z_]\w*[ \t\n]*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*(?:\{|;)",
+                r":\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*|\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b[a-zA-Z_]\w*[ \t\n]*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*(?:\{|;)",
                 re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
             # BUG FIX: the 8 @-prefixed alternatives never matched -- same
             # \b-before-@ shape as branch's fix above.
             "structural_boundaries": re.compile(
-                r"@interface|@implementation|@protocol|@end|@synthesize|@dynamic|@class|@import|\b(typedef|struct|enum|union|__block|__weak|__strong)\b"
+                r"@(interface|implementation|protocol|end|synthesize|dynamic|class|import)\b|\b(typedef|struct|enum|union|__block|__weak|__strong)\b"
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic.
             # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax
@@ -10322,7 +10324,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 5. class_start: Object / Entity Declarations. Defines OO boundaries.
             "class_start": re.compile(
-                r"^[ \t]*@\s*(?:interface|implementation|protocol)(?:\\?\s)+([a-zA-Z_]\w*)(?=(?:\\?\s)*[:(<{\n]|$)",
+                r"^[ \t]*@\s*(?:interface|implementation|protocol)(?:\\?\s)+([a-zA-Z_]\w*)(?=(?:\\?\s)*(?:[:(<{/\n]|$))",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -10330,7 +10332,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # BUG FIX: @try/@catch/@finally never matched -- same \b-before-@
             # shape as branch's fix above.
             "safety": re.compile(
-                r"@try|@catch|@finally|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
+                r"@(try|catch|finally)\b|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
             ),
             # 7. safety_neg: Safety Bypasses. Bypassing ARC, raw void pointers, and dangerous dynamic selectors.
             # BUG FIX: `void\s*\*` (trailing \b after a literal `*`) and
@@ -10351,7 +10353,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(NSFileHandle|NSFileManager|NSURLSession|NSURLConnection|NSData|NXNetPath|NXSocket|NXStream|NXFile|HTLoad|HyperText|HTGet|socket|connect|send|recv)\b"
             ),
             # 10. api: Public Surface Area. Exposed interface/C-level exports and Interface Builder hooks.
-            "api": re.compile(r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@property|IBOutlet|IBAction"),
+            "api": re.compile(r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction"),
             # 11. flux: State Mutation. State mutation (Property setters and raw assignments).
             "state_mutation": re.compile(r"\b(?:self\.)?[a-zA-Z_]\w*[ \t]*=|\[self\s+set[A-Z]\w*:|(?:\+\+|--)"),
             # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
@@ -10369,7 +10371,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # BUG FIX: @synchronized never matched -- same \b-before-@ shape
             # as branch's fix above.
             "concurrency": re.compile(
-                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|NSLock|NXConditionLock)\b|@synchronized"
+                r"\b(dispatch_async|dispatch_sync|dispatch_once|dispatch_queue_t|NSOperation|NSThread|NSLock|NXConditionLock)\b|@(synchronized)\b"
             ),
             # 16. ui_framework: UI / View Components. Cocoa, UIKit, and AppKit hierarchies (Includes legacy NX classes).
             "ui_framework": re.compile(
@@ -10464,7 +10466,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
             # BUG FIX: @throw never matched -- same \b-before-@ shape as
             # branch's fix above.
-            "panics_and_aborts": re.compile(r"@throw|\b(abort|exit)\b"),
+            "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),
             # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing threads to sleep.
             "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep)\s*\("),
             # 43. bitwise_ops (Bitwise Operations)
@@ -10473,7 +10475,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # BUG FIX: @synchronized never matched -- same \b-before-@ shape
             # as branch's fix above.
             "sync_locks": re.compile(
-                r"@synchronized|\b(NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
+                r"@(synchronized)\b|\b(NSLock|NSRecursiveLock|NSConditionLock|dispatch_semaphore_wait)\b"
             ),
             # 45. immutability_locks (Immutability Constraints) Immutability.
             "immutability_locks": re.compile(r"\b(const|readonly|immutable)\b"),
@@ -10536,7 +10538,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # --------------------------------------------------------------------------
             # Captures Make conditionals and typical inline shell conditional branches.
             "branch": re.compile(
-                r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b|\b(?:if|elif|for|while|case)\b|&&|\|\|",
+                r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b(?![ \t]*:)|(?:^[ \t]*(?:@|-|\+)*[ \t]*|[;|&|(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
                 re.M,
             ),
             # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.
@@ -10551,11 +10553,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # way to tell these apart from a real Make-level reference. Fixed
             # with a negative lookbehind so a `$` immediately preceded by
             # another `$` can never start a match.
-            "args": re.compile(r"(?<!\$)\$(?:\([0-9]+\)|[0-9]\b|\(call[ \t]+[a-zA-Z0-9_.-]+)"),
+            "args": re.compile(r"(?<!\$)\$(?:\([0-9]+\)|\{[0-9]+\}|[0-9]\b|[({]call[ \t]+[a-zA-Z0-9_.-]+)"),
             # Smooth structural boundaries: variable assignments (:=, =, ?=) and native structural controls like vpath.
             # Explicitly excludes the append operator `+=` which belongs in flux.
             "structural_boundaries": re.compile(
-                r"^[ \t]*[a-zA-Z0-9_.-]+[ \t]*(?::|\?|::)?=(?![ \t]*=)|^[ \t]*(?:vpath|undefine)\b",
+                r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?=(?![ \t]*=)|^[ \t]*(?:vpath|undefine)\b",
                 re.M,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -10605,7 +10607,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # issue; documented as a known limitation instead.
             "func_start": re.compile(
                 r"^[ ]*(?!\.(?:PHONY|POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE|NOTPARALLEL|WAIT|SILENT|EXPORT_ALL_VARIABLES|IGNORE|SUFFIXES|DEFAULT|INTERMEDIATE|NOTINTERMEDIATE|LOW_RESOLUTION_TIME|ONESHELL|SECONDEXPANSION)\b)"
-                r"([a-zA-Z0-9_./%-]+)(?:[ \t]+[a-zA-Z0-9_./%-]+)*(?=[ \t]*(?:::(?!=)|:(?!:?=)))",
+                r"([a-zA-Z0-9_./%+-]+)(?:[ \t]+[a-zA-Z0-9_./%+-]+)*(?=[ \t]*(?:::(?!=)|:(?!:?=)))",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -10637,10 +10639,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # Mutating variable state by appending (+=) or shell assignment (!=). .
-            "state_mutation": re.compile(r"^[ \t]*[a-zA-Z0-9_.-]+[ \t]*(?:\+|!)=", re.M),
+            "state_mutation": re.compile(r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?:\+|!)=", re.M),
             # Commented-out targets, commented out shell logic, or commented conditional Make directives.
             "dead_code": re.compile(
-                r"^[ \t]*#[ \t]*(?:[a-zA-Z0-9_./%-]+[ \t]*::?|[a-zA-Z0-9_.-]+[ \t]*(?::|\?|::)?=|\b(?:ifeq|ifneq|ifdef|ifndef|include)\b)",
+                r"^[ \t]*#[ \t]*(?:[a-zA-Z0-9_./%+-]+[ \t]*::?|(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?=|\b(?:ifeq|ifneq|ifdef|ifndef|include)\b)",
                 re.M,
             ),
             # Structured self-documenting makefile comments typically utilizing a double hash block.
@@ -11411,7 +11413,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 6. safety (Defensive Programming / Validation)
             # Autoconf environment checks and M4 assertions.
             "safety": re.compile(
-                r"\b(?:m4_assert|AS_VERSION_COMPARE|AC_CHECK_PROG|AC_CHECK_LIB|AC_CHECK_HEADER|AC_CHECK_FUNC|m4_warn)\b"
+                r"\b(?:m4_assert|AS_VERSION_COMPARE|AC_CHECK_PROGS?|AC_CHECK_LIB|AC_CHECK_HEADERS?|AC_CHECK_FUNCS?|m4_warn)\b"
             ),
             # 7. safety_neg (Safety Bypasses / Unchecked Types)
             # Dynamically altering the quote characters or comment strings breaks the parser context completely.
@@ -11494,7 +11496,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # embedded_python, css, tcl, matlab, scheme, typescript, rust, c,
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
-            "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
+            "spec_exposure": re.compile(r"\[[ \t]*(?:SPEC[ \t]*-[ \t]*\d{1,10}|\b(?:spec|audit)\b)[^\]]{0,300}\]", re.I),
             # 30. tabs_vs_spaces (Formatting Inconsistencies)
             "tabs_vs_spaces": None,
             # 31. ssr_boundaries

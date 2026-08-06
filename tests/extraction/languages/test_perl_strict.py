@@ -323,3 +323,50 @@ def test_perl_decorators_redos_immunity():
     pattern = PERL_RULES["decorators"]
     poison = ":" + "a" * 40000
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+def test_perl_branch_colon_ambiguity_and_defined_or():
+    pattern = PERL_RULES["branch"]
+    assert pattern.search("$x ? 1 : 2;"), "ternary colon should match"
+    assert pattern.search("LABEL: while(1) {}"), "statement label colon should match"
+    assert pattern.search("$x // 0;"), "defined-or should match"
+    assert not pattern.search("Foo::Bar"), "package separator :: should NOT match"
+    assert not pattern.search("$hash{key}"), "unrelated should not match"
+
+def test_perl_args_anonymous_and_qualified_signatures():
+    pattern = PERL_RULES["args"]
+    assert pattern.search("sub ($x, $y) { }"), "anonymous sub with space should match"
+    assert pattern.search("sub($x) { }"), "anonymous sub without space should match"
+    assert pattern.search("method ($self, $x) { }"), "anonymous method should match"
+    assert pattern.search("sub Foo::Bar::baz ($x) { }"), "qualified sub with signature should match"
+    assert not pattern.search("sub Foo::Bar::baz { }"), "missing signature should not match here (handled by func_start)"
+    assert not pattern.search("method foo { }"), "missing signature should not match here"
+
+def test_perl_func_start_qualified_names_and_attributes():
+    pattern = PERL_RULES["func_start"]
+    m = pattern.search("sub Foo::Bar::baz {")
+    assert m and m.group(1) == "Foo::Bar::baz", "must capture fully qualified name"
+    m2 = pattern.search("sub foo:lvalue {")
+    assert m2 and m2.group(1) == "foo", "must handle missing space before colon attribute"
+    m3 = pattern.search("sub foo\n{")
+    assert m3 and m3.group(1) == "foo", "must handle vertical brace placement"
+    assert not pattern.search("sub Foo::Bar::baz;"), "forward declaration without attrs/block should not match"
+
+def test_perl_class_start_corinna_and_versions():
+    pattern = PERL_RULES["class_start"]
+    m = pattern.search("package Foo::Bar 1.23;")
+    assert m and m.group(1) == "Foo::Bar", "must handle package versions"
+    m2 = pattern.search("class Point v1.0.0 {")
+    assert m2 and m2.group(1) == "Point", "must handle class versions"
+    m3 = pattern.search("class Point :isa(Shape) {")
+    assert m3 and m3.group(1) == "Point", "must handle Corinna attributes"
+    m4 = pattern.search("role Throwable;")
+    assert m4 and m4.group(1) == "Throwable", "must handle roles"
+    assert not pattern.search("my $class = 'Point';"), "should not match string"
+
+def test_perl_structural_boundaries_sub_and_method():
+    pattern = PERL_RULES["structural_boundaries"]
+    assert pattern.search("sub foo {")
+    assert pattern.search("method bar {")
+    assert pattern.search("class Point {")
+    assert pattern.search("role Throwable {")
+    assert not pattern.search("my_sub()"), "should not match substrings"

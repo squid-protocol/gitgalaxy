@@ -73,6 +73,62 @@ def test_m4_signature_positive_and_negative(signature, positive, negative):
         assert not pattern.search(negative), f"m4 {signature!r} incorrectly matched an excluded case: {negative!r}"
 
 
+_M4_DEEP_CASES = [
+    # func_start
+    ("func_start", "define(`foo', `bar')", "some_cmd define(`foo', `bar')"),
+    ("func_start", "\tAC_DEFUN([macro], [])", "dnl AC_DEFUN([macro])"),
+    ("func_start", "  m4_define ( [foo], [bar] )", "# m4_define([foo])"),
+    ("func_start", "AC_DEFUN_ONCE([foo])", "AC_DEFUN_ONCE_EXTRA([foo])"),
+    ("func_start", "AU_DEFUN([foo], [bar])", "echo AU_DEFUN"),
+    ("func_start", "m4_defun([foo], [bar])", "m4_defun_not"),
+    
+    # args
+    ("args", "$1", "${1}"),
+    ("args", "$123", "$a"),
+    ("args", "$@foo", "$$"),
+    ("args", "$*", "$_"),
+    ("args", "$#", "$!"),
+    ("args", " $0 ", "${\\@}"),
+    
+    # branch
+    ("branch", "AS_IF([test], [true])", "AS_IF_SUFFIX"),
+    ("branch", "ifelse(A, B, C)", "my_ifelse()"),
+    ("branch", "m4_case([$1], [a], [b])", "m4_case_X"),
+    ("branch", "m4_ifval([$1], [yes])", "m4_ifvalue"),
+    ("branch", "AS_CASE([$x], [y], [z])", "HAS_CASE"),
+    
+    # structural_boundaries
+    ("structural_boundaries", "divert(-1)", "divert_text"),
+    ("structural_boundaries", "m4_divert(1)", "m4_divert_text"),
+    ("structural_boundaries", "AC_REQUIRE([foo])", "AC_REQUIRE_CPP"),
+    ("structural_boundaries", "undivert(1)", "undiverted"),
+    ("structural_boundaries", "m4_require([foo])", "m4_requirements"),
+    
+    # safety (missing plurals we just fixed)
+    ("safety", "AC_CHECK_HEADERS([foo.h])", "AC_CHECK_HEADERS_EXTRA"),
+    ("safety", "AC_CHECK_FUNCS([foo_func])", "AC_CHECK_FUNCS_EXTRA"),
+    ("safety", "AC_CHECK_PROGS([AWK])", "AC_CHECK_PROGS_EXTRA"),
+    ("safety", "AC_CHECK_HEADER([bar.h])", "AC_CHECK_HEADER_X"),
+    ("safety", "AC_CHECK_PROG([foo])", "AC_CHECK_PROG_X"),
+    
+    # spec_exposure (fixing the bug we found)
+    ("spec_exposure", "[SPEC-999]", "[special]"),
+    ("spec_exposure", "[audit]", "[specific]"),
+    ("spec_exposure", "[ spec ]", "[inspector]"),
+    ("spec_exposure", "[ SPEC - 123 ]", "[specular]"),
+    ("spec_exposure", "[  audit ]", "[auditorium]"),
+]
+
+
+@pytest.mark.parametrize("signature,positive,negative", _M4_DEEP_CASES)
+def test_m4_adversarial_signatures(signature, positive, negative):
+    pattern = M4_RULES[signature]
+    assert pattern is not None, f"m4's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"m4 {signature!r} failed to match its positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), f"m4 {signature!r} incorrectly matched negative case: {negative!r}"
+
+
 def test_m4_comment_style_completeness_dead_code_doc_ownership_regression():
     """
     Real bug found and fixed (Engine Rule 12 -- Comment-Style Completeness):

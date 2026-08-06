@@ -113,6 +113,42 @@ _LIVECODE_SIMPLE_CASES = [
     ("regex_execution", 'matchText(tString, "^[0-9]+$")', "put 1 into x"),
     ("time_date_logic", "put the seconds into tNow", "put 1 into x"),
     ("ipc_rpc_bridges", 'put shell("ls -la") into tOutput', "put 1 into x"),
+
+    # --- DEEP ADVERSARIAL CASES: branch ---
+    ("branch", "next   repeat", "put the next_repeat into x"),
+    ("branch", "repeat for each item tItem in tList", "put 1 into switcharoo"),
+    ("branch", "try\n  put 1\ncatch tError", "command notAFunction"),
+    ("branch", "finally", "put branching into x"),
+    ("branch", "if (x = 1) and (y = 2) then", "put 1 into if_func"),
+    
+    # --- DEEP ADVERSARIAL CASES: args ---
+    ("args", "on myHandler p1, p2, p3", "on myHandler"),
+    ("args", "function calculateTotal pPrice, pTax", "command myCmd\n  put 1 into x"),
+    ("args", "command doThing pArg1 -- inline comment", "function"),
+    ("args", "getprop myProp pIndex", "put 1 into x -- on myHandler pArg"),
+    ("args", "on myCmd arg1\r\n", "on myCmd  \r\n"),
+    ("args", "on myHandler   p1,p2   ", "command myCmd  -- comment"),
+    
+    # --- DEEP ADVERSARIAL CASES: func_start ---
+    ("func_start", "private command myCmd", "put on into x"),
+    ("func_start", "on my-Command_123", "command_not_start"),
+    ("func_start", "function myFunc\r\n", "on  \r\n"),
+    ("func_start", "public   getprop   myProp", "private  put 1 into x"),
+    ("func_start", "setprop myProp", "functionality_test"),
+    
+    # --- DEEP ADVERSARIAL CASES: class_start ---
+    ("class_start", "widget com.livecode.widget.button", "widget_button"),
+    ("class_start", "module myMod -- comment", "library_not_start"),
+    ("class_start", "behavior myBehavior\r\n", "script  \r\n"),
+    ("class_start", "library com.livecode.library", "module  "),
+    ("class_start", "script myScript /* block */", "behavioral_test"),
+    
+    # --- DEEP ADVERSARIAL CASES: structural_boundaries ---
+    ("structural_boundaries", "visual   effect", "constant visual_effect = 1"),
+    ("structural_boundaries", "go card 2", "going to card 2"),
+    ("structural_boundaries", "dispatch \"myMessage\"", "dispatcher"),
+    ("structural_boundaries", "pass myHandler", "passing value"),
+    ("structural_boundaries", "replace \"a\" with \"b\"", "replacement"),
 ]
 
 

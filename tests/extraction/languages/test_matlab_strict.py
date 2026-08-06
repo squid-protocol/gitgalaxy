@@ -123,6 +123,47 @@ def test_matlab_func_start_vertical_output_array_shield():
         assert m and m.group(1) == "foo", f"func_start failed on {line!r}"
 
 
+def test_matlab_func_start_comments_and_semicolons():
+    """
+    func_start's lookahead must tolerate trailing comments (`%`) and
+    semicolons (`;`) after the function name when there are no parens.
+    """
+    func_start = MATLAB_RULES["func_start"]
+    
+    for line in (
+        "function foo%",
+        "function foo % comment",
+        "function foo;",
+        "function foo ; % comment",
+    ):
+        m = func_start.search(line)
+        assert m and m.group(1) == "foo", f"func_start failed on {line!r}"
+
+
+def test_matlab_args_vertical_output_array_shield():
+    """
+    MATLAB function declarations frequently wrap the output array across
+    multiple physical lines. `args` must use `[ \\t\\n]` internally to
+    safely bridge these gaps without breaking. (Ported from the identical
+    fix in `func_start`).
+    """
+    args = MATLAB_RULES["args"]
+    
+    for line in (
+        "function [a, b] =\nfoo(x)",
+        "function [a, b]\n= foo(x)",
+        "function\n[a, b] = foo(x)",
+        "function [a,\n b] = foo(x)",
+        "function [a, b] = foo(x)",
+        "function y = foo(x)",
+    ):
+        assert args.search(line), f"args failed on {line!r}"
+    
+    # Negative cases: shouldn't match if no parameter list is given
+    assert not args.search("function foo")
+    assert not args.search("function [a] = foo")
+
+
 def test_matlab_class_start_with_and_without_attributes():
     class_start = MATLAB_RULES["class_start"]
     m = class_start.search("classdef (ConstructOnLoad) MyClass")
@@ -130,6 +171,60 @@ def test_matlab_class_start_with_and_without_attributes():
 
     m2 = class_start.search("classdef MyClass")
     assert m2 and m2.group(1) == "MyClass"
+
+
+def test_matlab_class_start_newlines_and_comments():
+    """
+    Ensures class_start handles vertical formatting (`[ \\t\\n]`) and
+    trailing comments (`%`) or semicolons (`;`) without failing the lookahead.
+    """
+    class_start = MATLAB_RULES["class_start"]
+    
+    # Vertically wrapped inheritance without `...` (MATLAB allows this in some contexts, or devs try it)
+    m1 = class_start.search("classdef \n (Sealed) \n MyClass \n < handle")
+    assert m1 and m1.group(1) == "MyClass"
+    
+    # No space before comment
+    m2 = class_start.search("classdef MyClass% a comment")
+    assert m2 and m2.group(1) == "MyClass"
+    
+    # No space before semicolon
+    m3 = class_start.search("classdef MyClass;")
+    assert m3 and m3.group(1) == "MyClass"
+
+
+def test_matlab_branch_adversarial_boundaries():
+    """
+    Ensures `branch` keywords require proper boundaries and don't misfire
+    on identifiers that contain branch keywords as substrings.
+    """
+    branch = MATLAB_RULES["branch"]
+    
+    # Negative cases
+    assert not branch.search("if_var = 1;")
+    assert not branch.search("my_if = 1;")
+    assert not branch.search("catchME_outside = true;")
+    assert not branch.search("try_count = 5;")
+    
+    # Positive cases
+    assert branch.search("if (x)")
+    assert branch.search("catch ME")
+    assert branch.search("try")
+
+
+def test_matlab_structural_boundaries_adversarial():
+    """
+    Ensures `structural_boundaries` keywords respect word boundaries.
+    """
+    sb = MATLAB_RULES["structural_boundaries"]
+    
+    assert not sb.search("classdef_name = 'foo';")
+    assert not sb.search("my_methods = [];")
+    assert not sb.search("events_list = {};")
+    assert not sb.search("global_var = 1;")
+    
+    assert sb.search("events")
+    assert sb.search("global x")
 
 
 def test_matlab_api_leading_boundary_regression():

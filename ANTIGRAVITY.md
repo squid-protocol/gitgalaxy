@@ -101,6 +101,23 @@ When generating or submitting a Pull Request for this repository, it is critical
   - **Do not leave the PR body blank, sparse, or lame.** A poor description will cause the PR to be rejected.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.
 
+## 9. Scratch Files & Working Directory
+
+Throwaway scripts, reproduction cases, one-off debug output, and generated test artifacts that
+aren't meant to become part of the repo do **not** belong in the repo tree, not even temporarily.
+Repeated ad hoc file drops like this (`scratch_func.py`, `pr_groovy_body.txt`, `pr_body.txt`, and
+~130 similar files across both agents) required two full manual cleanup passes (see #1091).
+
+- **Use `/tmp/gitgalaxy-scratch/antigravity/`** (create it if missing) for anything throwaway.
+  This is outside the git repo, so nothing written there ever risks a `git add`.
+- Claude Code uses its own separate directory, `/tmp/gitgalaxy-scratch/claude/` (see `CLAUDE.md`)
+  — keep to your own directory so concurrent sessions from the two models don't collide when
+  working the same worktree.
+- If a throwaway file genuinely must live inside the repo temporarily (e.g. something that only
+  works via relative pytest discovery), prefix its name `scratch_` at minimum so the root
+  `.gitignore` backstop patterns catch it, and delete it before opening the PR rather than leaving
+  it for a future cleanup pass.
+
 ## CI Ruff Audit
 The `ruff-audit.yml` CI job enforces a STRICT EXACT MATCH against `tests/ruff_audit_baseline.json`. 
 This baseline uses the line number as part of the JSON keys (e.g. `"gitgalaxy/core/detector.py:1002: PERF401"`).

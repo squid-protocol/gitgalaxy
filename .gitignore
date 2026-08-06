@@ -56,6 +56,33 @@ histogram_matcher.py
 archive/
 *.odt
 
+# AGENT SCRATCH/DEBUG FILES (Claude Code & Antigravity), repo-root only.
+# Primary control is CLAUDE.md / ANTIGRAVITY.md: throwaway scripts, repro
+# cases, and generated test artifacts belong in each model's dedicated
+# /tmp working directory, never in the repo tree. This is just the
+# backstop in case one slips through anyway -- patterns match the file
+# names that have recurred across past cleanups (see #1091).
+/scratch*.py
+/fix*.py
+/patch*.py
+/add_*.py
+/append_*.py
+/generate_*.py
+/redos_scanner.py
+/remove_invalid_tests.py
+/resolve.py
+/run_tests.sh
+/test_*.py
+/update*.py
+/wait_test.py
+/Makefile.test*
+/pr_*body*.md
+/pr_*body*.txt
+/pr_body.*
+/*_lessons.txt
+/LESSONS_LEARNED.md
+/rewrite_docs.py
+
 # GITGALAXY HEAVY DATA
 data/
 museum/

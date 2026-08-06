@@ -34,6 +34,22 @@ discipline: only commit files relevant to the change at hand (never a broad `git
 `main..HEAD` doesn't carry unrelated in-progress work before committing, and run the relevant
 baseline-gated audits / `crucible_check.py` before pushing anything that touches parsing logic.
 
+## Scratch files & working directory
+
+Throwaway scripts, reproduction cases, one-off debug output, and generated test artifacts that
+aren't meant to become part of the repo do **not** belong in the repo tree, not even temporarily
+— that's how `scratch3.py`, `fix_java_strict.py`, `pr_949_body.md`, and ~130 similar files ended
+up committed and had to be purged twice (see #1091). Use `/tmp/gitgalaxy-scratch/claude/` (create
+it if missing) instead, or the harness-provided per-session Scratchpad Directory named in your own
+system prompt if one is present — either is fine, both are outside the repo and never risk a
+`git add`. Antigravity (agy) has the same convention under its own `/tmp/gitgalaxy-scratch/antigravity/`
+— see `ANTIGRAVITY.md` — so the two models don't collide in a shared directory.
+
+If a throwaway file genuinely must live inside the repo temporarily (e.g. something that only
+works via relative pytest discovery), prefix its name `scratch_` at minimum so `.gitignore`'s
+backstop patterns catch it, and delete it before ending the task rather than leaving it for a
+future cleanup pass.
+
 ## Architecture
 
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next

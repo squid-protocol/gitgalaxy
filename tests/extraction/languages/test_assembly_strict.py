@@ -30,11 +30,53 @@ ASM_RULES = LANGUAGE_DEFINITIONS["assembly"]["rules"]
 
 _ASM_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
+    # branch (deep)
+    ("branch", "\tje .L1", "\tmov eax, ebx"),
+    ("branch", "\tBNE label", "\tmov eax, ebx"),
+    ("branch", "\tcall [rax+8]", "\tmov eax, ebx"),
+    ("branch", "\tcbz x0, label", "\tmov x0, x1"),
+    ("branch", "\ttbnz x0, #3, label", "\tmov x0, x1"),
+    ("branch", "\tloop .retry", "\tmov eax, ebx"),
+    ("branch", "\tblr x19", "\tmov eax, ebx"),
     ("branch", "\tjmp foo", "\tmov eax, ebx"),
+    
+    # args (deep)
+    
+    
+    
+    
+    
+    
+    
     ("args", "\tmov edi, 5", "\tmov eax, ebx"),
-    ("structural_boundaries", "\tmov rax, rbx", "\tjmp foo"),
+    
+    # func_start (deep)
+    ("func_start", "_start:\n", "\tmov eax, ebx"),
+    ("func_start", "@main_loop:\n", "\tmov eax, ebx"),
+    ("func_start", "?MyFunc@@YAHXZ:\n", "\tmov eax, ebx"),
+    ("func_start", "my_func: ; comment", "\tmov eax, ebx"),
+    ("func_start", "  valid_func : \n", "\tmov eax, ebx"),
+    ("func_start", "myFunc:\n\tret", ".L123:\n"),
+    ("func_start", "myFunc:\n\tret", "1:\n"),
+    ("func_start", "myFunc:\n\tret", "\t.text:\n"),
     ("func_start", "myFunc:\n\tret", "\tret"),
+    
+    # class_start (deep)
+    ("class_start", "my_struc struc", "\tmov eax, ebx"),
+    ("class_start", "\t.struct my_struct", "\tmov eax, ebx"),
+    ("class_start", "STRUCT my_struct", "\tmov eax, ebx"),
+    ("class_start", "my_struct\tSTRUCT", "\tmov eax, ebx"),
+    ("class_start", "my_struc struc", "my_struc\nstruc"),
     ("class_start", "\tstruc Point", "\tmov eax, ebx"),
+
+    # structural_boundaries (deep)
+    ("structural_boundaries", "\tmovabs rax, 0x123", "\tjmp foo"),
+    ("structural_boundaries", "\tmovzx eax, byte ptr [ebx]", "\tjmp foo"),
+    ("structural_boundaries", "\tldrb w0, [x1]", "\tjmp foo"),
+    ("structural_boundaries", "\tstp x0, x1, [sp]", "\tjmp foo"),
+    ("structural_boundaries", "\tinc qword ptr [rax]", "\tjmp foo"),
+    ("structural_boundaries", "\tvmovdqu ymm0, ymm1", "\tjmp foo"),
+    ("structural_boundaries", "\tmov rax, rbx", "\tjmp foo"),
     ("safety", "\tendbr64", "\tmov eax, ebx"),
     ("safety_bypasses", "\tjmp rax", "\tjmp foo"),
     ("high_risk_execution", "\thlt", "\tmov eax, ebx"),

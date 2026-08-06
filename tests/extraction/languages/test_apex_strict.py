@@ -90,28 +90,59 @@ APEX_RULES = LANGUAGE_DEFINITIONS["apex"]["rules"]
 _APEX_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # Deepened cases (Issue #1074)
-    ("branch", "if (x == 1) {", "Integer x = 1;"),
+    # branch
+    ("branch", "if \n (x == 1) {", "Integer x = 1;"),
     ("branch", "else if(y != 2)", "elseVar = 5;"),
     ("branch", "switch on account.Industry {", "Integer switchCount = 0;"),
-    
-    ("args", "void foo(Integer x) {", "Integer x = 1;"),
+    ("branch", "when 'Agriculture' {", "whenMethod();"),
+    ("branch", "try {", "tryVar = 1;"),
+    ("branch", "catch (Exception e) {", "catchVar = 1;"),
+    ("branch", "finally {", "finalVar = 1;"),
+    ("branch", "do {", "doMethod();"),
+
+    # args
     ("args", "public static List<Id> getIds(Map<Id, Account> accMap, Boolean flag) {", "System.debug(map, true);"),
     ("args", "global override Database.QueryLocator start(Database.BatchableContext BC)", "Id x = start();"),
-    
-    ("structural_boundaries", "public class Foo {", "Integer x = 1;"),
-    ("structural_boundaries", "trigger AccountTrigger on Account (before insert)", "AccountTrigger handler = new AccountTrigger();"),
-    
+    ("args", "@AuraEnabled(cacheable=true) public static List<Account> getAccounts(String name)", "public class Foo {"),
+    ("args", "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing(String id) {", "System.debug('public void doThing()');"),
+    ("args", "trigger MyTrigger on Account (before insert, after update) {", "for (Integer i = 0; i < 10; i++) {"),
+    ("args", "public void noArgs()", "class noArgs {"),
+    ("args", "private static Map<Id, List<Contact>> complex(Map<String, Map<Id, SObject>> nested, Boolean flag) {", "String x = 'x';"),
+
+    # func_start
     ("func_start", "public void doThing() {", "public class Foo {"),
     ("func_start", "global static List<Account> getAccounts() {", "global class AccountService {"),
     ("func_start", "private \n void \n helperMethod \n () {", "private String varName;"),
     ("func_start", "@AuraEnabled\npublic static String performAction(Id recId)", "@AuraEnabled public Integer count;"),
     ("func_start", "override protected Database.QueryLocator start(Database.BatchableContext BC)", "override class MyBatch {"),
-    
+    ("func_start", "@AuraEnabled(cacheable=true) public static List<Account> getAccounts() {", "if (true) {"),
+    ("func_start", "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing() {", "public interface Foo {"),
+    ("func_start", "trigger MyTrigger on Account (before insert) {", "catch (Exception e) {"),
+    ("func_start", "public virtual List<Map<String, Object>> complexReturn() {", "return complexReturn;"),
+
+    # class_start
     ("class_start", "public class Foo {", "public void doThing() {"),
     ("class_start", "global with sharing class SecureService implements BaseService {", "global void doSharing() {"),
     ("class_start", "private virtual abstract class BaseHelper", "private String baseVar;"),
     ("class_start", "@isTest\nprivate class MyTestClass {", "@isTest static void testMethod() {"),
-    
+    ("class_start", "@RestResource(urlMapping='/Account/*/details/(.*)') global class Foo {", "String className = 'Foo';"),
+    ("class_start", "public \n without \n sharing \n class \n Foo \n extends \n Bar {", "System.debug('class');"),
+    ("class_start", "public enum Status {", "public void Status() {"),
+    ("class_start", "global interface IService {", "global void IService() {"),
+
+    # structural_boundaries
+    ("structural_boundaries", "public class Foo {", "Integer x = 1;"),
+    ("structural_boundaries", "trigger AccountTrigger on Account (before insert)", "AccountTrigger handler = new AccountTrigger();"),
+    ("structural_boundaries", "public interface IService {", "String classVar = 'x';"),
+    ("structural_boundaries", "public enum Status {", "Integer enumVal = 1;"),
+    ("structural_boundaries", "final Integer x = 1;", "finalize();"),
+    ("structural_boundaries", "transient String x;", "transientMethod();"),
+    ("structural_boundaries", "class Foo implements Bar", "implementsMethod();"),
+    ("structural_boundaries", "class Foo extends Bar", "extendsMethod();"),
+    ("structural_boundaries", "public virtual class Foo", "virtualMethod();"),
+    ("structural_boundaries", "public abstract class Foo", "abstractMethod();"),
+    ("structural_boundaries", "return x;", "String returnVar = 'x';"),
+
     ("safety", "try {", "Integer x = 1;"),
     ("safety_bypasses", "without sharing", "with sharing"),
     ("high_risk_execution", "delete records;", "insert records;"),

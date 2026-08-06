@@ -30,10 +30,48 @@ AGC_RULES = LANGUAGE_DEFINITIONS["agc_assembly"]["rules"]
 
 _AGC_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
+    # --- DEEP CASES: branch ---
     ("branch", "\tTCF\tFOO", "\tCA\tBAR"),
+    ("branch", "  tcf  LBL", "TC_ALARM"),
+    ("branch", "BZF\tTARGET", "BATCH_TCF"),
+    ("branch", "\tRESUME\t", "MYCALL"),
+    ("branch", "  CALL  ", "RETURN_VAL"),
+    ("branch", "GOTO\tLBL", "GOTOO"),
+    ("branch", "\tBZMF\tFOO", "BZMF_VAR"),
+    ("branch", "BMI\tBAR", "BMIS"),
+
+    # --- DEEP CASES: args ---
     ("args", "\tCA\tA", "\tCA\tBAR"),
+    ("args", "\tEBANK= 4", "XEBANK="),
+    ("args", "FBANK=", "CA_A"),
+    ("args", "CA\t\t\tQ", "\tAUG\tA_BAR"),
+    ("args", "MULT L", "ZBANK="),
+    ("args", "AUG Q", "CA\tB"),
+    ("args", "\tDIM\tL", "AD \n A"),
+    ("args", "INCR Z", "AD_Z"),
+    ("args", "\tCCS\tA", "CCS_A"),
+    ("args", "DXCH\tZ", "DXCH_ZZ"),
+
+    # --- DEEP CASES: structural_boundaries ---
     ("structural_boundaries", "\tCA\tBAR", "\tTCF\tFOO"),
+    ("structural_boundaries", "  2OCT  ", "2OCTAL"),
+    ("structural_boundaries", "XCH", "DECIMAL"),
+    ("structural_boundaries", "COUNT\t", "MY_CA"),
+    ("structural_boundaries", "SETLOC", "SETLOC_VAR"),
+    ("structural_boundaries", "ERASE", "ERASED"),
+    ("structural_boundaries", "\tCAF\tFOO", "CAFFEIN"),
+    ("structural_boundaries", "CCS\tBAR", "CCSS"),
+    ("structural_boundaries", "DXCH\tFOO", "DXCH_VAR"),
+
+    # --- DEEP CASES: func_start ---
     ("func_start", "MYLABEL\tTC\tFOO", "\tTC\tFOO"),
+    ("func_start", "MY_SUB1\tCAF\tFOO", "LBL\n\tTC"),
+    ("func_start", "LABEL-123\tSTORE\tBAR", " LBL\tTC"),
+    ("func_start", "LBL\t\t\tRVQ", "LBL\tFOO"),
+    ("func_start", "SUB\tAD\t1", "LBL\tTCR_BAR"),
+    ("func_start", "label\tdas", "LBL\t"),
+    ("func_start", "ROUTINE2\tINDEX\tA", "ROUTINE\n\tCA\tA"),
+    ("func_start", "FUNC_NAME\tINHINT", "FUNC\tCA_FOO"),
     ("safety", "\tINHINT", "\tCA\tBAR"),
     ("safety_bypasses", "\tTC\tJOBSLEEP", "\tCA\tBAR"),
     ("high_risk_execution", "\tTC\tCURTAINS", "\tCA\tBAR"),

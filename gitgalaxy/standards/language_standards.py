@@ -6445,7 +6445,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 3. linear (Sequential Boundaries)
             # Data movement and arithmetic primitives. EXCLUDES: Linker visibility (api) and sections (globals).
             "structural_boundaries": re.compile(
-                r"\b(mov|mov[bwlq]|lea|ldr|str|push|pop|add|sub|inc|dec|mul|imul|div|idiv|nop|ldp|stp)\b",
+                r"\b(mov(?:abs|[sz]x|[bwlq]|aps|ups|dqu)?|vmov[a-z]+|lea|ldr[s]?[bhw]?|str[bhw]?|push|pop|add|sub|inc|dec|mul|imul|div|idiv|nop|ldp|stp)\b",
                 re.I,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -6457,7 +6457,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Maps to assembler structure definition macros.
             "class_start": re.compile(
-                r"^[ \t]*(?:(?:struc|STRUCT|\.struct)\s+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*\s+(?:struc|STRUCT|\.struct))\b",
+                r"^[ \t]*(?:(?:struc|STRUCT|\.struct)[ \t]+[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*|[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*[ \t]+(?:struc|STRUCT|\.struct))\b",
                 re.M | re.I,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -6669,7 +6669,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 1. branch (Control Flow / Branching)
             # Decisions and logical jumps. EXCLUDES fatal alarms (bailout_hits).
             "branch": re.compile(
-                r"\b(TC|TCF|BZF|BZE|BMN|BPL|CCS|RESUME|RETURN|TCR|OVSK|BVBZ|CALL|GOTO)\b",
+                r"\b(TC|TCF|BZF|BZMF|BZE|BMN|BPL|BMI|CCS|RESUME|RETURN|TCR|OVSK|BVBZ|CALL|GOTO)\b",
                 re.I,
             ),
             # 2. args (Parameters / Coupling)
@@ -6684,13 +6684,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "args": re.compile(
                 r"\b(?:[EFB]BANK)="
                 r"|"
-                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX|AUG|DIM|INCR)[ \t]+(?:A|Q|L|Z)\b",
+                r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX|AUG|DIM|INCR|CCS)[ \t]+(?:A|Q|L|Z)\b",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
             # Standard instruction flow and data markers.
             "structural_boundaries": re.compile(
-                r"\b(CA|CS|TS|DXCH|LXCH|QXCH|XCH|AD|SU|MULT|DV|MASK|SETLOC|BANK|COUNT|ADRES|OCTAL|2OCT|DEC|2DEC|BLOCK|ERASE)\b",
+                r"\b(CA|CAF|CS|TS|DXCH|LXCH|QXCH|XCH|AD|SU|MULT|DV|MASK|CCS|SETLOC|BANK|COUNT|ADRES|OCTAL|2OCT|DEC|2DEC|BLOCK|ERASE)\b",
                 re.I,
             ),
             # 4. func_start (Executable Logic Anchors)
@@ -7886,7 +7886,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # parameter-name alternative, so `finditer` now correctly yields
             # two separate matches (USING -> WS-A, RETURNING -> WS-B).
             "args": re.compile(
-                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)[ \t]+)?(?!RETURNING\b)[A-Z0-9_-]+[ \t]*,?){0,20})",
+                r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)\s+)?(?!RETURNING\b)[A-Z0-9_-]+\s*,?){0,20})",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -7939,7 +7939,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"AUTHOR|DATE-WRITTEN|DATE-COMPILED|INSTALLATION|REMARKS|SECURITY|"
                 r"INPUT-OUTPUT|CONFIGURATION|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
                 r"DIVIDE|INITIALIZE|SET|IF|ELSE|GOBACK|EXIT|STOP|EVALUATE|WHEN|READ|WRITE|REWRITE|"
-                r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|END-[A-Za-z0-9_-]+)\b)"
+                r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)\b)"
                 # 4. THE DIVISION/SECTION HEADER SHIELD
                 # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
                 # Upgraded to `[ \t\n]+` to prevent vertical ghosting.
@@ -8390,7 +8390,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.
             "args": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
                 r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)[a-zA-Z_]\w*\s*\([^)]*\)|"
                 r"^[ \t]*trigger\s+[a-zA-Z_]\w*\s+on\s+[a-zA-Z_]\w*\s*\([^)]*\)",
@@ -8404,7 +8404,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture groups and lookaheads for both Methods and Triggers.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
                 r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)(?=\s+on\b)",
@@ -8413,7 +8413,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # ReDoS clamped. Strict capture group and positive lookahead applied.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
+                r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|virtual|abstract|with\s+sharing|without\s+sharing|inherited\s+sharing)\s+){0,5}"
                 r"(?:class|interface|enum)\s+([a-zA-Z_]\w*)(?=\s+implements|\s+extends|\s*\{|\n|$)",
                 re.M,
@@ -8629,7 +8629,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 2. args (Parameters / Coupling)
             # Captures parameters in function, method, and lambda signatures.
             "args": re.compile(
-                r"(?!(?:if|for|while|switch|catch)\b)\b[A-Za-z_$][\w$]*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?=[ \t\n]*(?:\{|=>|:|async|sync))|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*=>",
+                r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b[A-Za-z_$][\w$]*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?=[ \t\n]*(?:\{|=>|:|async|sync))|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*=>",
                 re.I | re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
@@ -8640,11 +8640,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture group and positive lookahead applied.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[a-zA-Z_$][\w$]*(?:\([^)]*\))?[ \t\n]*){0,5}"
+                r"^[ \t]*(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch)\b)"
+                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
                 r"(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)"
-                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
                 r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))",
                 re.M,
             ),
@@ -8659,7 +8659,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # group `(?:[ \t\n]+(?:extends|implements|with).*?)?` to handle inheritance paths.
             # =====================================================================
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
+                r"^[ \t]*(?:@[\w.]+\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:abstract|sealed|base|interface|final|macro|mixin)[ \t\n]+){0,5}"
                 r"(?:class|mixin|enum|extension(?:[ \t\n]+type(?:[ \t\n]+const)?)?|extension)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)?([A-Z_]\w*)(?:[ \t\n]+(?:extends|implements|with)[ \t\n]+[A-Za-z_$][\w_<>, \t\n]*)?",
                 re.M,
@@ -10801,7 +10801,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
             "structural_boundaries": re.compile(
-                r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT)\b",
+                r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT)(?![(-])\b",
                 re.I | re.M,
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic. EXCLUDES structural headers.
@@ -10819,7 +10819,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # VIEW` instead of a same-tier alternative.
             "class_start": re.compile(
                 r"^[ \t]*(?:CLASS|INTERFACE)\s+([a-zA-Z0-9_-]+)(?=[ \t]+DEFINITION|[ \t\n\.]|$)"
-                r"|^[ \t]*DEFINE\s+(?:ROOT\s+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|ENTITY|BEHAVIOR\s+FOR)\s+([a-zA-Z0-9_-]+)",
+                r"|^[ \t]*DEFINE\s+(?:ROOT\s+)?(?:(?:VIEW|PROJECTION\s+VIEW)(?:\s+ENTITY)?|(?:ABSTRACT\s+|CUSTOM\s+)?ENTITY|BEHAVIOR\s+FOR)\s+([a-zA-Z0-9_-]+)",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

@@ -81,8 +81,44 @@ _DART_SIMPLE_CASES = [
     ('dead_code', '// if (x) {', '// just a note'),
 ]
 
+_DART_DEEP_CASES = [
+    # branch
+    ('branch', 'when (x)', 'int counter = 5;'),
+    ('branch', 'case Foo():', 'caseInSensitive = true;'),
+    ('branch', 'a ?? b', 'a + b'),
+    
+    # args
+    ('args', 'Future<void> foo<T>(int x, {required String y}) async {', 'if (x > 0) {'),
+    ('args', 'void bar(List<Map<String, int>> data) =>', 'while (x == 5) {'),
+    ('args', '(int a, [int? b]) =>', 'switch (x) {'),
+    ('args', 'Map<String, dynamic> parse(String json) {', 'catch (e) {'),
+    ('args', 'void foo() : super() {', 'return (x) {'),
+    
+    # func_start
+    ('func_start', '  @override\n  Future<Map<String, dynamic>> fetchData() async {', 'class Foo {'),
+    ('func_start', 'external void externalFunc();', 'mixin Bar {'),
+    ('func_start', 'static List<T> generate<T>() =>', 'if (x > 0) {'),
+    ('func_start', 'operator +(Foo other) {', "  @pragma('vm:prefer-inline')\n  static final Map<String, List<int>> Function(String)? parser = (s) => {};"),
+    ('func_start', 'factory Foo.fromJson() {', 'final Function(int) myCallback;'),
+    ('func_start', 'get value =>', 'case (x):'),
+    ('func_start', 'set value(int v) {', 'return (x) {'),
+    ('func_start', 'Tuple<List<int>, Map<String, dynamic>> complexReturn() {', 'throw (e) {'),
 
-@pytest.mark.parametrize("signature,positive,negative", _DART_SIMPLE_CASES)
+    # class_start
+    ('class_start', 'abstract base mixin class Foo<T> extends Bar with Baz {', 'final Foo user = Foo();'),
+    ('class_start', 'sealed class Either<L, R> {', '  @aclass Foo {}'),
+    ('class_start', 'extension type const MyString(String value) {', 'extension on String {'),
+    ('class_start', 'macro class Data {', None),
+    ('class_start', '@JsonSerializable()\nclass User {', None),
+
+    # structural_boundaries
+    ('structural_boundaries', 'late final String name;', 'String foo = "bar";'),
+    ('structural_boundaries', 'yield* stream;', 'int variable = 5;'),
+    ('structural_boundaries', 'sealed class Foo {', 'String data = "";'),
+]
+
+
+@pytest.mark.parametrize("signature,positive,negative", _DART_SIMPLE_CASES + _DART_DEEP_CASES)
 def test_dart_signature_positive_and_negative(signature, positive, negative):
     pattern = DART_RULES[signature]
     assert pattern is not None, f"dart's {signature!r} rule is unexpectedly None"

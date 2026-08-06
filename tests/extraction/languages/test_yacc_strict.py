@@ -397,3 +397,78 @@ def test_yacc_lexical_family_dead_code_fires_under_both_comment_styles():
         block_style = f"/* {keyword} (x) {{ }} */"
         assert pattern.search(line_style), f"'//' style with {keyword!r} didn't match"
         assert pattern.search(block_style), f"'/* */' style with {keyword!r} didn't match"
+
+
+def test_yacc_branch_deep():
+    """Deep adversarial coverage for branch signature."""
+    pattern = YACC_RULES["branch"]
+    # Positive
+    assert pattern.search("expr: term | expr '+' term;") # Grammar alternation
+    assert pattern.search("if  (x)")
+    assert pattern.search("} else {")
+    assert pattern.search("switch(x)")
+    assert pattern.search("case 1:")
+    assert pattern.search("for(;;)")
+    assert pattern.search("while(x)")
+    assert pattern.search("do {")
+    # Negative
+    assert not pattern.search("identifier_with_if_inside")
+    assert not pattern.search("x = ifelse(y);")
+    assert not pattern.search("formatting_done();")
+    assert not pattern.search("int diff = 5;")
+
+def test_yacc_args_deep():
+    """Deep adversarial coverage for args signature (yacc semantic values)."""
+    pattern = YACC_RULES["args"]
+    # Positive
+    assert pattern.search("$$ = $1;")
+    assert pattern.search("$$ = $99;")
+    assert pattern.search("$$ = $-1;")
+    assert pattern.search("$$ = $0;")
+    assert pattern.search("$<type>1")
+    assert pattern.search("$<field>$-2")
+    assert pattern.search("$<foo>$")
+    assert pattern.search("$1.val")
+    # Negative
+    assert not pattern.search("$$$")
+    assert not pattern.search("$1a")
+    assert not pattern.search("$foo")
+    assert not pattern.search("x = 1;")
+    assert not pattern.search("var_with_$_inside")
+
+def test_yacc_func_start_deep():
+    """Deep adversarial coverage for func_start signature."""
+    pattern = YACC_RULES["func_start"]
+    # Positive
+    assert pattern.search("expr:\n")
+    assert pattern.search("expr /* c */ :")
+    assert pattern.search("expr // my comment\n    :")
+    # Negative
+    assert not pattern.search("  case 1:")
+    assert not pattern.search("  default:")
+    assert not pattern.search("public:")
+    assert not pattern.search("private:")
+    assert not pattern.search("protected:")
+    assert not pattern.search("expr ;") # missing colon
+    assert not pattern.search("// expr:") # commented out
+
+def test_yacc_structural_boundaries_deep():
+    """Deep adversarial coverage for structural_boundaries."""
+    pattern = YACC_RULES["structural_boundaries"]
+    # Positive
+    assert pattern.search("%token ID")
+    assert pattern.search("%type <val> expr")
+    assert pattern.search("%left '+'")
+    assert pattern.search("%right '='")
+    assert pattern.search("%nonassoc EQ")
+    assert pattern.search("return 0;")
+    assert pattern.search("goto err;")
+    assert pattern.search("break;")
+    assert pattern.search("continue;")
+    # Negative
+    assert not pattern.search("%tokenizer")
+    assert not pattern.search("%token_table")
+    assert not pattern.search("%typewriter")
+    assert not pattern.search("int return_val = 0;")
+    assert not pattern.search("goto_target:")
+    assert not pattern.search("breaker")

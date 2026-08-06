@@ -374,3 +374,69 @@ def test_zig_redos_immunity_sweep():
     # sanity: all still match their real positive cases after the sweep
     assert ZIG_RULES["func_start"].search("pub fn main() void {")
     assert ZIG_RULES["class_start"].search("const Point = struct {")
+
+def test_zig_deep_structural_signatures_ambiguity():
+    """
+    Adversarial and deep case testing for the high-ambiguity signatures:
+    branch, args, func_start, class_start, and structural_boundaries.
+    """
+    # 1. branch
+    branch = ZIG_RULES["branch"]
+    assert branch.search("if (x) {")
+    assert branch.search("} else if (y) {")
+    assert branch.search("for (items) |item| {")
+    assert branch.search("while (true) : (i += 1) {")
+    assert branch.search("try doSomething();")
+    assert branch.search("catch |err| return err;")
+    assert branch.search("const a = b orelse c;")
+    assert branch.search("a && b")
+    assert branch.search("a || b")
+    
+    # Negative (exact identifier escapes)
+    assert not branch.search('const @"if" = 5;')
+    assert not branch.search('const @"catch" = true;')
+    
+    # 2. args
+    args = ZIG_RULES["args"]
+    # Deep parens up to depth 4
+    deep_args = 'fn max(a: typeof(foo(bar(baz())))) void {'
+    m = args.search(deep_args)
+    assert m and m.group(1) == "a: typeof(foo(bar(baz())))", "args regex should handle deep nested parens"
+    
+    # Missing delimiter (should not match endlessly or match invalid args)
+    assert not args.search('fn broken(a: type, ')
+    
+    # 3. func_start
+    func_start = ZIG_RULES["func_start"]
+    # Weird modifier stacking and nested parens in attributes
+    weird_func = 'pub inline extern "C" callconv(.C) align(@alignOf(T(u8, F(1)))) linksection(".text.(main)") fn @"my weird func"() void {'
+    m = func_start.search(weird_func)
+    assert m and m.group(1) == '@"my weird func"', "func_start should handle complex modifier stacking and deep parens in align()"
+    
+    # 4. class_start
+    class_start = ZIG_RULES["class_start"]
+    assert class_start.search('pub const Tuple = struct {')
+    assert class_start.search('const @"My Tuple" = packed struct {')
+    assert class_start.search('const State = enum(u8) {')
+    assert class_start.search('const MyUnion = extern union {')
+    assert class_start.search('const E = error {')
+    assert class_start.search('const O = opaque {')
+    
+    # Negative (type info)
+    assert not class_start.search('const Foo = @typeInfo(T).Struct;')
+    
+    # 5. structural_boundaries
+    struct_bounds = ZIG_RULES["structural_boundaries"]
+    assert struct_bounds.search('var x: i32 = 0;')
+    assert struct_bounds.search('return 5;')
+    assert struct_bounds.search('defer file.close();')
+    assert struct_bounds.search('errdefer |err| log(err);')
+    assert struct_bounds.search('unreachable;')
+    assert struct_bounds.search('resume frame;')
+    assert struct_bounds.search('suspend {}')
+    assert struct_bounds.search('await p;')
+    assert struct_bounds.search('usingnamespace std;')
+    
+    # Negative (exact identifier escapes)
+    assert not struct_bounds.search('const @"var" = 5;')
+    assert not struct_bounds.search('const @"return" = 5;')

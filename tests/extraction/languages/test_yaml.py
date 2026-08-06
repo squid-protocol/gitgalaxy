@@ -154,20 +154,16 @@ def test_yaml_args_trailing_comment_regression():
     assert args.search("with: # inputs\n  node-version: '18'"), "trailing comment on with: header regressed"
 
 
-def test_yaml_args_known_limitation_comment_only_line_before_first_key_not_supported():
+def test_yaml_args_comment_only_line_before_first_key_supported():
     """
-    Documents a known, deliberately-NOT-fixed limitation: a full-line
-    comment BETWEEN the `with:` header and the first real input key (`with:
-    \\n  # first input\\n  node-version: '18'`) does not match, unlike a
-    trailing same-line comment on the `with:` line itself (fixed above).
-    Judged not worth the added regex complexity for a rarer authoring
-    pattern than the trailing-comment case -- a per-line "skip comment
-    lines" allowance would also make it harder to require at least one real
-    key line, which the current simple `+` repetition gets for free.
+    Documents that a full-line comment BETWEEN the `with:` header and the
+    first real input key (`with:\\n  # first input\\n  node-version: '18'`)
+    NOW matches, thanks to the fix that allows up to 10 lines of comments
+    or blank lines before the first key-value pair.
     """
     args = YAML_RULES["args"]
     comment_before_first_key = "with:\n  # first input\n  node-version: '18'"
-    assert not args.search(comment_before_first_key), "documents current (expected, not-yet-fixed) regex behavior"
+    assert args.search(comment_before_first_key), "regex should now support this previously known limitation"
 
 
 def test_yaml_args_redos_immunity():

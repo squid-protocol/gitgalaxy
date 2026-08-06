@@ -91,6 +91,54 @@ _YAML_SIMPLE_CASES = [
     ),
     ("listeners", "webhook: http://example.com/hook", "endpoint: http://example.com/hook"),
     ("test_skip", "run: npm test -- --passWithNoTests", "run: npm test"),
+    # --- DEEP ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
+    # args: tolerating comments and blank lines between 'with:' and args
+    ("args", "with:\n  # comment\n  foo: bar", "without:\n  foo: bar"),
+    ("args", "with:\n\n  foo: bar", "without:\n  foo: bar"),
+    ("args", "  with:\n    # comment\n    foo: bar", "without:\n  foo: bar"),
+
+    # api: tolerating comments and blank lines between 'on:' and events
+    ("api", "on:\n  # comment\n  push:", "on:\n  # comment\n  release:"),
+    ("api", "on:\n\n  push:", "on:\n\n  release:"),
+    ("api", "on: # trigger\n  pull_request:", "on: # trigger\n  release:"),
+
+    # state_mutation: tolerating comments and blank lines between 'env:' and vars
+    ("state_mutation", "env:\n  # var comment\n  FOO: bar", "env:\n  # comment\n"),
+    ("state_mutation", "env:\n\n  FOO: bar", "env:\n\n"),
+    ("state_mutation", "env: # vars\n  FOO: bar", "env: # vars\n"),
+
+    # class_start: tolerating comments and blank lines within the job definition before 'uses:'
+    ("class_start", "job:\n  # comment\n  uses: foo", "name: job\nuses: foo"),
+    ("class_start", "job:\n\n  uses: foo", "name: job\nuses: foo"),
+    ("class_start", "job:\n  needs: build\n  # comment\n  uses: foo", "name: job\nuses: foo"),
+
+    # import / _dependency_capture: tolerating comments and blank lines between 'uses:' and the target
+    ("import", "uses: # comment\n  actions/checkout@v4", "uses: # comment\n"),
+    ("import", "uses:\n  # comment\n  actions/checkout@v4", "uses:\n  # comment\n"),
+    ("import", "uses:\n\n  actions/checkout@v4", "uses:\n\n"),
+    ("import", "uses:   \n  actions/checkout@v4", "uses:   \n"),
+    # args (more)
+    ("args", "with:\n  # comment 1\n  # comment 2\n  foo: bar", "without:\n  foo: bar"),
+    ("args", "with:  # inline\n\n  # block\n  foo: bar", "without:\n  foo: bar"),
+    ("args", "  with:\n    # comment 1\n    # comment 2\n    foo: bar", "without:\n  foo: bar"),
+
+    # api (more)
+    ("api", "on:\n  # trigger 1\n  # trigger 2\n  push:", "on:\n  # comment\n  release:"),
+    ("api", "on:  # trigger\n\n  # trigger 2\n  push:", "on:\n\n  release:"),
+
+    # state_mutation (more)
+    ("state_mutation", "env:\n  # var 1\n  # var 2\n  FOO: bar", "env:\n  # comment\n"),
+    ("state_mutation", "env:  # vars\n\n  # more\n  FOO: bar", "env: # vars\n"),
+
+    # class_start (more)
+    ("class_start", "job:\n  needs: build\n  # comment 1\n  # comment 2\n  uses: foo", "name: job\nuses: foo"),
+    ("class_start", "job:\n  # a\n  # b\n  # c\n  # d\n  # e\n  uses: foo", "name: job\nuses: foo"),
+    ("class_start", "workflow_call:\n  # inputs\n  uses: foo", "name: workflow_call\nuses: foo"),
+
+    # import / _dependency_capture (more)
+    ("import", "uses: # comment 1\n  # comment 2\n  actions/checkout@v4", "uses: # comment 1\n"),
+    ("import", "uses:\n  # comment 1\n  # comment 2\n  actions/checkout@v4", "uses:\n  # comment 1\n"),
+    ("import", "image: # comment\n  node:18", "image: # comment\n"),
     # --- Issue #1072: signature keys with zero _SIMPLE_CASES coverage ---
     ("hardcoded_secrets", 'api_key: "AKIAIOSFODNN7EXAMPLE1"', 'name: "AKIAIOSFODNN7EXAMPLE1"'),
 ]

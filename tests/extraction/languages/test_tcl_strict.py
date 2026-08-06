@@ -69,6 +69,34 @@ _TCL_SIMPLE_CASES = [
     ("encapsulation", "namespace eval ::myns {", "proc publicFn {} {}"),
     ("listeners", "fileevent $sock readable cb", "set x 5"),
     ("test_skip", "-constraints unix", "set x 5"),
+
+    # --- ADVERSARIAL & DEEP CASES ---
+    # branch
+    ("branch", "try { foo } trap {POSIX} {} finally { bar }", "try_me"),
+    ("branch", "switch -exact -- $val {", "switch_off"),
+    ("branch", "elseif {$y == 2} {", "set elseif_val 1"),
+
+    # args
+    ("args", "proc foo {a {b {nested default}}} {\n    puts $a\n}", "set x 5"), # 2 levels of nesting
+    ("args", "proc bar {a {b {nested {deeply} default}}} {\n}", "set x 5"), # 3 levels of nesting
+    ("args", "proc my-cmd {a b c} {", "set x 5"),
+
+    # func_start
+    ("func_start", "proc my-command-name {a b} {", "set x 5"),
+    ("func_start", "proc my::namespace::func? {x} {", "set x 5"),
+    ("func_start", "proc -hidden-proc {a} {", "set x 5"),
+    ("func_start", "proc is_valid!? {x} {", "set x 5"),
+    ("func_start", "proc   \n  spaced_proc   \n {a} {", "set x 5"),
+
+    # class_start
+    ("class_start", "oo::class create my-class::sub-class {", "proc foo {} {"),
+    ("class_start", "itcl::class MyClass? {", "proc foo {} {"),
+    ("class_start", "snit::type -my-type- {", "proc foo {} {"),
+
+    # globals
+    ("globals", "set path $::env(HOME)", "set env_var 5"),
+    ("globals", "upvar   #0   myvar localvar", "set upvar_var 5"),
+    ("globals", "global a-b c? d!", "set global_val 5"),
 ]
 
 

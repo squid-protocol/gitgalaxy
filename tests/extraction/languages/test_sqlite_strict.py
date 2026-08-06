@@ -91,6 +91,54 @@ _SQLITE_SIMPLE_CASES = [
     ("regex_execution", "SELECT * FROM t WHERE x REGEXP '^a';", "SELECT * FROM t WHERE x = 'a';"),
     ("time_date_logic", "SELECT datetime('now');", "SELECT 1;"),
     ("ipc_rpc_bridges", "ATTACH DATABASE 'other.db' AS other;", "SELECT 1;"),
+
+    # ==========================================
+    # ADVERSARIAL DEEP CASES
+    # ==========================================
+    # branch
+    ("branch", "select * from t wHeRe id=1", "SELECT where_id FROM t"),
+    ("branch", "SELECT SUM(x) FILTER(WHERE y=1) FROM t", "SELECT filtered_val FROM t"),
+    ("branch", "SELECT COALESCE(a, b) FROM t", "CREATE TABLE coalesce_table (id INT)"),
+    ("branch", "SELECT IIF(x>0, 'A', 'B')", "SELECT x_iif FROM t"),
+    ("branch", "SELECT x FROM t HAVING COUNT(*) > 1", "SELECT having_clause FROM t"),
+    ("branch", "SELECT CASE x WHEN 1 THEN 2 ELSE 3 END", "SELECT end_time FROM t"),
+    
+    # args
+    ("args", "WITH recursive my_cte (col1, col2) AS (SELECT 1, 2)", "WITH my_cte AS (SELECT 1, 2)"),
+    ("args", "SELECT * FROM t WHERE id IN (SELECT id FROM other)", "SELECT * FROM t WHERE id = 1"),
+    ("args", "INSERT INTO t VALUES (1, 2, 3)", "INSERT INTO t DEFAULT VALUES"),
+    ("args", "SELECT * FROM t WHERE id = ?123", "SELECT a_123 FROM t"),
+    ("args", "SELECT * FROM t WHERE id = @param_name", "SELECT param_name FROM t"),
+    ("args", "SELECT * FROM t WHERE id = $param_name", "SELECT param_name FROM t"),
+    ("args", "SELECT * FROM t WHERE id = :param_name", "SELECT param_name FROM t"),
+
+    # structural_boundaries
+    ("structural_boundaries", "A INNER JOIN B", "UPDATE t SET inner_join_val = 1"),
+    ("structural_boundaries", "A LEFT JOIN B", "UPDATE t SET left_join_val = 1"),
+    ("structural_boundaries", "A CROSS JOIN B", "UPDATE t SET cross_join_val = 1"),
+    ("structural_boundaries", "A RIGHT JOIN B", "UPDATE t SET right_join_val = 1"),
+    ("structural_boundaries", "A FULL JOIN B", "UPDATE t SET full_join_val = 1"),
+    ("structural_boundaries", "A NATURAL JOIN B", "UPDATE t SET natural_join_val = 1"),
+    ("structural_boundaries", "CREATE TABLE t (id INT) STRICT", "CREATE TABLE t (strict_val INT)"),
+    ("structural_boundaries", "CREATE TABLE t (id INT) WITHOUT ROWID", "UPDATE t SET without_rowid_val = 1"),
+    ("structural_boundaries", "SELECT ROW_NUMBER() OVER (PARTITION BY x)", "UPDATE t SET partition_by_val = 1"),
+    ("structural_boundaries", "SELECT a FROM t GROUP BY a", "UPDATE t SET group_by_val = 1"),
+    ("structural_boundaries", "SELECT a FROM t ORDER BY a", "UPDATE t SET order_by_val = 1"),
+
+    # func_start
+    ("func_start", "CREATE TRIGGER IF NOT EXISTS main.my_trig AFTER INSERT", "CREATE TABLE main_my_trig (id INT)"),
+    ("func_start", "CREATE TEMP VIEW [my view] AS SELECT 1", "CREATE TABLE temp_view (id INT)"),
+    ("func_start", "CREATE UNIQUE INDEX `my idx` ON t(a)", "CREATE TABLE unique_index (id INT)"),
+    ("func_start", "CREATE TRIGGER \"my trig\" BEFORE UPDATE", "CREATE TABLE my_trig (id INT)"),
+    ("func_start", "CREATE VIEW IF NOT EXISTS v AS SELECT 1", "CREATE TABLE view_if_not_exists (id INT)"),
+    ("func_start", "CREATE \n TRIGGER \n trg \n AFTER", "CREATE TABLE trg (id INT)"),
+
+    # class_start
+    ("class_start", "CREATE TABLE IF NOT EXISTS main.[my table] (id INT)", "CREATE VIEW main.[my table] AS SELECT 1"),
+    ("class_start", "CREATE TEMP TABLE `my table` (id INT)", "CREATE VIEW temp_table AS SELECT 1"),
+    ("class_start", "CREATE VIRTUAL TABLE t USING fts5", "CREATE VIEW virtual_table AS SELECT 1"),
+    ("class_start", "CREATE \n TABLE \n IF NOT EXISTS \n tbl (id INT)", "CREATE VIEW tbl AS SELECT 1"),
+    ("class_start", "CREATE TABLE \"table with spaces\" (id INT)", "CREATE VIEW \"table with spaces\" AS SELECT 1"),
 ]
 
 

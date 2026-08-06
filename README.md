@@ -19,6 +19,41 @@
 
 </div>
 
+<div>
+
+## What Pain Point Does This Solve?
+
+GitGalaxy exists for one recurring problem: understanding a large, real, multi-language
+codebase that doesn't compile cleanly — the state most production repositories are actually
+in, not the clean single-language input most static-analysis tooling assumes.
+
+* **Full-system scans across 50+ languages in one pass.** No per-language toolchain, no
+  successful build required. A polyglot repo with Go, YAML, Shell, and Python mixed together
+  scans as one system, not five separate tool invocations.
+* **No compilation, ever.** Broken dependencies, missing packages, disconnected vendored code,
+  half-migrated legacy modules — all scan the same way a clean repo does, because nothing here
+  has to build first.
+* **Fast enough to run on every commit.** Most repositories scan in well under a minute —
+  [Kubernetes](https://github.com/squid-protocol/gitgalaxy-raw-output/blob/main/v2.4.6/kubernetes/kubernetes_galaxy_llm.md),
+  1.39M lines across Go, YAML, JSON, Shell, and Proto, scans end to end in 50.83 seconds. A
+  handful of 20M+ LOC outliers take a few minutes instead — see the
+  [104-repo benchmark](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/)
+  for the full spread, not just the favorable case.
+* **CI-native output, not a standalone report.** Every scan produces a SARIF file (drops
+  straight into GitHub/GitLab security dashboards), a CycloneDX SBOM (dependency compliance),
+  and a 0–100 risk-exposure score per file, folder, and repo. See [Benchmarks](#benchmarks) for
+  real, inspectable examples of each.
+
+**This is not a vulnerability scanner competing with CodeQL, Semgrep, or SonarQube.** Those
+tools do deep, precise analysis once your code compiles, usually one language at a time.
+GitGalaxy answers a different question first — what does this whole system actually look like,
+and where is the risk concentrated — across every language in the repo simultaneously, before
+those deeper tools even have a build to work with. See
+["How This Compares, Architecturally"](#how-this-compares-architecturally) below for exactly
+where each tool's job starts and stops.
+
+</div>
+
 <div align="center">
 
 Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, map out the architecture, and surface risk exposures alongside prioritized refactoring targets — hotspots, bus-factor risk, and load-bearing files — so you know where to focus first. The graph below is a workflow from one gitgalaxy scan of our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)
@@ -28,11 +63,18 @@ Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, 
 
 <div>
 
-### **Whole-Repository Intelligence with a Security Layer**
+### **Architecture Intelligence — Security, Code Navigation, and Legacy Modernization Built on One Graph**
 
-Gitgalaxy is a tool to deterministically audit code, fast enough for the CI pipeline. Most code intelligence engines use an AST, like tree-sitter, which offers an overly granular view of a repo (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats.
+Gitgalaxy's core output is one thing: a deterministic structural graph of the whole
+repository. Security auditing, refactor prioritization, and legacy-to-modern language
+translation (see [Enterprise Codebase Tools & Use Cases](#enterprise-codebase-tools--use-cases)
+below) are all consumers of that same graph, not separate products with separate engines —
+which is why this reads closer to an architecture-intelligence platform than a single-purpose
+vulnerability scanner.
 
-Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass that takes seconds.
+Most code intelligence engines use an AST, like tree-sitter, which offers an overly granular view of a repo (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats.
+
+Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass — see "What Pain Point Does This Solve?" above for real scan-time figures rather than a bare adjective.
 
 The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
 

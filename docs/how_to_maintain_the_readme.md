@@ -42,29 +42,43 @@ Use this doc every time you touch README.md, not just on a dedicated cleanup pas
 
 1. Badges — only ones with a real link behind them (License, PyPI version, Python version,
    CI status). Drop any badge that's a bare label with no destination.
-2. One-paragraph description — plain terms first; the BLAST/genomics analogy can follow as an
-   aside, not the primary explanation.
-3. Proof strip — the `1 scan · 97 structural signals · 50+ languages · 0 need for
-   compilation / 19 risk exposure scores · 6 final reports · 0 dependencies` line. Keep this
+2. Proof strip — the `1 scan · 97 structural signals · 50+ languages · 0 need for
+   compilation / 19 risk exposure scores · 6 final reports · 1 dependency` line. Keep this
    verbatim — it's already the right shape (hard numbers, no adjectives) and doesn't need
-   linking per-number since the sections immediately below back it up.
-4. Architecture / pipeline diagram.
-5. **What It Finds — and Doesn't Claim** (the tone-bar section — do not rewrite its prose,
+   linking per-number since the sections immediately below back it up. (Track the dependency
+   count against `docs/readme_evidence_roadmap.md`'s PyYAML row — this line reverts to
+   "0 dependencies" only once that's actually true again.)
+3. **What Pain Point Does This Solve?** — added 2026-08-06 in direct response to external
+   feedback that a first-time visitor couldn't tell within a minute whether this competes with
+   CodeQL/Semgrep/SonarQube or does something else. Bulleted, concrete, ends with an explicit
+   "this is not X" disambiguation linking to the comparison table (item 8 below). This is now
+   the single highest-priority section to keep accurate — it's the first thing after the proof
+   strip, before the architecture diagram even loads.
+4. One-paragraph description — plain terms first; the BLAST/genomics analogy can follow as an
+   aside, not the primary explanation. Leads with the "one graph, several consumers"
+   framing (security / code navigation / legacy modernization) rather than security-first
+   branding — a previous heading ("Whole-Repository Intelligence with a Security Layer") was
+   itself part of what fed the CodeQL/Semgrep misreading.
+5. Architecture / pipeline diagram.
+6. **What It Finds — and Doesn't Claim** (the tone-bar section — do not rewrite its prose,
    only relocate it if needed).
-6. Weakness Classes, Not Just CVEs.
-7. **Proof, Not Just Claims** (the other tone-bar section).
-8. Benchmarks — every bullet follows rule 4 above.
-9. Real-World Adoption — deliberately below Benchmarks. Stars/downloads are a popularity
-   signal, not a correctness signal.
-10. Installation & CI/CD Integration.
-11. Tools & Use Cases — keep the pattern of an embedded benchmark per tool (that's rule 4
+7. Weakness Classes, Not Just CVEs.
+8. **How This Compares, Architecturally** — the comparison table vs. Semgrep/CodeQL/Snyk/
+   Dependabot. Item 3's disambiguation links forward to this; keep the anchor slug
+   (`#how-this-compares-architecturally`) stable since it's a link target.
+9. **Proof, Not Just Claims** (the other tone-bar section).
+10. Benchmarks — every bullet follows rule 4 above.
+11. Real-World Adoption — deliberately below Benchmarks. Stars/downloads are a popularity
+    signal, not a correctness signal.
+12. Installation & CI/CD Integration.
+13. Tools & Use Cases — keep the pattern of an embedded benchmark per tool (that's rule 4
     already applied); cut standalone adjectives that don't carry a number ("extreme-velocity,"
     "hunts undocumented vulnerabilities").
-12. Visualizer.
-13. Data Privacy — one section, not two. If a future edit reintroduces a second privacy
+14. Visualizer.
+15. Data Privacy — one section, not two. If a future edit reintroduces a second privacy
     section (it has happened once already — "Data Privacy & On-Premise Deployment" and
     "Zero-Trust Data Security" said the same three things in two places), merge them back.
-14. Licensing.
+16. Licensing.
 
 ## Before adding a claim
 

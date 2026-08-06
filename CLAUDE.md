@@ -23,6 +23,17 @@ python tests/dead_key_audit.py --ci            # baseline-gated dead-config-key 
 ruff format .                                  # zero-tolerance formatting (not baseline-gated)
 ```
 
+## Working autonomously: commits & PRs to main
+
+Creating commits and opening pull requests targeting `main` in this repo are pre-authorized —
+don't pause to ask for confirmation before `git commit` or `gh pr create` against `main`. This
+does not extend to merging a PR, force-pushing, or any other destructive/irreversible git
+operation (`reset --hard`, `--no-verify`, rewriting published history, etc.) — those still need
+explicit confirmation each time per the standard git safety protocol. Still follow existing repo
+discipline: only commit files relevant to the change at hand (never a broad `git add -A`), verify
+`main..HEAD` doesn't carry unrelated in-progress work before committing, and run the relevant
+baseline-gated audits / `crucible_check.py` before pushing anything that touches parsing logic.
+
 ## Architecture
 
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next

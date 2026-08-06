@@ -89,11 +89,29 @@ APEX_RULES = LANGUAGE_DEFINITIONS["apex"]["rules"]
 
 _APEX_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
+    # Deepened cases (Issue #1074)
     ("branch", "if (x == 1) {", "Integer x = 1;"),
+    ("branch", "else if(y != 2)", "elseVar = 5;"),
+    ("branch", "switch on account.Industry {", "Integer switchCount = 0;"),
+    
     ("args", "void foo(Integer x) {", "Integer x = 1;"),
+    ("args", "public static List<Id> getIds(Map<Id, Account> accMap, Boolean flag) {", "System.debug(map, true);"),
+    ("args", "global override Database.QueryLocator start(Database.BatchableContext BC)", "Id x = start();"),
+    
     ("structural_boundaries", "public class Foo {", "Integer x = 1;"),
+    ("structural_boundaries", "trigger AccountTrigger on Account (before insert)", "AccountTrigger handler = new AccountTrigger();"),
+    
     ("func_start", "public void doThing() {", "public class Foo {"),
+    ("func_start", "global static List<Account> getAccounts() {", "global class AccountService {"),
+    ("func_start", "private \n void \n helperMethod \n () {", "private String varName;"),
+    ("func_start", "@AuraEnabled\npublic static String performAction(Id recId)", "@AuraEnabled public Integer count;"),
+    ("func_start", "override protected Database.QueryLocator start(Database.BatchableContext BC)", "override class MyBatch {"),
+    
     ("class_start", "public class Foo {", "public void doThing() {"),
+    ("class_start", "global with sharing class SecureService implements BaseService {", "global void doSharing() {"),
+    ("class_start", "private virtual abstract class BaseHelper", "private String baseVar;"),
+    ("class_start", "@isTest\nprivate class MyTestClass {", "@isTest static void testMethod() {"),
+    
     ("safety", "try {", "Integer x = 1;"),
     ("safety_bypasses", "without sharing", "with sharing"),
     ("high_risk_execution", "delete records;", "insert records;"),

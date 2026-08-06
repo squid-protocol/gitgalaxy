@@ -29,7 +29,24 @@ HS_RULES = LANGUAGE_DEFINITIONS["haskell"]["rules"]
 
 _HS_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
+    # Deepened cases (Issue #1074)
     ("branch", "if x then y else z", None),
+    ("branch", "case x of", None),
+    ("branch", "\\cases True -> 1", None),
+    
+    ("class_start", "data Animal = Dog | Cat", "import Animal"),
+    ("class_start", "newtype Wrapper = Wrapper Int", "Wrapper Int"),
+    ("class_start", "class (Eq a) => Ord a where", "Ord a"),
+    ("class_start", "data Foo = Bar", "Foo = Bar"),
+    ("class_start", "type family F a", "F a ="),
+    
+    ("func_start", "myFunc :: Int -> Int", "data myFunc ="),
+    ("func_start", "(+) :: Num a => a -> a -> a", "module foo"),
+    
+    ("args", ":: Int -> Int", "foo x ="),
+    ("args", "\\x y -> x + y", "foo x y"),
+    ("args", "@Int", "data Int"),
+    
     ("structural_boundaries", "module Foo where", None),
     ("safety", "case result of\n  Just x -> x\n  Nothing -> 0", None),
     ("safety_bypasses", "fromJust maybeValue", None),

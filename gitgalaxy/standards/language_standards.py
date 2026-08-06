@@ -8380,7 +8380,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "args": re.compile(
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-                r"(?:[a-zA-Z_]\w*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)[a-zA-Z_]\w*\s*\([^)]*\)|"
+                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)[a-zA-Z_]\w*\s*\([^)]*\)|"
                 r"^[ \t]*trigger\s+[a-zA-Z_]\w*\s+on\s+[a-zA-Z_]\w*\s*\([^)]*\)",
                 re.M | re.I,
             ),
@@ -8394,7 +8394,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "func_start": re.compile(
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-                r"(?:[a-zA-Z_]\w*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
+                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)(?=\s+on\b)",
                 re.M,
             ),

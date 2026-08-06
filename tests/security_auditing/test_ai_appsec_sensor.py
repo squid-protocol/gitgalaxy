@@ -3,35 +3,7 @@ from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
 
 
 # ==============================================================================
-# TEST 1: Autonomous Execution Vector (Weaponized Prompt Injection)
-# ==============================================================================
-def test_autonomous_execution_vector_detection():
-    """
-    Proves that an LLM directly wired to OS execution (eval/subprocess)
-    and exposed via a public API correctly triggers the Autonomous Execution Vector alert.
-    """
-    sensor = AIAppSecSensor()
-
-    mock_files = [
-        {
-            "telemetry": {},
-            "equations": {
-                "llm_api": 1,  # AI is present
-                "api": 1,  # Exposed to the public internet
-                "sec_high_risk_execution": 1,  # Contains eval() or subprocess execution
-            },
-        }
-    ]
-
-    result = sensor.hunt_threats(mock_files)
-    appsec_report = result[0]["telemetry"]["ai_appsec"]
-
-    assert appsec_report["is_rce_funnel"] is True, "Failed to detect the Autonomous Execution Vector!"
-    assert any("Autonomous Execution Vector" in warning for warning in appsec_report["critical_warnings"])
-
-
-# ==============================================================================
-# TEST 2: Over-Permissioned Agent (Autonomous Data Corruption)
+# TEST 1: Over-Permissioned Agent (Autonomous Data Corruption)
 # ==============================================================================
 def test_over_permissioned_agent_detection():
     """
@@ -65,7 +37,7 @@ def test_over_permissioned_agent_detection():
 
 
 # ==============================================================================
-# TEST 2.1: THE DEAD KEY REGRESSION GUARD (#365)
+# TEST 1.1: THE DEAD KEY REGRESSION GUARD (#365)
 # ==============================================================================
 def test_over_permissioned_agent_no_longer_reads_dead_ai_tools_key():
     """
@@ -97,40 +69,12 @@ def test_over_permissioned_agent_no_longer_reads_dead_ai_tools_key():
 
 
 # ==============================================================================
-# TEST 3: Agentic Exfiltration Vector (Unsandboxed Sockets)
-# ==============================================================================
-def test_exfiltration_vector_detection():
-    """
-    Proves that an LLM with access to both raw network sockets and hardcoded
-    environment secrets triggers the Agentic Exfiltration Vector alert.
-    """
-    sensor = AIAppSecSensor()
-
-    mock_files = [
-        {
-            "telemetry": {},
-            "equations": {
-                "llm_api": 1,  # AI is present
-                "io": 1,  # Can make outbound network requests
-                "sec_hardcoded_secrets": 1,  # Has access to AWS keys/passwords
-            },
-        }
-    ]
-
-    result = sensor.hunt_threats(mock_files)
-    appsec_report = result[0]["telemetry"]["ai_appsec"]
-
-    assert appsec_report["agentic_exfiltration_risk"] is True, "Failed to detect the Agentic Exfiltration Vector!"
-    assert any("Agentic Exfiltration Vector" in warning for warning in appsec_report["critical_warnings"])
-
-
-# ==============================================================================
-# TEST 4: The Clean Baseline (False-Positive Guard)
+# TEST 2: The Clean Baseline (False-Positive Guard)
 # ==============================================================================
 def test_safe_baseline():
     """
     Proves that a properly sandboxed AI integration (e.g., an LLM script with
-    no network execution, no eval(), and high safety density) passes cleanly.
+    high safety density) passes cleanly.
     """
     sensor = AIAppSecSensor()
 
@@ -139,10 +83,8 @@ def test_safe_baseline():
             "coding_loc": 50,
             "telemetry": {},
             "equations": {
-                "llm_api": 1,  # ✅ AI is present
-                "api": 0,  # ✅ Not exposed to the public
-                "sec_high_risk_execution": 0,  # ✅ No eval/subprocess
-                "sec_hardcoded_secrets": 0,  # ✅ No secrets exposed
+                "llm_orchestrator": 1,  # ✅ AI orchestration present
+                "io": 1,  # ✅ Has IO access
                 "safety": 5,  # ✅ High defensive try/catch density (-> density 1.0)
             },
         }
@@ -152,7 +94,47 @@ def test_safe_baseline():
     appsec_report = result[0]["telemetry"]["ai_appsec"]
 
     # Assert absolutely NO flags were triggered
-    assert appsec_report["is_rce_funnel"] is False
     assert appsec_report["over_permissioned_agent"] is False
-    assert appsec_report["agentic_exfiltration_risk"] is False
     assert len(appsec_report["critical_warnings"]) == 0, "False positive triggered on a safe file!"
+
+
+# ==============================================================================
+# TEST 2.1: Removed-metric regression guard (#1102)
+# ==============================================================================
+def test_report_no_longer_contains_removed_cooccurrence_keys():
+    """
+    Regression guard for #1102: `is_rce_funnel` and `agentic_exfiltration_risk`
+    were removed because they flagged a file just because unrelated regex
+    categories (an LLM signal, a public-API/IO signal, an eval/secrets signal)
+    co-occurred somewhere in it, with zero proof of actual data flow between
+    them -- the same "hallucinated" pattern epic #1025/#1020 already removed
+    from RISK_SCHEMA/SIGNAL_SCHEMA. Even a file shaped to have triggered both
+    old rules must no longer produce those keys or their CRITICAL messages.
+    """
+    sensor = AIAppSecSensor()
+
+    mock_files = [
+        {
+            "coding_loc": 100,
+            "telemetry": {},
+            "equations": {
+                "llm_api": 1,
+                "llm_orchestrator": 1,
+                "api": 1,
+                "io": 1,
+                "sec_high_risk_execution": 1,
+                "sec_hardcoded_secrets": 1,
+                "safety": 5,
+            },
+        }
+    ]
+
+    result = sensor.hunt_threats(mock_files)
+    appsec_report = result[0]["telemetry"]["ai_appsec"]
+
+    assert "is_rce_funnel" not in appsec_report
+    assert "agentic_exfiltration_risk" not in appsec_report
+    assert not any(
+        "Autonomous Execution Vector" in w or "Agentic Exfiltration Vector" in w
+        for w in appsec_report["critical_warnings"]
+    )

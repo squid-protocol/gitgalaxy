@@ -35,7 +35,7 @@ A complete suite of deterministic architectural controllers for modernizing mono
 * **Java Spring Boot Forge:** Deterministically translates COBOL architectures into 100% compiling Java Spring `@Entity` models, `@RestController` endpoints, and Maven build systems.
 
 ### 🤖 [Dual-Sided AI Guardrails](./ai_guardrails/README.md)
-* **AppSec Sensor & Dev Agent Firewall:** Deep-inspection middleware sensors. They detect **Autonomous Execution Vectors** to prevent LLMs from being wired to RCE vulnerabilities, and mathematically constrain autonomous AI coding agents from corrupting highly complex legacy code.
+* **AppSec Sensor & Dev Agent Firewall:** Deep-inspection middleware sensors. They flag **Over-Permissioned Agent Bindings** (an agent-orchestration framework wired to raw I/O with weak defensive density), and mathematically constrain autonomous AI coding agents from corrupting highly complex legacy code.
 
 ---
 

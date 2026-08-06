@@ -298,9 +298,7 @@ class RecordKeeper:
                 financial_read_cost REAL DEFAULT 0.0,
                 agentic_isolation_risk INTEGER DEFAULT 0,
                 requires_hitl INTEGER DEFAULT 0,
-                appsec_rce_funnel BOOLEAN DEFAULT 0,
                 appsec_god_mode BOOLEAN DEFAULT 0,
-                appsec_exfiltration BOOLEAN DEFAULT 0,
                 hallucination_zone BOOLEAN DEFAULT 0,
                 silent_mutation_risk BOOLEAN DEFAULT 0,
                 {", ".join(risk_cols)},
@@ -551,9 +549,7 @@ class RecordKeeper:
             hallucination_zone = 1 if guardrails.get("hallucination_zone") else 0
             silent_mutation = 1 if guardrails.get("silent_mutation_risk") else 0
 
-            rce_funnel = 1 if appsec.get("is_rce_funnel") else 0
             god_mode = 1 if appsec.get("over_permissioned_agent") else 0
-            exfiltration = 1 if appsec.get("agentic_exfiltration_risk") else 0
 
             file_token_mass = file_data.get("token_mass")
             file_read_cost = file_data.get("financial_read_cost")
@@ -615,9 +611,7 @@ class RecordKeeper:
                 file_read_cost,
                 is_black_hole,
                 req_hitl,
-                rce_funnel,
                 god_mode,
-                exfiltration,
                 hallucination_zone,
                 silent_mutation,
             ]
@@ -646,7 +640,7 @@ class RecordKeeper:
                     file_archetype, file_fingerprint,
                     ecosystem_baseline, repo_z_score,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
-                    token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_rce_funnel, appsec_god_mode, appsec_exfiltration, hallucination_zone, silent_mutation_risk,
+                    token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
                 ) VALUES ({placeholders})

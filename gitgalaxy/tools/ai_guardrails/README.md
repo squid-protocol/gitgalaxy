@@ -18,7 +18,7 @@ GitGalaxy maps the architectural reality of your code in seconds. We use AST-fre
 
 To protect repositories against non-deterministic AI behavior without slowing down CI/CD pipelines, we engineered these sensors to evaluate the mathematical topology of the codebase rather than relying on brittle semantic analysis:
 
-* **Topological Threat Intersection (`ai_appsec_sensor.py`):** Standard scanners evaluate vulnerabilities in isolation. This sensor cross-references multi-dimensional structural topologies. It mathematically proves when an LLM Orchestrator node sits on the same execution path as an OS-level `subprocess` call and a Public API router. By mapping these intersections, it deterministically flags **Autonomous Execution Vectors** without requiring dynamic runtime execution.
+* **Library-Identity Binding Detection (`ai_appsec_sensor.py`):** GitGalaxy is AST-free and does no data-flow/taint analysis, so it can't prove an LLM Orchestrator's output actually reaches a given I/O sink -- only that both exist in the same file. This sensor sticks to what a regex-only engine can honestly claim: it detects when a known agent-orchestration framework (e.g. langchain, llama_index) is imported into a file with raw network/disk write access and low defensive programming density, flagging an **Over-Permissioned Agent Binding**. (Two prior checks that inferred RCE/exfiltration from mere signature co-occurrence were removed in #1102 as unproven claims a regex engine can't back.)
 * **Context Mass Validation (`dev_agent_firewall.py`):** Autonomous coding agents blindly attempt to refactor files regardless of size. This firewall calculates the physical Token Mass of a file and flags it once that mass exceeds what an agent's context window can safely hold. If the limit is breached, it raises a **Context Window Exhaustion** risk, mathematically proving the agent is about to hallucinate and corrupt the logic.
 * **Blast Radius Sandboxing (`dev_agent_firewall.py`):** We strictly prohibit AI agents from modifying the structural load-bearing pillars of your architecture. By querying the Knowledge Graph for a file's **Dependency Blast Radius** (PageRank / Downstream Exposure), the firewall automatically mandates Human-In-The-Loop (HITL) reviews for any PRs targeting highly centralized nodes with existing Technical Debt.
 
@@ -27,12 +27,12 @@ To protect repositories against non-deterministic AI behavior without slowing do
 ## 🛡️ Side 1: The AI AppSec Sensor (`ai_appsec_sensor.py`)
 *Protects your application from the AI features your developers build.*
 
-**Why It Was Built:** AI agents with unconstrained execution boundaries represent a critical security risk. Traditional Static Analysis (SAST) misses the intersection of LLM logic and system APIs. By analyzing the structural topology of the codebase, this sensor deterministically identifies intersections where LLMs (which are inherently vulnerable to Prompt Injection) are dangerously close to OS commands or database writes.
+**Why It Was Built:** Autonomous coding/tool-calling agents bound to raw state-mutation capability (network or disk writes) without adequate defensive programming represent a real operational risk. Because GitGalaxy has no data-flow or taint tracking, it cannot prove an LLM's output actually reaches a given execution or network sink -- only that a known agent-orchestration framework and raw I/O access coexist in the same file. This sensor is scoped to exactly that honest claim.
 
 **What It Detects:**
-* **Autonomous Execution Vector:** Detects LLM logic that is adjacent to OS-level execution (`eval`, `subprocess`) and exposed via a public API router. This allows you to aggressively block Prompt-Injection-to-RCE attacks in your CI/CD pipeline.
-* **Over-Permissioned Agent Binding:** Flags autonomous tools bound to raw Database/IO write access with critically low defensive programming density (e.g., missing `try/catch` blocks). Blocks autonomous data corruption before it reaches production tables.
-* **Agentic Exfiltration Vector:** Identifies LLM logic with access to both unfiltered network sockets and hardcoded environment secrets, neutralizing SSRF and autonomous key exfiltration vectors.
+* **Over-Permissioned Agent Binding:** Flags a file that imports an agent-orchestration framework (langchain/llama_index) and has raw Network/Disk IO write access, combined with critically low defensive programming density (e.g., missing `try/catch` blocks). Surfaces autonomous data-corruption risk before it reaches production tables.
+
+**Removed in #1102** (epic #1025): two prior checks, "Autonomous Execution Vector" and "Agentic Exfiltration Vector," inferred an RCE or exfiltration vulnerability purely from unrelated regex categories (an LLM signal, a public-API/IO signal, an eval/secrets signal) co-occurring anywhere in a file -- with zero proof the data actually flows between them. That's the same unprovable pattern epic #1025 already removed from the core risk schema (issue #1020); it had simply been reimplemented here under different names.
 
 ---
 

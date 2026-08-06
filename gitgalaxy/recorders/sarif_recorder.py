@@ -211,11 +211,11 @@ class SarifRecorder:
             },
             {
                 "id": "GG-AGENT-VULNERABILITY",
-                "shortDescription": {"text": "Agentic Execution or Exfiltration Vulnerability"},
+                "shortDescription": {"text": "Over-Permissioned Autonomous Agent Binding"},
                 "fullDescription": {
-                    "text": "An AI/LLM model is structurally wired to network I/O or execution sinks, introducing Prompt Injection and Agentic RCE risks."
+                    "text": "An AI agent-orchestration framework is bound to raw network/disk I/O write access in a file with low defensive programming density, risking unreviewed autonomous data corruption."
                 },
-                "properties": {"tags": ["CWE-1336", "security", "ai-appsec"]},
+                "properties": {"tags": ["security", "ai-appsec"]},
             },
             {
                 "id": "GG-AGENT-GUARDRAIL",

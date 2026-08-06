@@ -7,11 +7,7 @@
 [![PyPI version](https://badge.fury.io/py/gitgalaxy.svg)](https://badge.fury.io/py/gitgalaxy)
 [![Python 3.09+](https://img.shields.io/badge/python-3.09+-blue.svg)](https://www.python.org/downloads/)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-[![Velocity](https://img.shields.io/badge/Velocity-50k+_LOC%2Fs-00C957.svg)](#)
-[![Analysis](https://img.shields.io/badge/Analysis-Static_Analysis-00BFFF.svg)](#)
-[![Architecture](https://img.shields.io/badge/Architecture-Zero__Trust-teal.svg)](#)
-
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-brightgreen.svg)](https://pypi.org/project/gitgalaxy/)
+[![Dependencies](https://img.shields.io/badge/Dependencies-1_(PyYAML)-brightgreen.svg)](https://pypi.org/project/gitgalaxy/)
 [![Airgap Ready](https://img.shields.io/badge/Security-Airgap_Ready-teal.svg)](#)
 
 </div>
@@ -19,13 +15,13 @@
 <div align="center">
 
 **1 scan** · **97 structural signals** · **50+ languages** · **0 need for compilation**<br>
-**19 risk exposure scores** · **6 final reports** · **0 dependencies** · `pip install gitgalaxy`
+**19 risk exposure scores** · **6 final reports** · **1 dependency** · `pip install gitgalaxy`
 
 </div>
 
 <div align="center">
 
-Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, map out the architecture, and surface risk exposures alongside prioritized refactoring targets — hotspots, bus-factor risk, and load-bearing files — so you know where to focus first. The graph below is a workflow from one gitgalaxy scan from on our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)
+Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, map out the architecture, and surface risk exposures alongside prioritized refactoring targets — hotspots, bus-factor risk, and load-bearing files — so you know where to focus first. The graph below is a workflow from one gitgalaxy scan of our golden test repo, which contains sample code files from the Apollo-11 1969 flight software through the modern tech stacks. [Benchmark](https://github.com/squid-protocol/language-crucible)
 <img src="docs/wiki/assets/sankey_v4.3.1.png" alt="GitGalaxy Architecture Pipeline" width="100%">
 
 </div>
@@ -105,9 +101,9 @@ wherever it appears, with whatever variable names, in whatever specific arrangem
 not just the one instance someone already filed a report about.
 
 The same philosophy extends to the SBOM layer. Rather than asking "does this package
-version appear in a vulnerability database," GitGalaxy's zero-trust physical audit
-asks "does this package's actual content on disk structurally match what a legitimate
-version should look like" — entropy, structural fingerprint, behavioral anomaly flags.
+version appear in a vulnerability database," GitGalaxy asks "does this package's actual
+content on disk structurally match what a legitimate version should look like" —
+entropy, structural fingerprint, behavioral anomaly flags.
 That's how a tampered dependency gets caught on day one, before anyone has discovered
 or disclosed anything, because there's no CVE to wait for.
 
@@ -117,22 +113,23 @@ present." GitGalaxy is the right answer for the wider net: weakness classes and
 physical anomalies that don't require anyone to have found and filed the specific
 instance first.
 
-### Real-World Adoption
+### How This Compares, Architecturally
 
-<div align="center">
+This is a self-reported comparison of what each tool structurally requires and detects on,
+not an independent benchmark — verify against each project's own documentation. It exists to
+answer one question plainly: what gap is GitGalaxy actually built to cover, versus tools doing
+a related but different job.
 
-GitGalaxy is meant to run *in* CI, not just get starred and forgotten — so we track CI/production integration as its own adoption signal alongside human discovery, instead of filtering it out as noise.
+| | GitGalaxy | Semgrep | CodeQL | Snyk / Dependabot |
+|---|---|---|---|---|
+| **Requires an AST or a build** | No — regex/lexical structural signatures | Yes — per-language AST pattern matching | Yes — compiles/extracts a code database | No — reads package manifests |
+| **Detection basis** | Weakness-class (CWE) + physical/structural anomaly | Pattern-match rules (SAST) | Dataflow/taint queries (SAST) | CVE/advisory-database lookup (SCA) |
+| **Works on broken/uncompiled code** | Yes — this is the design target | Partial, depends on the rule/parser | No — needs a working build | Yes — only reads the manifest |
+| **Offline / air-gapped** | Yes, fully local | OSS engine runs locally; Cloud Platform is hosted | Runs locally; commonly used via GitHub-hosted Actions | Cloud-dependent (Snyk); GitHub-hosted (Dependabot) |
 
-<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/human_vs_ci_adoption.png" alt="GitGalaxy: Human Discovery vs. Production Integration" width="700">
-
-**Left:** GitHub stars and forks (cumulative — reconstructed from each star's/fork's own timestamp, not just a snapshot going forward) alongside daily unique cloners and profile views. **Right:** GitLab CI/CD Catalog usage (unique projects running GitGalaxy in a pipeline in the last 30 days) and GitHub Action adoption (unique repos referencing the action in a workflow, via code search — GitGalaxy isn't Marketplace-listed yet, so this is the best passive signal available). Unlike the left panel, GitHub and GitLab don't expose any history for these two — expect the right panel to fill in day by day rather than show a backfilled trend.
-
-<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/cumulative_downloads.png" alt="GitGalaxy Cumulative Downloads" width="500">
-
-Combined distribution volume across PyPI, GitHub, and GitLab against our baseline control repositories — **not a uniformly deduplicated count**. GitHub's unique-cloner count and GitLab's unique-project count are genuinely deduplicated; PyPI's public download data has no identity to deduplicate against (measured without mirrors, which excludes known mirror-sync bots but not CI-driven installs), so that component is a raw download-event count. The GitHub/PyPI breakdown lines begin partway through the window because per-source tracking was added after total-fetch tracking; the total line before that point is aggregate across all sources.
-
-Full methodology, including exactly what is and isn't deduplicated per source: [squid-protocol/squid-telemetry](https://github.com/squid-protocol/squid-telemetry#methodology-notes).
-</div>
+Where GitGalaxy's SAST-category peers need an AST or a compiling build, and where the CVE-feed
+tools need a package manifest, is precisely the gap GitGalaxy is built to cover — not a claim
+that it replaces what they do well.
 
 <div>
 
@@ -158,10 +155,37 @@ Every "structural signature" and "AST-free" claim above is backed by two things 
 
 <div>
 
+### Real-World Adoption
+
+<div align="center">
+
+GitGalaxy is meant to run *in* CI, not just get starred and forgotten — so we track CI/production integration as its own adoption signal alongside human discovery, instead of filtering it out as noise.
+
+<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/human_vs_ci_adoption.png" alt="GitGalaxy: Human Discovery vs. Production Integration" width="700">
+
+**Left:** GitHub stars and forks (cumulative — reconstructed from each star's/fork's own timestamp, not just a snapshot going forward) alongside daily unique cloners and profile views. **Right:** GitLab CI/CD Catalog usage (unique projects running GitGalaxy in a pipeline in the last 30 days) and GitHub Action adoption (unique repos referencing the action in a workflow, via code search — GitGalaxy isn't Marketplace-listed yet, so this is the best passive signal available). Unlike the left panel, GitHub and GitLab don't expose any history for these two — expect the right panel to fill in day by day rather than show a backfilled trend.
+
+<img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/cumulative_downloads.png" alt="GitGalaxy Cumulative Downloads" width="500">
+
+Combined distribution volume across PyPI, GitHub, and GitLab against our baseline control repositories — **not a uniformly deduplicated count**. GitHub's unique-cloner count and GitLab's unique-project count are genuinely deduplicated; PyPI's public download data has no identity to deduplicate against (measured without mirrors, which excludes known mirror-sync bots but not CI-driven installs), so that component is a raw download-event count. The GitHub/PyPI breakdown lines begin partway through the window because per-source tracking was added after total-fetch tracking; the total line before that point is aggregate across all sources.
+
+Full methodology, including exactly what is and isn't deduplicated per source: [squid-protocol/squid-telemetry](https://github.com/squid-protocol/squid-telemetry#methodology-notes).
+</div>
+
+</div>
+
+<div>
+
 ## Data Privacy & On-Premise Deployment
-* 100% air-gapped execution
-* On-premise deployment
-* Zero-trust processing model
+
+GitGalaxy performs 100% of its scanning and vectorization locally — the engine runs the same
+way fully air-gapped as it does connected.
+
+* **No Data Transmission:** Source code is never transmitted to any API, cloud database, or third-party service.
+* **On-Premise / Air-Gapped Execution:** No runtime network dependency — the engine runs identically in a fully disconnected environment.
+* **Ephemeral Memory Processing (web visualizer):** Repositories are unpacked into a volatile memory buffer (RAM) and automatically purged when the browser tab is closed.
+* **Privacy-by-Design:** Even when using the web-based viewer, the data remains behind the user's firewall at all times.
+
 </div>
 
 <div>
@@ -190,7 +214,9 @@ Drop the template for your platform straight into your pipeline — each one run
 
 ## Enterprise Codebase Tools & Use Cases
 
-GitGalaxy operates on a Decoupled Architecture. While the core engine provides the overarching structural mechanics and topological mapping, our specialized Decoupled Execution Controllers leverage that deterministic graph to execute enterprise-grade operations.
+The core engine's structural graph feeds a set of standalone tools built on top of it, each
+one a separate module under `gitgalaxy/tools/` that consumes the same deterministic scan
+output rather than re-parsing the repo itself.
 
 ### [Automated Legacy Migration: COBOL to Java Spring Boot](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/)
 A deterministic, high-fidelity translation pipeline. It converts legacy COBOL into fully compiling, modern Spring Boot architectures, mapping memory exactly and scaffolding JPA entities, REST controllers, and Maven builds before utilizing AI to translate isolated business logic.
@@ -202,20 +228,27 @@ An analytical suite for sanitizing mainframe monoliths. It safely neutralizes le
 * **Benchmark:** The dead-code extraction engine removed over 6,700 lines of dead execution blocks and orphaned variables from the standard IBM CICS benchmark app in seconds.
 
 ### [Software Supply Chain Security & Pre-Commit Firewalls](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/supply_chain_security/)
-Extreme-velocity pre-commit firewalls. Instead of trusting manifest files, it scans physical internals to block steganography, byte-level XOR decryption loops, homoglyph typosquatting, and exposed cryptographic vaults before they ever enter your CI/CD pipeline. **[Deploy directly via our GitHub Action](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md).**
+Pre-commit firewalls that scan physical file internals rather than trusting manifest files — built to block steganography, byte-level XOR decryption loops, homoglyph typosquatting, and exposed cryptographic vaults before they enter your CI/CD pipeline. **[Deploy directly via our GitHub Action](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md).**
 
-### [Zero-Trust SBOM Generation & Dependency Auditing](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/compliance/)
-A Zero-Trust Software Bill of Materials (SBOM) generator. It refuses to blindly trust `package.json` or `requirements.txt` files, instead locating the physical dependencies on disk, mathematically verifying their entropy and linguistic identity, and generating strict CycloneDX 1.4 JSON reports.
-* **Benchmark:** Successfully mapped and mathematically verified the physical internals of 170 unique Go modules inside the local Kubernetes repository.
+### [SBOM Generation & Dependency Auditing](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/compliance/)
+A Software Bill of Materials (SBOM) generator that doesn't blindly trust `package.json` or `requirements.txt` — it locates the physical dependencies on disk, checks their entropy and linguistic identity against what a legitimate version should look like, and generates strict CycloneDX 1.4 JSON reports.
+* **Benchmark:** Mapped and verified the physical internals of 170 unique Go modules inside the local Kubernetes repository. A single-repo result, not a claim of coverage across the Go ecosystem.
 
 ### [API Security & Shadow API Detection](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/network_auditing/)
-A deterministic mapping tool that hunts undocumented vulnerabilities. It uses structural regex to find active physical routing logic (Express, Spring Boot, FastAPI) and applies set theory against official OpenAPI/Swagger documentation to isolate critical Shadow APIs and outdated Ghost APIs.
+A deterministic mapping tool for undocumented and outdated API surface. It uses structural regex to find active physical routing logic (Express, Spring Boot, FastAPI) and applies set theory against official OpenAPI/Swagger documentation to isolate Shadow APIs (undocumented routes) and Ghost APIs (documented routes no longer implemented).
 
 ### [High-Speed PII Detection & Log Analysis](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/terabyte_log_scanning/)
-Unindexed, tactical log analysis operating at 0.07 GB/sec. It streams massive database dumps to deterministically hunt and mask PII (Credit Cards, SSNs, AWS Keys) and uses static architecture maps to prove exact runtime execution frequencies with ASCII time-series histograms.
+Log analysis operating at 0.07 GB/sec without requiring an index. It streams massive database dumps to hunt and mask PII (credit cards, SSNs, AWS keys) and uses static architecture maps to report runtime execution frequencies as ASCII time-series histograms.
 
 ### [AI Agent Guardrails & Codebase Protection](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/ai_guardrails/)
-Specialized keyword sensors protecting both your application and your codebase. The AppSec Sensor detects weaponized LLM features (RCE funnels, exfiltration risks), while the Dev Agent Firewall evaluates token mass and blast radius to restrict autonomous coding agents from modifying dangerous or context-token-draining files. Helps identify which files need to be chunked to reduce context overload.
+The AppSec Sensor flags AI agents wired to raw state-mutation capability: an LLM orchestration
+framework (LangChain, LlamaIndex) imported alongside direct network/disk I/O, combined with
+below-threshold defensive-programming density. That's a library-identity signal, not a claim
+about runtime behavior — a regex-only engine with no dataflow tracing can't prove code actually
+executes that path, so it doesn't claim to (see [#1102](https://github.com/squid-protocol/gitgalaxy/issues/1102)
+for the checks that were removed for making that unprovable claim). Separately, the Dev Agent
+Firewall evaluates token mass and blast radius to restrict autonomous coding agents from
+modifying dangerous or context-token-draining files.
 
 ## Local Browser-Based 3D Codebase Visualization
 
@@ -223,27 +256,19 @@ If you prefer visual analytics, we've built a topological dashboard where each f
 
 Simply drag and drop your generated `your_repo_GPU_galaxy.json` file (or a `.zip` of your raw repository) directly into [GitGalaxy.io](https://gitgalaxy.io/). All rendering and scanning happens entirely in your browser's local memory.
 
-### 🔭 Watch GitGalaxy in Action
+### Watch GitGalaxy in Action
 
 **Mapping 3.2 Million Lines of C++ in 11 Seconds | OpenCV** [![OpenCV Demo](https://img.youtube.com/vi/3ScQCSUBdZw/maxresdefault.jpg)](https://youtu.be/3ScQCSUBdZw)
 
 ![GitGalaxy Topological Visualizer 3D graph rendering complex software repository structures and K-means clustering archetypes in the browser](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/metavisualizer.png)
 
-## Zero-Trust Data Security
-
-Your code never leaves your machine. GitGalaxy performs 100% of its scanning and vectorization locally.
-
-* **No Data Transmission:** Source code is never transmitted to any API, cloud database, or third-party service.
-* **Ephemeral Memory Processing:** Repositories are unpacked into a volatile memory buffer (RAM) and are automatically purged when the browser tab is closed.
-* **Privacy-by-Design:** Even when using the web-based viewer, the data remains behind the user's firewall at all times.
-
-## ⚖️ Licensing & Usage
+## Licensing & Usage
 
 Copyright (c) 2026 Joe Esquibel
 
 GitGalaxy is distributed under the **PolyForm Noncommercial License 1.0.0**.
 
-### 🎓 Community Free Tier (Academic, Research, & Hobbyist)
+### Community Free Tier (Academic, Research, & Hobbyist)
 We are deeply committed to the open-source and academic communities. If you are using GitGalaxy for personal projects, academic research, or non-commercial development, the engine is 100% free to use.
 
 To suppress the commercial licensing delays in your terminal or personal CI/CD pipelines, simply set the following environment variable:
@@ -252,7 +277,7 @@ To suppress the commercial licensing delays in your terminal or personal CI/CD p
 export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
 ```
 
-### 🏢 Commercial & Enterprise Use
+### Commercial & Enterprise Use
 Running GitGalaxy in corporate environments, proprietary codebases, or commercial CI/CD pipelines requires an enterprise license. Unlicensed corporate pipelines will experience intentional execution friction, and attempting to use the Community Free Tier key in a corporate environment will trigger explicit non-compliance warnings in your audit logs.
 
-To acquire a zero-trust commercial key for your organization and ensure clean compliance logs, please contact: **joe@gitgalaxy.io**
+To acquire a commercial key for your organization and ensure clean compliance logs, please contact: **joe@gitgalaxy.io**

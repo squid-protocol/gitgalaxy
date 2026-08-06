@@ -1,4 +1,3 @@
-import re
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 rules = LANGUAGE_DEFINITIONS["swift"]["rules"]

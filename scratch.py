@@ -1,21 +1,19 @@
-import json
-import subprocess
+import re
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
+rules = LANGUAGE_DEFINITIONS["swift"]["rules"]
+print("branch:")
+for case in ["throws(Error)", "throws", "try", "catch"]:
+    print(case, bool(rules["branch"].search(case)))
 
-def get_json(rev):
-    out = subprocess.check_output(["git", "show", f"{rev}:tests/golden_master_zero_dep_audit.json"])
-    return json.loads(out)
+print("args:")
+for case in ["{ [weak self] in", "func foo(a: (((Int) -> Void)?)) {", "func foo<T>(x: T)"]:
+    print(case, bool(rules["args"].search(case)))
+    if rules["args"].search(case):
+        print(rules["args"].search(case).group(0))
 
-
-old_data = get_json("HEAD~1")
-new_data = get_json("HEAD")
-
-files = new_data["6. Parsed Files (Scanned Artifacts)"]["assembly/bootos"]["Files"]
-for path, new_f in files.items():
-    old_f = old_data["6. Parsed Files (Scanned Artifacts)"]["assembly/bootos"]["Files"][path]
-    print(f"\n{path} changes:")
-    old_sigs = old_f.get("7. Structural Signatures (Net Mitigated Signals)", {})
-    new_sigs = new_f.get("7. Structural Signatures (Net Mitigated Signals)", {})
-    for k, v in new_sigs.items():
-        if old_sigs.get(k) != v:
-            print(f"  {k}: {old_sigs.get(k)} -> {v}")
+print("func_start:")
+for case in ["func foo()", "public final func bar()", "isolated func baz()", "nonisolated(unsafe) func qux()", "macro myMacro()"]:
+    print(case, bool(rules["func_start"].search(case)))
+    if rules["func_start"].search(case):
+        print(rules["func_start"].search(case).group(0))

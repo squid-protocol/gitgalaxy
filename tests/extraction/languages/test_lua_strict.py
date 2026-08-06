@@ -81,6 +81,43 @@ _LUA_SIMPLE_CASES = [
 ]
 
 
+_LUA_DEEP_CASES = [
+    # --- branch ---
+    ("branch", "goto skip_label", "my_goto = 1"),
+    ("branch", "continue", "local continue_flag = true"),
+    ("branch", "elseif\n  condition\nthen", "local if_true = 1"),
+    ("branch", "for i, v in ipairs(t) do", "local format = 1"),
+    ("branch", "repeat\nuntil x == 0", "local until_now = 0"),
+
+    # --- args ---
+    ("args", "function obj:method(x, y)", "obj:method(x, y)"),
+    ("args", "function foo<T>(x: T)", "local function_pointer = foo"),
+    ("args", "function foo<T, U = Array<T>>(x: T)", "foo<T>(x)"),
+    ("args", "function \n foo \n ( \n x \n )", "function_name = 1"),
+    ("args", "function(a, b, ...)", "if function_called then"),
+
+    # --- func_start ---
+    ("func_start", "export function my_api()", "local f = function() end"),
+    ("func_start", "local\nfunction\nfoo\n()", "return function()"),
+    ("func_start", "function tbl.foo:bar()", "function_name = 1"),
+    ("func_start", "function generic_func<T>()", "generic_func<T>()"),
+    ("func_start", "function deeply_nested<T, U = Array<T>>()", "deeply_nested()"),
+
+    # --- class_start ---
+    ("class_start", "export type User = {", "local lowercase_type = {}"),
+    ("class_start", "type GameState = {", "type(GameState) == 'table'"),
+    ("class_start", "export MyClass = {", "MyClass.foo = 1"),
+    ("class_start", "local SomeObject\n = \n {", "local SomeObject = 1"),
+    ("class_start", "---@class My_Class", "-- @class My_Class"),
+
+    # --- structural_boundaries ---
+    ("structural_boundaries", "export type", "exported = true"),
+    ("structural_boundaries", "local x < const > = 1", "x = 1"),
+    ("structural_boundaries", "<toclose>", "toclose = true"),
+    ("structural_boundaries", "module('mymod')", "module_name = 1"),
+    ("structural_boundaries", "require  (  'mod'  )", "requires_auth = true"),
+]
+
 @pytest.mark.parametrize("signature,positive,negative", _LUA_SIMPLE_CASES)
 def test_lua_signature_positive_and_negative(signature, positive, negative):
     pattern = LUA_RULES[signature]
@@ -89,6 +126,17 @@ def test_lua_signature_positive_and_negative(signature, positive, negative):
     if negative is not None:
         assert not pattern.search(negative), (
             f"lua {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
+        )
+
+
+@pytest.mark.parametrize("signature,positive,negative", _LUA_DEEP_CASES)
+def test_lua_signature_deep_cases(signature, positive, negative):
+    pattern = LUA_RULES[signature]
+    assert pattern is not None, f"lua's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"lua {signature!r} failed to match deep positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"lua {signature!r} incorrectly matched deep negative case: {negative!r}"
         )
 
 

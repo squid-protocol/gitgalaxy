@@ -3640,7 +3640,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # branch: decisions that split flow. Includes ternary operators (?) and null-coalescing (??).
             "branch": re.compile(
-                r"\b(if|else|elseif|switch|for|foreach|while|do|until|try|catch|finally|throw|trap|break|continue|return)\b|-and|-or|-not|-xor|\?|\?\?",
+                r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|try|catch|finally|throw|trap|break|continue|return)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
                 re.I,
             ),
             # args: Parameters / Coupling. Captures the param block mass of functions and script files.
@@ -3673,14 +3673,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "args": re.compile(
                 r"\bparam\s*\((?:[^()]|\([^()]*\))*\)"
                 r"|\bfunction\s+(?:(?:global|script|local|private):)?[a-zA-Z0-9_-]+\s*\((?:[^()]|\([^()]*\))*\)"
-                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+)?"
+                r"(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
                 r"[A-Za-z_]\w*\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
                 re.I | re.M,
             ),
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
             # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
             "structural_boundaries": re.compile(
-                r"\b(function|filter|workflow|configuration|class|enum|process|begin|end|clean|return|exit|using|namespace)\b",
+                r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[a-zA-Z_]"
+                r"|(?:process|begin|end|clean)\s*\{"
+                r"|(?:return|exit)\b(?![-])"
+                r"|using\s+(?:namespace|module)\b)",
                 re.I,
             ),
             # func_start: Executable Logic Anchors. Anchors executable logic blocks.
@@ -3714,8 +3718,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # keyword exclusion.
             "func_start": re.compile(
                 r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)"
-                r"|^[ \t]*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()"
-                r"|^[ \t]*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()"
+                r"|^[ \t]*(?:(?:hidden|static)\s+)*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
                 r"([A-Za-z_]\w*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
                 re.I | re.M,
             ),
@@ -4576,7 +4580,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Decisions and logical jumps. Includes modern typed throws (throws(Error)).
             # EXCLUDES throw/rethrows (bailout_hits).
             "branch": re.compile(
-                r"\b(if|else|guard|switch|case|default|for|while|repeat|do|catch|break|continue|defer|try)\b|&&|\|\||\?|\?\?"
+                r"\b(if|else|guard|switch|case|default|for|while|repeat|do|catch|break|continue|defer|try|throws)\b|&&|\|\||\?|\?\?"
             ),
             # 2. args (Parameters / Coupling)
             # Parameter blocks. Bounded negation [^)]* and <[^>]*> to prevent ReDoS.
@@ -4593,13 +4597,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `<[^>]*>`, truncating at the FIRST `>` and breaking any nested generic bound via
                 # a primary associated type constraint (`func foo<T: Collection<Int>>(x: T) {`,
                 # Swift 5.7+, mainstream). Widened to the established one-level-nesting idiom.
-                r"\b(?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})[ \t\n]+in\b",
+                r"\b(?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \t\n]*\((?:[^)(]|\([^)(]*(?:\([^)]*\)[^)(]*)*\))*\)|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})?[ \t\n]*in\b",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and let (freeze_hits).
             "structural_boundaries": re.compile(
-                r"\b(var|struct|class|enum|protocol|extension|actor|macro|import|typealias|associatedtype|some|any|consume|borrow|discard|mutating|nonmutating|isolated|nonisolated|return|yield|await|inout)\b|~Copyable"
+                r"\b(func|init|subscript|var|struct|class|enum|protocol|extension|actor|macro|import|typealias|associatedtype|mutating|nonmutating|isolated|nonisolated|return|yield|await|inout)\b|(?<!\blet )(?<!\bvar )(?<!\bfunc )(?<!\bclass )(?<!\bstruct )\b(some|any|consume|borrow|discard)\b|~Copyable"
             ),
             # 4. func_start (Executable Logic Anchors)
             # ONLY executable logic blocks. EXCLUDES types/classes. Steps over Concurrency modifiers.
@@ -4617,12 +4621,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # =====================================================================
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:(?:public|private|fileprivate|internal|open|package|override|final|static|class|mutating|nonmutating|isolated|nonisolated(?:\(unsafe\))?|distributed|required|convenience)[ \t\n]+){0,5}"
-                r"(?:func[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
+                r"(?:func[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+[a-zA-Z_]\w*",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed|indirect)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+[a-zA-Z_]\w*",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -4878,8 +4882,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # IDENTIFIER-GRAMMAR FIX (epic #813/#899): the name step-over required a plain
                 # `[a-zA-Z_]\w*`, so backtick-quoted arbitrary identifiers never matched. Added
                 # as an alternative, not a widened class.
-                r"\b(?:fun|constructor)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
+                # MULTI-DOT RECEIVER FIX: Upgraded the receiver capture to `[\w.]+` to support
+                # fully qualified extension receivers (e.g., `com.example.Foo.ext()`).
+                # ANONYMOUS FUNCTION FIX: Made the name capture optional to support `fun(x: Int)`.
+                r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:(?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)[ \t\n]*)?\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
                 re.M,
+            ),
+            # 3. linear (Sequential Boundaries)
+            # Structural boundaries defining file architecture and control returns.
+            "structural_boundaries": re.compile(
+                r"\b(package|import|return|class|interface|object|fun|typealias)\b"
             ),
             # 4. func_start (Executable Logic Anchors)
             # OPTIMIZED: Bound annotation parenthesis scanning to prevent multi-line bleeding.
@@ -4897,10 +4909,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # -- widened to the established one-level-nesting idiom.
                 # IDENTIFIER-GRAMMAR FIX (epic #813/#899): same backtick-identifier gap as `args`
                 # above (doc's Rule 16) -- added as an alternative capture group.
+                # MULTI-DOT RECEIVER FIX: Upgraded receiver to `[\w.]+` (e.g. `com.example.Foo.ext`).
                 r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t\n]*){0,10}"
                 r"(?:(?:public|private|protected|internal|open|override|abstract|final|suspend|inline|tailrec|infix|operator|external|expect|actual)[ \t\n]+){0,5}"
                 r"(?:context\s*\([^)]*\)\s*)?"
-                r"(?:fun[ \t\n]+(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)\.)?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+                r"(?:(?:\bfun\b)[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*)))?|(init)|(constructor))(?=[ \t\n]*[\(\{])",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -6895,14 +6908,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
-            "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|goto|and|or|not)\b"),
+            "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|continue|goto|and|or|not)\b"),
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
             "args": re.compile(
-                r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)"
+                r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
-                r"\b(local|end|require|module|return)\b|<\s*(?:const|close|toclose)\s*>"
+                r"\b(local|end|require|module|return|export\s+type|type)\b|<\s*(?:const|close|toclose)\s*>"
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (named functions).
             "func_start": re.compile(
@@ -6912,14 +6925,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # across newlines.
                 # FIX: Upgraded horizontal `[ \t]+` bounds to `[ \t\n]+` across the
                 # modifier stack, and securely allowed `[ \t\n]*` in the positive
-                # lookahead for the parenthesis.
+                # lookahead for the parenthesis. Includes support for Luau generic types.
                 # =====================================================================
-                r"^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?function[ \t\n]+([a-zA-Z_][\w.:]*)(?=[ \t\n]*\()",
+                r"^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?function[ \t\n]+([a-zA-Z_][\w.:]*)(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Captures proto-tables or EmmyLua class definitions.
             "class_start": re.compile(
-                r"^[ \t]*---@class\s+([a-zA-Z_]\w*)|^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?([A-Z][a-zA-Z0-9_]*)(?=[ \t\n]*=[ \t\n]*\{)",
+                r"^[ \t]*---@class\s+([a-zA-Z_]\w*)|^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?(?:type[ \t\n]+)?([A-Z][a-zA-Z0-9_]*)(?=[ \t\n]*=[ \t\n]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8918,7 +8931,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (doc's Rule 16 shape). Added as an alternative, not a widened class, so it can't loosen
             # the plain-identifier path.
             "args": re.compile(
-                r"\bdef\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\([^)]*\)|\([^)]*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
+                r"\bdef\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\((?:[^()]|\([^()]*\))*\)|\((?:[^()]|\([^()]*\))*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
             "structural_boundaries": re.compile(
@@ -8939,15 +8952,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # class. detector.py already resolves the fired group via `match.lastindex` for
                 # exactly this kind of multi-alternative name capture (see java's `(init)|
                 # (constructor)` groups), so no downstream change is needed.
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
+                r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
                 r"(?:(?:override|private|protected|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
                 r"def[ \t\n]+(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))(?=[ \t\n]*[\[(:=]|$)",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities and OO boundaries.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}"
-                r"(?:(?:sealed|abstract|final|case|open|opaque|transparent)[ \t]+){0,3}"
+                r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
+                r"(?:(?:sealed|abstract|final|case|open|opaque|transparent)[ \t\n]+){0,3}"
                 r"(?:class|trait|object|enum)\s+([A-Za-z_]\w*)(?=[ \t]*[\[({]|\s+extends|\n|$)",
                 re.M,
             ),
@@ -10064,11 +10077,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         "rules": {
             # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
             # 1. branch: Decisions that split flow. Includes Solidity 0.6+ try/catch.
-            "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?|:"),
+            "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?"),
             # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
             # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
             "args": re.compile(
-                r"\b(?:function|modifier|error|event)\s+(?:[a-zA-Z_]\w*[ \t]*)?\([^)]{0,500}\)|\b(?:constructor|fallback|receive)\s*\([^)]{0,500}\)"
+                r"\b(?:function|modifier|error|event)\s+(?:[a-zA-Z_]\w*\s*)?\([^)]{0,500}\)|\b(?:constructor|fallback|receive)\s*\([^)]{0,500}\)"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(

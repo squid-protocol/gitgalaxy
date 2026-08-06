@@ -124,6 +124,59 @@ def test_scala_signature_positive_and_negative(signature, positive, negative):
         )
 
 
+_SCALA_DEEP_CASES = [
+    # ------------------ branch ------------------
+    ("branch", "if (x > 0) then \n  println(x)", "val mathScore = 100"),
+    ("branch", "try { foo() } catch { case e: Exception => }", "catchThisException()"),
+    ("branch", "for { x <- xs; if x > 0 } yield x", "val yieldAmount = 5"),
+    ("branch", "while (true) do \n  println(1)", "val whileRunning = true"),
+    ("branch", "x match { case Some(y) => y }", "case_sensitive = false"),
+    ("branch", "throw new IllegalArgumentException()", "val throwaway = 0"),
+
+    # ------------------ args ------------------
+    ("args", "def `weird-name with spaces!`(x: Int, y: String): Int =", "val foo = 1"),
+    ("args", "def foo[T <: List[Int]](x: T): Int = {", "val fooT = 1"),
+    ("args", "(f: (Int) => String) => f(1)", "val lambdaString = 1"),
+    ("args", "def foo(x: String = \"()\") = x", "val defaultParen = 1"),
+    ("args", "def config(\n  host: String,\n  port: Int\n) = {}", "val configHost = 1"),
+    ("args", "x => x * 2", "val x = 2"),
+
+    # ------------------ func_start ------------------
+    ("func_start", "@Target(Array(ElementType.METHOD))\n@Retention(RetentionPolicy.RUNTIME)\ndef foo() =", "val bar = 1"),
+    ("func_start", "inline\ntransparent\nprivate[this]\ndef foo() =", "inline val x = 5"),
+    ("func_start", "override def `do something`[T]() =", "val do_something = 1"),
+    ("func_start", "open lazy def bar() = {}", "open class Bar"),
+    ("func_start", "def f[A](x: Int) =", "val fX = 1"),
+
+    # ------------------ class_start ------------------
+    ("class_start", "@Entity\n@Table(name=\"users\")\nfinal case class User(id: Int)", "val classId = 1"),
+    ("class_start", "sealed abstract class Foo[T] extends Bar", "val abstractClass = 5"),
+    ("class_start", "transparent trait Foo", "transparent val x = 1"),
+    ("class_start", "enum Color { case Red, Green, Blue }", "val enumColor = Red"),
+    ("class_start", "private[this]\nfinal\nobject Singleton", "final val Singleton = 1"),
+    ("class_start", "open class Base", "open val base = 1"),
+
+    # ------------------ structural_boundaries ------------------
+    ("structural_boundaries", "extension (s: String) def foo = 1", "val extensionData = 5"),
+    ("structural_boundaries", "given intOrd: Ord[Int] with {", "val givenValue = 5"),
+    ("structural_boundaries", "export myLib.utils.*", "val exportAmount = 10"),
+    ("structural_boundaries", "opaque type Password = String", "val opaqueData = null"),
+    ("structural_boundaries", "import scala.util.{Try => STry, Success => SSuccess}", "val importDuty = 0"),
+    ("structural_boundaries", "enum Tree[T] derives CanEqual", "val derivesData = 1"),
+]
+
+
+@pytest.mark.parametrize("signature,positive,negative", _SCALA_DEEP_CASES)
+def test_scala_signature_deep_cases(signature, positive, negative):
+    pattern = SCALA_RULES[signature]
+    assert pattern is not None, f"scala's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"scala {signature!r} failed to match its deep positive case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"scala {signature!r} incorrectly matched an excluded deep negative case: {negative!r}"
+        )
+
+
 def test_scala_ownership_scaladoc_author_no_colon_regression():
     """
     Regression test: the Scaladoc `@author` tag was grouped with

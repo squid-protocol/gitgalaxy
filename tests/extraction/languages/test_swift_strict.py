@@ -141,6 +141,44 @@ _SWIFT_SIMPLE_CASES = [
     ("regex_execution", "let re = try Regex(pattern)", "regexPattern = String"),
     ("time_date_logic", "let d = Date()", "dateString = formatter.string(from: date)"),
     ("ipc_rpc_bridges", "URLSession.shared.dataTask(with: url)", "processedCount += 1"),
+    
+    # DEEP ADVERSARIAL CASES
+    ("branch", "throws(Error)", "func myThrows(x: Int) {"),
+    ("branch", "try? perform()", "a != b"),
+    ("branch", "for await item in stream {", "formatItem(stream)"),
+    ("branch", "catch let error as NSError {", "let catcher = error"),
+    ("branch", "defer { cleanup() }", "let deferment = 5"),
+    ("branch", "guard let x = y else { return }", "let guardValue = 5"),
+
+    ("args", "func foo(a: (((Int) -> Void)?)) {", "let foo = 5"),
+    ("args", "{ [weak self, unowned delegate] in", "let inValue = 5"),
+    ("args", "{ in", "a = b"),
+    ("args", "func complex<T: Collection<Array<Int>>>(a: T) {", "struct Foo {"),
+    ("args", "init?(a: @escaping (Int) -> Void) {", "let initializer = 5"),
+    ("args", "subscript<T>(index: Int) -> T {", "let subscript_val = 5"),
+    ("args", "{ () in print(\"foo\") }", "if let foo = bar {"),
+
+    ("func_start", "nonisolated(unsafe) func qux() {", "let qux = 5"),
+    ("func_start", "func complex<T: Collection<Array<Int>>>(a: T) {", "let a = 5"),
+    ("func_start", "@available(iOS 15, *) @objc(myFunc) func foo() {", "var foo = 5"),
+    ("func_start", "fileprivate final class func doSomething() {", "let classFunc = 5"),
+    ("func_start", "mutating func update() {", "let mutate = true"),
+    ("func_start", "@_specialize(where T == Int) public func compute<T>() {", "let spec = true"),
+
+    ("class_start", "indirect enum List<T> { case empty }", "func indirectEnum() {}"),
+    ("class_start", "@MainActor final class Foo {", "let foo = 5"),
+    ("class_start", "public macro stringify<T>", "var stringify = 5"),
+    ("class_start", "@objc(MyCustomActor) distributed actor CustomActor {", "let actorVal = 5"),
+    ("class_start", "fileprivate final class MyClass<T, U> where T: Equatable {", "func myClass() {}"),
+    ("class_start", "@available(*, unavailable) struct Unusable {", "let available = false"),
+
+    ("structural_boundaries", "func foo()", "func_name = 5"),
+    ("structural_boundaries", "init()", "initial = 5"),
+    ("structural_boundaries", "subscript(index: Int) -> Int", "subscript_val = 5"),
+    ("structural_boundaries", "associatedtype Element: Equatable", "let type = 5"),
+    ("structural_boundaries", "consume x", "let consume = 5"),
+    ("structural_boundaries", "borrow y", "let borrow = 5"),
+    ("structural_boundaries", "discard self", "let discard = 5"),
 ]
 
 

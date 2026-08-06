@@ -83,6 +83,55 @@ def test_solidity_signature_positive_and_negative(signature, positive, negative)
         )
 
 
+
+_SOLIDITY_ADVERSARIAL_CASES = [
+    # --- branch ---
+    ("branch", "uint256 x = a ? b : c;", "uint256 amount = 5;"),
+    ("branch", "try feed.getData(token) returns (uint v) {", "target.call{value: 1 ether}(\"\");"),
+    ("branch", "if\n(x)\n{", "assembly { let x := 5 }"),
+    ("branch", "while(true){}", "string memory name = \"foo:bar\";"),
+    ("branch", "catch Error(string memory reason) {", "uint256[10] memory arr;"),
+
+    # --- args ---
+    ("args", "function\ntransfer\n(address to) public", "transfer(to, amount);"),
+    ("args", "modifier onlyOwner\n() {", "emit Transfer(msg.sender);"),
+    ("args", "event Transfer(\naddress indexed from,\naddress indexed to\n);", "revert Unauthorized(msg.sender);"),
+    ("args", "error Unauthorized\n(\naddress caller\n);", "require(x > 0, \"error\");"),
+    ("args", "constructor\n(\n) payable", "if (x) { return; }"),
+
+    # --- func_start ---
+    ("func_start", "    function \n transfer \n(address to) public {", "transfer(to);"),
+    ("func_start", "\tmodifier\nonlyOwner\n() {", "functionType = 5;"),
+    ("func_start", "event\nTransfer\n(", "eventually = true;"),
+    ("func_start", "error\nUnauthorized\n(", "    // function foo() {"),
+    ("func_start", "    fallback\n(\n)\nexternal", "fallbackFn();"),
+
+    # --- class_start ---
+    ("class_start", "contract Token\nis\nERC20 {", "// contract Token {"),
+    ("class_start", "abstract  contract  Token \n{", "contractName = \"Token\";"),
+    ("class_start", "interface\nIToken\n{", "contractingParty = 0x0;"),
+    ("class_start", "library\nMath\n{", "libraryAddress = 0x123;"),
+    ("class_start", "contract\nToken\n \nis\nERC20\n{", "abstracted = true;"),
+
+    # --- structural_boundaries ---
+    ("structural_boundaries", "pragma\nsolidity\n^0.8.20;", "pragmaVersion = \"0.8\";"),
+    ("structural_boundaries", "uint256\npublic\nconstant", "uint256Amount = 5;"),
+    ("structural_boundaries", "mapping\n(\naddress\n=>\nuint256\n)", "addressBook[msg.sender];"),
+    ("structural_boundaries", "struct\nUser\n{", "structData = 0;"),
+    ("structural_boundaries", "enum\nState\n{", "enumValue = 1;"),
+]
+
+@pytest.mark.parametrize("signature,positive,negative", _SOLIDITY_ADVERSARIAL_CASES)
+def test_solidity_signature_adversarial(signature, positive, negative):
+    pattern = SOLIDITY_RULES[signature]
+    assert pattern is not None, f"solidity's {signature!r} rule is unexpectedly None"
+    assert pattern.search(positive), f"solidity {signature!r} failed to match positive adversarial case: {positive!r}"
+    if negative is not None:
+        assert not pattern.search(negative), (
+            f"solidity {signature!r} incorrectly matched negative adversarial case: {negative!r}"
+        )
+
+
 def test_solidity_args_redos_immunity():
     pattern = SOLIDITY_RULES["args"]
     poison = "function foo(" + "a, " * 40000

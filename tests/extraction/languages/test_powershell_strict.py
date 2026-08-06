@@ -36,6 +36,7 @@ from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 POWERSHELL_RULES = LANGUAGE_DEFINITIONS["powershell"]["rules"]
 
+
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
 # was split into tests/extraction/languages/, one file per language) alongside
@@ -103,6 +104,38 @@ _POWERSHELL_SIMPLE_CASES = [
     ("regex_execution", "$x -match $pattern", "$x -eq $y"),
     ("time_date_logic", "Get-Date", "Get-Item $path"),
     ("ipc_rpc_bridges", "Invoke-Command -ScriptBlock {}", "Invoke-Expression $cmd"),
+    # --- DEEP ADVERSARIAL CASES ---
+    ("branch", "if($x){", "$if = 1"),
+    ("branch", "$x = $y ?? $z", "$a = 123"),
+    ("branch", "$x = $y ? 1 : 2", "$status = ${?}"),
+    ("branch", "Get-Process | ? Name -eq 'pwsh'", "Get-Process"),
+    ("branch", "Get-Process | ?{$_.Name -eq 'pwsh'}", "$branch = 1"),
+    
+    ("args", "param ( [int]$x, [string]$y )", "if ($x -eq $y) {"),
+    ("args", "function global:Foo($x) {", "while ($true) {"),
+    ("args", "hidden [int] Foo($a) {", "hidden $myVar = 5"),
+    ("args", "static [string] Bar($b, $c) {", "foreach ($x in $y) {"),
+    ("args", "hidden static [System.Collections.Generic.List[int]] GetItems($d) {", "switch ($x) {"),
+    ("args", "[void] DoThing( $a, $b ) {", "$x = Foo($y) {"),
+    
+    ("func_start", "function global:Foo {", "if ($x) {"),
+    ("func_start", "hidden Foo() {", "$hiddenVar = 1"),
+    ("func_start", "[int] Foo() {", "while ($true) {"),
+    ("func_start", "hidden [int] Foo() {", "foreach ($x in $y) {"),
+    ("func_start", "hidden static [int] Foo() {", "switch ($x) {"),
+    ("func_start", "static [int] Foo() {", "if ($x -eq $y) {"),
+
+    ("class_start", "class Foo {", "$class = 'math'"),
+    ("class_start", "enum MyEnum {", "Get-Class"),
+    ("class_start", "   class Bar {", "# class Bar"),
+    ("class_start", "class  SpacedClass  {", "classy"),
+
+    ("structural_boundaries", "process {", "$process = 123"),
+    ("structural_boundaries", "begin {", "Get-Process"),
+    ("structural_boundaries", "end {", "$obj.process()"),
+    ("structural_boundaries", "clean {", "Invoke-Clean"),
+    ("structural_boundaries", "using namespace System.Math", "New-Item -ItemType class"),
+
 ]
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"

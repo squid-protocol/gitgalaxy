@@ -1,7 +1,0 @@
-Added fix for Ruby extraction (Issue #826 / PR #967).
-Lessons learned:
-
-1. Operator Overloads & Unicode Identifiers: `func_start` and `args` tightly restricted method names to `[a-zA-Z_]\w*`, causing perfectly valid Ruby operators (`[]`, `<<`, `+`) and unicode characters to fail matching entirely. We used `[^\W\d]` combined with explicit operator alternations to fix this without losing the word boundary.
-2. Singleton Classes: `class_start` tightly bounded to capitalized names `[A-Z]`, failing on singleton class injections like `class << self`.
-3. Alternative Literals & Module Dependencies: `_dependency_capture` failed on `%q()` and `%Q{}` string literals. Additionally, `include` and `extend` were completely missed, which required separating dependency macros into `require` (which expects strings) vs `include`/`extend` (which expect bareword constants).
-4. Non-capturing recursive groups: When dealing with nested parentheses (e.g. `args`), making all the inner recursive groups non-capturing `(?:...)` is crucial so the test harness can validate against the entire match rather than getting confused by partial captures of the innermost parenthesis.

@@ -1,6 +1,0 @@
-Added fixes for JCL (Issue #961 / PR #963) and Zig (Issue #838 / PR #965).
-Lessons learned:
-
-1. Nested Structures vs Flat Negated Classes (Zig): The `args` extraction used a flat negated class `[^)]*` that brutally truncated parameters at the first nested parenthesis (e.g. `cb: fn(fn(i32) void) void`), which is very common in Zig. Without AST support, regex extraction of nested syntax requires carefully bounded recursive group matching (e.g., up to 2 levels of nested parentheses).
-2. Modifiers and Identifier Quotation (Zig): The extraction regexes completely failed on `pub` exports for imports (like `pub const x = @import(...)`), and quoted identifiers across the board (like `fn @"weird name"`). Regexes must explicitly account for the language's full literal identifier syntax, and modifiers should not strictly tie down core structural anchors like `@import`.
-3. Instream Data Shielding (JCL): For line-based languages like JCL that lack AST-awareness, regexes remain fundamentally vulnerable to instream data spoofing (e.g., `DD *` blocks). Without a block parser, tests for these cases must be explicitly marked as `xfail` (Known limitation: no block shielding).

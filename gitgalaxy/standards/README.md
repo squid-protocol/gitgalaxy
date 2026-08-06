@@ -1,9 +1,5 @@
 # GitGalaxy Standards: Heuristics Registry & Calibration Layer
 
-[![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Heuristics-8A2BE2.svg)](#)
-[![Security](https://img.shields.io/badge/Security-Zero--Trust_Baselines-FF4500.svg)](#)
-[![Performance](https://img.shields.io/badge/Performance-ReDoS_Immune-00BFFF.svg)](#)
-
 Welcome to **GitGalaxy Standards**. This directory contains the immutable mathematical constants, structural regex dictionaries, security thresholds, and ingestion constraints that govern the entire GitGalaxy engine. 
 
 No active execution, file I/O, or graph resolution occurs in this directory. Instead, this acts as the **Central Calibration Layer**. It defines the universal rulesets consumed by the Orchestrator, the Prism, the Signal Processor, and the Security Lens to guarantee deterministic analysis across polyglot ecosystems.
@@ -12,7 +8,7 @@ No active execution, file I/O, or graph resolution occurs in this directory. Ins
 
 Engineers accustomed to traditional AST (Abstract Syntax Tree) parsers often view regular expressions with skepticism, assuming they are too brittle or prone to Catastrophic Backtracking (ReDoS) to parse enterprise code. 
 
-GitGalaxy explicitly bypasses ASTs to **visualize functional intent rather than rigid syntax**, allowing it to map severely fragmented, legacy, or un-compilable code. To achieve processing speeds exceeding 100,000 LOC/sec without crashing the Python GIL, the dictionaries in this directory are engineered with extreme defensive boundaries:
+GitGalaxy explicitly bypasses ASTs to **visualize functional intent rather than rigid syntax**, allowing it to map severely fragmented, legacy, or un-compilable code. To achieve processing speeds exceeding 100,000 LOC/sec without crashing the Python GIL, the dictionaries in this directory are engineered with strict defensive boundaries:
 
 ### 1. ReDoS Immunity & Strict Bounding
 The regex dictionaries defined in `language_standards.py` strictly prohibit unbounded quantifiers (like `.*` or `\s+`) in high-risk zones. To safely leap across multi-line function declarations and modern attribute stacking (e.g., C++23 `[[attributes]]` or Java `@Annotations`), the engine utilizes strict boundary limits. It enforces rigid numeric clamps (e.g., `{0,5}`) and mutually exclusive character sets, guaranteeing O(1) or linear O(N) evaluation time per match.
@@ -37,7 +33,7 @@ The true flexibility of GitGalaxy lies in its decoupled architecture. The core e
 * **Security & Ecosystem Matrices (50+ Variables):** Specific baseline weights for systems vs. web vs. infrastructure, cross-ecosystem mismatch penalties (e.g., `systems_in_web`), and the 10-cluster Archetype Violation Matrix.
 * **Hardware & Ingestion Limits (15+ Variables):** Hard operational ceilings like `MAX_FILE_SIZE_MB`, `MAX_LINE_LENGTH`, `HANDSHAKE_LOOKAHEAD_LIMIT`, and `NESTED_PEEL_LIMIT` to tune exactly how hard the engine pushes the CPU before backing off.
 
-While 175+ variables might sound intimidating, they are your primary weapon against alert fatigue. Every single dial can be surgically tuned to eradicate false positives for your specific environment—giving you a scanner that highlights genuine architectural threats without wasting engineering time on expected structural noise.
+While 175+ variables might sound intimidating, they are your primary lever against alert fatigue. Every single dial can be tuned to reduce false positives for your specific environment—giving you a scanner that highlights genuine architectural threats without wasting engineering time on expected structural noise.
 
 Want to scan an untrusted package? Flip the engine to `paranoid` mode to instantly tighten the `ThreatPolicy` thresholds. Need to support a proprietary, in-house legacy language? Inject a new structural dictionary into `language_standards.py`. The engine dynamically adopts these new constraints at runtime without requiring a single modification to the core parsing algorithms.
 
@@ -63,13 +59,13 @@ For strict guidelines and the LLM Master Prompt required to generate ReDoS-proof
 
 ---
 
-## 🌌 The GitGalaxy Ecosystem (Powered by the blAST Engine)
+## The GitGalaxy Ecosystem (Powered by the blAST Engine)
 
-GitGalaxy Standards is the calibration layer of the broader **GitGalaxy Ecosystem**—a high-velocity, AST-free, LLM-free heuristic knowledge graph engine designed for planetary-scale repositories.
+GitGalaxy Standards is the calibration layer of the broader **GitGalaxy Ecosystem**—an AST-free, LLM-free heuristic knowledge graph engine that scales to large repositories.
 
 Explore the ecosystem:
 
-* 🪐 **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
-* 🔭 **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* 📖 **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
-* ⚙️ **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.
+* **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
+* **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

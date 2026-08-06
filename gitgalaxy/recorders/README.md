@@ -2,7 +2,7 @@
 
 This directory houses the high-speed data serialization and export engines for GitGalaxy. 
 
-As the final phase of the pipeline, the `recorders` directory is responsible for translating the massive, in-memory topological graphs and structural risk vectors into highly optimized payloads for downstream consumers. GitGalaxy is strictly headless and API-first; these modules ensure the data can be instantly consumed by interactive 3D WebGPU visualizers, autonomous AI coding agents, SIEM pipelines, and enterprise data warehouses.
+As the final phase of the pipeline, the `recorders` directory translates the in-memory topological graphs and structural risk vectors into compact payloads for downstream consumers. GitGalaxy is headless and API-first; these modules format the data for interactive 3D WebGPU visualizers, autonomous AI coding agents, SIEM pipelines, and enterprise data warehouses to consume directly.
 
 ## Architectural Philosophy & Defensive Engineering
 
@@ -12,10 +12,10 @@ Converting a multi-dimensional graph of 50,000+ files into a portable format pre
 To process monolithic repositories on standard hardware, the `gpu_recorder.py` employs a "Destructive Pivot." Instead of copying data, it systematically `.pop()`s elements from the main Orchestrator arrays to build its new schema, manually invoking Python's Garbage Collector (`gc.collect()`) at phase boundaries. This ensures the pipeline's memory footprint strictly decreases during the export phase, preventing OOM crashes.
 
 ### 2. Columnar Pivoting & Text Interning (AoS to SoA)
-WebGPU and frontend rendering engines struggle with deeply nested, row-based JSON (Array of Structs). The engine structurally pivots the telemetry into flat, numerical columns (Structure of Arrays). Repetitive metadata—such as file extensions, author names, or diagnostic reasons—are aggressively minified into O(1) integer arrays using Text Interning. This drastically reduces the network payload size and client-side RAM overhead.
+WebGPU and frontend rendering engines struggle with deeply nested, row-based JSON (Array of Structs). The engine structurally pivots the telemetry into flat, numerical columns (Structure of Arrays). Repetitive metadata—such as file extensions, author names, or diagnostic reasons—are minified into O(1) integer arrays using Text Interning. This reduces the network payload size and client-side RAM overhead.
 
 ### 3. Zero-Overhead Relational Mapping
-The `record_keeper.py` bypasses intermediate JSON/CSV dumping entirely. It maps the in-memory Python dictionaries directly into a native SQLite3 database. To prevent I/O deadlocks during massive batch inserts, it explicitly enforces `PRAGMA journal_mode = WAL;` (Write-Ahead Logging) and relaxed synchronous modes, guaranteeing high-speed execution without sacrificing relational integrity.
+The `record_keeper.py` bypasses intermediate JSON/CSV dumping entirely. It maps the in-memory Python dictionaries directly into a native SQLite3 database. To prevent I/O deadlocks during massive batch inserts, it explicitly enforces `PRAGMA journal_mode = WAL;` (Write-Ahead Logging) and relaxed synchronous modes, without sacrificing relational integrity.
 
 ### 4. Token-Density Optimization for LLMs
 Dumping raw telemetry into an LLM context window saturates the agent with noise and wastes tokens. The `llm_recorder.py` acts as a statistical translation layer. It mathematically isolates the repository's structural dependencies (high blast radius), undocumented choke points (high centrality, zero documentation), and cascading mutations (high centrality, high state flux), generating a dense, highly opinionated Markdown brief that maximizes AI comprehension per token.
@@ -47,11 +47,11 @@ When running the `galaxyscope.py` orchestrator without exclusive flags, the engi
 
 ---
 
-## 🌌 Powered by the blAST Engine
+## Powered by the blAST Engine
 
 This documentation is part of the [GitGalaxy Ecosystem](https://squid-protocol.github.io/gitgalaxy/), an AST-free, LLM-free heuristic knowledge graph engine.
 
-* 🪐 **[GitGalaxy Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** - Deep dives into the mathematics and pipeline architecture.
-* 🔭 **[GitGalaxy Visualizer](http://gitgalaxy.io/)** - Render your codebase locally in 3D using WebGPU.
-* 📖 **[The blAST Paradigm Wiki](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** - The academic and structural thesis backing the engine.
-* ⚙️ **[Language Calibration Standards](https://squid-protocol.github.io/gitgalaxy/gitgalaxy/standards/how_to_add_a_language.md)** - Guide to extending the comparative lexical taxonomy.
+* **[GitGalaxy Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** - Deep dives into the mathematics and pipeline architecture.
+* **[GitGalaxy Visualizer](http://gitgalaxy.io/)** - Render your codebase locally in 3D using WebGPU.
+* **[The blAST Paradigm Wiki](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** - The academic and structural thesis backing the engine.
+* **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** - Guide to extending the comparative lexical taxonomy.

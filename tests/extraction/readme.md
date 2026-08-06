@@ -1,10 +1,14 @@
-### ⚔️ Mathematical Proofs: The Strict Extraction Gauntlets
+### Structural Extraction Gauntlets
 
-This directory contains the adversarial proving grounds for GitGalaxy's universal extraction engine.
+This directory contains the adversarial test suite for GitGalaxy's universal extraction engine
+— the rules that pull function names, class names, arguments, and dependency paths out of raw
+source text without an AST.
 
-Building a planetary-scale parser without an Abstract Syntax Tree (AST) is widely considered dangerous by compiler engineers. Without a strict compiler toolchain, naive regular expressions will hallucinate architecture, corrupt forensic math, or trigger Catastrophic Backtracking (ReDoS) death spirals when encountering nested logic. 
-
-This test suite exists to mathematically prove that our heuristic **blAST Engine** securely and deterministically isolates exact structural identifiers across 30+ programming languages, surviving the most pathological formatting a developer (or obfuscator) can throw at it.
+Building a parser without an Abstract Syntax Tree (AST) means naive regular expressions can
+easily match the wrong thing or, worse, hang on nested logic via catastrophic backtracking
+(ReDoS). This suite exists to check that the heuristic **blAST Engine** isolates exact
+structural identifiers across 30+ languages and survives adversarial or pathological
+formatting without either failure mode.
 
 **Note:** most languages' cases have since migrated out of the four dict files below into
 `languages/test_<lang>.py`, one file per language (see `how_to_harden_extraction.md`). That same
@@ -16,9 +20,10 @@ keep the two concerns' files distinguishable and independently importable side b
 
 ---
 
-### 🧪 Execution Protocols
+### Running This Suite
 
-These gauntlets fire thousands of heavily mutated, multi-lingual code snippets at the engine. To run the extraction matrix in isolation:
+These tests fire thousands of mutated, multi-language code snippets at the engine. To run this
+suite in isolation:
 
 ```bash
 python -m pytest tests/extraction/ -v
@@ -26,47 +31,44 @@ python -m pytest tests/extraction/ -v
 
 ---
 
-### 📂 Verified Capabilities & The Four Pillars
+### The Four Extraction Rules
 
-The following test suites validate the core structural spawners of the physics engine. Each file proves the engine can cleanly extract the target while stepping over massive attribute stacks, asynchronous modifiers, and preprocessor garbage.
+Each file below proves the engine can cleanly extract its target while ignoring surrounding
+noise — long attribute chains, async modifiers, preprocessor macros.
 
-#### 1. `test_function_extraction.py` (The Satellite Spawner)
-* **Validates:** The `func_start` heuristic rules across 32 distinct architectures.
-* **Proves:** The engine can pinpoint exact function and method names (the "Satellites") while entirely stripping away C++ macros, Scala 3 transparency modifiers, Java annotations, and extreme vertical generic blobs without losing scope.
+#### 1. `test_function_extraction.py`
+* **Validates:** The `func_start` heuristic rules across 32 distinct language grammars.
+* **Proves:** The engine can pinpoint exact function and method names while stripping away C++ macros, Scala 3 transparency modifiers, Java annotations, and multi-line generic declarations without losing scope.
 
-#### 2. `test_class_extraction.py` (The Entity Census)
+#### 2. `test_class_extraction.py`
 * **Validates:** The `class_start` boundary rules.
-* **Proves:** The engine accurately isolates the precise name of an Object-Oriented entity (Class, Struct, Interface, Trait, Enum). It mathematically proves the regex ignores complex inheritance chains, Dart mixins, and C# interface stacking to return *only* the clean entity name.
+* **Proves:** The engine isolates the precise name of an object-oriented entity (class, struct, interface, trait, enum), correctly ignoring inheritance chains, Dart mixins, and C# interface stacking to return only the clean entity name.
 
-#### 3. `test_args_extraction.py` (The Coupling Mass)
+#### 3. `test_args_extraction.py`
 * **Validates:** The `args` capture rules.
-* **Proves:** Parameter extraction is the hardest structural component to parse heuristically. This gauntlet proves the engine can swallow massive parameter blocks, default array arguments, and multi-line lambda closures without collapsing into a nested-parentheses ReDoS spiral.
+* **Proves:** Parameter extraction is the hardest of the four to parse heuristically. This suite checks the engine can handle large parameter blocks, default array arguments, and multi-line lambda closures without a nested-parentheses ReDoS spiral.
 
-#### 4. `test_dependency_extraction.py` (The Gravity Links)
-* **Validates:** The `_dependency_capture` rules (Tested across a 37-Language Mega Suite).
-* **Proves:** The engine can trace precise information flow by extracting the exact file path or module name from an import statement. It survives complex ES6 destructuring, Rust `pub use crate::` chains, and Python alias stacking without capturing dirty modifiers.
-
----
-
-### 🧬 The 3-Tier Adversarial Matrix
-
-Every single language mapped in these gauntlets is subjected to three distinct phases of adversarial testing. If a regex fails even one phase, the build is rejected.
-
-1. **`valid` (The Iron Wall)**
-   * **Purpose:** Proves baseline precision.
-   * **Pass Condition:** The engine must match the payload AND strictly isolate the exact target string (using Capture Groups), leaving behind zero dirty modifiers, return types, or whitespace.
-2. **`invalid` (Ghost Prevention)**
-   * **Purpose:** Proves the engine will not hallucinate architecture.
-   * **Pass Condition:** The engine MUST return `None` when fed malicious structural lookalikes (e.g., class instantiations like `new Target()`, control flow like `if (Target)`, or variable assignments). 
-3. **`pathological` (The Frankenstein Test)**
-   * **Purpose:** Proves ReDoS immunity and vertical parsing capability.
-   * **Pass Condition:** The engine must successfully extract the target from code formatted with absurd vertical newlines, tabs, margin-hugging, and extreme modifier stacking, executing in $O(1)$ or $O(N)$ time without locking the CPU thread.
+#### 4. `test_dependency_extraction.py`
+* **Validates:** The `_dependency_capture` rules, tested across 37 languages.
+* **Proves:** The engine extracts the exact file path or module name from an import statement, correctly handling ES6 destructuring, Rust `pub use crate::` chains, and Python alias stacking without capturing extra modifiers.
 
 ---
 
-### 🛠️ Extending the Gauntlet
+### The 3-Tier Adversarial Matrix
 
-To subject a new language to the gauntlet, inject it into the constant dictionaries at the top of the respective test file using the standard schema:
+Every language in these gauntlets is tested through three phases. A regex has to pass all
+three to ship.
+
+1. **`valid`** — Proves baseline precision: the engine must match the payload and isolate exactly the target string (via capture groups), with no leftover modifiers, return types, or whitespace.
+2. **`invalid`** — Proves the engine doesn't false-positive on lookalikes: it must return `None` on structural lookalikes such as instantiations (`new Target()`), control flow (`if (Target)`), or plain variable assignments.
+3. **`pathological`** — Proves ReDoS immunity and correct handling of adversarial formatting: the engine must still extract the target from code with extreme vertical whitespace, tabs, or modifier stacking, in $O(1)$ or $O(N)$ time, without hanging the CPU thread.
+
+---
+
+### Extending a Gauntlet
+
+To add a new language to a gauntlet, add it to the constant dictionaries at the top of the
+relevant test file using the standard schema:
 
 ```python
 "new_language": {

@@ -1,72 +1,44 @@
-# GitGalaxy Master Test Suite
+### COBOL & Mainframe Modernization Test Suite
 
-This directory contains the testing architecture for the GitGalaxy engine. 
+This directory contains the validation suite for GitGalaxy's mainframe modernization
+toolchain — the tools under `gitgalaxy/tools/cobol_to_cobol/` and `gitgalaxy/tools/cobol_to_java/`
+that parse, refactor, and translate legacy COBOL/JCL without a compiler or emulator.
 
-GitGalaxy operates as an **AST-free, polyglot structural parser**. Because it relies on heavily bounded mathematical regex and structural physics rather than standard compiler toolchains, this test suite is designed to aggressively validate structural extraction, prevent Catastrophic Backtracking (ReDoS), and ensure absolute accuracy across 30+ programming languages.
+(Note: this file previously duplicated the top-level `tests/README.md`'s full index instead of
+describing this directory specifically — see [`tests/README.md`](../README.md) for the
+whole-suite index, and the rest of this file for what's actually under `tests/cobol_mainframe/`.)
 
-## 📂 Architecture & File Index
+---
 
-### 1. `/core_engine` (The Physics & Parsing Core)
-Validates the fundamental optical physics and execution lifecycle of the engine.
-* `test_aperture.py` - Validates the Solar Shield (filtering out binaries, minified files, and generated debris).
-* `test_prism.py` - Validates the Optical Split (separating active code from ghost mass/comments).
-* `test_detector.py` - Validates the Logic Splicer (extracting complexity and scope without ASTs).
-* `test_signal_processor.py` - Validates the 18-point risk exposure math and structural mass equations.
-* `test_galaxyscope.py` - Validates the main orchestrator, multi-processing worker IPC, and hardware timeouts.
-* `test_language_lens.py` & `test_language_standards_strict.py` - Validates dialect detection and baseline regex integrity.
-* `test_guidestar_lens.py` - Validates social/roadmap proof (manifests, `.gitattributes`, `.gitignore` overrides).
-* `test_chronometer_timeout.py` - Validates the strict POSIX hardware guillotine for frozen threads.
-* `test_state_rehydrator.py` & `test_zero_dependency.py` - Validates Delta scans and safe fallbacks for missing C-libs.
+### Running This Suite
 
-### 2. `/extraction` (The Strict Gauntlets)
-Massive, parameterized testing matrices that run across all supported languages. They mathematically prove that the engine can isolate structures while ignoring strings, comments, and pathological formatting.
-* `test_args_extraction_strict.py` - Validates parameter and coupling mass extraction.
-* `test_class_extraction_strict.py` - Validates entity (Class/Struct/Trait) boundary extraction.
-* `test_dependency_extraction_strict.py` - Validates import/dependency linkage extraction.
-* `test_function_extraction_strict.py` - Validates executable logic (Function/Method) extraction.
-
-### 3. `/security_auditing` (Threat Intelligence & AppSec)
-Tests the vulnerability, compliance, and threat intelligence sensors.
-* `test_ai_appsec_sensor.py` - Validates detection of Agentic RCE, prompt injections, and autonomous AI threats.
-* `test_redos_poison.py` - Proves the engine's immunity against Catastrophic Backtracking attacks.
-* `test_vault_sentinel.py` & `test_pii_leak_hunter.py` - Validates the detection of hardcoded secrets and PII.
-* `test_supply_chain_firewall.py` & `test_binary_anomaly_detector.py` - Validates the X-Ray binary scans and import blacklists.
-* `test_network_risk_sensor.py` - Validates the N-Dimensional graph physics (Blast Radius, Betweenness).
-* `test_neural_auditor.py` - Validates the zero-RAM header extraction of AI model weights (GGUF/Safetensors).
-* `test_api_network_map.py` & `test_sbom_generator.py` - Validates shadow API detection and SBOM manifest generation.
-
-### 4. `/cobol_mainframe` (Legacy Modernization)
-Dedicated tests for the Mainframe/Z-System modernization toolchain.
-* `test_cobol_lexical_patcher.py` - Validates the safe normalization of COBOL-74 and COBOL-85 dialects.
-* `test_cobol_etl_unpacker.py` - Validates the EBCDIC translation and COMP-3 packed decimal hexadecimal decoding.
-* `test_cobol_dag_architect.py` & `test_cobol_microservice_slicer.py` - Validates Execution Order DAGs and Taint Tracking.
-* `test_cobol_jcl_auditor.py` & `test_cobol_jcl_forge.py` - Validates the auditing and zero-trust generation of JCL scripts.
-* `test_cobol_compiler_forge.py` & `test_cobol_agent_task_forge.py` - Validates copybook flattening and AI agent ticket creation.
-* `test_cobol_graveyard_finder.py` - Validates AST dead-code math and orphaned variable detection.
-* `test_cobol_refractor_controller.py` - Validates the Hybrid State Manager (OOM protection via SQLite toggling).
-* `test_cobol_schema_forge.py` & `test_cobol_system_limits_reporter.py` - Validates PIC clause extraction and system limitation scanning.
-
-### 5. `/tools_recorders` (Telemetry & Output Generation)
-Validates the telemetry translation layer and continuous integration harnesses.
-* `test_gpu_recorder.py` - Validates the destructive memory pivot that generates WebGL-optimized 3D map payloads.
-* `test_batch_test_harness.py` - Validates the mass-directory batch scanner and starvation monitors.
-* `test_agent_forge.py`, `test_decoder_forge.py`, `test_golden_forge.py`, `test_service_forge.py` - Validates auxiliary data generation tools.
-
-## 🚀 Execution Commands
-
-Execute tests from the project root while within the `galaxy_venv`.
-
-**Run the entire gauntlet:**
 ```bash
-python -m pytest tests/ -v
+python -m pytest tests/cobol_mainframe/ -v
 ```
 
-**Run a specific domain (e.g., Security & Auditing):**
-```bash
-python -m pytest tests/security_auditing/ -v
-```
+---
 
-**Run a specific file with fast-fail (stops on the first error):**
-```bash
-python -m pytest tests/extraction/test_dependency_extraction_strict.py -v -x
-```
+### Test Index
+
+#### 1. Dialect Detection & Normalization
+* **`test_cobol_lexical_patcher.py`** — Validates the dialect sensor, which dates a file's COBOL compiler era (e.g. COBOL-74 vs. COBOL-85) from lexical clues, and the normalization pass that safely patches dialect-specific syntax without altering program logic.
+
+#### 2. Data & Schema Translation
+* **`test_cobol_etl_unpacker.py`** — Validates EBCDIC string translation and decoding of `COMP-3` packed-decimal hexadecimal boundaries.
+* **`test_cobol_schema_forge.py`** — Validates the translation of legacy COBOL `PIC` clauses into modern data types for the generated Java schema.
+
+#### 3. Execution Flow & Dead-Code Analysis
+* **`test_cobol_dag_architect.py`** — Validates topological sorting and dead-branch pruning for mapping a program's exact execution order.
+* **`test_cobol_graveyard_finder.py`** — Validates dead-code detection, including resolving local `.cpy` copybook files and inlining their contents before checking for orphaned variables and unreachable blocks.
+* **`test_cobol_microservice_slicer.py`** — Validates the taint-tracking engine that traces variable aliases across operations to determine which logic can be safely sliced into an independent microservice boundary.
+
+#### 4. JCL Handling
+* **`test_cobol_jcl_auditor.py` & `test_cobol_jcl_forge.py`** — Validates JCL intent parsing, resource-bloat reduction, and least-privilege JCL generation for the translated job definitions.
+
+#### 5. Code Generation & Orchestration
+* **`test_cobol_compiler_forge.py`** — Validates the dialect-aware routing logic that generates correct JCL for a given detected COBOL dialect.
+* **`test_cobol_refractor_controller.py`** — Validates the orchestrator's scale sensor: it estimates repository size up front and switches to a SQLite-backed state mode on large repositories to avoid holding the full intermediate representation in memory.
+* **`test_cobol_system_limits_reporter.py`** — Validates the regex checks that flag COBOL constructs known to hit hard limits in common target runtimes (e.g. array/table size ceilings), plus the comment-shielding that keeps those checks from false-positiving inside comments.
+
+#### 6. Autonomous Agent Handoff
+* **`test_cobol_agent_task_forge.py`** — Validates the context merger for autonomous agents, checking that LLMs receive remediation tickets scoped to what's actually in the code, not speculative instructions.

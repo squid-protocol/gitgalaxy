@@ -1,9 +1,5 @@
 # GitGalaxy: The Core Engine & GalaxyScope Orchestrator
 
-[![Architecture](https://img.shields.io/badge/Architecture-blAST_Engine-00BFFF.svg)](#)
-[![Velocity](https://img.shields.io/badge/Velocity-40k%2B_LOC%2Fsec-00C957.svg)](#)
-[![CLI](https://img.shields.io/badge/Interface-GalaxyScope_CLI-8A2BE2.svg)](#)
-
 Welcome to the internal source code for the **GitGalaxy Core Engine**. 
 
 This directory contains the central orchestrator—**GalaxyScope**—alongside the core structural mechanics, lexical routing, and mathematical heuristics that power the entire DevSecOps ecosystem. If you are a developer looking to contribute, understand the data pipeline, or run the primary CLI, here is your architectural map.
@@ -25,7 +21,7 @@ Think of GitGalaxy as a highly configurable macro-analyzer for codebase risk. Ev
 * **Topological Cartography:** Builds a full dependency graph from imports and dynamic execution markers, with PageRank-style centrality and blast-radius scoring.
 * **No LLM in the Analysis Loop:** The core mapping and risk-scoring engine makes no calls to any language model — output is fully deterministic and reproducible run over run. (Some optional legacy-migration tools, like COBOL-to-Java translation, do use AI to translate isolated business logic; the analysis engine itself does not.)
 
-### 🗺️ The Developer Map (How the Pipeline Flows)
+### The Developer Map (How the Pipeline Flows)
 
 When you trigger the `galaxyscope` command, the data flows through these physical directories:
 
@@ -40,13 +36,20 @@ When you trigger the `galaxyscope` command, the data flows through these physica
 
 ---
 
-### ⚡ Performance Showcase: NVDA (NonVisual Desktop Access)
+### Example Run: NVDA (NonVisual Desktop Access)
 
-To demonstrate the GalaxyScope orchestrator's capability on complex, cross-language system architecture, we executed it against **NVDA**, the open-source Windows screen reader. 
+To show the GalaxyScope orchestrator on a real cross-language codebase, here's a run against
+**NVDA**, the open-source Windows screen reader — chosen because it bridges Python application
+logic with low-level C++ system hooks, so it needs correct polyglot dependency mapping to parse
+at all.
 
-Because NVDA relies heavily on bridging Python application logic with low-level C++ system hooks, it requires advanced polyglot dependency mapping. The blAST engine successfully parsed the mixed-language architecture, analyzing **236,754 lines of code** in just **5.59 seconds** (a velocity of 42,357 LOC/sec). 
+The engine parsed the mixed-language architecture, analyzing **236,754 lines of code** in
+**5.59 seconds** (42,357 LOC/s on this specific run — see
+[`core/README.md`](../core/README.md) for the 104-repo benchmark average).
 
-Crucially, during the import resolution phase, the local dependency scanner successfully intercepted a structural naming collision (`fstream` vs `sstream`), proving the real-time typosquatting defenses are fully operational without relying on cloud-based CVE APIs.
+During import resolution, the dependency scanner flagged a structural naming collision
+(`fstream` vs `sstream`) as a typosquatting lookalike — a concrete example of the local
+typosquatting check running without a cloud CVE API.
 
 > **Enterprise Calibration (Zero-Trust Enforcement):** Because `fstream` and `sstream` are both standard C++ libraries, flagging this collision demonstrates the engine's default Zero-Trust strictness. To prevent the pipeline from failing on trusted internal or standard libraries, DevSecOps teams simply add them to the `APPROVED_IMPORTS` allowlist in the [GitGalaxy Config](https://squid-protocol.github.io/gitgalaxy/06-01-gitgalaxy-config/).
 
@@ -63,9 +66,9 @@ Crucially, during the import resolution phase, the local dependency scanner succ
 
 ---
 
-### 🛠️ Local Development & GalaxyScope Execution
+### Local Development & GalaxyScope Execution
 
-If you are modifying the internal analysis logic or lexical routing, it is highly recommended to install the package in editable mode so your CLI commands instantly reflect your local code changes.
+If you are modifying the internal analysis logic or lexical routing, install the package in editable mode so your CLI commands reflect your local code changes immediately.
 
 From the **root directory** of the repository, run:
 ~~~bash
@@ -84,14 +87,14 @@ galaxyscope /path/to/test/repo --debug
 
 Before submitting a Pull Request, ensure your changes do not skew the core baseline risk equations by running the test suite:
 ~~~bash
-python3 -m unittest discover tests/
+python -m pytest tests/
 ~~~
 
 ---
-### 🌌 Deep Dive into the Pipeline Architecture
+### Deep Dive into the Pipeline Architecture
 To fully understand how GalaxyScope processes data, maps files, and applies risk exposures, explore the official documentation:
 
-* 📖 **[GalaxyScope CLI Reference](https://squid-protocol.github.io/gitgalaxy/01-02-galaxyscope-cli-reference/)** (Flags, outputs, and behaviors)
-* 📖 **[The Data Pipeline Overview](https://squid-protocol.github.io/gitgalaxy/02-01-pipeline-overview/)** (Step-by-step breakdown of the runtime)
-* 📖 **[Risk Exposures & Methodology](https://squid-protocol.github.io/gitgalaxy/08-01-methodology/)** (The math behind the heuristics)
-* 🪐 **[Return to the Main GitGalaxy Hub](https://github.com/squid-protocol/gitgalaxy)**
+* **[GalaxyScope CLI Reference](https://squid-protocol.github.io/gitgalaxy/01-02-galaxyscope-cli-reference/)** (Flags, outputs, and behaviors)
+* **[The Data Pipeline Overview](https://squid-protocol.github.io/gitgalaxy/02-01-pipeline-overview/)** (Step-by-step breakdown of the runtime)
+* **[Risk Exposures & Methodology](https://squid-protocol.github.io/gitgalaxy/08-01-methodology/)** (The math behind the heuristics)
+* **[Return to the Main GitGalaxy Hub](https://github.com/squid-protocol/gitgalaxy)**

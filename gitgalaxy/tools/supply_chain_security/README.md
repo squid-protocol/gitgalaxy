@@ -1,9 +1,5 @@
 # GitGalaxy Security: Supply Chain & CI/CD Defense Suite
 
-[![Security](https://img.shields.io/badge/Security-Zero--Trust_Validation-FF4500.svg)](#)
-[![Performance](https://img.shields.io/badge/Performance-Zero--Disk_Enforcement-00BFFF.svg)](#)
-[![Compliance](https://img.shields.io/badge/Compliance-Shift--Left_Automation-8A2BE2.svg)](#)
-
 This directory contains the CI/CD gating mechanisms, pre-commit hooks, and dependency validation engines for the GitGalaxy architecture. 
 
 Standard Software Composition Analysis (SCA) tools inherently possess a critical blind spot: they act as manifest readers. They scan `package.json` or `requirements.txt` and cross-reference those declarations against known CVE databases. Modern supply chain compromises bypass this entirely by omitting malicious payloads from the manifest declarations, burying the threat in transit, or executing it dynamically during installation.
@@ -29,25 +25,25 @@ Advanced compromises often hide executable logic inside seemingly inert static a
 
 ## Core Modules (The Sentinels)
 
-Each file in this directory acts as a discrete, specialized firewall for your development and deployment pipelines:
+The first three files below live in this directory and act as discrete, specialized firewalls for your development and deployment pipelines. `manifest_parser.py` lives in `gitgalaxy/security/` (it's a shared parser also used outside this suite) and feeds the firewall the resolution data it needs:
 
 * **`supply_chain_firewall.py` (Dependency Integrity Gate):** Scans the physical execution graph of downloaded dependencies. It cross-references the core engine's structural telemetry to block packages exhibiting unauthorized behavioral heuristics (e.g., unexpected data injection routines, execution of OS-level processes during installation).
-* **`binary_anomaly_detector.py` (Binary Anomaly Detector):** Designed for rapid triage of binaries and obfuscated files. It detects embedded execution headers hidden inside static data, validates file extension integrity, and flags extreme cryptographic entropy indicating packed malware or byte-level obfuscation loops.
-* **`vault_sentinel.py` (Vault Sentinel):** A hyper-speed pre-commit hook strictly for localized credential detection. It enforces Tier 0 path blocking and executes deep-content cryptographic scans to prevent hardcoded cloud keys, database passwords, and API tokens from entering version control.
-* **`manifest_parser.py` (SSCS Manifest Auditor):** Parses ecosystem manifests (NPM, PyPI) to build a deterministic resolution map. It actively detects namespace hijacking, unverified direct-URI resolutions, and insecure registry routing.
+* **`binary_anomaly_detector.py` (Binary Anomaly Detector):** Designed for rapid triage of binaries and obfuscated files. It detects embedded execution headers hidden inside static data, validates file extension integrity, and flags high cryptographic entropy (Entropy > 4.8) indicating packed malware or byte-level obfuscation loops.
+* **`vault_sentinel.py` (Vault Sentinel):** A pre-commit hook strictly for localized credential detection. It enforces Tier 0 path blocking and executes deep-content cryptographic scans to prevent hardcoded cloud keys, database passwords, and API tokens from entering version control.
+* **`manifest_parser.py` (SSCS Manifest Auditor, `gitgalaxy/security/`):** Parses ecosystem manifests (NPM, PyPI) to build a deterministic resolution map. It detects namespace hijacking, unverified direct-URI resolutions, and insecure registry routing, and hands the flagged entries to the firewall above to enforce.
 
 ---
 
-## 🧠 Engineering Highlights (How It Works at Scale)
+## Engineering Highlights (How It Works at Scale)
 
 * **RAM-Exclusive Policy Enforcement (`supply_chain_firewall.py`):** Typical firewalls perform redundant O(N) disk parsing. This firewall consumes the pre-computed Dependency Graph from Phase 1. By completely divesting from disk I/O, it achieves near-instant behavioral policy enforcement across tens of thousands of dependencies.
 * **Build-Time Execution Multipliers (`supply_chain_firewall.py`):** Configuration scripts (like `setup.py` or `package.json` hooks) are executed by CI/CD runners at build time. Remote Code Execution (RCE) here compromises the host before the application even runs. The engine applies an artificial 10x structural density multiplier to manifest triggers, ensuring any I/O or High-Risk Execution signatures instantly trip the firewall.
-* **Namespace Dereferencing & Hijack Mitigation (`manifest_parser.py`):** To catch Dependency Confusion attacks where a malicious package masks itself behind a trusted internal alias, the parser normalizes NPM/PyPI aliases to their true upstream packages. It flags direct URI resolutions (which bypass Subresource Integrity checks) and actively blocks insecure protocols or tunneling services (e.g., `ngrok`) hiding in `pip.conf`.
+* **Namespace Dereferencing & Hijack Mitigation (`manifest_parser.py`):** To catch Dependency Confusion attacks where a malicious package masks itself behind a trusted internal alias, the parser normalizes NPM/PyPI aliases to their true upstream packages. It flags direct URI resolutions (which bypass Subresource Integrity checks) and flags insecure protocols or tunneling services (e.g., `ngrok`) hiding in `pip.conf` for the firewall to block.
 * **O(1) Memory Shielding for Binary Triage (`binary_anomaly_detector.py`):** Attempting to calculate the Shannon Entropy of a 2GB binary blob will immediately trigger an Out-Of-Memory (OOM) crash in a CI runner. This detector mathematically guarantees pipeline survival by capping its read buffer at 8KB—sufficient to capture magic bytes, execution headers, and enough string data for accurate entropy calculation without memory exhaustion.
 
 ---
 
-## ⚡ Performance Showcases
+## Performance Showcases
 
 #### Showcase A: Vault Sentinel (Secret Detection)
 To prove this engine operates fast enough to be a synchronous pre-commit hook without frustrating developers, we executed the **Vault Sentinel** against the massive **tRPC** TypeScript monorepo. 
@@ -142,13 +138,13 @@ jobs:
 
 ---
 
-## 🌌 The GitGalaxy Ecosystem (Powered by the blAST Engine)
+## The GitGalaxy Ecosystem (Powered by the blAST Engine)
 
-GitGalaxy Security is the threat inference and enforcement layer of the broader **GitGalaxy Ecosystem**—a high-velocity, AST-free, LLM-free heuristic knowledge graph engine designed for planetary-scale repositories.
+GitGalaxy Security is the threat inference and enforcement layer of the broader **GitGalaxy Ecosystem**—an AST-free, LLM-free heuristic knowledge graph engine that scales to large repositories.
 
 Explore the ecosystem:
 
-* 🪐 **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
-* 🔭 **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* 📖 **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
-* ⚙️ **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.
+* **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
+* **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

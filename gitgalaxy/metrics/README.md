@@ -1,9 +1,5 @@
 # GitGalaxy Metrics: Heuristic Synthesis & Statistical Auditing
 
-[![Architecture](https://img.shields.io/badge/Architecture-Heuristic_Synthesis-8A2BE2.svg)](#)
-[![Reliability](https://img.shields.io/badge/Reliability-False__Positive_Eradication-00BFFF.svg)](#)
-[![Performance](https://img.shields.io/badge/Performance-Zero--RAM_Auditing-FF4500.svg)](#)
-
 Welcome to **GitGalaxy Metrics**. If the `core/` directory is the extraction layer (identifying raw structural signals), this directory is the analytical brain. 
 
 It is responsible for consuming raw lexical data, merging it with temporal Git telemetry, and translating it into actionable, multi-dimensional risk vectors. This is where raw data becomes architectural intelligence.
@@ -39,24 +35,24 @@ As repositories increasingly embed local AI models, standard parsers crash attem
 
 ---
 
-## 🧠 Engineering Highlights (Architectural Defenses)
+## Engineering Highlights (Architectural Defenses)
 
 If you are evaluating the `metrics/` architecture, pay special attention to how we bypass the computational and statistical bottlenecks of enterprise-scale analysis:
 
-* **Zombie Process & FD Leak Prevention (`chronometer.py`):** Parsing a decade-long Git log for a monolithic repository will crash CI/CD runners by exhausting RAM and stalling the CPU. We enforce a dual-axis kill switch (volume targets and hard timeouts) via buffered `Popen` streams. To prevent zombie processes, we execute strict `SIGKILL` and `communicate()` flushing, ensuring OS file descriptors are perfectly sterilized even when the stream is aborted early.
+* **Zombie Process & FD Leak Prevention (`chronometer.py`):** Parsing a decade-long Git log for a monolithic repository will crash CI/CD runners by exhausting RAM and stalling the CPU. We enforce a dual-axis kill switch (volume targets and hard timeouts) via buffered `Popen` streams. To prevent zombie processes, we execute strict `SIGKILL` and `communicate()` flushing, ensuring OS file descriptors are cleanly released even when the stream is aborted early.
 * **Heuristic Extension Consensus (`statistical_auditor.py`):** Certain file extensions (`.h`, `.m`) are ambiguous across languages (C vs. C++ vs. Objective-C). Instead of guessing, the engine surveys the macro-state of the repository. If 80% of the repository's confidently parsed `.h` files are confirmed as C++, the auditor mathematically forces all ambiguous headers to align with the ecosystem consensus, resolving collisions dynamically without AST compilation.
-* **The Impossible Density Law (`statistical_auditor.py`):** Normal human code rarely sustains > 1.5 structural signature hits per physical line. If a file sustains > 3.0 across 30+ lines, it is mathematically guaranteed to be minified, obfuscated, or packed with embedded binaries. The auditor catches these "Packed Payloads" and shunts them out of the standard risk pool, preventing malicious obfuscation from hiding in the noise.
-* **Zero-RAM Exhaustion Guards (`tensor_scanner.py`):** A malicious actor can craft a tiny `.safetensors` file claiming its JSON header is 500GB, triggering a catastrophic memory exhaustion attack when a Python parser attempts to read it. Our tensor scanner reads strictly the first 8 bytes to extract the header size and enforces a hard 100MB cap, mathematically guaranteeing pipeline survival in $O(1)$ space complexity.
+* **The Impossible Density Law (`statistical_auditor.py`):** Normal human code rarely sustains > 1.5 structural signature hits per physical line. If a file sustains > 3.0 across 30+ lines, it is treated as minified, obfuscated, or packed with embedded binaries. The auditor catches these "Packed Payloads" and shunts them out of the standard risk pool, preventing malicious obfuscation from hiding in the noise.
+* **Zero-RAM Exhaustion Guards (`tensor_scanner.py`):** A malicious actor can craft a tiny `.safetensors` file claiming its JSON header is 500GB, triggering a catastrophic memory exhaustion attack when a Python parser attempts to read it. Our tensor scanner reads strictly the first 8 bytes to extract the header size and enforces a hard 100MB cap, keeping memory use bounded to $O(1)$ space regardless of what the file claims its header size is.
 
 ---
 
-## 🌌 The GitGalaxy Ecosystem (Powered by the blAST Engine)
+## The GitGalaxy Ecosystem (Powered by the blAST Engine)
 
-GitGalaxy Metrics is the analytical processing layer of the broader **GitGalaxy Ecosystem**—a high-velocity, AST-free, LLM-free heuristic knowledge graph engine designed for planetary-scale repositories.
+GitGalaxy Metrics is the analytical processing layer of the broader **GitGalaxy Ecosystem**—an AST-free, LLM-free heuristic knowledge graph engine that scales to large repositories.
 
 Explore the ecosystem:
 
-* 🪐 **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
-* 🔭 **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* 📖 **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
-* ⚙️ **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.
+* **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
+* **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

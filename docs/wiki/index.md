@@ -50,16 +50,29 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 
 ---
 
-## 📚 Master Documentation Index
+## 📚 Quick Navigation (Popular Starting Points)
 
-### Core Concepts & Claims
+This is a curated subset for first-time visitors, not the complete page list -- see the sidebar for the full, always-current navigation.
+
+### Foundation & Claims
 * [01-01: Project Overview](01-01-project-overview.md)
+* [01-02: GalaxyScope CLI Reference](01-02-galaxyscope-cli-reference.md)
+* [01-03: The blAST Paradigm (ASTs vs LLMs)](01-03-the-blast-paradigm.md)
+* [01-04: The Legacy Bridge](01-04-the-legacy-bridge.md)
+* [01-06: The Structural RAG Graph](01-06-the-structural-rag-graph.md)
+* [01-07: The SHBOM Standard](01-07-the-shbom-standard.md)
+* [01-08: Autonomous AI Guardrails](01-08-autonomous-ai-guardrails.md)
+* [01-09: The Continuous Delta Paradigm](01-09-the-continuous-delta-paradigm.md)
+* [03-01: Claim 1 - Search Strategies](03-01-claim-1-search-strategies.md)
 * [03-02: Claim 2 - Explicitness](03-02-claim-2-explicitness.md)
+* [03-03: Claim 3 - Taxonomy Map](03-03-claim-3-taxonomy-map.md)
 * [03-04: Claim 4 - Comparing Languages](03-04-claim-4-comparing-languages.md)
 * [03-05: Claim 5 - File Archetypes](03-05-claim-5-file-archetypes.md)
 * [03-06: Claim 6 - Keyword Fingerprinting](03-06-claim-6-keyword-fingerprinting.md)
 * [03-07: Claim 7 - Doom Comparisons](03-07-claim-7-doom-comparisons.md)
+* [03-08: Claim 8 - AST-Free Empirical Validation](03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
 * [03-09: Claim 9 - Universal Logic Extraction](03-09-claim-9-universal-logic-extraction.md)
+* [03-10: Claim 10 - AST vs Heuristic Paradigm](03-10-claim-10-ast-vs-heuristic-parsing.md)
 * [03-20: Future Outlooks](03-20-future-outlooks.md)
 
 ### Pipeline & Architecture
@@ -67,6 +80,7 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [02-06: Security Lens](02-06-security-lens.md)
 * [02-12: Audit Recorder](02-12-audit-recorder.md)
 * [06-01: GitGalaxy Configuration](06-01-gitgalaxy-config.md)
+* [06-02: Language Standards](06-02-language-standards.md)
 * [06-03: Analysis Lens](06-03-analysis-lens.md)
 
 ### Security & Threat Intelligence
@@ -74,7 +88,15 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [04-06: PII Leak Hunter](04-06-pii-leak-hunter.md)
 
 ### Legacy Mainframe Refraction
+* [05-01: Legacy Refraction Controller](05-01-legacy-refraction-controller.md)
+* [05-02: Spring Boot Scaffolding](05-02-spring-boot-scaffolding.md)
+* [05-03: Entity & Memory Mapping](05-03-entity-and-memory-mapping.md)
+* [05-04: API & Service Contracts](05-04-api-and-service-contracts.md)
+* [05-05: Autonomous Agent Tickets](05-05-autonomous-agent-tickets.md)
+* [05-06: Batch Test Harness](05-06-batch-test-harness.md)
 * [05-07: Mainframe Compiler Forge](05-07-mainframe-compiler-forge.md)
+* [05-08: DAG Architect](05-08-dag-architect.md)
+* [05-09: ETL Unpacker](05-09-etl-unpacker.md)
 * [05-10: Graveyard Reaper (Dead Code Math)](05-10-graveyard-reaper.md)
 * [05-11: JCL Meta Auditor](05-11-jcl-meta-auditor.md)
 * [05-12: Zero-Trust JCL Forge](05-12-zero-trust-jcl-forge.md)
@@ -99,6 +121,7 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [07-12: Miscellaneous Equations](07-12-misc-equations.md)
 
 ### Mathematical Physics (Risk Exposures)
+* [08-01: Methodology](08-01-methodology.md)
 * [08-02: Sub Equations](08-02-sub-equations.md)
 * [08-03: Transforming Regex Counts](08-03-transforming-regex-counts.md)
 * [08-04: Ownership Entropy](08-04-ownership-entropy.md)
@@ -127,6 +150,7 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [Deploy Vault Sentinel](cookbook/deploy-vault-sentinel.md)
 * [Detect Architectural Drift](cookbook/detect-architectural-drift.md)
 * [Detect Binary Anomalies](cookbook/detect-binary-anomalies.md)
+* [Enforce Supply Chain Firewall](cookbook/enforce-supply-chain-firewall.md)
 * [Generate LLM Architecture Briefs](cookbook/generate-llm-architecture-briefs.md)
 * [Generate Zero-Trust SBOM](cookbook/generate-zero-trust-sbom.md)
 * [Hunt PII Leaks](cookbook/hunt-pii-leaks.md)
@@ -136,6 +160,7 @@ Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalax
 * [Scaffold Spring Boot](cookbook/scaffold-spring-boot.md)
 
 #### Legacy Modernization Cookbooks
+* [Map Legacy COBOL Monoliths](cookbook/map-cobol-monoliths.md)
 * [COBOL Microservice Slicing](cookbook/cobol-microservice-slicing.md)
 * [Creating DAG from COBOL Files](cookbook/creating-dag-from-cobol-files.md)
 * [Creating JCL from COBOL Files](cookbook/creating-jcl-from-cobol-files.md)

@@ -1,6 +1,6 @@
 # Chronometer (Git History Analysis)
 
-> **File Reference:** [`gitgalaxy/metrics/chronometer.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/chronometer.py)
+> **File Reference:** [`gitgalaxy/metrics/chronometer.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/chronometer.py)
 
 The Chronometer component measures code churn (frequency of changes) and file stability by analyzing Git history. While the rest of the pipeline performs static analysis on the codebase at a single point in time, the Chronometer provides the historical context required by the Signal Processor to calculate risk exposure metrics.
 

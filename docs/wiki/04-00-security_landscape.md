@@ -1,6 +1,6 @@
 # Security Architecture & Competitive Analysis
 
-> **File Reference:** [gitgalaxy/security/security_auditor.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/security/security_auditor.py)
+> **File Reference:** [gitgalaxy/security/security_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor.py)
 
 ## Engineering Summary
 The DevSecOps ecosystem is populated by static analysis and software composition analysis (SCA) platforms that traditionally rely on full source code compilation, heavy Abstract Syntax Tree (AST) generation, or reliance on external vulnerability databases. These approaches introduce performance bottlenecks in high-throughput CI/CD pipelines, making real-time analysis difficult. To address this, a compilation-free, multi-language static security analysis framework evaluates raw code structures, lexical patterns, and heuristic signatures across 50+ programming languages simultaneously. By computing risk metrics, generating call reachability graphs, and identifying potential vulnerabilities without pre-compiled build artifacts, it provides low-latency feedback. This subsystem is the GitGalaxy analysis engine.

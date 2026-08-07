@@ -1,6 +1,6 @@
 # Analysis Lens & Schema Registry
 
-> **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/analysis_lens.py)
+> **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/analysis_lens.py)
 
 ## Engineering Summary
 Mathematical schemas and normalization formulas for extracted source code metrics form the core of this module. It solves the problem of standardizing disparate telemetry data by flattening object-oriented syntax counts into contiguous numerical arrays. This subsystem transforms raw syntax hits into calculated risk vectors and visual attributes, acting as the mathematical normalization layer for GitGalaxy.

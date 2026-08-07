@@ -1,6 +1,6 @@
 # Architectural Anomaly & Boundary Detector
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py)
 
 ## Engineering Summary
 The Architectural Anomaly & Boundary Detector is a static analysis sensor that evaluates the deterministic nature of legacy code structures. It solves the problem of unsafe modernization by identifying logic constructs that dynamically alter execution paths or memory states at runtime. This subsystem serves as a critical safety gate in GitGalaxy, ensuring code meets static analysis requirements before being passed to automated dependency mappers or LLM agents. It is commonly referred to as the System Limits Reporter.

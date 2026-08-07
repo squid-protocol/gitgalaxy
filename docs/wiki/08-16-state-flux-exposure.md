@@ -1,6 +1,6 @@
 # State Flux Exposure
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 Evaluates the density of variable mutations and state modifications within a module. State flux measures data volatility by tracking property reassignments, array mutations, and side effects. High state flux indicates unstable data structures where tracking state transitions increases cognitive load and defect probability. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the State Flux Exposure metric.
@@ -97,6 +97,6 @@ The calculation operates in $O(1)$ time leveraging pre-computed token counts, ma
 * Expand language support and framework-specific annotations.
 
 ## Related Components
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

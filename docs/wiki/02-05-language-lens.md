@@ -1,6 +1,6 @@
 # Language Identification Engine
 
-> **File Reference:** [`gitgalaxy/standards/language_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/language_lens.py)
+> **File Reference:** [`gitgalaxy/standards/language_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_lens.py)
 
 ## Engineering Summary
 This subsystem is the primary language identification engine. It solves the problem of inaccurately identifying programming languages in complex repositories where file extensions are misleading or non-existent. It exists to provide a deterministic language identifier and a confidence score for every analyzed file, combining metadata rules with deep lexical analysis. Within the system, this module is the language recognition layer for GitGalaxy.
@@ -48,6 +48,6 @@ Uses ecosystem mass computation to skip regex verification on heavily dominant e
 Expanding the transition marker registry to better handle nested JSX/TSX and template engines.
 
 ## Related Components
-- [Guidestar Protocol](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-04-guidestar-protocol.md)
-- [The Prism](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-07-the-prism.md)
+- [Guidestar Protocol](02-04-guidestar-protocol.md)
+- [The Prism](02-07-the-prism.md)
 (index.md)**

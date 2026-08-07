@@ -1,6 +1,6 @@
 # File Stability (Commit Age & Timestamp Heat)
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 >
 > **Metric:** Relative Temporal Distance & File Modifications
 >

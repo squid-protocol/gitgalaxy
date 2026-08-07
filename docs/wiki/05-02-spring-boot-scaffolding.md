@@ -1,6 +1,6 @@
 # Spring Boot Scaffolding Architecture
 
-> **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/cobol_to_java_controller.py)
+> **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_to_java_controller.py)
 
 ## Engineering Summary
 This subsystem automatically generates a complete Java project structure from parsed legacy application state. It solves the problem of manually translating procedural environments into modern, compilable application frameworks. It exists to eliminate boilerplate setup and ensure consistency across migrated microservices. This orchestrator functions as the bridge between static analysis outputs and target application architectures within GitGalaxy.

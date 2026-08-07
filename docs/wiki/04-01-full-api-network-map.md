@@ -1,6 +1,6 @@
 # Full API Network Map (Shadow & Ghost API Audit)
 
-> **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/network_auditing/full_api_network_map.py)
+> **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/network_auditing/full_api_network_map.py)
 
 ## Engineering Summary
 While internal dependency tools map file-to-file imports, they do not track the external network boundary of a repository. Web API surfaces drift out of sync with official documentation, leaving undocumented endpoints exposed or deprecated endpoints cluttering specifications. To solve this, an automated attack surface mapping module evaluates executable router code signatures against official OpenAPI/Swagger documentation. By performing a set theory comparison, it identifies undocumented "Shadow APIs" and deprecated "Ghost APIs". This subsystem is the GitGalaxy API Network Mapper.

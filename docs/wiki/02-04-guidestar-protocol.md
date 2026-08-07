@@ -1,6 +1,6 @@
 # Project Manifest and Metadata Resolution
 
-> **File Reference:** [`gitgalaxy/core/guidestar_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/guidestar_lens.py)
+> **File Reference:** [`gitgalaxy/core/guidestar_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/guidestar_lens.py)
 
 ## Engineering Summary
 This subsystem acts as the project metadata parser and contextual intelligence engine. It solves the problem of analyzing files with ambiguous extensions or no extensions by parsing build manifests (e.g., `package.json`, `Cargo.toml`, `Makefiles`) and repository attributes (`.gitattributes`) to assign initial language priors and intent locks before lexical analysis. It exists to establish file importance and language hints based on verified developer intent, ensuring downstream components prioritize analysis correctly. Within the overall pipeline, this component is known as GitGalaxy's GuideStar.
@@ -46,6 +46,6 @@ Path lookup resolution occurs in $O(1)$ to $O(N)$ strict sequence, avoiding deep
 Expanding manifest support to emerging build systems like Bazel and Buck2.
 
 ## Related Components
-- [Aperture Filter](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-03-aperture-filter.md)
-- [Language Lens](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-05-language-lens.md)
+- [Aperture Filter](02-03-aperture-filter.md)
+- [Language Lens](02-05-language-lens.md)
 

@@ -1,6 +1,6 @@
 # File Node Scaling & Structural Mass Calculation
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 A composite metric determines the 3D radius of file nodes. It solves the problem of relying solely on line counts, which misrepresent the architectural weight of dense algorithmic files compared to verbose configuration files. This subsystem ensures that complex, tightly coupled components are visually prominent, functioning as the structural mass calculation within GitGalaxy.

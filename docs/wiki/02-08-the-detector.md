@@ -1,6 +1,6 @@
 # Structural Code Analyzer & Spatial Cartographer
 
-> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)
 
 ## Engineering Summary
 This subsystem is the structural code analyzer and spatial cartography module. It solves the problem of extracting code complexity metrics and generating spatial layout coordinates without compiling the code. It exists to map structural logic (like function definitions, parameter counts, and control-flow density) into a fixed schema, and then calculate coordinates for rendering a 3D node graph. Within the pipeline, this component functions as the primary detector for GitGalaxy.
@@ -45,5 +45,5 @@ Employs a backtracking latency guard that issues a warning if regex shielding ex
 Enhancing the layout algorithm to better support millions of nodes without geometric overlapping.
 
 ## Related Components
-- [Signal Processing](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-09-signal-processing.md)
-- [The Prism](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-07-the-prism.md)
+- [Signal Processing](02-09-signal-processing.md)
+- [The Prism](02-07-the-prism.md)

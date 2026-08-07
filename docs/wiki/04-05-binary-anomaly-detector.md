@@ -1,6 +1,6 @@
 # Binary Anomaly Detector (Heuristic File Integrity Scanner)
 
-> **File Reference:** [gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py)
+> **File Reference:** [gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py)
 
 ## Engineering Summary
 Standard source code parsers drop binary assets to conserve memory and avoid parsing errors. However, attackers exploit this blind spot by embedding malware, packed executables, or steganographic payloads inside seemingly benign files like images or archives. To combat this, a heuristic file integrity scanner explicitly targets binary files, inspecting byte-level headers and calculating mathematical entropy to flag hidden threats. This subsystem is the GitGalaxy Binary Anomaly Detector.

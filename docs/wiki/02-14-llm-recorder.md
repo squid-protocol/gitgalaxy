@@ -1,6 +1,6 @@
 # LLM Recorder
 
-> **File Reference:** [`gitgalaxy/recorders/llm_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/llm_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/llm_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/llm_recorder.py)
 
 ## Engineering Summary
 This subsystem formats static analysis telemetry into token-dense artifacts optimized for AI context windows, Retrieval-Augmented Generation (RAG) pipelines, and autonomous coding agents. Instead of requiring Large Language Models to parse raw, verbose JSON structures, it generates structured markdown briefs and a relational SQLite database. It solves the problem of inefficient context utilization by AI models when reasoning over large codebases. It exists to bridge the gap between static analysis and agentic tooling. Within the system, this module is known as the GitGalaxy LLM Recorder.

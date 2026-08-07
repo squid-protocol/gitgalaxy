@@ -1,6 +1,6 @@
 # Memory Corruption Exposure
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 Measures exposure to low-level memory corruption vulnerabilities (e.g., Use-After-Free, buffer overflows, unmitigated pointer arithmetic, unsafe casting, inline assembly). This metric operates on an **Opt-In Whitelist** basis, evaluating only native unmanaged programming languages. Managed runtime languages bypass memory corruption calculations entirely. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Memory Corruption Exposure metric.
@@ -81,6 +81,6 @@ The calculation operates in $O(1)$ time leveraging pre-computed token counts, ma
 * Expand language support and framework-specific annotations.
 
 ## Related Components
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

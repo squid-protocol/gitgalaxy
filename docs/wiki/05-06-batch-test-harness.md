@@ -1,6 +1,6 @@
 # Batch Test Harness
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_java/batch_test_harness.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/batch_test_harness.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/batch_test_harness.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/batch_test_harness.py)
 
 ## Engineering Summary
 This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. In GitGalaxy, it serves as the primary CI/CD integration testing tool.

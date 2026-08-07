@@ -1,6 +1,6 @@
 # Function Component Node Scaling
 
-> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)
 
 ## Engineering Summary
 This geometry processing subsystem calculates the visual scale of function nodes based on their input parameter count. It solves the problem of identifying high-coupling or high-state-complexity methods. It exists to create a visual footprint hierarchy that mirrors I/O signature weight. In GitGalaxy, this component dictates the 3D radius bounds of function meshes.

@@ -1,6 +1,6 @@
 # Lexical Stream Splicer
 
-> **File Reference:** [`gitgalaxy/core/prism.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/prism.py)
+> **File Reference:** [`gitgalaxy/core/prism.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/prism.py)
 
 ## Engineering Summary
 This subsystem is the source code tokenizer and stream separator. It solves the problem of metric distortion caused by commented-out code blocks or documentation text intermingled with executable logic. It exists to split the source file into isolated executable code and comment streams using language-specific rules. Within the pipeline, this component functions as the structural lexical splicer for GitGalaxy.
@@ -46,5 +46,5 @@ The atomic literal shield uses timed execution loops. Spatial coordinate mapping
 Adding support for more exotic string literal formats in niche languages and improving the speed of the heredoc state machine.
 
 ## Related Components
-- [Language Lens](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-05-language-lens.md)
-- [The Detector](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-08-the-detector.md)
+- [Language Lens](02-05-language-lens.md)
+- [The Detector](02-08-the-detector.md)

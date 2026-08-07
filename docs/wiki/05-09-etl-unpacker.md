@@ -1,6 +1,6 @@
 # ETL Unpacker (EBCDIC to CSV)
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py)
 
 ## Engineering Summary
 This subsystem translates raw legacy binary data into standard character-delimited formats. It solves the problem of migrating fixed-width, non-delimited mainframe datasets encoded in EBCDIC and COMP-3 into modern relational databases. It exists to decouple data migration from application logic execution. In GitGalaxy, this tool enables the seamless transition of legacy state to cloud-native data stores.

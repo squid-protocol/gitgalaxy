@@ -1,6 +1,6 @@
 # Autonomous Agent Remediation Task Generator
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py)
 
 ## Engineering Summary
 The Autonomous Agent Remediation Task Generator orchestrates LLM-based refactoring by packaging static analysis results and local code context into bounded execution constraints. It solves the problem of AI hallucination and context window exhaustion when attempting to refactor legacy monoliths in a single pass. This system acts as a dispatch router in GitGalaxy, transforming raw structural violation data into structured tasks for automated agent workers. It is known internally as the Anomaly Agent Task Forge.

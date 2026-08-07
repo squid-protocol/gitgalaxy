@@ -1,6 +1,6 @@
 # Node Emissive Intensity & Pulse Rate Mapping
 
-> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)
 
 ## Engineering Summary
 A mapping system converts a file's dependency in-degree into shader animation parameters. It solves the challenge of identifying structural bottlenecks in large systems by translating inbound reference counts into visual brightness and pulse frequencies. This subsystem allows architects to instantly locate core dependencies and popular modules, operating as the node emissive intensity mapping within GitGalaxy.

@@ -1,6 +1,6 @@
 # Vault Sentinel (High-Speed Secrets Scanner)
 
-> **File Reference:** [gitgalaxy/tools/supply_chain_security/vault_sentinel.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/vault_sentinel.py)
+> **File Reference:** [gitgalaxy/tools/supply_chain_security/vault_sentinel.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/vault_sentinel.py)
 
 ## Engineering Summary
 Developer environments often accidentally leak sensitive credentials via hardcoded keys or committed configuration files. Catching these leaks requires scanning code before it enters version control. To solve this, a high-speed secret scanning module acts as a pre-commit hook and CI/CD validator, detecting hardcoded API keys, SaaS credentials, private key certificates, and uncommitted `.env` files. It emphasizes sub-second execution speeds to avoid blocking local developer workflows. This subsystem is the GitGalaxy Vault Sentinel.

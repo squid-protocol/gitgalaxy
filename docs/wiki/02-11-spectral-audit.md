@@ -1,6 +1,6 @@
 # Statistical Quality Auditor & Bayesian Data Validation
 
-> **File Reference:** [`gitgalaxy/metrics/statistical_auditor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/statistical_auditor.py)
+> **File Reference:** [`gitgalaxy/metrics/statistical_auditor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/statistical_auditor.py)
 
 ## Engineering Summary
 This subsystem acts as the statistical quality control and data validation gate. It solves the problem of distinguishing valid source code from anomalous non-code artifacts (like data dumps or unparseable blobs) that might skew repository-wide metrics. It exists to apply Bayesian accountability models to ensure assigned classifications and structural metrics are mathematically plausible. Within the pipeline, this component functions as the spectral statistical auditor for GitGalaxy.
@@ -44,4 +44,4 @@ Calculates MAD statistics in $O(N)$ operations. The 50/0 rule (files >50 lines w
 Expanding the Bayesian consensus model to incorporate project-specific history.
 
 ## Related Components
-- [Signal Processing](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-09-signal-processing.md)
+- [Signal Processing](02-09-signal-processing.md)

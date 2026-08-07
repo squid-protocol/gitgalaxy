@@ -1,6 +1,6 @@
 # Vulnerability & Threat Scanner
 
-> **File Reference:** [`gitgalaxy/security/security_lens.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/security/security_lens.py)
+> **File Reference:** [`gitgalaxy/security/security_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_lens.py)
 
 ## Engineering Summary
 This subsystem is the pattern-based security analysis and threat detection engine. It solves the problem of static vulnerability databases (CVEs) and simple string-matching failing against custom obfuscation, zero-days, or unmitigated taint flows. It exists to evaluate structural density of high-risk operations and behavioral execution mechanics. Within the architecture, this module acts as the AppSec scanner for GitGalaxy.
@@ -42,4 +42,4 @@ Employs hardware-optimized regular expression engines. Uses a minification guard
 Expanding inter-procedural taint analysis capabilities and tuning the XGBoost threat classifier integration.
 
 ## Related Components
-- [Optical Orchestration](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-02-optical-orchestration.md)
+- [Optical Orchestration](02-02-optical-orchestration.md)

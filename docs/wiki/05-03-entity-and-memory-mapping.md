@@ -1,6 +1,6 @@
 # Entity & Memory Mapping
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/cobol_to_java_spring_forge.py)
 
 ## Engineering Summary
 This subsystem translates procedural memory layouts into relational database entity mappings. It solves the problem of converting byte-level memory overlays, fixed-length arrays, and specialized numeric constraints into object-relational mapping (ORM) structures. It exists to bridge the gap between contiguous memory segments and normalized SQL tables. Within the GitGalaxy pipeline, it generates the data access layer for target microservices.

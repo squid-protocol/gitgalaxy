@@ -313,7 +313,6 @@ nav:
       - 'State Flux Exposure': "08-16-state-flux-exposure.md"
       - 'Specification Alignment': "08-18-specification-alignment.md"
       - 'Obscured Payload Exposure': "08-19-obscured-payload-exposure.md"
-      - 'Logic Bomb Exposure': "08-20-logic-bomb-exposure.md"
       - 'Injection Surface Exposure': "08-21-injection-surface-exposure.md"
       - 'Memory Corruption Exposure': "08-22-memory-corruption-exposure.md"
       - 'Hardcoded Secrets Exposure': "08-23-hardcoded-secrets-exposure.md"

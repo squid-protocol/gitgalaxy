@@ -1,6 +1,6 @@
 # Concurrency Exposure
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 Evaluates the density of asynchronous execution primitives and multithreading logic within a source file. Concurrent programming increases non-deterministic execution paths, raising cognitive load and introducing risks such as race conditions, deadlocks, and resource contention. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Concurrency Exposure metric.
@@ -106,6 +106,6 @@ The calculation operates in $O(1)$ time leveraging pre-computed token counts, ma
 * Expand language support and framework-specific annotations.
 
 ## Related Components
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

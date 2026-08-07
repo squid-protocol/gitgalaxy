@@ -1,6 +1,6 @@
 # Mainframe Compiler Generator
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py)
 
 ## Engineering Summary
 This subsystem constructs Job Control Language (JCL) build scripts required to compile legacy modules on MVS mainframe architectures. It solves the problem of manually determining the correct compiler utility and dataset allocations based on source code dialects. It exists to automate the deployment process for legacy environments. In GitGalaxy, it supports in-place modernization and testing on legacy architectures.

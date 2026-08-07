@@ -1,6 +1,6 @@
 # Job Control Language (JCL) Generator
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py)
 
 ## Engineering Summary
 This subsystem converts physical file requirements and execution intent extracted from COBOL source code into streamlined Job Control Language (JCL) scripts. It solves the problem of manually writing execution scripts by automatically provisioning only the exact dataset permissions required for a given program. It exists to enforce least-privilege resource access and modernize mainframe execution workflows. It fits into GitGalaxy by taking static analysis results and outputting operational execution environments. This subsystem is known as the Zero-Trust JCL Generator.

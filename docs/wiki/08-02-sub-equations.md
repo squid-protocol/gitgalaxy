@@ -1,6 +1,6 @@
 # Sub-Equations & Scanner Variables
 
-> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)
 
 ## Engineering Summary
 This static analysis extraction subsystem defines the raw regular expression inputs used by the metrics engine. It solves the problem of extracting standardized structural and behavioral indicators from diverse programming languages. It exists to provide a language-agnostic data foundation for risk assessment. In GitGalaxy, this process runs over a strict 5-phase extraction sequence to generate core variables.

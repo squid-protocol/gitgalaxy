@@ -21,7 +21,6 @@ Using the **GitGalaxy blAST engine**, we have stripped away the abstractions of 
 * 👁️ **[NVDA](teardown-of-nvda.md)** - The Python/C++ hybrid making Windows accessible.
 * 👁️‍🗨️ **[OpenCV](teardown-of-opencv.md)** - The computer vision library.
 * 🐼 **[Pandas](teardown-of-pandas.md)** - The God Nodes of the Python data science ecosystem.
-* 🛤️ **[Ruby on Rails](teardown-of-rails.md)** - The web framework that championed convention over configuration.
 * ⚛️ **[ROOT](teardown-of-root.md)** - CERN's C++ data analysis framework.
 * 🗄️ **[SQLite](teardown-of-sqlite.md)** - The most deployed database engine in human history.
 * 🧠 **[TensorFlow](teardown-of-tensorflow.md)** - The heavily coupled AI operations monolith.

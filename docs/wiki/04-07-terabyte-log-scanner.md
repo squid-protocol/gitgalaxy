@@ -1,6 +1,6 @@
 # Terabyte Log Scanner (High-Volume Telemetry & Dead Code Validator)
 
-> **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py)
+> **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py)
 
 ## Engineering Summary
 Static code analysis often flags legacy code as "dead" or unused, but removing it without runtime verification can cause catastrophic production outages. Validating execution requires scanning massive server or mainframe logs to find module invocation signatures. To accomplish this, a high-speed log processor streams multi-terabyte files in binary mode, matching dynamic telemetry against statically generated program lists to confirm execution state. This subsystem is the GitGalaxy Terabyte Log Scanner.

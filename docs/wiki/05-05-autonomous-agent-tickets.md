@@ -1,6 +1,6 @@
 # Autonomous Agent Task Tickets
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py)
 
 ## Engineering Summary
 This subsystem formats isolated segments of legacy code into bounded task payloads for large language models. It solves the problem of context window saturation and hallucination when translating large source files. It exists to enforce strict constraints on AI code generation by limiting the provided context to exact business logic paths. Within GitGalaxy, it bridges the deterministic static analysis pipeline with probabilistic AI generation.

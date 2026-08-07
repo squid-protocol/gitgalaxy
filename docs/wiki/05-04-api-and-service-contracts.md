@@ -1,6 +1,6 @@
 # API & Service Contracts
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/cobol_to_java_api_contract_forge.py)
 
 ## Engineering Summary
 This subsystem constructs the network interfaces and dependency injection scaffolding for modernized microservices. It solves the problem of exposing legacy procedural entry points over modern HTTP protocols and wiring inter-module dependencies. It exists to provide the structural skeleton required before business logic can be injected. In GitGalaxy, this layer connects the web controllers to the underlying business services.

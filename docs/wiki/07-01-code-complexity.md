@@ -1,6 +1,6 @@
 # Visual Code Complexity Mapping Specifications
 
-> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)
 
 ## Engineering Summary
 A rendering configuration translates static analysis metrics into 3D geometric attributes. It solves the challenge of interpreting complex codebase structures by converting multidimensional data (size, dependencies, complexity) into spatial and physical properties. This subsystem acts as the translation layer between calculated numerical metrics and WebGL rendering buffers, operating as the visual code complexity mapping system in GitGalaxy.

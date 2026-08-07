@@ -1,6 +1,6 @@
 # AI AppSec Sensor
 
-> **File Reference:** [`gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py)
+> **File Reference:** [`gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/ai_guardrails/ai_appsec_sensor.py)
 
 ## Engineering Summary
 This subsystem flags one specific AI-integration architecture risk: an agent-orchestration framework (langchain/llama_index) bound to raw network/disk write access in a file with weak defensive programming density. It exists to proactively surface unreviewed autonomous data-corruption risk. Within the system, this module is known as the GitGalaxy AI AppSec Sensor.

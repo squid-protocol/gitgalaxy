@@ -1,6 +1,6 @@
 # Microservice Business Logic Extractor
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py)
 
 ## Engineering Summary
 This subsystem isolates specific business rules from monolithic procedural programs by recursively tracking a target variable through data assignment and computation statements. It solves the problem of disentangling core business logic from tangled legacy monoliths. It exists to enable automated microservice refactoring by creating isolated rule slices. Within the GitGalaxy pipeline, it acts as the primary extraction engine after static analysis and dead code filtering are complete. This subsystem is known as the Microservice Logic Extractor.

@@ -1,6 +1,6 @@
 # PII Leak Hunter (Log Privacy & Incident Responder)
 
-> **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py)
+> **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py)
 
 ## Engineering Summary
 Server logs and database dumps often inadvertently capture Personally Identifiable Information (PII) such as credit cards, SSNs, and API keys. Scanning terabyte-scale log files for these leaks using standard text parsers causes immense memory overhead and CPU starvation due to string decoding. To solve this, a high-throughput stream processor evaluates raw binary data against byte-level regular expressions, decoding strings only upon a positive match. It sanitizes sensitive data and provides chronological histograms of exposure events. This subsystem is the GitGalaxy PII Leak Hunter.

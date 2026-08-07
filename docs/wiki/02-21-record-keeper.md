@@ -1,6 +1,6 @@
 # Record Keeper
 
-> **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/record_keeper.py)
+> **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/record_keeper.py)
 
 ## Engineering Summary
 This subsystem is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (`_galaxy_graph.sqlite`). It solves the problem of persisting complex, relational dependency graph data without requiring external infrastructure. It exists to provide a normalized relational schema designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines. Within the system, this module is known as the GitGalaxy Record Keeper.

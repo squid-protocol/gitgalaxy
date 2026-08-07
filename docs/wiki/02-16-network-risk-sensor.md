@@ -1,6 +1,6 @@
 # Network Risk Sensor
 
-> **File Reference:** [`gitgalaxy/core/network_risk_sensor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/network_risk_sensor.py)
+> **File Reference:** [`gitgalaxy/core/network_risk_sensor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/network_risk_sensor.py)
 
 ## Engineering Summary
 This subsystem constructs an $N$-dimensional Directed Graph from raw import statements extracted across all scanned files. By mapping inter-file module dependencies, it transforms isolated file metrics into a systemic dependency analysis engine. It solves the problem of understanding cascading failure risks and architectural bottlenecks in large codebases. It exists to compute blast radius values, classify component roles, and evaluate repository-wide network resilience. Within the system, this module is known as the GitGalaxy Network Risk Sensor.

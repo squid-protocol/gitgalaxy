@@ -1,6 +1,6 @@
 # DAG Architect (Data Lineage)
 
-> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py)
+> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py)
 
 ## Engineering Summary
 This subsystem constructs a Directed Acyclic Graph (DAG) to model data flow across procedural programs. It solves the problem of understanding implicit execution orders in batch environments driven by dataset dependencies. It exists to provide a deterministic sequence for executing legacy jobs or migrating data. Within GitGalaxy, it serves as the core mapping engine for macro-level architectural views.

@@ -1,6 +1,6 @@
 # Pipeline Orchestration Framework
 
-> **File Reference:** [`gitgalaxy/galaxyscope.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/galaxyscope.py)
+> **File Reference:** [`gitgalaxy/galaxyscope.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/galaxyscope.py)
 
 ## Engineering Summary
 This subsystem is the primary execution engine and process manager for the static analysis framework. It solves the problem of coordinating data ingestion, multi-pass metric evaluations, worker process pools, and serialization exporters in a deterministic sequence. It exists to ensure that all pipeline phases execute reliably, aggregating global repository properties and eliminating non-code noise early. Within the broader system, it functions as the central controller orchestrating GitGalaxy.
@@ -53,6 +53,6 @@ Utilizes an $O(1)$ pre-computed suffix hash map to resolve import strings to phy
 Enhancing the spatial layout algorithms for larger scale codebases and optimizing memory usage during delta rehydration.
 
 ## Related Components
-- [Pipeline Overview](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-01-pipeline-overview.md)
-- [Aperture Filter](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-03-aperture-filter.md)
+- [Pipeline Overview](02-01-pipeline-overview.md)
+- [Aperture Filter](02-03-aperture-filter.md)
 

@@ -1,6 +1,6 @@
 # Function Sub-Node Units & Impact Ranking
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 An extraction and ranking system surfaces individual function declarations to render them as child entities orbiting parent files. It solves the problem of hidden internal complexity within large monolithic files by exposing internal modularity. This subsystem provides a visual inventory of discrete logic blocks directly in the 3D environment, acting as the function sub-node system in GitGalaxy.

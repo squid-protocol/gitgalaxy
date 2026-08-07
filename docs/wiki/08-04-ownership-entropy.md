@@ -1,6 +1,6 @@
 # Authorship Distribution (Ownership Entropy)
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 This statistical analysis component calculates the Shannon Entropy of Git blame data to measure contribution dispersion across modules. It solves the problem of identifying knowledge silos and bus-factor risks hidden behind simple contributor headcounts. It exists to map authorship concentration to the Universal Risk Spectrum. Within GitGalaxy, it highlights whether a module is a single-author bottleneck or a highly distributed community effort.

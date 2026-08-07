@@ -1,6 +1,6 @@
 # Metrics Normalization & Risk Score Processor
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 This subsystem is the metrics normalization and risk evaluation engine. It solves the problem of translating raw structural counts into scaled, comparable risk scores across different languages and project structures. It exists to evaluate files in context—comparing individual metrics against directory distributions, repository-wide baseline curves, and Git commit history—to pinpoint systemic bottlenecks and anomalous code. Within the ecosystem, it functions as the risk signal processor for GitGalaxy.
@@ -44,5 +44,5 @@ Pass 2 temporal normalization and biaxial drift computation execute across pre-a
 Integrating dynamic machine learning models to adjust language tier normalizations based on empirical data.
 
 ## Related Components
-- [The Detector](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-08-the-detector.md)
-- [Spectral Audit](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-11-spectral-audit.md)
+- [The Detector](02-08-the-detector.md)
+- [Spectral Audit](02-11-spectral-audit.md)

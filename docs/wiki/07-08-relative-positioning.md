@@ -1,6 +1,6 @@
 # Angular Positioning of Child Nodes
 
-> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
+> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/spatial_mapper.py)
 
 ## Engineering Summary
 This spatial configuration subsystem distributes sub-nodes within a function unit based on its control flow ratio. It solves the problem of visual uniformity obscuring code behavior differences. It exists to differentiate algorithmic routing logic from declarative structures through physical divergence angles. Within GitGalaxy, this process scales visual node spreading dynamically.

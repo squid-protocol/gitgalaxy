@@ -1,6 +1,6 @@
 # Relational Database & JSON Schema Generator
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py)
 
 ## Engineering Summary
 The Relational Database & JSON Schema Generator translates legacy memory-bound structure definitions into modern database and application schemas. It solves the problem of data interoperability during modernization by automatically converting byte-mapped `DATA DIVISION` declarations into strongly-typed structures for downstream storage and API consumption. This subsystem is a key data transformation component in GitGalaxy, bridging static analysis of legacy code with cloud-native data representations. It is commonly referred to within the project as the Cloud Schema Forge.

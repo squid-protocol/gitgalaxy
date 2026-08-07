@@ -1,6 +1,6 @@
 # External Dependency Rings
 
-> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)
 
 ## Engineering Summary
 This visualization module generates dependency indicators around file nodes based on external import volumes. It solves the problem of identifying heavy integration modules and dependency coupling risks. It exists to separate self-contained utilities from orchestration layers visually. Within GitGalaxy, this subsystem renders translucent dependency rings in 3D space.

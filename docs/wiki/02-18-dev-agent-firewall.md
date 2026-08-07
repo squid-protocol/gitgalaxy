@@ -1,6 +1,6 @@
 # Dev Agent Firewall
 
-> **File Reference:** [`gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py)
+> **File Reference:** [`gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py)
 
 ## Engineering Summary
 This subsystem evaluates codebase complexity and network graph metrics to determine safety boundaries for autonomous AI coding agents. It analyzes token mass, algorithmic complexity, graph topology, and documentation density. It solves the problem of AI agents causing silent regressions, context window degradation, or API hallucinations when editing critical architectural choke points. It exists to enforce statistical safety guardrails for autonomous code modifications. Within the system, this module is known as the GitGalaxy Dev Agent Firewall.

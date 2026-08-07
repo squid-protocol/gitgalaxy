@@ -1,6 +1,6 @@
 # Spatial Layout & Directory Sector Clustering
 
-> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
+> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/spatial_mapper.py)
 
 ## Engineering Summary
 This spatial engine subsystem clusters related source files into 3D directory sectors using a deterministic sorting algorithm. It solves the problem of arbitrary file placement producing chaotic, unreadable topology maps. It exists to create clear spatial neighborhoods driven by directory metadata and architectural role. In GitGalaxy, it generates the final $X, Y, Z$ Cartesian coordinates for the entire repository.

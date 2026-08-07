@@ -1,6 +1,6 @@
 # Sub-Node Orbital Distance & Logarithmic Scaling
 
-> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)
 
 ## Engineering Summary
 A spatial sorting mechanism determines the 3D distance between a child function and its parent file node based on physical line count. It solves the challenge of visually identifying bloated functions by correlating spatial displacement with length. This subsystem explicitly visualizes code bloat by pushing large functions further out into space, operating as the sub-node orbital distance mapping in GitGalaxy.

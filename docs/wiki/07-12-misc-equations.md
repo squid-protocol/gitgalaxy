@@ -1,6 +1,6 @@
 # Component Layout Clearance Formulas
 
-> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/spatial_mapper.py)
+> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/spatial_mapper.py)
 
 ## Engineering Summary
 This collision management subsystem calculates the orbital clearance radius for child nodes based on their parent's code volume. It solves the problem of child geometries colliding with or rendering inside oversized parent file nodes. It exists to maintain structural visibility across massively varying file sizes in the 3D view. In GitGalaxy, this equation is a foundational utility for spatial orchestration.

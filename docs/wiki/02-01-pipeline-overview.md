@@ -1,6 +1,6 @@
 # Static Analysis Pipeline Overview
 
-> **File Reference:** [`gitgalaxy/galaxyscope.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/galaxyscope.py)
+> **File Reference:** [`gitgalaxy/galaxyscope.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/galaxyscope.py)
 
 ## Engineering Summary
 This subsystem is the main orchestration engine for automated, deterministic static analysis and dependency mapping of multi-language software repositories. It solves the problem of extracting structural metrics, computing risk exposures, and validating statistical integrity without relying on fragile Abstract Syntax Tree (AST) compilation or non-deterministic LLM inference. It exists to coordinate the execution phases—from data ingestion to output serialization—ensuring that all modules run efficiently and in the correct order. Within the larger architecture, this component acts as the high-speed, modular process manager known as GitGalaxy.
@@ -51,6 +51,6 @@ Achieves high-speed processing through a multi-core `ProcessPoolExecutor` that b
 Expand incremental delta analysis support for more complex Git state transitions, and refine the statistical outlier detection model.
 
 ## Related Components
-- [Pipeline Orchestration Framework](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-02-optical-orchestration.md)
-- [Aperture Filter](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-03-aperture-filter.md)
+- [Pipeline Orchestration Framework](02-02-optical-orchestration.md)
+- [Aperture Filter](02-03-aperture-filter.md)
 

@@ -1,6 +1,6 @@
 # Language Standards Registry
 
-> **File Reference:** [`gitgalaxy/standards/language_standards.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/language_standards.py)
+> **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_standards.py)
 
 ## Engineering Summary
 A central dictionary maps programming languages to syntax schemas and extraction rules. It solves the challenge of cross-language static analysis by providing a unified definition layer for regular expressions, block delimiters, and comment structures. This decoupling allows engineers to add new language support without modifying the core parsing logic, known as `language_standards` in GitGalaxy.

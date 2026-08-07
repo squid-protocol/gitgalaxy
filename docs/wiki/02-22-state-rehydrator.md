@@ -1,6 +1,6 @@
 # State Rehydrator
 
-> **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/state_rehydrator.py)
+> **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/state_rehydrator.py)
 
 ## Engineering Summary
 This subsystem enables efficient incremental scans within Continuous Integration/Continuous Deployment (CI/CD) pipelines. It solves the problem of high compute overhead caused by re-parsing large, unmodified codebases on every commit. It exists to load previously analyzed state from the SQLite database into memory, restoring the repository baseline and exclusively analyzing modified source files. Within the system, this module is known as the GitGalaxy State Rehydrator.

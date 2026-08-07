@@ -1,6 +1,6 @@
 # Dead Code & Unused Data Analysis
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py)
 
 ## Engineering Summary
 This subsystem performs static analysis on COBOL source files to isolate unused variable declarations in memory and unreachable execution logic in control flow. It solves the problem of legacy code bloat by preventing the propagation of unused data structures and dead paragraphs into modern systems. It exists to reduce the footprint of generated databases and microservices during migration. Within the larger migration pipeline, it acts as a filter prior to schema and service generation. This subsystem is known as the Deprecated Trails Analyzer.

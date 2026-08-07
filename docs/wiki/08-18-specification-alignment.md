@@ -1,6 +1,6 @@
 # Specification Alignment Exposure
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 Measures the gap between executable logic entities (classes and functions) and formal architectural specifications, design documents, or RFC references. Higher spec exposure hits lead to lower risk scores; conversely, modules with numerous functions/classes lacking specification references produce high risk exposure scores ("untraced logic"). This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Specification Alignment Exposure metric.
@@ -80,6 +80,6 @@ The calculation operates in $O(1)$ time leveraging pre-computed token counts, ma
 * Expand language support and framework-specific annotations.
 
 ## Related Components
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

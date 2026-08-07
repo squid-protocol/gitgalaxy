@@ -1,6 +1,6 @@
 # Child Component Density & Function Complexity
 
-> **File Reference:** [`gitgalaxy/core/detector.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/detector.py)
+> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)
 
 ## Engineering Summary
 This subsystem measures and visualizes logic complexity within individual functions by calculating a composite complexity score. It solves the problem of developers needing to quickly assess the cognitive load of code modules during codebase exploration. It exists to map textual code complexity into physical object density within a 3D visualization. Within GitGalaxy, this subsystem defines the child satellite node count for function components.

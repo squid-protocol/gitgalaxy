@@ -1,6 +1,6 @@
 # COBOL Refactoring Controller
 
-> **File Reference:** [`gitgalaxy/cobol_refractor_controller.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/cobol_refractor_controller.py)
+> **File Reference:** [`gitgalaxy/cobol_refractor_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_refractor_controller.py)
 
 ## Engineering Summary
 This subsystem is an orchestration engine that parses procedural legacy source code to extract deterministic business logic into a structured format. It solves the problem of analyzing massive monolithic codebases by converting source text into a machine-readable intermediate representation. It exists to provide the foundational data structures required for downstream code generation and architectural visualization. Within the ecosystem, it functions as the primary entry point for static analysis, producing artifacts consumed by the rest of GitGalaxy.

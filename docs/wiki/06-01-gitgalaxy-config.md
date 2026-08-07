@@ -1,6 +1,6 @@
 # GitGalaxy Configuration Registry
 
-> **File Reference:** [`gitgalaxy/standards/gitgalaxy_config.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/standards/gitgalaxy_config.py)
+> **File Reference:** [`gitgalaxy/standards/gitgalaxy_config.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/gitgalaxy_config.py)
 
 ## Engineering Summary
 A centralized configuration module manages global constants and dynamic overrides for static analysis. It solves the problem of hardcoded configuration drift by decoupling analysis thresholds, stream timeouts, and project-specific parsing rules from the core execution logic. This subsystem provides a single source of truth for tuning execution parameters without mutating the underlying analysis pipeline, operating as the `gitgalaxy_config` within GitGalaxy.

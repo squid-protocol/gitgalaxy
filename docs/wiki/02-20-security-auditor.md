@@ -1,6 +1,6 @@
 # Security Auditor
 
-> **File Reference:** [`gitgalaxy/security/security_auditor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/security/security_auditor.py)
+> **File Reference:** [`gitgalaxy/security/security_auditor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor.py)
 
 ## Engineering Summary
 This subsystem executes a trained XGBoost multiclass classification model across extracted codebase feature vectors. It evaluates structural metrics, code complexity distributions, and graph topology to predict malicious software patterns (such as Trojans, Stealers, Droppers, or Botnets). It solves the problem of detecting sophisticated code obfuscation and zero-day threats that evade traditional static analysis rules. It exists to provide machine learning-backed security intelligence and supply chain integrity verification. Within the system, this module is known as the GitGalaxy Security Auditor.

@@ -1,6 +1,6 @@
 # Node Geometry & Control Flow Ratio Mapping
 
-> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)
 
 ## Engineering Summary
 A geometric classification system alters 3D mesh primitives based on the ratio of decision-making logic to structural data declarations within a file. It solves the problem of visually differentiating between data-heavy files and algorithmic routines. By morphing mesh shapes, this subsystem explicitly defines the functional archetype of code modules, known as the node geometry mapping in GitGalaxy.

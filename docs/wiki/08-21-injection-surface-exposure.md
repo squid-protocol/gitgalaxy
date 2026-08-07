@@ -1,6 +1,6 @@
 # Injection Surface Exposure
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)
+> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
 Measures exposure to injection attack vectors by analyzing external input boundaries (network requests, user input, SSR parameters) operating near dynamic execution sinks (`eval`, `exec`, shell command execution, dynamic SQL execution) without safety validation. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Injection Surface Exposure metric.
@@ -145,6 +145,6 @@ The calculation operates in $O(1)$ time leveraging pre-computed token counts, ma
 * Expand language support and framework-specific annotations.
 
 ## Related Components
-* **[Signal Processor Module](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py)**
+* **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

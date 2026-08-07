@@ -1,6 +1,6 @@
 # File Filtering and Ingestion Shield
 
-> **File Reference:** [`gitgalaxy/core/aperture.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/aperture.py)
+> **File Reference:** [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)
 
 ## Engineering Summary
 This subsystem acts as the primary perimeter security gate and ingestion filter prior to heavy analysis. It solves the problem of wasted computational resources on non-code noise such as compiled binaries, minified bundles, vendor packages, and excluded directories. It exists to strip out irrelevant assets and classify them into operational ingestion buckets, ensuring subsequent processing focuses strictly on actionable source code logic. Within the ecosystem, it functions as the foundational ingestion shield for GitGalaxy.
@@ -48,5 +48,5 @@ Executes zero-overhead filesystem checks. Binary header inspection is limited to
 Enhancing secrets detection patterns and allowing user-defined dynamic quota adjustments.
 
 ## Related Components
-- [Orchestration Framework](file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-02-optical-orchestration.md)
+- [Orchestration Framework](02-02-optical-orchestration.md)
 

@@ -1,6 +1,6 @@
 # Software Bill of Materials (SBOM) Generator
 
-> **File Reference:** [gitgalaxy/recorders/sbom_recorder.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/sbom_recorder.py)
+> **File Reference:** [gitgalaxy/recorders/sbom_recorder.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/sbom_recorder.py)
 
 ## Engineering Summary
 Software supply chains rely heavily on declarative package manifests (like `package.json` or `requirements.txt`) to determine the bill of materials. However, relying solely on manifests fails to confirm whether the deployed code on disk matches what was declared, exposing environments to malware payloads and dependency spoofing. A physical verification tool inspects installed packages on disk to ensure component integrity before generating CycloneDX 1.4 compliant records. This subsystem is the GitGalaxy SbomRecorder.

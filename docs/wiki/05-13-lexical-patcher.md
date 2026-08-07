@@ -1,6 +1,6 @@
 # Lexical Control Flow Preprocessor
 
-> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py)
+> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py)
 
 ## Engineering Summary
 This subsystem is a source code preprocessor that identifies legacy control flow constructs and safely refactors them into explicit scope terminators prior to Abstract Syntax Tree (AST) parsing or static analysis. It solves the problem of implicit jump mechanics disrupting modern code parsers. It exists to ensure stable control flow graphs can be extracted from legacy COBOL. Within GitGalaxy, it acts as an immediate preprocessing step on source code before deeper static analysis tools are invoked. This subsystem is known as the Lexical Patcher.

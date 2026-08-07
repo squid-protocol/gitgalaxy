@@ -1,6 +1,6 @@
 # Audit Recorder
 
-> **File Reference:** [`gitgalaxy/recorders/audit_recorder.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/audit_recorder.py)
+> **File Reference:** [`gitgalaxy/recorders/audit_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/audit_recorder.py)
 
 ## Engineering Summary
 This subsystem is the final compliance and reporting module of the static analysis pipeline. It extracts raw structural telemetry from memory and serializes it into a verbose, human-readable forensic JSON audit manifest. It solves the problem of providing end-to-end traceability for every analyzed file, acting as an enhanced Software Bill of Materials (SBOM) that incorporates structural health telemetry. It exists to provide detailed mathematical metrics covering code quality, security exposure, and structural integrity across the repository for enterprise compliance, software supply chain auditing, and deep security inspection. Within the system, this module is known as the GitGalaxy Audit Recorder.

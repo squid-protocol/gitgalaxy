@@ -1,6 +1,6 @@
 # Tensor Model Scanner
 
-> **File Reference:** [`gitgalaxy/metrics/tensor_scanner.py`](file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/tensor_scanner.py)
+> **File Reference:** [`gitgalaxy/metrics/tensor_scanner.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/tensor_scanner.py)
 
 ## Engineering Summary
 This subsystem inspects large Machine Learning model weights (`.safetensors`, `.gguf`) stored within repositories without loading multi-gigabyte files into system RAM. By parsing binary headers using zero-RAM byte reads, it extracts parameter counts, quantization levels, and architecture metadata. It solves the problem of auditing massive ML binaries during static analysis without causing memory exhaustion. It exists to track model architecture attributes and physical node mass across repository boundaries. Within the system, this module is historically known as the GitGalaxy Neural Auditor or Tensor Model Scanner.

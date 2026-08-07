@@ -529,6 +529,20 @@ LEXICAL_FAMILY_HEURISTICS = {
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
         # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.
         "line_exclusive": {"delimiters": ["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%"]},
+        # 3b. Line Exclusive, Dash dialect (#76)
+        # Same stateless single-token stripper as line_exclusive, but scoped
+        # to its own delimiter list rather than joining the shared one above.
+        # `--` cannot safely join line_exclusive's grab-bag: several of that
+        # family's members (Perl, Assembly) use `--` as a real operator/
+        # decrement, and #621's own history is exactly this failure mode
+        # (a shared delimiter list swallowing real code, e.g. `i-- > 0`) --
+        # the fix there was splitting into narrower families, not widening
+        # this one. Ada/SPARK has no native block-comment form at all (unlike
+        # multi_style_dash's sqlite/lua/haskell, which all pair `--` with a
+        # real block form), so it gets its own single-token family instead of
+        # joining multi_style_dash too.
+        # Examples: ada.
+        "line_exclusive_dash": {"delimiters": ["--"]},
         # 4. Block Exclusive
         # The language possesses no native single-line comment syntax. All text must be enclosed.
         # Examples: HTML, XML.

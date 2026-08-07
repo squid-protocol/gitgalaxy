@@ -351,6 +351,15 @@ class Prism:
                 p = rf"({d[0]}[^\n]*|{d[1]}.*?{d[2]})"
             elif fam_key == "line_exclusive" and len(d) >= 1:
                 p = rf"({d[0]}[^\n]*)"
+            elif fam_key == "line_exclusive_dash" and len(d) >= 1:
+                # #76: unlike "line_exclusive" above (whose single-delimiter
+                # form here is actually dead code -- _strip_segment_comments
+                # intercepts "line_exclusive" via _strip_single_line_comments
+                # before this matrix is ever consulted), "line_exclusive_dash"
+                # has no such interception, so this branch is the real,
+                # active stripping path for it. Same shape (one delimiter,
+                # runs to end of line) since Ada's `--` behaves identically.
+                p = rf"({d[0]}[^\n]*)"
             elif fam_key == "embedded_syntax" and len(d) >= 3:
                 # If len is 4, include d[3], otherwise just [0,1,2]
                 if len(d) >= 4:

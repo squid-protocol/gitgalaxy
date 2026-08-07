@@ -368,6 +368,23 @@ class StructuralExtractor:
             re.IGNORECASE,
         )
 
+        # #1145: universal (not per-language) variable-declaration-shaped assignment
+        # matcher -- same "one regex for every language" precedent as indent_tabs/
+        # indent_spaces in coding_analysis(), since identifier casing is a lexical/
+        # formatting property, not a language-semantic one that needs 59 hand-tuned
+        # per-language regexes. Captures the identifier immediately before an
+        # unguarded `=` (`(?!=)` excludes `==`), tolerating an optional bounded,
+        # whitespace-terminated prefix -- this reaches the declared name whether
+        # it's bare (`x = 5`), keyword-led (`let x = 5`), or C-style typed
+        # (`Map<String,Integer> counterMap = ...`) without needing a type-keyword
+        # enumeration. `[^=\n]{0,80}` is capped so its overlap with the adjacent
+        # `[ \t]+` run (Rule 14) stays a small bounded constant, not unbounded --
+        # confirmed linear (not quadratic) via a manual ReDoS scaling sweep.
+        self._var_decl_pattern = re.compile(
+            r"^[ \t]*(?:[^=\n]{0,80}[ \t]+)?([A-Za-z_]\w{0,63})[ \t]*=(?!=)",
+            re.M,
+        )
+
         self.CORE_MAPPING = {
             "branching": "branch",
             "io_ops": "io",
@@ -671,6 +688,26 @@ class StructuralExtractor:
             if duplicate_count > 0:
                 equations["duplicate_logic"] = duplicate_count
 
+            # --- NEW: NAMING-CONVENTION CLASSIFIER (#1145) ---
+            # core_var_decl feeds signal_processor.py's encapsulation_ratio (total_vars)
+            # -- until now it was permanently 0, which silently floored that ratio to
+            # 0.0 for any file with a single global-state hit. The design_* buckets
+            # classify each declared identifier's casing/length for style-consistency
+            # and outlier signal.
+            for decl_match in self._var_decl_pattern.finditer(code_stream):
+                equations["core_var_decl"] += 1
+                identifier = decl_match.group(1)
+
+                casing_bucket = self._classify_identifier_casing(identifier)
+                if casing_bucket:
+                    equations[casing_bucket] += 1
+
+                name_len = len(identifier)
+                if name_len <= 2:
+                    equations["design_short_vars"] += 1
+                elif name_len >= 25:
+                    equations["design_long_vars"] += 1
+
             # Calculate total file footprint, preferring the unshielded raw text if available
             file_token_mass = get_token_mass(raw_content if raw_content else code_stream)
 
@@ -707,6 +744,23 @@ class StructuralExtractor:
                 "raw_imports": [],
                 "metadata": ghost_meta,
             }
+
+    @staticmethod
+    def _classify_identifier_casing(name: str) -> Optional[str]:
+        """Buckets a declared identifier into one mutually-exclusive casing style (#1145)."""
+        if re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", name):
+            return "design_upper_case"
+        if "_" in name and name.islower():
+            return "design_snake_case"
+        if re.fullmatch(r"[a-z][a-z0-9]*", name):
+            # Bare lowercase, no underscore or uppercase (e.g. "count") -- still a
+            # valid single-word instance of snake_case, not a distinct style.
+            return "design_snake_case"
+        if re.fullmatch(r"[A-Z][a-zA-Z0-9]*", name) and not name.isupper():
+            return "design_pascal_case"
+        if re.fullmatch(r"[a-z][a-zA-Z0-9]*", name):
+            return "design_camel_case"
+        return None
 
     def _decode_comment_stream(self, comment_stream: str) -> dict[str, str]:
         meta = {"ownership": "Unknown Architect"}

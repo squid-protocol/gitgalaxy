@@ -135,6 +135,35 @@ def test_signal_processor_empty_tiny_file_scores_true_zero(processor):
     )
 
 
+# ==============================================================================
+# TEST 2c: ENCAPSULATION RATIO USES REAL core_var_decl (#1145 regression guard)
+# ==============================================================================
+def test_signal_processor_encapsulation_ratio_uses_real_var_decl(processor):
+    """
+    Before #1145 gave `core_var_decl` a real producer in detector.py, it was
+    permanently 0 in every real scan. That silently floored `encapsulation_ratio`
+    (this method, ~line 502) to 0.0 for ANY file with a nonzero `globals` hit,
+    regardless of how much state was actually encapsulated -- the ratio's
+    denominator (`total_vars + global_vars`) collapsed to just `global_vars`,
+    making `1.0 - (global_vars / global_vars)` always 0.0. A file that mostly
+    locks its state inside functions (18 local decls vs. 2 global accesses)
+    must now score a healthy ratio, not the old universal-floor 0.0.
+    """
+    meta, sig = create_synthetic_star(processor, "mostly_encapsulated", 50, {"core_var_decl": 18, "globals": 2})
+    res = processor.calculate_risk_vector(meta, sig)
+    ratio = res["telemetry"]["encapsulation_ratio"]
+    assert ratio > 0.5, f"18 local declarations vs. 2 global accesses should score well-encapsulated, got {ratio}"
+
+
+def test_signal_processor_encapsulation_ratio_all_global_still_zero(processor):
+    """Companion to the above: a file with ONLY global state (0 local decls) should
+    still floor to 0.0 -- proving the fix widened the denominator correctly rather
+    than breaking the genuinely-all-global case."""
+    meta, sig = create_synthetic_star(processor, "all_global", 50, {"core_var_decl": 0, "globals": 5})
+    res = processor.calculate_risk_vector(meta, sig)
+    assert res["telemetry"]["encapsulation_ratio"] == 0.0
+
+
 def test_signal_processor_small_file_floor_still_applies(processor):
     """
     Proves the small-file 5.0 floor is untouched for files under 15 LOC that

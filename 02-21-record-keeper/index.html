@@ -8582,34 +8582,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8880,7 +8852,7 @@
 
 <h1 id="record-keeper">Record Keeper</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/record_keeper.py"><code>gitgalaxy/recorders/record_keeper.py</code></a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/record_keeper.py"><code>gitgalaxy/recorders/record_keeper.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem is the database serialization module responsible for writing GitGalaxy's in-memory static analysis state into a portable, relational SQLite database (<code>_galaxy_graph.sqlite</code>). It solves the problem of persisting complex, relational dependency graph data without requiring external infrastructure. It exists to provide a normalized relational schema designed for autonomous AI agents, Retrieval-Augmented Generation (RAG) workflows, and CI/CD analytics pipelines. Within the system, this module is known as the GitGalaxy Record Keeper.</p>

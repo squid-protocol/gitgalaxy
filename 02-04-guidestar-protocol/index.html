@@ -8554,34 +8554,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8824,7 +8796,7 @@
 
 <h1 id="project-manifest-and-metadata-resolution">Project Manifest and Metadata Resolution</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/core/guidestar_lens.py"><code>gitgalaxy/core/guidestar_lens.py</code></a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/guidestar_lens.py"><code>gitgalaxy/core/guidestar_lens.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem acts as the project metadata parser and contextual intelligence engine. It solves the problem of analyzing files with ambiguous extensions or no extensions by parsing build manifests (e.g., <code>package.json</code>, <code>Cargo.toml</code>, <code>Makefiles</code>) and repository attributes (<code>.gitattributes</code>) to assign initial language priors and intent locks before lexical analysis. It exists to establish file importance and language hints based on verified developer intent, ensuring downstream components prioritize analysis correctly. Within the overall pipeline, this component is known as GitGalaxy's GuideStar.</p>
@@ -8864,8 +8836,8 @@ Dependencies: Downstream to the language identifier (<code>language_lens.py</cod
 <p>Expanding manifest support to emerging build systems like Bazel and Buck2.</p>
 <h2 id="related-components">Related Components</h2>
 <ul>
-<li><a href="file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-03-aperture-filter.md">Aperture Filter</a></li>
-<li><a href="file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-05-language-lens.md">Language Lens</a></li>
+<li><a href="../02-03-aperture-filter/">Aperture Filter</a></li>
+<li><a href="../02-05-language-lens/">Language Lens</a></li>
 </ul>
 
 

@@ -8593,34 +8593,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8902,7 +8874,7 @@
 
 <h1 id="pii-leak-hunter-log-privacy-incident-responder">PII Leak Hunter (Log Privacy &amp; Incident Responder)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py">gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py</a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py">gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>Server logs and database dumps often inadvertently capture Personally Identifiable Information (PII) such as credit cards, SSNs, and API keys. Scanning terabyte-scale log files for these leaks using standard text parsers causes immense memory overhead and CPU starvation due to string decoding. To solve this, a high-throughput stream processor evaluates raw binary data against byte-level regular expressions, decoding strings only upon a positive match. It sanitizes sensitive data and provides chronological histograms of exposure events. This subsystem is the GitGalaxy PII Leak Hunter.</p>

@@ -8593,34 +8593,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8902,7 +8874,7 @@
 
 <h1 id="binary-anomaly-detector-heuristic-file-integrity-scanner">Binary Anomaly Detector (Heuristic File Integrity Scanner)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py">gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py</a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py">gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>Standard source code parsers drop binary assets to conserve memory and avoid parsing errors. However, attackers exploit this blind spot by embedding malware, packed executables, or steganographic payloads inside seemingly benign files like images or archives. To combat this, a heuristic file integrity scanner explicitly targets binary files, inspecting byte-level headers and calculating mathematical entropy to flag hidden threats. This subsystem is the GitGalaxy Binary Anomaly Detector.</p>

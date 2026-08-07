@@ -8604,34 +8604,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8924,7 +8896,7 @@
 
 <h1 id="supply-chain-firewall-zero-trust-dependency-gate">Supply Chain Firewall (Zero-Trust Dependency Gate)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py">gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py</a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py">gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>Modern applications heavily rely on third-party dependencies, which can introduce severe supply chain risks such as malicious updates, namespace hijacking, or embedded malware. Relying solely on asynchronous vulnerability scans allows bad code to enter the environment during the build phase. To proactively block threats, an in-memory logic gate evaluates package imports, resolves aliases, and enforces risk thresholds before third-party code reaches production build environments. This subsystem is the GitGalaxy Supply Chain Firewall.</p>

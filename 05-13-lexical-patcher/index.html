@@ -8571,34 +8571,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8858,7 +8830,7 @@
 
 <h1 id="lexical-control-flow-preprocessor">Lexical Control Flow Preprocessor</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py">gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py</a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py">gitgalaxy/tools/cobol_to_cobol/cobol_lexical_patcher.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem is a source code preprocessor that identifies legacy control flow constructs and safely refactors them into explicit scope terminators prior to Abstract Syntax Tree (AST) parsing or static analysis. It solves the problem of implicit jump mechanics disrupting modern code parsers. It exists to ensure stable control flow graphs can be extracted from legacy COBOL. Within GitGalaxy, it acts as an immediate preprocessing step on source code before deeper static analysis tools are invoked. This subsystem is known as the Lexical Patcher.</p>

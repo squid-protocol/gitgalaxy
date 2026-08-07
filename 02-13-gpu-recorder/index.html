@@ -8582,34 +8582,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8880,7 +8852,7 @@
 
 <h1 id="gpu-recorder">GPU Recorder</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/recorders/gpu_recorder.py"><code>gitgalaxy/recorders/gpu_recorder.py</code></a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py"><code>gitgalaxy/recorders/gpu_recorder.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem is the high-performance data transformation module of the pipeline. It converts verbose, object-oriented JSON telemetry into a hypercompressed columnar format (Structure of Arrays / SoA) designed specifically for WebGL/WebGPU 3D rendering engines. It solves the problem of high latency and memory overhead when loading large codebase models into the browser. It exists to prioritize memory efficiency, low payload transfer size, and fast buffer loading over human readability. Within the system, this module is known as the GitGalaxy GPU Recorder.</p>

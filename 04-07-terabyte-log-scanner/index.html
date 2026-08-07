@@ -8604,34 +8604,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8924,7 +8896,7 @@
 
 <h1 id="terabyte-log-scanner-high-volume-telemetry-dead-code-validator">Terabyte Log Scanner (High-Volume Telemetry &amp; Dead Code Validator)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py">gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py</a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py">gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>Static code analysis often flags legacy code as "dead" or unused, but removing it without runtime verification can cause catastrophic production outages. Validating execution requires scanning massive server or mainframe logs to find module invocation signatures. To accomplish this, a high-speed log processor streams multi-terabyte files in binary mode, matching dynamic telemetry against statically generated program lists to confirm execution state. This subsystem is the GitGalaxy Terabyte Log Scanner.</p>

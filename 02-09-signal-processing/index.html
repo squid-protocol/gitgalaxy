@@ -8554,34 +8554,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-20-logic-bomb-exposure.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logic Bomb Exposure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
@@ -8824,7 +8796,7 @@
 
 <h1 id="metrics-normalization-risk-score-processor">Metrics Normalization &amp; Risk Score Processor</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="file:///home/joe/nyx_projects/gitgalaxy/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem is the metrics normalization and risk evaluation engine. It solves the problem of translating raw structural counts into scaled, comparable risk scores across different languages and project structures. It exists to evaluate files in context—comparing individual metrics against directory distributions, repository-wide baseline curves, and Git commit history—to pinpoint systemic bottlenecks and anomalous code. Within the ecosystem, it functions as the risk signal processor for GitGalaxy.</p>
@@ -8862,8 +8834,8 @@ Dependencies: Downstream statistical quality auditor; upstream detector and netw
 <p>Integrating dynamic machine learning models to adjust language tier normalizations based on empirical data.</p>
 <h2 id="related-components">Related Components</h2>
 <ul>
-<li><a href="file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-08-the-detector.md">The Detector</a></li>
-<li><a href="file:///home/joe/nyx_projects/gitgalaxy/docs/wiki/02-11-spectral-audit.md">Spectral Audit</a></li>
+<li><a href="../02-08-the-detector/">The Detector</a></li>
+<li><a href="../02-11-spectral-audit/">Spectral Audit</a></li>
 </ul>
 
 

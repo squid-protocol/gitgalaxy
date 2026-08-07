@@ -240,6 +240,12 @@ def test_ada_import_excludes_aspect_specifications_regression():
         "Inline",
         "Volatile",
         "SPARK_Mode",
+        "Abstract_State",
+        "Initializes",
+        "Refined_Global",
+        "Refined_Post",
+        "Refined_State",
+        "Refined_Depends",
     ):
         payload = f"   with {aspect} => True;"
         assert not import_rule.search(payload), f"import incorrectly matched aspect clause: {payload!r}"

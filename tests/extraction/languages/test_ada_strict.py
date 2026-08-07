@@ -49,6 +49,8 @@ _ADA_SIMPLE_CASES = [
     ("concurrency", "task Foo is", "X := 5;"),
     ("globals", "with Global => (Input => X);", "X := 5;"),
     ("decorators", "with Pre => X > 0", "with Ada.Text_IO;"),
+    ("decorators", "with Refined_Global => null", "with Ada.Text_IO;"),  # SPARK refinement aspect
+    ("decorators", "pragma SPARK_Mode (On);", "X := 5;"),  # pragma form, distinct from `with SPARK_Mode`
     ("generics", "generic", "X := 5;"),
     ("generics", "package Stacks is new Generic_Stack (Integer);", "type Dog is new Animal with record"),
     ("comprehensions", "for all X in 1 .. 10 => X > 0", "X := 5;"),
@@ -136,6 +138,40 @@ def test_ada_none_keys_are_genuinely_inapplicable_not_accidental():
     """
     actual_none = {k for k, v in ADA_RULES.items() if v is None}
     assert actual_none == _EXPECTED_NONE_KEYS, f"unexpected set of None keys: {actual_none ^ _EXPECTED_NONE_KEYS}"
+
+
+def test_ada_spark_refinement_aspects_register_as_decorators_not_silently_invisible():
+    """
+    Coverage gap found and fixed before merging #1140: the "& SPARK" half of
+    #76's title wasn't fully honored -- the aspect-mark vocabulary shared by
+    decorators/import/_dependency_capture only covered the foundational
+    SPARK contract aspects (Pre/Post/Global/Depends/SPARK_Mode), not the
+    data-flow *refinement* aspects (Abstract_State/Initializes/
+    Refined_Global/Refined_Post/Refined_State/Refined_Depends) used to
+    formally model a package's private state for the prover -- common in
+    real SPARK code. These didn't misfire as false imports (the `=>` breaks
+    import's required trailing-`;` grammar shape either way), they were
+    just invisible to every signature. Also covers the `pragma SPARK_Mode
+    (On);` form, structurally distinct from the `with SPARK_Mode => On`
+    aspect form -- both are real and common.
+    """
+    decorators = ADA_RULES["decorators"]
+    import_rule = ADA_RULES["import"]
+
+    for aspect in (
+        "Abstract_State",
+        "Initializes",
+        "Refined_Global",
+        "Refined_Post",
+        "Refined_State",
+        "Refined_Depends",
+    ):
+        payload = f"with {aspect} => null"
+        assert decorators.search(payload), f"decorators failed to recognize SPARK refinement aspect: {aspect!r}"
+        assert not import_rule.search(payload + ";"), f"import incorrectly matched refinement aspect: {aspect!r}"
+
+    assert decorators.search("pragma SPARK_Mode (On);"), "decorators must recognize the pragma form of SPARK_Mode"
+    assert decorators.search("pragma SPARK_Mode (Off);")
 
 
 # ==============================================================================

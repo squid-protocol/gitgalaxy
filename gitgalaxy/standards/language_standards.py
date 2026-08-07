@@ -12762,9 +12762,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (e.g. memory-mapped hardware register) state.
             "globals": re.compile(r"\bGlobal[ \t]*=>|\bpragma[ \t]+Volatile\b", re.I),
             # decorators: Ada 2012 aspect specifications (`with Pre => ...`)
-            # attached to a declaration. Must NOT overlap the plain `with`
-            # import clause below -- distinguished by a fixed, known
-            # aspect-mark vocabulary rather than by punctuation, since
+            # attached to a declaration, PLUS SPARK's data-flow refinement
+            # aspects (Abstract_State/Initializes/Refined_Global/
+            # Refined_Post/Refined_State/Refined_Depends -- how a package's
+            # private state gets formally modeled for the prover; common in
+            # real SPARK code, distinct from the Pre/Post/Global/Depends
+            # contract basics above) and the `pragma SPARK_Mode (On);` form
+            # (a structurally different shape from the `with SPARK_Mode`
+            # aspect form -- both are real and common). Must NOT overlap the
+            # plain `with` import clause below -- distinguished by a fixed,
+            # known aspect-mark vocabulary rather than by punctuation, since
             # several boolean aspects (Inline, Pure, ...) have no `=>` at
             # all and would otherwise be lexically identical to a bare
             # package-name import list. Keep this list in sync with
@@ -12772,7 +12779,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "decorators": re.compile(
                 r"\bwith[ \t]+(?:Pre|Post|Invariant|Static_Predicate|Dynamic_Predicate|Global|Depends"
                 r"|Convention|Import|Export|Inline|Volatile|Atomic|Pack|SPARK_Mode|No_Return"
-                r"|Pure|Preelaborate|Elaborate_Body)\b",
+                r"|Pure|Preelaborate|Elaborate_Body"
+                r"|Abstract_State|Initializes|Refined_Global|Refined_Post|Refined_State|Refined_Depends)\b"
+                r"|\bpragma[ \t]+SPARK_Mode\b",
                 re.I,
             ),
             # generics: `generic` keyword, and instantiation scoped to
@@ -12802,14 +12811,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "import": re.compile(
                 r"^[ \t]*with[ \t\n]+(?!(?:Pre|Post|Invariant|Static_Predicate|Dynamic_Predicate|Global|Depends"
                 r"|Convention|Import|Export|Inline|Volatile|Atomic|Pack|SPARK_Mode|No_Return"
-                r"|Pure|Preelaborate|Elaborate_Body)\b)"
+                r"|Pure|Preelaborate|Elaborate_Body"
+                r"|Abstract_State|Initializes|Refined_Global|Refined_Post|Refined_State|Refined_Depends)\b)"
                 r"[A-Za-z_][A-Za-z0-9_.]*(?:[ \t\n]*,[ \t\n]*[A-Za-z_][A-Za-z0-9_.]*){0,20}[ \t\n]*;",
                 re.I | re.M,
             ),
             "_dependency_capture": re.compile(
                 r"^[ \t]*with[ \t\n]+(?!(?:Pre|Post|Invariant|Static_Predicate|Dynamic_Predicate|Global|Depends"
                 r"|Convention|Import|Export|Inline|Volatile|Atomic|Pack|SPARK_Mode|No_Return"
-                r"|Pure|Preelaborate|Elaborate_Body)\b)([A-Za-z_][A-Za-z0-9_.]*)",
+                r"|Pure|Preelaborate|Elaborate_Body"
+                r"|Abstract_State|Initializes|Refined_Global|Refined_Post|Refined_State|Refined_Depends)\b)"
+                r"([A-Za-z_][A-Za-z0-9_.]*)",
                 re.I | re.M,
             ),
             # ownership: header comment convention, same shape as the JCL/

@@ -216,6 +216,76 @@ nav:
           - 'core': 'agents/core_agents.md'
           - 'iwubi': 'agents/iwubi_agents.md'
           - 'nvda': 'agents/nvda_agents.md'
+      - 'LLM Reports':
+          - 'Directory Index': 'LLM-reports/index.md'
+          - 'Standard LLM Test Repos':
+              - 'django': 'LLM-reports/django_llm_report.md'
+              - 'flask': 'LLM-reports/flask_llm_report.md'
+          - 'Operating Systems & Low-Level':
+              - 'BareMetal-OS': 'LLM-reports/BareMetal-OS_llm_report.md'
+              - 'cosmopolitan': 'LLM-reports/cosmopolitan_llm_report.md'
+              - 'cpm65': 'LLM-reports/cpm65_llm_report.md'
+              - 'darwin-xnu': 'LLM-reports/darwin-xnu_llm_report.md'
+              - 'freebsd-src': 'LLM-reports/freebsd-src_llm_report.md'
+          - 'Languages, Compilers & Runtimes':
+              - 'Carbon': 'LLM-reports/Carbon_llm_report.md'
+              - 'assemblyscript': 'LLM-reports/assemblyscript_llm_report.md'
+              - 'berry': 'LLM-reports/berry_llm_report.md'
+              - 'bun': 'LLM-reports/bun_llm_report.md'
+              - 'cpython': 'LLM-reports/cpython_llm_report.md'
+              - 'cyber': 'LLM-reports/cyber_llm_report.md'
+              - 'cython': 'LLM-reports/cython_llm_report.md'
+              - 'fp-ts': 'LLM-reports/fp-ts_llm_report.md'
+          - 'Web Frameworks & Libraries':
+              - 'CodeIgniter': 'LLM-reports/CodeIgniter_llm_report.md'
+              - 'angular': 'LLM-reports/angular_llm_report.md'
+              - 'bootstrap': 'LLM-reports/bootstrap_llm_report.md'
+              - 'fastapi': 'LLM-reports/fastapi_llm_report.md'
+          - 'Data, AI & Scientific Computing':
+              - 'Chart.js': 'LLM-reports/Chart.js_llm_report.md'
+              - 'airflow': 'LLM-reports/airflow_llm_report.md'
+              - 'alphafold_2018': 'LLM-reports/alphafold_2018_llm_report.md'
+              - 'biopython': 'LLM-reports/biopython_llm_report.md'
+              - 'blast': 'LLM-reports/blast_llm_report.md'
+              - 'fieldtrip': 'LLM-reports/fieldtrip_llm_report.md'
+          - 'COBOL, Mainframe & Enterprise':
+              - 'CICS-Cobol': 'LLM-reports/CICS-Cobol_llm_report.md'
+              - 'abap-cleaner': 'LLM-reports/abap-cleaner_llm_report.md'
+              - 'abap2xlsx': 'LLM-reports/abap2xlsx_llm_report.md'
+              - 'cobrix': 'LLM-reports/cobrix_llm_report.md'
+              - 'fineract': 'LLM-reports/fineract_llm_report.md'
+          - 'DevOps, Infrastructure & Tooling':
+              - 'ansible': 'LLM-reports/ansible_llm_report.md'
+              - 'black': 'LLM-reports/black_llm_report.md'
+              - 'brew': 'LLM-reports/brew_llm_report.md'
+              - 'cargo': 'LLM-reports/cargo_llm_report.md'
+              - 'cli': 'LLM-reports/cli_llm_report.md'
+              - 'curl': 'LLM-reports/curl_llm_report.md'
+              - 'cypress': 'LLM-reports/cypress_llm_report.md'
+              - 'docker-py': 'LLM-reports/docker-py_llm_report.md'
+              - 'elasticsearch': 'LLM-reports/elasticsearch_llm_report.md'
+              - 'exiftool': 'LLM-reports/exiftool_llm_report.md'
+              - 'ghostty': 'LLM-reports/ghostty_llm_report.md'
+          - 'Game Engines & 3D Graphics':
+              - 'DOOM': 'LLM-reports/DOOM_llm_report.md'
+              - 'bevy': 'LLM-reports/bevy_llm_report.md'
+              - 'cesium': 'LLM-reports/cesium_llm_report.md'
+          - 'Mobile, Hardware & IoT':
+              - 'AFNetworking': 'LLM-reports/AFNetworking_llm_report.md'
+              - 'Adafruit_CircuitPython_Bundle': 'LLM-reports/Adafruit_CircuitPython_Bundle_llm_report.md'
+              - 'Alamofire': 'LLM-reports/Alamofire_llm_report.md'
+              - 'catalyst-runtime': 'LLM-reports/catalyst-runtime_llm_report.md'
+              - 'circuitpython': 'LLM-reports/circuitpython_llm_report.md'
+              - 'flutter': 'LLM-reports/flutter_llm_report.md'
+          - 'CMS, Platforms & Applications':
+              - 'AppFlowy': 'LLM-reports/AppFlowy_llm_report.md'
+              - 'discourse': 'LLM-reports/discourse_llm_report.md'
+              - 'freeCodeCamp': 'LLM-reports/freeCodeCamp_llm_report.md'
+          - 'Security, Cryptography & Blockchain':
+              - 'angr': 'LLM-reports/angr_llm_report.md'
+              - 'bitcoin-0.1.0': 'LLM-reports/bitcoin-0.1.0_llm_report.md'
+          - 'Uncategorized / Core':
+              - 'Apollo-11': 'LLM-reports/Apollo-11_llm_report.md'
   - '📖 Core Documentation':
     - '1. Foundation & Architecture':
         - 'Project Overview': "01-01-project-overview.md"

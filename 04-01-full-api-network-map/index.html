@@ -12187,6 +12187,7 @@
 <li>Dynamic routes registered conditionally or inside loops may be missed by regex patterns.</li>
 <li>Only supports REST API frameworks mapped in <code>FRAMEWORK_SIGNATURES</code>; GraphQL or gRPC endpoints require different structural checks.</li>
 <li>Specifications located outside the scanned directory or in external registries cannot be auto-discovered.</li>
+<li><strong><code>audit_shadow_apis</code> is expected to be near-zero across a general repo corpus (#1148).</strong> <code>run_api_audit()</code> short-circuits to <code>0</code> unless the repo ships exactly one unambiguous, auto-discoverable OpenAPI/Swagger spec (<code>status: "no_swagger"</code> or <code>"ambiguous"</code> both report zero) <em>and</em> the code has physical endpoints missing from it. Most repositories -- especially non-web-API projects -- never satisfy the first condition, so a near-zero rate in aggregate telemetry reflects how rarely repos carry a matching spec, not a broken producer.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>The module processes files efficiently by reading only the first 1000 characters to auto-discover Swagger files, minimizing memory buffer allocation.</p>

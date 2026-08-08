@@ -12096,12 +12096,13 @@
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Indentation Polarization (Tabs vs. Spaces)</p>
-<p><strong>Summary:</strong> Measures the structural formatting consistency of a file by calculating the ratio of space-indented lines to tab-indented lines. </p>
-<p><strong>Disclaimer:</strong> <em>While GitGalaxy is designed for rigorous architectural and security analysis, this specific metric is included as a lighthearted Easter egg metric for engineering teams. It does not factor into risk exposure vectors.</em></p>
-<p><strong>Effect:</strong> Uses a Diverging Visual Spectrum from 0 to 100:
-* 🟩 <strong>PURE TABS (Score 0 - 19):</strong> 100% Tab Indentation.
-* 🟦 <strong>MIXED FORMATTING (Score 20 - 79):</strong> Mixed Tabs and Spaces (50.0 represents maximum conflict).
-* 🟨 <strong>PURE SPACES (Score 80 - 100):</strong> 100% Space Indentation.</p>
+<p><strong>Summary:</strong> Measures which indentation "camp" a file falls into by calculating the ratio of space-indented lines to tab-indented lines.</p>
+<p><strong>Disclaimer:</strong> <em>While GitGalaxy is designed for rigorous architectural and security analysis, this specific metric is included as a lighthearted Easter egg for engineering teams. It is reported as descriptive file telemetry (<code>indentation_style</code>), not a <code>RISK_SCHEMA</code> exposure vector -- see #1147.</em></p>
+<p><strong>Effect:</strong> A categorical read, not a scored exposure:
+* 🟩 <strong>Tabs:</strong> 100% Tab Indentation.
+* 🟦 <strong>Mixed (NN.N% Spaces / NN.N% Tabs):</strong> Both styles present in the same file.
+* 🟨 <strong>Spaces:</strong> 100% Space Indentation.
+* ⬜ <strong>Neutral / No Indentation:</strong> File has no indented lines at all.</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem measures the structural formatting consistency of source files by calculating the ratio of spaces to tabs. It solves the problem of identifying files with conflicting editor settings or mixed formatting conventions introduced by multiple contributors. It exists as an independent analytical component to surface formatting noise that causes merge conflicts and developer friction. Though functioning as a novelty metric, its output cleanly integrates into GitGalaxy UI visualizations.</p>
@@ -12110,27 +12111,29 @@
 <h2 id="problem-being-solved">Problem Being Solved</h2>
 <p>Inconsistent formatting creates unnecessary code churn, Git blame noise, and merge conflicts. When multiple developers commit to the same file using different editor settings, the resulting mixed indentation decreases readability and disrupts standardized auto-formatting pipelines.</p>
 <h2 id="design">Design</h2>
-<p>By mapping pure tab indentation to 0.0 and pure space indentation to 100.0, files with mixed indentation naturally center around 50.0. The scanner counts leading indentation tokens per line, summing lines that begin with <code>\t</code> versus spaces. </p>
-<p><strong>Mathematical Formulation</strong>
+<p>The scanner counts leading indentation tokens per line, summing lines that begin with <code>\t</code> versus spaces, then maps the ratio to a plain-English label instead of a scored value -- deliberately, so it can't be read as a quality bar to clear.</p>
+<p><strong>Formulation</strong>
 1. <strong>Count Indented Lines:</strong>
 $<span class="arithmatex">\(\text{TotalIndentedLines} = \text{TabLines} + \text{SpaceLines}\)</span>$
 2. <strong>Calculate Space Ratio:</strong>
-$<span class="arithmatex">\(\text{SpaceRatio} = \frac{\text{SpaceLines}}{\max(\text{TotalIndentedLines}, 1)}\)</span>$
-<em>(Defaults to neutral <span class="arithmatex">\(50.0\)</span> if unindented or empty)</em>
-3. <strong>Map Final Score:</strong>
-$<span class="arithmatex">\(\text{FinalScore} = \text{SpaceRatio} \times 100.0\)</span>$</p>
+$<span class="arithmatex">\(\text{SpaceRatio} = \frac{\text{SpaceLines}}{\text{TotalIndentedLines}} \times 100\)</span>$
+3. <strong>Map to Label:</strong>
+   - <code>TotalIndentedLines == 0</code> → <code>"Neutral / No Indentation"</code>
+   - <code>SpaceRatio == 0</code> → <code>"Tabs"</code>
+   - <code>SpaceRatio == 100</code> → <code>"Spaces"</code>
+   - otherwise → <code>"Mixed (NN.N% Spaces / NN.N% Tabs)"</code></p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Static Line Parser] --&gt;|Tab/Space Counts| B[Ratio Calculator]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt;|Normalization| C[Diverging Layout Score]
 </code></pre></div>
 - <strong>Inputs received:</strong> Token counts for <code>indent_tabs</code> and <code>indent_spaces</code>.
-- <strong>Outputs produced:</strong> A diverging layout uniformity score (0-100).
+- <strong>Outputs produced:</strong> A descriptive <code>indentation_style</code> label in file telemetry.
 - <strong>Dependencies:</strong> Relies directly on the raw static line parser. Does NOT feed into risk aggregation vectors.</p>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
-<li>Pure spaces and pure tabs are evaluated as endpoints on a diverging spectrum rather than scoring "perfect consistency" as 0.0. This choice explicitly forces a visual distinction between space-heavy and tab-heavy files rather than just reporting the presence of conflict.</li>
-<li>Empty files or files with no indentation default to exactly 50.0. This neutral baseline was chosen to prevent divide-by-zero errors without skewing the file towards either specific layout preference.</li>
+<li>Reported as a categorical label (<code>telemetry["indentation_style"]</code>) rather than a 0-100 score. An earlier version scored it into <code>RISK_SCHEMA</code> as a diverging 0-100 value ("Civil War Exposure"), which every downstream consumer ended up special-casing as not-a-real-risk anyway -- the label now says directly what the score used to require translating (#1147).</li>
+<li>Empty files or files with no indentation report <code>"Neutral / No Indentation"</code> rather than defaulting into either camp.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>

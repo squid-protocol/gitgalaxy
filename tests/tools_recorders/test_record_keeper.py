@@ -94,7 +94,7 @@ def mock_pipeline_state():
             "avg_path_length": 1.0,
             "articulation_points": 1,
         },
-        "ecosystem_audits": {"xray": {"anomalies_found": 1}},
+        "ecosystem_audits": {"api_mapper": {"shadow_count": 3}, "xray": {"anomalies_found": 1}},
     }
 
     session_meta = {
@@ -164,6 +164,7 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     cursor.execute("SELECT * FROM repo_data WHERE repo_name='TestProject'")
     repo = cursor.fetchone()
     assert repo["commit_hash"] == "a1b2c3d4"
+    assert repo["audit_shadow_apis"] == 3  # ecosystem_audits.api_mapper.shadow_count, #1148
     assert repo["audit_binary_anomalies"] == 1
     assert repo["typosquat_hits"] == 2
     assert repo["ecosystem_baseline"] == "Web Service"

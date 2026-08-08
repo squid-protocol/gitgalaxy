@@ -51,6 +51,7 @@ graph LR
 * Dynamic routes registered conditionally or inside loops may be missed by regex patterns.
 * Only supports REST API frameworks mapped in `FRAMEWORK_SIGNATURES`; GraphQL or gRPC endpoints require different structural checks.
 * Specifications located outside the scanned directory or in external registries cannot be auto-discovered.
+* **`audit_shadow_apis` is expected to be near-zero across a general repo corpus (#1148).** `run_api_audit()` short-circuits to `0` unless the repo ships exactly one unambiguous, auto-discoverable OpenAPI/Swagger spec (`status: "no_swagger"` or `"ambiguous"` both report zero) *and* the code has physical endpoints missing from it. Most repositories -- especially non-web-API projects -- never satisfy the first condition, so a near-zero rate in aggregate telemetry reflects how rarely repos carry a matching spec, not a broken producer.
 
 ## Performance Notes
 The module processes files efficiently by reading only the first 1000 characters to auto-discover Swagger files, minimizing memory buffer allocation.

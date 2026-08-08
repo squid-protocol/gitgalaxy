@@ -198,6 +198,11 @@ class RecordKeeper:
                 network_cyclic_density REAL,
                 network_avg_path_length REAL,
                 network_articulation_points INTEGER,
+                -- #1148: real producer (run_api_audit -> calculate_api_drift in
+                -- full_api_network_map.py), but nonzero only when the repo ships exactly
+                -- one auto-discoverable OpenAPI/Swagger spec AND has code endpoints missing
+                -- from it. Near-zero across a general repo corpus is expected, not a bug --
+                -- most repos have no machine-readable API spec at all.
                 audit_shadow_apis INTEGER DEFAULT 0,
                 audit_binary_anomalies INTEGER DEFAULT 0,
                 audit_unknown_packages INTEGER DEFAULT 0,

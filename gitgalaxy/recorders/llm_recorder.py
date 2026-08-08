@@ -429,10 +429,6 @@ class LLMRecorder:
         exposure_labels = schemas.get("EXPOSURE_LABELS", {})
 
         for i, risk_slug in enumerate(self.RISK_SCHEMA):
-            # Skip the non-risk formatting stat
-            if risk_slug == "tabs_vs_spaces":
-                continue
-
             vals = [s.get("risk_vector", [])[i] for s in parsed_files if len(s.get("risk_vector", [])) > i]
             risk_label = exposure_labels.get(risk_slug, risk_slug.replace("_", " ").title())
 
@@ -735,7 +731,7 @@ class LLMRecorder:
 
                 file_risks = []
                 for i, r_val in enumerate(rv):
-                    if i < len(self.RISK_SCHEMA) and self.RISK_SCHEMA[i] != "tabs_vs_spaces" and r_val > 0:
+                    if i < len(self.RISK_SCHEMA) and r_val > 0:
                         file_risks.append((self.RISK_SCHEMA[i], r_val))
 
                 file_risks.sort(key=lambda x: x[1], reverse=True)

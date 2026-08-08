@@ -9,11 +9,10 @@ def recorder():
     """Initializes the AuditRecorder for forensic JSON generation testing."""
     # We patch the schema dynamically so our tests are immune to upstream schema changes
     mock_schemas = {
-        "RISK_SCHEMA": ["secrets_risk", "indentation_faction", "tech_debt"],
+        "RISK_SCHEMA": ["secrets_risk", "tech_debt"],
         "SIGNAL_SCHEMA": ["sec_hardcoded_secrets", "sec_high_risk_execution"],
         "EXPOSURE_LABELS": {
             "secrets_risk": "Secrets Risk Exposure",
-            "indentation_faction": "Indentation Consistency",
             "tech_debt": "Tech Debt Exposure",
         },
     }
@@ -140,7 +139,8 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
 def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
     """
     Proves the recorder dynamically pads missing Markdown risk vectors to prevent
-    dimension desyncs, and successfully translates indentation floats to strings.
+    dimension desyncs, and surfaces indentation_style telemetry as-is (#1147:
+    indentation is descriptive identity, not a risk exposure to translate).
     """
     output_file = tmp_path / "forensic_edge_cases.json"
 
@@ -154,14 +154,14 @@ def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
         {
             "path": "src/tabs.py",
             "lang_id": "python",
-            "risk_vector": [0.0, 0.0, 0.0],  # 0.0 Indentation = Tabs
-            "telemetry": {},
+            "risk_vector": [0.0, 0.0],
+            "telemetry": {"indentation_style": "Tabs"},
         },
         {
             "path": "src/spaces.py",
             "lang_id": "python",
-            "risk_vector": [0.0, 100.0, 0.0],  # 100.0 Indentation = Spaces
-            "telemetry": {},
+            "risk_vector": [0.0, 0.0],
+            "telemetry": {"indentation_style": "Spaces"},
         },
     ]
 
@@ -175,12 +175,12 @@ def test_audit_recorder_formatting_edge_cases(recorder, tmp_path):
     # 1. Verify Missing Vector Strict Labeling (Issue #100)
     # Because README.md has no risk_vector, it MUST be explicitly labeled as unscanned
     readme = files["README.md"]["4. Vulnerability & Risk Exposures"]
-    assert len(readme) == 3, "Failed to map the missing markdown risk vector!"
+    assert len(readme) == 2, "Failed to map the missing markdown risk vector!"
     assert readme["Secrets Risk Exposure"] == "[UNSCANNED - NO DATA]", "Failed to flag missing risk as unscanned!"
 
-    # 2. Verify Indentation String Translation
-    assert files["src/tabs.py"]["4. Vulnerability & Risk Exposures"]["Indentation Consistency"] == "Tabs"
-    assert files["src/spaces.py"]["4. Vulnerability & Risk Exposures"]["Indentation Consistency"] == "Spaces"
+    # 2. Verify indentation_style telemetry surfaces as plain identity, not a risk exposure
+    assert files["src/tabs.py"]["1. Artifact Identity"]["Indentation Style"] == "Tabs"
+    assert files["src/spaces.py"]["1. Artifact Identity"]["Indentation Style"] == "Spaces"
 
 
 # ==============================================================================

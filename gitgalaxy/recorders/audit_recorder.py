@@ -179,6 +179,7 @@ class AuditRecorder:
                 "Path": path,
                 "Language": str(file_data.get("lang_id", "Unknown")).title(),
                 "Architect": telemetry.get("ownership", "Unknown Architect"),
+                "Indentation Style": telemetry.get("indentation_style", "Unknown"),
             }
 
             domain_data = telemetry.get("domain_context", {})
@@ -208,17 +209,7 @@ class AuditRecorder:
                     exposures_dict[label] = "[UNSCANNED - NO DATA]"
             else:
                 for label, v in zip(risk_labels, raw_risk):
-                    if label in ["Civil War Exposure", "Indentation Consistency"]:
-                        if v == 0.0:
-                            exposures_dict["Indentation Consistency"] = "Tabs"
-                        elif v == 100.0:
-                            exposures_dict["Indentation Consistency"] = "Spaces"
-                        elif v == 50.0:
-                            exposures_dict["Indentation Consistency"] = "Neutral / Deadlocked"
-                        else:
-                            exposures_dict["Indentation Consistency"] = f"Mixed ({100 - v:.1f}% Tabs / {v:.1f}% Spaces)"
-                    else:
-                        exposures_dict[label] = f"{round(v, 2)}%"
+                    exposures_dict[label] = f"{round(v, 2)}%"
 
             arch = telemetry.get("archetype", "Unknown Archetype")
             if d_name not in folder_archetype_counts:

@@ -425,8 +425,6 @@ class SignalProcessor:
                     blanket_risk_vector[self.RISK_SCHEMA.index("churn")] = min(raw_churn_freq * 10, 100.0)
                 if "documentation" in self.RISK_SCHEMA:
                     blanket_risk_vector[self.RISK_SCHEMA.index("documentation")] = 0.0  # <-- The Fix! 0% Risk.
-                if "tabs_vs_spaces" in self.RISK_SCHEMA:
-                    blanket_risk_vector[self.RISK_SCHEMA.index("tabs_vs_spaces")] = 50.0
 
                 return {
                     "risk_vector": blanket_risk_vector,
@@ -448,6 +446,7 @@ class SignalProcessor:
                         "ownership_entropy": 0.0,  # <-- FIX: Documentation has no logic entropy
                         "author_distribution": 0.0,  # <-- FIX: Plaintext changelogs don't have Authorship Centralization risk
                         "ownership": dominant_author,
+                        "indentation_style": self._calc_indentation_style(raw_signals),
                         "domain_context": ghost_meta,
                         "threat_locations": meta.get("threat_locations", {}),
                         "raw_churn_freq": raw_churn_freq,
@@ -611,7 +610,6 @@ class SignalProcessor:
             for key in self.SIGNAL_SCHEMA:
                 # ---> THE DIMENSIONAL FIX: Ignore hardware_bridge and cryptography <---
                 if key in {
-                    "tabs_vs_spaces",
                     "indent_tabs",
                     "indent_spaces",
                     "hardware_bridge",
@@ -734,7 +732,6 @@ class SignalProcessor:
                 "stability": stability_score,
                 "churn": 0.0,
                 "documentation": doc_score,
-                "tabs_vs_spaces": self._calc_civil_war(raw_signals),
                 "secrets_risk": self._calc_secrets_risk(loc, raw_signals, mp_map.get("secrets", 1.0)),
             }
 
@@ -806,6 +803,7 @@ class SignalProcessor:
                 "ownership_entropy": ownership_score,
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
+                "indentation_style": self._calc_indentation_style(raw_signals),
                 "domain_context": ghost_meta,
                 "mitigation_telemetry": meta.get("mitigations", []),
                 "threat_locations": meta.get("threat_locations", {}),
@@ -1266,25 +1264,26 @@ class SignalProcessor:
 
         return round(ownership_score, 2)
 
-    def _calc_civil_war(self, raw_signals: dict[str, int]) -> float:
+    def _calc_indentation_style(self, raw_signals: dict[str, int]) -> str:
         """
-        Calculates Formatting Inconsistencies (Tabs vs Spaces).
-        0 = Pure Tabs (Consistent), 100 = Pure Spaces (Consistent), 50 = High Discrepancy.
+        Which indentation "camp" a file falls into, from its indent_tabs/
+        indent_spaces raw signature counts. Descriptive telemetry only --
+        deliberately NOT part of RISK_SCHEMA (see #1147): mixed indentation
+        isn't a risk exposure, just a fact worth surfacing.
         """
         tab_lines = raw_signals.get("indent_tabs", 0)
         space_lines = raw_signals.get("indent_spaces", 0)
 
-        l_total = tab_lines + space_lines
+        total = tab_lines + space_lines
+        if total == 0:
+            return "Neutral / No Indentation"
 
-        # 2. Handle Void States (No indentation at all)
-        if l_total == 0:
-            return 50.0  # Default to Neutral
-
-        # 3. Calculate Space-Ratio (R)
-        space_ratio = space_lines / l_total
-
-        # 4. Final Score Mapping (0-100)
-        return space_ratio * 100.0
+        space_ratio = (space_lines / total) * 100.0
+        if space_ratio == 0.0:
+            return "Tabs"
+        if space_ratio == 100.0:
+            return "Spaces"
+        return f"Mixed ({space_ratio:.1f}% Spaces / {100 - space_ratio:.1f}% Tabs)"
 
     def _calc_cog_load(
         self,
@@ -1798,18 +1797,13 @@ class SignalProcessor:
             active_files = parsed_files
 
         # ====================================================================
-        # NEW: CALCULATE CUMULATIVE RISK (Excluding Formatting Inconsistency)
+        # CALCULATE CUMULATIVE RISK
         # ====================================================================
-        civil_war_idx = self.RISK_SCHEMA.index("tabs_vs_spaces") if "tabs_vs_spaces" in self.RISK_SCHEMA else -1
-
         def get_cumulative_risk(f):
             rv = f.get("risk_vector", [])
             if not isinstance(rv, list):
                 return 0.0
-            # Sum all exposures except civil_war
-            return sum(
-                val for i, val in enumerate(rv) if i != civil_war_idx and i < len(rv) and isinstance(val, (int, float))
-            )
+            return sum(val for val in rv if isinstance(val, (int, float)))
 
         sorted_by_cumulative = sorted(active_files, key=get_cumulative_risk, reverse=True)
 

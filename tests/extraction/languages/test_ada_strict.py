@@ -112,7 +112,7 @@ _BASELINE_KEYS = [
     "generics", "comprehensions", "scientific", "reflection_metaprogramming",
     "import", "_dependency_capture", "ownership",
     "planned_debt", "fragile_debt", "hardcoded_secrets", "spec_exposure",
-    "tabs_vs_spaces", "ssr_boundaries", "events", "dependency_injection",
+    "ssr_boundaries", "events", "dependency_injection",
     "macros", "pointers", "memory_alloc", "inline_asm",
     "telemetry", "debug_prints", "explicit_casts", "panics_and_aborts",
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
@@ -120,7 +120,7 @@ _BASELINE_KEYS = [
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
 ]  # fmt: skip
 
-_EXPECTED_NONE_KEYS = {"ui_framework", "closures", "tabs_vs_spaces", "ssr_boundaries", "dependency_injection"}
+_EXPECTED_NONE_KEYS = {"ui_framework", "closures", "ssr_boundaries", "dependency_injection"}
 
 
 def test_ada_schema_completeness():

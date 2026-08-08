@@ -227,8 +227,11 @@ def test_signal_processor_api_and_concurrency(processor):
 # ==============================================================================
 # TEST 6: CIVIL WAR (Indentation Consistency)
 # ==============================================================================
-def test_signal_processor_civil_war(processor):
-    """Proves the Civil War exposure accurately measures Tab vs Space purity."""
+def test_signal_processor_indentation_style(processor):
+    """
+    Proves indentation_style accurately reads Tab vs Space purity as descriptive
+    telemetry -- not a RISK_SCHEMA exposure (#1147: this was never a real risk).
+    """
     mt, sigt = create_synthetic_star(processor, "t", 100, {"indent_tabs": 100})
     ms, sigs = create_synthetic_star(processor, "s", 100, {"indent_spaces": 100})
     mm, sigm = create_synthetic_star(processor, "m", 100, {"indent_tabs": 50, "indent_spaces": 50})
@@ -237,9 +240,9 @@ def test_signal_processor_civil_war(processor):
     rs = processor.calculate_risk_vector(ms, sigs)
     rm = processor.calculate_risk_vector(mm, sigm)
 
-    assert rt["risk_vector"][12] < 10.0, "Pure Tabs failed!"
-    assert rs["risk_vector"][12] > 90.0, "Pure Spaces failed!"
-    assert 40.0 < rm["risk_vector"][12] < 60.0, "Mixed indentation failed!"
+    assert rt["telemetry"]["indentation_style"] == "Tabs", "Pure Tabs failed!"
+    assert rs["telemetry"]["indentation_style"] == "Spaces", "Pure Spaces failed!"
+    assert rm["telemetry"]["indentation_style"] == "Mixed (50.0% Spaces / 50.0% Tabs)", "Mixed indentation failed!"
 
 
 # ==============================================================================
@@ -752,16 +755,33 @@ def test_signal_processor_catastrophic_fallbacks(processor):
 
 
 # ==============================================================================
-# TEST 28: CIVIL WAR VOID STATE (Zero Indentation)
+# TEST 28: INDENTATION STYLE (Descriptive Telemetry, not a Risk -- #1147)
 # ==============================================================================
-def test_signal_processor_civil_war_void(processor):
-    """Proves the Civil War exposure safely defaults to 50.0 (Neutral) if a file has no indentation."""
+def test_signal_processor_indentation_style_void(processor):
+    """Proves a file with no indentation reports "Neutral / No Indentation" telemetry."""
     m_void, sig_void = create_synthetic_star(processor, "void_file", 10, {"indent_tabs": 0, "indent_spaces": 0})
 
     r_void = processor.calculate_risk_vector(m_void, sig_void)
-    idx_civil = processor.RISK_SCHEMA.index("tabs_vs_spaces")
 
-    assert r_void["risk_vector"][idx_civil] == 50.0, "Void state failed to default to 50.0% neutral exposure!"
+    assert "tabs_vs_spaces" not in processor.RISK_SCHEMA, (
+        "tabs_vs_spaces was moved out of RISK_SCHEMA (#1147) -- it isn't a risk exposure."
+    )
+    assert r_void["telemetry"]["indentation_style"] == "Neutral / No Indentation"
+
+
+def test_signal_processor_indentation_style_camps(processor):
+    """Proves pure-tabs, pure-spaces, and mixed files each get the right descriptive label."""
+    m_tabs, sig_tabs = create_synthetic_star(processor, "tabs_file", 10, {"indent_tabs": 5, "indent_spaces": 0})
+    m_spaces, sig_spaces = create_synthetic_star(processor, "spaces_file", 10, {"indent_tabs": 0, "indent_spaces": 5})
+    m_mixed, sig_mixed = create_synthetic_star(processor, "mixed_file", 10, {"indent_tabs": 1, "indent_spaces": 3})
+
+    r_tabs = processor.calculate_risk_vector(m_tabs, sig_tabs)
+    r_spaces = processor.calculate_risk_vector(m_spaces, sig_spaces)
+    r_mixed = processor.calculate_risk_vector(m_mixed, sig_mixed)
+
+    assert r_tabs["telemetry"]["indentation_style"] == "Tabs"
+    assert r_spaces["telemetry"]["indentation_style"] == "Spaces"
+    assert r_mixed["telemetry"]["indentation_style"] == "Mixed (75.0% Spaces / 25.0% Tabs)"
 
 
 # ==============================================================================

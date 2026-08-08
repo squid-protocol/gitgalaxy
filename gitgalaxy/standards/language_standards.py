@@ -467,8 +467,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(render_template|HttpResponse|JSONResponse|TemplateResponse|WSGIApplication|ASGIApplication)\b"
@@ -794,8 +792,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(getServerSideProps|getStaticProps|getInitialProps|renderToString|hydrateRoot)\b"
@@ -1174,8 +1170,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # embedded_python, css, tcl, matlab, and scheme earlier in this
             # epic. Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(getServerSideProps|getStaticProps|generateStaticParams|LoaderFunction|ActionFunction)\b"
@@ -1495,8 +1489,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # BUG FIX: `@ResponseBody`/`@ResponseStatus` both start with `@`
             # (non-word) -- same leading-\b bug as ui_framework above.
@@ -1874,8 +1866,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # c, and cpp earlier in this epic (the 10th hit). Bounded both
             # quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (The Blazor/Razor Horizon)
             "ssr_boundaries": re.compile(
                 r"@(?:page|rendermode|code|layout)|\[(?:Route|CascadingParameter)\]|\b(RenderFragment|ComponentBase|IViewComponentResult)\b"
@@ -2186,9 +2176,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Gofmt mandates tabs; finding spaces at start signals structural friction.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(html/template|ExecuteTemplate|http\.ResponseWriter|Render|gin\.Context)\b"
@@ -2513,8 +2500,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # embedded_python, css, tcl, matlab, scheme, and typescript
             # earlier in this epic. Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(actix_web|axum|rocket|HttpResponse|Responder|IntoResponse|Html|askama::|tera::)\b"
@@ -2898,8 +2883,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # and c earlier in this epic (the 9th hit). Bounded both
             # quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|render_template|Inja::|ctemplate::)\b"),
             # 32. events (Event Emitters / Pub-Sub)
@@ -3224,8 +3207,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # embedded_python, css, tcl, matlab, scheme, typescript, and
             # rust earlier in this epic. Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(r"\b(FCGI_Accept|khttp_parse|MHD_start_daemon|facil\.io)\b"),
             # 32. events (Event Emitters / Pub-Sub)
@@ -3526,8 +3507,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(Response|JsonResponse|HtmlResponse|RedirectResponse|Symfony\\Component\\HttpFoundation|Illuminate\\Http\\Response)\b"
@@ -3876,9 +3855,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Structural formatting violating norms. Handled natively by the GitGalaxy Signal Processor.
-            "tabs_vs_spaces": None,
             "ssr_boundaries": re.compile(
                 r"\b(New-PodeServer|Add-PodeRoute|Write-PodeHtmlResponse|New-UDEndpoint|New-UDPage)\b",
                 re.I,
@@ -4202,8 +4178,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (confirmed ~4x slowdown per input-size doubling). Bounded to
             # {0,300}; real spec/audit tags don't get remotely that long.
             "spec_exposure": re.compile(r"#\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Legacy CGI shell environments.
             "ssr_boundaries": re.compile(
@@ -4498,8 +4472,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(ActionController::Base|ActionController::API|Sinatra::Base|Hanami::Action|respond_to|format\.html|format\.json)\b"
@@ -4747,8 +4719,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(Vapor|Hummingbird|Request|Response|Route|app\.get|app\.post|EventLoopFuture)\b"
@@ -5028,8 +4998,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": re.compile(
                 r"\b(ApplicationCall|call\.respond|call\.respondText|call\.respondHtml|ServerResponse|ModelAndView)\b"
@@ -5377,8 +5345,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure (Spec / Audit Traceability)
             "spec_exposure": re.compile(r"--\s*\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -5686,8 +5652,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "spec_exposure": re.compile(
                 r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL)[^\]]{0,300}\]", re.I
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Back-end template engine hydration.
             "ssr_boundaries": re.compile(
@@ -5943,8 +5907,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "spec_exposure": re.compile(
                 r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]|\bfigma\.com/file/", re.I
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -6298,10 +6260,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Audit tags establishing traceability of intent back to physics papers or architectural specifications.
             # CRITICAL: Removed (?i) to enforce strict uppercase [SPEC-XYZ] tags and prevent prose collisions.
             "spec_exposure": re.compile(r"\[\s*(?:SPEC\s*-\s*\d+|AUDIT-[A-Z0-9_-]+)\s*\]"),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Identifies Tab indentation. In Legacy Fortran 77, columns strictly dictate syntax (1-5 label, 6 continuation, 7+ code).
-            # Using tabs violates strict standard constraints, establishing heavy tech debt/formatter civil wars.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Fortran does not perform Server-Side Rendering.
             "ssr_boundaries": None,
@@ -6563,8 +6521,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|rfc)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -6835,8 +6791,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(GSOP|LUMINARY|COMANCHE|COLOSSUS|SUNDISK|SUNBURST|PCR\s*\d+|PCN\s*\d+|SPEC\s*-\s*\d+|#\s*REF:)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -7046,8 +7000,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs Spaces density.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-side rendering (Lapis/OpenResty).
             "ssr_boundaries": re.compile(
                 r"\b(ngx\.say|ngx\.print|ngx\.exit|ngx\.req|lapis\.Serve|lapis\.Application)\b"
@@ -7327,8 +7279,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 4-Spaces density markers.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-Side Rendering computation boundaries.
             "ssr_boundaries": re.compile(
                 r"\b(Mojolicious::Controller|Dancer2|Catalyst::Controller|render|template|reply->|to_app)\b"
@@ -7555,7 +7505,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "planned_debt": GLOBAL_PLANNED_DEBT,
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:spec-[0-9]+|audit|rfc)\]", re.I),
-            "tabs_vs_spaces": None,
             "ssr_boundaries": re.compile(
                 r"\b(Yesod|Servant|ScottyM|ActionM|lucid|blaze-html|ToJSON|FromJSON|Handler|respond)\b"
             ),
@@ -7793,8 +7742,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # and `[^\]]*` to `{0,300}`; post-fix scaling is immeasurably
             # fast even at n=32000.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # Lightweight web servers (Microdot, Picoweb).
             # BUG FIX: `@app\.get`/`@app\.post` are `@`-prefixed -- the
@@ -8099,8 +8046,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs spaces conflict.
-            "tabs_vs_spaces": None,  # COBOL fixed format strictly forbids Tabs.
             # 31. ssr_boundaries: View Horizon. CICS web endpoints.
             "ssr_boundaries": re.compile(r"\bEXEC\s+CICS\s+(?:WEB\s+SEND|DOCUMENT|WEB\s+READ)\b", re.I),
             # 32. events: Pub/Sub Network. Signal handlers and MQ bindings.
@@ -8312,8 +8257,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 4-space standardization.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Zap/httpz response handlers.
             "ssr_boundaries": re.compile(r"\b(zap\.Endpoint|zap\.Request|httpz\.Request|std\.http\.Server\.Request)\b"),
             # 32. events: Pub/Sub Network. OS-level event loops.
@@ -8546,8 +8489,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]|\b(?:WorldWideWeb|RFC|W3C|CERN|TBL|ENQUIRE)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 4-space standardization.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. REST and Visualforce response handlers.
             "ssr_boundaries": re.compile(
                 r"\b(RestContext\.request|RestContext\.response|RestRequest|RestResponse|renderAs)\b",
@@ -8799,8 +8740,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:Tim\s+Berners-Lee|WorldWideWeb|HyperText\s+Proposal)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. shelf/Serverpod response handlers.
             # BUG FIX: `Router\(\)` ends on `)` -- shared trailing \b never
             # fired. Never matched.
@@ -9114,8 +9053,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Play Framework and twirl template endpoints.
             # BUG FIX: `Ok\(`/`BadRequest\(` both end on `(` (non-word), so
             # the shared trailing \b could never fire. Neither of Play's
@@ -9406,9 +9343,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit|CVE-\d{4}-\d+)[^\]]{0,300}\]",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Dockerfiles strictly use spaces for formatting continuations. Tabs indicate formatter disruption.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -9676,8 +9610,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Confirmed via scaling sweep (~4x per doubling before the fix).
             # Bounded both quantifiers, consistent with the established fix.
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # civil_war: MATLAB default is 4 spaces. Raw tabs indicate formatter disruption.
-            "tabs_vs_spaces": None,
             # ssr_boundaries: Web App compiler hooks.
             "ssr_boundaries": re.compile(r"\b(?:webwindow|htmlTree)\b"),
             # events: MATLAB Object-Oriented Event triggering.
@@ -9971,8 +9903,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             # 29. spec_exposure: Map vs. Territory. Audit tags.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs Spaces density.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. Server-side rendering.
             # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
             # \b requires a word/non-word transition; `<?lc`, `?>`, and every
@@ -10199,8 +10129,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "spec_exposure": re.compile(
                 r"\[(?:\s*SPEC\s*-\s*\d{1,10}|audit)[^\]]{0,300}\]|\b(ERC-\d+|EIP-\d+)\b", re.I
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Handled natively.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon.
             "ssr_boundaries": None,
             # 32. events: Pub/Sub Network. Logging state to the blockchain EVM logs.
@@ -10450,7 +10378,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
                 re.I,
             ),
-            "tabs_vs_spaces": None,
             "ssr_boundaries": re.compile(
                 r"\b(WOComponent|WOResponse|WOContext|WOApplication|WODirectAction|WebObjects)\b"
             ),
@@ -10719,8 +10646,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
             "fragile_debt": GLOBAL_FRAGILE_DEBT,
             "spec_exposure": re.compile(r"\[(?:spec-[0-9]+|audit|spec)\]", re.I),
-            # Strict tracking of Indentation structural boundaries. (Make strictly demands Tabs, mapping space usage catches severe fragmentation).
-            "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             "events": None,
             "dependency_injection": None,
@@ -10957,8 +10882,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]|\b(?:WorldWideWeb|RFC|W3C|CERN|TBL|ENQUIRE)\b",
                 re.I,
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies): Indentation Tracker. Tabs vs 2-space standardization.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries: View Horizon. ICF and BSP request handlers.
             "ssr_boundaries": re.compile(
                 r"\b(IF_HTTP_EXTENSION~HANDLE_REQUEST|CL_BSP_CONTEXT|CL_BSP_RUNTIME|IF_HTTP_REQUEST|IF_HTTP_RESPONSE|HTML_STRING)\b",
@@ -11228,7 +11151,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             "spec_exposure": None,
-            "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             "events": re.compile(
                 r"^[ \t]*repository_dispatch:|^[ \t]*schedule:|^[ \t]*-?[ \t]*cron:",
@@ -11357,7 +11279,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
             # Bounded both quantifiers.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             "events": None,
             "dependency_injection": None,
@@ -11517,8 +11438,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "spec_exposure": re.compile(
                 r"\[[ \t]*(?:SPEC[ \t]*-[ \t]*\d{1,10}|\b(?:spec|audit)\b)[^\]]{0,300}\]", re.I
             ),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events
@@ -11753,9 +11672,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # this epic. Confirmed via scaling sweep (~4x per doubling before,
             # ~linear after bounding both quantifiers).
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Lisp/Scheme relies entirely on uniform space alignment. Tabs are highly destructive here.
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
@@ -12105,9 +12021,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # doubling. Bounded `\d+` to `\d{1,10}` and `[^\]]*` to
             # `{0,300}`.
             "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            # Tcl standardizes on spaces. Tabs indicate formatter friction.
-            "tabs_vs_spaces": None,
             "ssr_boundaries": None,
             # 32. events (Event Emitters / Pub-Sub)
             # Tcl event bindings and file event handlers.
@@ -12358,8 +12271,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # and sqlite's spec_exposure elsewhere in this file). Bounded to
             # {0,300}; real spec/audit tags don't get remotely that long.
             "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]{0,300}\]", re.I),
-            # 30. tabs_vs_spaces (Formatting Inconsistencies)
-            "tabs_vs_spaces": None,
             # 31. ssr_boundaries (Server-Side Rendering)
             # BUG FIX: `@ResponseBody` is `@`-prefixed -- the shared leading
             # \b could only fire when a word char immediately preceded the
@@ -12838,11 +12749,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             "spec_exposure": re.compile(r"\[(?:SPEC[ \t]*-[ \t]*\d{1,6}|spec|audit)\]", re.I),
-            # tabs_vs_spaces: not a distinct structural signature in this
-            # engine's model for any language (consistently None registry-
-            # wide -- formatting-inconsistency tracking, not a language
-            # feature).
-            "tabs_vs_spaces": None,
             # ssr_boundaries: no idiomatic Ada web-application framework
             # (Strict Feature Parity, Rule 4).
             "ssr_boundaries": None,

@@ -182,8 +182,6 @@ Generate a valid Python dictionary matching this exact structure.
         "hardcoded_secrets": re.compile(r""), 
         # spec_exposure: Audit tags establishing traceability of intent. Includes: [SPEC-123], [audit].
         "spec_exposure": re.compile(r""), 
-        # tabs_vs_spaces (Formatting Inconsistencies): Structural formatting markers used to calculate indentation consistency. Often None.
-        "tabs_vs_spaces": None, 
         # ssr_boundaries: Server-Side Rendering computation boundaries. Includes: getServerSideProps.
         "ssr_boundaries": re.compile(r""), 
         # events: Event-driven architecture signatures and message brokers. Includes: emit, EventEmitter, Kafka.

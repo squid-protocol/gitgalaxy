@@ -4,14 +4,15 @@
 >
 > **Metric:** Indentation Polarization (Tabs vs. Spaces)
 >
-> **Summary:** Measures the structural formatting consistency of a file by calculating the ratio of space-indented lines to tab-indented lines. 
-> 
-> **Disclaimer:** *While GitGalaxy is designed for rigorous architectural and security analysis, this specific metric is included as a lighthearted Easter egg metric for engineering teams. It does not factor into risk exposure vectors.*
+> **Summary:** Measures which indentation "camp" a file falls into by calculating the ratio of space-indented lines to tab-indented lines.
 >
-> **Effect:** Uses a Diverging Visual Spectrum from 0 to 100:
-> * 🟩 **PURE TABS (Score 0 - 19):** 100% Tab Indentation.
-> * 🟦 **MIXED FORMATTING (Score 20 - 79):** Mixed Tabs and Spaces (50.0 represents maximum conflict).
-> * 🟨 **PURE SPACES (Score 80 - 100):** 100% Space Indentation.
+> **Disclaimer:** *While GitGalaxy is designed for rigorous architectural and security analysis, this specific metric is included as a lighthearted Easter egg for engineering teams. It is reported as descriptive file telemetry (`indentation_style`), not a `RISK_SCHEMA` exposure vector -- see #1147.*
+>
+> **Effect:** A categorical read, not a scored exposure:
+> * 🟩 **Tabs:** 100% Tab Indentation.
+> * 🟦 **Mixed (NN.N% Spaces / NN.N% Tabs):** Both styles present in the same file.
+> * 🟨 **Spaces:** 100% Space Indentation.
+> * ⬜ **Neutral / No Indentation:** File has no indented lines at all.
 
 ## Engineering Summary
 This subsystem measures the structural formatting consistency of source files by calculating the ratio of spaces to tabs. It solves the problem of identifying files with conflicting editor settings or mixed formatting conventions introduced by multiple contributors. It exists as an independent analytical component to surface formatting noise that causes merge conflicts and developer friction. Though functioning as a novelty metric, its output cleanly integrates into GitGalaxy UI visualizations.
@@ -23,16 +24,18 @@ To calculate the polarization of indentation types within a file, surfacing mixe
 Inconsistent formatting creates unnecessary code churn, Git blame noise, and merge conflicts. When multiple developers commit to the same file using different editor settings, the resulting mixed indentation decreases readability and disrupts standardized auto-formatting pipelines.
 
 ## Design
-By mapping pure tab indentation to 0.0 and pure space indentation to 100.0, files with mixed indentation naturally center around 50.0. The scanner counts leading indentation tokens per line, summing lines that begin with `\t` versus spaces. 
+The scanner counts leading indentation tokens per line, summing lines that begin with `\t` versus spaces, then maps the ratio to a plain-English label instead of a scored value -- deliberately, so it can't be read as a quality bar to clear.
 
-**Mathematical Formulation**
+**Formulation**
 1. **Count Indented Lines:**
 $$\text{TotalIndentedLines} = \text{TabLines} + \text{SpaceLines}$$
 2. **Calculate Space Ratio:**
-$$\text{SpaceRatio} = \frac{\text{SpaceLines}}{\max(\text{TotalIndentedLines}, 1)}$$
-*(Defaults to neutral $50.0$ if unindented or empty)*
-3. **Map Final Score:**
-$$\text{FinalScore} = \text{SpaceRatio} \times 100.0$$
+$$\text{SpaceRatio} = \frac{\text{SpaceLines}}{\text{TotalIndentedLines}} \times 100$$
+3. **Map to Label:**
+   - `TotalIndentedLines == 0` → `"Neutral / No Indentation"`
+   - `SpaceRatio == 0` → `"Tabs"`
+   - `SpaceRatio == 100` → `"Spaces"`
+   - otherwise → `"Mixed (NN.N% Spaces / NN.N% Tabs)"`
 
 ## Pipeline Integration
 ```mermaid
@@ -41,12 +44,12 @@ flowchart LR
     B -->|Normalization| C[Diverging Layout Score]
 ```
 - **Inputs received:** Token counts for `indent_tabs` and `indent_spaces`.
-- **Outputs produced:** A diverging layout uniformity score (0-100).
+- **Outputs produced:** A descriptive `indentation_style` label in file telemetry.
 - **Dependencies:** Relies directly on the raw static line parser. Does NOT feed into risk aggregation vectors.
 
 ## Tradeoffs
-- Pure spaces and pure tabs are evaluated as endpoints on a diverging spectrum rather than scoring "perfect consistency" as 0.0. This choice explicitly forces a visual distinction between space-heavy and tab-heavy files rather than just reporting the presence of conflict.
-- Empty files or files with no indentation default to exactly 50.0. This neutral baseline was chosen to prevent divide-by-zero errors without skewing the file towards either specific layout preference.
+- Reported as a categorical label (`telemetry["indentation_style"]`) rather than a 0-100 score. An earlier version scored it into `RISK_SCHEMA` as a diverging 0-100 value ("Civil War Exposure"), which every downstream consumer ended up special-casing as not-a-real-risk anyway -- the label now says directly what the score used to require translating (#1147).
+- Empty files or files with no indentation report `"Neutral / No Indentation"` rather than defaulting into either camp.
 
 ## Limitations
 - Only inspects leading indentation on a per-line basis; it cannot detect mixed spaces and tabs occurring mid-line (e.g., alignment spacing after a tab indent).

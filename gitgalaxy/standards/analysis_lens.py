@@ -972,7 +972,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "stability",
         "churn",
         "documentation",
-        "tabs_vs_spaces",
         # --- THE SECURITY & VULNERABILITY LENSES ---
         "secrets_risk",
     ],
@@ -1005,7 +1004,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "planned_debt",
         "fragile_debt",
         "spec_exposure",
-        "tabs_vs_spaces",
         "ssr_boundaries",
         "events",
         "dependency_injection",
@@ -1179,7 +1177,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "planned_debt": "Planned Work (TODOs)",
         "fragile_debt": "Acknowledged Tech Debt (FIXMEs)",
         "spec_exposure": "Specification Traceability Tags",
-        "tabs_vs_spaces": "Indentation Faction",
         "ssr_boundaries": "Server-Side Rendering Contexts",
         "events": "Event Publishers / Emitters",
         "dependency_injection": "Dependency Injection Constructs",
@@ -1242,7 +1239,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "stability": "Instability Exposure",
         "churn": "Volatility Exposure",
         "documentation": "Documentation Exposure",
-        "tabs_vs_spaces": "Civil War Exposure",
         # --- SECURITY LENS UI LABELS (Plain English) ---
         "secrets_risk": "Hardcoded Payload Artifacts",
     },

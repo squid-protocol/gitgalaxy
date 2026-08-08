@@ -154,8 +154,7 @@ EQUATION_CASES: list[EquationCase] = [
     EquationCase(
         name="tech_debt",
         method_name="_calc_tech_debt",
-        notes="irc adds to stress (risk axis only) -- no fc parameter, so no defense-credit "
-        "direction to check.",
+        notes="irc adds to stress (risk axis only) -- no fc parameter, so no defense-credit direction to check.",
         scenarios=[
             Scenario(
                 "risk",
@@ -294,12 +293,13 @@ NOT_TIER_PARAMETERIZED = [
     "_calc_graveyard",
     "_calc_api_exposure",
     "_calc_spec_alignment",
-    "_calc_civil_war",
     "_calc_secrets_risk",
 ]
 
 
-def audit_scenario(processor: SignalProcessor, case: EquationCase, scenario: Scenario, ratio_flag: float) -> list[dict[str, Any]]:
+def audit_scenario(
+    processor: SignalProcessor, case: EquationCase, scenario: Scenario, ratio_flag: float
+) -> list[dict[str, Any]]:
     rows = []
     for loc in LOC_SWEEP:
         for hits in HIT_SWEEP:
@@ -356,7 +356,9 @@ def print_report(case: EquationCase, scenario: Scenario, rows: list[dict[str, An
         if r["magnitude_flag"]:
             flags.append("magnitude")
         flag_str = ", ".join(flags)
-        print(f"{r['loc']:>5} {r['hits']:>5} {r['tier1']:>8} {r['tier2']:>8} {r['tier3']:>8} {ratio_str:>8}  {flag_str}")
+        print(
+            f"{r['loc']:>5} {r['hits']:>5} {r['tier1']:>8} {r['tier2']:>8} {r['tier3']:>8} {ratio_str:>8}  {flag_str}"
+        )
     print()
     return any_magnitude, any_direction
 
@@ -414,7 +416,9 @@ def main() -> int:
         print("RESULT: DIRECTION VIOLATION found -- tier ordering inverted for identical evidence (#1055-shaped bug).")
         return 1
     if any_magnitude_flagged:
-        print(f"RESULT: no direction violations, but one or more equations exceeded the {args.ratio_flag}x magnitude flag.")
+        print(
+            f"RESULT: no direction violations, but one or more equations exceeded the {args.ratio_flag}x magnitude flag."
+        )
         return 1
     print("RESULT: no direction violations or magnitude flags raised for the swept ranges.")
     return 0

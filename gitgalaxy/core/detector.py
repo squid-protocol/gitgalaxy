@@ -933,18 +933,17 @@ class StructuralExtractor:
         last_idx = 0
         current_line_offset = 0
 
-        triggers = []
-        for h in self.HANDSHAKE_REGISTRY:
-            for m in h["trigger"].finditer(content):
-                triggers.append(
-                    {
-                        "start": m.start(),
-                        "end_pattern": h["end"],
-                        "target": h["target"],
-                        "pair": h["pair"],
-                        "trigger_end": m.end(),
-                    }
-                )
+        triggers = [
+            {
+                "start": m.start(),
+                "end_pattern": h["end"],
+                "target": h["target"],
+                "pair": h["pair"],
+                "trigger_end": m.end(),
+            }
+            for h in self.HANDSHAKE_REGISTRY
+            for m in h["trigger"].finditer(content)
+        ]
 
         triggers.sort(key=lambda x: x["start"])
 
@@ -1148,9 +1147,7 @@ class StructuralExtractor:
                         # ---> THE LINEAGE EXTRACTOR <---
                         # If the regex has 2+ capture groups, group 2 contains the inheritance mapping
                         if rule_name == "class_start" and pattern.groups >= 2:
-                            for m in matches:
-                                if m.group(2):
-                                    extracted_parents.append(m.group(2).strip())
+                            extracted_parents.extend(m.group(2).strip() for m in matches if m.group(2))
                     else:
                         matches = list(re.finditer(str(pattern), seg_code))
                         hit_indices = [m.start() for m in matches]

@@ -236,8 +236,9 @@ class StatisticalAuditor:
         # 5. Process each species independently
         for lid, group in by_lang.items():
             if lid in ("undeterminable", "unknown"):
-                for artifact in group:
-                    unparsable_files.append(self._format_for_exclusion(artifact, "Pre-filtered Noise (Pre-Audit)"))
+                unparsable_files.extend(
+                    self._format_for_exclusion(artifact, "Pre-filtered Noise (Pre-Audit)") for artifact in group
+                )
                 self.logger.debug(f"[{lid}] Bypassed {len(group)} artifacts (already excluded).")
                 continue
 

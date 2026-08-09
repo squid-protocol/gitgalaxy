@@ -268,10 +268,10 @@ class NetworkRiskSensor:
             pr_normalized = pr_score * 1000
             local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
 
-            systemic_threat_vector = []
-            for local_risk in local_risk_vector:
-                # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
-                systemic_threat_vector.append(round(pr_normalized * (local_risk / 100.0), 3))
+            # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
+            systemic_threat_vector = [
+                round(pr_normalized * (local_risk / 100.0), 3) for local_risk in local_risk_vector
+            ]
 
             # 5. Write Telemetry Back to the File Node
             if "telemetry" not in f:

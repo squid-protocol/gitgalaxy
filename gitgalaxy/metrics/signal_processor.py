@@ -1980,18 +1980,17 @@ class SignalProcessor:
         }
 
     def _generate_function_rankings(self, parsed_files: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-        all_funcs = []
-        for f in parsed_files:
-            for func in f.get("functions", []):
-                if isinstance(func, dict):
-                    all_funcs.append(
-                        {
-                            "name": func.get("name", "anon"),
-                            "file": f.get("name", "unknown"),
-                            "impact": func.get("impact", 0),
-                            "loc": func.get("loc", 0),
-                        }
-                    )
+        all_funcs = [
+            {
+                "name": func.get("name", "anon"),
+                "file": f.get("name", "unknown"),
+                "impact": func.get("impact", 0),
+                "loc": func.get("loc", 0),
+            }
+            for f in parsed_files
+            for func in f.get("functions", [])
+            if isinstance(func, dict)
+        ]
         all_funcs.sort(key=lambda x: x["impact"], reverse=True)
         return {
             "highest": all_funcs[:3],

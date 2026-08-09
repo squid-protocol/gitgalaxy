@@ -2473,7 +2473,7 @@ class StructuralExtractor:
         calls_out = list(set([c for c in raw_calls if c not in ignore_keywords and c != name]))[:20]
 
         sat: FunctionNode = {
-            "name": name[:40],
+            "name": name,
             "calls_out_to": calls_out,
             "texture": texture_str,
             "type_id": texture_str,

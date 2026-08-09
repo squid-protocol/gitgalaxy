@@ -29,6 +29,7 @@ from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
 )
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.standards.language_standards import LENS_CONFIG
 
 HAS_TIKTOKEN = False
 try:
@@ -316,25 +317,25 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
+    # #1183: this used to be a hand-maintained duplicate of LENS_CONFIG's
+    # HANDSHAKE_REGISTRY (gitgalaxy/standards/language_standards.py) that had
+    # drifted out of sync -- it dropped the "^[ \t]*...\b" line-anchoring the
+    # canonical config uses, so an unanchored "<script"/"<style" substring
+    # matched even inside a string/regex literal (e.g. Python test fixture
+    # data describing an embedded-JS trigger), permanently misrouting every
+    # function for the rest of the file to the wrong language's rules.
+    # Deriving directly from LENS_CONFIG keeps the two in permanent sync.
+    # re.M is required for the "^" anchor to match at the start of any line
+    # rather than only the start of the whole file -- without it, a genuine
+    # mid-file "<script>" (the normal case) would never match either.
     HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = [
         {
-            "trigger": re.compile(r"<script", re.I),
-            "end": re.compile(r"</script>", re.I),
-            "target": "javascript",
-            "pair": None,
-        },
-        {
-            "trigger": re.compile(r"<style", re.I),
-            "end": re.compile(r"</style>", re.I),
-            "target": "css",
-            "pair": None,
-        },
-        {
-            "trigger": re.compile(r"asm!\s*\(|__asm__", re.I),
-            "end": re.compile(r"\)"),
-            "target": "assembly",
-            "pair": ("(", ")"),
-        },
+            "trigger": re.compile(h["trigger"], re.I | re.M),
+            "end": re.compile(h["end"], re.I | re.M),
+            "target": h["target"],
+            "pair": h["pair"],
+        }
+        for h in LENS_CONFIG["HANDSHAKE_REGISTRY"]
     ]
 
     def __init__(

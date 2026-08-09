@@ -354,3 +354,51 @@ def test_false_positive_substring_defense_standard(lens):
 
     assert counts.get("high_risk_execution", 0) == 0, "Standard regex hallucinated on 'eval/exec' substring!"
     assert counts.get("io", 0) == 0, "Standard regex hallucinated on 'fetch' substring!"
+
+
+# ==============================================================================
+# TEST 12: FALSE POSITIVE DEFENSE -- RULE-QUALITY REGRESSIONS (issue #1166)
+# ==============================================================================
+
+
+def test_high_risk_execution_requires_call_not_bare_word(lens):
+    """
+    [PRECISION CHECK] 'system' is common English prose (e.g. "Build System") as well as
+    a dangerous call. The signature must require a trailing '(' to distinguish the two.
+    """
+    prose = 'print("  [+] Generated Build System: pom.xml, application.yml")'
+    call = "system(user_input)"
+
+    prose_counts = lens.scan_content(prose)["counts"]
+    call_counts = lens.scan_content(call)["counts"]
+
+    assert prose_counts.get("high_risk_execution", 0) == 0, "Hallucinated RCE on the word 'System' in prose!"
+    assert call_counts.get("high_risk_execution", 0) > 0, "Failed to catch an actual system() call!"
+
+
+def test_entropy_extractor_does_not_span_multiple_short_literals(lens):
+    """
+    [PRECISION CHECK] Proves the string extractor stops at the quote that opened it instead
+    of stitching a short literal together with unrelated code text past it to reach the
+    64-char floor (e.g. chained dict-key lookups like config["A"].get("B")).
+    """
+    config_lookup = 'vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])'
+
+    result = lens.scan_content(config_lookup)["counts"]
+
+    assert result.get("entropy", 0) == 0, "Hallucinated high entropy on a chained config dict-key lookup!"
+
+
+def test_io_resolve_requires_dns_namespace(lens):
+    """
+    [PRECISION CHECK] Bare 'resolve(' collides with the extremely common Path.resolve()/
+    Promise.resolve(). Only the dns.* namespaced variants (actual DNS exfiltration) should match.
+    """
+    path_resolve = 'target_path = Path(session_meta.get("target_directory", "")).resolve()'
+    dns_resolve = "dns.resolve4(hostname, callback)"
+
+    path_counts = lens.scan_content(path_resolve)["counts"]
+    dns_counts = lens.scan_content(dns_resolve)["counts"]
+
+    assert path_counts.get("io", 0) == 0, "Hallucinated network I/O on a plain Path.resolve() call!"
+    assert dns_counts.get("io", 0) > 0, "Failed to catch an actual dns.resolve4() exfiltration call!"

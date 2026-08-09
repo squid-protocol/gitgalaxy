@@ -31,7 +31,10 @@ class SecurityLens:
         # DEFENSIVE GUARD: ReDoS Prevention
         # Extracts string literals for entropy scanning. Bounded to 64-1024 chars
         # using a non-greedy matcher to prevent catastrophic backtracking on minified files.
-        self.string_extractor = re.compile(r'(["\'])([^\n]{64,1024}?)\1')
+        # The (?!\1) lookahead stops the run at the same quote char that opened it, so a
+        # short literal (e.g. a 6-char dict key) can't get stitched together with unrelated
+        # code text past it just to reach the 64-char floor (#1166).
+        self.string_extractor = re.compile(r'(["\'])((?:(?!\1)[^\n]){64,1024}?)\1')
 
         # ---> THE AUTO-GEN SHIELD <---
         # Bypasses strict security/entropy checks on machine-generated files (Swagger, ESLint disables)
@@ -86,7 +89,10 @@ class SecurityLens:
             "io": re.compile(
                 r"\b(?:fetch|XMLHttpRequest|WebSocket|http\.request|https\.request|requests\.(?:post|put|get)|urllib\.request\.urlopen)\b\s*\(|"
                 r"\b(?:curl_exec|fsockopen|pfsockopen|stream_socket_client|file_get_contents)\b\s*\(|"
-                r"\b(?:dns_get_record|gethostbyname|socket\.gethostbyname|resolve(?:4|6|Cname|Txt)?)\b\s*\(|"
+                # dns.* prefix required: bare resolve(/resolve4( etc. collide with the extremely
+                # common Path.resolve()/Promise.resolve() and produce noise unrelated to DNS
+                # exfiltration (#1166).
+                r"\b(?:dns_get_record|gethostbyname|socket\.gethostbyname|dns\.resolve(?:4|6|Cname|Txt)?)\b\s*\(|"
                 r"(?:https?|ftp|tcp|udp|wss?):\/\/(?:(?:\d{1,3}\.){3}\d{1,3}|\[[0-9a-fA-F:]+\]|.*?\.(?:ngrok\.io|ngrok-free\.app|localtunnel\.me|pastebin\.com|workers\.dev|s3\.amazonaws\.com|requestbin\.net|pipedream\.net))",
                 re.I | re.X,
             ),
@@ -95,7 +101,10 @@ class SecurityLens:
                 r"\b(?:BPXBATCH|IKJEFT01|IRXJCL)\b|"
                 r"\bEXEC\s+CICS\s+(?:START|LINK\s+PROGRAM|XCTL)\b\s*\(\s*[A-Za-z_-]+\s*\)|"
                 r'\b(?:eval|Function|setTimeout|setInterval)\b\s*\(\s*(?:atob|base64_decode|gzinflate|\$|_[a-zA-Z]|["\']|`)|'
-                r"\b(?:document\.write|location\.replace|assert|create_function|passthru|shell_exec|system)\b|"
+                # Requires an actual call (trailing paren), not just the bare word -- "system"
+                # in particular is common English prose (e.g. "Build System") that a bare \b
+                # word-boundary match would hallucinate on (#1166).
+                r"\b(?:document\.write|location\.replace|assert|create_function|passthru|shell_exec|system)\s*\(|"
                 r"child_process\.(?:exec|spawn|fork)|"
                 r'(?:window|global|this|globalThis)\[[ \t]*(?:["\'][a-zA-Z]["\'][ \t]*\+[ \t]*){1,15}["\'][a-zA-Z]["\'][ \t]*\][ \t]*\(|'
                 r"\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(\s*\$_(?:POST|GET|COOKIE|REQUEST|HEADERS)|"

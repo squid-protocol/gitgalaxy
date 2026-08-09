@@ -20,6 +20,8 @@ old relative to `last_updated` below.
 | Extraction-gauntlet tests (`test_python.py`) | 60 |
 | Strict-signature tests (`test_python_strict.py`) | 92 |
 | Total dedicated Python test cases | 152 |
+| Real-world function recall vs. `ast` ground truth | ~63% (clean files) / ~27% (files hitting #1183) — see §9 |
+| Real-world class recall vs. `ast` ground truth | 100% — see §9 |
 
 ## 2. Identification surface
 
@@ -183,3 +185,72 @@ mid-size projects:
 Each `_galaxy_llm.md` is the human-readable architectural brief; `_galaxy_audit.json.gz` and
 `_galaxy_sbom.json.gz` in the same directory carry the raw per-file signature counts and SBOM if
 deeper inspection is needed.
+
+## 9. Measured accuracy (real-world corpus, vs. AST ground truth)
+
+Everything above describes what's *wired* and how it's *tested in isolation* — adversarial
+snippets hand-picked to probe one rule at a time. This section is different: it measures what
+the engine actually gets right on **real, unmodified production code**, using Python's own
+`ast` module as ground truth. This is empirically stronger evidence than the unit-test suite
+alone, because it exercises the segment-routing and scope-boundary machinery that sits between
+"a regex matched" and "a function got correctly recorded" — machinery the isolated per-rule
+tests don't touch.
+
+**Methodology:** regenerated a fresh self-scan of GitGalaxy's own repo
+(`python tests/tools/self_scan.py`, full precision, pinned to the exact commit scanned), giving
+228 Python files / 2,436 real functions / 61 real classes per `ast.parse()`. For each file,
+diffed `ast.walk()`'s `FunctionDef`/`AsyncFunctionDef`/`ClassDef` names (and each function's real
+parameter count) against `function_data`/`class_data` rows for that file. Cross-checked the
+`branch` keyword rule separately using Python's `tokenize` module as an independent ground truth,
+and by running the compiled `branch` regex directly against `prism`-shielded `code_stream`
+(bypassing the DB entirely) to isolate the rule's own accuracy from downstream aggregation.
+
+| Signal | Result | Read as |
+|---|---|---|
+| Class extraction (`class_start`) | **100% recall** (61/61) | Fully reliable on this corpus |
+| Function extraction (`func_start`), no confounding bug | **~63% recall** | See #1184 below |
+| Function extraction, mid-file language drift triggered | **~27% recall** | See #1183 below |
+| Function-name precision (corrected) | **~99.7%** | Engine essentially never invents a function |
+| Args-count exact match (for functions that *were* found) | **~46%** | Likely shares #1184's root cause, not separately isolated |
+| `branch` keyword rule, run directly against shielded code | **~110%** of a `tokenize`-based ground truth (catches everything, plus a few edge-case extras) | Simple keyword-alternation rules are far more reliable than boundary/entity extraction |
+
+**Three real, filed defects explain the gap** — this is not a vague "heuristics are imprecise"
+hand-wave, each has a concrete reproduction:
+
+1. **[#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182) — 40-character name
+   truncation.** `detector.py`'s `_calculate_block_metrics` does `"name": name[:40]`. 984 of this
+   corpus's 2,436 functions (40%) have real names over 40 chars — this codebase's own long
+   descriptive test-naming convention routinely exceeds it. This is a naming-fidelity bug, not a
+   recall bug: it was initially mistaken for hallucinated/phantom functions during this audit
+   (a truncated name and its real counterpart look like two unrelated functions in a naive diff)
+   until corrected for — worth noting so the same false alarm isn't re-raised. Once corrected,
+   precision is genuinely ~99.7%.
+2. **[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183) — mid-file language
+   "gravity" false-triggers.** `_partition_segments` can be misled by a Python string/regex
+   literal that merely *contains* embedded-language delimiter text as data (confirmed case: a
+   dict literal in `test_prism.py` describing a `"<script>"` trigger pattern, itself test data
+   for the embedded-language detector) into permanently misrouting the rest of the file to a
+   different language's rules. Confirmed by direct inspection of `_partition_segments()`'s
+   output segments, not inferred. Affects 11/228 files in this corpus.
+3. **[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184) — scope-loss "dead
+   zones."** Contiguous ranges of real, ordinary functions (`__init__`, `main`, `cleanup`) go
+   missing in real production files (`prism.py`, `guidestar_lens.py`, `galaxyscope.py`) with no
+   language-drift trigger present — functions immediately before and after the range are found
+   correctly. This is the dominant driver of the 63% recall ceiling; root cause not yet isolated
+   (filed as a confirmed, reproducible pattern, not a diagnosed fix).
+
+**Rough estimate once fixed:** #1182 doesn't move recall (cosmetic only). #1183 affects too few
+files (~5%) to move the needle much on its own (~59% → ~63% corpus-wide). #1184 is the real
+lever — since class extraction resolves an analogous scope-boundary problem at 100% on this same
+corpus (via separately-fixed logic, #1040), and the isolated unit-test suite already proves
+`func_start`'s regex is correct in principle, function recall landing in the **high-80s to
+high-90s%** range once #1184 is fixed is a defensible estimate — not a promise, and not
+re-measured until the fix actually lands.
+
+**Scaling this beyond Python:** `ast` is stdlib-only, so this exact technique is Python-specific.
+For other languages, `tree-sitter-language-pack` (verified on PyPI, ships pre-compiled grammars
+for 371 languages, no per-language compiler toolchain required) is the most promising path to
+the same style of ground-truth diff across most of GitGalaxy's other 45 signature-bearing
+languages. Genuinely no practical AST ground truth exists for the legacy/esoteric languages
+(COBOL, JCL, Fortran, Assembly, ABAP, MATLAB, LiveCode, Apex) — the same reason GitGalaxy exists
+for them in the first place.

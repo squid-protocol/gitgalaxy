@@ -15,8 +15,11 @@ finished example of what "done" looks like.
 **Scope discipline:** this skill only writes documentation. If gathering the material for a doc
 surfaces a real gap worth fixing (a missing signature, a stale test count, a regex bug), that's a
 finding for `harden-language-extraction` / `harden-strict-signatures` / a filed issue
-(`issue-generation` skill) -- don't fix it inline as a side effect of a docs pass, and don't let
-the doc quietly launder an unfixed gap into looking resolved.
+(`issue-generation` skill, or `gh issue create` directly if you already have the full technical
+detail from the investigation) -- don't fix it inline as a side effect of a docs pass, and don't
+let the doc quietly launder an unfixed gap into looking resolved. The §9 measured-accuracy pass
+below is *expected* to surface exactly this kind of finding -- filing real issues from it (see
+python.md's #1182/#1183/#1184) is the correct outcome, not scope creep.
 
 ## Where the material lives (read these fresh every time, don't trust a prior doc's numbers)
 
@@ -70,6 +73,35 @@ the doc quietly launder an unfixed gap into looking resolved.
    pick ones you can actually confirm exist in the listing, and prefer a size/era spread (a small
    library, a large framework, and something adversarial like the language's own reference
    implementation if it's in the corpus) over four similar mid-size web apps.
+5. **Real-world measured accuracy** (optional, deeper pass -- see python.md §9 for the finished
+   example) -- everything above describes what's wired and how it's tested *in isolation*. The
+   strongest possible evidence is diffing GitGalaxy's actual extraction against an independent
+   ground-truth parser on real code, because that's the only thing that exercises the
+   segment-routing/scope-boundary machinery the isolated per-rule tests don't touch. For Python
+   this is `ast` (stdlib, zero setup). For other languages, check what's actually available before
+   promising this section -- don't guess a package name, verify it:
+   ```bash
+   pip index versions <candidate-package-name>   # confirms it's real before you rely on it
+   ```
+   `tree-sitter-language-pack` (verified on PyPI, ships pre-compiled grammars for 371 languages,
+   no per-language compiler/JDK/Go-toolchain needed) is the broadest single option. A handful of
+   languages also have lighter pure-Python parsers worth checking first (confirmed to exist at
+   time of writing: `bashlex` for shell, `javalang` for Java, `luaparser` for Lua, `sqlparse` for
+   SQL/SQLite -- weaker, it's more tokenizer than strict grammar, `dockerfile-parse` for
+   Dockerfile, `esprima` for JavaScript ES5, `solidity-parser` for Solidity). Genuinely no
+   practical ground truth exists for `cobol`, `jcl`, `fortran`, `assembly`, `agc_assembly`,
+   `abap`, `matlab`, `livecode`, `apex` -- the same legacy/esoteric languages that are GitGalaxy's
+   own reason to exist; don't force this section for them, note its absence instead.
+   Methodology once a parser is confirmed: diff function/class *names* (watch for a truncation
+   cap skewing an apparent name mismatch into a false "hallucination" reading -- confirm exact
+   vs. truncated before concluding either way), diff per-function arg counts, and cross-check at
+   least one keyword-style rule (e.g. `branch`) two ways -- against the ground-truth parser's own
+   token/node stream, AND by running the compiled rule directly against `prism`-shielded
+   `code_stream` (bypassing any recorder/aggregation layer) -- because keyword rules and
+   boundary-extraction rules can have very different accuracy profiles, and conflating them
+   produces a misleading single number. If a measured gap doesn't have an obvious cause, say so
+   plainly and file it as a confirmed-but-undiagnosed pattern (see #1184) rather than guessing at
+   a root cause you haven't verified.
 
 ## Per-language doc structure (`docs/language_status/<lang>.md`)
 
@@ -92,6 +124,11 @@ Follow `python.md`'s section order:
    real bugs found along the way vs. cross-language fixes that happened to touch this language).
 8. **Real-world evidence** -- the `gitgalaxy-raw-output` links from step 4, one line each on what
    makes that particular repo a useful data point (size, age, adversarial shape).
+9. **Measured accuracy** (only if step 5's ground-truth parser exists and you actually ran the
+   comparison) -- the methodology in one paragraph, a results table (recall/precision per signal,
+   not just one aggregate number), and any confirmed defects with links to the issues filed for
+   them. Omit this section entirely rather than writing a stub if no ground-truth parser was
+   available -- an absent §9 reads as "not attempted yet," not "verified clean."
 
 ## Process
 
@@ -100,9 +137,11 @@ Follow `python.md`'s section order:
    nothing to structurally signature-match. Those don't get a full doc; note them in the index
    table only (see `docs/language_status/README.md`'s "Data formats" section) rather than writing
    an empty prose doc for each.
-2. Gather all four source categories above for the target language before writing anything --
-   writing section-by-section from a half-gathered picture is how a doc ends up contradicting
-   itself between "what it detects" and "known limitations."
+2. Gather source categories 1-4 above for the target language before writing anything -- writing
+   section-by-section from a half-gathered picture is how a doc ends up contradicting itself
+   between "what it detects" and "known limitations." Category 5 (measured accuracy) is a
+   separate, heavier pass -- fine to ship a doc without it (sections 1-8) and add §9 later once a
+   ground-truth parser is confirmed and the comparison is actually run.
 3. Write the doc following the structure above. Keep descriptions grounded in what you actually
    read (the regex's own alternation list, the comment next to it) -- don't paraphrase the
    generic schema definition from `how_to_add_a_language.md` as if it were language-specific.
@@ -111,6 +150,9 @@ Follow `python.md`'s section order:
 5. This is documentation, not a parsing-logic change -- no `crucible_check.py` or
    `audit_check.py` needed. Normal commit/PR discipline still applies (CLAUDE.md's "Working
    autonomously" section pre-authorizes commits/PRs against `main` in this repo).
+6. If §9 surfaced confirmed defects, file them as real issues (`gh issue create` or
+   `issue-generation`) with the concrete reproduction, before or alongside the doc PR -- link the
+   issue numbers back into §9 rather than describing the bugs only in prose.
 
 ## Rolling this out across all languages
 

@@ -14,6 +14,17 @@ commands used to produce each one.
 moving — re-run the skill's data-gathering commands rather than trusting a stale table if the
 answer matters.
 
+**`python.md` also has a "Measured accuracy" section (§9)** — a real-corpus diff of GitGalaxy's
+own extraction against Python's `ast` module as ground truth, not just the isolated-snippet unit
+tests every other section describes. It found three real, now-filed defects
+([#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182),
+[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183),
+[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184)) and measured function recall on
+real code well below what the unit-test suite alone would suggest — read it before assuming
+"tests pass" means "finds everything on real code." Worth repeating for other languages with an
+available AST/grammar (see §9's `tree-sitter-language-pack` note) once a language's base doc
+exists.
+
 ## Signature-bearing languages (46)
 
 `LANGUAGE_DEFINITIONS` recognizes 59 languages/formats; these 46 have at least one non-`None`

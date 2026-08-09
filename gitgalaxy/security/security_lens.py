@@ -168,6 +168,34 @@ class SecurityLens:
                 r"\b(?:execute|query|raw|cursor|execute_sql|executeBatch|query_db)\b\s*\(",
                 re.I,
             ),
+            # 14. Unicode Steganography (GlassWorm-style invisible payload smuggling, #1150)
+            # Variation Selectors (U+FE00-FE0F), Variation Selectors Supplement
+            # (U+E0100-E01EF), and the Unicode Tags block (U+E0000-E007F) have no
+            # legitimate use in source code beyond a SINGLE trailing VS16 forcing
+            # emoji presentation (e.g. "❤️"). A single hit is common and
+            # benign; a RUN of 3+ consecutive codepoints from these blocks has no
+            # legitimate source -- it's the exact shape a byte-encoded hidden
+            # payload takes (each invisible codepoint carries one encoded byte, so
+            # a useful payload necessarily requires many in a row). The {3,}
+            # quantifier is what keeps this signal both real and low-noise.
+            "unicode_steganography": re.compile("[\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F]{3,}"),
+            # 15. Self-Referential File Propagation (worm/self-copy pattern, #1150)
+            # A worm's defining mechanical trait is duplicating or overwriting
+            # itself. Requires a self-file-reference token (__filename/__dirname/
+            # import.meta.url in JS, __file__ in Python, __FILE__ in PHP/Ruby) as
+            # the literal first argument to a copy/write/rename call. Deliberately
+            # narrower than "self-ref token anywhere near a write call" (too
+            # FP-prone against legitimate path-resolution idioms like
+            # path.dirname(__filename)) and excludes bare open(__file__)/readFileSync
+            # reads (common benign self-inspection, e.g. version banners) --
+            # only the unambiguous "self-path handed straight into a mutating
+            # call" shape qualifies.
+            "self_propagation": re.compile(
+                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync)|"
+                r"shutil\.(?:copy2?|copyfile|move)|os\.rename)"
+                r"\s*\([ \t]*(?:__filename|__dirname|import\.meta\.url|__file__|__FILE__)\b",
+                re.I,
+            ),
         }
 
     def _calculate_shannon_entropy(self, data: str) -> float:

@@ -382,7 +382,9 @@ def test_entropy_extractor_does_not_span_multiple_short_literals(lens):
     of stitching a short literal together with unrelated code text past it to reach the
     64-char floor (e.g. chained dict-key lookups like config["A"].get("B")).
     """
-    config_lookup = 'vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])'
+    config_lookup = (
+        'vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])'
+    )
 
     result = lens.scan_content(config_lookup)["counts"]
 
@@ -402,3 +404,65 @@ def test_io_resolve_requires_dns_namespace(lens):
 
     assert path_counts.get("io", 0) == 0, "Hallucinated network I/O on a plain Path.resolve() call!"
     assert dns_counts.get("io", 0) > 0, "Failed to catch an actual dns.resolve4() exfiltration call!"
+
+
+# ==============================================================================
+# TEST 13: GLASSWORM-STYLE SELF-PROPAGATION DETECTOR (issue #1150)
+# ==============================================================================
+def test_unicode_steganography_run_detection(lens):
+    """
+    [DETECTION] A RUN of 3+ consecutive Unicode Variation Selector/Tag codepoints
+    is the actual invisible-payload-smuggling technique GlassWorm used -- each
+    invisible codepoint encodes one payload byte, so a useful payload necessarily
+    requires many in a row.
+    """
+    hidden_payload = "const x = 1;" + ("\U000e0101\U000e0102\U000e0103\U000e0104\U000e0105") + "\n"
+
+    result = lens.scan_content(hidden_payload)
+    counts = result["counts"]
+
+    assert counts.get("unicode_steganography", 0) > 0, "Failed to detect a run of invisible Unicode codepoints!"
+
+
+def test_unicode_steganography_ignores_single_emoji_presentation_selector(lens):
+    """
+    [FALSE POSITIVE DEFENSE] A single trailing Variation Selector-16 forcing emoji
+    presentation (e.g. the heart in "❤️") is common and benign -- only a
+    RUN of 3+ has no legitimate source-code use. A lone VS16 must never fire.
+    """
+    benign_emoji = 'const heart = "❤️";\nconst thumbsup = "\U0001f44d️";\n'
+
+    result = lens.scan_content(benign_emoji)
+    counts = result["counts"]
+
+    assert counts.get("unicode_steganography", 0) == 0, "Hallucinated steganography on ordinary emoji text!"
+
+
+def test_self_propagation_detects_self_copy_and_self_overwrite(lens):
+    """
+    [DETECTION] A worm's defining mechanical trait is duplicating or overwriting
+    itself: a self-file-reference token passed as the literal first argument to a
+    copy/write/rename call, across the JS and Python idioms.
+    """
+    js_self_copy = "fs.copyFileSync(__filename, path.join(hideout, path.basename(__filename)));"
+    js_self_overwrite = "fs.writeFileSync(__filename, tamperedSourceBuffer);"
+    py_self_copy = "shutil.copy(__file__, os.path.join(persistence_dir, 'update.py'))"
+
+    assert lens.scan_content(js_self_copy)["counts"].get("self_propagation", 0) > 0
+    assert lens.scan_content(js_self_overwrite)["counts"].get("self_propagation", 0) > 0
+    assert lens.scan_content(py_self_copy)["counts"].get("self_propagation", 0) > 0
+
+
+def test_self_propagation_ignores_ordinary_path_resolution_and_self_reads(lens):
+    """
+    [FALSE POSITIVE DEFENSE] __filename/__file__ used for ordinary path resolution
+    or read-only self-inspection (both extremely common, benign idioms) must never
+    fire -- only a self-ref token handed straight into a mutating call qualifies.
+    """
+    path_resolution = "const baseDir = path.dirname(__filename);\nrequire(path.join(__dirname, 'config.js'));\n"
+    self_read = "version = open(__file__).read().splitlines()[0]\n"
+    unrelated_rename = "os.rename(old_report_path, archived_report_path)\n"
+
+    assert lens.scan_content(path_resolution)["counts"].get("self_propagation", 0) == 0
+    assert lens.scan_content(self_read)["counts"].get("self_propagation", 0) == 0
+    assert lens.scan_content(unrelated_rename)["counts"].get("self_propagation", 0) == 0

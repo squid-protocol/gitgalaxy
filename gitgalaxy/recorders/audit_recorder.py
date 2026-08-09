@@ -384,6 +384,8 @@ class AuditRecorder:
             "sec_bitwise_ops": "Low-Level Cryptographic & Bitwise Operations",
             "sec_shadow_imports": "Steganographic Payload Imports",
             "sec_homoglyphs": "Unicode Homoglyphs & Typosquatting",
+            "sec_unicode_steganography": "Invisible Unicode Payload Smuggling (GlassWorm-style)",
+            "sec_self_propagation": "Self-Referential File Copy/Overwrite (Worm Pattern)",
         }
 
         quarantined_files = []

@@ -504,7 +504,7 @@ class LLMRecorder:
             "> *Note: The 'Impact' metric below represents Structural Magnitude (complexity, arguments, and length), NOT operational risk. These are the load-bearing pillars of the logic.*\n"
         )
 
-        all_functions = []
+        all_functions: list[tuple[dict, str]] = []
         for s in parsed_files:
             file_path = s.get("path", "Unknown")
             all_functions.extend((func, file_path) for func in s.get("functions", []))

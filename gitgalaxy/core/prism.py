@@ -103,10 +103,15 @@ class Prism:
         self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
 
         # #697: _strip_single_line_comments() used to hardcode `#|--|;|//`
-        # regardless of what a given family's real delimiters are. Precompile
-        # the actual line_exclusive delimiter list (the only family currently
-        # routed to that function) once here, same pattern as REGEX_MATRIX.
-        self.SINGLE_LINE_DELIMITER_PATTERN: re.Pattern = self._compile_single_line_delimiter_pattern()
+        # regardless of what a given family's real delimiters are. #1193:
+        # a single shared pattern for the whole "line_exclusive" family was
+        # its own bug -- `;`/`%` are only real delimiters for a couple of
+        # the ~20 member languages, so they falsely truncated ordinary code
+        # (`100 % 7`, CLI `--` args) for the rest. Precompile one pattern
+        # PER LANGUAGE instead, keyed off each language's own real delimiter
+        # set (gitgalaxy_config.py's "language_delimiters"), same pattern as
+        # REGEX_MATRIX.
+        self.SINGLE_LINE_DELIMITER_PATTERNS: dict[str, re.Pattern] = self._compile_single_line_delimiter_patterns()
 
         # Phase 6.1 Handshake Registry (Synchronized securely via Language Standards)
         self.EMBEDDED_TRIGGERS = []
@@ -277,7 +282,7 @@ class Prism:
             return code, "\n".join(lits)
 
         if family == "line_exclusive":
-            code, single_lits = self._strip_single_line_comments(text)
+            code, single_lits = self._strip_single_line_comments(text, lang_id)
             if single_lits:
                 lits.extend(single_lits.splitlines())
             return code, "\n".join(lits)
@@ -422,27 +427,43 @@ class Prism:
 
         return matrix
 
-    def _compile_single_line_delimiter_pattern(self) -> re.Pattern:
+    def _compile_single_line_delimiter_patterns(self) -> dict[str, re.Pattern]:
         """
-        Builds the real delimiter alternation for the "line_exclusive" family
-        (gitgalaxy_config.py's actual configured list -- currently
-        `["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%", "#|", "|#"]`),
-        replacing the hardcoded `#|--|;|//` _strip_single_line_comments()
-        used to carry regardless of what any given language's real delimiters
-        are (#697 -- that hardcoded set included `--`, which was never
-        configured as a line_exclusive delimiter, silently truncating any
-        line containing a literal `--` -- a common CLI double-dash argument
-        separator -- across all 22 line_exclusive languages).
+        Builds one delimiter alternation PER "line_exclusive" LANGUAGE,
+        keyed by language id, from gitgalaxy_config.py's real
+        "language_delimiters" map. #1193: this used to be a single pattern
+        shared across all ~20 member languages, built from one flat
+        "delimiters" list -- but `;` is only a real delimiter for
+        assembly, and `%` only for matlab, so sharing one pattern falsely
+        truncated ordinary code (`100 % 7`, CLI `--` args, `;`-terminated
+        statements) for every other member. Falls back to the family's
+        top-level "delimiters" list for any line_exclusive language without
+        its own "language_delimiters" entry (defensive only -- every
+        language currently in the family has one).
 
         Word-boundary-correct per Rule 9 (how_to_add_a_language.md): symbol-
-        only tokens (#, <#, #>, ;, %, #|, |#) are self-delimiting and get no
-        \\b. `dnl` is fully word-shaped and gets \\b on both sides. `=begin`/
-        `=end` start with a symbol but end in a word char -- a leading \\b
-        would never fire at a real line start (same trap as PowerShell's
-        `-Parallel` in the epic's recurring-bug-class list), so they only get
-        a trailing \\b.
+        only tokens (#, ;, %, //, ::) are self-delimiting and get no \\b.
+        `dnl`/`REM` are fully word-shaped and get \\b on both sides.
+        `=begin`/`=end` start with a symbol but end in a word char -- a
+        leading \\b would never fire at a real line start (same trap as
+        PowerShell's `-Parallel` in the epic's recurring-bug-class list), so
+        they only get a trailing \\b.
         """
-        delimiters = self.lexical_families.get("line_exclusive", {}).get("delimiters", [])
+        family = self.lexical_families.get("line_exclusive", {})
+        fallback_delimiters = family.get("delimiters", [])
+        language_delimiters = family.get("language_delimiters", {})
+
+        patterns: dict[str, re.Pattern] = {}
+        for lang_id, lang_data in self.languages.items():
+            if lang_data.get("lexical_family") != "line_exclusive":
+                continue
+            delimiters = language_delimiters.get(lang_id, fallback_delimiters)
+            patterns[lang_id] = self._compile_delimiter_alternation(delimiters)
+
+        return patterns
+
+    def _compile_delimiter_alternation(self, delimiters: list[str]) -> re.Pattern:
+        """Compiles a single ReDoS-safe alternation over a flat delimiter list, applying Rule 9's word-boundary handling per token."""
         alternatives = []
         for token in delimiters:
             if not token:
@@ -728,25 +749,59 @@ class Prism:
 
         return "", content
 
-    def _strip_single_line_comments(self, text: str) -> tuple[str, str]:
+    def _strip_single_line_comments(self, text: str, lang_id: str) -> tuple[str, str]:
         """
         Single-line comment stripper for the "line_exclusive" family, driven
-        by the real configured delimiter list (see
-        _compile_single_line_delimiter_pattern) rather than a hardcoded
-        guess. #697: this used to hardcode `#|--|;|//`, which incorrectly
-        included `--` (never a configured line_exclusive delimiter) and
-        excluded most of the family's real tokens (<#, #>, =begin, =end,
-        dnl, %, #|, |#).
-        """
-        lines = text.splitlines()
-        code, comments = [], []
-        pattern = self.SINGLE_LINE_DELIMITER_PATTERN
+        by each language's own real delimiter list (see
+        _compile_single_line_delimiter_patterns) rather than one guess
+        shared across the whole family. #697: this used to hardcode
+        `#|--|;|//`, which incorrectly included `--` (never a configured
+        line_exclusive delimiter). #1193: a shared delimiter list across all
+        ~20 member languages was its own bug (`;`/`%` falsely truncating
+        code in languages that don't use them as comment markers), and the
+        delimiter search ran directly against raw text with zero string-
+        literal shielding, so a delimiter character appearing INSIDE a
+        string literal (e.g. Python's `"SELECT 1;"`) truncated the literal
+        itself.
 
-        for line in lines:
-            if pattern.search(line):
-                parts = pattern.split(line, 1)
-                code.append(parts[0])
-                comments.append(parts[1] + (parts[2] if len(parts) > 2 else ""))
+        Masks string/char literals with LITERAL_MASK_PATTERN before
+        searching for the delimiter -- but PER LINE, not as one pass over
+        the whole multi-line text. Masking the whole text in one pass
+        reopens the exact hazard #1184 just fixed elsewhere: an unmatched
+        quote inside a real comment (e.g. "# don't stop") pairs with a real
+        string's quote many lines later and the mask swallows every real
+        line of code in between. Bounding the mask to one line at a time
+        means a stray quote can, at worst, mis-pair with another quote on
+        that SAME line -- always fully recoverable on restore -- and can
+        never reach into a different line.
+        """
+        pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
+        code, comments = [], []
+
+        for line in text.splitlines():
+            masked_line, masked_literals = self._mask_line_literals(line)
+
+            if pattern.search(masked_line):
+                parts = pattern.split(masked_line, 1)
+                code.append(self._restore_masked_literals(parts[0], masked_literals))
+                comments.append(
+                    self._restore_masked_literals(parts[1] + (parts[2] if len(parts) > 2 else ""), masked_literals)
+                )
             else:
-                code.append(line)
+                code.append(self._restore_masked_literals(masked_line, masked_literals))
+
         return "\n".join(code), "\n".join(comments)
+
+    def _mask_line_literals(self, line: str) -> tuple[str, list[str]]:
+        """Replaces each string/char literal on a single line with a `__MASK_N__` placeholder, returning the masked line and the literals in match order."""
+        masked_literals: list[str] = []
+
+        def shield_callback(m: re.Match) -> str:
+            masked_literals.append(m.group(0))
+            return f"__MASK_{len(masked_literals) - 1}__"
+
+        return re.sub(self.LITERAL_MASK_PATTERN, shield_callback, line), masked_literals
+
+    def _restore_masked_literals(self, masked: str, masked_literals: list[str]) -> str:
+        """Reverses _mask_line_literals, substituting each `__MASK_N__` placeholder back for its original literal text."""
+        return re.sub(r"__MASK_(\d+)__", lambda m: masked_literals[int(m.group(1))], masked)

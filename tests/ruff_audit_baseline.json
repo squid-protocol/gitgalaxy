@@ -11,7 +11,7 @@
   "gitgalaxy/core/detector.py:1656: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/core/detector.py:1663: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/core/detector.py:1955: SIM108": "Use ternary operator `line_end = len(safe_code) if next_nl == -1 else next_nl + 1` instead of `if`-`else`-block",
-  "gitgalaxy/core/detector.py:2596: C403": "Unnecessary list comprehension (rewrite as a set comprehension)",
+  "gitgalaxy/core/detector.py:2600: C403": "Unnecessary list comprehension (rewrite as a set comprehension)",
   "gitgalaxy/core/detector.py:628: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/core/detector.py:940: PERF401": "Use `list.extend` to create a transformed list",
   "gitgalaxy/core/guidestar_lens.py:139: C401": "Unnecessary generator (rewrite as a set comprehension)",

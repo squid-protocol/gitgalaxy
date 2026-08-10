@@ -2347,12 +2347,14 @@ class StructuralExtractor:
         Returns the actual argument count, not a raw comma tally: an empty
         parameter list is 0 (not 1), a trailing top-level comma -- the
         near-universal `ruff format` style for a multi-line signature with one
-        parameter per line -- doesn't create a phantom extra segment, and a
-        bare `*`/`/` segment (Python's keyword-only/positional-only markers,
-        e.g. `def f(a, *, b):`) is real signature syntax but not itself an
-        argument -- `ast.parse`'s own `FunctionDef.args` doesn't count it
-        either, so counting every comma-separated segment as one argument
-        overcounts any such signature by exactly one per marker (#1199).
+        parameter per line -- doesn't create a phantom extra segment, a lone
+        `void` segment (C's explicit empty-parameter-list marker, `int f(void)`)
+        is 0 arguments not 1, and a bare `*`/`/` segment (Python's keyword-only/
+        positional-only markers, e.g. `def f(a, *, b):`) is real signature
+        syntax but not itself an argument -- `ast.parse`'s own `FunctionDef.args`
+        doesn't count it either, so counting every comma-separated segment as
+        one argument overcounts any such signature by exactly one per marker
+        (#1199, #1209).
         """
         body = args_str
         open_idx = args_str.find("(")
@@ -2391,6 +2393,8 @@ class StructuralExtractor:
         segments.append(body[seg_start:])
 
         real_segments = [s for s in (seg.strip() for seg in segments) if s and s not in ("*", "/")]
+        if real_segments == ["void"]:
+            return 0
         return len(real_segments)
 
     def _calculate_block_metrics(

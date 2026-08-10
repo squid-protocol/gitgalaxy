@@ -16,7 +16,54 @@ CORPUS
     Unlike ast_accuracy_audit.py which pins this repo's own code via git archive,
     this tool uses the external `language-crucible` corpus. By default, it expects
     it checked out as a sibling directory `../language-crucible`, or set via
-    `LANGUAGE_CRUCIBLE_PATH` env var.
+    `LANGUAGE_CRUCIBLE_PATH` env var. NOTE: "sibling directory" is relative to
+    THIS repo's own checkout root, not a git worktree's -- running from a worktree
+    (e.g. `gitgalaxy-worktrees/some-branch/`) needs `LANGUAGE_CRUCIBLE_PATH` set
+    explicitly, same pre-existing limitation `crucible_check.py` already has.
+
+BASELINE
+    tests/tree_sitter_accuracy_baseline_<lang>.json, one file per language (not
+    a combined JSON) so a PR touching one language's baseline shows a small diff.
+    Same tracked-metric split as ast_accuracy_audit.py:
+      - found_functions / found_classes: higher is better (recall floor).
+      - extra_functions / extra_classes: lower is better (precision ceiling -- a
+        name GitGalaxy reports that tree-sitter has no record of at all).
+      - args_exact_match: higher is better (of the functions GitGalaxy DID find,
+        how many also got the real parameter count right).
+      - files_scanned / real_functions / real_classes / args_comparable are NOT
+        regression-gated -- they're tree-sitter's own ground-truth counts against
+        the corpus, which should be stable given a fixed corpus checkout. If one
+        of these drifts on a PR that didn't touch the corpus, the local
+        `language-crucible` checkout is probably not at the expected pinned tag
+        (see `crucible_check.py`'s own corpus pin) rather than a real finding.
+
+SCOPE & LIMITATIONS
+    A function is "found" by exact name match WITHIN ITS FILE, matching
+    ast_accuracy_audit.py's own documented trade-off -- a same-named
+    function/method collision within one file is not disambiguated by
+    class/scope, so it can produce a misleading (either falsely inflated or
+    falsely low) recall/args-match reading for that one name. Confirmed on this
+    corpus: `jquery/event.js` defines two different functions both named `on`
+    (a module-level 6-arg helper at file scope, and a 4-arg `.on()` prototype
+    method) -- both this tool's tree-sitter walk and GitGalaxy's own
+    `function_data` table only ever keep one row per name per file, so the
+    reported args-count "mismatch" for `on` in that file is this known
+    same-name-collision artifact, not a real args-counting bug in either side.
+
+    Ground truth (tree-sitter) is not infallible either: the plain `javascript`
+    grammar cannot fully parse Flow-typed syntax (return-type/param-type
+    annotations like `function f(x: ?any): ?Iterator<any> {`), which several
+    `language-crucible/data/javascript/react/*.js` files use. A Flow-typed
+    function that tree-sitter fails to recognize as a real `function_declaration`
+    is invisible to `real_functions`, so if GitGalaxy's own (grammar-agnostic,
+    regex-based) `func_start` still correctly matches it, that function gets
+    counted as a false "extra" (phantom) against GitGalaxy here -- an artifact of
+    this measurement's ground-truth parser, not necessarily a GitGalaxy
+    precision defect. Confirmed example: `react/ReactSymbols.js::getIteratorFn`.
+    Neither of these is fixable without deeper per-file disambiguation (real
+    scope tracking) or a Flow-aware grammar -- noted here so the recall/
+    precision numbers aren't read as more precise than the methodology actually
+    supports, same spirit as ast_accuracy_audit.py's own SCOPE section.
 """
 
 import argparse

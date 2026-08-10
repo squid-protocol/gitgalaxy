@@ -29,6 +29,19 @@ until the *second* measurement round — sits upstream of it and corrupts the in
 fix ever gets a chance to run. Worth repeating for other languages with an available AST/grammar
 (see §9's `tree-sitter-language-pack` note) once a language's base doc exists.
 
+**`javascript.md`'s §9 is the first repeat of that methodology via `tree-sitter-language-pack`**
+(python.md's own §9 flagged this as the path to scale beyond Python's stdlib `ast`) — confirms
+#1209/#1216's `args` capture-group fix works on real code (100% args-count exact match across two
+corpora), and found one blocking infra bug (fixed same-day,
+[#1220](https://github.com/squid-protocol/gitgalaxy/pull/1220)) plus two open extraction defects
+([#1221](https://github.com/squid-protocol/gitgalaxy/issues/1221) — phantom functions from
+unguarded bare call statements, also affects `typescript`/`java`/`csharp`/`apex`/`dart`/`groovy`;
+[#1222](https://github.com/squid-protocol/gitgalaxy/issues/1222) — real functions silently dropped
+from class bodies, tied to a previously-unfixed diagnosis in #789). Worth reading before assuming
+`tree-sitter-language-pack` is a trivial drop-in for the next language's §9 — javascript's pass
+needed a from-scratch tree-sitter node-walker (no existing helper), and surfaced a genuine,
+separate infra bug along the way.
+
 ## Signature-bearing languages (46)
 
 `LANGUAGE_DEFINITIONS` recognizes 59 languages/formats; these 46 have at least one non-`None`
@@ -61,7 +74,7 @@ epic #813), not that no cases exist.
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |
 | html | production | block_exclusive | 39/48 | 91 | 123 | not written |
 | java | production | standard_block | 50/52 | 67 | 91 | not written |
-| javascript | production | standard_block | 61/64 | 53 | 73 | not written |
+| **[javascript](javascript.md)** | production | standard_block | 61/64 | 53 | 73 | **written** |
 | jcl | production | line_exclusive | 11/24 | 41 | 51 | not written |
 | kotlin | production | standard_block | 51/52 | 42 | 90 | not written |
 | livecode | production | multi_style_live | 47/52 | 4* | 108 | not written |

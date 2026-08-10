@@ -2196,8 +2196,8 @@ class Orchestrator:
                 "coding_loc": 1,
                 "total_loc": 1,
                 "classification": "critical_secret_leak",
-                # 18-point risk vector. Index 17 is secrets_risk. Peg it to 100%.
-                "risk_vector": [0.0] * 13 + [0.0, 0.0, 0.0, 0.0, 100.0],
+                # Peg secrets_risk to 100% below, once the vector is sized to the live schema.
+                "risk_vector": [0.0] * len(SignalProcessor.RISK_SCHEMA),
                 "hit_vector": [0] * len(SignalProcessor.SIGNAL_SCHEMA),
                 # ---> TOPOLOGY BASELINE <---
                 # This makes the structural impact score massive and pushes all other files away
@@ -2209,6 +2209,10 @@ class Orchestrator:
                     "identity_lock_tier": 0,
                 },
             }
+
+            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                risk_idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                synthetic_artifact["risk_vector"][risk_idx] = 100.0
 
             if "sec_hardcoded_secrets" in SignalProcessor.SIGNAL_SCHEMA:
                 idx = SignalProcessor.SIGNAL_SCHEMA.index("sec_hardcoded_secrets")

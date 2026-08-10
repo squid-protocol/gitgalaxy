@@ -1296,7 +1296,21 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         model_node = next((n for n in scope.parsed_files if n.get("classification") == "ai_model_weights"), None)
 
         self.assertIsNotNone(leak_node, "Secrets Radar failed to force leak onto the map.")
-        self.assertEqual(leak_node["risk_vector"][17], 100.0, "Leak did not max out secrets risk vector!")
+        # #1220: was hardcoded to index 17 of an assumed 18-length vector -- both stale
+        # relative to the live RISK_SCHEMA (13 entries, secrets_risk at index 12), which
+        # silently overcounted the synthetic leak node's risk_vector by 5 elements and
+        # broke the SQLite recorder's INSERT column count on any real scan that hit this
+        # path (galaxyscope.py's CRITICAL LEAKS synthetic-node branch). Assert against the
+        # live schema so a future RISK_SCHEMA resize can't silently reintroduce the drift.
+        from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
+        risk_schema = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
+        self.assertEqual(len(leak_node["risk_vector"]), len(risk_schema), "risk_vector length drifted from RISK_SCHEMA!")
+        self.assertEqual(
+            leak_node["risk_vector"][risk_schema.index("secrets_risk")],
+            100.0,
+            "Leak did not max out secrets risk vector!",
+        )
 
         self.assertIsNotNone(model_node, "Tensor Scanner failed to force model onto the map.")
         self.assertEqual(model_node["telemetry"]["domain_context"]["architecture"], "Llama")

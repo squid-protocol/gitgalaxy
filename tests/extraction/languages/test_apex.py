@@ -72,15 +72,22 @@ def test_apex_func_start():
         ]
     )
 
-    xfail_invalid = [
-        ("TargetFunc(a, b);", None),  # Bare call ambiguity
+    # #1221: was an `xfail_invalid` list whose entries were never actually
+    # asserted (`pytest.param(...)` inside a plain `for` loop is a no-op --
+    # it only means something inside `@pytest.mark.parametrize`), so this
+    # bare-call false-positive went untested despite being "documented"
+    # here. Now genuinely fixed (func_start's method branch requires an
+    # annotation/modifier/return-type prefix before a name, which a bare
+    # call statement never has) and genuinely asserted.
+    no_longer_xfail = [
+        "TargetFunc(a, b);",  # bare call -- was misidentified as a definition
     ]
     for payload, expected in valid + pathological:
         assert_valid_match(APEX_RULES["func_start"], payload, expected, "apex.func_start")
     for payload, _ in invalid:
         assert_invalid_no_match(APEX_RULES["func_start"], payload, "apex.func_start")
-    for payload, _ in xfail_invalid:
-        pytest.param(payload, None, marks=pytest.mark.xfail(reason="Bare-call ambiguity"))
+    for payload in no_longer_xfail:
+        assert_invalid_no_match(APEX_RULES["func_start"], payload, "apex.func_start")
 
 
 def test_apex_class_start():

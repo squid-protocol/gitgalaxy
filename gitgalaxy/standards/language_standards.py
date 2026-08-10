@@ -692,7 +692,25 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # comment marker, "A" is prose) false-positive-match as a generator
                 # method named "A" -- caught empirically via crucible_check.py against
                 # real corpus code (threejs), not by any test case alone.
-                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=\s*\()"
+                # #1221: the trailing lookahead used to be just `(?=\s*\()`
+                # -- proof a `(` follows, nothing more -- so any bare call
+                # statement starting a line (`next();`) false-positive-
+                # matched as a method definition, the exact defect class
+                # this file's own `args` regex already named and fixed for
+                # this identical branch shape ("Invocation Shield",
+                # `(?=[ \t\n]*\{)`). Mirrored here: now requires the
+                # (non-nested, same bound as `args`) parameter list to
+                # actually close and be followed by a real body opener.
+                # `(?:=>[ \t\n]*)?` before the `{` is NOT real JS method
+                # syntax (methods never have `=>` between params and body)
+                # -- it exists solely to keep matching the ALREADY-
+                # documented, deliberately-NOT-fixed harder ambiguity
+                # (`describe('x', () => {`-shaped call-with-inline-callback
+                # statements, see the known_limitation test right below)
+                # working the same as before; only a bare statement with
+                # neither `{` nor `=>` anywhere (e.g. `next();`) is newly
+                # rejected.
+                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)]*\)[ \t\n]*(?:=>[ \t\n]*)?\{)"
                 r")",
                 re.M,
             ),
@@ -1033,7 +1051,64 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(?:async\s+)?function[ \t\n*]+[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
                 r"\b(?<!type )[a-zA-Z_$][\w$]*(?=(?:[ \t\n]*:[ \t\n]{0,50}[^=;{]{0,200})?[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)?(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                # #1221: the trailing lookahead used to be just
+                # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
+                # `(` follows, nothing more -- so any bare call statement
+                # starting a line (`next();`) false-positive-matched as a
+                # method definition, mirroring the identical javascript gap
+                # (see that file's own #1221 fix comment for the full
+                # writeup). A real call statement never carries a modifier
+                # (public/private/.../readonly), `async`, a generator `*`,
+                # or a `get`/`set` accessor keyword -- only a real
+                # signature can -- so this now splits into two mutually
+                # exclusive alternatives, mirroring java's/dart's/groovy's
+                # own #1221 fixes: (A) at least one of those prefix tokens
+                # is present -- keeps the ORIGINAL lenient bare-`(`
+                # lookahead unchanged (still needed: a legacy monolithic
+                # gauntlet, tests/extraction/test_function_extraction.py,
+                # has truncated-signature payloads like `public get
+                # TargetFunc()` that never reach a real terminator at all,
+                # the same leniency csharp/apex/groovy/dart's own
+                # zero-prefix branches still need); (B) no prefix token at
+                # all -- must fully close its (non-nested, same bound as
+                # `args`) parameter list and reach either an optional `:
+                # ReturnType` then an optional `=>` (kept only to preserve
+                # the ALREADY-documented, deliberately-NOT-fixed
+                # `describe('x', () => {` known-limitation ambiguity --
+                # see the test right below) then `{`, or a MANDATORY `:
+                # ReturnType` then `;` (interface/abstract method stubs,
+                # `TargetFunc(): void;`) -- `next();` has neither a prefix
+                # nor a reachable terminator, so it satisfies neither
+                # branch. A stub with NO explicit return type (`bar();` in
+                # an interface, valid but rarer/atypical TS style) is a
+                # known, accepted gap of this same trade-off --
+                # indistinguishable from `next();` without scope-awareness
+                # this engine doesn't have.
+                # BUG FIX (Rule 14, ReDoS -- confirmed ~O(n^2), 4.1s at
+                # n=16000 pure trailing-whitespace payload): branch B's two
+                # `[ \t\n]*` after `\)` and after the optional `:Type`
+                # annotation are adjacent unbounded quantifiers separated
+                # only by an optional group that can match zero-width (the
+                # exact Rule 14 shape this file's own comment elsewhere
+                # warns about), so a payload with a huge trailing
+                # whitespace run and no real terminator lets the engine
+                # partition it between the two quantifiers in O(n^2) ways
+                # before failing. Bounded both (and the `=>`-tolerance
+                # group's own trailing run) to `{0,50}`, matching this
+                # same regex's existing bound for the generic-skip
+                # whitespace immediately to their left.
+                r"^[ \t]*(?:"
+                r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){1,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)?"
+                r"|"
+                r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}async[ \t\n]+(?:\*[ \t\n]*)?(?:get\s+|set\s+)?"
+                r"|"
+                r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?\*[ \t\n]*(?:get\s+|set\s+)?"
+                r"|"
+                r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)"
+                r")"
+                r"(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                r"|"
+                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\([^)]*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),
@@ -1410,8 +1485,33 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `public static <T, U extends Comparable<U>> T Foo(T a, U b) {`).
                 # Widened to the established one-level-nesting idiom.
                 r"(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|<(?:[^<>]|<[^<>]*>)*>)[ \t\n]+){0,5}"
-                r"(?:[a-zA-Z_$][\w<>$\[\]?.,]*[ \t\n]+){0,5}"
-                r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\((?=[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{;])",
+                # #1221: the return-type group used to be `{0,5}` (zero
+                # allowed) with the trailing lookahead accepting EITHER `{`
+                # OR `;` (the latter for abstract/interface method stubs,
+                # `abstract Foo bar();`) -- but a bare call statement
+                # (`next();`) has zero modifiers AND zero return-type
+                # tokens too, and satisfies that same `;`-terminated shape,
+                # so it false-positive-matched as a method. A real Java
+                # method always has an explicit return type (even `void`)
+                # UNLESS it's the constructor-shape branch this same regex
+                # also intentionally matches (`public TargetFunc(int x) {`,
+                # no return type but ends in `{`, never `;` -- constructors
+                # can't be abstract/have no body). Split into two mutually
+                # exclusive alternatives instead of making the return-type
+                # group conditional on itself (a `(?(name)...)` conditional
+                # would need to capture it, which shifts every downstream
+                # group's number and breaks callers/tests indexing the
+                # identifier capture positionally): return-type present
+                # allows `;` (stub) or `{` (body); return-type absent (bare
+                # call OR constructor shape) requires `{` only, since only
+                # a constructor legitimately reaches this branch with no
+                # return type, and constructors always have a body.
+                r"(?:"
+                r"(?:[a-zA-Z_$][\w<>$\[\]?.,]*[ \t\n]+){1,5}"
+                r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\((?=[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{;])"
+                r"|"
+                r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\((?=[^)]*\)[ \t\n]*\{)"
+                r")",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -8567,7 +8667,27 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture groups and lookaheads for both Methods and Triggers.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
+                # #1221: the method branch used to have no requirement that
+                # ANY of the annotation/modifier/return-type prefixes
+                # actually be present -- all three are individually
+                # optional/zero-allowed, so a bare call statement
+                # (`next();`) with none of them satisfied the rest of the
+                # branch identically to a real signature, since this
+                # branch (like csharp's/apex's siblings) never verifies a
+                # trailing `{`/`;` terminator either (that's left entirely
+                # to the pipeline's own post-hoc brace search, same
+                # historical shape #789 diagnosed for csharp). A real Apex
+                # method/constructor always carries at least one of an
+                # annotation, a modifier, or a return type before its name
+                # (a bare call statement carries none of the three) -- so
+                # gate the whole branch on seeing at least one of those
+                # three shapes before letting the existing (unchanged)
+                # optional-repeat groups consume them. Mirrors this same
+                # regex's own `args` sibling ("GHOST ARGS SHIELD") pattern
+                # of demanding structural proof before treating text as a
+                # definition rather than an invocation.
+                r"^[ \t]*(?=@|(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\b|[a-zA-Z_][\w.]*[ \t\n]+)"
+                r"(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
                 r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)(?=\s+on\b)",
@@ -8807,13 +8927,50 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # ReDoS clamped to {0,5}. Strict capture group and positive lookahead applied.
+            # #1221: the trailing lookahead's parenthesized alternative
+            # used to be a bare `\(` -- proof a `(` follows, nothing more
+            # -- so a bare call statement at true line start (`next();`)
+            # false-positive-matched as a method/function definition. Dart
+            # has both a genuinely prefixed stub case that ends in bare
+            # `;` with no `{`/`=>` anywhere (`external void
+            # externalFunc();`, has a modifier + return type) and a
+            # legitimate zero-prefix case (the bare constructor shape
+            # `MyClass() {}`, no modifier and no return type) that always
+            # reaches a real `{` anyway -- so, mirroring groovy's #1221
+            # fix, this is split into three alternatives instead of one:
+            # (A) has a modifier (static/external/abstract/covariant/
+            # late), (B) has no modifier but has a return-type-shaped
+            # prefix token -- both keep the original lenient lookahead
+            # (bare `;` still allowed, since a real call statement never
+            # carries a modifier or a return type), or (C) has neither --
+            # must fully close its (non-nested, same bound as `args`)
+            # parameter list and reach a real `=>`/`{`, never a bare `;`
+            # (a bare call and a zero-prefix stub are otherwise
+            # indistinguishable here, but dart's zero-prefix valid cases
+            # are all constructors that always have bodies anyway, so this
+            # loses no coverage).
             "func_start": re.compile(
                 r"^[ \t]*(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
-                r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
+                r"(?:"
+                r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
                 r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
                 r"(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
-                r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))",
+                r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))"
+                r"|"
+                r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
+                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
+                r"(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){1,5}?)"
+                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
+                r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))"
+                r"|"
+                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
+                r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\([^)]*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{)|=>|\{))"
+                r")",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
@@ -12421,12 +12578,42 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # "synchronized". Confirmed pre-existing (not introduced by the
             # return-type fix above); added to the exclusion list alongside
             # the other control-flow-shaped keywords.
+            # #1221: func_start used to have one unified branch whose
+            # annotation/modifier prefix, generic bound, and return-type
+            # were all independently optional -- so a bare call statement
+            # (`next();`, zero prefix tokens) satisfied the exact same
+            # shape as a real signature, since (like csharp/apex before
+            # their own #789/#1221 fixes) this branch never verified a
+            # trailing `{`/`;` terminator either, deferring entirely to
+            # the pipeline's post-hoc brace search. Unlike apex (whose
+            # func_start has NO legitimate zero-prefix case, so a simple
+            # prefix-presence gate sufficed) groovy also has to keep
+            # matching a genuinely bare constructor shape with no
+            # modifier/return-type at all (`MyClass(String arg) {`,
+            # covered by test_groovy.py) *and* a fully-prefixed signature
+            # with no terminator at all (`abstract Map<String, Integer>
+            # calculateTotals(List<Item> items)`, covered by
+            # test_groovy_strict.py's deep-signature sweep) -- so neither
+            # "always require closure" (javascript's/java's fix shape) nor
+            # "always require a prefix" (apex's) works alone here. Split
+            # instead: branch 1 requires >=1 prefix token (merging
+            # modifier/annotation/generic-bound/return-type into one
+            # alternation so "at least one of any kind" is expressible as
+            # a single `{1,18}` repeat) and keeps the original lenient,
+            # no-terminator-required lookahead; branch 2 requires
+            # PRECISELY ZERO prefix tokens and, in exchange, must close
+            # its (non-nested, same bound as `args`) parameter list and
+            # reach a real `{` -- `next();` has neither a prefix nor a
+            # closing `{`, so it satisfies neither branch.
             "func_start": re.compile(
-                r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
-                r"(?:<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>[ \t\n]+)?"
-                r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){0,3}"
+                r"^[ \t]*(?:"
+                r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){1,18}"
                 r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
-                r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()",
+                r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()"
+                r"|"
+                r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+                r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\([^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w.,<> \t\n]+)?[ \t\n]*\{)"
+                r")",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

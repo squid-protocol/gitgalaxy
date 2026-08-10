@@ -144,18 +144,27 @@ def test_dart_args_control_flow_shield_and_redos_immunity():
 
 
 def test_dart_func_start_captures_name_with_modifiers_and_redos_immunity():
+    # #1221: func_start is now three mutually exclusive alternatives (has
+    # modifier / has return-type-only / has neither and needs closure --
+    # see the rule's own comment), each with its own capture group, so
+    # which literal group index holds the name depends on which
+    # alternative fired. `m.group(m.lastindex)` is what detector.py itself
+    # actually uses to resolve the name (see `_extract_name` call sites in
+    # detector.py) -- asserting against that instead of a hardcoded
+    # `m.group(1)` tests the real contract instead of incidental group
+    # numbering.
     pattern = DART_RULES["func_start"]
     m = pattern.search("void foo(int x) {")
     assert m is not None
-    assert m.group(1) == "foo"
+    assert m.group(m.lastindex) == "foo"
 
     m2 = pattern.search("static external Future<void> bar() {")
     assert m2 is not None
-    assert m2.group(1) == "bar"
+    assert m2.group(m2.lastindex) == "bar"
 
     m3 = pattern.search("get value() => _value;")
     assert m3 is not None
-    assert m3.group(1) == "value"
+    assert m3.group(m3.lastindex) == "value"
 
     assert not pattern.search("class Foo {"), "func_start incorrectly matched a class declaration"
     assert not pattern.search("if (x) {"), "func_start incorrectly matched an if statement"

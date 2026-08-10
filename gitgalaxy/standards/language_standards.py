@@ -6153,8 +6153,25 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Signatures defining input parameters. Drives the physical size/mass of the function.
             # Upgraded to capture both the declaration block and explicit INTENT binding markers
             # that act as the true coupling mass in legacy Fortran, as well as VALUE and OPTIONAL.
+            # #1209: name and parameter-list span split into their own
+            # capture groups (was only reachable via group(0), the whole
+            # match including the "SUBROUTINE"/"FUNCTION"/"ENTRY" prefix and
+            # name) so detector.py's counter isolates just "(...)" instead of
+            # whitespace-splitting the prefix text -- the same overcount
+            # shape #1199 fixed elsewhere. The args group's trailing empty
+            # alternative (`|`) makes it participate even when the parens are
+            # genuinely absent (a bare `SUBROUTINE Foo` with zero arguments
+            # is valid Fortran with no "()" at all) -- without it, a
+            # zero-arg bare subroutine's ONLY participating group would be
+            # the name itself, which the existing whitespace-split fallback
+            # would then miscount as 1 argument instead of 0. The bare
+            # INTENT/VALUE/OPTIONAL alternative is left alone -- it's a
+            # signal for keyword usage inside a parameter declaration line,
+            # not a per-function signature match, and (per func_start's own
+            # anchoring at the declaration line) is never actually the FIRST
+            # match within a sliced function block in practice.
             "args": re.compile(
-                r"\b(?:SUBROUTINE|FUNCTION|ENTRY)\s+[A-Za-z_]\w*(?:\s*\([^)]*\))?|\b(?:INTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|VALUE\b|OPTIONAL\b)",
+                r"\b(?:SUBROUTINE|FUNCTION|ENTRY)\s+([A-Za-z_]\w*)\s*(\([^)]*\)|)|\b(?:INTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|VALUE\b|OPTIONAL\b)",
                 re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -7549,9 +7566,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # branch: decisions that split flow. Includes guards (|) and modern \cases.
             "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
             # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
+            # #1209: the type-signature and lambda-parameter spans wrapped in
+            # their own capture groups (was only reachable via group(0), the
+            # whole match including the leading "::"/"\") so detector.py's
+            # counter isolates just the real type/parameter text. Group 1
+            # (the `::` type signature) is named in `_args_arrow_count_groups`
+            # below, which routes it to detector.py's
+            # `_count_haskell_type_arrows` -- curried arity from top-level
+            # arrow count -- since neither the comma-list nor whitespace-
+            # token fallback used by every other language maps onto
+            # Haskell's syntax (and unlike every other branch here, a real
+            # signature can have ZERO arrows, e.g. `noop :: IO ()`, so this
+            # can't be inferred from content shape the way the other
+            # branches are). Group 2 (lambda params, space-separated like
+            # Scheme) already gets a correct count from the existing
+            # whitespace-split fallback, no special-casing needed.
             "args": re.compile(
-                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-zA-Z0-9_\',()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)*|\\[a-zA-Z0-9_\'\s,()\[\]{} -]+->|@[A-Z][a-zA-Z0-9_\']*"
+                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\',()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)*)|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->|@[A-Z][a-zA-Z0-9_\']*"
             ),
+            # Which `args` capture-group index represents a `::` type
+            # signature (routes to arrow-based counting in detector.py) --
+            # see the comment on `args` above. Leading underscore excludes
+            # this from the structural-signal scan loop (coding_analysis
+            # skips any rule key starting with "_", same convention
+            # `_dependency_capture` uses).
+            "_args_arrow_count_groups": {1},
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
                 r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern)\b|%1\s*->|⊸"
@@ -9655,8 +9694,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "branch": re.compile(r"\b(?:if|elseif|else|switch|case|otherwise|for|while|try|catch)\b|&&|\|\||~="),
             # args: Captures standard function inputs and return signatures `function [out1, out2] = myFun(in1, in2)`.
             # CRITICAL GUARDRAIL: Safely bounds `\([^)]*\)` and `\[[^\]]*\]`.
+            # #1209: the trailing input-parameter parens wrapped in its own
+            # capture group (was only reachable via group(0), the whole
+            # match including the "function [outputs] = name" prefix) so
+            # detector.py's counter isolates just the real INPUT arg list --
+            # the whole-match fallback both overcounted zero/one-arg
+            # signatures by +1 like every other language (#1199) AND, worse,
+            # mixed the output-list `[out1, out2]` in as if it were part of
+            # the input signature. Name group added too, purely so existing
+            # extraction tests keep passing.
             "args": re.compile(
-                r"\bfunction(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*\([^)]*\)|@(?:[ \t\n]|\.\.\.[^\n]*\n)*\([^)]*\)"
+                r"\bfunction(?:[ \t\n]|\.\.\.[^\n]*\n)+(?:\[[^\]]*\](?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*|[a-zA-Z_]\w*(?:[ \t\n]|\.\.\.[^\n]*\n)*=(?:[ \t\n]|\.\.\.[^\n]*\n)*)?([a-zA-Z_]\w*)(?:[ \t\n]|\.\.\.[^\n]*\n)*(\([^)]*\))|@(?:[ \t\n]|\.\.\.[^\n]*\n)*(\([^)]*\))"
             ),
             # linear: Structural boundaries defining straight-line execution.
             # CRITICAL GUARDRAIL: Access modifiers (private, protected) explicitly omitted.
@@ -10440,7 +10488,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `\b[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:\{|;)` hallucinated `if (a) {` as a function.
                 # FIX: Injected `(?!(?:if|for|while|switch|catch|return)\b)` to block control flow.
                 # =====================================================================
-                r":\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*|\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b[a-zA-Z_]\w*[ \t\n]*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*(?:\{|;)",
+                # #1209: branch 1 (keyword-message selectors) now captures
+                # the WHOLE repeated `label:(Type)name label:(Type)name ...`
+                # span in one group instead of matching just the FIRST
+                # segment on its own -- the old single-segment match had no
+                # way to represent "this method takes 2+ parameters" at all
+                # (no commas exist in this syntax to count), so every
+                # multi-param method silently undercounted to 1 regardless of
+                # its real arity, and the unanchored single-segment form
+                # could even false-match a `:(Type)` cast expression sitting
+                # inside a DIFFERENT method's body. detector.py's
+                # `_count_colon_selector_segments` counts the real parameter
+                # count from this span by counting top-level `:(`
+                # occurrences (one per segment) instead of commas. Branches
+                # 2/3 (Blocks and plain C-style functions) get the same
+                # capture-group treatment as every other C-family language.
+                r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*)+)|\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))[ \t\n]*(?:\{|;)",
                 re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
@@ -11726,7 +11789,28 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Made the argument capture group `(?:[ \t\n]+[^)]*)?` optional so
                 # parameter-less functions like `(define (func))` cleanly pass.
                 # =====================================================================
-                r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*[^ \t\n()]+[^)]*\)",
+                # #1209: name and parameter-list span split into their own
+                # capture groups (was only reachable via group(0), the whole
+                # "(define (name arg1 arg2)" match including the "(define"
+                # prefix and function name) so detector.py's counter isolates
+                # just the space-separated parameter text -- the whole-match
+                # fallback whitespace-split "(define" and the name as
+                # spurious extra args on top of the real ones (the same
+                # overcount shape #1199 fixed for Python, just off by 2 here
+                # instead of 1 since Scheme has two prefix tokens, not one).
+                # REDOS FIX (found verifying #1209, pre-existing -- not
+                # introduced by the groups above): the name class
+                # `[^ \t\n()]+` and the trailing `[^)]*` are adjacent
+                # unbounded quantifiers over near-identical character
+                # classes (the second is a superset of the first), so an
+                # unterminated `(define (xxxx...` with no closing `)`
+                # anywhere made the engine give back the name one char at a
+                # time and re-scan the whole remaining run as the args span
+                # at each step -- O(n^2) confirmed via scaling sweep (247x
+                # time for 16x input). Bounding the name to a realistic
+                # identifier length caps the number of give-back steps to a
+                # constant, restoring linear behavior.
+                r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([^ \t\n()]{1,100})([^)]*)\)",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

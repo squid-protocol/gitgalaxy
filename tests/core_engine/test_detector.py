@@ -2263,6 +2263,14 @@ ARGS_COUNT_FIXTURES: dict[str, tuple[str, dict[str, int]]] = {
         "function Noop() {\n    return\n}\n\nfunction Add($a, $b) {\n    return $a + $b\n}\n",
         {"Noop": 0, "Add": 2},
     ),
+    "objective-c": (
+        "@implementation Foo\n"
+        "- (void)noop {\n    return;\n}\n"
+        "- (void)doOne:(int)x {\n    return;\n}\n"
+        "- (void)doTwo:(int)x withOther:(int)y {\n    return;\n}\n"
+        "@end\n",
+        {"noop": 0, "doOne": 1, "doTwo": 2},
+    ),
 }
 
 
@@ -2286,3 +2294,90 @@ def test_args_count_real_pipeline(lang):
     assert not missing, f"[{lang}] expected function(s) not found in extraction: {missing}"
     for name, expected_args in expected.items():
         assert found[name] == expected_args, f"[{lang}] {name}: expected args={expected_args}, got args={found[name]}"
+
+
+# Direct-block fixtures for #1209's Tier 2 languages whose functions don't
+# reach `test_args_count_real_pipeline` above: scheme/matlab/fortran use
+# paren-/keyword-delimited scoping (Lisp-family "end"/"END SUBROUTINE"-style
+# or bare parens), not braces, so the generic dispatcher's Mode B
+# brace-slicer (`_slice_by_braces`) never finds a body for them at all -- a
+# real, pre-existing recall gap, but a SEPARATE one from args-counting (out
+# of scope for #1209, which only fixes the count once a function IS found).
+# These call `_calculate_block_metrics` directly with a hand-built block,
+# bypassing the slicer, to isolate and pin the args-counting fix itself.
+ARGS_COUNT_FIXTURES_DIRECT_BLOCK: dict[str, tuple[str, dict[str, int]]] = {
+    "scheme": (
+        '(define (noop)\n  (display "hi"))',
+        {"noop": 0},
+    ),
+    "matlab": (
+        "function [out1, out2] = add(a, b)\n  out1 = a + b;\n  out2 = a - b;\nend",
+        {"add": 2},
+    ),
+    "haskell": (
+        "showIt :: Show a => a -> String\nshowIt x = show x",
+        {"showIt": 1},
+    ),
+    "fortran": (
+        "SUBROUTINE noop\n  PRINT *, 'hi'\nEND SUBROUTINE noop",
+        {"noop": 0},
+    ),
+}
+
+
+@pytest.mark.parametrize("lang", sorted(ARGS_COUNT_FIXTURES_DIRECT_BLOCK.keys()))
+def test_args_count_direct_block(lang):
+    """
+    Same intent as test_args_count_real_pipeline, for #1209's Tier 2
+    languages whose functions the generic slicer dispatcher doesn't
+    currently extract at all (see module comment above) -- calls
+    `_calculate_block_metrics` directly with the whole fixture as one
+    hand-built block, so this test only exercises the args-counting fix
+    itself, not the unrelated slicing gap.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    block, expected = ARGS_COUNT_FIXTURES_DIRECT_BLOCK[lang]
+    detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+    for name, expected_args in expected.items():
+        fn, _ = detector._calculate_block_metrics(name, block, block.count("\n") + 1, 1, 2, rules)
+        assert fn["args"] == expected_args, f"[{lang}] {name}: expected args={expected_args}, got args={fn['args']}"
+
+
+def test_count_colon_selector_segments_helper():
+    """
+    Direct unit coverage for `_count_colon_selector_segments`, the
+    Objective-C keyword-message-selector counter (#1209): counts one
+    argument per top-level `label:(Type)` segment, ignoring colons/parens
+    nested inside a parameter's own type or a string literal.
+    """
+    detector = StructuralExtractor("objective-c", {"objective-c": {"rules": {}}})
+    cases = [
+        ("doThing:(int)x", 1),
+        ("doThing:(int)x withOther:(int)y", 2),
+        ("doThing:(int)x withOther:(int)y andThird:(NSString *)z", 3),
+        ("callback:(void (^)(int))block", 1),
+    ]
+    for args_str, expected in cases:
+        actual = detector._count_colon_selector_segments(args_str)
+        assert actual == expected, f"_count_colon_selector_segments({args_str!r}) == {actual}, expected {expected}"
+
+
+def test_count_haskell_type_arrows_helper():
+    """
+    Direct unit coverage for `_count_haskell_type_arrows`, the Haskell
+    curried-arity counter (#1209): counts top-level "->" occurrences after
+    skipping any typeclass-constraint clause, ignoring an arrow nested
+    inside a higher-order parameter's own parenthesized function type.
+    """
+    detector = StructuralExtractor("haskell", {"haskell": {"rules": {}}})
+    cases = [
+        ("IO ()", 0),
+        ("Int -> Int -> Int", 2),
+        ("Show a => a -> String", 1),
+        ("(Int -> Int) -> Int -> Int", 2),
+    ]
+    for args_str, expected in cases:
+        actual = detector._count_haskell_type_arrows(args_str)
+        assert actual == expected, f"_count_haskell_type_arrows({args_str!r}) == {actual}, expected {expected}"

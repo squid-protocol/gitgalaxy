@@ -2394,6 +2394,75 @@ class StructuralExtractor:
             return 0
         return len(real_segments)
 
+    def _count_colon_selector_segments(self, args_str: str) -> int:
+        """
+        Counts parameters in an Objective-C keyword-message selector, e.g.
+        `doThing:(int)x withOther:(int)y` -- unlike every other language's
+        args shape, each parameter here is its own repeated `label:(Type)name`
+        segment scattered across the signature, not one comma-separated list
+        inside a single "(...)" (#1209). One argument per top-level `:(`
+        occurrence; colons/parens inside nested brackets or string literals
+        (a default value's own type, an embedded block signature) don't count.
+        """
+        depth = 0
+        in_string = False
+        quote_char = ""
+        count = 0
+        i = 0
+        while i < len(args_str):
+            ch = args_str[i]
+            if in_string:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == quote_char:
+                    in_string = False
+            elif ch in ("'", '"', "`"):
+                in_string = True
+                quote_char = ch
+            elif ch in "([{<":
+                depth += 1
+            elif ch in ")]}>":
+                if depth > 0:
+                    depth -= 1
+            elif ch == ":" and depth == 0 and i + 1 < len(args_str) and args_str[i + 1] == "(":
+                count += 1
+            i += 1
+        return count
+
+    def _count_haskell_type_arrows(self, args_str: str) -> int:
+        """
+        Counts a Haskell function's curried arity from its flattened `::`
+        type signature (e.g. "Int -> Int -> Int" is 2 arguments): each
+        top-level "->" separates one more parameter from the rest, so N
+        arrows = N parameters -- not "arrows - 1", since the trailing
+        (return-type) segment never has an arrow of its own to begin with
+        (#1209). A leading typeclass-constraint clause (`Show a => ...`) is
+        skipped by only counting arrows after the LAST top-level "=>", since
+        constraints on a type variable aren't a real parameter. An arrow
+        nested inside a parameter's own parenthesized function type (a
+        higher-order argument, e.g. `(Int -> Int) -> Int`) isn't top-level
+        and doesn't count as a separate parameter of the OUTER function.
+        """
+        last_constraint = args_str.rfind("=>")
+        scan_from = last_constraint + 2 if last_constraint != -1 else 0
+
+        depth = 0
+        count = 0
+        i = scan_from
+        while i < len(args_str):
+            ch = args_str[i]
+            if ch in "([{":
+                depth += 1
+            elif ch in ")]}":
+                if depth > 0:
+                    depth -= 1
+            elif ch == "-" and depth == 0 and i + 1 < len(args_str) and args_str[i + 1] == ">":
+                count += 1
+                i += 1
+            i += 1
+        return count
+
     def _calculate_block_metrics(
         self,
         name: str,
@@ -2480,12 +2549,51 @@ class StructuralExtractor:
                     # `(define (func arg1 arg2)`, whose outer "(define" paren
                     # never closes within the capture) fall through unchanged to
                     # the original comma/whitespace-split heuristics below.
-                    if (
+                    arrow_count_groups = rules.get("_args_arrow_count_groups")
+                    if arrow_count_groups and arg_match.lastindex in arrow_count_groups:
+                        # Haskell `::` type signature (#1209): curried arity
+                        # is the top-level arrow count, not a comma-separated
+                        # list or a whitespace-token count -- neither maps
+                        # onto Haskell's syntax at all (a signature has no
+                        # commas, and naive whitespace-splitting would count
+                        # every type constructor and "->" token as if it were
+                        # its own argument). Gated on an explicit, opt-in
+                        # rules-dict flag naming the SPECIFIC capture-group
+                        # index this applies to (haskell's args rule has a
+                        # separate, differently-shaped lambda-parameter
+                        # group too) rather than sniffing "does stripped
+                        # contain '->'" -- a real signature can have ZERO
+                        # arrows (`noop :: IO ()`), so content-based
+                        # detection can't distinguish "Haskell type sig,
+                        # zero args" from "not a type sig at all" the way
+                        # every other branch here safely can from shape alone.
+                        args_count = self._count_haskell_type_arrows(stripped)
+                    elif (
                         stripped.startswith("(")
                         and stripped.endswith(")")
                         and self._matching_paren_end(stripped, 0) == len(stripped) - 1
                     ):
+                        # #1199: a capture group whose ENTIRE span is a self-contained
+                        # "(...)" pair (true of python's def/lambda-with-parens args
+                        # group once it stops sharing group(0) with the "def name"
+                        # prefix) is unambiguously the real parameter list -- a
+                        # comma-free non-empty body there is exactly ONE argument, not
+                        # zero. The old code could only decide via "does args_str
+                        # contain a comma", which silently overcounted every
+                        # zero/one-arg signature by +1 (the "def name(...)" prefix
+                        # itself supplied a spurious extra whitespace-split token).
+                        # Signatures that AREN'T self-contained (e.g. Scheme's
+                        # `(define (func arg1 arg2)`, whose outer "(define" paren
+                        # never closes within the capture) fall through unchanged to
+                        # the original comma/whitespace-split heuristics below.
                         args_count = self._count_top_level_args(stripped)
+                    elif re.match(r"^(?:[a-zA-Z_]\w*[ \t\n]*)?:\s*\(", stripped):
+                        # Objective-C keyword-message selector (#1209) -- the
+                        # only shape here whose parameters aren't inside a
+                        # single "(...)" span at all, so neither the
+                        # self-contained branch above nor the comma-based one
+                        # below apply.
+                        args_count = self._count_colon_selector_segments(stripped)
                     elif stripped and stripped != "()":
                         if "," in args_str:
                             args_count = self._count_top_level_args(args_str)

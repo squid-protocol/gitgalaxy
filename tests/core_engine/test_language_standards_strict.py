@@ -65,6 +65,12 @@ def test_global_regex_syntax_integrity():
     for lang, config in LANGUAGE_DEFINITIONS.items():
         rules = config.get("rules", {})
         for rule_name, pattern in rules.items():
+            # #1209: underscore-prefixed keys are metadata, not regexes (e.g.
+            # haskell's `_args_arrow_count_groups`, a plain set consumed
+            # directly by detector.py's args-counter) -- same convention
+            # `coding_analysis` already uses to skip them during scanning.
+            if rule_name.startswith("_"):
+                continue
             if pattern is not None:
                 try:
                     # Accessing .pattern proves it's a valid compiled regex object

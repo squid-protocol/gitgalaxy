@@ -757,8 +757,13 @@ class LanguageDetector:
             raw_score = 0.0
             rules = data.get("rules", {})
 
-            for _, regex in rules.items():
-                if not regex:
+            for rule_name, regex in rules.items():
+                # #1209: underscore-prefixed keys are metadata, not scannable
+                # rules (e.g. `_args_arrow_count_groups`, a plain set consumed
+                # directly by detector.py's args-counter) -- same convention
+                # `coding_analysis` already uses. Skipping them here avoids a
+                # caught-but-noisy AttributeError on `.findall()` every scan.
+                if rule_name.startswith("_") or not regex:
                     continue
                 try:
                     c = len(regex.findall(content))
@@ -894,8 +899,10 @@ class LanguageDetector:
             rules = self.languages.get(lid, {}).get("rules", {})
             t_start = time.time()
 
-            for _, regex in rules.items():
-                if not regex:
+            for rule_name, regex in rules.items():
+                # #1209: same underscore-prefixed-metadata skip as the
+                # scoring loop above -- see its comment.
+                if rule_name.startswith("_") or not regex:
                     continue
 
                 # ---> DEFENSIVE GUARD: REGEX BACKTRACKING PREVENTION <---

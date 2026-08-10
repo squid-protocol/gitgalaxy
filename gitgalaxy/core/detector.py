@@ -1920,7 +1920,29 @@ class StructuralExtractor:
             base_indent = len(first_line) - len(first_line.lstrip())
 
             end_idx = len(safe_code)
-            scan_pos = safe_code.find("\n", match.end())
+
+            # #1199: func_start's regex ends right at the signature's opening
+            # "(" (it never consumes the parameter list), so a signature that
+            # wraps onto multiple physical lines leaves that "(" unclosed at
+            # match.end(). The old code started the dedent scan on the very
+            # next line -- for a wrapped signature, its closing "):" line is
+            # typically re-dedented back to the def's own indent level, which
+            # looked identical to a sibling statement ending the function and
+            # truncated the block before the real body (or even the closing
+            # paren) was ever included. Walk the signature's own paren depth
+            # back to 0 first so the dedent scan only ever begins on the first
+            # line that's genuinely past the signature.
+            sig_scan = match.end()
+            paren_depth = safe_code.count("(", start_idx, match.end()) - safe_code.count(")", start_idx, match.end())
+            while sig_scan < len(safe_code) and paren_depth > 0:
+                ch = safe_code[sig_scan]
+                if ch == "(":
+                    paren_depth += 1
+                elif ch == ")":
+                    paren_depth -= 1
+                sig_scan += 1
+
+            scan_pos = safe_code.find("\n", sig_scan)
             if scan_pos == -1:
                 scan_pos = len(safe_code)
             else:
@@ -2276,9 +2298,41 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
+    def _matching_paren_end(self, text: str, open_idx: int) -> int:
+        """
+        String-aware scan for the index of the "(" at `open_idx`'s matching ")".
+        Returns `len(text)` if it never closes within `text` (e.g. a signature
+        capture that only includes an opening context paren, like Scheme's
+        `(define (...)`). Shared by `_count_top_level_args` and
+        `_calculate_block_metrics`'s args-count self-containment check (#1199).
+        """
+        depth = 0
+        in_string = False
+        quote_char = ""
+        i = open_idx
+        while i < len(text):
+            ch = text[i]
+            if in_string:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == quote_char:
+                    in_string = False
+            elif ch in ("'", '"', "`"):
+                in_string = True
+                quote_char = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    return i
+            i += 1
+        return len(text)
+
     def _count_top_level_args(self, args_str: str) -> int:
         """
-        Depth- and string-aware comma counter for a captured function signature.
+        Depth- and string-aware argument counter for a captured function signature.
 
         `args` regexes capture the whole signature (e.g. "def foo(x, y)",
         "(x, y) =>"), so the real argument list sits one bracket level inside the
@@ -2289,42 +2343,30 @@ class StructuralExtractor:
         literals, nested callback signatures) or inside string literals must be
         ignored, or a single `data: Dict[str, int]` argument gets miscounted as
         two.
+
+        Returns the actual argument count, not a raw comma tally: an empty
+        parameter list is 0 (not 1), a trailing top-level comma -- the
+        near-universal `ruff format` style for a multi-line signature with one
+        parameter per line -- doesn't create a phantom extra segment, and a
+        bare `*`/`/` segment (Python's keyword-only/positional-only markers,
+        e.g. `def f(a, *, b):`) is real signature syntax but not itself an
+        argument -- `ast.parse`'s own `FunctionDef.args` doesn't count it
+        either, so counting every comma-separated segment as one argument
+        overcounts any such signature by exactly one per marker (#1199).
         """
-
-        def _matching_paren_end(text: str, open_idx: int) -> int:
-            depth = 0
-            in_string = False
-            quote_char = ""
-            i = open_idx
-            while i < len(text):
-                ch = text[i]
-                if in_string:
-                    if ch == "\\":
-                        i += 2
-                        continue
-                    if ch == quote_char:
-                        in_string = False
-                elif ch in ("'", '"', "`"):
-                    in_string = True
-                    quote_char = ch
-                elif ch == "(":
-                    depth += 1
-                elif ch == ")":
-                    depth -= 1
-                    if depth == 0:
-                        return i
-                i += 1
-            return len(text)
-
         body = args_str
         open_idx = args_str.find("(")
         if open_idx != -1:
-            body = args_str[open_idx + 1 : _matching_paren_end(args_str, open_idx)]
+            body = args_str[open_idx + 1 : self._matching_paren_end(args_str, open_idx)]
+
+        if not body.strip():
+            return 0
 
         depth = 0
         in_string = False
         quote_char = ""
-        count = 0
+        segments: list[str] = []
+        seg_start = 0
         i = 0
         while i < len(body):
             ch = body[i]
@@ -2343,9 +2385,13 @@ class StructuralExtractor:
                 if depth > 0:
                     depth -= 1
             elif ch == "," and depth == 0:
-                count += 1
+                segments.append(body[seg_start:i])
+                seg_start = i + 1
             i += 1
-        return count
+        segments.append(body[seg_start:])
+
+        real_segments = [s for s in (seg.strip() for seg in segments) if s and s not in ("*", "/")]
+        return len(real_segments)
 
     def _calculate_block_metrics(
         self,
@@ -2419,9 +2465,29 @@ class StructuralExtractor:
                 arg_match = args_pattern.search(block)
                 if arg_match:
                     args_str = arg_match.group(arg_match.lastindex) if arg_match.lastindex else arg_match.group(0)
-                    if args_str and args_str.strip() != "()":
+                    stripped = args_str.strip() if args_str else ""
+                    # #1199: a capture group whose ENTIRE span is a self-contained
+                    # "(...)" pair (true of python's def/lambda-with-parens args
+                    # group once it stops sharing group(0) with the "def name"
+                    # prefix) is unambiguously the real parameter list -- a
+                    # comma-free non-empty body there is exactly ONE argument, not
+                    # zero. The old code could only decide via "does args_str
+                    # contain a comma", which silently overcounted every
+                    # zero/one-arg signature by +1 (the "def name(...)" prefix
+                    # itself supplied a spurious extra whitespace-split token).
+                    # Signatures that AREN'T self-contained (e.g. Scheme's
+                    # `(define (func arg1 arg2)`, whose outer "(define" paren
+                    # never closes within the capture) fall through unchanged to
+                    # the original comma/whitespace-split heuristics below.
+                    if (
+                        stripped.startswith("(")
+                        and stripped.endswith(")")
+                        and self._matching_paren_end(stripped, 0) == len(stripped) - 1
+                    ):
+                        args_count = self._count_top_level_args(stripped)
+                    elif stripped and stripped != "()":
                         if "," in args_str:
-                            args_count = self._count_top_level_args(args_str) + 1
+                            args_count = self._count_top_level_args(args_str)
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())

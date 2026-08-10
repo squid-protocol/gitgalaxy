@@ -326,8 +326,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # flat `[^\]]*`, truncating at the FIRST `]` and breaking any type param with a
             # nested-bracket bound (e.g. `def Foo[T: Sequence[int]](x: T) -> T:`, a realistic bounded
             # generic). Widened to the established one-level-nesting idiom (square-bracket variant).
+            # #1199: the parameter list is now captured in its own group
+            # (group 1 for def/lambda-with-parens, group 2 for bare
+            # lambda params) instead of only ever being reachable via
+            # group(0), which used to include the "def name"/"lambda"
+            # keyword prefix -- that prefix supplied a spurious extra
+            # whitespace-split token that overcounted every zero/one-arg
+            # signature by +1 downstream in detector.py's args-counter.
+            # Group 1's body also steps over one level of nested parens
+            # (the same bounded one-level-nesting idiom RULE 11 already
+            # uses for square brackets above) so a default value that's
+            # itself a call, e.g. `def f(x=foo(1, 2), y=3):`, doesn't
+            # truncate the capture at the default's own closing paren and
+            # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -7605,8 +7618,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "branch": re.compile(r"\b(if|elif|else|for|while|with|try|finally|match|case|and|or)\b"),
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
+            # #1199: the parameter list is now captured in its own group
+            # (group 1 for def/lambda-with-parens, group 2 for bare
+            # lambda params) instead of only ever being reachable via
+            # group(0), which used to include the "def name"/"lambda"
+            # keyword prefix -- that prefix supplied a spurious extra
+            # whitespace-split token that overcounted every zero/one-arg
+            # signature by +1 downstream in detector.py's args-counter.
+            # Group 1's body also steps over one level of nested parens
+            # (the same bounded one-level-nesting idiom RULE 11 already
+            # uses for square brackets above) so a default value that's
+            # itself a call, e.g. `def f(x=foo(1, 2), y=3):`, doesn't
+            # truncate the capture at the default's own closing paren and
+            # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

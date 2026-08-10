@@ -1296,7 +1296,29 @@ class StructuralExtractor:
 
         t_start = time.time()
 
+        # #1184: comments are folded into the SAME alternation as the quote
+        # patterns below (see atomic_string_pattern's trailing "comment"
+        # branch) instead of being stripped in a separate later pass -- a
+        # separate pass let an English contraction apostrophe inside a "#"/
+        # "--"/"//" comment (don't, it's, wasn't) get treated as a real
+        # string-open quote by the single-quote alternative, pairing with
+        # whatever "'" came next anywhere later in the code and blanking out
+        # every real line in between (silently dropping whole functions from
+        # extraction downstream in `_slice_by_keywords`). One combined pass
+        # lets whichever construct -- string or comment -- starts first at a
+        # given position atomically claim its whole span, so an apostrophe
+        # already inside a claimed comment is never independently
+        # reconsidered as a string delimiter. Mirrors
+        # `_build_brace_safe_stream`'s existing single-pass design, and the
+        # identical fix in `_build_indentation_safe_stream`.
         def preserve_newlines(m):
+            # groupdict().get(...) rather than m.group("comment") -- this
+            # closure is also reused below for the Ruby %-literal shield
+            # pass, whose pattern has no "comment" group at all, and
+            # m.group() on a group name absent from the ORIGINATING pattern
+            # raises IndexError rather than returning None.
+            if m.groupdict().get("comment") is not None:
+                return ""
             return '""' + "\n" * m.group(0).count("\n")
 
         # 1. Advanced Atomic Quotes
@@ -1309,9 +1331,14 @@ class StructuralExtractor:
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
             r'"(?:\\.|[^"\\])*"|'  # Standard Double
             r"'(?:\\.|[^'\\])*'|"  # Standard Single
-            r"`(?:\\.|[^`\\])*`"  # Standard Backtick
+            r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
+            # Comment marker must be at line-start or preceded by whitespace
+            # (guards against e.g. shell's "$#" positional-arg-count being
+            # mistaken for a comment). Same marker set previously stripped
+            # by `_slice_by_keywords`'s own post-hoc pass.
+            r"(?:^|(?<=[ \t]))(?P<comment>#|--|//)[^\n]*"
         )
-        text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL)
+        text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL | re.MULTILINE)
         t_quotes = time.time()
 
         t_heredoc = t_quotes
@@ -1810,24 +1837,38 @@ class StructuralExtractor:
         function/class body, while preserving newlines so every index
         still maps 1:1 to `code`. Shared by `_slice_by_indentation` and
         the nesting-aware class-boundary scanner (#1040).
+
+        #1184: strings and comments MUST be shielded in one combined-
+        alternation pass, not sequential independent re.sub calls. Stripping
+        comments in a separate LAST pass (the old approach) let an English
+        contraction apostrophe inside a "#" comment (don't, it's, wasn't)
+        get treated as a real string-open quote by the single-quote pass
+        that ran before it -- it would then pair with whatever "'" came
+        next anywhere later in the file and blank out every real line
+        (including "def" lines) in between, silently dropping entire
+        contiguous ranges of functions from extraction. A single pass lets
+        whichever construct -- string or comment -- starts first at a given
+        position atomically claim its whole span, so an apostrophe already
+        inside a claimed comment is never independently reconsidered as a
+        string delimiter. Mirrors `_build_brace_safe_stream`'s existing
+        single-pass design, which never had this bug for the same reason.
         """
 
         def index_aligned_shield(m):
             text = m.group(0)
             return "".join("\n" if c == "\n" else " " for c in text)
 
-        # Shield Python triple-quotes first to prevent inner-quote collisions
-        safe_code = re.sub(r"\"\"\"(.*?)\"\"\"", index_aligned_shield, code, flags=re.DOTALL)
-        safe_code = re.sub(r"\'\'\'(.*?)\'\'\'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield standard strings
-        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', index_aligned_shield, safe_code, flags=re.DOTALL)
-        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield comments (Python and YAML use #)
-        safe_code = re.sub(r"#.*", lambda m: " " * len(m.group(0)), safe_code)
-
-        return safe_code
+        # Order matters: triple-quote markers must precede the single-char
+        # quote patterns, or e.g. the double-quote alternative would match
+        # the first two characters of a `"""..."""` as an empty `""` string.
+        combined_pattern = (
+            r'"""(?:.*?)"""|'
+            r"'''(?:.*?)'''|"
+            r'"(?:\\.|[^"\\])*"|'
+            r"'(?:\\.|[^'\\])*'|"
+            r"#[^\n]*"  # Python and YAML both use "#" for comments
+        )
+        return re.sub(combined_pattern, index_aligned_shield, code, flags=re.DOTALL)
 
     def _slice_by_indentation(
         self,
@@ -1963,11 +2004,10 @@ class StructuralExtractor:
         satellite_name = "Main"
 
         # 1. Apply the comprehensive Atomic Literal Shield
+        # #1184: comment-stripping now happens INSIDE _apply_literal_shield,
+        # in the same pass as string-shielding -- see that method's
+        # docstring/comments for why a separate later pass was unsafe.
         safe_code = self._apply_literal_shield(code)
-
-        # ---> FAST SINGLE-PASS COMMENT STRIP <---
-        # Ensures #var or #foo are not erroneously treated as comments if they are not at the start of a word.
-        safe_code = re.sub(r"(^|[ \t])(?:#|--|//).*$", r"\1", safe_code, flags=re.MULTILINE)
 
         # 2. Split both into parallel arrays
         original_lines = code.splitlines(keepends=True)
@@ -2122,16 +2162,32 @@ class StructuralExtractor:
 
         # 1. Apply the shield to the ENTIRE string, preserving newline counts.
         # This prevents multi-line strings from collapsing the parallel line iteration.
+        # #1184: strings and comments are shielded in ONE combined-alternation
+        # pass, not sequential independent re.sub calls -- a separate LATER
+        # comment-strip pass (the old approach) let an English contraction
+        # apostrophe inside a "--"/"%" comment (it's, doesn't) get treated as
+        # a real string-open quote by the single-quote pass that ran before
+        # it, pairing with whatever "'" came next anywhere later in the code
+        # and blanking out entire real statements (including igniter
+        # keywords like CREATE PROCEDURE) in between. One combined pass lets
+        # whichever construct starts first at a given position atomically
+        # claim its whole span, so a comment's apostrophe is never
+        # independently reconsidered as a string delimiter. Same fix as
+        # `_build_indentation_safe_stream` / `_apply_literal_shield`.
         def preserve_newlines(m):
+            if m.groupdict().get("comment") is not None:
+                return ""
             return '""' + "\n" * m.group(0).count("\n")
 
-        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', preserve_newlines, code, flags=re.DOTALL)
-        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", preserve_newlines, safe_code, flags=re.DOTALL)
-        safe_code = re.sub(r"`(?:\\.|[^`\\])*`", preserve_newlines, safe_code, flags=re.DOTALL)
-
-        # ---> FAST SINGLE-PASS COMMENT STRIP <---
-        # Execute the regex once globally. Prevents 500,000+ regex calls on massive SQL dumps.
-        safe_code = re.sub(r"(--|%).*$", "", safe_code, flags=re.MULTILINE)
+        safe_code = re.sub(
+            r'"(?:\\.|[^"\\])*"|'
+            r"'(?:\\.|[^'\\])*'|"
+            r"`(?:\\.|[^`\\])*`|"
+            r"(?P<comment>--|%)[^\n]*",
+            preserve_newlines,
+            code,
+            flags=re.DOTALL,
+        )
 
         # 2. Split both into parallel arrays
         original_lines = code.splitlines(keepends=True)

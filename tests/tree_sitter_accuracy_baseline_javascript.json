@@ -1,0 +1,12 @@
+{
+  "args_comparable": 311,
+  "args_exact_match": 290,
+  "corpus_path": "language-crucible/data/javascript",
+  "extra_classes": 1,
+  "extra_functions": 119,
+  "files_scanned": 18,
+  "found_classes": 27,
+  "found_functions": 311,
+  "real_classes": 29,
+  "real_functions": 557
+}

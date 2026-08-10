@@ -1,0 +1,45 @@
+name: AST Accuracy Audit
+
+# Unlike ruff/mypy/dead-key-audit.yml, this needs full git history (not the
+# default shallow clone) -- tests/ast_accuracy_audit.py measures extraction
+# accuracy against a corpus pinned to a fixed git tag (`git archive`), and a
+# shallow checkout wouldn't have that tag's objects available.
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore: ["docs/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  ast-accuracy-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # No full-precision extras needed: function/class/args extraction
+      # (what this check measures) comes from detector.py's regex engine
+      # regardless of dependency mode -- only network/ML-derived columns
+      # (pagerank, blast radius) need networkx/tiktoken/pandas/xgboost, and
+      # this check never reads those.
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run baseline-gated regression check (#1200)
+        run: python tests/ast_accuracy_audit.py --ci

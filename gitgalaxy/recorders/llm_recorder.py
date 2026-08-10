@@ -458,8 +458,7 @@ class LLMRecorder:
                 reverse=True,
             )[:3]
             lines.append("### Top I/O Latency Risks")
-            for s in top_io:
-                lines.append(f"- `{s.get('path')}` (Hits: {s.get('hit_vector', [])[io_idx]})")
+            lines.extend(f"- `{s.get('path')}` (Hits: {s.get('hit_vector', [])[io_idx]})" for s in top_io)
             lines.append("")
 
         pillars = sorted(
@@ -505,11 +504,10 @@ class LLMRecorder:
             "> *Note: The 'Impact' metric below represents Structural Magnitude (complexity, arguments, and length), NOT operational risk. These are the load-bearing pillars of the logic.*\n"
         )
 
-        all_functions = []
+        all_functions: list[tuple[dict, str]] = []
         for s in parsed_files:
             file_path = s.get("path", "Unknown")
-            for func in s.get("functions", []):
-                all_functions.append((func, file_path))
+            all_functions.extend((func, file_path) for func in s.get("functions", []))
 
         top_impact = heapq.nlargest(10, all_functions, key=lambda x: x[0].get("impact", 0))
 
@@ -562,9 +560,11 @@ class LLMRecorder:
             )[:5]
             if high_debt and high_debt[0].get("risk_vector", [])[debt_idx] > 0:
                 lines.append("### Highest Tech Debt (Fragile/Planned)")
-                for s in high_debt:
-                    if s.get("risk_vector", [])[debt_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure")
+                lines.extend(
+                    f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure"
+                    for s in high_debt
+                    if s.get("risk_vector", [])[debt_idx] > 0
+                )
 
         flux_idx = self.RISK_SCHEMA.index("state_flux") if "state_flux" in self.RISK_SCHEMA else -1
         if flux_idx >= 0:
@@ -575,9 +575,11 @@ class LLMRecorder:
             )[:5]
             if high_flux and high_flux[0].get("risk_vector", [])[flux_idx] > 0:
                 lines.append("### Highest State Flux (Mutation/Volatility)")
-                for s in high_flux:
-                    if s.get("risk_vector", [])[flux_idx] > 0:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure")
+                lines.extend(
+                    f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure"
+                    for s in high_flux
+                    if s.get("risk_vector", [])[flux_idx] > 0
+                )
 
         orphan_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
         dup_idx = self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
@@ -643,8 +645,9 @@ class LLMRecorder:
                     vuln_found = True
                     label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
                     lines.append(f"### {label}")
-                    for s in v_files[:5]:
-                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure")
+                    lines.extend(
+                        f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure" for s in v_files[:5]
+                    )
 
         if not vuln_found:
             lines.append("*No critical vulnerabilities or security lens thresholds breached.*")
@@ -1067,11 +1070,11 @@ class LLMRecorder:
                 lines.append(
                     "These files act as structural bridges between components, but possess highly volatile, mutating state. They cause unpredictable side-effects for all downstream consumers.\n"
                 )
-                for c in cm:
-                    if c["score"] > 0:
-                        lines.append(
-                            f"- `{c['path']}` -> **Severity: {c['score']}** (Bridge: {c['btw']} * Flux: {c['state_mutation']}%)"
-                        )
+                lines.extend(
+                    f"- `{c['path']}` -> **Severity: {c['score']}** (Bridge: {c['btw']} * Flux: {c['state_mutation']}%)"
+                    for c in cm
+                    if c["score"] > 0
+                )
                 lines.append("")
 
             # #370: the real bottleneck-detector key is "fragile_dependency_chain"
@@ -1083,11 +1086,11 @@ class LLMRecorder:
                 lines.append(
                     "These files are deeply embedded (1 or 2 hops from the entire codebase) but possess high error exposure. A runtime exception here will cascade instantly across the application.\n"
                 )
-                for h in hoc:
-                    if h["score"] > 0:
-                        lines.append(
-                            f"- `{h['path']}` -> **Severity: {h['score']}** (Embedded: {h['close']} * Error Risk: {h['err']}%)"
-                        )
+                lines.extend(
+                    f"- `{h['path']}` -> **Severity: {h['score']}** (Embedded: {h['close']} * Error Risk: {h['err']}%)"
+                    for h in hoc
+                    if h["score"] > 0
+                )
                 lines.append("")
 
             bb = sys_bots.get("undocumented_critical_path", [])
@@ -1096,11 +1099,11 @@ class LLMRecorder:
                 lines.append(
                     "These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but they lack human intent, documentation, or ownership metadata. Modifying them is flying blind.\n"
                 )
-                for b in bb:
-                    if b["score"] > 0:
-                        lines.append(
-                            f"- `{b['path']}` -> **Severity: {b['score']}** (Blast Radius: {b['pr']} * Doc Risk: {b['doc']}%)"
-                        )
+                lines.extend(
+                    f"- `{b['path']}` -> **Severity: {b['score']}** (Blast Radius: {b['pr']} * Doc Risk: {b['doc']}%)"
+                    for b in bb
+                    if b["score"] > 0
+                )
                 lines.append("")
 
         # ==============================================================================

@@ -1103,6 +1103,15 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # raw_signals.get("prompt_injection"/"agentic_rce") never matched).
         "prompt_injection",
         "agentic_rce",
+        # --- NEW: GLASSWORM-STYLE SELF-PROPAGATION DETECTOR (#1150) ---
+        # Appended at the end, not grouped with the other "sec_" entries above,
+        # per the same positional constraint documented on prompt_injection/
+        # agentic_rce just above: SIGNAL_SCHEMA order feeds signal_processor.py's
+        # K-Means archetype classifier positionally, so inserting mid-list would
+        # silently reclassify every file's archetype against the pre-trained
+        # SCALER_MEDIANS/centroid models.
+        "sec_unicode_steganography",
+        "sec_self_propagation",
     ],
     "SAT_SCHEMA": [
         "name",
@@ -1223,6 +1232,8 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_shadow_imports": "Non-Standard / Steganographic Imports",
         "sec_homoglyphs": "Non-Standard Unicode / Homoglyphs",
         "sec_hardcoded_secrets": "Embedded Credentials & Keys",
+        "sec_unicode_steganography": "Invisible Unicode Payload Smuggling",
+        "sec_self_propagation": "Self-Referential File Copy/Overwrite (Worm Pattern)",
         # --- VULNERABILITY EXPOSURE MAPPINGS (Plain English) ---
         "secrets_risk": "Hardcoded Credential Exposure",
     },

@@ -507,17 +507,32 @@ class RecordKeeper:
             # scan represent distinct threat categories already surfaced elsewhere
             # and would double-count if folded in here too.
             bin_anomaly = 1 if file_data.get("equations", {}).get("sec_extension_mismatch", 0) > 0 else 0
-            # #369: unlike is_malware/has_credentials/binary_anomaly, there is no
-            # existing signal anywhere in gitgalaxy/ this column could alias --
-            # "GlassWorm" implies a self-propagating supply-chain worm detector
-            # that was never actually built (confirmed: no producer, and no
-            # worm/propagation-pattern detection exists anywhere in the codebase
-            # to wire up). Building one is a real detector effort, not a
-            # dead-key fix. Keeping the SQLite column (for schema/query
-            # compatibility) but hardcoding it to 0 so this is an honest,
-            # explicit "not implemented yet" rather than a read that silently
-            # never resolves.
-            obfuscation_flag = 0
+            # #1150: resolves #369's deferred decision -- a real (deliberately
+            # narrow) GlassWorm-style detector now exists in security_lens.py's
+            # THREAT_SIGNATURES rather than formally deprecating the column.
+            # Two independent lexical proxies, either sufficient to flag:
+            #   - sec_unicode_steganography: a RUN of 3+ consecutive Unicode
+            #     Variation Selector / Tag codepoints, the actual invisible-
+            #     payload-smuggling technique GlassWorm used. A single such
+            #     codepoint is common/benign (emoji presentation, e.g. "❤️");
+            #     only a run has no legitimate source-code use.
+            #   - sec_self_propagation: a self-file-reference token
+            #     (__filename/__file__/import.meta.url/etc.) passed as the
+            #     literal first argument to a copy/write/rename call -- the
+            #     mechanical signature of a worm duplicating or overwriting
+            #     itself. Deliberately excludes bare self-reads (open(__file__))
+            #     and loose "self-ref anywhere near a write" windows, both of
+            #     which are common benign idioms that would otherwise dominate
+            #     false positives.
+            # Neither attempts the multi-file/manifest-correlation angle
+            # (install-script + registry-publish sequences) -- that needs
+            # execution/temporal semantics this AST-free engine doesn't have.
+            obfuscation_flag = (
+                1
+                if file_data.get("equations", {}).get("sec_unicode_steganography", 0) > 0
+                or file_data.get("equations", {}).get("sec_self_propagation", 0) > 0
+                else 0
+            )
 
             # --- NETWORK TOPOLOGY EXTRACTION ---
             net_mets = tel.get("network_metrics", {})

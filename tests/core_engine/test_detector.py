@@ -2100,3 +2100,141 @@ def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
     code = "function realFn() {\n  return 1;\n}\n"
     satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
     assert [s["name"] for s in satellites] == ["realFn"], "php's ordinary function detection regressed"
+
+
+# ==============================================================================
+# TEST 50: ARGS-COUNT CORRECTNESS (#1199 / #1209)
+# ==============================================================================
+# #1199 found that `function_data.args` was wrong for ~68% of Python's own
+# correctly-found functions, root-caused to `_count_top_level_args`/
+# `_calculate_block_metrics` falling back to whitespace-splitting the WHOLE
+# regex match (e.g. "def name(...)") whenever a language's `args` rule had no
+# capture group isolating just the parameter-list span. #1209 tracks porting
+# the same capture-group fix to every other language with the same zero-
+# capture-group precondition. Neither issue previously left behind a
+# persisted regression test -- coverage was ad hoc verification only. These
+# two test groups close that gap: the first pins the shared counting helper's
+# behavior directly (language-agnostic), the second pins real per-language
+# `args` regex + pipeline behavior for each language #1209 has fixed so far,
+# so a future edit that reintroduces the whole-match fallback (or breaks a
+# language's specific capture-group placement) fails a test instead of
+# silently regressing.
+
+
+def test_count_top_level_args_shared_helper():
+    """
+    Direct unit coverage for `_count_top_level_args`, the helper shared by
+    every language's args-counting path. Covers every failure shape #1199
+    found: empty parens, a trailing top-level comma (the near-universal
+    `ruff format`/`rustfmt`/`gofmt` one-param-per-line style), Python's bare
+    `*`/`/` keyword-/positional-only markers, and C's bare `void` empty-
+    parameter-list marker -- plus that nested brackets/parens in a type hint
+    or default value don't fool the top-level comma count.
+    """
+    detector = StructuralExtractor("python", {"python": {"rules": {}}})
+
+    cases = [
+        ("()", 0),
+        ("(x)", 1),
+        ("(x, y, z)", 3),
+        ("(x, y,)", 2),  # trailing comma is a separator, not an extra arg
+        ("(\n    x,\n    y,\n    z,\n)", 3),  # multi-line, one-per-line, trailing comma
+        ("(a, *, b)", 2),  # bare "*" keyword-only marker isn't an argument
+        ("(a, /, b)", 2),  # bare "/" positional-only marker isn't an argument
+        ("(void)", 0),  # C's explicit empty-parameter-list marker
+        ("(x: Dict[str, int], y)", 2),  # nested brackets don't split a single arg
+        ("(x=foo(1, 2), y=3)", 2),  # nested parens in a default value
+    ]
+    for args_str, expected in cases:
+        actual = detector._count_top_level_args(args_str)
+        assert actual == expected, f"_count_top_level_args({args_str!r}) == {actual}, expected {expected}"
+
+
+# Per-language real-pipeline args-count fixtures for #1209's mechanical tier.
+# Each entry is (code, {function_name: expected_args}). Extend this dict as
+# more languages get the capture-group fix (see issue #1209's checklist) --
+# it's deliberately a flat per-language dict, not a class hierarchy, so
+# adding a new language is a one-line addition.
+ARGS_COUNT_FIXTURES: dict[str, tuple[str, dict[str, int]]] = {
+    "c": (
+        "int noop(void) { return 0; }\nint add(int a) { return a; }\nint add2(int a, int b) { return a + b; }\n",
+        {"noop": 0, "add": 1, "add2": 2},
+    ),
+    "cpp": (
+        "void noop() { return; }\nint add(int a) { return a; }\nint add2(int a, int b) { return a + b; }\n",
+        {"noop": 0, "add": 1, "add2": 2},
+    ),
+    "go": (
+        "func main() {}\nfunc Add(a int, b int) int { return a+b }\n",
+        {"main": 0, "Add": 2},
+    ),
+    "kotlin": (
+        "fun main() {}\nfun add(a: Int, b: Int): Int { return a + b }\nfun single(x: Int): Int { return x }\n",
+        {"main": 0, "add": 2, "single": 1},
+    ),
+    "swift": (
+        "func noop() {}\nfunc add(a: Int, b: Int) -> Int { return a + b }\nfunc single(x: Int) -> Int { return x }\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "php": (
+        "<?php\nfunction noop() {}\nfunction add($a, $b) { return $a + $b; }\nfunction single($x) { return $x; }\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "perl": (
+        "sub noop() { return; }\nsub add($a, $b) { return $a + $b; }\nsub single($x) { return $x; }\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "lua": (
+        "function noop()\n    return\nend\n\nfunction add(a, b)\n    return a + b\nend\n",
+        {"noop": 0, "add": 2},
+    ),
+    "apex": (
+        "public class Foo {\n"
+        "    public void noop() {}\n"
+        "    public Integer add(Integer a, Integer b) { return a + b; }\n"
+        "}\n",
+        {"noop": 0, "add": 2},
+    ),
+    "rust": (
+        "fn noop() {}\nfn add(a: i32, b: i32) -> i32 { a + b }\nfn single(x: i32) -> i32 { x }\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "solidity": (
+        "contract Foo {\n"
+        "    function noop() public {}\n"
+        "    function add(uint a, uint b) public returns (uint) { return a + b; }\n"
+        "    constructor(uint init) { }\n"
+        "}\n",
+        {"noop": 0, "add": 2, "constructor": 1},
+    ),
+    "scala": (
+        "object Foo {\n  def add(a: Int, b: Int): Int = { a + b }\n  def noop(): Unit = {}\n}\n",
+        {"add": 2, "noop": 0},
+    ),
+    "dart": (
+        "void noop() {}\nint add(int a, int b) { return a + b; }\n",
+        {"noop": 0, "add": 2},
+    ),
+}
+
+
+@pytest.mark.parametrize("lang", sorted(ARGS_COUNT_FIXTURES.keys()))
+def test_args_count_real_pipeline(lang):
+    """
+    Runs #1209's fixed languages through the REAL LANGUAGE_DEFINITIONS regex
+    + the real detector pipeline (not a mock), asserting the exact `args`
+    value for each function in a small fixed snippet -- covering the zero-arg
+    overcount shape #1199/#1209 are about (e.g. `func main()` was reported as
+    2 args, not 0) for each language's own signature syntax.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code, expected = ARGS_COUNT_FIXTURES[lang]
+    detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn["args"] for fn in result.get("functions", []) if fn["name"] in expected}
+    missing = set(expected) - set(found)
+    assert not missing, f"[{lang}] expected function(s) not found in extraction: {missing}"
+    for name, expected_args in expected.items():
+        assert found[name] == expected_args, f"[{lang}] {name}: expected args={expected_args}, got args={found[name]}"

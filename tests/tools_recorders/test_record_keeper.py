@@ -58,6 +58,7 @@ def mock_pipeline_state():
             "equations": {
                 "sec_hardcoded_secrets": 1,  # Maps to has_credentials, #367
                 "sec_extension_mismatch": 1,  # Maps to binary_anomaly, #368
+                "sec_self_propagation": 1,  # Maps to obfuscation_flag, #1150
             },
             "risk_vector": [80.0, 60.0],  # debt, cog_load
             "hit_vector": [2, 5, 1],  # danger, io, tainted_injection
@@ -185,9 +186,10 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     # never-produced "binary_anomaly".
     assert file_row["binary_anomaly"] == 1
     # #369: no GlassWorm-style detector exists anywhere in the codebase --
-    # obfuscation_flag is now honestly hardcoded to 0 rather than reading a
-    # key nothing ever produced.
-    assert file_row["obfuscation_flag"] == 0
+    # #1150: obfuscation_flag now reads a real (deliberately narrow)
+    # GlassWorm-style detector -- either sec_unicode_steganography or
+    # sec_self_propagation firing is sufficient.
+    assert file_row["obfuscation_flag"] == 1
     assert file_row["ecosystem_role"] == "Core Hub"
     assert file_row["state_danger"] == 2  # The hit_vector value for danger
 

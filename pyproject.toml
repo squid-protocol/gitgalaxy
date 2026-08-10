@@ -60,7 +60,13 @@ blast = "gitgalaxy.galaxyscope:main"
 vault-sentinel = "gitgalaxy.tools.supply_chain_security.vault_sentinel:main"
 supply-chain-firewall = "gitgalaxy.tools.supply_chain_security.supply_chain_firewall:main"
 xray-inspector = "gitgalaxy.tools.supply_chain_security.binary_anomaly_detector:main"
-zero-trust-sbom = "gitgalaxy.tools.compliance.sbom_generator:main"
+# NOTE: there is deliberately no `zero-trust-sbom` script here. SBOM generation
+# stopped being a standalone tool in 638c8a2 (#83), which moved
+# gitgalaxy/tools/compliance/sbom_generator.py to
+# gitgalaxy/recorders/sbom_recorder.py and turned it into a passive Phase 12
+# exit stage, so the manifest is tied to the same finalized in-RAM state as the
+# forensic audits. Use `galaxyscope <target> --sbom-only`. The entry point
+# outlived the module it pointed at and shipped broken until #1179.
 pii-leak-hunter = "gitgalaxy.tools.terabyte_log_scanning.pii_leak_hunter:main"
 terabyte-log-scanner = "gitgalaxy.tools.terabyte_log_scanning.terabyte_log_scanner:main"
 api-network-map = "gitgalaxy.tools.network_auditing.full_api_network_map:main"

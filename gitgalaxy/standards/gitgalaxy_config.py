@@ -528,7 +528,55 @@ LEXICAL_FAMILY_HEURISTICS = {
         # 3. Line Exclusive
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
         # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.
-        "line_exclusive": {"delimiters": ["#", "<#", "#>", "=begin", "=end", ";", "dnl", "%"]},
+        #
+        # #1193: "delimiters" below used to be the ONLY list consulted by
+        # prism.py -- one shared grab-bag applied identically to all ~20
+        # member languages, so `;` (only real for assembly) and `%` (only
+        # real for matlab) silently truncated any line containing either
+        # token -- bare or inside a string literal -- for the other 18
+        # (`100 % 7`, `"SELECT 1;"`, CLI `--` separators, etc.). prism.py now
+        # resolves each language's real delimiter(s) from "language_delimiters"
+        # below, falling back to this top-level list only for a hypothetical
+        # future line_exclusive language that doesn't have its own entry yet.
+        # Per-language sets verified against each language's own real syntax
+        # (assembly genuinely uses both `;` NASM/Intel and `#` GAS/ARM; m4
+        # genuinely uses both `#` -- GNU M4's actual default lexer comment,
+        # confirmed against real curl/gnucobol configure.ac corpus in
+        # test_m4_strict.py -- and the separate macro-level `dnl`; agc_assembly
+        # uses only `#`, not `;`, despite superficially resembling assembly).
+        # jcl is intentionally omitted (empty list): its real comment marker
+        # `//*` is a whole-line prefix, and every JCL statement line also
+        # starts with bare `//`, so adding `//` here would comment out the
+        # entire language -- the position-anchored form this stateless
+        # per-line stripper can't express. markdown is also intentionally
+        # omitted: split_streams() routes it through the prose bypass before
+        # this family is ever consulted, so any entry here would be dead and
+        # risk misleading a future reader (markdown's `#` is a heading
+        # marker, not a comment).
+        "line_exclusive": {
+            "delimiters": ["#"],
+            "language_delimiters": {
+                "python": ["#"],
+                "shell": ["#"],
+                "ruby": ["#", "=begin", "=end"],
+                "assembly": [";", "#"],
+                "agc_assembly": ["#"],
+                "perl": ["#"],
+                "embedded_python": ["#"],
+                "zig": ["//"],
+                "dockerfile": ["#"],
+                "matlab": ["%"],
+                "makefile": ["#"],
+                "csv": ["#"],
+                "yaml": ["#"],
+                "pbtxt": ["#"],
+                "m4": ["#", "dnl"],
+                "tcl": ["#"],
+                "nix": ["#"],
+                "batch": ["REM", "::"],
+                "jcl": [],
+            },
+        },
         # 3b. Line Exclusive, Dash dialect (#76)
         # Same stateless single-token stripper as line_exclusive, but scoped
         # to its own delimiter list rather than joining the shared one above.

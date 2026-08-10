@@ -16,6 +16,7 @@ venv/
 env/
 .venv/
 .crucible_venvs/
+.ast_accuracy_corpus/
 flask_session/
 
 # PYPI PACKAGING & BUILD ARTIFACTS

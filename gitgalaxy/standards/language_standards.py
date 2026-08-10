@@ -118,7 +118,16 @@ LENS_CONFIG: LensConfig = {
             "pair": None,
         },
         {
-            "trigger": r"asm!\s*\(|__asm__",
+            # #1198: same drift #1183 fixed for <script>/<style> -- this
+            # was still unanchored, so a bare "asm!(" substring anywhere in
+            # a file (e.g. a Python string literal like 'asm!("nop")' in a
+            # Rust structural-signature test fixture) falsely triggered the
+            # embedded-language handshake and misrouted the rest of the
+            # file to assembly's rules. Line-anchoring it like the other
+            # two entries means real inline-asm usage (always its own
+            # statement, optionally indented) still matches while fixture
+            # data describing it as a string does not.
+            "trigger": r"^[ \t]*(?:asm!\s*\(|__asm__)",
             "end": r"\)",
             "target": "assembly",
             "pair": ("(", ")"),
@@ -317,8 +326,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # flat `[^\]]*`, truncating at the FIRST `]` and breaking any type param with a
             # nested-bracket bound (e.g. `def Foo[T: Sequence[int]](x: T) -> T:`, a realistic bounded
             # generic). Widened to the established one-level-nesting idiom (square-bracket variant).
+            # #1199: the parameter list is now captured in its own group
+            # (group 1 for def/lambda-with-parens, group 2 for bare
+            # lambda params) instead of only ever being reachable via
+            # group(0), which used to include the "def name"/"lambda"
+            # keyword prefix -- that prefix supplied a spurious extra
+            # whitespace-split token that overcounted every zero/one-arg
+            # signature by +1 downstream in detector.py's args-counter.
+            # Group 1's body also steps over one level of nested parens
+            # (the same bounded one-level-nesting idiom RULE 11 already
+            # uses for square brackets above) so a default value that's
+            # itself a call, e.g. `def f(x=foo(1, 2), y=3):`, doesn't
+            # truncate the capture at the default's own closing paren and
+            # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -1992,8 +2014,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Parameter blocks for functions and methods. Bounded generics [^\]]* and params [^)]*.
+            # #1209: parameter-list span wrapped in its own capture group (was
+            # only reachable via group(0), the whole match including the
+            # "func"/receiver/name prefix) so detector.py's counter isolates
+            # just "(...)" -- the whole-match fallback overcounted every
+            # zero/one-arg signature by +1 the same way Python's did (#1199).
+            # Name group added too, purely so existing extraction tests (which
+            # check the captured name) keep passing.
             "args": re.compile(
-                r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?\w*(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*\([^)]*\)", re.M
+                r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?(\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\([^)]*\))", re.M
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: const/var (freeze_hits) and Capitalization (encapsulation).
@@ -2334,7 +2363,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # realistic, common Rust pattern. Widened to match func_start's already-proven
                 # two-level idiom.
                 # =====================================================================
-                r"\bfn[ \t\n]+[a-zA-Z_]\w*(?:[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[ \t\n]*\((?:[^)(]|\([^)]*\))*\)|\bmove[ \t\n]*\|[^|]*\||(?:^|[=(,\[{<>;:])[ \t\n]*\|[^|]*\|",
+                # #1209: parameter-list span wrapped in its own capture group
+                # in all three alternatives (was only reachable via group(0),
+                # the whole match including the "fn"/"move"/name prefix) so
+                # detector.py's counter isolates just the real parameter text
+                # -- the whole-match fallback overcounted every zero/one-arg
+                # signature by +1 the same way Python's did (#1199), including
+                # a genuinely empty closure `|| ...`. Name group added to the
+                # first alternative too, purely so existing extraction tests
+                # keep passing.
+                r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -2638,8 +2676,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # allowance for a class-qualified operator name (`TargetClass::operator=`) at all, and
             # the method's own template-argument step-over was the flat `<[^>]*>`, breaking a
             # nested type arg (`Foo::Bar<Baz<int>>(...)`, an explicit template specialization).
+            # #1209: parameter-list span wrapped in its own capture group (was
+            # only ever reachable via group(0), the whole match including the
+            # name/template/return-type-keyword prefix) so detector.py's
+            # counter isolates just "(...)" -- the whole-match fallback
+            # overcounted every zero/one-arg signature by +1 the same way
+            # Python's did (#1199), including a genuinely empty lambda
+            # `[]()`. A name group (group 1) is added too, ahead of the
+            # args-list groups, purely so the existing extraction tests
+            # (which check the captured name) keep passing -- detector.py
+            # already picks the highest-numbered participating group via
+            # `lastindex`, so it still resolves to the args group either way.
             "args": re.compile(
-                r"\b(?!(?:if|for|while|switch|catch)\b)(?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?)(?:<(?:[^<>]|<[^<>]*>)*>)?\s*\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|[A-Z]\w*|[a-z_]\w*_t)\b[^)]*\)|\[[^\]]*\]\s*\([^)]*\)"
+                r"\b(?!(?:if|for|while|switch|catch)\b)((?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?))(?:<(?:[^<>]|<[^<>]*>)*>)?\s*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|[A-Z]\w*|[a-z_]\w*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
@@ -3035,7 +3084,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # to safely swallow function pointer parameters without triggering ReDoS.
                 # Upgraded horizontal `[ \t*]*` to `[ \t\n*]*` to support vertical signatures.
                 # =====================================================================
-                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b[a-zA-Z_]\w*[ \t\n*]*\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum)\b(?:[^)(]|\([^)]*\))*\)",
+                # #1209: parameter-list span wrapped in its own capture group
+                # (was the whole match, "name(...)") so detector.py's counter
+                # isolates just "(...)" instead of falling back to whitespace-
+                # splitting the name-plus-parens text, which overcounted every
+                # zero/one-arg signature by +1 the same way Python's did (#1199).
+                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum)\b(?:[^)(]|\([^)]*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -3330,8 +3384,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Signatures for functions and arrow functions. Bounded to prevent ReDoS.
+            # #1209: parameter-list span wrapped in its own capture group (was
+            # only reachable via group(0), the whole match including the
+            # "function"/"fn"/name prefix) so detector.py's counter isolates
+            # just "(...)" -- the whole-match fallback overcounted every
+            # zero/one-arg signature by +1 the same way Python's did (#1199).
+            # Name group added too, purely so existing extraction tests keep
+            # passing.
             "args": re.compile(
-                r"(?<!\$)(?<!->)(?<!::)\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}(?:[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t\n]*)?\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\)",
+                r"(?<!\$)(?<!->)(?<!::)\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)?[ \t\n]*(\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\))",
                 re.M | re.I,
             ),
             # 3. linear (Sequential Boundaries)
@@ -4577,7 +4638,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `<[^>]*>`, truncating at the FIRST `>` and breaking any nested generic bound via
                 # a primary associated type constraint (`func foo<T: Collection<Int>>(x: T) {`,
                 # Swift 5.7+, mainstream). Widened to the established one-level-nesting idiom.
-                r"\b(?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \t\n]*\((?:[^)(]|\([^)(]*(?:\([^)]*\)[^)(]*)*\))*\)|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})?[ \t\n]*in\b",
+                # #1209: parameter-list span wrapped in its own capture group
+                # in both alternatives (was only reachable via group(0), the
+                # whole match including the "func"/name prefix, or for
+                # trailing-closure syntax the leading "{"/capture-list) so
+                # detector.py's counter isolates just the real parameter text
+                # -- the whole-match fallback overcounted every zero/one-arg
+                # signature by +1 the same way Python's did (#1199). Name
+                # group added to the first alternative too, purely so
+                # existing extraction tests keep passing.
+                r"\b((?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)(]*(?:\([^)]*\)[^)(]*)*\))*\))|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})?[ \t\n]*in\b",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -4863,7 +4933,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # MULTI-DOT RECEIVER FIX: Upgraded the receiver capture to `[\w.]+` to support
                 # fully qualified extension receivers (e.g., `com.example.Foo.ext()`).
                 # ANONYMOUS FUNCTION FIX: Made the name capture optional to support `fun(x: Int)`.
-                r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*(?:(?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)[ \t\n]*)?\((?:[^)(]|\([^)]*\))*\)|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->",
+                # #1209: parameter-list span wrapped in its own capture group
+                # in both alternatives (was only reachable via group(0), the
+                # whole match including the "fun"/receiver/name prefix, or for
+                # trailing-lambda syntax the leading "{") so detector.py's
+                # counter isolates just the real parameter text -- the
+                # whole-match fallback overcounted every zero/one-arg
+                # signature by +1 the same way Python's did (#1199), including
+                # a bare trailing lambda (`list.forEach { item -> ... }`).
+                # Name group added to the first alternative too, purely so
+                # existing extraction tests keep passing.
+                r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*((?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\{[ \t\n]*([a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?)->",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -6873,8 +6953,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|continue|goto|and|or|not)\b"
             ),
             # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
+            # #1209: parameter-list span wrapped in its own capture group (was
+            # only reachable via group(0), the whole match including the
+            # "function"/name prefix) so detector.py's counter isolates just
+            # "(...)" -- the whole-match fallback overcounted every zero/
+            # one-arg signature by +1 the same way Python's did (#1199). Name
+            # group added too, purely so existing extraction tests keep
+            # passing.
             "args": re.compile(
-                r"\bfunction\s*(?:[a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)"
+                r"\bfunction\s*([a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
@@ -7103,8 +7190,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|try|catch|finally|defer|goto|continue|default)\b|&&|\|\||//|\?|(?<!:):(?!:)"
             ),
             # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
+            # #1209: parameter-list span wrapped in its own capture group in
+            # the first two alternatives (was only reachable via group(0),
+            # the whole match including the "sub"/"my" prefix) so detector.py's
+            # counter isolates just the real parameter text -- the whole-match
+            # fallback overcounted every zero/one-arg signature by +1 the same
+            # way Python's did (#1199). The bare `shift` alternative is left
+            # alone -- its whole match already IS just "shift" with no prefix
+            # to pollute the count.
             "args": re.compile(
-                r"\b(?:sub|method)(?:\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*\([^)]*\)|\bmy\s*\([^)]*\)\s*=\s*@_|\bshift\b"
+                r"\b(?:sub|method)(\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*(\([^)]*\))|\bmy\s*(\([^)]*\))\s*=\s*@_|(\bshift\b)"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
             "structural_boundaries": re.compile(
@@ -7596,8 +7691,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "branch": re.compile(r"\b(if|elif|else|for|while|with|try|finally|match|case|and|or)\b"),
             # 2. args (Parameters / Coupling)
             # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
+            # #1199: the parameter list is now captured in its own group
+            # (group 1 for def/lambda-with-parens, group 2 for bare
+            # lambda params) instead of only ever being reachable via
+            # group(0), which used to include the "def name"/"lambda"
+            # keyword prefix -- that prefix supplied a spurious extra
+            # whitespace-split token that overcounted every zero/one-arg
+            # signature by +1 downstream in detector.py's args-counter.
+            # Group 1's body also steps over one level of nested parens
+            # (the same bounded one-level-nesting idiom RULE 11 already
+            # uses for square brackets above) so a default value that's
+            # itself a call, e.g. `def f(x=foo(1, 2), y=3):`, doesn't
+            # truncate the capture at the default's own closing paren and
+            # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\([^)]*\)|\blambda\b[ \t]*[^:]*:",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -8346,11 +8454,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.
+            # #1209: parameter-list span wrapped in its own capture group in
+            # both alternatives (was only reachable via group(0), the whole
+            # match including the decorator/modifier/return-type/name prefix,
+            # or for triggers the "trigger name on object" prefix) so
+            # detector.py's counter isolates just "(...)" -- the whole-match
+            # fallback overcounted every zero/one-arg signature by +1 the same
+            # way Python's did (#1199). Name groups added too, purely so
+            # existing extraction tests keep passing.
             "args": re.compile(
                 r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)[a-zA-Z_]\w*\s*\([^)]*\)|"
-                r"^[ \t]*trigger\s+[a-zA-Z_]\w*\s+on\s+[a-zA-Z_]\w*\s*\([^)]*\)",
+                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)\s*(\([^)]*\))|"
+                r"^[ \t]*trigger\s+([a-zA-Z_]\w*)\s+on\s+[a-zA-Z_]\w*\s*(\([^)]*\))",
                 re.M | re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and sharing keywords.
@@ -8583,8 +8699,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 2. args (Parameters / Coupling)
             # Captures parameters in function, method, and lambda signatures.
+            # #1209: parameter-list span wrapped in its own capture group in
+            # both alternatives (was only reachable via group(0), the whole
+            # match including the name prefix) so detector.py's counter
+            # isolates just "(...)" -- the whole-match fallback overcounted
+            # every zero/one-arg signature by +1 the same way Python's did
+            # (#1199). Name group added to the first alternative too, purely
+            # so existing extraction tests keep passing.
             "args": re.compile(
-                r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b[A-Za-z_$][\w$]*(?:[ \t\n]*<[^>]*>)?[ \t\n]*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?=[ \t\n]*(?:\{|=>|:|async|sync))|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*=>",
+                r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b([A-Za-z_$][\w$]*)(?:[ \t\n]*<[^>]*>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*(?:\{|=>|:|async|sync))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*=>",
                 re.I | re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
@@ -8882,8 +9005,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # = x ``, a realistic idiom for Java-interop/reserved-word names) never matched at all
             # (doc's Rule 16 shape). Added as an alternative, not a widened class, so it can't loosen
             # the plain-identifier path.
+            # #1209: parameter-list span wrapped in its own capture group in
+            # all three alternatives (was only reachable via group(0), the
+            # whole match including the "def"/name prefix, or for arrow
+            # functions the trailing "=>") so detector.py's counter isolates
+            # just the real parameter text -- the whole-match fallback
+            # overcounted every zero/one-arg signature by +1 the same way
+            # Python's did (#1199), including the bare single-identifier
+            # arrow form (`x => ...`, always exactly 1 arg). Name group added
+            # to the first alternative too, purely so existing extraction
+            # tests keep passing.
             "args": re.compile(
-                r"\bdef\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*\((?:[^()]|\([^()]*\))*\)|\((?:[^()]|\([^()]*\))*\)[ \t]*=>|\b[a-zA-Z_]\w*[ \t]*=>"
+                r"\bdef\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*(\((?:[^()]|\([^()]*\))*\))|(\((?:[^()]|\([^()]*\))*\))[ \t]*=>|\b([a-zA-Z_]\w*)[ \t]*=>"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
             "structural_boundaries": re.compile(
@@ -10025,8 +10158,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?"),
             # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
             # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
+            # #1209: parameter-list span wrapped in its own capture group in
+            # both alternatives (was only reachable via group(0), the whole
+            # match including the "function"/"modifier"/name prefix) so
+            # detector.py's counter isolates just "(...)" -- the whole-match
+            # fallback overcounted every zero/one-arg signature by +1 the same
+            # way Python's did (#1199). Name group added to the first
+            # alternative too, purely so existing extraction tests keep
+            # passing.
             "args": re.compile(
-                r"\b(?:function|modifier|error|event)\s+(?:[a-zA-Z_]\w*\s*)?\([^)]{0,500}\)|\b(?:constructor|fallback|receive)\s*\([^)]{0,500}\)"
+                r"\b(?:function|modifier|error|event)\s+([a-zA-Z_]\w*\s*)?(\([^)]{0,500}\))|\b(?:constructor|fallback|receive)\s*(\([^)]{0,500}\))"
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(

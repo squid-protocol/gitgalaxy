@@ -132,6 +132,12 @@ ALLOWLIST = {
     "spec": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
+    # --- Regex named-capture-group access, not dict keys ---
+    # detector.py's _apply_literal_shield/_slice_by_terminator (#1184) read
+    # m.group("comment")/m.groupdict().get("comment") -- a re.Match named
+    # group defined inline via (?P<comment>...) in the same function, not a
+    # dict this walker can trace a producer for.
+    "comment": "regex named-capture-group (?P<comment>...), not a dict key (detector.py, #1184)",
 }
 
 

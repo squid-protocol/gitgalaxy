@@ -284,7 +284,7 @@ An analytical suite for sanitizing mainframe monoliths. It safely neutralizes le
 ### [Software Supply Chain Security & Pre-Commit Firewalls](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/supply_chain_security/)
 Pre-commit firewalls that scan physical file internals rather than trusting manifest files — built to block steganography, byte-level XOR decryption loops, homoglyph typosquatting, and exposed cryptographic vaults before they enter your CI/CD pipeline. **[Deploy directly via our GitHub Action](https://github.com/squid-protocol/gitgalaxy/blob/main/github-action-readme.md).**
 
-### [SBOM Generation & Dependency Auditing](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/compliance/)
+### [SBOM Generation & Dependency Auditing](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/sbom_recorder.py)
 A Software Bill of Materials (SBOM) generator that doesn't blindly trust `package.json` or `requirements.txt` — it locates the physical dependencies on disk, checks their entropy and linguistic identity against what a legitimate version should look like, and generates strict CycloneDX 1.4 JSON reports.
 * **Benchmark:** Mapped and verified the physical internals of 170 unique Go modules inside the local Kubernetes repository. A single-repo result, not a claim of coverage across the Go ecosystem.
 

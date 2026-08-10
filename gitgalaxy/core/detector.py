@@ -29,6 +29,7 @@ from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
 )
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.standards.language_standards import LENS_CONFIG
 
 HAS_TIKTOKEN = False
 try:
@@ -316,25 +317,25 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
+    # #1183: this used to be a hand-maintained duplicate of LENS_CONFIG's
+    # HANDSHAKE_REGISTRY (gitgalaxy/standards/language_standards.py) that had
+    # drifted out of sync -- it dropped the "^[ \t]*...\b" line-anchoring the
+    # canonical config uses, so an unanchored "<script"/"<style" substring
+    # matched even inside a string/regex literal (e.g. Python test fixture
+    # data describing an embedded-JS trigger), permanently misrouting every
+    # function for the rest of the file to the wrong language's rules.
+    # Deriving directly from LENS_CONFIG keeps the two in permanent sync.
+    # re.M is required for the "^" anchor to match at the start of any line
+    # rather than only the start of the whole file -- without it, a genuine
+    # mid-file "<script>" (the normal case) would never match either.
     HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = [
         {
-            "trigger": re.compile(r"<script", re.I),
-            "end": re.compile(r"</script>", re.I),
-            "target": "javascript",
-            "pair": None,
-        },
-        {
-            "trigger": re.compile(r"<style", re.I),
-            "end": re.compile(r"</style>", re.I),
-            "target": "css",
-            "pair": None,
-        },
-        {
-            "trigger": re.compile(r"asm!\s*\(|__asm__", re.I),
-            "end": re.compile(r"\)"),
-            "target": "assembly",
-            "pair": ("(", ")"),
-        },
+            "trigger": re.compile(h["trigger"], re.I | re.M),
+            "end": re.compile(h["end"], re.I | re.M),
+            "target": h["target"],
+            "pair": h["pair"],
+        }
+        for h in LENS_CONFIG["HANDSHAKE_REGISTRY"]
     ]
 
     def __init__(
@@ -1292,7 +1293,29 @@ class StructuralExtractor:
 
         t_start = time.time()
 
+        # #1184: comments are folded into the SAME alternation as the quote
+        # patterns below (see atomic_string_pattern's trailing "comment"
+        # branch) instead of being stripped in a separate later pass -- a
+        # separate pass let an English contraction apostrophe inside a "#"/
+        # "--"/"//" comment (don't, it's, wasn't) get treated as a real
+        # string-open quote by the single-quote alternative, pairing with
+        # whatever "'" came next anywhere later in the code and blanking out
+        # every real line in between (silently dropping whole functions from
+        # extraction downstream in `_slice_by_keywords`). One combined pass
+        # lets whichever construct -- string or comment -- starts first at a
+        # given position atomically claim its whole span, so an apostrophe
+        # already inside a claimed comment is never independently
+        # reconsidered as a string delimiter. Mirrors
+        # `_build_brace_safe_stream`'s existing single-pass design, and the
+        # identical fix in `_build_indentation_safe_stream`.
         def preserve_newlines(m):
+            # groupdict().get(...) rather than m.group("comment") -- this
+            # closure is also reused below for the Ruby %-literal shield
+            # pass, whose pattern has no "comment" group at all, and
+            # m.group() on a group name absent from the ORIGINATING pattern
+            # raises IndexError rather than returning None.
+            if m.groupdict().get("comment") is not None:
+                return ""
             return '""' + "\n" * m.group(0).count("\n")
 
         # 1. Advanced Atomic Quotes
@@ -1305,9 +1328,14 @@ class StructuralExtractor:
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
             r'"(?:\\.|[^"\\])*"|'  # Standard Double
             r"'(?:\\.|[^'\\])*'|"  # Standard Single
-            r"`(?:\\.|[^`\\])*`"  # Standard Backtick
+            r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
+            # Comment marker must be at line-start or preceded by whitespace
+            # (guards against e.g. shell's "$#" positional-arg-count being
+            # mistaken for a comment). Same marker set previously stripped
+            # by `_slice_by_keywords`'s own post-hoc pass.
+            r"(?:^|(?<=[ \t]))(?P<comment>#|--|//)[^\n]*"
         )
-        text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL)
+        text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL | re.MULTILINE)
         t_quotes = time.time()
 
         t_heredoc = t_quotes
@@ -1806,24 +1834,38 @@ class StructuralExtractor:
         function/class body, while preserving newlines so every index
         still maps 1:1 to `code`. Shared by `_slice_by_indentation` and
         the nesting-aware class-boundary scanner (#1040).
+
+        #1184: strings and comments MUST be shielded in one combined-
+        alternation pass, not sequential independent re.sub calls. Stripping
+        comments in a separate LAST pass (the old approach) let an English
+        contraction apostrophe inside a "#" comment (don't, it's, wasn't)
+        get treated as a real string-open quote by the single-quote pass
+        that ran before it -- it would then pair with whatever "'" came
+        next anywhere later in the file and blank out every real line
+        (including "def" lines) in between, silently dropping entire
+        contiguous ranges of functions from extraction. A single pass lets
+        whichever construct -- string or comment -- starts first at a given
+        position atomically claim its whole span, so an apostrophe already
+        inside a claimed comment is never independently reconsidered as a
+        string delimiter. Mirrors `_build_brace_safe_stream`'s existing
+        single-pass design, which never had this bug for the same reason.
         """
 
         def index_aligned_shield(m):
             text = m.group(0)
             return "".join("\n" if c == "\n" else " " for c in text)
 
-        # Shield Python triple-quotes first to prevent inner-quote collisions
-        safe_code = re.sub(r"\"\"\"(.*?)\"\"\"", index_aligned_shield, code, flags=re.DOTALL)
-        safe_code = re.sub(r"\'\'\'(.*?)\'\'\'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield standard strings
-        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', index_aligned_shield, safe_code, flags=re.DOTALL)
-        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", index_aligned_shield, safe_code, flags=re.DOTALL)
-
-        # Shield comments (Python and YAML use #)
-        safe_code = re.sub(r"#.*", lambda m: " " * len(m.group(0)), safe_code)
-
-        return safe_code
+        # Order matters: triple-quote markers must precede the single-char
+        # quote patterns, or e.g. the double-quote alternative would match
+        # the first two characters of a `"""..."""` as an empty `""` string.
+        combined_pattern = (
+            r'"""(?:.*?)"""|'
+            r"'''(?:.*?)'''|"
+            r'"(?:\\.|[^"\\])*"|'
+            r"'(?:\\.|[^'\\])*'|"
+            r"#[^\n]*"  # Python and YAML both use "#" for comments
+        )
+        return re.sub(combined_pattern, index_aligned_shield, code, flags=re.DOTALL)
 
     def _slice_by_indentation(
         self,
@@ -1875,7 +1917,29 @@ class StructuralExtractor:
             base_indent = len(first_line) - len(first_line.lstrip())
 
             end_idx = len(safe_code)
-            scan_pos = safe_code.find("\n", match.end())
+
+            # #1199: func_start's regex ends right at the signature's opening
+            # "(" (it never consumes the parameter list), so a signature that
+            # wraps onto multiple physical lines leaves that "(" unclosed at
+            # match.end(). The old code started the dedent scan on the very
+            # next line -- for a wrapped signature, its closing "):" line is
+            # typically re-dedented back to the def's own indent level, which
+            # looked identical to a sibling statement ending the function and
+            # truncated the block before the real body (or even the closing
+            # paren) was ever included. Walk the signature's own paren depth
+            # back to 0 first so the dedent scan only ever begins on the first
+            # line that's genuinely past the signature.
+            sig_scan = match.end()
+            paren_depth = safe_code.count("(", start_idx, match.end()) - safe_code.count(")", start_idx, match.end())
+            while sig_scan < len(safe_code) and paren_depth > 0:
+                ch = safe_code[sig_scan]
+                if ch == "(":
+                    paren_depth += 1
+                elif ch == ")":
+                    paren_depth -= 1
+                sig_scan += 1
+
+            scan_pos = safe_code.find("\n", sig_scan)
             if scan_pos == -1:
                 scan_pos = len(safe_code)
             else:
@@ -1959,11 +2023,10 @@ class StructuralExtractor:
         satellite_name = "Main"
 
         # 1. Apply the comprehensive Atomic Literal Shield
+        # #1184: comment-stripping now happens INSIDE _apply_literal_shield,
+        # in the same pass as string-shielding -- see that method's
+        # docstring/comments for why a separate later pass was unsafe.
         safe_code = self._apply_literal_shield(code)
-
-        # ---> FAST SINGLE-PASS COMMENT STRIP <---
-        # Ensures #var or #foo are not erroneously treated as comments if they are not at the start of a word.
-        safe_code = re.sub(r"(^|[ \t])(?:#|--|//).*$", r"\1", safe_code, flags=re.MULTILINE)
 
         # 2. Split both into parallel arrays
         original_lines = code.splitlines(keepends=True)
@@ -2118,16 +2181,32 @@ class StructuralExtractor:
 
         # 1. Apply the shield to the ENTIRE string, preserving newline counts.
         # This prevents multi-line strings from collapsing the parallel line iteration.
+        # #1184: strings and comments are shielded in ONE combined-alternation
+        # pass, not sequential independent re.sub calls -- a separate LATER
+        # comment-strip pass (the old approach) let an English contraction
+        # apostrophe inside a "--"/"%" comment (it's, doesn't) get treated as
+        # a real string-open quote by the single-quote pass that ran before
+        # it, pairing with whatever "'" came next anywhere later in the code
+        # and blanking out entire real statements (including igniter
+        # keywords like CREATE PROCEDURE) in between. One combined pass lets
+        # whichever construct starts first at a given position atomically
+        # claim its whole span, so a comment's apostrophe is never
+        # independently reconsidered as a string delimiter. Same fix as
+        # `_build_indentation_safe_stream` / `_apply_literal_shield`.
         def preserve_newlines(m):
+            if m.groupdict().get("comment") is not None:
+                return ""
             return '""' + "\n" * m.group(0).count("\n")
 
-        safe_code = re.sub(r'"(?:\\.|[^"\\])*"', preserve_newlines, code, flags=re.DOTALL)
-        safe_code = re.sub(r"'(?:\\.|[^'\\])*'", preserve_newlines, safe_code, flags=re.DOTALL)
-        safe_code = re.sub(r"`(?:\\.|[^`\\])*`", preserve_newlines, safe_code, flags=re.DOTALL)
-
-        # ---> FAST SINGLE-PASS COMMENT STRIP <---
-        # Execute the regex once globally. Prevents 500,000+ regex calls on massive SQL dumps.
-        safe_code = re.sub(r"(--|%).*$", "", safe_code, flags=re.MULTILINE)
+        safe_code = re.sub(
+            r'"(?:\\.|[^"\\])*"|'
+            r"'(?:\\.|[^'\\])*'|"
+            r"`(?:\\.|[^`\\])*`|"
+            r"(?P<comment>--|%)[^\n]*",
+            preserve_newlines,
+            code,
+            flags=re.DOTALL,
+        )
 
         # 2. Split both into parallel arrays
         original_lines = code.splitlines(keepends=True)
@@ -2216,9 +2295,41 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
+    def _matching_paren_end(self, text: str, open_idx: int) -> int:
+        """
+        String-aware scan for the index of the "(" at `open_idx`'s matching ")".
+        Returns `len(text)` if it never closes within `text` (e.g. a signature
+        capture that only includes an opening context paren, like Scheme's
+        `(define (...)`). Shared by `_count_top_level_args` and
+        `_calculate_block_metrics`'s args-count self-containment check (#1199).
+        """
+        depth = 0
+        in_string = False
+        quote_char = ""
+        i = open_idx
+        while i < len(text):
+            ch = text[i]
+            if in_string:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == quote_char:
+                    in_string = False
+            elif ch in ("'", '"', "`"):
+                in_string = True
+                quote_char = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    return i
+            i += 1
+        return len(text)
+
     def _count_top_level_args(self, args_str: str) -> int:
         """
-        Depth- and string-aware comma counter for a captured function signature.
+        Depth- and string-aware argument counter for a captured function signature.
 
         `args` regexes capture the whole signature (e.g. "def foo(x, y)",
         "(x, y) =>"), so the real argument list sits one bracket level inside the
@@ -2229,42 +2340,32 @@ class StructuralExtractor:
         literals, nested callback signatures) or inside string literals must be
         ignored, or a single `data: Dict[str, int]` argument gets miscounted as
         two.
+
+        Returns the actual argument count, not a raw comma tally: an empty
+        parameter list is 0 (not 1), a trailing top-level comma -- the
+        near-universal `ruff format` style for a multi-line signature with one
+        parameter per line -- doesn't create a phantom extra segment, a lone
+        `void` segment (C's explicit empty-parameter-list marker, `int f(void)`)
+        is 0 arguments not 1, and a bare `*`/`/` segment (Python's keyword-only/
+        positional-only markers, e.g. `def f(a, *, b):`) is real signature
+        syntax but not itself an argument -- `ast.parse`'s own `FunctionDef.args`
+        doesn't count it either, so counting every comma-separated segment as
+        one argument overcounts any such signature by exactly one per marker
+        (#1199, #1209).
         """
-
-        def _matching_paren_end(text: str, open_idx: int) -> int:
-            depth = 0
-            in_string = False
-            quote_char = ""
-            i = open_idx
-            while i < len(text):
-                ch = text[i]
-                if in_string:
-                    if ch == "\\":
-                        i += 2
-                        continue
-                    if ch == quote_char:
-                        in_string = False
-                elif ch in ("'", '"', "`"):
-                    in_string = True
-                    quote_char = ch
-                elif ch == "(":
-                    depth += 1
-                elif ch == ")":
-                    depth -= 1
-                    if depth == 0:
-                        return i
-                i += 1
-            return len(text)
-
         body = args_str
         open_idx = args_str.find("(")
         if open_idx != -1:
-            body = args_str[open_idx + 1 : _matching_paren_end(args_str, open_idx)]
+            body = args_str[open_idx + 1 : self._matching_paren_end(args_str, open_idx)]
+
+        if not body.strip():
+            return 0
 
         depth = 0
         in_string = False
         quote_char = ""
-        count = 0
+        segments: list[str] = []
+        seg_start = 0
         i = 0
         while i < len(body):
             ch = body[i]
@@ -2283,9 +2384,15 @@ class StructuralExtractor:
                 if depth > 0:
                     depth -= 1
             elif ch == "," and depth == 0:
-                count += 1
+                segments.append(body[seg_start:i])
+                seg_start = i + 1
             i += 1
-        return count
+        segments.append(body[seg_start:])
+
+        real_segments = [s for s in (seg.strip() for seg in segments) if s and s not in ("*", "/")]
+        if real_segments == ["void"]:
+            return 0
+        return len(real_segments)
 
     def _calculate_block_metrics(
         self,
@@ -2359,9 +2466,29 @@ class StructuralExtractor:
                 arg_match = args_pattern.search(block)
                 if arg_match:
                     args_str = arg_match.group(arg_match.lastindex) if arg_match.lastindex else arg_match.group(0)
-                    if args_str and args_str.strip() != "()":
+                    stripped = args_str.strip() if args_str else ""
+                    # #1199: a capture group whose ENTIRE span is a self-contained
+                    # "(...)" pair (true of python's def/lambda-with-parens args
+                    # group once it stops sharing group(0) with the "def name"
+                    # prefix) is unambiguously the real parameter list -- a
+                    # comma-free non-empty body there is exactly ONE argument, not
+                    # zero. The old code could only decide via "does args_str
+                    # contain a comma", which silently overcounted every
+                    # zero/one-arg signature by +1 (the "def name(...)" prefix
+                    # itself supplied a spurious extra whitespace-split token).
+                    # Signatures that AREN'T self-contained (e.g. Scheme's
+                    # `(define (func arg1 arg2)`, whose outer "(define" paren
+                    # never closes within the capture) fall through unchanged to
+                    # the original comma/whitespace-split heuristics below.
+                    if (
+                        stripped.startswith("(")
+                        and stripped.endswith(")")
+                        and self._matching_paren_end(stripped, 0) == len(stripped) - 1
+                    ):
+                        args_count = self._count_top_level_args(stripped)
+                    elif stripped and stripped != "()":
                         if "," in args_str:
-                            args_count = self._count_top_level_args(args_str) + 1
+                            args_count = self._count_top_level_args(args_str)
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())
@@ -2470,7 +2597,7 @@ class StructuralExtractor:
         calls_out = list(set([c for c in raw_calls if c not in ignore_keywords and c != name]))[:20]
 
         sat: FunctionNode = {
-            "name": name[:40],
+            "name": name,
             "calls_out_to": calls_out,
             "texture": texture_str,
             "type_id": texture_str,

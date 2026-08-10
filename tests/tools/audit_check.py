@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-One-command wrapper for the three baseline-gated audits (ruff, mypy,
-dead-key) plus the zero-tolerance ruff format check.
+One-command wrapper for the four baseline-gated audits (ruff, mypy,
+dead-key, ast-accuracy) plus the zero-tolerance ruff format check.
 
 Why this exists: after any regex/detector.py change, the established workflow
 is to run all three `--ci` checks separately, then manually eyeball each
@@ -140,6 +140,28 @@ def check_dead_key() -> bool:
     return ok
 
 
+def check_ast_accuracy() -> bool:
+    """
+    Numeric-metric regression gate (#1200), not a per-finding dict --
+    no line-shift auto-detection applies here (there are no line numbers in
+    the baseline at all). Run as a subprocess, same as check_dead_key(),
+    since it needs its own corpus-extraction/galaxyscope-subprocess
+    machinery rather than a simple importable function.
+    """
+    result = subprocess.run(
+        [sys.executable, str(TESTS_DIR / "ast_accuracy_audit.py"), "--ci"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    ok = result.returncode == 0
+    print(f"[ast-accuracy] {result.stdout.strip()}" if ok else "[ast-accuracy] FAIL -- see details below:")
+    if not ok:
+        print(result.stdout)
+        print(result.stderr)
+    return ok
+
+
 def main() -> int:
     regenerate = "--regenerate" in sys.argv[1:]
 
@@ -147,6 +169,7 @@ def main() -> int:
         "ruff": check_ruff(regenerate),
         "mypy": check_mypy(regenerate),
         "dead-key": check_dead_key(),
+        "ast-accuracy": check_ast_accuracy(),
     }
 
     print()

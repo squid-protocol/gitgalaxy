@@ -182,12 +182,12 @@ class GPURecorder:
                 sec_name, sec_dist = sorted_archs[1]
 
                 file_a_ids.append(self._intern(prim_name, self.archetype_lookup))
-                file_a_dists.append(int(round(prim_dist * 1000)))  # Quantize to save bytes
+                file_a_dists.append(round(prim_dist * 1000))  # Quantize to save bytes
 
                 # Identify architectural drift (Anti-Patterns)
                 if (sec_dist - prim_dist) <= 0.9:
                     file_a_ids.append(self._intern(sec_name, self.archetype_lookup))
-                    file_a_dists.append(int(round(sec_dist * 1000)))
+                    file_a_dists.append(round(sec_dist * 1000))
             else:
                 arch_name = tel.get("archetype", "Unknown Archetype")
                 file_a_ids.append(self._intern(arch_name, self.archetype_lookup))
@@ -207,15 +207,15 @@ class GPURecorder:
             repository_graph["d_locs"].append(int(file_data.get("doc_loc", 0)))
 
             # 4. Quantized Structural Metrics
-            repository_graph["mass"].append(int(round(file_data.get("file_impact", 0.0) * 10)))
-            repository_graph["author_distribution"].append(int(round(tel.get("author_distribution", 0.0) * 1000)))
-            repository_graph["ownership_entropy"].append(int(round(tel.get("ownership_entropy", 0.0) * 1000)))
-            repository_graph["raw_churn_freq"].append(int(round(tel.get("raw_churn_freq", 0.0) * 1000)))
-            repository_graph["cog_raw"].append(int(round(tel.get("densities", {}).get("cog_raw", 0.0) * 1000)))
+            repository_graph["mass"].append(round(file_data.get("file_impact", 0.0) * 10))
+            repository_graph["author_distribution"].append(round(tel.get("author_distribution", 0.0) * 1000))
+            repository_graph["ownership_entropy"].append(round(tel.get("ownership_entropy", 0.0) * 1000))
+            repository_graph["raw_churn_freq"].append(round(tel.get("raw_churn_freq", 0.0) * 1000))
+            repository_graph["cog_raw"].append(round(tel.get("densities", {}).get("cog_raw", 0.0) * 1000))
 
-            repository_graph["pos_x"].append(int(round(file_data.get("pos_x", 0.0) * 10)))
-            repository_graph["pos_y"].append(int(round(file_data.get("pos_y", 0.0) * 10)))
-            repository_graph["pos_z"].append(int(round(file_data.get("pos_z", 0.0) * 10)))
+            repository_graph["pos_x"].append(round(file_data.get("pos_x", 0.0) * 10))
+            repository_graph["pos_y"].append(round(file_data.get("pos_y", 0.0) * 10))
+            repository_graph["pos_z"].append(round(file_data.get("pos_z", 0.0) * 10))
 
             # 5. Flat Array Mapping (Structure of Arrays)
             # THE FIX: If risk_vector is missing (unscanned), inject -10 to flag it as -1.0 in WebGPU
@@ -240,7 +240,7 @@ class GPURecorder:
             )
             repository_graph["tel_lt"].append(tel.get("identity_lock_tier", 4))
             repository_graph["tel_pop"].append(tel.get("popularity", 0))
-            repository_graph["tel_cfr"].append(int(round(tel.get("control_flow_ratio", 0.0) * 1000)))
+            repository_graph["tel_cfr"].append(round(tel.get("control_flow_ratio", 0.0) * 1000))
 
             # 7. Threat Score Quantization
             ai_score_str = domain_ctx.get("AI Threat Score", "0.0%")
@@ -249,7 +249,7 @@ class GPURecorder:
             except ValueError:
                 ai_score_val = 0.0
 
-            repository_graph["ai_threats"].append(int(round(ai_score_val * 1000)))
+            repository_graph["ai_threats"].append(round(ai_score_val * 1000))
 
             # 8. Function Minification (Compressed Sparse Row Format)
             function_list = []
@@ -317,7 +317,7 @@ class GPURecorder:
             excluded_artifacts["exts"].append(self._intern(ext, self.ext_lookup))
             excluded_artifacts["reasons"].append(self._intern(unparsable.get("reason", "anomaly"), self.reason_lookup))
             excluded_artifacts["sizes"].append(int(unparsable.get("size_bytes", 0)))
-            excluded_artifacts["confidences"].append(int(round(unparsable.get("identity_confidence", 0.0) * 1000)))
+            excluded_artifacts["confidences"].append(round(unparsable.get("identity_confidence", 0.0) * 1000))
             del unparsable
 
         # Evict detached dict references

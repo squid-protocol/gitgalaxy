@@ -31,7 +31,10 @@ class SecurityLens:
         # DEFENSIVE GUARD: ReDoS Prevention
         # Extracts string literals for entropy scanning. Bounded to 64-1024 chars
         # using a non-greedy matcher to prevent catastrophic backtracking on minified files.
-        self.string_extractor = re.compile(r'(["\'])([^\n]{64,1024}?)\1')
+        # The (?!\1) lookahead stops the run at the same quote char that opened it, so a
+        # short literal (e.g. a 6-char dict key) can't get stitched together with unrelated
+        # code text past it just to reach the 64-char floor (#1166).
+        self.string_extractor = re.compile(r'(["\'])((?:(?!\1)[^\n]){64,1024}?)\1')
 
         # ---> THE AUTO-GEN SHIELD <---
         # Bypasses strict security/entropy checks on machine-generated files (Swagger, ESLint disables)
@@ -86,7 +89,10 @@ class SecurityLens:
             "io": re.compile(
                 r"\b(?:fetch|XMLHttpRequest|WebSocket|http\.request|https\.request|requests\.(?:post|put|get)|urllib\.request\.urlopen)\b\s*\(|"
                 r"\b(?:curl_exec|fsockopen|pfsockopen|stream_socket_client|file_get_contents)\b\s*\(|"
-                r"\b(?:dns_get_record|gethostbyname|socket\.gethostbyname|resolve(?:4|6|Cname|Txt)?)\b\s*\(|"
+                # dns.* prefix required: bare resolve(/resolve4( etc. collide with the extremely
+                # common Path.resolve()/Promise.resolve() and produce noise unrelated to DNS
+                # exfiltration (#1166).
+                r"\b(?:dns_get_record|gethostbyname|socket\.gethostbyname|dns\.resolve(?:4|6|Cname|Txt)?)\b\s*\(|"
                 r"(?:https?|ftp|tcp|udp|wss?):\/\/(?:(?:\d{1,3}\.){3}\d{1,3}|\[[0-9a-fA-F:]+\]|.*?\.(?:ngrok\.io|ngrok-free\.app|localtunnel\.me|pastebin\.com|workers\.dev|s3\.amazonaws\.com|requestbin\.net|pipedream\.net))",
                 re.I | re.X,
             ),
@@ -95,7 +101,10 @@ class SecurityLens:
                 r"\b(?:BPXBATCH|IKJEFT01|IRXJCL)\b|"
                 r"\bEXEC\s+CICS\s+(?:START|LINK\s+PROGRAM|XCTL)\b\s*\(\s*[A-Za-z_-]+\s*\)|"
                 r'\b(?:eval|Function|setTimeout|setInterval)\b\s*\(\s*(?:atob|base64_decode|gzinflate|\$|_[a-zA-Z]|["\']|`)|'
-                r"\b(?:document\.write|location\.replace|assert|create_function|passthru|shell_exec|system)\b|"
+                # Requires an actual call (trailing paren), not just the bare word -- "system"
+                # in particular is common English prose (e.g. "Build System") that a bare \b
+                # word-boundary match would hallucinate on (#1166).
+                r"\b(?:document\.write|location\.replace|assert|create_function|passthru|shell_exec|system)\s*\(|"
                 r"child_process\.(?:exec|spawn|fork)|"
                 r'(?:window|global|this|globalThis)\[[ \t]*(?:["\'][a-zA-Z]["\'][ \t]*\+[ \t]*){1,15}["\'][a-zA-Z]["\'][ \t]*\][ \t]*\(|'
                 r"\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(\s*\$_(?:POST|GET|COOKIE|REQUEST|HEADERS)|"
@@ -157,6 +166,34 @@ class SecurityLens:
             # 13. Raw Database Sinks
             "db_hooks": re.compile(
                 r"\b(?:execute|query|raw|cursor|execute_sql|executeBatch|query_db)\b\s*\(",
+                re.I,
+            ),
+            # 14. Unicode Steganography (GlassWorm-style invisible payload smuggling, #1150)
+            # Variation Selectors (U+FE00-FE0F), Variation Selectors Supplement
+            # (U+E0100-E01EF), and the Unicode Tags block (U+E0000-E007F) have no
+            # legitimate use in source code beyond a SINGLE trailing VS16 forcing
+            # emoji presentation (e.g. "❤️"). A single hit is common and
+            # benign; a RUN of 3+ consecutive codepoints from these blocks has no
+            # legitimate source -- it's the exact shape a byte-encoded hidden
+            # payload takes (each invisible codepoint carries one encoded byte, so
+            # a useful payload necessarily requires many in a row). The {3,}
+            # quantifier is what keeps this signal both real and low-noise.
+            "unicode_steganography": re.compile("[\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F]{3,}"),
+            # 15. Self-Referential File Propagation (worm/self-copy pattern, #1150)
+            # A worm's defining mechanical trait is duplicating or overwriting
+            # itself. Requires a self-file-reference token (__filename/__dirname/
+            # import.meta.url in JS, __file__ in Python, __FILE__ in PHP/Ruby) as
+            # the literal first argument to a copy/write/rename call. Deliberately
+            # narrower than "self-ref token anywhere near a write call" (too
+            # FP-prone against legitimate path-resolution idioms like
+            # path.dirname(__filename)) and excludes bare open(__file__)/readFileSync
+            # reads (common benign self-inspection, e.g. version banners) --
+            # only the unambiguous "self-path handed straight into a mutating
+            # call" shape qualifies.
+            "self_propagation": re.compile(
+                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync)|"
+                r"shutil\.(?:copy2?|copyfile|move)|os\.rename)"
+                r"\s*\([ \t]*(?:__filename|__dirname|import\.meta\.url|__file__|__FILE__)\b",
                 re.I,
             ),
         }

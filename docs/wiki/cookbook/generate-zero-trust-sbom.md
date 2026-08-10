@@ -11,10 +11,11 @@ GitGalaxy shifts this paradigm using the **Universal Zero-Trust SBOM Generator**
 The GitGalaxy generator supports NPM, Packagist (PHP), PyPI, and Cargo ecosystems. It performs a multi-stage physical audit to map the delta between what is declared and what actually exists in memory.
 
 ### 1. Execute the Generation
-Point the generator at the root directory of your project.
+Point the generator at the root directory of your project. SBOM generation is a native
+exclusive mode of the main orchestrator — there is no separate SBOM binary to install.
 
 ```bash
-python gitgalaxy/tools/sbom_generator.py /path/to/target_project
+galaxyscope /path/to/target_project --sbom-only
 ```
 
 ### 2. The Physical Integrity Audit
@@ -34,7 +35,7 @@ The engine exports a strictly formatted **CycloneDX 1.4 JSON** file, ensuring se
 ==========================================================
  Dependencies Claimed : 145
  Standard Export      : CycloneDX 1.4 JSON
- Output Location      : /path/to/target_project_bom.json
+ Output Location      : /path/to/target_project_galaxy_sbom.json
 ----------------------------------------------------------
  Verified Safe        : 142
  Missing on Disk      : 2

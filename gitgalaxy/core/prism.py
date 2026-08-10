@@ -491,13 +491,52 @@ class Prism:
         """Extracts triple-quoted strings as documentation."""
         docs = []
 
-        # Use the relaxed pattern
         def callback(m: re.Match) -> str:
+            if m.group("triple") is None:
+                # Either an ordinary single/double-quoted string literal
+                # (e.g. the `'"""'` inside `nxt.endswith('"""')`) or a `#`
+                # comment -- pass it through untouched. They're only in
+                # this alternation so their contents can atomically claim
+                # their own span and never get reconsidered by the triple-
+                # quote branch below. Without the plain-string branch, a
+                # `'"""'`-shaped literal could false-open a "docstring"
+                # that only closed at the next real `"""` many lines later,
+                # silently swallowing every real line (including a `def`)
+                # in between. Without the `#`-comment branch, an English
+                # contraction apostrophe inside a comment (isn't, doesn't)
+                # would false-open the single-quote branch instead and pair
+                # with whatever `'` came next anywhere later in the file --
+                # both are the same bug class #1184 already fixed in
+                # `_apply_literal_shield` (#1198).
+                return m.group(0)
             docs.append(m.group(0).strip())
-            return "\n"  # Maintain line count stability
+            # Replace with exactly as many newlines as the match itself
+            # spans -- a fixed single "\n" (the previous behavior) only
+            # preserved line count by coincidence for a 2-line docstring;
+            # every other length desynced every line number downstream of
+            # it (off by +1 for a 1-line docstring, -1 for 3 lines, -2 for
+            # 4, ...), which accumulates across a whole file and can shift
+            # `def` lines out of any per-line boundary tracking entirely
+            # (#1198).
+            return "\n" * m.group(0).count("\n")
 
-        # Using re.DOTALL ensures [\s\S] matches newlines correctly
-        clean = re.sub(r'(?:"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')', callback, text)
+        # Using re.DOTALL ensures [\s\S] matches newlines correctly. The
+        # plain-string and comment alternatives are ordered alongside the
+        # triple-quote ones (not stripped separately beforehand, and not
+        # deferred to the later per-family comment stripper) so whichever
+        # construct actually starts first at a given position atomically
+        # wins the match -- mirrors _apply_literal_shield's single-pass
+        # design. Only "#" is needed here (not "--"/"//") since python,
+        # micropython, and ruby -- the only lang_ids routed to this
+        # function -- all use "#" for line comments.
+        pattern = re.compile(
+            r'(?P<triple>"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')|'
+            r'"(?:\\.|[^"\\])*"|'
+            r"'(?:\\.|[^'\\])*'|"
+            r"(?:^|(?<=[ \t]))#[^\n]*",
+            re.MULTILINE,
+        )
+        clean = pattern.sub(callback, text)
         return clean, docs
 
     def _strip_php_string_mass(self, text: str) -> tuple[str, list[str]]:

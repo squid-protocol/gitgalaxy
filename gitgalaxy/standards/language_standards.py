@@ -118,7 +118,16 @@ LENS_CONFIG: LensConfig = {
             "pair": None,
         },
         {
-            "trigger": r"asm!\s*\(|__asm__",
+            # #1198: same drift #1183 fixed for <script>/<style> -- this
+            # was still unanchored, so a bare "asm!(" substring anywhere in
+            # a file (e.g. a Python string literal like 'asm!("nop")' in a
+            # Rust structural-signature test fixture) falsely triggered the
+            # embedded-language handshake and misrouted the rest of the
+            # file to assembly's rules. Line-anchoring it like the other
+            # two entries means real inline-asm usage (always its own
+            # statement, optionally indented) still matches while fixture
+            # data describing it as a string does not.
+            "trigger": r"^[ \t]*(?:asm!\s*\(|__asm__)",
             "end": r"\)",
             "target": "assembly",
             "pair": ("(", ")"),

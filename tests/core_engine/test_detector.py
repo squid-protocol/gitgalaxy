@@ -2215,6 +2215,54 @@ ARGS_COUNT_FIXTURES: dict[str, tuple[str, dict[str, int]]] = {
         "void noop() {}\nint add(int a, int b) { return a + b; }\n",
         {"noop": 0, "add": 2},
     ),
+    "csharp": (
+        "class Foo {\n"
+        "    public void Noop() {}\n"
+        "    public int Add(int a, int b) { return a + b; }\n"
+        "    public int Single(int x) { return x; }\n"
+        "    public Foo(int init) { }\n"
+        "}\n",
+        {"Noop": 0, "Add": 2, "Single": 1, "Foo": 1},
+    ),
+    "java": (
+        "class Foo {\n"
+        "    public void noop() {}\n"
+        "    public int add(int a, int b) { return a + b; }\n"
+        "    public int single(int x) { return x; }\n"
+        "    public Foo(int init) { }\n"
+        "}\n",
+        {"noop": 0, "add": 2, "single": 1, "Foo": 1},
+    ),
+    "javascript": (
+        "function noop() {}\n"
+        "function add(a, b) { return a + b; }\n"
+        "function single(x) { return x; }\n"
+        "class Foo {\n    method(a, b) { return a + b; }\n}\n",
+        {"noop": 0, "add": 2, "single": 1, "method": 2},
+    ),
+    "typescript": (
+        "function noop(): void {}\n"
+        "function add(a: number, b: number): number { return a + b; }\n"
+        "function single(x: number): number { return x; }\n"
+        "class Foo {\n    method(a: number, b: number): number { return a + b; }\n}\n",
+        {"noop": 0, "add": 2, "single": 1, "method": 2},
+    ),
+    "groovy": (
+        "class Foo {\n"
+        "    void noop() {}\n"
+        "    int add(int a, int b) { return a + b }\n"
+        "    int single(int x) { return x }\n"
+        "}\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "ruby": (
+        "def noop()\n  return\nend\n\ndef add(a, b)\n  a + b\nend\n\ndef single(x)\n  x\nend\n",
+        {"noop": 0, "add": 2, "single": 1},
+    ),
+    "powershell": (
+        "function Noop() {\n    return\n}\n\nfunction Add($a, $b) {\n    return $a + $b\n}\n",
+        {"Noop": 0, "Add": 2},
+    ),
 }
 
 

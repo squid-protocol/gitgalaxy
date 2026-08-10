@@ -104,28 +104,37 @@ def test_ruby_class_start():
 
 
 def test_ruby_args():
+    # #1209: expected values switched from "the whole matched payload" to
+    # the specific text now isolated in a capture group (method name for
+    # "def", the pipe-delimited/parenthesized parameter span for
+    # blocks/lambdas) -- adding capture groups so detector.py's args-counter
+    # can isolate just the parameter list (not the "def name"/"do"/"->"
+    # prefix) means the shared harness now checks captured-group content
+    # instead of the whole match once any group exists in the pattern. This
+    # doesn't lose coverage: `assert_valid_match` still separately asserts
+    # the payload matches at all regardless of what `expected` is.
     valid = [
-        ("def foo()", "def foo()"),
-        ("def foo(a)", "def foo(a)"),
-        ("def foo(a, b)", "def foo(a, b)"),
-        ("def foo(a = 1, b = 'str')", "def foo(a = 1, b = 'str')"),
-        ("def foo(*args)", "def foo(*args)"),
-        ("def foo(**kwargs)", "def foo(**kwargs)"),
-        ("def foo(&block)", "def foo(&block)"),
-        ("def foo(a, b=1, *c, d:, e: 2, **f, &g)", "def foo(a, b=1, *c, d:, e: 2, **f, &g)"),
-        ("def foo(...)", "def foo(...)"),
-        ("def foo(*, **)", "def foo(*, **)"),
-        ("def foo(a, \n b)", "def foo(a, \n b)"),
-        ("def foo(a = { x: 1, y: 'foo(bar)' })", "def foo(a = { x: 1, y: 'foo(bar)' })"),
-        ("def foo(a = lambda { |x| x.foo })", "def foo(a = lambda { |x| x.foo })"),
-        ("def foo(a = %w[one two three])", "def foo(a = %w[one two three])"),
-        ("def foo(a: 1, b: 'def foo')", "def foo(a: 1, b: 'def foo')"),
-        ('def foo(a="\\\"")', 'def foo(a="\\\"")'),
-        ('def foo(a = ")", b = 2)', 'def foo(a = ")", b = 2)'),
-        ("def foo(a = <<-EOF\n  multiline\nEOF\n)", "def foo(a = <<-EOF\n  multiline\nEOF\n)"),
-        ("do |a, b|", "do |a, b|"),
-        ("{ |a, b| }", "{ |a, b|"),
-        ("->(a, b) { }", "->(a, b)"),
+        ("def foo()", "foo"),
+        ("def foo(a)", "foo"),
+        ("def foo(a, b)", "foo"),
+        ("def foo(a = 1, b = 'str')", "foo"),
+        ("def foo(*args)", "foo"),
+        ("def foo(**kwargs)", "foo"),
+        ("def foo(&block)", "foo"),
+        ("def foo(a, b=1, *c, d:, e: 2, **f, &g)", "foo"),
+        ("def foo(...)", "foo"),
+        ("def foo(*, **)", "foo"),
+        ("def foo(a, \n b)", "foo"),
+        ("def foo(a = { x: 1, y: 'foo(bar)' })", "foo"),
+        ("def foo(a = lambda { |x| x.foo })", "foo"),
+        ("def foo(a = %w[one two three])", "foo"),
+        ("def foo(a: 1, b: 'def foo')", "foo"),
+        ('def foo(a="\\"")', "foo"),
+        ('def foo(a = ")", b = 2)', "foo"),
+        ("def foo(a = <<-EOF\n  multiline\nEOF\n)", "foo"),
+        ("do |a, b|", "a, b"),
+        ("{ |a, b| }", "a, b"),
+        ("->(a, b) { }", "a, b"),
     ]
 
     invalid = [
@@ -179,7 +188,7 @@ def test_ruby_dependency_capture():
 
     xfail_invalid = [
         ("# require 'foo'", None),
-        ('puts "require \'foo\'"', None),
+        ("puts \"require 'foo'\"", None),
         ('"include Enumerable"', None),
     ]
 
@@ -191,5 +200,3 @@ def test_ruby_dependency_capture():
 
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
-
-

@@ -1099,7 +1099,7 @@ class StructuralExtractor:
             "amplified_leaks": 0,
         }
         segment_spatial_maps = []
-        extracted_parents = []
+        extracted_parents: list[str] = []
         threat_locations: dict[str, list[int]] = {}
 
         for seg_lang, seg_code, current_line_offset in segments:

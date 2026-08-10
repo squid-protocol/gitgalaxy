@@ -20,7 +20,8 @@ old relative to `last_updated` below.
 | Extraction-gauntlet tests (`test_python.py`) | 60 |
 | Strict-signature tests (`test_python_strict.py`) | 92 |
 | Total dedicated Python test cases | 152 |
-| Real-world function recall vs. `ast` ground truth | ~63% (clean files) / ~27% (files hitting #1183) — see §9 |
+| Real-world function recall vs. `ast` ground truth (real pipeline) | ~60% — see §9 |
+| Real-world function recall, isolated slicing (no prism upstream) | 100% — see §9 |
 | Real-world class recall vs. `ast` ground truth | 100% — see §9 |
 
 ## 2. Identification surface
@@ -167,6 +168,14 @@ Two gaps are deliberately documented rather than fixed, via `known_limitation`-n
 - [#713](https://github.com/squid-protocol/gitgalaxy/issues/713) — Fixed `spec_exposure`'s unbounded `[^\]]*` ReDoS shape, copy-pasted across 28 languages including Python.
 - [#1041](https://github.com/squid-protocol/gitgalaxy/issues/1041) — Nested functions were silently dropped from extraction (affected every language routed through the same extractor path, Python included).
 
+**Real defects found via this doc's own §9 measured-accuracy pass, since fixed:**
+- [#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182) (CLOSED, merged #1188) — `_calculate_block_metrics` truncated every extracted name to 40 chars, corrupting any function/method name longer than that.
+- [#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183) (CLOSED, merged #1190) — `_partition_segments`'s embedded-language handshake could false-trigger on `<script`/`<style` substrings appearing inside an ordinary string/regex literal (not real embedded code), permanently misrouting the rest of the file to the wrong language's rules.
+- [#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184) (fixed, PR [#1192](https://github.com/squid-protocol/gitgalaxy/pull/1192) open pending merge) — `_build_indentation_safe_stream` (and the equivalent Mode D/E shields) stripped comments in a separate pass *after* string-shielding; an English contraction apostrophe inside a `#` comment (`don't`, `it's`) was indistinguishable from a real string-open quote, cascading into large dead zones of dropped functions. Fixed by merging comment-shielding into the same single-pass alternation as string-shielding, mirroring `_build_brace_safe_stream`'s already-correct design.
+
+**Real defect found via this same pass, still open:**
+- [#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (OPEN) — `prism.py`'s `_strip_single_line_comments` drives its delimiter list from the `line_exclusive` lexical family as a whole rather than per-language, so `;` (real comment char only for `assembly`/`agc_assembly`) and `%` (real comment char only for `matlab`) get treated as comment starts in the other 18 `line_exclusive` languages too, including Python — with zero string-shielding, so `;`/`%` *inside* a string literal also triggers false truncation. This is the dominant reason real-pipeline recall (§9) is still far below the isolated-slicing number.
+
 Search performed via `gh issue list --search 'in:title "Extraction hardening: python"'` /
 `'in:title "Strict parsing tests: `python`"'` / `'in:title python'` (2026-08-09) — the last query
 also surfaces engine-wide bugs (`#1052`, `#1055`, metrics/scoring issues) that mention Python
@@ -196,56 +205,98 @@ alone, because it exercises the segment-routing and scope-boundary machinery tha
 "a regex matched" and "a function got correctly recorded" — machinery the isolated per-rule
 tests don't touch.
 
-**Methodology:** regenerated a fresh self-scan of GitGalaxy's own repo
-(`python tests/tools/self_scan.py`, full precision, pinned to the exact commit scanned), giving
-228 Python files / 2,436 real functions / 61 real classes per `ast.parse()`. For each file,
-diffed `ast.walk()`'s `FunctionDef`/`AsyncFunctionDef`/`ClassDef` names (and each function's real
-parameter count) against `function_data`/`class_data` rows for that file. Cross-checked the
-`branch` keyword rule separately using Python's `tokenize` module as an independent ground truth,
-and by running the compiled `branch` regex directly against `prism`-shielded `code_stream`
-(bypassing the DB entirely) to isolate the rule's own accuracy from downstream aggregation.
+**Methodology:** regenerated a fresh, *full* (not incremental — see the caution below) self-scan
+of GitGalaxy's own repo (`python tests/tools/self_scan.py`, full precision, pinned to the exact
+commit scanned), giving 228 Python files / 2,436 real functions / 61 real classes per
+`ast.parse()`. For each file, diffed `ast.walk()`'s `FunctionDef`/`AsyncFunctionDef`/`ClassDef`
+names (and each function's real parameter count) against `function_data`/`class_data` rows for
+that file. Cross-checked the `branch` keyword rule separately using Python's `tokenize` module as
+an independent ground truth, and by running the compiled `branch` regex directly against
+`prism`-shielded `code_stream` (bypassing the DB entirely) to isolate the rule's own accuracy from
+downstream aggregation. Also ran `_slice_by_indentation()` directly against each file's *raw*
+content (bypassing `prism.split_streams()` entirely) to isolate the Mode C slicing logic's own
+accuracy from whatever `prism.py` does upstream of it — this split turned out to matter a lot,
+see the #1193 discussion below.
+
+**Caution for future re-runs:** `self_scan.py` defaults to an *incremental* scan when
+`docs/self_scan/gitgalaxy_master.db` already exists, which rehydrates cached per-file results for
+any file whose *content* hasn't changed since the baseline commit. That's the right default for
+normal orientation use, but it's wrong for measuring accuracy after an *engine* change (detector.py
+changed, not the scanned files) — incremental mode silently reused pre-fix results the first time
+this measurement was re-run post-#1184, understating the fix's effect. Delete the DB
+(`rm docs/self_scan/gitgalaxy_master.db`) to force a full rescan before trusting a post-engine-fix
+measurement.
 
 | Signal | Result | Read as |
 |---|---|---|
 | Class extraction (`class_start`) | **100% recall** (61/61) | Fully reliable on this corpus |
-| Function extraction (`func_start`), no confounding bug | **~63% recall** | See #1184 below |
-| Function extraction, mid-file language drift triggered | **~27% recall** | See #1183 below |
-| Function-name precision (corrected) | **~99.7%** | Engine essentially never invents a function |
-| Args-count exact match (for functions that *were* found) | **~46%** | Likely shares #1184's root cause, not separately isolated |
-| `branch` keyword rule, run directly against shielded code | **~110%** of a `tokenize`-based ground truth (catches everything, plus a few edge-case extras) | Simple keyword-alternation rules are far more reliable than boundary/entity extraction |
+| Function extraction, isolated Mode C slicing (bypasses `prism.py`) | **100% recall** (2436/2436) | `_slice_by_indentation` itself is now fully correct — confirms #1184's fix |
+| Function extraction, real production pipeline (`prism.split_streams` → `detector.splice`) | **~60% recall** (1465/2436) | See #1193 below — the gap between this row and the one above **is** #1193 |
+| Function-name precision (of functions found via the real pipeline) | **~98.7%** (1446/1465) | Engine essentially never invents a function once it finds one at all |
+| Args-count exact match (for functions that *were* found) | **~35%** | Also downstream of #1193 — a truncated/corrupted signature line breaks arg-count parsing too |
+| `branch` keyword rule, run directly against shielded code | **~133%** of a `tokenize`-based ground truth (catches everything, plus false-positive hits inside string literals this check doesn't shield against) | Simple keyword-alternation rules are far more reliable than boundary/entity extraction — but this specific comparison over-counts by design, see caveat below |
 
-**Three real, filed defects explain the gap** — this is not a vague "heuristics are imprecise"
-hand-wave, each has a concrete reproduction:
+The `branch` percentage exceeding 100% is expected, not alarming: this check runs the raw regex
+against `code_stream` with no further per-occurrence shielding, so it also matches `if`/`for`/etc.
+appearing inside string literals — a looser check than what the detector's actual pipeline does
+downstream. It's included to demonstrate that keyword-alternation rules are inherently more
+robust than boundary-extraction rules (over-counting is a far gentler failure mode than the
+under-counting boundary extraction suffers from), not as a precision claim.
 
-1. **[#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182) — 40-character name
-   truncation.** `detector.py`'s `_calculate_block_metrics` does `"name": name[:40]`. 984 of this
-   corpus's 2,436 functions (40%) have real names over 40 chars — this codebase's own long
-   descriptive test-naming convention routinely exceeds it. This is a naming-fidelity bug, not a
-   recall bug: it was initially mistaken for hallucinated/phantom functions during this audit
+**Four real, filed defects were found via this pass across two rounds of measurement** — three
+now fixed, one still open. Each has a concrete reproduction, not a vague "heuristics are
+imprecise" hand-wave:
+
+1. **[#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182) (CLOSED) — 40-character
+   name truncation.** `detector.py`'s `_calculate_block_metrics` did `"name": name[:40]`. 984 of
+   this corpus's 2,436 functions (40%) have real names over 40 chars — this codebase's own long
+   descriptive test-naming convention routinely exceeds it. A naming-fidelity bug, not a recall
+   bug — it was initially mistaken for hallucinated/phantom functions during the first audit pass
    (a truncated name and its real counterpart look like two unrelated functions in a naive diff)
-   until corrected for — worth noting so the same false alarm isn't re-raised. Once corrected,
-   precision is genuinely ~99.7%.
-2. **[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183) — mid-file language
-   "gravity" false-triggers.** `_partition_segments` can be misled by a Python string/regex
-   literal that merely *contains* embedded-language delimiter text as data (confirmed case: a
-   dict literal in `test_prism.py` describing a `"<script>"` trigger pattern, itself test data
-   for the embedded-language detector) into permanently misrouting the rest of the file to a
-   different language's rules. Confirmed by direct inspection of `_partition_segments()`'s
-   output segments, not inferred. Affects 11/228 files in this corpus.
-3. **[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184) — scope-loss "dead
-   zones."** Contiguous ranges of real, ordinary functions (`__init__`, `main`, `cleanup`) go
-   missing in real production files (`prism.py`, `guidestar_lens.py`, `galaxyscope.py`) with no
-   language-drift trigger present — functions immediately before and after the range are found
-   correctly. This is the dominant driver of the 63% recall ceiling; root cause not yet isolated
-   (filed as a confirmed, reproducible pattern, not a diagnosed fix).
+   until corrected for. Fixed by removing the truncation.
+2. **[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183) (CLOSED) — mid-file
+   language "gravity" false-triggers.** `_partition_segments` could be misled by a Python
+   string/regex literal that merely *contained* embedded-language delimiter text as data
+   (confirmed case: a dict literal in `test_prism.py` describing a `"<script>"` trigger pattern,
+   itself test data for the embedded-language detector) into permanently misrouting the rest of
+   the file to a different language's rules. Root cause: `detector.py`'s own copy of
+   `HANDSHAKE_REGISTRY` had drifted out of sync with the canonical, properly-anchored version in
+   `language_standards.py`. Fixed by deriving it from the canonical source instead of
+   hand-duplicating it.
+3. **[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184) (fixed, PR
+   [#1192](https://github.com/squid-protocol/gitgalaxy/pull/1192) pending merge) — scope-loss
+   "dead zones."** Contiguous ranges of real, ordinary functions (`__init__`, `main`, `cleanup`)
+   went missing in real production files (`prism.py`, `guidestar_lens.py`, `galaxyscope.py`) with
+   no language-drift trigger present. Root cause: `_build_indentation_safe_stream` (and the
+   equivalent Mode D/E shields) stripped comments in a separate pass *after* string-shielding, so
+   an English contraction apostrophe inside a `#` comment (`don't`, `it's`) was indistinguishable
+   from a real string-open quote — it would pair with whatever `'` came next anywhere later in the
+   file and blank out everything in between. Confirmed fully fixed **in isolation**: direct
+   `_slice_by_indentation()` calls now hit 100% recall on this exact corpus (row 2 of the table
+   above) — but this is *not* what the real pipeline number reflects, see #1193.
+4. **[#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (OPEN) — `line_exclusive`
+   comment delimiters shared across languages that don't use them.** `prism.py`'s
+   `_strip_single_line_comments` drives its delimiter list from the `line_exclusive` *family*
+   config as a whole (`# <# #> =begin =end ; dnl %`), applied identically to all 20 languages in
+   that family. `;` is only real for `assembly`/`agc_assembly`; `%` only for `matlab`. For the
+   other 18 — Python included — a bare `;` or `%` anywhere in the source is misread as a comment
+   start, silently truncating the rest of that line from `code_stream`. There's also zero
+   string-shielding in that stripper, so `;`/`%` **inside a string literal** (e.g. a SQL query
+   string, or `detector.py`'s own `r";"` terminator pattern) triggers the same false truncation.
+   This is why the real-pipeline recall row above (~60%) is still far below the isolated-slicing
+   row (100%) even with #1184 fixed — #1193 corrupts `code_stream` *before* `_slice_by_indentation`
+   ever sees it, and the resulting odd/unbalanced quote count can cascade into further loss
+   downstream, the same cascading mechanism #1184 fixed, just triggered upstream in `prism.py`
+   instead of in `detector.py`. Not yet fixed; root cause is understood and a fix direction is
+   proposed in the issue, but implementing and verifying it is separate follow-on work.
 
-**Rough estimate once fixed:** #1182 doesn't move recall (cosmetic only). #1183 affects too few
-files (~5%) to move the needle much on its own (~59% → ~63% corpus-wide). #1184 is the real
-lever — since class extraction resolves an analogous scope-boundary problem at 100% on this same
-corpus (via separately-fixed logic, #1040), and the isolated unit-test suite already proves
-`func_start`'s regex is correct in principle, function recall landing in the **high-80s to
-high-90s%** range once #1184 is fixed is a defensible estimate — not a promise, and not
-re-measured until the fix actually lands.
+**Net effect of this round:** #1182 and #1183 are fully resolved (verified via the real pipeline).
+#1184 is fully resolved *at the layer it touches* — `_slice_by_indentation` itself is now
+provably 100% correct on this corpus — but #1193 sits upstream of it in the real pipeline and
+wasn't discovered until *after* #1184 shipped, which is why real-pipeline recall barely moved
+between the two measurement rounds despite #1184 being a genuine, verified fix. This is worth
+internalizing for future rounds: a component being provably correct in isolation does not mean
+the pipeline that feeds it is — measure the real pipeline, not just the component you just fixed.
 
 **Scaling this beyond Python:** `ast` is stdlib-only, so this exact technique is Python-specific.
 For other languages, `tree-sitter-language-pack` (verified on PyPI, ships pre-compiled grammars

@@ -16,14 +16,18 @@ answer matters.
 
 **`python.md` also has a "Measured accuracy" section (§9)** — a real-corpus diff of GitGalaxy's
 own extraction against Python's `ast` module as ground truth, not just the isolated-snippet unit
-tests every other section describes. It found three real, now-filed defects
+tests every other section describes. Across two rounds of measurement it found four real defects
 ([#1182](https://github.com/squid-protocol/gitgalaxy/issues/1182),
-[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183),
-[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184)) and measured function recall on
-real code well below what the unit-test suite alone would suggest — read it before assuming
-"tests pass" means "finds everything on real code." Worth repeating for other languages with an
-available AST/grammar (see §9's `tree-sitter-language-pack` note) once a language's base doc
-exists.
+[#1183](https://github.com/squid-protocol/gitgalaxy/issues/1183), and
+[#1184](https://github.com/squid-protocol/gitgalaxy/issues/1184) — all now fixed — plus
+[#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193), still open) and measured
+function recall on real code well below what the unit-test suite alone would suggest — read it
+before assuming "tests pass" means "finds everything on real code." It's also a worked example of
+a subtler lesson: #1184 is a fully-verified fix (the component it touches is provably 100%
+correct in isolation now), but real-pipeline recall barely moved, because #1193 — undiscovered
+until the *second* measurement round — sits upstream of it and corrupts the input before #1184's
+fix ever gets a chance to run. Worth repeating for other languages with an available AST/grammar
+(see §9's `tree-sitter-language-pack` note) once a language's base doc exists.
 
 ## Signature-bearing languages (46)
 

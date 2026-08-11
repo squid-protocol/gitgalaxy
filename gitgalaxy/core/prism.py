@@ -296,7 +296,7 @@ class Prism:
             # If group 1 (literal shield) matched, pass it through unharmed
             if m.group(1) is not None:
                 return m.group(0)
-            
+
             # If group 2 (comment) matched, add it to lits and replace with exact number of newlines
             if m.group(2) is not None:
                 lits.append(m.group(2).strip())

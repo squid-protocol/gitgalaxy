@@ -287,32 +287,22 @@ class Prism:
                 lits.extend(single_lits.splitlines())
             return code, "\n".join(lits)
 
-        # 3. ATOMIC SHIELDING: Mask literals to prevent generic stripping
-        masked_literals = []
-
-        def shield_callback(m: re.Match) -> str:
-            masked_literals.append(m.group(0))
-            return f"__MASK_{len(masked_literals) - 1}__"
-
-        text = re.sub(self.LITERAL_MASK_PATTERN, shield_callback, text, flags=re.S | re.M)
-
-        # 4. GENERIC STRIPPER
+        # 3. GENERIC STRIPPER
         pattern = self.REGEX_MATRIX.get(family)
         if not pattern:
-            # Restore mask tokens before returning if no pattern is registered
-            code = re.sub(r"__MASK_(\d+)__", lambda m: masked_literals[int(m.group(1))], text)
-            return code, "\n".join(lits)
+            return text, "\n".join(lits)
 
         def strip_callback(m: re.Match) -> str:
-            if m.group(2):  # Match group 2 is your documentation group
+            # If group 1 (literal shield) matched, pass it through unharmed
+            if m.group(1) is not None:
+                return m.group(0)
+            
+            # If group 2 (comment) matched, add it to lits and replace with exact number of newlines
+            if m.group(2) is not None:
                 lits.append(m.group(2).strip())
-            return ""
+            return "\n" * m.group(0).count("\n")
 
         code = pattern.sub(strip_callback, text)
-
-        # 5. RESTORE SHIELDED LITERALS
-        code = re.sub(r"__MASK_(\d+)__", lambda m: masked_literals[int(m.group(1))], code)
-
         return code, "\n".join(lits)
 
     def _compile_regex_matrix(self) -> dict[str, re.Pattern]:

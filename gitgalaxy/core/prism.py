@@ -99,6 +99,17 @@ class Prism:
         # Defends against catastrophic backtracking and logic erosion inside strings
         self.LITERAL_MASK_PATTERN = PRISM_CONFIG.get("SHIELD_PATTERN", "")
 
+        # #1271: detects a quote that opens but never closes before end-of-
+        # line -- a backslash-newline-continued literal (legal in both Ruby
+        # and Python) -- so _strip_single_line_comments can carry that
+        # open-quote state to the next line instead of treating the
+        # continuation as fresh code (see that method's docstring for the
+        # full failure shape this closes).
+        self.UNTERMINATED_QUOTE_TAIL_PATTERN = re.compile(r"(?<!\\)([\"'`])(?:\\.|(?!\1).)*$")
+        self.CARRY_QUOTE_CLOSE_PATTERNS: dict[str, re.Pattern] = {
+            q: re.compile(rf"(?:\\.|[^{re.escape(q)}\\])*{re.escape(q)}") for q in ('"', "'", "`")
+        }
+
         # --- TIER 2: REGEX PRE-COMPILATION ---
         self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
 
@@ -519,10 +530,27 @@ class Prism:
         # design. Only "#" is needed here (not "--"/"//") since python,
         # micropython, and ruby -- the only lang_ids routed to this
         # function -- all use "#" for line comments.
+        #
+        # #1271: the plain-string alternatives' escape handling is `\\[\s\S]`
+        # (was `\\.`, which cannot match a literal newline without re.DOTALL
+        # on the whole pattern). A backslash-newline line continuation --
+        # legal inside a plain double/single-quoted string in both Ruby and
+        # Python -- previously broke the plain-string alternative's ability
+        # to consume the whole string as one atomic span: the `\\.` branch
+        # couldn't cross the newline, and `[^"\\]`/[^'\\]` explicitly exclude
+        # the backslash itself, so the match stalled right at the `\`. The
+        # regex then fell through to the bare-comment alternative for the
+        # continuation line(s), which -- for Ruby specifically -- can
+        # false-match a `#{...}` string-interpolation opener as if it were a
+        # `#` comment (confirmed via the language-crucible corpus: a
+        # `system "... \` continuation in `rails/generator.rb` blanked out
+        # several real `def` lines further down the file). `\\[\s\S]`
+        # consumes the backslash-newline pair as part of the escaped-char
+        # alternative instead, closing the gap for both quote styles.
         pattern = re.compile(
             r'(?P<triple>"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')|'
-            r'"(?:\\.|[^"\\])*"|'
-            r"'(?:\\.|[^'\\])*'|"
+            r'"(?:\\[\s\S]|[^"\\])*"|'
+            r"'(?:\\[\s\S]|[^'\\])*'|"
             r"(?:^|(?<=[ \t]))#[^\n]*",
             re.MULTILINE,
         )
@@ -803,21 +831,73 @@ class Prism:
         means a stray quote can, at worst, mis-pair with another quote on
         that SAME line -- always fully recoverable on restore -- and can
         never reach into a different line.
+
+        #1271: the one deliberate exception to "never reach into a
+        different line" above -- a literal that opens on one line and only
+        closes on a LATER one via backslash-newline continuation (legal in
+        both Ruby and Python). Without tracking that, the continuation
+        line(s) look like fresh code to this per-line scan, and a comment-
+        delimiter-shaped token inside them (Ruby's `#{...}` string
+        interpolation, most visibly) gets misread as a real comment,
+        corrupting everything after it. Carrying the open quote char
+        forward is safe against reintroducing #1184's hazard specifically
+        because the carry is only ever opened from the CODE portion of a
+        line (never the comment portion, split off first below) -- a stray
+        quote inside a real comment can still only mis-pair within that
+        same line, exactly as #1184 intended.
+
+        Gated to `lang_id in ("python", "micropython", "ruby")` -- the same
+        set already routed through `_strip_python_docstrings` above, whose
+        `"`/`'` are always genuine string delimiters. Confirmed unsafe to
+        widen to the rest of the "line_exclusive" family: Perl's `y///`,
+        `tr///`, `s///`, and `m//` quote-like operators can contain a bare
+        `"`/`'` that is NOT a string delimiter at all (e.g. `y/"//d`, a
+        real idiom that transliterates away literal double-quotes) --
+        without the gate, that bare quote false-opened a carry that
+        persisted for hundreds of lines until an unrelated later quote
+        happened to close it, corrupting every real comment in between
+        (confirmed via language-crucible's perl/mojo/Template.pm).
         """
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
+        carry_aware = lang_id in ("python", "micropython", "ruby")
         code, comments = [], []
+        carry_quote: Optional[str] = None
 
         for line in text.splitlines():
+            head = ""
+            if carry_quote is not None:
+                close_pattern = self.CARRY_QUOTE_CLOSE_PATTERNS[carry_quote]
+                m = close_pattern.match(line)
+                if not m:
+                    # Still inside the carried-over literal for its entire
+                    # length -- not code to search for a delimiter at all.
+                    code.append(line)
+                    continue
+                head, line, carry_quote = line[: m.end()], line[m.end() :], None
+
             masked_line, masked_literals = self._mask_line_literals(line)
 
             if pattern.search(masked_line):
                 parts = pattern.split(masked_line, 1)
-                code.append(self._restore_masked_literals(parts[0], masked_literals))
-                comments.append(
-                    self._restore_masked_literals(parts[1] + (parts[2] if len(parts) > 2 else ""), masked_literals)
-                )
+                code_part = parts[0]
+                comment_part = parts[1] + (parts[2] if len(parts) > 2 else "")
             else:
-                code.append(self._restore_masked_literals(masked_line, masked_literals))
+                code_part = masked_line
+                comment_part = None
+
+            if carry_aware:
+                # Only the code portion (never comment_part) may open a new
+                # carry -- see the docstring note above on why this can't
+                # reintroduce #1184.
+                tail_match = self.UNTERMINATED_QUOTE_TAIL_PATTERN.search(code_part)
+                if tail_match:
+                    masked_literals.append(tail_match.group(0))
+                    code_part = code_part[: tail_match.start()] + f"__MASK_{len(masked_literals) - 1}__"
+                    carry_quote = tail_match.group(1)
+
+            code.append(head + self._restore_masked_literals(code_part, masked_literals))
+            if comment_part is not None:
+                comments.append(self._restore_masked_literals(comment_part, masked_literals))
 
         return "\n".join(code), "\n".join(comments)
 

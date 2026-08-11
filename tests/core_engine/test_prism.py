@@ -813,6 +813,60 @@ def test_prism_line_exclusive_ruby_begin_end_no_leading_boundary_bug():
     assert "puts 'more code'" in result["code_stream"]
 
 
+def test_prism_line_exclusive_backslash_continued_string_interpolation():
+    """
+    #1271: a double-quoted string using backslash-newline line continuation
+    (legal in both Ruby and Python) previously broke _strip_single_line_
+    comments' per-line masking -- each continuation line looked like fresh
+    code with no memory of the still-open string from the previous line, so
+    Ruby's `#{...}` string interpolation on a continuation line got misread
+    as a real `#` comment and blanked, corrupting every real line after it
+    (confirmed on the language-crucible corpus: several `def`s after such a
+    string in rails/generator.rb were silently dropped). Proves the `def`
+    after a backslash-continued string with `#{...}` interpolation on its
+    continuation lines survives intact.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        'system "bundle exec dartsass \\\n'
+        '  #{@guides_dir}/assets/stylesrc/style.scss:#{@output_dir}/style.css \\\n'
+        '  #{@guides_dir}/assets/stylesrc/print.scss"\n'
+        "end\n"
+        "\n"
+        "def copy_assets\n"
+        "  1\n"
+        "end\n"
+    )
+    result = real_prism.split_streams(code, "ruby")
+    assert "def copy_assets" in result["code_stream"], (
+        "A def after a backslash-continued string with #{...} interpolation was corrupted!"
+    )
+
+
+def test_prism_line_exclusive_carry_over_does_not_reintroduce_1184():
+    """
+    #1271's carry-over-open-quote tracking must never reopen #1184's
+    original hazard: a stray, genuinely-unmatched quote INSIDE a real
+    comment (e.g. the apostrophe in "# don't stop") must still only be able
+    to mis-pair within that same line, never carry into and swallow
+    subsequent lines. This is guaranteed by only ever opening a carry from
+    the CODE portion of a line (never the comment portion, split off
+    first) -- this test proves that guarantee holds end-to-end.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = "# don't stop\ndef real_method\n  1\nend\n"
+    result = real_prism.split_streams(code, "ruby")
+    assert "def real_method" in result["code_stream"], (
+        "A stray apostrophe inside a comment swallowed the real code after it!"
+    )
+
+
 def test_prism_single_line_delimiter_pattern_redos_immune():
     """
     ReDoS check for the new precompiled pattern: a straightforward literal

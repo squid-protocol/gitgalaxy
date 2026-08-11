@@ -1,0 +1,12 @@
+{
+  "args_comparable": 1701,
+  "args_exact_match": 484,
+  "corpus_path": "language-crucible/data/php",
+  "extra_classes": 1,
+  "extra_functions": 1,
+  "files_scanned": 35,
+  "found_classes": 27,
+  "found_functions": 1701,
+  "real_classes": 28,
+  "real_functions": 1701
+}

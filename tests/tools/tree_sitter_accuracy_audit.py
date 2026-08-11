@@ -95,6 +95,41 @@ NODE_MAPS = {
         },
         "class_node_types": {"class_declaration"},
     },
+    "ruby": {
+        "ts_lang": "ruby",
+        "func_node_types": {"method", "singleton_method"},
+        "class_node_types": {"class", "singleton_class"},
+    },
+    "php": {
+        "ts_lang": "php",
+        "func_node_types": {
+            "function_definition",
+            "method_declaration",
+            "anonymous_function",
+            "arrow_function",
+        },
+        "class_node_types": {"class_declaration", "anonymous_class"},
+    },
+    "perl": {
+        "ts_lang": "perl",
+        "func_node_types": {
+            "subroutine_declaration_statement",
+            "anonymous_subroutine_expression",
+            "method_declaration_statement",
+            "anonymous_method_expression",
+        },
+        "class_node_types": {"class_statement"},
+    },
+    "lua": {
+        "ts_lang": "lua",
+        "func_node_types": {"function_declaration", "function_definition"},
+        "class_node_types": set(),
+    },
+    "shell": {
+        "ts_lang": "bash",
+        "func_node_types": {"function_definition"},
+        "class_node_types": set(),
+    },
 }
 
 

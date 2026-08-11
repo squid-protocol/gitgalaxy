@@ -1,0 +1,12 @@
+{
+  "args_comparable": 60,
+  "args_exact_match": 10,
+  "corpus_path": "language-crucible/data/swift",
+  "extra_classes": 0,
+  "extra_functions": 3,
+  "files_scanned": 6,
+  "found_classes": 9,
+  "found_functions": 60,
+  "real_classes": 37,
+  "real_functions": 88
+}

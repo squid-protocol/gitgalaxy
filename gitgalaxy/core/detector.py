@@ -2865,18 +2865,28 @@ class StructuralExtractor:
         # --- 1.5 Overloaded Operator Extraction (C++) ---
         # Safely extracts overloaded C++ operators before standard token truncation destroys the symbols.
         if "operator" in match_strip:
-            # Matches operator symbols, (), [], or type casts like 'operator bool'
+            # BUG FIX (#1263): this used to match just the bare `operator...`
+            # token, discarding any class qualifier that came before it --
+            # `Array::Iterator::operator*` collapsed to `operator*`, silently
+            # colliding every same-symbol operator overload across every
+            # class in a file into one function_data row. func_start's own
+            # regex has supported capturing the qualified form since #813/
+            # #821 (`TargetClass::operator=`); this normalizer just never
+            # kept up, so the qualifier was captured then thrown away here.
+            # Group 1 now grabs the optional `(Ident::)+` chain immediately
+            # before the `operator` keyword and it's prefixed back on below.
             op_match = re.search(
-                r"\b(operator\s*(?:\[\s*\]|\(\s*\)|[^a-zA-Z0-9_\s({]+|[a-zA-Z_]\w*(?:\s*\*+)?))",
+                r"((?:[a-zA-Z_]\w*::)*)\b(operator\s*(?:\[\s*\]|\(\s*\)|[^a-zA-Z0-9_\s({]+|[a-zA-Z_]\w*(?:\s*\*+)?))",
                 match_strip,
             )
             if op_match:
-                op_str = op_match.group(1).strip()
+                qualifier = op_match.group(1)
+                op_str = op_match.group(2).strip()
                 # If it's a symbolic operator (<<, ==, ++, ()), remove all spaces: 'operator <<' -> 'operator<<'
                 if not re.search(r"[a-zA-Z]", op_str[8:]):
-                    return re.sub(r"\s+", "", op_str)
+                    return qualifier + re.sub(r"\s+", "", op_str)
                 else:  # It's a type cast like 'operator int', ensure single spacing standardization
-                    return re.sub(r"\s+", " ", op_str)
+                    return qualifier + re.sub(r"\s+", " ", op_str)
 
         # 2. C-Macro Signature Normalization
         clean = re.sub(r"\b(?:ARGS\d+|NOARGS)\b", "", raw_match)
@@ -2909,7 +2919,15 @@ class StructuralExtractor:
             clean = clean.replace("__NAMESPACE_SCOPE__", "::")
 
         # Allow standard characters, plus Makefiles ($/%), and Scopes (:)
-        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():-]+", clean) if w.strip("_-:")]
+        # BUG FIX (#1263): `~` (C++/destructor marker) was missing from this
+        # charset, so it acted as an unintended word-boundary -- a qualified
+        # destructor like `EditorNode::~EditorNode` split into two tokens at
+        # the tilde and `words[-1]` kept only the trailing `EditorNode`,
+        # silently discarding the tilde and colliding the destructor's
+        # function_data row with its own constructor's (`EditorNode::
+        # EditorNode`). Adding it here keeps `~EditorNode`/`::~EditorNode`
+        # intact as part of the same token as the class-name suffix.
+        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~-]+", clean) if w.strip("_-:")]
 
         return words[-1] if words else "Unknown_Block"
 

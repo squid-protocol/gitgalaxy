@@ -2926,8 +2926,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # trailing whitespace run across both gaps, O(n^2).
                 # Confirmed ~4x/doubling, 2.8s at n=32000 on a bare
                 # `"int foo" + " "*n` payload. Bounded both to `{1,200}`.
+                # BUG FIX (#1263): `[*&]*[ \t\n]{1,200}` demanded the pointer/
+                # reference symbol sit glued to the type with MANDATORY
+                # trailing whitespace before the name -- matching only the
+                # `Type* name()` style. Real-world C++ (including large chunks
+                # of the language-crucible corpus, e.g. Godot's `Type
+                # *name()` / `Type * name()`) overwhelmingly puts the space
+                # BEFORE the star instead, with the star landing glued to the
+                # name (no trailing whitespace at all left to consume) --
+                # that shape couldn't complete this loop iteration, so the
+                # entire rule failed to match and the whole function
+                # definition was invisible, not just misclassified. Split
+                # into two bounded alternatives: one or more pointer/
+                # reference symbols (with optional bounded whitespace on
+                # EITHER side of the run, covering `Type*name`, `Type* name`,
+                # `Type *name`, and `Type * name` alike), or -- when no
+                # pointer/reference symbol is present at all -- the original
+                # mandatory whitespace run (still the only valid separator
+                # between two bare words like `void foo`). The two
+                # alternatives never both match the same span (one requires a
+                # literal `[*&]`, the other forbids consuming past the first
+                # non-whitespace char), so this doesn't reopen the Rule 14
+                # backtracking gap the surrounding bounds were built to close.
                 r"(?:(?![ \t]*#)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*"
-                r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[*&]*[ \t\n]{1,200}){0,5}"
+                r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?"
+                r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
                 # 5. THE "NOT A FUNCTION" SHIELD
                 # Prevents control flow (if, while) and primitive types from being captured as function names.
                 r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"

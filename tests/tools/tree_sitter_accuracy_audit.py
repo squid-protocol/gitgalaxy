@@ -190,6 +190,31 @@ NODE_MAPS = {
         "func_node_types": {"function_definition", "method_definition", "method_declaration"},
         "class_node_types": {"class_declaration", "class_implementation", "class_interface"},
     },
+    "typescript": {
+        "ts_lang": "typescript",
+        "func_node_types": {"function_declaration", "method_definition", "arrow_function", "function_expression", "generator_function", "generator_function_declaration"},
+        "class_node_types": {"class_declaration", "abstract_class_declaration"},
+    },
+    "html": {
+        "ts_lang": "html",
+        "func_node_types": {"script_element", "style_element"},
+        "class_node_types": {"element"},
+    },
+    "css": {
+        "ts_lang": "css",
+        "func_node_types": {"at_rule"},
+        "class_node_types": {"rule_set"},
+    },
+    "powershell": {
+        "ts_lang": "powershell",
+        "func_node_types": {"function_statement", "class_method_definition"},
+        "class_node_types": {"class_statement"},
+    },
+    "solidity": {
+        "ts_lang": "solidity",
+        "func_node_types": {"function_definition", "modifier_definition", "constructor_definition"},
+        "class_node_types": {"contract_declaration", "interface_declaration", "library_declaration"},
+    },
 }
 
 

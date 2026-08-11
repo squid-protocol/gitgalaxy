@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="639"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-11T20:30:30+00:00 &#183; commit 3acec85 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-11T21:31:45+00:00 &#183; commit 3db4aeb &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <rect x="16" y="72" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>
@@ -56,33 +56,33 @@
 <rect x="104" y="163.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
 <text class="value-label" x="201.0" y="171.0">1701/1701</text>
 <rect class="stripe" x="16" y="175" width="246" height="15"/>
-<text class="row-label" x="96" y="186.0" text-anchor="end">shell</text>
+<text class="row-label" x="96" y="186.0" text-anchor="end">ruby</text>
 <rect x="104" y="178.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="201.0" y="186.0">3/3</text>
-<text class="row-label" x="96" y="201.0" text-anchor="end">csharp</text>
-<rect x="104" y="193.0" width="91.2" height="9" rx="3" fill="#292fd6"/>
-<text class="value-label" x="200.2" y="201.0">553/558</text>
+<text class="value-label" x="201.0" y="186.0">117/117</text>
+<text class="row-label" x="96" y="201.0" text-anchor="end">shell</text>
+<rect x="104" y="193.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="201.0" y="201.0">3/3</text>
 <rect class="stripe" x="16" y="205" width="246" height="15"/>
 <text class="row-label" x="96" y="216.0" text-anchor="end">python</text>
-<rect x="104" y="208.0" width="90.9" height="9" rx="3" fill="#2931d6"/>
-<text class="value-label" x="199.9" y="216.0">2940/2976</text>
-<text class="row-label" x="96" y="231.0" text-anchor="end">tcl</text>
-<rect x="104" y="223.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
-<text class="value-label" x="199.7" y="231.0">141/143</text>
+<rect x="104" y="208.0" width="91.7" height="9" rx="3" fill="#292bd6"/>
+<text class="value-label" x="200.7" y="216.0">2966/2976</text>
+<text class="row-label" x="96" y="231.0" text-anchor="end">csharp</text>
+<rect x="104" y="223.0" width="91.2" height="9" rx="3" fill="#292fd6"/>
+<text class="value-label" x="200.2" y="231.0">553/558</text>
 <rect class="stripe" x="16" y="235" width="246" height="15"/>
-<text class="row-label" x="96" y="246.0" text-anchor="end">fortran</text>
-<rect x="104" y="238.0" width="90.4" height="9" rx="3" fill="#2935d6"/>
-<text class="value-label" x="199.4" y="246.0">119/121</text>
-<text class="row-label" x="96" y="261.0" text-anchor="end">javascript</text>
-<rect x="104" y="253.0" width="88.4" height="9" rx="3" fill="#2944d6"/>
-<text class="value-label" x="197.4" y="261.0">535/557</text>
+<text class="row-label" x="96" y="246.0" text-anchor="end">tcl</text>
+<rect x="104" y="238.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
+<text class="value-label" x="199.7" y="246.0">141/143</text>
+<text class="row-label" x="96" y="261.0" text-anchor="end">fortran</text>
+<rect x="104" y="253.0" width="90.4" height="9" rx="3" fill="#2935d6"/>
+<text class="value-label" x="199.4" y="261.0">119/121</text>
 <rect class="stripe" x="16" y="265" width="246" height="15"/>
-<text class="row-label" x="96" y="276.0" text-anchor="end">go</text>
-<rect x="104" y="268.0" width="88.0" height="9" rx="3" fill="#2947d6"/>
-<text class="value-label" x="197.0" y="276.0">817/855</text>
-<text class="row-label" x="96" y="291.0" text-anchor="end">ruby</text>
-<rect x="104" y="283.0" width="87.3" height="9" rx="3" fill="#294cd6"/>
-<text class="value-label" x="196.3" y="291.0">111/117</text>
+<text class="row-label" x="96" y="276.0" text-anchor="end">javascript</text>
+<rect x="104" y="268.0" width="88.4" height="9" rx="3" fill="#2944d6"/>
+<text class="value-label" x="197.4" y="276.0">535/557</text>
+<text class="row-label" x="96" y="291.0" text-anchor="end">go</text>
+<rect x="104" y="283.0" width="88.0" height="9" rx="3" fill="#2947d6"/>
+<text class="value-label" x="197.0" y="291.0">817/855</text>
 <rect class="stripe" x="16" y="295" width="246" height="15"/>
 <text class="row-label" x="96" y="306.0" text-anchor="end">typescript</text>
 <rect x="104" y="298.0" width="85.3" height="9" rx="3" fill="#295bd6"/>
@@ -173,7 +173,7 @@
 <rect class="stripe" x="290" y="235" width="246" height="15"/>
 <text class="row-label" x="370" y="246.0" text-anchor="end">python</text>
 <rect x="378" y="238.0" width="91.3" height="9" rx="3" fill="#292ed6"/>
-<text class="value-label" x="474.3" y="246.0">2940/2964</text>
+<text class="value-label" x="474.3" y="246.0">2966/2990</text>
 <text class="row-label" x="370" y="261.0" text-anchor="end">tcl</text>
 <rect x="378" y="253.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
 <text class="value-label" x="473.7" y="261.0">141/143</text>
@@ -193,8 +193,8 @@
 <text class="value-label" x="468.9" y="321.0">85/91</text>
 <rect class="stripe" x="290" y="325" width="246" height="15"/>
 <text class="row-label" x="370" y="336.0" text-anchor="end">ruby</text>
-<rect x="378" y="328.0" width="83.0" height="9" rx="3" fill="#296dd6"/>
-<text class="value-label" x="466.0" y="336.0">111/123</text>
+<rect x="378" y="328.0" width="83.4" height="9" rx="3" fill="#2969d6"/>
+<text class="value-label" x="466.4" y="336.0">117/129</text>
 <text class="row-label" x="370" y="351.0" text-anchor="end">typescript</text>
 <rect x="378" y="343.0" width="82.6" height="9" rx="3" fill="#2970d6"/>
 <text class="value-label" x="465.6" y="351.0">1566/1743</text>
@@ -460,12 +460,12 @@
 <rect x="1200" y="178.0" width="82.2" height="9" rx="3" fill="#2973d6"/>
 <text class="value-label" x="1287.2" y="186.0">478/535</text>
 <text class="row-label" x="1192" y="201.0" text-anchor="end">ruby</text>
-<rect x="1200" y="193.0" width="66.3" height="9" rx="3" fill="#29d6c2"/>
-<text class="value-label" x="1271.3" y="201.0">80/111</text>
+<rect x="1200" y="193.0" width="66.8" height="9" rx="3" fill="#29d6c6"/>
+<text class="value-label" x="1271.8" y="201.0">85/117</text>
 <rect class="stripe" x="1112" y="205" width="246" height="15"/>
 <text class="row-label" x="1192" y="216.0" text-anchor="end">python</text>
-<rect x="1200" y="208.0" width="58.1" height="9" rx="3" fill="#29d684"/>
-<text class="value-label" x="1263.1" y="216.0">1859/2940</text>
+<rect x="1200" y="208.0" width="58.0" height="9" rx="3" fill="#29d683"/>
+<text class="value-label" x="1263.0" y="216.0">1868/2966</text>
 <text class="row-label" x="1192" y="231.0" text-anchor="end">dart</text>
 <rect x="1200" y="223.0" width="42.5" height="9" rx="3" fill="#43d629"/>
 <text class="value-label" x="1247.5" y="231.0">243/526</text>

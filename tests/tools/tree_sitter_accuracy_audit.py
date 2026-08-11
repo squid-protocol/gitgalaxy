@@ -894,15 +894,34 @@ def run_history() -> int:
 # ----------------------------------------------------------------------------
 
 _CHART_PATH = REPO_ROOT / "docs" / "self_scan" / "tree_sitter_accuracy_chart.svg"
+# (metric key, panel title, (num_field, den_field_or_expr)) -- num/den are raw-count fields from
+# _load_latest_history_batch's row dict, read directly off each bar so the chart can show e.g.
+# "0/117" instead of just "0%" (see _load_latest_history_batch's own docstring for why that
+# distinction matters -- a percentage alone doesn't say whether it's backed by 4 samples or 400).
 _CHART_METRICS = (
-    ("func_recall_pct", "Func Recall"),
-    ("func_precision_pct", "Func Precision"),
-    ("class_recall_pct", "Class Recall"),
-    ("class_precision_pct", "Class Precision"),
+    ("func_recall_pct", "Func Recall", "found_functions", "real_functions"),
+    ("func_precision_pct", "Func Precision", "found_functions", "__found_plus_extra_functions__"),
+    ("class_recall_pct", "Class Recall", "found_classes", "real_classes"),
+    ("class_precision_pct", "Class Precision", "found_classes", "__found_plus_extra_classes__"),
     # Args has only one ratio in the data (exact-match), not a recall/precision pair -- labeled
     # distinctly rather than forced into that framing.
-    ("args_match_pct", "Args Exact-Match"),
+    ("args_match_pct", "Args Exact-Match", "args_exact_match", "args_comparable"),
 )
+
+
+def _metric_num_den(row: dict[str, int], num_field: str, den_field: str) -> tuple[int, int]:
+    """den_field is either a real key in `row` or one of the two synthetic
+    "__found_plus_extra_<x>__" markers _CHART_METRICS uses for the two precision denominators
+    (found + extra isn't a field the CSV stores directly)."""
+    num = row[num_field]
+    if den_field == "__found_plus_extra_functions__":
+        den = row["found_functions"] + row["extra_functions"]
+    elif den_field == "__found_plus_extra_classes__":
+        den = row["found_classes"] + row["extra_classes"]
+    else:
+        den = row[den_field]
+    return num, den
+
 
 # Bar fill is now a value-driven red(low)->blue(high) hue-sweep LUT (see _rainbow_hex), a
 # deliberate request overriding the dataviz skill's own default ("never a rainbow" -- rainbow
@@ -920,6 +939,7 @@ _CHART_STYLE = """<style><![CDATA[
   .surface { fill: #fcfcfb; }
   .title { fill: #0b0b0b; font-weight: 600; font-size: 15px; }
   .subtitle { fill: #52514e; font-size: 11px; }
+  .scope-note { fill: #52514e; font-size: 9.5px; }
   .legend-label { fill: #52514e; font-size: 10px; }
   .col-title { fill: #0b0b0b; font-weight: 600; font-size: 11px; }
   .row-label { fill: #0b0b0b; font-size: 11px; }
@@ -932,6 +952,7 @@ _CHART_STYLE = """<style><![CDATA[
     .surface { fill: #1a1a19; }
     .title { fill: #ffffff; }
     .subtitle { fill: #c3c2b7; }
+    .scope-note { fill: #c3c2b7; }
     .legend-label { fill: #c3c2b7; }
     .col-title { fill: #ffffff; }
     .row-label { fill: #ffffff; }
@@ -985,9 +1006,12 @@ def _rainbow_gradient_defs(stops: int = 13) -> str:
     return f'<linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%">{stops_svg}</linearGradient>'
 
 
-def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, Optional[float]]]]:
-    """Returns (timestamp_utc, commit_sha, {lang: {metric_key: value_or_None}}) for the most
-    recent batch -- the rows sharing the max timestamp_utc -- in the history CSV."""
+def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, int]]]:
+    """Returns (timestamp_utc, commit_sha, {lang: {raw_count_key: int}}) for the most recent
+    batch -- the rows sharing the max timestamp_utc -- in the history CSV. Returns raw counts
+    (not pre-computed percentages) so the chart can show a metric's actual sample size (e.g.
+    "0/117", not just "0%") -- a bare percentage reads identically whether it's backed by 4
+    samples or 400."""
     if not _HISTORY_PATH.exists():
         sys.exit(
             f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} doesn't exist yet -- run --history first."
@@ -1001,18 +1025,19 @@ def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, Optional
     latest_rows = [row for row in rows if row["timestamp_utc"] == latest_ts]
     commit_sha = latest_rows[0]["commit_sha"]
 
-    def _f(s: str) -> Optional[float]:
-        return float(s) if s else None
-
-    data: dict[str, dict[str, Optional[float]]] = {}
+    raw_fields = (
+        "real_functions",
+        "found_functions",
+        "extra_functions",
+        "real_classes",
+        "found_classes",
+        "extra_classes",
+        "args_comparable",
+        "args_exact_match",
+    )
+    data: dict[str, dict[str, int]] = {}
     for row in latest_rows:
-        data[row["language"]] = {
-            "func_recall_pct": _f(row["func_recall_pct"]),
-            "func_precision_pct": _f(row["func_precision_pct"]),
-            "class_recall_pct": _f(row["class_recall_pct"]),
-            "class_precision_pct": _f(row["class_precision_pct"]),
-            "args_match_pct": _ratio_pct(int(row["args_exact_match"]), int(row["args_comparable"])),
-        }
+        data[row["language"]] = {field: int(row[field]) for field in raw_fields}
     return latest_ts, commit_sha, data
 
 
@@ -1024,22 +1049,30 @@ def generate_chart_svg() -> str:
     language) can't be ranked against a real score, so it sorts as its own alphabetical group
     below every real value, not scored as 0%. Bar fill is a red(low)->blue(high) hue-sweep LUT
     keyed to that bar's own value (see _rainbow_hex) -- color and position both encode magnitude
-    here, a deliberate redundancy the requester wanted."""
+    here, a deliberate redundancy the requester wanted.
+
+    Value labels show the raw fraction ("0/117"), not a bare percentage -- a percentage alone
+    looks identical whether it's backed by 4 samples or 400, and reads as "failing" even where
+    the underlying gap is a handful of missed matches on a thin corpus. The scope note under the
+    title exists for the same reason: this chart measures ONLY func_start/args/class_start name
+    extraction, not GitGalaxy's structural-signature risk rules, and without that context a wall
+    of red bars reads as "the product is failing" rather than "this one narrow feature has known,
+    already-triaged gaps."""
     timestamp, commit_sha, data = _load_latest_history_batch()
     langs_all = sorted(data.keys())
     n = len(langs_all)
 
     label_col_w = 88
-    bar_col_w = 130
+    bar_col_w = 158
     panel_gap = 28
     row_h = 15
     bar_h = 9
     header_h = 34
-    top_margin = 64  # extra headroom under the title for the color-scale legend
-    bottom_margin = 34
+    top_margin = 96  # headroom for title + two-line scope note + color-scale legend
+    bottom_margin = 44
     left_margin = 16
     right_margin = 16
-    bar_max_w = bar_col_w - 42  # leaves room for the value label riding the bar's tip
+    bar_max_w = bar_col_w - 66  # leaves room for a fraction like "1147/1152" riding the bar's tip
 
     panel_w = label_col_w + bar_col_w
     n_panels = len(_CHART_METRICS)
@@ -1056,22 +1089,34 @@ def generate_chart_svg() -> str:
         f'<text class="title" x="{left_margin}" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>',
         f'<text class="subtitle" x="{left_margin}" y="36">{timestamp} &#183; commit {commit_sha[:7]} &#183; '
         f"{n} languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>",
-        f'<rect x="{left_margin}" y="44" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
-        f'<text class="legend-label" x="{left_margin}" y="60">0%</text>',
-        f'<text class="legend-label" x="{left_margin + 140}" y="60" text-anchor="end">100% (bar color = value)</text>',
+        f'<text class="scope-note" x="{left_margin}" y="52">Measures func_start/args/class_start NAME '
+        f"extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/"
+        f"etc.), which are hardened and tested separately.</text>",
+        f'<text class="scope-note" x="{left_margin}" y="64">Value labels are raw counts (found/real or '
+        f"found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>",
+        f'<rect x="{left_margin}" y="72" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
+        f'<text class="legend-label" x="{left_margin}" y="88">0%</text>',
+        f'<text class="legend-label" x="{left_margin + 140}" y="88" text-anchor="end">100% (bar color = value)</text>',
     ]
 
-    for j, (key, title) in enumerate(_CHART_METRICS):
+    for j, (key, title, num_field, den_field) in enumerate(_CHART_METRICS):
         panel_x = left_margin + j * (panel_w + panel_gap)
         label_x = panel_x + label_col_w - 8
         col_x = panel_x + label_col_w
 
+        fractions: dict[str, tuple[int, int]] = {}
+        values: dict[str, Optional[float]] = {}
+        for lang in langs_all:
+            num, den = _metric_num_den(data[lang], num_field, den_field)
+            fractions[lang] = (num, den)
+            values[lang] = _ratio_pct(num, den)
+
         with_value = sorted(
-            ((lang, data[lang][key]) for lang in langs_all if data[lang][key] is not None),
+            ((lang, values[lang]) for lang in langs_all if values[lang] is not None),
             key=lambda pair: pair[1],
             reverse=True,
         )
-        without_value = sorted(lang for lang in langs_all if data[lang][key] is None)
+        without_value = sorted(lang for lang in langs_all if values[lang] is None)
         ordered: list[tuple[str, Optional[float]]] = with_value + [(lang, None) for lang in without_value]
 
         parts.append(f'<text class="col-title" x="{col_x}" y="{top_margin + header_h - 12}">{title}</text>')
@@ -1085,6 +1130,7 @@ def generate_chart_svg() -> str:
             label_y = row_y + row_h / 2 + 3.5
             parts.append(f'<text class="row-label" x="{label_x}" y="{label_y:.1f}" text-anchor="end">{lang}</text>')
 
+            num, den = fractions[lang]
             if value is None:
                 parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{label_y:.1f}">n/a</text>')
                 continue
@@ -1094,13 +1140,19 @@ def generate_chart_svg() -> str:
                 f'<rect x="{col_x}" y="{bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="3" '
                 f'fill="{_rainbow_hex(value)}"/>'
             )
-            parts.append(f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{label_y:.1f}">{value:.0f}%</text>')
+            parts.append(f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{label_y:.1f}">{num}/{den}</text>')
 
     parts.append(
-        f'<text class="footer" x="{left_margin}" y="{height - 8}">Generated by '
+        f'<text class="footer" x="{left_margin}" y="{height - 20}">Generated by '
         f"tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently, best "
         f'at top; "n/a" (no ground-truth instances for that language) sorts to the bottom, not scored '
         f"as 0%.</text>"
+    )
+    parts.append(
+        f'<text class="footer" x="{left_margin}" y="{height - 8}">Recall panels ("found/real"): a low '
+        f"fraction on a small denominator (e.g. 7/23) is a thinner signal than the same ratio on a large "
+        f'one. Precision panels ("found/found+extra"): a large denominator relative to the panel\'s own '
+        f"found-count means many false positives, not just misses -- read the two numbers, not just the bar.</text>"
     )
     parts.append("</svg>")
     return "\n".join(parts)

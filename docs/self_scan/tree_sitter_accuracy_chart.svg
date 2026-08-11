@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1234 597" width="1234" height="597" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1374 639" width="1374" height="639" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style><![CDATA[
   /* No CSS custom properties -- some SVG renderers in the docs pipeline (confirmed: Inkscape's
      CSS parser) don't support var()/nested :root under @media, and silently fail to parse the
@@ -9,6 +9,7 @@
   .surface { fill: #fcfcfb; }
   .title { fill: #0b0b0b; font-weight: 600; font-size: 15px; }
   .subtitle { fill: #52514e; font-size: 11px; }
+  .scope-note { fill: #52514e; font-size: 9.5px; }
   .legend-label { fill: #52514e; font-size: 10px; }
   .col-title { fill: #0b0b0b; font-weight: 600; font-size: 11px; }
   .row-label { fill: #0b0b0b; font-size: 11px; }
@@ -21,6 +22,7 @@
     .surface { fill: #1a1a19; }
     .title { fill: #ffffff; }
     .subtitle { fill: #c3c2b7; }
+    .scope-note { fill: #c3c2b7; }
     .legend-label { fill: #c3c2b7; }
     .col-title { fill: #ffffff; }
     .row-label { fill: #ffffff; }
@@ -33,511 +35,514 @@
 ]]></style>
 
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
-<rect class="surface" x="0" y="0" width="1234" height="597"/>
+<rect class="surface" x="0" y="0" width="1374" height="639"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
 <text class="subtitle" x="16" y="36">2026-08-11T14:46:41+00:00 &#183; commit 16a62b2 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
-<rect x="16" y="44" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>
-<text class="legend-label" x="16" y="60">0%</text>
-<text class="legend-label" x="156" y="60" text-anchor="end">100% (bar color = value)</text>
-<text class="col-title" x="104" y="86">Func Recall</text>
-<line class="axis" x1="104" y1="98" x2="104" y2="563"/>
-<text class="row-label" x="96" y="109.0" text-anchor="end">apex</text>
-<rect x="104" y="101.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="197.0" y="109.0">100%</text>
-<rect class="stripe" x="16" y="113" width="218" height="15"/>
-<text class="row-label" x="96" y="124.0" text-anchor="end">makefile</text>
-<rect x="104" y="116.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="197.0" y="124.0">100%</text>
-<text class="row-label" x="96" y="139.0" text-anchor="end">php</text>
-<rect x="104" y="131.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="197.0" y="139.0">100%</text>
-<rect class="stripe" x="16" y="143" width="218" height="15"/>
-<text class="row-label" x="96" y="154.0" text-anchor="end">shell</text>
-<rect x="104" y="146.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="197.0" y="154.0">100%</text>
-<text class="row-label" x="96" y="169.0" text-anchor="end">csharp</text>
-<rect x="104" y="161.0" width="87.2" height="9" rx="3" fill="#292fd6"/>
-<text class="value-label" x="196.2" y="169.0">99%</text>
-<rect class="stripe" x="16" y="173" width="218" height="15"/>
-<text class="row-label" x="96" y="184.0" text-anchor="end">python</text>
-<rect x="104" y="176.0" width="86.9" height="9" rx="3" fill="#2931d6"/>
-<text class="value-label" x="195.9" y="184.0">99%</text>
-<text class="row-label" x="96" y="199.0" text-anchor="end">tcl</text>
-<rect x="104" y="191.0" width="86.8" height="9" rx="3" fill="#2933d6"/>
-<text class="value-label" x="195.8" y="199.0">99%</text>
-<rect class="stripe" x="16" y="203" width="218" height="15"/>
-<text class="row-label" x="96" y="214.0" text-anchor="end">fortran</text>
-<rect x="104" y="206.0" width="86.5" height="9" rx="3" fill="#2935d6"/>
-<text class="value-label" x="195.5" y="214.0">98%</text>
-<text class="row-label" x="96" y="229.0" text-anchor="end">javascript</text>
-<rect x="104" y="221.0" width="84.6" height="9" rx="3" fill="#2944d6"/>
-<text class="value-label" x="193.6" y="229.0">96%</text>
-<rect class="stripe" x="16" y="233" width="218" height="15"/>
-<text class="row-label" x="96" y="244.0" text-anchor="end">go</text>
-<rect x="104" y="236.0" width="84.1" height="9" rx="3" fill="#2947d6"/>
-<text class="value-label" x="193.1" y="244.0">96%</text>
-<text class="row-label" x="96" y="259.0" text-anchor="end">typescript</text>
-<rect x="104" y="251.0" width="81.6" height="9" rx="3" fill="#295bd6"/>
-<text class="value-label" x="190.6" y="259.0">93%</text>
-<rect class="stripe" x="16" y="263" width="218" height="15"/>
-<text class="row-label" x="96" y="274.0" text-anchor="end">solidity</text>
-<rect x="104" y="266.0" width="78.8" height="9" rx="3" fill="#2972d6"/>
-<text class="value-label" x="187.8" y="274.0">90%</text>
-<text class="row-label" x="96" y="289.0" text-anchor="end">java</text>
-<rect x="104" y="281.0" width="77.1" height="9" rx="3" fill="#297fd6"/>
-<text class="value-label" x="186.1" y="289.0">88%</text>
-<rect class="stripe" x="16" y="293" width="218" height="15"/>
-<text class="row-label" x="96" y="304.0" text-anchor="end">rust</text>
-<rect x="104" y="296.0" width="68.6" height="9" rx="3" fill="#29c2d6"/>
-<text class="value-label" x="177.6" y="304.0">78%</text>
-<text class="row-label" x="96" y="319.0" text-anchor="end">dart</text>
-<rect x="104" y="311.0" width="64.2" height="9" rx="3" fill="#29d6c8"/>
-<text class="value-label" x="173.2" y="319.0">73%</text>
-<rect class="stripe" x="16" y="323" width="218" height="15"/>
-<text class="row-label" x="96" y="334.0" text-anchor="end">perl</text>
-<rect x="104" y="326.0" width="62.1" height="9" rx="3" fill="#29d6b8"/>
-<text class="value-label" x="171.1" y="334.0">71%</text>
-<text class="row-label" x="96" y="349.0" text-anchor="end">swift</text>
-<rect x="104" y="341.0" width="60.0" height="9" rx="3" fill="#29d6a7"/>
-<text class="value-label" x="169.0" y="349.0">68%</text>
-<rect class="stripe" x="16" y="353" width="218" height="15"/>
-<text class="row-label" x="96" y="364.0" text-anchor="end">scala</text>
-<rect x="104" y="356.0" width="36.2" height="9" rx="3" fill="#67d629"/>
-<text class="value-label" x="145.2" y="364.0">41%</text>
-<text class="row-label" x="96" y="379.0" text-anchor="end">matlab</text>
-<rect x="104" y="371.0" width="26.8" height="9" rx="3" fill="#b1d629"/>
-<text class="value-label" x="135.8" y="379.0">30%</text>
-<rect class="stripe" x="16" y="383" width="218" height="15"/>
-<text class="row-label" x="96" y="394.0" text-anchor="end">cpp</text>
-<rect x="104" y="386.0" width="5.0" height="9" rx="3" fill="#d65029"/>
-<text class="value-label" x="114.0" y="394.0">6%</text>
-<text class="row-label" x="96" y="409.0" text-anchor="end">haskell</text>
-<rect x="104" y="401.0" width="3.8" height="9" rx="3" fill="#d64729"/>
-<text class="value-label" x="112.8" y="409.0">4%</text>
-<rect class="stripe" x="16" y="413" width="218" height="15"/>
-<text class="row-label" x="96" y="424.0" text-anchor="end">ruby</text>
-<rect x="104" y="416.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="110.5" y="424.0">0%</text>
-<text class="row-label" x="96" y="439.0" text-anchor="end">c</text>
-<text class="na-dash" x="110" y="439.0">n/a</text>
-<rect class="stripe" x="16" y="443" width="218" height="15"/>
-<text class="row-label" x="96" y="454.0" text-anchor="end">css</text>
-<text class="na-dash" x="110" y="454.0">n/a</text>
-<text class="row-label" x="96" y="469.0" text-anchor="end">groovy</text>
-<text class="na-dash" x="110" y="469.0">n/a</text>
-<rect class="stripe" x="16" y="473" width="218" height="15"/>
-<text class="row-label" x="96" y="484.0" text-anchor="end">html</text>
-<text class="na-dash" x="110" y="484.0">n/a</text>
-<text class="row-label" x="96" y="499.0" text-anchor="end">kotlin</text>
-<text class="na-dash" x="110" y="499.0">n/a</text>
-<rect class="stripe" x="16" y="503" width="218" height="15"/>
-<text class="row-label" x="96" y="514.0" text-anchor="end">lua</text>
-<text class="na-dash" x="110" y="514.0">n/a</text>
-<text class="row-label" x="96" y="529.0" text-anchor="end">objective-c</text>
-<text class="na-dash" x="110" y="529.0">n/a</text>
-<rect class="stripe" x="16" y="533" width="218" height="15"/>
-<text class="row-label" x="96" y="544.0" text-anchor="end">powershell</text>
-<text class="na-dash" x="110" y="544.0">n/a</text>
-<text class="row-label" x="96" y="559.0" text-anchor="end">zig</text>
-<text class="na-dash" x="110" y="559.0">n/a</text>
-<text class="col-title" x="350" y="86">Func Precision</text>
-<line class="axis" x1="350" y1="98" x2="350" y2="563"/>
-<text class="row-label" x="342" y="109.0" text-anchor="end">go</text>
-<rect x="350" y="101.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="443.0" y="109.0">100%</text>
-<rect class="stripe" x="262" y="113" width="218" height="15"/>
-<text class="row-label" x="342" y="124.0" text-anchor="end">java</text>
-<rect x="350" y="116.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="443.0" y="124.0">100%</text>
-<text class="row-label" x="342" y="139.0" text-anchor="end">makefile</text>
-<rect x="350" y="131.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="443.0" y="139.0">100%</text>
-<rect class="stripe" x="262" y="143" width="218" height="15"/>
-<text class="row-label" x="342" y="154.0" text-anchor="end">matlab</text>
-<rect x="350" y="146.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="443.0" y="154.0">100%</text>
-<text class="row-label" x="342" y="169.0" text-anchor="end">scala</text>
-<rect x="350" y="161.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="443.0" y="169.0">100%</text>
-<rect class="stripe" x="262" y="173" width="218" height="15"/>
-<text class="row-label" x="342" y="184.0" text-anchor="end">perl</text>
-<rect x="350" y="176.0" width="87.9" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="442.9" y="184.0">100%</text>
-<text class="row-label" x="342" y="199.0" text-anchor="end">php</text>
-<rect x="350" y="191.0" width="87.9" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="442.9" y="199.0">100%</text>
-<rect class="stripe" x="262" y="203" width="218" height="15"/>
-<text class="row-label" x="342" y="214.0" text-anchor="end">python</text>
-<rect x="350" y="206.0" width="87.3" height="9" rx="3" fill="#292ed6"/>
-<text class="value-label" x="442.3" y="214.0">99%</text>
-<text class="row-label" x="342" y="229.0" text-anchor="end">tcl</text>
-<rect x="350" y="221.0" width="86.8" height="9" rx="3" fill="#2933d6"/>
-<text class="value-label" x="441.8" y="229.0">99%</text>
-<rect class="stripe" x="262" y="233" width="218" height="15"/>
-<text class="row-label" x="342" y="244.0" text-anchor="end">apex</text>
-<rect x="350" y="236.0" width="85.7" height="9" rx="3" fill="#293bd6"/>
-<text class="value-label" x="440.7" y="244.0">97%</text>
-<text class="row-label" x="342" y="259.0" text-anchor="end">rust</text>
-<rect x="350" y="251.0" width="85.6" height="9" rx="3" fill="#293cd6"/>
-<text class="value-label" x="440.6" y="259.0">97%</text>
-<rect class="stripe" x="262" y="263" width="218" height="15"/>
-<text class="row-label" x="342" y="274.0" text-anchor="end">swift</text>
-<rect x="350" y="266.0" width="83.8" height="9" rx="3" fill="#294ad6"/>
-<text class="value-label" x="438.8" y="274.0">95%</text>
-<text class="row-label" x="342" y="289.0" text-anchor="end">solidity</text>
-<rect x="350" y="281.0" width="82.2" height="9" rx="3" fill="#2957d6"/>
-<text class="value-label" x="437.2" y="289.0">93%</text>
-<rect class="stripe" x="262" y="293" width="218" height="15"/>
-<text class="row-label" x="342" y="304.0" text-anchor="end">typescript</text>
-<rect x="350" y="296.0" width="79.0" height="9" rx="3" fill="#2970d6"/>
-<text class="value-label" x="434.0" y="304.0">90%</text>
-<text class="row-label" x="342" y="319.0" text-anchor="end">fortran</text>
-<rect x="350" y="311.0" width="77.5" height="9" rx="3" fill="#297bd6"/>
-<text class="value-label" x="432.5" y="319.0">88%</text>
-<rect class="stripe" x="262" y="323" width="218" height="15"/>
-<text class="row-label" x="342" y="334.0" text-anchor="end">javascript</text>
-<rect x="350" y="326.0" width="64.7" height="9" rx="3" fill="#29d6cc"/>
-<text class="value-label" x="419.7" y="334.0">74%</text>
-<text class="row-label" x="342" y="349.0" text-anchor="end">haskell</text>
-<rect x="350" y="341.0" width="58.7" height="9" rx="3" fill="#29d69d"/>
-<text class="value-label" x="413.7" y="349.0">67%</text>
-<rect class="stripe" x="262" y="353" width="218" height="15"/>
-<text class="row-label" x="342" y="364.0" text-anchor="end">shell</text>
-<rect x="350" y="356.0" width="52.8" height="9" rx="3" fill="#29d66e"/>
-<text class="value-label" x="407.8" y="364.0">60%</text>
-<text class="row-label" x="342" y="379.0" text-anchor="end">csharp</text>
-<rect x="350" y="371.0" width="51.2" height="9" rx="3" fill="#29d662"/>
-<text class="value-label" x="406.2" y="379.0">58%</text>
-<rect class="stripe" x="262" y="383" width="218" height="15"/>
-<text class="row-label" x="342" y="394.0" text-anchor="end">dart</text>
-<rect x="350" y="386.0" width="50.3" height="9" rx="3" fill="#29d65b"/>
-<text class="value-label" x="405.3" y="394.0">57%</text>
-<text class="row-label" x="342" y="409.0" text-anchor="end">cpp</text>
-<rect x="350" y="401.0" width="1.5" height="9" rx="3" fill="#d62c29"/>
-<text class="value-label" x="356.5" y="409.0">0%</text>
-<rect class="stripe" x="262" y="413" width="218" height="15"/>
-<text class="row-label" x="342" y="424.0" text-anchor="end">c</text>
-<rect x="350" y="416.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="424.0">0%</text>
-<text class="row-label" x="342" y="439.0" text-anchor="end">css</text>
-<rect x="350" y="431.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="439.0">0%</text>
-<rect class="stripe" x="262" y="443" width="218" height="15"/>
-<text class="row-label" x="342" y="454.0" text-anchor="end">kotlin</text>
-<rect x="350" y="446.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="454.0">0%</text>
-<text class="row-label" x="342" y="469.0" text-anchor="end">objective-c</text>
-<rect x="350" y="461.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="469.0">0%</text>
-<rect class="stripe" x="262" y="473" width="218" height="15"/>
-<text class="row-label" x="342" y="484.0" text-anchor="end">powershell</text>
-<rect x="350" y="476.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="484.0">0%</text>
-<text class="row-label" x="342" y="499.0" text-anchor="end">ruby</text>
-<rect x="350" y="491.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="499.0">0%</text>
-<rect class="stripe" x="262" y="503" width="218" height="15"/>
-<text class="row-label" x="342" y="514.0" text-anchor="end">zig</text>
-<rect x="350" y="506.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="356.5" y="514.0">0%</text>
-<text class="row-label" x="342" y="529.0" text-anchor="end">groovy</text>
-<text class="na-dash" x="356" y="529.0">n/a</text>
-<rect class="stripe" x="262" y="533" width="218" height="15"/>
-<text class="row-label" x="342" y="544.0" text-anchor="end">html</text>
-<text class="na-dash" x="356" y="544.0">n/a</text>
-<text class="row-label" x="342" y="559.0" text-anchor="end">lua</text>
-<text class="na-dash" x="356" y="559.0">n/a</text>
-<text class="col-title" x="596" y="86">Class Recall</text>
-<line class="axis" x1="596" y1="98" x2="596" y2="563"/>
-<text class="row-label" x="588" y="109.0" text-anchor="end">haskell</text>
-<rect x="596" y="101.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="689.0" y="109.0">100%</text>
-<rect class="stripe" x="508" y="113" width="218" height="15"/>
-<text class="row-label" x="588" y="124.0" text-anchor="end">javascript</text>
-<rect x="596" y="116.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="689.0" y="124.0">100%</text>
-<text class="row-label" x="588" y="139.0" text-anchor="end">python</text>
-<rect x="596" y="131.0" width="87.6" height="9" rx="3" fill="#292cd6"/>
-<text class="value-label" x="688.6" y="139.0">100%</text>
-<rect class="stripe" x="508" y="143" width="218" height="15"/>
-<text class="row-label" x="588" y="154.0" text-anchor="end">cpp</text>
-<rect x="596" y="146.0" width="86.8" height="9" rx="3" fill="#2933d6"/>
-<text class="value-label" x="687.8" y="154.0">99%</text>
-<text class="row-label" x="588" y="169.0" text-anchor="end">dart</text>
-<rect x="596" y="161.0" width="84.8" height="9" rx="3" fill="#2942d6"/>
-<text class="value-label" x="685.8" y="169.0">96%</text>
-<rect class="stripe" x="508" y="173" width="218" height="15"/>
-<text class="row-label" x="588" y="184.0" text-anchor="end">php</text>
-<rect x="596" y="176.0" width="84.8" height="9" rx="3" fill="#2942d6"/>
-<text class="value-label" x="685.8" y="184.0">96%</text>
-<text class="row-label" x="588" y="199.0" text-anchor="end">typescript</text>
-<rect x="596" y="191.0" width="84.6" height="9" rx="3" fill="#2944d6"/>
-<text class="value-label" x="685.6" y="199.0">96%</text>
-<rect class="stripe" x="508" y="203" width="218" height="15"/>
-<text class="row-label" x="588" y="214.0" text-anchor="end">ruby</text>
-<rect x="596" y="206.0" width="68.5" height="9" rx="3" fill="#29c3d6"/>
-<text class="value-label" x="669.5" y="214.0">78%</text>
-<text class="row-label" x="588" y="229.0" text-anchor="end">rust</text>
-<rect x="596" y="221.0" width="52.7" height="9" rx="3" fill="#29d66d"/>
-<text class="value-label" x="653.7" y="229.0">60%</text>
-<rect class="stripe" x="508" y="233" width="218" height="15"/>
-<text class="row-label" x="588" y="244.0" text-anchor="end">c</text>
-<rect x="596" y="236.0" width="50.2" height="9" rx="3" fill="#29d659"/>
-<text class="value-label" x="651.2" y="244.0">57%</text>
-<text class="row-label" x="588" y="259.0" text-anchor="end">scala</text>
-<rect x="596" y="251.0" width="41.4" height="9" rx="3" fill="#3dd629"/>
-<text class="value-label" x="642.4" y="259.0">47%</text>
-<rect class="stripe" x="508" y="263" width="218" height="15"/>
-<text class="row-label" x="588" y="274.0" text-anchor="end">java</text>
-<rect x="596" y="266.0" width="22.6" height="9" rx="3" fill="#d1d629"/>
-<text class="value-label" x="623.6" y="274.0">26%</text>
-<text class="row-label" x="588" y="289.0" text-anchor="end">swift</text>
-<rect x="596" y="281.0" width="21.4" height="9" rx="3" fill="#d6d129"/>
-<text class="value-label" x="622.4" y="289.0">24%</text>
-<rect class="stripe" x="508" y="293" width="218" height="15"/>
-<text class="row-label" x="588" y="304.0" text-anchor="end">apex</text>
-<rect x="596" y="296.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="602.5" y="304.0">0%</text>
-<text class="row-label" x="588" y="319.0" text-anchor="end">csharp</text>
-<rect x="596" y="311.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="602.5" y="319.0">0%</text>
-<rect class="stripe" x="508" y="323" width="218" height="15"/>
-<text class="row-label" x="588" y="334.0" text-anchor="end">fortran</text>
-<rect x="596" y="326.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="602.5" y="334.0">0%</text>
-<text class="row-label" x="588" y="349.0" text-anchor="end">solidity</text>
-<rect x="596" y="341.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="602.5" y="349.0">0%</text>
-<rect class="stripe" x="508" y="353" width="218" height="15"/>
-<text class="row-label" x="588" y="364.0" text-anchor="end">css</text>
-<text class="na-dash" x="602" y="364.0">n/a</text>
-<text class="row-label" x="588" y="379.0" text-anchor="end">go</text>
-<text class="na-dash" x="602" y="379.0">n/a</text>
-<rect class="stripe" x="508" y="383" width="218" height="15"/>
-<text class="row-label" x="588" y="394.0" text-anchor="end">groovy</text>
-<text class="na-dash" x="602" y="394.0">n/a</text>
-<text class="row-label" x="588" y="409.0" text-anchor="end">html</text>
-<text class="na-dash" x="602" y="409.0">n/a</text>
-<rect class="stripe" x="508" y="413" width="218" height="15"/>
-<text class="row-label" x="588" y="424.0" text-anchor="end">kotlin</text>
-<text class="na-dash" x="602" y="424.0">n/a</text>
-<text class="row-label" x="588" y="439.0" text-anchor="end">lua</text>
-<text class="na-dash" x="602" y="439.0">n/a</text>
-<rect class="stripe" x="508" y="443" width="218" height="15"/>
-<text class="row-label" x="588" y="454.0" text-anchor="end">makefile</text>
-<text class="na-dash" x="602" y="454.0">n/a</text>
-<text class="row-label" x="588" y="469.0" text-anchor="end">matlab</text>
-<text class="na-dash" x="602" y="469.0">n/a</text>
-<rect class="stripe" x="508" y="473" width="218" height="15"/>
-<text class="row-label" x="588" y="484.0" text-anchor="end">objective-c</text>
-<text class="na-dash" x="602" y="484.0">n/a</text>
-<text class="row-label" x="588" y="499.0" text-anchor="end">perl</text>
-<text class="na-dash" x="602" y="499.0">n/a</text>
-<rect class="stripe" x="508" y="503" width="218" height="15"/>
-<text class="row-label" x="588" y="514.0" text-anchor="end">powershell</text>
-<text class="na-dash" x="602" y="514.0">n/a</text>
-<text class="row-label" x="588" y="529.0" text-anchor="end">shell</text>
-<text class="na-dash" x="602" y="529.0">n/a</text>
-<rect class="stripe" x="508" y="533" width="218" height="15"/>
-<text class="row-label" x="588" y="544.0" text-anchor="end">tcl</text>
-<text class="na-dash" x="602" y="544.0">n/a</text>
-<text class="row-label" x="588" y="559.0" text-anchor="end">zig</text>
-<text class="na-dash" x="602" y="559.0">n/a</text>
-<text class="col-title" x="842" y="86">Class Precision</text>
-<line class="axis" x1="842" y1="98" x2="842" y2="563"/>
-<text class="row-label" x="834" y="109.0" text-anchor="end">haskell</text>
-<rect x="842" y="101.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="935.0" y="109.0">100%</text>
-<rect class="stripe" x="754" y="113" width="218" height="15"/>
-<text class="row-label" x="834" y="124.0" text-anchor="end">java</text>
-<rect x="842" y="116.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="935.0" y="124.0">100%</text>
-<text class="row-label" x="834" y="139.0" text-anchor="end">scala</text>
-<rect x="842" y="131.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="935.0" y="139.0">100%</text>
-<rect class="stripe" x="754" y="143" width="218" height="15"/>
-<text class="row-label" x="834" y="154.0" text-anchor="end">swift</text>
-<rect x="842" y="146.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="935.0" y="154.0">100%</text>
-<text class="row-label" x="834" y="169.0" text-anchor="end">python</text>
-<rect x="842" y="161.0" width="87.8" height="9" rx="3" fill="#292ad6"/>
-<text class="value-label" x="934.8" y="169.0">100%</text>
-<rect class="stripe" x="754" y="173" width="218" height="15"/>
-<text class="row-label" x="834" y="184.0" text-anchor="end">javascript</text>
-<rect x="842" y="176.0" width="85.1" height="9" rx="3" fill="#2940d6"/>
-<text class="value-label" x="932.1" y="184.0">97%</text>
-<text class="row-label" x="834" y="199.0" text-anchor="end">php</text>
-<rect x="842" y="191.0" width="84.8" height="9" rx="3" fill="#2942d6"/>
-<text class="value-label" x="931.8" y="199.0">96%</text>
-<rect class="stripe" x="754" y="203" width="218" height="15"/>
-<text class="row-label" x="834" y="214.0" text-anchor="end">dart</text>
-<rect x="842" y="206.0" width="83.9" height="9" rx="3" fill="#2949d6"/>
-<text class="value-label" x="930.9" y="214.0">95%</text>
-<text class="row-label" x="834" y="229.0" text-anchor="end">rust</text>
-<rect x="842" y="221.0" width="82.3" height="9" rx="3" fill="#2956d6"/>
-<text class="value-label" x="929.3" y="229.0">94%</text>
-<rect class="stripe" x="754" y="233" width="218" height="15"/>
-<text class="row-label" x="834" y="244.0" text-anchor="end">c</text>
-<rect x="842" y="236.0" width="76.1" height="9" rx="3" fill="#2986d6"/>
-<text class="value-label" x="923.1" y="244.0">86%</text>
-<text class="row-label" x="834" y="259.0" text-anchor="end">cpp</text>
-<rect x="842" y="251.0" width="72.7" height="9" rx="3" fill="#29a1d6"/>
-<text class="value-label" x="919.7" y="259.0">83%</text>
-<rect class="stripe" x="754" y="263" width="218" height="15"/>
-<text class="row-label" x="834" y="274.0" text-anchor="end">ruby</text>
-<rect x="842" y="266.0" width="68.5" height="9" rx="3" fill="#29c3d6"/>
-<text class="value-label" x="915.5" y="274.0">78%</text>
-<text class="row-label" x="834" y="289.0" text-anchor="end">typescript</text>
-<rect x="842" y="281.0" width="29.7" height="9" rx="3" fill="#99d629"/>
-<text class="value-label" x="876.7" y="289.0">34%</text>
-<rect class="stripe" x="754" y="293" width="218" height="15"/>
-<text class="row-label" x="834" y="304.0" text-anchor="end">kotlin</text>
-<rect x="842" y="296.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="848.5" y="304.0">0%</text>
-<text class="row-label" x="834" y="319.0" text-anchor="end">perl</text>
-<rect x="842" y="311.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="848.5" y="319.0">0%</text>
-<rect class="stripe" x="754" y="323" width="218" height="15"/>
-<text class="row-label" x="834" y="334.0" text-anchor="end">powershell</text>
-<rect x="842" y="326.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="848.5" y="334.0">0%</text>
-<text class="row-label" x="834" y="349.0" text-anchor="end">solidity</text>
-<rect x="842" y="341.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="848.5" y="349.0">0%</text>
-<rect class="stripe" x="754" y="353" width="218" height="15"/>
-<text class="row-label" x="834" y="364.0" text-anchor="end">apex</text>
-<text class="na-dash" x="848" y="364.0">n/a</text>
-<text class="row-label" x="834" y="379.0" text-anchor="end">csharp</text>
-<text class="na-dash" x="848" y="379.0">n/a</text>
-<rect class="stripe" x="754" y="383" width="218" height="15"/>
-<text class="row-label" x="834" y="394.0" text-anchor="end">css</text>
-<text class="na-dash" x="848" y="394.0">n/a</text>
-<text class="row-label" x="834" y="409.0" text-anchor="end">fortran</text>
-<text class="na-dash" x="848" y="409.0">n/a</text>
-<rect class="stripe" x="754" y="413" width="218" height="15"/>
-<text class="row-label" x="834" y="424.0" text-anchor="end">go</text>
-<text class="na-dash" x="848" y="424.0">n/a</text>
-<text class="row-label" x="834" y="439.0" text-anchor="end">groovy</text>
-<text class="na-dash" x="848" y="439.0">n/a</text>
-<rect class="stripe" x="754" y="443" width="218" height="15"/>
-<text class="row-label" x="834" y="454.0" text-anchor="end">html</text>
-<text class="na-dash" x="848" y="454.0">n/a</text>
-<text class="row-label" x="834" y="469.0" text-anchor="end">lua</text>
-<text class="na-dash" x="848" y="469.0">n/a</text>
-<rect class="stripe" x="754" y="473" width="218" height="15"/>
-<text class="row-label" x="834" y="484.0" text-anchor="end">makefile</text>
-<text class="na-dash" x="848" y="484.0">n/a</text>
-<text class="row-label" x="834" y="499.0" text-anchor="end">matlab</text>
-<text class="na-dash" x="848" y="499.0">n/a</text>
-<rect class="stripe" x="754" y="503" width="218" height="15"/>
-<text class="row-label" x="834" y="514.0" text-anchor="end">objective-c</text>
-<text class="na-dash" x="848" y="514.0">n/a</text>
-<text class="row-label" x="834" y="529.0" text-anchor="end">shell</text>
-<text class="na-dash" x="848" y="529.0">n/a</text>
-<rect class="stripe" x="754" y="533" width="218" height="15"/>
-<text class="row-label" x="834" y="544.0" text-anchor="end">tcl</text>
-<text class="na-dash" x="848" y="544.0">n/a</text>
-<text class="row-label" x="834" y="559.0" text-anchor="end">zig</text>
-<text class="na-dash" x="848" y="559.0">n/a</text>
-<text class="col-title" x="1088" y="86">Args Exact-Match</text>
-<line class="axis" x1="1088" y1="98" x2="1088" y2="563"/>
-<text class="row-label" x="1080" y="109.0" text-anchor="end">makefile</text>
-<rect x="1088" y="101.0" width="88.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="1181.0" y="109.0">100%</text>
-<rect class="stripe" x="1000" y="113" width="218" height="15"/>
-<text class="row-label" x="1080" y="124.0" text-anchor="end">fortran</text>
-<rect x="1088" y="116.0" width="85.8" height="9" rx="3" fill="#293ad6"/>
-<text class="value-label" x="1178.8" y="124.0">98%</text>
-<text class="row-label" x="1080" y="139.0" text-anchor="end">apex</text>
-<rect x="1088" y="131.0" width="78.8" height="9" rx="3" fill="#2972d6"/>
-<text class="value-label" x="1171.8" y="139.0">90%</text>
-<rect class="stripe" x="1000" y="143" width="218" height="15"/>
-<text class="row-label" x="1080" y="154.0" text-anchor="end">javascript</text>
-<rect x="1088" y="146.0" width="78.6" height="9" rx="3" fill="#2973d6"/>
-<text class="value-label" x="1171.6" y="154.0">89%</text>
-<text class="row-label" x="1080" y="169.0" text-anchor="end">python</text>
-<rect x="1088" y="161.0" width="55.6" height="9" rx="3" fill="#29d684"/>
-<text class="value-label" x="1148.6" y="169.0">63%</text>
-<rect class="stripe" x="1000" y="173" width="218" height="15"/>
-<text class="row-label" x="1080" y="184.0" text-anchor="end">dart</text>
-<rect x="1088" y="176.0" width="40.7" height="9" rx="3" fill="#43d629"/>
-<text class="value-label" x="1133.7" y="184.0">46%</text>
-<text class="row-label" x="1080" y="199.0" text-anchor="end">go</text>
-<rect x="1088" y="191.0" width="32.1" height="9" rx="3" fill="#86d629"/>
-<text class="value-label" x="1125.1" y="199.0">36%</text>
-<rect class="stripe" x="1000" y="203" width="218" height="15"/>
-<text class="row-label" x="1080" y="214.0" text-anchor="end">java</text>
-<rect x="1088" y="206.0" width="30.6" height="9" rx="3" fill="#92d629"/>
-<text class="value-label" x="1123.6" y="214.0">35%</text>
-<text class="row-label" x="1080" y="229.0" text-anchor="end">tcl</text>
-<rect x="1088" y="221.0" width="26.2" height="9" rx="3" fill="#b5d629"/>
-<text class="value-label" x="1119.2" y="229.0">30%</text>
-<rect class="stripe" x="1000" y="233" width="218" height="15"/>
-<text class="row-label" x="1080" y="244.0" text-anchor="end">php</text>
-<rect x="1088" y="236.0" width="25.1" height="9" rx="3" fill="#bed629"/>
-<text class="value-label" x="1118.1" y="244.0">28%</text>
-<text class="row-label" x="1080" y="259.0" text-anchor="end">typescript</text>
-<rect x="1088" y="251.0" width="21.3" height="9" rx="3" fill="#d6d129"/>
-<text class="value-label" x="1114.3" y="259.0">24%</text>
-<rect class="stripe" x="1000" y="263" width="218" height="15"/>
-<text class="row-label" x="1080" y="274.0" text-anchor="end">scala</text>
-<rect x="1088" y="266.0" width="19.4" height="9" rx="3" fill="#d6c129"/>
-<text class="value-label" x="1112.4" y="274.0">22%</text>
-<text class="row-label" x="1080" y="289.0" text-anchor="end">csharp</text>
-<rect x="1088" y="281.0" width="18.5" height="9" rx="3" fill="#d6ba29"/>
-<text class="value-label" x="1111.5" y="289.0">21%</text>
-<rect class="stripe" x="1000" y="293" width="218" height="15"/>
-<text class="row-label" x="1080" y="304.0" text-anchor="end">solidity</text>
-<rect x="1088" y="296.0" width="17.6" height="9" rx="3" fill="#d6b429"/>
-<text class="value-label" x="1110.6" y="304.0">20%</text>
-<text class="row-label" x="1080" y="319.0" text-anchor="end">perl</text>
-<rect x="1088" y="311.0" width="14.9" height="9" rx="3" fill="#d69e29"/>
-<text class="value-label" x="1107.9" y="319.0">17%</text>
-<rect class="stripe" x="1000" y="323" width="218" height="15"/>
-<text class="row-label" x="1080" y="334.0" text-anchor="end">swift</text>
-<rect x="1088" y="326.0" width="14.7" height="9" rx="3" fill="#d69d29"/>
-<text class="value-label" x="1107.7" y="334.0">17%</text>
-<text class="row-label" x="1080" y="349.0" text-anchor="end">rust</text>
-<rect x="1088" y="341.0" width="10.4" height="9" rx="3" fill="#d67b29"/>
-<text class="value-label" x="1103.4" y="349.0">12%</text>
-<rect class="stripe" x="1000" y="353" width="218" height="15"/>
-<text class="row-label" x="1080" y="364.0" text-anchor="end">cpp</text>
-<rect x="1088" y="356.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="1094.5" y="364.0">0%</text>
-<text class="row-label" x="1080" y="379.0" text-anchor="end">haskell</text>
-<rect x="1088" y="371.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="1094.5" y="379.0">0%</text>
-<rect class="stripe" x="1000" y="383" width="218" height="15"/>
-<text class="row-label" x="1080" y="394.0" text-anchor="end">matlab</text>
-<rect x="1088" y="386.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="1094.5" y="394.0">0%</text>
-<text class="row-label" x="1080" y="409.0" text-anchor="end">shell</text>
-<rect x="1088" y="401.0" width="1.5" height="9" rx="3" fill="#d62929"/>
-<text class="value-label" x="1094.5" y="409.0">0%</text>
-<rect class="stripe" x="1000" y="413" width="218" height="15"/>
-<text class="row-label" x="1080" y="424.0" text-anchor="end">c</text>
-<text class="na-dash" x="1094" y="424.0">n/a</text>
-<text class="row-label" x="1080" y="439.0" text-anchor="end">css</text>
-<text class="na-dash" x="1094" y="439.0">n/a</text>
-<rect class="stripe" x="1000" y="443" width="218" height="15"/>
-<text class="row-label" x="1080" y="454.0" text-anchor="end">groovy</text>
-<text class="na-dash" x="1094" y="454.0">n/a</text>
-<text class="row-label" x="1080" y="469.0" text-anchor="end">html</text>
-<text class="na-dash" x="1094" y="469.0">n/a</text>
-<rect class="stripe" x="1000" y="473" width="218" height="15"/>
-<text class="row-label" x="1080" y="484.0" text-anchor="end">kotlin</text>
-<text class="na-dash" x="1094" y="484.0">n/a</text>
-<text class="row-label" x="1080" y="499.0" text-anchor="end">lua</text>
-<text class="na-dash" x="1094" y="499.0">n/a</text>
-<rect class="stripe" x="1000" y="503" width="218" height="15"/>
-<text class="row-label" x="1080" y="514.0" text-anchor="end">objective-c</text>
-<text class="na-dash" x="1094" y="514.0">n/a</text>
-<text class="row-label" x="1080" y="529.0" text-anchor="end">powershell</text>
-<text class="na-dash" x="1094" y="529.0">n/a</text>
-<rect class="stripe" x="1000" y="533" width="218" height="15"/>
-<text class="row-label" x="1080" y="544.0" text-anchor="end">ruby</text>
-<text class="na-dash" x="1094" y="544.0">n/a</text>
-<text class="row-label" x="1080" y="559.0" text-anchor="end">zig</text>
-<text class="na-dash" x="1094" y="559.0">n/a</text>
-<text class="footer" x="16" y="589">Generated by tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently, best at top; "n/a" (no ground-truth instances for that language) sorts to the bottom, not scored as 0%.</text>
+<text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
+<text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
+<rect x="16" y="72" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>
+<text class="legend-label" x="16" y="88">0%</text>
+<text class="legend-label" x="156" y="88" text-anchor="end">100% (bar color = value)</text>
+<text class="col-title" x="104" y="118">Func Recall</text>
+<line class="axis" x1="104" y1="130" x2="104" y2="595"/>
+<text class="row-label" x="96" y="141.0" text-anchor="end">apex</text>
+<rect x="104" y="133.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="201.0" y="141.0">38/38</text>
+<rect class="stripe" x="16" y="145" width="246" height="15"/>
+<text class="row-label" x="96" y="156.0" text-anchor="end">makefile</text>
+<rect x="104" y="148.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="201.0" y="156.0">1/1</text>
+<text class="row-label" x="96" y="171.0" text-anchor="end">php</text>
+<rect x="104" y="163.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="201.0" y="171.0">1701/1701</text>
+<rect class="stripe" x="16" y="175" width="246" height="15"/>
+<text class="row-label" x="96" y="186.0" text-anchor="end">shell</text>
+<rect x="104" y="178.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="201.0" y="186.0">3/3</text>
+<text class="row-label" x="96" y="201.0" text-anchor="end">csharp</text>
+<rect x="104" y="193.0" width="91.2" height="9" rx="3" fill="#292fd6"/>
+<text class="value-label" x="200.2" y="201.0">553/558</text>
+<rect class="stripe" x="16" y="205" width="246" height="15"/>
+<text class="row-label" x="96" y="216.0" text-anchor="end">python</text>
+<rect x="104" y="208.0" width="90.9" height="9" rx="3" fill="#2931d6"/>
+<text class="value-label" x="199.9" y="216.0">2940/2976</text>
+<text class="row-label" x="96" y="231.0" text-anchor="end">tcl</text>
+<rect x="104" y="223.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
+<text class="value-label" x="199.7" y="231.0">141/143</text>
+<rect class="stripe" x="16" y="235" width="246" height="15"/>
+<text class="row-label" x="96" y="246.0" text-anchor="end">fortran</text>
+<rect x="104" y="238.0" width="90.4" height="9" rx="3" fill="#2935d6"/>
+<text class="value-label" x="199.4" y="246.0">119/121</text>
+<text class="row-label" x="96" y="261.0" text-anchor="end">javascript</text>
+<rect x="104" y="253.0" width="88.4" height="9" rx="3" fill="#2944d6"/>
+<text class="value-label" x="197.4" y="261.0">535/557</text>
+<rect class="stripe" x="16" y="265" width="246" height="15"/>
+<text class="row-label" x="96" y="276.0" text-anchor="end">go</text>
+<rect x="104" y="268.0" width="88.0" height="9" rx="3" fill="#2947d6"/>
+<text class="value-label" x="197.0" y="276.0">817/855</text>
+<text class="row-label" x="96" y="291.0" text-anchor="end">typescript</text>
+<rect x="104" y="283.0" width="85.3" height="9" rx="3" fill="#295bd6"/>
+<text class="value-label" x="194.3" y="291.0">1566/1689</text>
+<rect class="stripe" x="16" y="295" width="246" height="15"/>
+<text class="row-label" x="96" y="306.0" text-anchor="end">solidity</text>
+<rect x="104" y="298.0" width="82.3" height="9" rx="3" fill="#2972d6"/>
+<text class="value-label" x="191.3" y="306.0">85/95</text>
+<text class="row-label" x="96" y="321.0" text-anchor="end">java</text>
+<rect x="104" y="313.0" width="80.6" height="9" rx="3" fill="#297fd6"/>
+<text class="value-label" x="189.6" y="321.0">233/266</text>
+<rect class="stripe" x="16" y="325" width="246" height="15"/>
+<text class="row-label" x="96" y="336.0" text-anchor="end">rust</text>
+<rect x="104" y="328.0" width="71.7" height="9" rx="3" fill="#29c2d6"/>
+<text class="value-label" x="180.7" y="336.0">1135/1457</text>
+<text class="row-label" x="96" y="351.0" text-anchor="end">dart</text>
+<rect x="104" y="343.0" width="67.1" height="9" rx="3" fill="#29d6c8"/>
+<text class="value-label" x="176.1" y="351.0">526/722</text>
+<rect class="stripe" x="16" y="355" width="246" height="15"/>
+<text class="row-label" x="96" y="366.0" text-anchor="end">perl</text>
+<rect x="104" y="358.0" width="65.0" height="9" rx="3" fill="#29d6b8"/>
+<text class="value-label" x="174.0" y="366.0">710/1005</text>
+<text class="row-label" x="96" y="381.0" text-anchor="end">swift</text>
+<rect x="104" y="373.0" width="62.7" height="9" rx="3" fill="#29d6a7"/>
+<text class="value-label" x="171.7" y="381.0">60/88</text>
+<rect class="stripe" x="16" y="385" width="246" height="15"/>
+<text class="row-label" x="96" y="396.0" text-anchor="end">scala</text>
+<rect x="104" y="388.0" width="37.8" height="9" rx="3" fill="#67d629"/>
+<text class="value-label" x="146.8" y="396.0">205/499</text>
+<text class="row-label" x="96" y="411.0" text-anchor="end">matlab</text>
+<rect x="104" y="403.0" width="28.0" height="9" rx="3" fill="#b1d629"/>
+<text class="value-label" x="137.0" y="411.0">7/23</text>
+<rect class="stripe" x="16" y="415" width="246" height="15"/>
+<text class="row-label" x="96" y="426.0" text-anchor="end">cpp</text>
+<rect x="104" y="418.0" width="5.2" height="9" rx="3" fill="#d65029"/>
+<text class="value-label" x="114.2" y="426.0">5/87</text>
+<text class="row-label" x="96" y="441.0" text-anchor="end">haskell</text>
+<rect x="104" y="433.0" width="4.0" height="9" rx="3" fill="#d64729"/>
+<text class="value-label" x="113.0" y="441.0">4/94</text>
+<rect class="stripe" x="16" y="445" width="246" height="15"/>
+<text class="row-label" x="96" y="456.0" text-anchor="end">ruby</text>
+<rect x="104" y="448.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="110.5" y="456.0">0/117</text>
+<text class="row-label" x="96" y="471.0" text-anchor="end">c</text>
+<text class="na-dash" x="110" y="471.0">n/a</text>
+<rect class="stripe" x="16" y="475" width="246" height="15"/>
+<text class="row-label" x="96" y="486.0" text-anchor="end">css</text>
+<text class="na-dash" x="110" y="486.0">n/a</text>
+<text class="row-label" x="96" y="501.0" text-anchor="end">groovy</text>
+<text class="na-dash" x="110" y="501.0">n/a</text>
+<rect class="stripe" x="16" y="505" width="246" height="15"/>
+<text class="row-label" x="96" y="516.0" text-anchor="end">html</text>
+<text class="na-dash" x="110" y="516.0">n/a</text>
+<text class="row-label" x="96" y="531.0" text-anchor="end">kotlin</text>
+<text class="na-dash" x="110" y="531.0">n/a</text>
+<rect class="stripe" x="16" y="535" width="246" height="15"/>
+<text class="row-label" x="96" y="546.0" text-anchor="end">lua</text>
+<text class="na-dash" x="110" y="546.0">n/a</text>
+<text class="row-label" x="96" y="561.0" text-anchor="end">objective-c</text>
+<text class="na-dash" x="110" y="561.0">n/a</text>
+<rect class="stripe" x="16" y="565" width="246" height="15"/>
+<text class="row-label" x="96" y="576.0" text-anchor="end">powershell</text>
+<text class="na-dash" x="110" y="576.0">n/a</text>
+<text class="row-label" x="96" y="591.0" text-anchor="end">zig</text>
+<text class="na-dash" x="110" y="591.0">n/a</text>
+<text class="col-title" x="378" y="118">Func Precision</text>
+<line class="axis" x1="378" y1="130" x2="378" y2="595"/>
+<text class="row-label" x="370" y="141.0" text-anchor="end">go</text>
+<rect x="378" y="133.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="475.0" y="141.0">817/817</text>
+<rect class="stripe" x="290" y="145" width="246" height="15"/>
+<text class="row-label" x="370" y="156.0" text-anchor="end">java</text>
+<rect x="378" y="148.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="475.0" y="156.0">233/233</text>
+<text class="row-label" x="370" y="171.0" text-anchor="end">makefile</text>
+<rect x="378" y="163.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="475.0" y="171.0">1/1</text>
+<rect class="stripe" x="290" y="175" width="246" height="15"/>
+<text class="row-label" x="370" y="186.0" text-anchor="end">matlab</text>
+<rect x="378" y="178.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="475.0" y="186.0">7/7</text>
+<text class="row-label" x="370" y="201.0" text-anchor="end">scala</text>
+<rect x="378" y="193.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="475.0" y="201.0">205/205</text>
+<rect class="stripe" x="290" y="205" width="246" height="15"/>
+<text class="row-label" x="370" y="216.0" text-anchor="end">perl</text>
+<rect x="378" y="208.0" width="91.9" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="474.9" y="216.0">710/711</text>
+<text class="row-label" x="370" y="231.0" text-anchor="end">php</text>
+<rect x="378" y="223.0" width="91.9" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="474.9" y="231.0">1701/1702</text>
+<rect class="stripe" x="290" y="235" width="246" height="15"/>
+<text class="row-label" x="370" y="246.0" text-anchor="end">python</text>
+<rect x="378" y="238.0" width="91.3" height="9" rx="3" fill="#292ed6"/>
+<text class="value-label" x="474.3" y="246.0">2940/2964</text>
+<text class="row-label" x="370" y="261.0" text-anchor="end">tcl</text>
+<rect x="378" y="253.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
+<text class="value-label" x="473.7" y="261.0">141/143</text>
+<rect class="stripe" x="290" y="265" width="246" height="15"/>
+<text class="row-label" x="370" y="276.0" text-anchor="end">apex</text>
+<rect x="378" y="268.0" width="89.6" height="9" rx="3" fill="#293bd6"/>
+<text class="value-label" x="472.6" y="276.0">38/39</text>
+<text class="row-label" x="370" y="291.0" text-anchor="end">rust</text>
+<rect x="378" y="283.0" width="89.5" height="9" rx="3" fill="#293cd6"/>
+<text class="value-label" x="472.5" y="291.0">1135/1167</text>
+<rect class="stripe" x="290" y="295" width="246" height="15"/>
+<text class="row-label" x="370" y="306.0" text-anchor="end">swift</text>
+<rect x="378" y="298.0" width="87.6" height="9" rx="3" fill="#294ad6"/>
+<text class="value-label" x="470.6" y="306.0">60/63</text>
+<text class="row-label" x="370" y="321.0" text-anchor="end">solidity</text>
+<rect x="378" y="313.0" width="85.9" height="9" rx="3" fill="#2957d6"/>
+<text class="value-label" x="468.9" y="321.0">85/91</text>
+<rect class="stripe" x="290" y="325" width="246" height="15"/>
+<text class="row-label" x="370" y="336.0" text-anchor="end">typescript</text>
+<rect x="378" y="328.0" width="82.6" height="9" rx="3" fill="#2970d6"/>
+<text class="value-label" x="465.6" y="336.0">1566/1743</text>
+<text class="row-label" x="370" y="351.0" text-anchor="end">fortran</text>
+<rect x="378" y="343.0" width="81.1" height="9" rx="3" fill="#297bd6"/>
+<text class="value-label" x="464.1" y="351.0">119/135</text>
+<rect class="stripe" x="290" y="355" width="246" height="15"/>
+<text class="row-label" x="370" y="366.0" text-anchor="end">javascript</text>
+<rect x="378" y="358.0" width="67.6" height="9" rx="3" fill="#29d6cc"/>
+<text class="value-label" x="450.6" y="366.0">535/728</text>
+<text class="row-label" x="370" y="381.0" text-anchor="end">haskell</text>
+<rect x="378" y="373.0" width="61.4" height="9" rx="3" fill="#29d69d"/>
+<text class="value-label" x="444.4" y="381.0">4/6</text>
+<rect class="stripe" x="290" y="385" width="246" height="15"/>
+<text class="row-label" x="370" y="396.0" text-anchor="end">shell</text>
+<rect x="378" y="388.0" width="55.2" height="9" rx="3" fill="#29d66e"/>
+<text class="value-label" x="438.2" y="396.0">3/5</text>
+<text class="row-label" x="370" y="411.0" text-anchor="end">csharp</text>
+<rect x="378" y="403.0" width="53.5" height="9" rx="3" fill="#29d662"/>
+<text class="value-label" x="436.5" y="411.0">553/950</text>
+<rect class="stripe" x="290" y="415" width="246" height="15"/>
+<text class="row-label" x="370" y="426.0" text-anchor="end">dart</text>
+<rect x="378" y="418.0" width="52.6" height="9" rx="3" fill="#29d65b"/>
+<text class="value-label" x="435.6" y="426.0">526/920</text>
+<text class="row-label" x="370" y="441.0" text-anchor="end">cpp</text>
+<rect x="378" y="433.0" width="1.5" height="9" rx="3" fill="#d62c29"/>
+<text class="value-label" x="384.5" y="441.0">5/1152</text>
+<rect class="stripe" x="290" y="445" width="246" height="15"/>
+<text class="row-label" x="370" y="456.0" text-anchor="end">c</text>
+<rect x="378" y="448.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="456.0">0/1687</text>
+<text class="row-label" x="370" y="471.0" text-anchor="end">css</text>
+<rect x="378" y="463.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="471.0">0/2</text>
+<rect class="stripe" x="290" y="475" width="246" height="15"/>
+<text class="row-label" x="370" y="486.0" text-anchor="end">kotlin</text>
+<rect x="378" y="478.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="486.0">0/10</text>
+<text class="row-label" x="370" y="501.0" text-anchor="end">objective-c</text>
+<rect x="378" y="493.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="501.0">0/113</text>
+<rect class="stripe" x="290" y="505" width="246" height="15"/>
+<text class="row-label" x="370" y="516.0" text-anchor="end">powershell</text>
+<rect x="378" y="508.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="516.0">0/82</text>
+<text class="row-label" x="370" y="531.0" text-anchor="end">ruby</text>
+<rect x="378" y="523.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="531.0">0/12</text>
+<rect class="stripe" x="290" y="535" width="246" height="15"/>
+<text class="row-label" x="370" y="546.0" text-anchor="end">zig</text>
+<rect x="378" y="538.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="384.5" y="546.0">0/1828</text>
+<text class="row-label" x="370" y="561.0" text-anchor="end">groovy</text>
+<text class="na-dash" x="384" y="561.0">n/a</text>
+<rect class="stripe" x="290" y="565" width="246" height="15"/>
+<text class="row-label" x="370" y="576.0" text-anchor="end">html</text>
+<text class="na-dash" x="384" y="576.0">n/a</text>
+<text class="row-label" x="370" y="591.0" text-anchor="end">lua</text>
+<text class="na-dash" x="384" y="591.0">n/a</text>
+<text class="col-title" x="652" y="118">Class Recall</text>
+<line class="axis" x1="652" y1="130" x2="652" y2="595"/>
+<text class="row-label" x="644" y="141.0" text-anchor="end">haskell</text>
+<rect x="652" y="133.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="749.0" y="141.0">1/1</text>
+<rect class="stripe" x="564" y="145" width="246" height="15"/>
+<text class="row-label" x="644" y="156.0" text-anchor="end">javascript</text>
+<rect x="652" y="148.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="749.0" y="156.0">29/29</text>
+<text class="row-label" x="644" y="171.0" text-anchor="end">python</text>
+<rect x="652" y="163.0" width="91.6" height="9" rx="3" fill="#292cd6"/>
+<text class="value-label" x="748.6" y="171.0">457/459</text>
+<rect class="stripe" x="564" y="175" width="246" height="15"/>
+<text class="row-label" x="644" y="186.0" text-anchor="end">cpp</text>
+<rect x="652" y="178.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
+<text class="value-label" x="747.7" y="186.0">138/140</text>
+<text class="row-label" x="644" y="201.0" text-anchor="end">dart</text>
+<rect x="652" y="193.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
+<text class="value-label" x="745.7" y="201.0">161/167</text>
+<rect class="stripe" x="564" y="205" width="246" height="15"/>
+<text class="row-label" x="644" y="216.0" text-anchor="end">php</text>
+<rect x="652" y="208.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
+<text class="value-label" x="745.7" y="216.0">27/28</text>
+<text class="row-label" x="644" y="231.0" text-anchor="end">typescript</text>
+<rect x="652" y="223.0" width="88.4" height="9" rx="3" fill="#2944d6"/>
+<text class="value-label" x="745.4" y="231.0">274/285</text>
+<rect class="stripe" x="564" y="235" width="246" height="15"/>
+<text class="row-label" x="644" y="246.0" text-anchor="end">ruby</text>
+<rect x="652" y="238.0" width="71.6" height="9" rx="3" fill="#29c3d6"/>
+<text class="value-label" x="728.6" y="246.0">7/9</text>
+<text class="row-label" x="644" y="261.0" text-anchor="end">rust</text>
+<rect x="652" y="253.0" width="55.1" height="9" rx="3" fill="#29d66d"/>
+<text class="value-label" x="712.1" y="261.0">145/242</text>
+<rect class="stripe" x="564" y="265" width="246" height="15"/>
+<text class="row-label" x="644" y="276.0" text-anchor="end">c</text>
+<rect x="652" y="268.0" width="52.4" height="9" rx="3" fill="#29d659"/>
+<text class="value-label" x="709.4" y="276.0">45/79</text>
+<text class="row-label" x="644" y="291.0" text-anchor="end">scala</text>
+<rect x="652" y="283.0" width="43.3" height="9" rx="3" fill="#3dd629"/>
+<text class="value-label" x="700.3" y="291.0">8/17</text>
+<rect class="stripe" x="564" y="295" width="246" height="15"/>
+<text class="row-label" x="644" y="306.0" text-anchor="end">java</text>
+<rect x="652" y="298.0" width="23.6" height="9" rx="3" fill="#d1d629"/>
+<text class="value-label" x="680.6" y="306.0">9/35</text>
+<text class="row-label" x="644" y="321.0" text-anchor="end">swift</text>
+<rect x="652" y="313.0" width="22.4" height="9" rx="3" fill="#d6d129"/>
+<text class="value-label" x="679.4" y="321.0">9/37</text>
+<rect class="stripe" x="564" y="325" width="246" height="15"/>
+<text class="row-label" x="644" y="336.0" text-anchor="end">apex</text>
+<rect x="652" y="328.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="658.5" y="336.0">0/4</text>
+<text class="row-label" x="644" y="351.0" text-anchor="end">csharp</text>
+<rect x="652" y="343.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="658.5" y="351.0">0/19</text>
+<rect class="stripe" x="564" y="355" width="246" height="15"/>
+<text class="row-label" x="644" y="366.0" text-anchor="end">fortran</text>
+<rect x="652" y="358.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="658.5" y="366.0">0/11</text>
+<text class="row-label" x="644" y="381.0" text-anchor="end">solidity</text>
+<rect x="652" y="373.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="658.5" y="381.0">0/7</text>
+<rect class="stripe" x="564" y="385" width="246" height="15"/>
+<text class="row-label" x="644" y="396.0" text-anchor="end">css</text>
+<text class="na-dash" x="658" y="396.0">n/a</text>
+<text class="row-label" x="644" y="411.0" text-anchor="end">go</text>
+<text class="na-dash" x="658" y="411.0">n/a</text>
+<rect class="stripe" x="564" y="415" width="246" height="15"/>
+<text class="row-label" x="644" y="426.0" text-anchor="end">groovy</text>
+<text class="na-dash" x="658" y="426.0">n/a</text>
+<text class="row-label" x="644" y="441.0" text-anchor="end">html</text>
+<text class="na-dash" x="658" y="441.0">n/a</text>
+<rect class="stripe" x="564" y="445" width="246" height="15"/>
+<text class="row-label" x="644" y="456.0" text-anchor="end">kotlin</text>
+<text class="na-dash" x="658" y="456.0">n/a</text>
+<text class="row-label" x="644" y="471.0" text-anchor="end">lua</text>
+<text class="na-dash" x="658" y="471.0">n/a</text>
+<rect class="stripe" x="564" y="475" width="246" height="15"/>
+<text class="row-label" x="644" y="486.0" text-anchor="end">makefile</text>
+<text class="na-dash" x="658" y="486.0">n/a</text>
+<text class="row-label" x="644" y="501.0" text-anchor="end">matlab</text>
+<text class="na-dash" x="658" y="501.0">n/a</text>
+<rect class="stripe" x="564" y="505" width="246" height="15"/>
+<text class="row-label" x="644" y="516.0" text-anchor="end">objective-c</text>
+<text class="na-dash" x="658" y="516.0">n/a</text>
+<text class="row-label" x="644" y="531.0" text-anchor="end">perl</text>
+<text class="na-dash" x="658" y="531.0">n/a</text>
+<rect class="stripe" x="564" y="535" width="246" height="15"/>
+<text class="row-label" x="644" y="546.0" text-anchor="end">powershell</text>
+<text class="na-dash" x="658" y="546.0">n/a</text>
+<text class="row-label" x="644" y="561.0" text-anchor="end">shell</text>
+<text class="na-dash" x="658" y="561.0">n/a</text>
+<rect class="stripe" x="564" y="565" width="246" height="15"/>
+<text class="row-label" x="644" y="576.0" text-anchor="end">tcl</text>
+<text class="na-dash" x="658" y="576.0">n/a</text>
+<text class="row-label" x="644" y="591.0" text-anchor="end">zig</text>
+<text class="na-dash" x="658" y="591.0">n/a</text>
+<text class="col-title" x="926" y="118">Class Precision</text>
+<line class="axis" x1="926" y1="130" x2="926" y2="595"/>
+<text class="row-label" x="918" y="141.0" text-anchor="end">haskell</text>
+<rect x="926" y="133.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="1023.0" y="141.0">1/1</text>
+<rect class="stripe" x="838" y="145" width="246" height="15"/>
+<text class="row-label" x="918" y="156.0" text-anchor="end">java</text>
+<rect x="926" y="148.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="1023.0" y="156.0">9/9</text>
+<text class="row-label" x="918" y="171.0" text-anchor="end">scala</text>
+<rect x="926" y="163.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="1023.0" y="171.0">8/8</text>
+<rect class="stripe" x="838" y="175" width="246" height="15"/>
+<text class="row-label" x="918" y="186.0" text-anchor="end">swift</text>
+<rect x="926" y="178.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="1023.0" y="186.0">9/9</text>
+<text class="row-label" x="918" y="201.0" text-anchor="end">python</text>
+<rect x="926" y="193.0" width="91.8" height="9" rx="3" fill="#292ad6"/>
+<text class="value-label" x="1022.8" y="201.0">457/458</text>
+<rect class="stripe" x="838" y="205" width="246" height="15"/>
+<text class="row-label" x="918" y="216.0" text-anchor="end">javascript</text>
+<rect x="926" y="208.0" width="89.0" height="9" rx="3" fill="#2940d6"/>
+<text class="value-label" x="1020.0" y="216.0">29/30</text>
+<text class="row-label" x="918" y="231.0" text-anchor="end">php</text>
+<rect x="926" y="223.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
+<text class="value-label" x="1019.7" y="231.0">27/28</text>
+<rect class="stripe" x="838" y="235" width="246" height="15"/>
+<text class="row-label" x="918" y="246.0" text-anchor="end">dart</text>
+<rect x="926" y="238.0" width="87.7" height="9" rx="3" fill="#2949d6"/>
+<text class="value-label" x="1018.7" y="246.0">161/169</text>
+<text class="row-label" x="918" y="261.0" text-anchor="end">rust</text>
+<rect x="926" y="253.0" width="86.0" height="9" rx="3" fill="#2956d6"/>
+<text class="value-label" x="1017.0" y="261.0">145/155</text>
+<rect class="stripe" x="838" y="265" width="246" height="15"/>
+<text class="row-label" x="918" y="276.0" text-anchor="end">c</text>
+<rect x="926" y="268.0" width="79.6" height="9" rx="3" fill="#2986d6"/>
+<text class="value-label" x="1010.6" y="276.0">45/52</text>
+<text class="row-label" x="918" y="291.0" text-anchor="end">cpp</text>
+<rect x="926" y="283.0" width="76.0" height="9" rx="3" fill="#29a1d6"/>
+<text class="value-label" x="1007.0" y="291.0">138/167</text>
+<rect class="stripe" x="838" y="295" width="246" height="15"/>
+<text class="row-label" x="918" y="306.0" text-anchor="end">ruby</text>
+<rect x="926" y="298.0" width="71.6" height="9" rx="3" fill="#29c3d6"/>
+<text class="value-label" x="1002.6" y="306.0">7/9</text>
+<text class="row-label" x="918" y="321.0" text-anchor="end">typescript</text>
+<rect x="926" y="313.0" width="31.1" height="9" rx="3" fill="#99d629"/>
+<text class="value-label" x="962.1" y="321.0">274/811</text>
+<rect class="stripe" x="838" y="325" width="246" height="15"/>
+<text class="row-label" x="918" y="336.0" text-anchor="end">kotlin</text>
+<rect x="926" y="328.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="932.5" y="336.0">0/3</text>
+<text class="row-label" x="918" y="351.0" text-anchor="end">perl</text>
+<rect x="926" y="343.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="932.5" y="351.0">0/1</text>
+<rect class="stripe" x="838" y="355" width="246" height="15"/>
+<text class="row-label" x="918" y="366.0" text-anchor="end">powershell</text>
+<rect x="926" y="358.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="932.5" y="366.0">0/6</text>
+<text class="row-label" x="918" y="381.0" text-anchor="end">solidity</text>
+<rect x="926" y="373.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="932.5" y="381.0">0/10</text>
+<rect class="stripe" x="838" y="385" width="246" height="15"/>
+<text class="row-label" x="918" y="396.0" text-anchor="end">apex</text>
+<text class="na-dash" x="932" y="396.0">n/a</text>
+<text class="row-label" x="918" y="411.0" text-anchor="end">csharp</text>
+<text class="na-dash" x="932" y="411.0">n/a</text>
+<rect class="stripe" x="838" y="415" width="246" height="15"/>
+<text class="row-label" x="918" y="426.0" text-anchor="end">css</text>
+<text class="na-dash" x="932" y="426.0">n/a</text>
+<text class="row-label" x="918" y="441.0" text-anchor="end">fortran</text>
+<text class="na-dash" x="932" y="441.0">n/a</text>
+<rect class="stripe" x="838" y="445" width="246" height="15"/>
+<text class="row-label" x="918" y="456.0" text-anchor="end">go</text>
+<text class="na-dash" x="932" y="456.0">n/a</text>
+<text class="row-label" x="918" y="471.0" text-anchor="end">groovy</text>
+<text class="na-dash" x="932" y="471.0">n/a</text>
+<rect class="stripe" x="838" y="475" width="246" height="15"/>
+<text class="row-label" x="918" y="486.0" text-anchor="end">html</text>
+<text class="na-dash" x="932" y="486.0">n/a</text>
+<text class="row-label" x="918" y="501.0" text-anchor="end">lua</text>
+<text class="na-dash" x="932" y="501.0">n/a</text>
+<rect class="stripe" x="838" y="505" width="246" height="15"/>
+<text class="row-label" x="918" y="516.0" text-anchor="end">makefile</text>
+<text class="na-dash" x="932" y="516.0">n/a</text>
+<text class="row-label" x="918" y="531.0" text-anchor="end">matlab</text>
+<text class="na-dash" x="932" y="531.0">n/a</text>
+<rect class="stripe" x="838" y="535" width="246" height="15"/>
+<text class="row-label" x="918" y="546.0" text-anchor="end">objective-c</text>
+<text class="na-dash" x="932" y="546.0">n/a</text>
+<text class="row-label" x="918" y="561.0" text-anchor="end">shell</text>
+<text class="na-dash" x="932" y="561.0">n/a</text>
+<rect class="stripe" x="838" y="565" width="246" height="15"/>
+<text class="row-label" x="918" y="576.0" text-anchor="end">tcl</text>
+<text class="na-dash" x="932" y="576.0">n/a</text>
+<text class="row-label" x="918" y="591.0" text-anchor="end">zig</text>
+<text class="na-dash" x="932" y="591.0">n/a</text>
+<text class="col-title" x="1200" y="118">Args Exact-Match</text>
+<line class="axis" x1="1200" y1="130" x2="1200" y2="595"/>
+<text class="row-label" x="1192" y="141.0" text-anchor="end">makefile</text>
+<rect x="1200" y="133.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="1297.0" y="141.0">1/1</text>
+<rect class="stripe" x="1112" y="145" width="246" height="15"/>
+<text class="row-label" x="1192" y="156.0" text-anchor="end">fortran</text>
+<rect x="1200" y="148.0" width="89.7" height="9" rx="3" fill="#293ad6"/>
+<text class="value-label" x="1294.7" y="156.0">116/119</text>
+<text class="row-label" x="1192" y="171.0" text-anchor="end">apex</text>
+<rect x="1200" y="163.0" width="82.3" height="9" rx="3" fill="#2972d6"/>
+<text class="value-label" x="1287.3" y="171.0">34/38</text>
+<rect class="stripe" x="1112" y="175" width="246" height="15"/>
+<text class="row-label" x="1192" y="186.0" text-anchor="end">javascript</text>
+<rect x="1200" y="178.0" width="82.2" height="9" rx="3" fill="#2973d6"/>
+<text class="value-label" x="1287.2" y="186.0">478/535</text>
+<text class="row-label" x="1192" y="201.0" text-anchor="end">python</text>
+<rect x="1200" y="193.0" width="58.1" height="9" rx="3" fill="#29d684"/>
+<text class="value-label" x="1263.1" y="201.0">1859/2940</text>
+<rect class="stripe" x="1112" y="205" width="246" height="15"/>
+<text class="row-label" x="1192" y="216.0" text-anchor="end">dart</text>
+<rect x="1200" y="208.0" width="42.5" height="9" rx="3" fill="#43d629"/>
+<text class="value-label" x="1247.5" y="216.0">243/526</text>
+<text class="row-label" x="1192" y="231.0" text-anchor="end">go</text>
+<rect x="1200" y="223.0" width="33.6" height="9" rx="3" fill="#86d629"/>
+<text class="value-label" x="1238.6" y="231.0">298/817</text>
+<rect class="stripe" x="1112" y="235" width="246" height="15"/>
+<text class="row-label" x="1192" y="246.0" text-anchor="end">java</text>
+<rect x="1200" y="238.0" width="32.0" height="9" rx="3" fill="#92d629"/>
+<text class="value-label" x="1237.0" y="246.0">81/233</text>
+<text class="row-label" x="1192" y="261.0" text-anchor="end">tcl</text>
+<rect x="1200" y="253.0" width="27.4" height="9" rx="3" fill="#b5d629"/>
+<text class="value-label" x="1232.4" y="261.0">42/141</text>
+<rect class="stripe" x="1112" y="265" width="246" height="15"/>
+<text class="row-label" x="1192" y="276.0" text-anchor="end">php</text>
+<rect x="1200" y="268.0" width="26.2" height="9" rx="3" fill="#bed629"/>
+<text class="value-label" x="1231.2" y="276.0">484/1701</text>
+<text class="row-label" x="1192" y="291.0" text-anchor="end">typescript</text>
+<rect x="1200" y="283.0" width="22.3" height="9" rx="3" fill="#d6d129"/>
+<text class="value-label" x="1227.3" y="291.0">379/1566</text>
+<rect class="stripe" x="1112" y="295" width="246" height="15"/>
+<text class="row-label" x="1192" y="306.0" text-anchor="end">scala</text>
+<rect x="1200" y="298.0" width="20.2" height="9" rx="3" fill="#d6c129"/>
+<text class="value-label" x="1225.2" y="306.0">45/205</text>
+<text class="row-label" x="1192" y="321.0" text-anchor="end">csharp</text>
+<rect x="1200" y="313.0" width="19.3" height="9" rx="3" fill="#d6ba29"/>
+<text class="value-label" x="1224.3" y="321.0">116/553</text>
+<rect class="stripe" x="1112" y="325" width="246" height="15"/>
+<text class="row-label" x="1192" y="336.0" text-anchor="end">solidity</text>
+<rect x="1200" y="328.0" width="18.4" height="9" rx="3" fill="#d6b429"/>
+<text class="value-label" x="1223.4" y="336.0">17/85</text>
+<text class="row-label" x="1192" y="351.0" text-anchor="end">perl</text>
+<rect x="1200" y="343.0" width="15.5" height="9" rx="3" fill="#d69e29"/>
+<text class="value-label" x="1220.5" y="351.0">120/710</text>
+<rect class="stripe" x="1112" y="355" width="246" height="15"/>
+<text class="row-label" x="1192" y="366.0" text-anchor="end">swift</text>
+<rect x="1200" y="358.0" width="15.4" height="9" rx="3" fill="#d69d29"/>
+<text class="value-label" x="1220.4" y="366.0">10/60</text>
+<text class="row-label" x="1192" y="381.0" text-anchor="end">rust</text>
+<rect x="1200" y="373.0" width="10.9" height="9" rx="3" fill="#d67b29"/>
+<text class="value-label" x="1215.9" y="381.0">134/1135</text>
+<rect class="stripe" x="1112" y="385" width="246" height="15"/>
+<text class="row-label" x="1192" y="396.0" text-anchor="end">cpp</text>
+<rect x="1200" y="388.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="1206.5" y="396.0">0/5</text>
+<text class="row-label" x="1192" y="411.0" text-anchor="end">haskell</text>
+<rect x="1200" y="403.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="1206.5" y="411.0">0/4</text>
+<rect class="stripe" x="1112" y="415" width="246" height="15"/>
+<text class="row-label" x="1192" y="426.0" text-anchor="end">matlab</text>
+<rect x="1200" y="418.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="1206.5" y="426.0">0/7</text>
+<text class="row-label" x="1192" y="441.0" text-anchor="end">shell</text>
+<rect x="1200" y="433.0" width="1.5" height="9" rx="3" fill="#d62929"/>
+<text class="value-label" x="1206.5" y="441.0">0/3</text>
+<rect class="stripe" x="1112" y="445" width="246" height="15"/>
+<text class="row-label" x="1192" y="456.0" text-anchor="end">c</text>
+<text class="na-dash" x="1206" y="456.0">n/a</text>
+<text class="row-label" x="1192" y="471.0" text-anchor="end">css</text>
+<text class="na-dash" x="1206" y="471.0">n/a</text>
+<rect class="stripe" x="1112" y="475" width="246" height="15"/>
+<text class="row-label" x="1192" y="486.0" text-anchor="end">groovy</text>
+<text class="na-dash" x="1206" y="486.0">n/a</text>
+<text class="row-label" x="1192" y="501.0" text-anchor="end">html</text>
+<text class="na-dash" x="1206" y="501.0">n/a</text>
+<rect class="stripe" x="1112" y="505" width="246" height="15"/>
+<text class="row-label" x="1192" y="516.0" text-anchor="end">kotlin</text>
+<text class="na-dash" x="1206" y="516.0">n/a</text>
+<text class="row-label" x="1192" y="531.0" text-anchor="end">lua</text>
+<text class="na-dash" x="1206" y="531.0">n/a</text>
+<rect class="stripe" x="1112" y="535" width="246" height="15"/>
+<text class="row-label" x="1192" y="546.0" text-anchor="end">objective-c</text>
+<text class="na-dash" x="1206" y="546.0">n/a</text>
+<text class="row-label" x="1192" y="561.0" text-anchor="end">powershell</text>
+<text class="na-dash" x="1206" y="561.0">n/a</text>
+<rect class="stripe" x="1112" y="565" width="246" height="15"/>
+<text class="row-label" x="1192" y="576.0" text-anchor="end">ruby</text>
+<text class="na-dash" x="1206" y="576.0">n/a</text>
+<text class="row-label" x="1192" y="591.0" text-anchor="end">zig</text>
+<text class="na-dash" x="1206" y="591.0">n/a</text>
+<text class="footer" x="16" y="619">Generated by tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently, best at top; "n/a" (no ground-truth instances for that language) sorts to the bottom, not scored as 0%.</text>
+<text class="footer" x="16" y="631">Recall panels ("found/real"): a low fraction on a small denominator (e.g. 7/23) is a thinner signal than the same ratio on a large one. Precision panels ("found/found+extra"): a large denominator relative to the panel's own found-count means many false positives, not just misses -- read the two numbers, not just the bar.</text>
 </svg>

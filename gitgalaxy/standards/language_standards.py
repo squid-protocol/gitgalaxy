@@ -34,11 +34,13 @@ for the same metrics tracked over time across pushes to main.
 <!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
+| Apex | 100.0% | 97.4% | 0.0% | N/A |
 | C | N/A | 0.0% | 57.0% | 86.5% |
 | Cpp | 5.7% | 0.4% | 98.6% | 82.6% |
 | Csharp | 99.1% | 58.2% | 0.0% | N/A |
 | Css | N/A | 0.0% | N/A | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
+| Fortran | 98.3% | 88.1% | 0.0% | N/A |
 | Go | 95.6% | 100.0% | N/A | N/A |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 4.3% | 66.7% | 100.0% | 100.0% |
@@ -47,6 +49,8 @@ for the same metrics tracked over time across pushes to main.
 | Javascript | 96.1% | 73.5% | 100.0% | 96.7% |
 | Kotlin | N/A | 0.0% | N/A | 0.0% |
 | Lua | N/A | N/A | N/A | N/A |
+| Makefile | 100.0% | 100.0% | N/A | N/A |
+| Matlab | 30.4% | 100.0% | N/A | N/A |
 | Objective-C | N/A | 0.0% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 96.4% | 96.4% |
@@ -57,6 +61,7 @@ for the same metrics tracked over time across pushes to main.
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 0.0% | 0.0% |
 | Swift | 68.2% | 95.2% | 24.3% | 100.0% |
+| Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 96.1% | 33.8% |
 | Zig | N/A | 0.0% | N/A | N/A |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->

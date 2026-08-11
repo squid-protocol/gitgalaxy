@@ -252,7 +252,71 @@ NODE_MAPS = {
         "func_node_types": {"FnProto"},
         "class_node_types": {"ContainerDecl"},
     },
+    "apex": {
+        "ts_lang": "apex",
+        "func_node_types": {"method_declaration"},
+        "class_node_types": {"class_declaration"},
+    },
+    "fortran": {
+        "ts_lang": "fortran",
+        # The wrapper node types (subroutine/function/module/...) don't reliably form on this
+        # real-world (WRF, heavily CPP-preprocessed) corpus -- tree-sitter-fortran falls back to a
+        # top-level ERROR node rather than nesting cleanly. The inner *_statement header nodes
+        # still get tagged with the real name even under that ERROR recovery, so those are the
+        # measured node types here instead -- see _get_node_name's fortran branch.
+        "func_node_types": {"subroutine_statement", "function_statement", "program_statement"},
+        "class_node_types": {
+            "module_statement",
+            "derived_type_statement",
+            "interface_statement",
+            "submodule_statement",
+        },
+    },
+    "makefile": {
+        "ts_lang": "make",
+        # No class/OOP concept in Make -- matches GitGalaxy's own class_start (None for makefile).
+        "func_node_types": {"rule"},
+        "class_node_types": set(),
+    },
+    "matlab": {
+        "ts_lang": "matlab",
+        "func_node_types": {"function_definition"},
+        "class_node_types": {"class_definition"},
+    },
+    "tcl": {
+        "ts_lang": "tcl",
+        "func_node_types": {"procedure"},
+        # oo::class create/snit::type/itcl::class are indistinguishable from any other command
+        # invocation in tree-sitter-tcl's grammar (no dedicated node type carries the class name
+        # tree-sitter -- it's buried as an untyped argument), so there's no tree-sitter ground
+        # truth to measure GitGalaxy's class_start regex against. Confirmed empty either way: no
+        # language-crucible tcl sample actually uses tcl's OOP extensions.
+        "class_node_types": set(),
+    },
 }
+
+# Languages GitGalaxy has a func_start/class_start rule for for AND tree-sitter-language-pack has
+# a grammar for, but that are deliberately NOT in NODE_MAPS above -- listed here so the gap reads
+# as a decision, not an oversight, the next time someone reconciles this list against
+# LANGUAGE_DEFINITIONS:
+#   - python: already covered by tests/ast_accuracy_audit.py via the stdlib `ast` module, a
+#     strictly better ground truth than tree-sitter for this one language -- no need to duplicate.
+#   - cobol: tree-sitter-cobol's grammar returns ~100% ERROR nodes on the language-crucible corpus
+#     (confirmed on a real-file sample) AND is pathologically slow doing it (one corpus walk spun
+#     at 100% CPU for 5+ minutes and was killed) -- both a data-quality and a CI-budget blocker.
+#   - dockerfile: GitGalaxy's own func_start/class_start capture the literal instruction keyword
+#     ("RUN", "FROM", ...), not a unique per-instance name -- there's nothing for tree-sitter's
+#     per-instruction nodes to name-match against under this tool's exact-name methodology.
+#   - scheme: homoiconic -- tree-sitter-scheme has no distinct function-definition node type,
+#     `(define (name ...))` is just a generic `list`/`symbol` tree. Detecting it needs content-
+#     aware walking (inspect a list's first symbol), not simple node-type-set membership, which
+#     is a real extension to this tool's architecture, not a NODE_MAPS entry.
+#   - yaml: GitGalaxy's func_start/class_start detect CI/CD *semantic* key conventions (a `run:`
+#     key, a `jobs:` key), not general YAML syntax -- tree-sitter's generic YAML grammar has no
+#     concept of "job" vs. any other mapping key, so there's no structural ground truth to diff
+#     against regardless of node-type mapping.
+#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.0 pin) -- nothing to
+#     measure against yet; revisit if/when the corpus adds Ada samples.
 
 
 def _get_baseline_path(lang: str) -> Path:
@@ -321,6 +385,37 @@ def _get_node_name(node: Any) -> Optional[str]:
             key = node.parent.child_by_field_name("key")
             if key and key.type == "property_identifier":
                 return key.text.decode("utf8")
+
+    # tree-sitter-fortran doesn't register a "name" FIELD on these statement nodes (confirmed via
+    # a real WRF corpus file, which also parses under a top-level ERROR node -- the grammar can't
+    # build the ideal nested subroutine/module wrapper for this preprocessor-heavy real-world code,
+    # but these inner statement-level nodes still carry the real name as a plainly-typed child).
+    if node.type in (
+        "subroutine_statement",
+        "function_statement",
+        "program_statement",
+        "module_statement",
+        "interface_statement",
+        "submodule_statement",
+    ):
+        for child in node.children:
+            if child.type == "name":
+                return child.text.decode("utf8")
+    if node.type == "derived_type_statement":
+        for child in node.children:
+            if child.type == "type_name":
+                return child.text.decode("utf8")
+
+    # tree-sitter-make's "rule" node has no name field at all -- a rule can list multiple
+    # space-separated targets ("a b c: deps"), so take the first the same way GitGalaxy's own
+    # regex only captures the first target in a multi-target rule line.
+    if node.type == "rule":
+        for child in node.children:
+            if child.type == "targets":
+                for grandchild in child.children:
+                    if grandchild.type == "word":
+                        return grandchild.text.decode("utf8")
+                break
     return None
 
 

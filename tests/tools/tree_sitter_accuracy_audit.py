@@ -418,7 +418,7 @@ def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
     if node.type in ("identifier", "field_identifier", "operator_name", "destructor_name"):
         return node.text.decode("utf8")
     if node.type == "qualified_identifier":
-        return _unwrap_c_style_declarator(node.child_by_field_name("name"))
+        return node.text.decode("utf8")
     inner = node.child_by_field_name("declarator")
     if inner is not None:
         return _unwrap_c_style_declarator(inner)
@@ -491,12 +491,44 @@ def _get_node_name(node: Any) -> Optional[str]:
     return None
 
 
+def _find_c_style_parameter_list(node: Any) -> Optional[Any]:
+    """Mirrors `_unwrap_c_style_declarator`'s walk, but stops at the first `function_declarator`
+    and returns its "parameters" field instead of a name. Needed for the identical reason: C/C++'s
+    `function_definition` has no top-level "parameters" field either -- it sits on the
+    `function_declarator` nested behind zero or more pointer/reference/array declarator layers.
+    Without this, `_get_param_count` silently read `None` for every C-family function (confirmed:
+    real=0 reported against GitGalaxy's correct arg count on ~70% of found cpp functions), the same
+    false-defect shape #1265 fixed for names.
+    """
+    if node is None:
+        return None
+    if node.type == "function_declarator":
+        return node.child_by_field_name("parameters")
+    inner = node.child_by_field_name("declarator")
+    if inner is not None:
+        return _find_c_style_parameter_list(inner)
+    for child in node.named_children:
+        result = _find_c_style_parameter_list(child)
+        if result is not None:
+            return result
+    return None
+
+
 def _get_param_count(node: Any) -> int:
     params_node = node.child_by_field_name("parameters")
+    if params_node is None and node.type == "function_definition":
+        params_node = _find_c_style_parameter_list(node.child_by_field_name("declarator"))
     if params_node:
         count = 0
         for child in params_node.named_children:
-            if child.type in ("identifier", "assignment_pattern", "array_pattern", "object_pattern", "rest_pattern"):
+            if child.type in (
+                "identifier",
+                "assignment_pattern",
+                "array_pattern",
+                "object_pattern",
+                "rest_pattern",
+                "parameter_declaration",
+            ):
                 count += 1
         return count
 

@@ -207,6 +207,15 @@ class ScopeParsingRegistry:
                 r"(?<![:.])\bbegin\b(?!:)",
             ],
             "closers": [r"(?<![:.])\bend\b(?!:)"],
+            # #1262: which of the openers above actually declares a
+            # method (as opposed to generic control-flow/module scope) --
+            # drives _slice_by_keywords' nested-satellite scan so a `def`
+            # inside a `class`/`module` body (virtually all real Ruby
+            # methods) gets its own FunctionNode instead of being folded
+            # into the enclosing class's single satellite. Same string as
+            # the "openers" entry above, kept as its own key rather than
+            # reused by index since the two lists could diverge later.
+            "function_opener": r"(?<![:.])\bdef\b(?!:)",
         },
         "lua": {
             "mode": "mode_d",
@@ -1405,7 +1414,27 @@ class StructuralExtractor:
             m = re.search(r"([a-zA-Z0-9_.-]+)\s*\(\)", line)
             if m:
                 return m.group(1)
-        elif lang_key in ["ruby", "elixir"]:
+        elif lang_key == "ruby":
+            # #1262: strips an optional "self."/"Namespace."-style prefix
+            # before capturing the name (mirrors func_start's own non-
+            # capturing prefix group), so a singleton method (`def
+            # self.foo`) reports the bare name "foo" -- matching both
+            # tree-sitter's ground-truth naming convention and how a plain
+            # instance method of the same name is reported. The capture
+            # group also allows a trailing `=`/`?`/`!` so setter methods
+            # (`def foo=(v)`) aren't silently collapsed onto their getter's
+            # name (`foo`). `::`-segments stay part of the capture (not the
+            # skippable prefix, which requires a trailing `.`) so namespaced
+            # class/module names (`class ActiveStorage::Blob`) are unaffected.
+            m = re.search(
+                r"\b(?:def|class|module|defmacro|defmodule|defp)\s+"
+                r"(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?"
+                r"([^\W\d]\w*(?:::[^\W\d]\w*)*[?!=]?)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "elixir":
             m = re.search(
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+([a-zA-Z0-9_.:?!]+)",
                 line,
@@ -2042,8 +2071,19 @@ class StructuralExtractor:
 
         lang_key = ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
 
-        # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
-        for orig_line, safe_line in zip(original_lines, safe_lines):
+        # #1262: precompute every line's net scope-depth change (and the char
+        # offset it starts at) ONCE, up front -- the primary top-level scan
+        # below and the nested-function-opener scan further down both need
+        # identical per-line bookkeeping (including the Ruby/Elixir inline-
+        # modifier guard), and computing it twice would risk the two scans
+        # silently drifting out of sync.
+        net_changes: list[int] = []
+        line_char_starts: list[int] = []
+        running_char_offset = 0
+        for safe_line in safe_lines:
+            line_char_starts.append(running_char_offset)
+            running_char_offset += len(safe_line)
+
             opens = len(open_pattern.findall(safe_line))
             closes = len(close_pattern.findall(safe_line))
 
@@ -2064,7 +2104,12 @@ class StructuralExtractor:
                         # ALL of them are trailing modifiers (e.g., `return true if x unless y`)
                         opens -= inline_mods
 
-            net_change = opens - closes
+            net_changes.append(opens - closes)
+
+        # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
+        depth_before_line: list[int] = []
+        for orig_line, safe_line, net_change in zip(original_lines, safe_lines, net_changes):
+            depth_before_line.append(stack_depth)
 
             if stack_depth == 0:
                 if net_change > 0:
@@ -2145,6 +2190,75 @@ class StructuralExtractor:
                     offset + 1,
                     current_line_offset,
                     rules,
+                )
+                satellites.append(sat)
+                sum_fxn_impact += mag
+
+        # #1262: the stack-depth counter above only ever emits a satellite
+        # for the OUTERMOST scope open at any given point -- once inside a
+        # class/module body (stack_depth > 0), a further "def" just adjusts
+        # the shared depth counter and gets folded into the enclosing
+        # satellite's text instead of becoming its own FunctionNode. That's
+        # correct for plain control-flow openers (if/while/... were never
+        # meant to produce their own satellite either), but it silently
+        # swallowed virtually every real Ruby method, since almost none are
+        # defined outside a class/module body -- confirmed against the
+        # language-crucible corpus: 0/117 real methods detected. Mirrors how
+        # Mode B (_slice_by_braces) finds every func_start match independently
+        # and resolves its own end via balanced-brace search regardless of
+        # nesting (see the #1041 comment on that method) -- same idea here,
+        # just keyword-balanced instead of brace-balanced, gated behind the
+        # language config's "function_opener" so shell/lua/vb/elixir (not
+        # audited against a corpus yet) keep their exact existing behavior.
+        function_opener = config.get("function_opener")
+        if function_opener:
+            function_opener_pattern = re.compile(function_opener, flags)
+            n = len(original_lines)
+            # Bounds each individual trace so a pathological file (thousands
+            # of unclosed/unbalanced "def" lines) can't turn this into an
+            # O(n^2) scan -- mirrors Mode B's own bounded search_limit.
+            max_trace_lines = 2000
+
+            for i in range(n):
+                if depth_before_line[i] <= 0:
+                    continue
+                if not function_opener_pattern.search(safe_lines[i]):
+                    continue
+
+                local_depth = 0
+                block_lines: list[str] = []
+                j = i
+                trace_limit = min(n, i + max_trace_lines)
+                while j < trace_limit:
+                    local_depth += net_changes[j]
+                    block_lines.append(original_lines[j])
+                    if local_depth <= 0:
+                        break
+                    j += 1
+                else:
+                    j -= 1  # trace_limit reached without closing -- treat as truncated at the last line scanned
+
+                block = "\n".join(block_lines).strip()
+                if not block:
+                    continue
+
+                name = self._extract_semantic_name(safe_lines[i], lang_key) or "Main"
+                loc = max(len(block_lines), 1)
+                nested_start_line = offset + i + 1
+                nested_end_line = offset + j + 1
+                nested_start_char = line_char_starts[i]
+                nested_end_char = line_char_starts[j] + len(safe_lines[j])
+
+                sat, mag = self._calculate_block_metrics(
+                    name,
+                    block,
+                    loc,
+                    nested_start_line,
+                    nested_end_line,
+                    rules,
+                    nested_start_char,
+                    nested_end_char,
+                    spatial_map,
                 )
                 satellites.append(sat)
                 sum_fxn_impact += mag

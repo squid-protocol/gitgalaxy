@@ -458,6 +458,44 @@ def test_detector_mode_d_ruby_inline_modifier():
     assert "secondary_process" in names
 
 
+def test_detector_mode_d_ruby_nested_methods_inside_class():
+    """
+    #1262: Mode D's stack-depth counter used to only ever emit a satellite for
+    the OUTERMOST open scope -- a `def` encountered while already inside a
+    `class`/`module` body just adjusted the shared depth counter and got
+    folded into the enclosing satellite's text instead of becoming its own
+    FunctionNode. Since virtually every real Ruby method lives inside a
+    class/module, this meant GitGalaxy detected 0/117 real methods in the
+    language-crucible Ruby corpus. Proves nested `def`s (including a
+    singleton `def self.foo`, correctly reporting the bare name) each get
+    their own function satellite now, alongside the class itself.
+    """
+    opt_detector = StructuralExtractor("ruby", MOCK_LANG_DEFS)
+    code = (
+        "class Widget\n"
+        "  def self.build\n"
+        "    new\n"
+        "  end\n"
+        "\n"
+        "  def initialize\n"
+        "    @count = 0\n"
+        "  end\n"
+        "\n"
+        "  def increment\n"
+        "    @count += 1\n"
+        "  end\n"
+        "end\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "build" in names, "Singleton method nested in a class was swallowed!"
+    assert "initialize" in names, "Nested method was swallowed into the enclosing class satellite!"
+    assert "increment" in names, "Nested method was swallowed into the enclosing class satellite!"
+    assert "Widget" in names, "The enclosing class's own satellite should still be reported."
+
+
 # ==============================================================================
 # TEST 6: MODE C (INDENTATION STRATIFICATION)
 # ==============================================================================

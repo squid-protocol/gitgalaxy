@@ -105,7 +105,30 @@ class Prism:
         # open-quote state to the next line instead of treating the
         # continuation as fresh code (see that method's docstring for the
         # full failure shape this closes).
-        self.UNTERMINATED_QUOTE_TAIL_PATTERN = re.compile(r"(?<!\\)([\"'`])(?:\\.|(?!\1).)*$")
+        #
+        # Deliberately just a bare character class, not an escape-aware
+        # "opens but doesn't close" pattern: CodeQL flagged an earlier
+        # `(?:\\.|(?!\1).)*$`-shaped version for exponential backtracking
+        # (`.` in the second alternative doesn't exclude the backslash, so a
+        # run of `\x` pairs partitions ambiguously between "one \\. escape"
+        # vs "two separate chars" -- confirmed: a 26-char adversarial
+        # payload alone took >8s), and a follow-up fix that excluded the
+        # backslash from that alternative (matching SHIELD_PATTERN's own
+        # `(?:\\.|[^"\\])*"` idiom) closed the ReDoS hole but silently broke
+        # the one case that actually matters here -- a line ending in a bare
+        # trailing backslash (real line continuation, e.g. Ruby's
+        # `"...text \`) has no partner character for `\\.` to pair with and
+        # isn't matchable by an alternative that excludes bare backslashes
+        # either, so the whole match failed exactly for the payloads this
+        # existed to catch. This class is simpler AND correct: by the time
+        # `_mask_line_literals` hands back `code_part`, every COMPLETE
+        # quoted literal on the line has already been consumed into a
+        # `__MASK_N__` placeholder -- any raw quote character still present
+        # is, by construction, not part of any complete pair, so it doesn't
+        # need its own escape-parsing to prove that; finding its position is
+        # enough to know a literal opened here and never closed on this
+        # line. A trivial single-char-class search can't backtrack at all.
+        self.UNTERMINATED_QUOTE_TAIL_PATTERN = re.compile(r"[\"'`]")
         self.CARRY_QUOTE_CLOSE_PATTERNS: dict[str, re.Pattern] = {
             q: re.compile(rf"(?:\\.|[^{re.escape(q)}\\])*{re.escape(q)}") for q in ('"', "'", "`")
         }
@@ -891,9 +914,11 @@ class Prism:
                 # reintroduce #1184.
                 tail_match = self.UNTERMINATED_QUOTE_TAIL_PATTERN.search(code_part)
                 if tail_match:
-                    masked_literals.append(tail_match.group(0))
+                    # Everything from the unpaired quote to end-of-line is
+                    # the (so-far) unterminated literal's own text.
+                    masked_literals.append(code_part[tail_match.start() :])
                     code_part = code_part[: tail_match.start()] + f"__MASK_{len(masked_literals) - 1}__"
-                    carry_quote = tail_match.group(1)
+                    carry_quote = tail_match.group(0)
 
             code.append(head + self._restore_masked_literals(code_part, masked_literals))
             if comment_part is not None:

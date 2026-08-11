@@ -93,6 +93,15 @@ SCOPE & LIMITATIONS
     scope tracking) or a Flow-aware grammar -- noted here so the recall/
     precision numbers aren't read as more precise than the methodology actually
     supports, same spirit as ast_accuracy_audit.py's own SCOPE section.
+
+    C/C++'s `function_definition` has no top-level "name" field -- see
+    `_unwrap_c_style_declarator`'s docstring for the general fix (#1265). One remaining gap in
+    that unwrap: C++ user-defined conversion operators (`operator int() const { ... }`) use a
+    distinct `operator_cast` declarator node with no identifier-shaped child at all (the "name" is
+    the return type itself, e.g. "operator int"), so those still resolve to None and are absent
+    from `real_functions`/`real_funcs` -- confirmed via `language-crucible/data/cpp/godot/variant.cpp`
+    (Godot's `Variant` class defines ~40 of these). A small, rare-enough fraction of real-world C++
+    (56/1491 function_definition nodes, ~3.8%, in this corpus) that it's noted rather than chased.
 """
 
 import argparse
@@ -169,7 +178,12 @@ NODE_MAPS = {
     },
     "cpp": {
         "ts_lang": "cpp",
-        "func_node_types": {"function_definition", "template_function"},
+        # "template_function" was here before #1265 -- it's WRONG, that node type is a template
+        # *instantiation expression* (e.g. `cast_to<Window>`, `const_cast<Node*>` used as a call/
+        # cast target), not a function definition. Including it inflated real_functions with
+        # phantom "functions" that are actually casts and calls. See _unwrap_c_style_declarator
+        # for how function_definition's real (nested, field-less) name is now extracted.
+        "func_node_types": {"function_definition"},
         "class_node_types": {"class_specifier", "struct_specifier"},
     },
     "csharp": {
@@ -386,6 +400,38 @@ def run_engine_scan(corpus_dir: Path, tmp_dir: Path) -> Path:
     return db_path
 
 
+def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
+    """Walks a C/C++ declarator subtree down to its terminal identifier-like node. Unlike most
+    NODE_MAPS grammars, tree-sitter-c/cpp's `function_definition` has no top-level "name" field --
+    the real name sits behind a "declarator" field that can be wrapped in zero or more
+    pointer/reference/array/parenthesized declarator layers (return-type decoration), and the
+    terminal node itself varies: `identifier` (a plain function), `field_identifier` (a method
+    defined inline in a class body), `qualified_identifier` (an out-of-class definition like
+    `Foo::bar`, drilled via its own "name" field -- which can nest further for `Foo::Bar::baz`),
+    or `operator_name`/`destructor_name` (C++ special members). Confirmed empirically against the
+    real language-crucible C/C++ corpus (see #1265): before this, `_get_node_name` always
+    returned None for every C function_definition (0/1790 across the corpus), so real_functions
+    was always 0 regardless of corpus content.
+    """
+    if node is None:
+        return None
+    if node.type in ("identifier", "field_identifier", "operator_name", "destructor_name"):
+        return node.text.decode("utf8")
+    if node.type == "qualified_identifier":
+        return _unwrap_c_style_declarator(node.child_by_field_name("name"))
+    inner = node.child_by_field_name("declarator")
+    if inner is not None:
+        return _unwrap_c_style_declarator(inner)
+    # Some wrapper nodes (confirmed: cpp's reference_declarator for `Foo&`-returning functions)
+    # don't expose their inner declarator via a named "declarator" field -- fall back to scanning
+    # named children for the one that resolves to a real name.
+    for child in node.named_children:
+        result = _unwrap_c_style_declarator(child)
+        if result:
+            return result
+    return None
+
+
 def _get_node_name(node: Any) -> Optional[str]:
     name_node = node.child_by_field_name("name")
     if name_node:
@@ -404,6 +450,13 @@ def _get_node_name(node: Any) -> Optional[str]:
             key = node.parent.child_by_field_name("key")
             if key and key.type == "property_identifier":
                 return key.text.decode("utf8")
+
+    # C/C++'s function_definition has no top-level "name" field at all -- see
+    # _unwrap_c_style_declarator's own docstring (#1265). No-op for any other NODE_MAPS language
+    # whose function_definition DOES carry a "name" field (python, matlab, solidity, ...): those
+    # already returned above via the fast path and never reach here.
+    if node.type == "function_definition":
+        return _unwrap_c_style_declarator(node.child_by_field_name("declarator"))
 
     # tree-sitter-fortran doesn't register a "name" FIELD on these statement nodes (confirmed via
     # a real WRF corpus file, which also parses under a top-level ERROR node -- the grammar can't

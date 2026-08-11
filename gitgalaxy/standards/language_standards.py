@@ -35,8 +35,8 @@ for the same metrics tracked over time across pushes to main.
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 97.4% | 0.0% | N/A |
-| C | N/A | 0.0% | 57.0% | 86.5% |
-| Cpp | 5.7% | 0.4% | 98.6% | 82.6% |
+| C | 94.0% | 99.0% | 57.0% | 86.5% |
+| Cpp | 21.3% | 22.0% | 98.6% | 82.6% |
 | Csharp | 99.1% | 58.2% | 0.0% | N/A |
 | Css | N/A | 0.0% | N/A | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
@@ -51,7 +51,7 @@ for the same metrics tracked over time across pushes to main.
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 30.4% | 100.0% | N/A | N/A |
-| Objective-C | N/A | 0.0% | N/A | N/A |
+| Objective-C | 100.0% | 4.4% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 96.4% | 96.4% |
 | Powershell | N/A | 0.0% | N/A | 0.0% |

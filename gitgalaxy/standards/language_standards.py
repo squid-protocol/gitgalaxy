@@ -56,7 +56,7 @@ for the same metrics tracked over time across pushes to main.
 | Php | 100.0% | 99.9% | 96.4% | 96.4% |
 | Powershell | N/A | 0.0% | N/A | 0.0% |
 | Python | 98.8% | 99.2% | 99.6% | 99.8% |
-| Ruby | 0.0% | 0.0% | 77.8% | 77.8% |
+| Ruby | 94.9% | 90.2% | 77.8% | 77.8% |
 | Rust | 77.9% | 97.3% | 59.9% | 93.5% |
 | Scala | 41.1% | 100.0% | 47.1% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |

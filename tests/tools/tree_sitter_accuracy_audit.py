@@ -215,6 +215,16 @@ NODE_MAPS = {
         "func_node_types": {"function_definition", "modifier_definition", "constructor_definition"},
         "class_node_types": {"contract_declaration", "interface_declaration", "library_declaration"},
     },
+    "groovy": {
+        "ts_lang": "groovy",
+        "func_node_types": {"func"},
+        "class_node_types": {"generics_class"},
+    },
+    "zig": {
+        "ts_lang": "zig",
+        "func_node_types": {"FnProto"},
+        "class_node_types": {"ContainerDecl"},
+    },
 }
 
 

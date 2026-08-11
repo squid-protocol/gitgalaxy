@@ -9,12 +9,14 @@ name: Tree-sitter Accuracy History
 # What it DOES do, once a relevant change actually lands on main: live-measure every
 # baselined language again and append one row each to
 # docs/self_scan/tree_sitter_accuracy_history.csv (an accumulating time series, unlike the
-# gitignored self-scan DB -- this is meant to be graphed later), and regenerate the
-# Markdown summary table embedded in language_standards.py's docstring so it can't drift
-# from the committed baselines between now and the next manual --summary-table run. Opens
-# an auto-merged PR for both, same mechanism gitgalaxy.yml uses for the LLM architecture
-# brief -- see that workflow's own comments for why a PR-then-merge instead of a direct
-# push (branch protection), and why the loop guard below is load-bearing.
+# gitignored self-scan DB -- this is meant to be graphed later), regenerate the Markdown
+# summary table embedded in language_standards.py's docstring so it can't drift from the
+# committed baselines between now and the next manual --summary-table run, and re-render
+# docs/self_scan/tree_sitter_accuracy_chart.svg (a small-multiples bar chart of the most
+# recent history batch -- always the one this same job just appended). Opens an auto-merged
+# PR for all three, same mechanism gitgalaxy.yml uses for the LLM architecture brief -- see
+# that workflow's own comments for why a PR-then-merge instead of a direct push (branch
+# protection), and why the loop guard below is load-bearing.
 
 on:
   push:
@@ -65,13 +67,14 @@ jobs:
       - name: Fetch Language Crucible corpus (pinned v1.0)
         run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
-      - name: Append accuracy history + regenerate summary table
+      - name: Append accuracy history + regenerate summary table + chart
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --history
           python tests/tools/tree_sitter_accuracy_audit.py --summary-table
+          python tests/tools/tree_sitter_accuracy_audit.py --chart
 
-      - name: Open PR with updated history + summary table
+      - name: Open PR with updated history + summary table + chart
         id: tree-sitter-history-pr
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
@@ -84,6 +87,7 @@ jobs:
 
             - Appends one row per language to `docs/self_scan/tree_sitter_accuracy_history.csv`.
             - Regenerates the summary table in `gitgalaxy/standards/language_standards.py`.
+            - Re-renders `docs/self_scan/tree_sitter_accuracy_chart.svg` from that same batch.
 
             Never touches `tests/tree_sitter_accuracy_baseline_*.json` -- those stay
             human-reviewed via `tree_sitter_accuracy_audit.py --regenerate`.
@@ -91,6 +95,7 @@ jobs:
           delete-branch: true
           add-paths: |
             docs/self_scan/tree_sitter_accuracy_history.csv
+            docs/self_scan/tree_sitter_accuracy_chart.svg
             gitgalaxy/standards/language_standards.py
 
       # Same rationale as gitgalaxy.yml's "Merge the LLM Brief PR" step -- nothing else

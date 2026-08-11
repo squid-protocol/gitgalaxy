@@ -28,6 +28,13 @@ USAGE
         purpose -- unlike the self-scan DB, this is meant to accumulate across
         runs so it can be graphed over time). Never touches the gating
         baseline files -- only --regenerate does that, and only per language.
+    python tests/tools/tree_sitter_accuracy_audit.py --chart
+        Renders the most recent --history run (the batch sharing the latest
+        timestamp_utc in the CSV) as docs/self_scan/tree_sitter_accuracy_chart.svg
+        -- a small-multiples bar chart, one shared language-label column and five
+        metric columns (func recall/precision, class recall/precision, args exact-
+        match). Reads the CSV only -- does not itself run a live scan, so run
+        --history first if you want the chart to reflect fresh numbers.
 
 CORPUS
     Unlike ast_accuracy_audit.py which pins this repo's own code via git archive,
@@ -869,6 +876,177 @@ def run_history() -> int:
     return 0
 
 
+# ----------------------------------------------------------------------------
+# --chart: render the most recent --history run as a small-multiples SVG bar
+# chart, reading only the accumulated CSV (no live scan, no corpus needed).
+# ----------------------------------------------------------------------------
+
+_CHART_PATH = REPO_ROOT / "docs" / "self_scan" / "tree_sitter_accuracy_chart.svg"
+_CHART_METRICS = (
+    ("func_recall_pct", "Func Recall"),
+    ("func_precision_pct", "Func Precision"),
+    ("class_recall_pct", "Class Recall"),
+    ("class_precision_pct", "Class Precision"),
+    # Args has only one ratio in the data (exact-match), not a recall/precision pair -- labeled
+    # distinctly rather than forced into that framing.
+    ("args_match_pct", "Args Exact-Match"),
+)
+
+# Single hue (categorical slot 1 from the repo's dataviz palette) for every bar in every panel --
+# each panel has exactly one series, so it takes the same slot-1 color with no legend box (the
+# column title names it), same rule a 1-series chart always follows. This also sidesteps the
+# small-multiples CVD cap (which caps the *first three* categorical slots under all-pairs testing)
+# by simply never using more than one.
+_CHART_STYLE = """<style><![CDATA[
+  /* No CSS custom properties -- some SVG renderers in the docs pipeline (confirmed: Inkscape's
+     CSS parser) don't support var()/nested :root under @media, and silently fail to parse the
+     whole block rather than degrading gracefully. Plain class redeclarations under the media
+     query are more portable and render identically in real browsers. CDATA-wrapped because this
+     text otherwise contains a literal "style" tag-like substring that trips strict XML parsers
+     (confirmed: Inkscape read it as a nested element and broke tag matching). */
+  .surface { fill: #fcfcfb; }
+  .title { fill: #0b0b0b; font-weight: 600; font-size: 15px; }
+  .subtitle { fill: #52514e; font-size: 11px; }
+  .col-title { fill: #0b0b0b; font-weight: 600; font-size: 11px; }
+  .row-label { fill: #0b0b0b; font-size: 11px; }
+  .value-label { fill: #52514e; font-size: 10px; font-variant-numeric: tabular-nums; }
+  .na-dash { fill: #52514e; font-size: 10px; opacity: 0.55; }
+  .bar { fill: #2a78d6; }
+  .stripe { fill: #f1f0ed; }
+  .axis { stroke: #e4e2dd; stroke-width: 1; }
+  .footer { fill: #52514e; font-size: 9px; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .title { fill: #ffffff; }
+    .subtitle { fill: #c3c2b7; }
+    .col-title { fill: #ffffff; }
+    .row-label { fill: #ffffff; }
+    .value-label { fill: #c3c2b7; }
+    .na-dash { fill: #c3c2b7; }
+    .bar { fill: #3987e5; }
+    .stripe { fill: #242422; }
+    .axis { stroke: #33322f; }
+    .footer { fill: #c3c2b7; }
+  }
+]]></style>
+"""
+
+
+def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, Optional[float]]]]:
+    """Returns (timestamp_utc, commit_sha, {lang: {metric_key: value_or_None}}) for the most
+    recent batch -- the rows sharing the max timestamp_utc -- in the history CSV."""
+    if not _HISTORY_PATH.exists():
+        sys.exit(
+            f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} doesn't exist yet -- run --history first."
+        )
+    with open(_HISTORY_PATH, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        sys.exit(f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} is empty.")
+
+    latest_ts = max(row["timestamp_utc"] for row in rows)
+    latest_rows = [row for row in rows if row["timestamp_utc"] == latest_ts]
+    commit_sha = latest_rows[0]["commit_sha"]
+
+    def _f(s: str) -> Optional[float]:
+        return float(s) if s else None
+
+    data: dict[str, dict[str, Optional[float]]] = {}
+    for row in latest_rows:
+        data[row["language"]] = {
+            "func_recall_pct": _f(row["func_recall_pct"]),
+            "func_precision_pct": _f(row["func_precision_pct"]),
+            "class_recall_pct": _f(row["class_recall_pct"]),
+            "class_precision_pct": _f(row["class_precision_pct"]),
+            "args_match_pct": _ratio_pct(int(row["args_exact_match"]), int(row["args_comparable"])),
+        }
+    return latest_ts, commit_sha, data
+
+
+def generate_chart_svg() -> str:
+    """Small-multiples horizontal bar chart: one shared language-label column, then one column
+    per metric in _CHART_METRICS. N/A (no ground-truth instances for that language) renders as a
+    muted "n/a" mark, never a fabricated 0% bar -- those mean different things."""
+    timestamp, commit_sha, data = _load_latest_history_batch()
+    langs = sorted(data.keys())
+    n = len(langs)
+
+    label_col_w = 100
+    col_w = 150
+    col_gap = 24
+    row_h = 16
+    bar_h = 10
+    header_h = 34
+    top_margin = 46
+    bottom_margin = 26
+    left_margin = 16
+    right_margin = 16
+    bar_max_w = col_w - 46  # leaves room for the value label riding the bar's tip
+
+    width = left_margin + label_col_w + len(_CHART_METRICS) * col_w + (len(_CHART_METRICS) - 1) * col_gap + right_margin
+    height = top_margin + header_h + n * row_h + bottom_margin
+    rows_top = top_margin + header_h
+
+    parts: list[str] = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+        f'width="{width}" height="{height}" font-family="system-ui, -apple-system, Segoe UI, sans-serif">',
+        _CHART_STYLE,
+        f'<rect class="surface" x="0" y="0" width="{width}" height="{height}"/>',
+        f'<text class="title" x="{left_margin}" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>',
+        f'<text class="subtitle" x="{left_margin}" y="36">{timestamp} &#183; commit {commit_sha[:7]} &#183; '
+        f"{n} languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>",
+    ]
+
+    # Alternating row stripes across the full data width -- a scanning aid for following one
+    # language's row across all five metric columns.
+    for i in range(n):
+        if i % 2 == 1:
+            y = rows_top + i * row_h
+            parts.append(
+                f'<rect class="stripe" x="{left_margin}" y="{y}" '
+                f'width="{width - left_margin - right_margin}" height="{row_h}"/>'
+            )
+
+    for i, lang in enumerate(langs):
+        y = rows_top + i * row_h + row_h / 2 + 3.5
+        parts.append(
+            f'<text class="row-label" x="{left_margin + label_col_w - 8}" y="{y}" text-anchor="end">{lang}</text>'
+        )
+
+    for j, (key, title) in enumerate(_CHART_METRICS):
+        col_x = left_margin + label_col_w + j * (col_w + col_gap)
+        parts.append(f'<text class="col-title" x="{col_x}" y="{top_margin + header_h - 12}">{title}</text>')
+        parts.append(f'<line class="axis" x1="{col_x}" y1="{rows_top}" x2="{col_x}" y2="{rows_top + n * row_h}"/>')
+        for i, lang in enumerate(langs):
+            value = data[lang][key]
+            row_y = rows_top + i * row_h
+            if value is None:
+                parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{row_y + row_h / 2 + 3.5:.1f}">n/a</text>')
+                continue
+            bar_w = max(1.5, (value / 100.0) * bar_max_w)
+            bar_y = row_y + (row_h - bar_h) / 2
+            parts.append(f'<rect class="bar" x="{col_x}" y="{bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="3"/>')
+            parts.append(
+                f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{row_y + row_h / 2 + 3.5:.1f}">{value:.0f}%</text>'
+            )
+
+    parts.append(
+        f'<text class="footer" x="{left_margin}" y="{height - 8}">Generated by '
+        f'tests/tools/tree_sitter_accuracy_audit.py --chart. "n/a" = no ground-truth instances of '
+        f"that construct in the language-crucible corpus for this language, not a zero score.</text>"
+    )
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
+def run_chart() -> int:
+    svg = generate_chart_svg()
+    _CHART_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _CHART_PATH.write_text(svg, encoding="utf-8")
+    print(f"tree_sitter_accuracy_audit: wrote {_CHART_PATH.relative_to(REPO_ROOT)}.")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--lang", help="Language to audit (e.g. javascript). Omit when using --all.")
@@ -888,12 +1066,19 @@ def main() -> int:
         action="store_true",
         help="Append current measured metrics for every baselined language to the history CSV. Ignores --lang.",
     )
+    group.add_argument(
+        "--chart",
+        action="store_true",
+        help="Render the most recent --history batch as an SVG bar chart. Ignores --lang/--all, no live scan.",
+    )
     args = parser.parse_args()
 
     if args.summary_table:
         return run_summary_table()
     if args.history:
         return run_history()
+    if args.chart:
+        return run_chart()
 
     if bool(args.lang) == bool(args.all):
         parser.error("exactly one of --lang or --all is required")

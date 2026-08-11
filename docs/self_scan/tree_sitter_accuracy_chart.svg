@@ -1,0 +1,344 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 978 586" width="978" height="586" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<style><![CDATA[
+  /* No CSS custom properties -- some SVG renderers in the docs pipeline (confirmed: Inkscape's
+     CSS parser) don't support var()/nested :root under @media, and silently fail to parse the
+     whole block rather than degrading gracefully. Plain class redeclarations under the media
+     query are more portable and render identically in real browsers. CDATA-wrapped because this
+     text otherwise contains a literal "style" tag-like substring that trips strict XML parsers
+     (confirmed: Inkscape read it as a nested element and broke tag matching). */
+  .surface { fill: #fcfcfb; }
+  .title { fill: #0b0b0b; font-weight: 600; font-size: 15px; }
+  .subtitle { fill: #52514e; font-size: 11px; }
+  .col-title { fill: #0b0b0b; font-weight: 600; font-size: 11px; }
+  .row-label { fill: #0b0b0b; font-size: 11px; }
+  .value-label { fill: #52514e; font-size: 10px; font-variant-numeric: tabular-nums; }
+  .na-dash { fill: #52514e; font-size: 10px; opacity: 0.55; }
+  .bar { fill: #2a78d6; }
+  .stripe { fill: #f1f0ed; }
+  .axis { stroke: #e4e2dd; stroke-width: 1; }
+  .footer { fill: #52514e; font-size: 9px; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .title { fill: #ffffff; }
+    .subtitle { fill: #c3c2b7; }
+    .col-title { fill: #ffffff; }
+    .row-label { fill: #ffffff; }
+    .value-label { fill: #c3c2b7; }
+    .na-dash { fill: #c3c2b7; }
+    .bar { fill: #3987e5; }
+    .stripe { fill: #242422; }
+    .axis { stroke: #33322f; }
+    .footer { fill: #c3c2b7; }
+  }
+]]></style>
+
+<rect class="surface" x="0" y="0" width="978" height="586"/>
+<text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
+<text class="subtitle" x="16" y="36">2026-08-11T13:51:27+00:00 &#183; commit ae84661 &#183; 30 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<rect class="stripe" x="16" y="96" width="946" height="16"/>
+<rect class="stripe" x="16" y="128" width="946" height="16"/>
+<rect class="stripe" x="16" y="160" width="946" height="16"/>
+<rect class="stripe" x="16" y="192" width="946" height="16"/>
+<rect class="stripe" x="16" y="224" width="946" height="16"/>
+<rect class="stripe" x="16" y="256" width="946" height="16"/>
+<rect class="stripe" x="16" y="288" width="946" height="16"/>
+<rect class="stripe" x="16" y="320" width="946" height="16"/>
+<rect class="stripe" x="16" y="352" width="946" height="16"/>
+<rect class="stripe" x="16" y="384" width="946" height="16"/>
+<rect class="stripe" x="16" y="416" width="946" height="16"/>
+<rect class="stripe" x="16" y="448" width="946" height="16"/>
+<rect class="stripe" x="16" y="480" width="946" height="16"/>
+<rect class="stripe" x="16" y="512" width="946" height="16"/>
+<rect class="stripe" x="16" y="544" width="946" height="16"/>
+<text class="row-label" x="108" y="91.5" text-anchor="end">apex</text>
+<text class="row-label" x="108" y="107.5" text-anchor="end">c</text>
+<text class="row-label" x="108" y="123.5" text-anchor="end">cpp</text>
+<text class="row-label" x="108" y="139.5" text-anchor="end">csharp</text>
+<text class="row-label" x="108" y="155.5" text-anchor="end">css</text>
+<text class="row-label" x="108" y="171.5" text-anchor="end">dart</text>
+<text class="row-label" x="108" y="187.5" text-anchor="end">fortran</text>
+<text class="row-label" x="108" y="203.5" text-anchor="end">go</text>
+<text class="row-label" x="108" y="219.5" text-anchor="end">groovy</text>
+<text class="row-label" x="108" y="235.5" text-anchor="end">haskell</text>
+<text class="row-label" x="108" y="251.5" text-anchor="end">html</text>
+<text class="row-label" x="108" y="267.5" text-anchor="end">java</text>
+<text class="row-label" x="108" y="283.5" text-anchor="end">javascript</text>
+<text class="row-label" x="108" y="299.5" text-anchor="end">kotlin</text>
+<text class="row-label" x="108" y="315.5" text-anchor="end">lua</text>
+<text class="row-label" x="108" y="331.5" text-anchor="end">makefile</text>
+<text class="row-label" x="108" y="347.5" text-anchor="end">matlab</text>
+<text class="row-label" x="108" y="363.5" text-anchor="end">objective-c</text>
+<text class="row-label" x="108" y="379.5" text-anchor="end">perl</text>
+<text class="row-label" x="108" y="395.5" text-anchor="end">php</text>
+<text class="row-label" x="108" y="411.5" text-anchor="end">powershell</text>
+<text class="row-label" x="108" y="427.5" text-anchor="end">ruby</text>
+<text class="row-label" x="108" y="443.5" text-anchor="end">rust</text>
+<text class="row-label" x="108" y="459.5" text-anchor="end">scala</text>
+<text class="row-label" x="108" y="475.5" text-anchor="end">shell</text>
+<text class="row-label" x="108" y="491.5" text-anchor="end">solidity</text>
+<text class="row-label" x="108" y="507.5" text-anchor="end">swift</text>
+<text class="row-label" x="108" y="523.5" text-anchor="end">tcl</text>
+<text class="row-label" x="108" y="539.5" text-anchor="end">typescript</text>
+<text class="row-label" x="108" y="555.5" text-anchor="end">zig</text>
+<text class="col-title" x="116" y="68">Func Recall</text>
+<line class="axis" x1="116" y1="80" x2="116" y2="560"/>
+<rect class="bar" x="116" y="83.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="225.0" y="91.5">100%</text>
+<text class="na-dash" x="122" y="107.5">n/a</text>
+<rect class="bar" x="116" y="115.0" width="5.9" height="10" rx="3"/>
+<text class="value-label" x="126.9" y="123.5">6%</text>
+<rect class="bar" x="116" y="131.0" width="103.1" height="10" rx="3"/>
+<text class="value-label" x="224.1" y="139.5">99%</text>
+<text class="na-dash" x="122" y="155.5">n/a</text>
+<rect class="bar" x="116" y="163.0" width="75.8" height="10" rx="3"/>
+<text class="value-label" x="196.8" y="171.5">73%</text>
+<rect class="bar" x="116" y="179.0" width="102.2" height="10" rx="3"/>
+<text class="value-label" x="223.2" y="187.5">98%</text>
+<rect class="bar" x="116" y="195.0" width="99.4" height="10" rx="3"/>
+<text class="value-label" x="220.4" y="203.5">96%</text>
+<text class="na-dash" x="122" y="219.5">n/a</text>
+<rect class="bar" x="116" y="227.0" width="4.5" height="10" rx="3"/>
+<text class="value-label" x="125.5" y="235.5">4%</text>
+<text class="na-dash" x="122" y="251.5">n/a</text>
+<rect class="bar" x="116" y="259.0" width="91.1" height="10" rx="3"/>
+<text class="value-label" x="212.1" y="267.5">88%</text>
+<rect class="bar" x="116" y="275.0" width="99.9" height="10" rx="3"/>
+<text class="value-label" x="220.9" y="283.5">96%</text>
+<text class="na-dash" x="122" y="299.5">n/a</text>
+<text class="na-dash" x="122" y="315.5">n/a</text>
+<rect class="bar" x="116" y="323.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="225.0" y="331.5">100%</text>
+<rect class="bar" x="116" y="339.0" width="31.6" height="10" rx="3"/>
+<text class="value-label" x="152.6" y="347.5">30%</text>
+<text class="na-dash" x="122" y="363.5">n/a</text>
+<rect class="bar" x="116" y="371.0" width="73.4" height="10" rx="3"/>
+<text class="value-label" x="194.4" y="379.5">71%</text>
+<rect class="bar" x="116" y="387.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="225.0" y="395.5">100%</text>
+<text class="na-dash" x="122" y="411.5">n/a</text>
+<rect class="bar" x="116" y="419.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="122.5" y="427.5">0%</text>
+<rect class="bar" x="116" y="435.0" width="81.0" height="10" rx="3"/>
+<text class="value-label" x="202.0" y="443.5">78%</text>
+<rect class="bar" x="116" y="451.0" width="42.7" height="10" rx="3"/>
+<text class="value-label" x="163.7" y="459.5">41%</text>
+<rect class="bar" x="116" y="467.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="225.0" y="475.5">100%</text>
+<rect class="bar" x="116" y="483.0" width="93.1" height="10" rx="3"/>
+<text class="value-label" x="214.1" y="491.5">90%</text>
+<rect class="bar" x="116" y="499.0" width="70.9" height="10" rx="3"/>
+<text class="value-label" x="191.9" y="507.5">68%</text>
+<rect class="bar" x="116" y="515.0" width="102.5" height="10" rx="3"/>
+<text class="value-label" x="223.5" y="523.5">99%</text>
+<rect class="bar" x="116" y="531.0" width="96.4" height="10" rx="3"/>
+<text class="value-label" x="217.4" y="539.5">93%</text>
+<text class="na-dash" x="122" y="555.5">n/a</text>
+<text class="col-title" x="290" y="68">Func Precision</text>
+<line class="axis" x1="290" y1="80" x2="290" y2="560"/>
+<rect class="bar" x="290" y="83.0" width="101.3" height="10" rx="3"/>
+<text class="value-label" x="396.3" y="91.5">97%</text>
+<rect class="bar" x="290" y="99.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="107.5">0%</text>
+<rect class="bar" x="290" y="115.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="123.5">0%</text>
+<rect class="bar" x="290" y="131.0" width="60.5" height="10" rx="3"/>
+<text class="value-label" x="355.5" y="139.5">58%</text>
+<rect class="bar" x="290" y="147.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="155.5">0%</text>
+<rect class="bar" x="290" y="163.0" width="59.5" height="10" rx="3"/>
+<text class="value-label" x="354.5" y="171.5">57%</text>
+<rect class="bar" x="290" y="179.0" width="91.6" height="10" rx="3"/>
+<text class="value-label" x="386.6" y="187.5">88%</text>
+<rect class="bar" x="290" y="195.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="399.0" y="203.5">100%</text>
+<text class="na-dash" x="296" y="219.5">n/a</text>
+<rect class="bar" x="290" y="227.0" width="69.4" height="10" rx="3"/>
+<text class="value-label" x="364.4" y="235.5">67%</text>
+<text class="na-dash" x="296" y="251.5">n/a</text>
+<rect class="bar" x="290" y="259.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="399.0" y="267.5">100%</text>
+<rect class="bar" x="290" y="275.0" width="76.4" height="10" rx="3"/>
+<text class="value-label" x="371.4" y="283.5">74%</text>
+<rect class="bar" x="290" y="291.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="299.5">0%</text>
+<text class="na-dash" x="296" y="315.5">n/a</text>
+<rect class="bar" x="290" y="323.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="399.0" y="331.5">100%</text>
+<rect class="bar" x="290" y="339.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="399.0" y="347.5">100%</text>
+<rect class="bar" x="290" y="355.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="363.5">0%</text>
+<rect class="bar" x="290" y="371.0" width="103.9" height="10" rx="3"/>
+<text class="value-label" x="398.9" y="379.5">100%</text>
+<rect class="bar" x="290" y="387.0" width="103.9" height="10" rx="3"/>
+<text class="value-label" x="398.9" y="395.5">100%</text>
+<rect class="bar" x="290" y="403.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="411.5">0%</text>
+<rect class="bar" x="290" y="419.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="427.5">0%</text>
+<rect class="bar" x="290" y="435.0" width="101.2" height="10" rx="3"/>
+<text class="value-label" x="396.2" y="443.5">97%</text>
+<rect class="bar" x="290" y="451.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="399.0" y="459.5">100%</text>
+<rect class="bar" x="290" y="467.0" width="62.4" height="10" rx="3"/>
+<text class="value-label" x="357.4" y="475.5">60%</text>
+<rect class="bar" x="290" y="483.0" width="97.1" height="10" rx="3"/>
+<text class="value-label" x="392.1" y="491.5">93%</text>
+<rect class="bar" x="290" y="499.0" width="99.0" height="10" rx="3"/>
+<text class="value-label" x="394.0" y="507.5">95%</text>
+<rect class="bar" x="290" y="515.0" width="102.5" height="10" rx="3"/>
+<text class="value-label" x="397.5" y="523.5">99%</text>
+<rect class="bar" x="290" y="531.0" width="93.4" height="10" rx="3"/>
+<text class="value-label" x="388.4" y="539.5">90%</text>
+<rect class="bar" x="290" y="547.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="296.5" y="555.5">0%</text>
+<text class="col-title" x="464" y="68">Class Recall</text>
+<line class="axis" x1="464" y1="80" x2="464" y2="560"/>
+<rect class="bar" x="464" y="83.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="470.5" y="91.5">0%</text>
+<rect class="bar" x="464" y="99.0" width="59.3" height="10" rx="3"/>
+<text class="value-label" x="528.3" y="107.5">57%</text>
+<rect class="bar" x="464" y="115.0" width="102.5" height="10" rx="3"/>
+<text class="value-label" x="571.5" y="123.5">99%</text>
+<rect class="bar" x="464" y="131.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="470.5" y="139.5">0%</text>
+<text class="na-dash" x="470" y="155.5">n/a</text>
+<rect class="bar" x="464" y="163.0" width="100.3" height="10" rx="3"/>
+<text class="value-label" x="569.3" y="171.5">96%</text>
+<rect class="bar" x="464" y="179.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="470.5" y="187.5">0%</text>
+<text class="na-dash" x="470" y="203.5">n/a</text>
+<text class="na-dash" x="470" y="219.5">n/a</text>
+<rect class="bar" x="464" y="227.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="573.0" y="235.5">100%</text>
+<text class="na-dash" x="470" y="251.5">n/a</text>
+<rect class="bar" x="464" y="259.0" width="26.7" height="10" rx="3"/>
+<text class="value-label" x="495.7" y="267.5">26%</text>
+<rect class="bar" x="464" y="275.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="573.0" y="283.5">100%</text>
+<text class="na-dash" x="470" y="299.5">n/a</text>
+<text class="na-dash" x="470" y="315.5">n/a</text>
+<text class="na-dash" x="470" y="331.5">n/a</text>
+<text class="na-dash" x="470" y="347.5">n/a</text>
+<text class="na-dash" x="470" y="363.5">n/a</text>
+<text class="na-dash" x="470" y="379.5">n/a</text>
+<rect class="bar" x="464" y="387.0" width="100.3" height="10" rx="3"/>
+<text class="value-label" x="569.3" y="395.5">96%</text>
+<text class="na-dash" x="470" y="411.5">n/a</text>
+<rect class="bar" x="464" y="419.0" width="80.9" height="10" rx="3"/>
+<text class="value-label" x="549.9" y="427.5">78%</text>
+<rect class="bar" x="464" y="435.0" width="62.3" height="10" rx="3"/>
+<text class="value-label" x="531.3" y="443.5">60%</text>
+<rect class="bar" x="464" y="451.0" width="49.0" height="10" rx="3"/>
+<text class="value-label" x="518.0" y="459.5">47%</text>
+<text class="na-dash" x="470" y="475.5">n/a</text>
+<rect class="bar" x="464" y="483.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="470.5" y="491.5">0%</text>
+<rect class="bar" x="464" y="499.0" width="25.3" height="10" rx="3"/>
+<text class="value-label" x="494.3" y="507.5">24%</text>
+<text class="na-dash" x="470" y="523.5">n/a</text>
+<rect class="bar" x="464" y="531.0" width="99.9" height="10" rx="3"/>
+<text class="value-label" x="568.9" y="539.5">96%</text>
+<text class="na-dash" x="470" y="555.5">n/a</text>
+<text class="col-title" x="638" y="68">Class Precision</text>
+<line class="axis" x1="638" y1="80" x2="638" y2="560"/>
+<text class="na-dash" x="644" y="91.5">n/a</text>
+<rect class="bar" x="638" y="99.0" width="90.0" height="10" rx="3"/>
+<text class="value-label" x="733.0" y="107.5">86%</text>
+<rect class="bar" x="638" y="115.0" width="85.9" height="10" rx="3"/>
+<text class="value-label" x="728.9" y="123.5">83%</text>
+<text class="na-dash" x="644" y="139.5">n/a</text>
+<text class="na-dash" x="644" y="155.5">n/a</text>
+<rect class="bar" x="638" y="163.0" width="99.1" height="10" rx="3"/>
+<text class="value-label" x="742.1" y="171.5">95%</text>
+<text class="na-dash" x="644" y="187.5">n/a</text>
+<text class="na-dash" x="644" y="203.5">n/a</text>
+<text class="na-dash" x="644" y="219.5">n/a</text>
+<rect class="bar" x="638" y="227.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="747.0" y="235.5">100%</text>
+<text class="na-dash" x="644" y="251.5">n/a</text>
+<rect class="bar" x="638" y="259.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="747.0" y="267.5">100%</text>
+<rect class="bar" x="638" y="275.0" width="100.6" height="10" rx="3"/>
+<text class="value-label" x="743.6" y="283.5">97%</text>
+<rect class="bar" x="638" y="291.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="644.5" y="299.5">0%</text>
+<text class="na-dash" x="644" y="315.5">n/a</text>
+<text class="na-dash" x="644" y="331.5">n/a</text>
+<text class="na-dash" x="644" y="347.5">n/a</text>
+<text class="na-dash" x="644" y="363.5">n/a</text>
+<rect class="bar" x="638" y="371.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="644.5" y="379.5">0%</text>
+<rect class="bar" x="638" y="387.0" width="100.3" height="10" rx="3"/>
+<text class="value-label" x="743.3" y="395.5">96%</text>
+<rect class="bar" x="638" y="403.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="644.5" y="411.5">0%</text>
+<rect class="bar" x="638" y="419.0" width="80.9" height="10" rx="3"/>
+<text class="value-label" x="723.9" y="427.5">78%</text>
+<rect class="bar" x="638" y="435.0" width="97.2" height="10" rx="3"/>
+<text class="value-label" x="740.2" y="443.5">94%</text>
+<rect class="bar" x="638" y="451.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="747.0" y="459.5">100%</text>
+<text class="na-dash" x="644" y="475.5">n/a</text>
+<rect class="bar" x="638" y="483.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="644.5" y="491.5">0%</text>
+<rect class="bar" x="638" y="499.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="747.0" y="507.5">100%</text>
+<text class="na-dash" x="644" y="523.5">n/a</text>
+<rect class="bar" x="638" y="531.0" width="35.2" height="10" rx="3"/>
+<text class="value-label" x="678.2" y="539.5">34%</text>
+<text class="na-dash" x="644" y="555.5">n/a</text>
+<text class="col-title" x="812" y="68">Args Exact-Match</text>
+<line class="axis" x1="812" y1="80" x2="812" y2="560"/>
+<rect class="bar" x="812" y="83.0" width="93.1" height="10" rx="3"/>
+<text class="value-label" x="910.1" y="91.5">90%</text>
+<text class="na-dash" x="818" y="107.5">n/a</text>
+<rect class="bar" x="812" y="115.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="818.5" y="123.5">0%</text>
+<rect class="bar" x="812" y="131.0" width="21.8" height="10" rx="3"/>
+<text class="value-label" x="838.8" y="139.5">21%</text>
+<text class="na-dash" x="818" y="155.5">n/a</text>
+<rect class="bar" x="812" y="163.0" width="48.0" height="10" rx="3"/>
+<text class="value-label" x="865.0" y="171.5">46%</text>
+<rect class="bar" x="812" y="179.0" width="101.4" height="10" rx="3"/>
+<text class="value-label" x="918.4" y="187.5">98%</text>
+<rect class="bar" x="812" y="195.0" width="38.0" height="10" rx="3"/>
+<text class="value-label" x="855.0" y="203.5">36%</text>
+<text class="na-dash" x="818" y="219.5">n/a</text>
+<rect class="bar" x="812" y="227.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="818.5" y="235.5">0%</text>
+<text class="na-dash" x="818" y="251.5">n/a</text>
+<rect class="bar" x="812" y="259.0" width="36.2" height="10" rx="3"/>
+<text class="value-label" x="853.2" y="267.5">35%</text>
+<rect class="bar" x="812" y="275.0" width="92.9" height="10" rx="3"/>
+<text class="value-label" x="909.9" y="283.5">89%</text>
+<text class="na-dash" x="818" y="299.5">n/a</text>
+<text class="na-dash" x="818" y="315.5">n/a</text>
+<rect class="bar" x="812" y="323.0" width="104.0" height="10" rx="3"/>
+<text class="value-label" x="921.0" y="331.5">100%</text>
+<rect class="bar" x="812" y="339.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="818.5" y="347.5">0%</text>
+<text class="na-dash" x="818" y="363.5">n/a</text>
+<rect class="bar" x="812" y="371.0" width="17.6" height="10" rx="3"/>
+<text class="value-label" x="834.6" y="379.5">17%</text>
+<rect class="bar" x="812" y="387.0" width="29.6" height="10" rx="3"/>
+<text class="value-label" x="846.6" y="395.5">28%</text>
+<text class="na-dash" x="818" y="411.5">n/a</text>
+<text class="na-dash" x="818" y="427.5">n/a</text>
+<rect class="bar" x="812" y="435.0" width="12.3" height="10" rx="3"/>
+<text class="value-label" x="829.3" y="443.5">12%</text>
+<rect class="bar" x="812" y="451.0" width="22.9" height="10" rx="3"/>
+<text class="value-label" x="839.9" y="459.5">22%</text>
+<rect class="bar" x="812" y="467.0" width="1.5" height="10" rx="3"/>
+<text class="value-label" x="818.5" y="475.5">0%</text>
+<rect class="bar" x="812" y="483.0" width="20.8" height="10" rx="3"/>
+<text class="value-label" x="837.8" y="491.5">20%</text>
+<rect class="bar" x="812" y="499.0" width="17.4" height="10" rx="3"/>
+<text class="value-label" x="834.4" y="507.5">17%</text>
+<rect class="bar" x="812" y="515.0" width="31.0" height="10" rx="3"/>
+<text class="value-label" x="848.0" y="523.5">30%</text>
+<rect class="bar" x="812" y="531.0" width="25.2" height="10" rx="3"/>
+<text class="value-label" x="842.2" y="539.5">24%</text>
+<text class="na-dash" x="818" y="555.5">n/a</text>
+<text class="footer" x="16" y="578">Generated by tests/tools/tree_sitter_accuracy_audit.py --chart. "n/a" = no ground-truth instances of that construct in the language-crucible corpus for this language, not a zero score.</text>
+</svg>

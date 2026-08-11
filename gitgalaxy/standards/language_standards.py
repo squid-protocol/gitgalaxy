@@ -3294,7 +3294,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # isolates just "(...)" instead of falling back to whitespace-
                 # splitting the name-plus-parens text, which overcounted every
                 # zero/one-arg signature by +1 the same way Python's did (#1199).
-                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum)\b(?:[^)(]|\([^)]*\))*\))",
+                # BUG FIX (#1282): the typed-parameter-list requirement only ever
+                # recognized C's builtin primitive keywords -- a parameter typed
+                # as a custom typedef/struct name (`PyThreadState *tstate`,
+                # `FILE *fp`, `size_t n`; the overwhelming majority of real-world C
+                # signatures, confirmed against cpython/ceval.c) never matched at
+                # all, so `_calculate_block_metrics` fell through to args_count's
+                # 0 default for functions with real, nonzero arity. cpp's own args
+                # rule already carries this exact fallback (`[A-Z]\w*` for
+                # PascalCase/typedef'd types, `[a-z_]\w*_t` for the `_t` typedef
+                # convention); mirrored here, plus `_*` ahead of the PascalCase
+                # branch for C's leading-underscore "reserved identifier"
+                # convention (`_PyStackRef`, `_Bool`, ...), extremely common in
+                # cpython internals and not covered by cpp's own version of this
+                # fallback.
+                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t)\b(?:[^)(]|\([^)]*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

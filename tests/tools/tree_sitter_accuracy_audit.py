@@ -519,8 +519,19 @@ def _get_param_count(node: Any) -> int:
     if params_node is None and node.type == "function_definition":
         params_node = _find_c_style_parameter_list(node.child_by_field_name("declarator"))
     if params_node:
+        # BUG FIX (#1282): tree-sitter-c/cpp represents C's explicit
+        # empty-parameter-list marker `(void)` as a single `parameter_declaration`
+        # wrapping a `primitive_type` "void" -- a real, named child, so the loop
+        # below would count it as 1 argument. Semantically it's 0 (the same
+        # convention GitGalaxy's own `_count_top_level_args` already special-cases
+        # via its `real_segments == ["void"]` check) -- without this, every
+        # `(void)`-declared C function was measured as having 1 real parameter
+        # against GitGalaxy's correct 0, manufacturing a false args-mismatch.
+        named = params_node.named_children
+        if len(named) == 1 and named[0].type == "parameter_declaration" and named[0].text.strip() == b"void":
+            return 0
         count = 0
-        for child in params_node.named_children:
+        for child in named:
             if child.type in (
                 "identifier",
                 "assignment_pattern",

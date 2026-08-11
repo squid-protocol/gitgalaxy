@@ -637,9 +637,21 @@ def test_detector_cpp_objc_name_extraction():
     assert opt_detector._extract_name("+ (instancetype)sharedInstance;") == "sharedInstance"
 
     # C++ Operators
-    assert opt_detector._extract_name("MyClass::operator<<(std::ostream& os)") == "operator<<"
+    # #1263: an out-of-line qualified operator overload must keep its class
+    # qualifier (`MyClass::operator<<`), not just the bare `operator<<` --
+    # func_start's own regex has captured the qualified form since #813/#821,
+    # and dropping it here collided every same-symbol operator overload
+    # across every class in a file into one function_data row.
+    assert opt_detector._extract_name("MyClass::operator<<(std::ostream& os)") == "MyClass::operator<<"
     assert opt_detector._extract_name("operator bool() const") == "operator bool"
     assert opt_detector._extract_name("operator()()") == "operator()"
+
+    # C++ Destructors
+    # #1263: `~` must survive the final token-cleanup charset -- otherwise a
+    # qualified destructor collides with its own class's constructor
+    # (`MyClass::~MyClass` collapsing to plain `MyClass`).
+    assert opt_detector._extract_name("MyClass::~MyClass()") == "MyClass::~MyClass"
+    assert opt_detector._extract_name("Outer::Inner::~Inner()") == "Outer::Inner::~Inner"
 
     # C++ Macros
     assert opt_detector._extract_name("BOOST_AUTO_TEST_CASE(MyTestName)") == "MyTestName"

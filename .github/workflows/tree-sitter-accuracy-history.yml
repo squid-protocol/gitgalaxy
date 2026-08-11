@@ -1,0 +1,105 @@
+name: Tree-sitter Accuracy History
+
+# Push-to-main companion to tree-sitter-accuracy-audit.yml's PR-time gate. That gate only
+# proves the *baselines* (tests/tree_sitter_accuracy_baseline_<lang>.json -- the numbers
+# regressions are measured against) didn't get worse; those stay human-reviewed and only
+# change via `tree_sitter_accuracy_audit.py --regenerate`, same discipline as the golden
+# master fixtures. This workflow never touches them.
+#
+# What it DOES do, once a relevant change actually lands on main: live-measure every
+# baselined language again and append one row each to
+# docs/self_scan/tree_sitter_accuracy_history.csv (an accumulating time series, unlike the
+# gitignored self-scan DB -- this is meant to be graphed later), and regenerate the
+# Markdown summary table embedded in language_standards.py's docstring so it can't drift
+# from the committed baselines between now and the next manual --summary-table run. Opens
+# an auto-merged PR for both, same mechanism gitgalaxy.yml uses for the LLM architecture
+# brief -- see that workflow's own comments for why a PR-then-merge instead of a direct
+# push (branch protection), and why the loop guard below is load-bearing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/standards/language_standards.py"
+      - "tests/tools/tree_sitter_accuracy_audit.py"
+      - "tests/tree_sitter_accuracy_baseline_*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  tree-sitter-accuracy-history:
+    # Guards against the same infinite-loop shape documented in gitgalaxy.yml's
+    # full-report job: this workflow's own bot commit touches language_standards.py and
+    # the baseline-adjacent history CSV, which are both in the trigger's `paths` filter,
+    # so without this it would re-trigger itself on every merge of its own PR.
+    if: |
+      !startsWith(github.event.head_commit.message, 'docs: auto-update tree-sitter accuracy data')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy + tree-sitter-language-pack
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install tree-sitter-language-pack
+
+      - name: Fetch Language Crucible corpus (pinned v1.0)
+        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Append accuracy history + regenerate summary table
+        run: |
+          cd gitgalaxy
+          python tests/tools/tree_sitter_accuracy_audit.py --history
+          python tests/tools/tree_sitter_accuracy_audit.py --summary-table
+
+      - name: Open PR with updated history + summary table
+        id: tree-sitter-history-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update tree-sitter accuracy data"
+          title: "docs: auto-update tree-sitter accuracy data"
+          body: |
+            Automated update from the latest tree-sitter accuracy measurement on `main`.
+
+            - Appends one row per language to `docs/self_scan/tree_sitter_accuracy_history.csv`.
+            - Regenerates the summary table in `gitgalaxy/standards/language_standards.py`.
+
+            Never touches `tests/tree_sitter_accuracy_baseline_*.json` -- those stay
+            human-reviewed via `tree_sitter_accuracy_audit.py --regenerate`.
+          branch: auto/tree-sitter-accuracy-history
+          delete-branch: true
+          add-paths: |
+            docs/self_scan/tree_sitter_accuracy_history.csv
+            gitgalaxy/standards/language_standards.py
+
+      # Same rationale as gitgalaxy.yml's "Merge the LLM Brief PR" step -- nothing else
+      # gates this PR, so without an explicit merge it just sits mergeable-but-unmerged.
+      - name: Merge the tree-sitter accuracy history PR
+        if: steps.tree-sitter-history-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.tree-sitter-history-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

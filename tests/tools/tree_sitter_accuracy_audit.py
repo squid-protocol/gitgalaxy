@@ -11,6 +11,23 @@ USAGE
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript --ci
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript --regenerate
+    python tests/tools/tree_sitter_accuracy_audit.py --all --ci
+        Runs --ci for every language that has a committed baseline file
+        (tests/tree_sitter_accuracy_baseline_<lang>.json), not just one --lang.
+        This is what the tree-sitter-accuracy-audit CI workflow runs.
+    python tests/tools/tree_sitter_accuracy_audit.py --summary-table
+        Regenerates the Markdown table between the
+        <!-- TREE_SITTER_ACCURACY_TABLE:BEGIN/END --> markers in
+        gitgalaxy/standards/language_standards.py's module docstring from the
+        COMMITTED baselines (no live scan, no corpus needed). Languages with
+        no committed baseline are simply absent from the table -- it never
+        fabricates a row.
+    python tests/tools/tree_sitter_accuracy_audit.py --history
+        Live-measures every baselined language and appends one row each to
+        docs/self_scan/tree_sitter_accuracy_history.csv (gitignored nowhere on
+        purpose -- unlike the self-scan DB, this is meant to accumulate across
+        runs so it can be graphed over time). Never touches the gating
+        baseline files -- only --regenerate does that, and only per language.
 
 CORPUS
     Unlike ast_accuracy_audit.py which pins this repo's own code via git archive,
@@ -67,13 +84,16 @@ SCOPE & LIMITATIONS
 """
 
 import argparse
+import csv
 import json
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -192,7 +212,14 @@ NODE_MAPS = {
     },
     "typescript": {
         "ts_lang": "typescript",
-        "func_node_types": {"function_declaration", "method_definition", "arrow_function", "function_expression", "generator_function", "generator_function_declaration"},
+        "func_node_types": {
+            "function_declaration",
+            "method_definition",
+            "arrow_function",
+            "function_expression",
+            "generator_function",
+            "generator_function_declaration",
+        },
         "class_node_types": {"class_declaration", "abstract_class_declaration"},
     },
     "html": {
@@ -280,7 +307,7 @@ def _get_node_name(node: Any) -> Optional[str]:
     name_node = node.child_by_field_name("name")
     if name_node:
         return name_node.text.decode("utf8")
-    
+
     if node.type in ("arrow_function", "function_expression"):
         if node.parent and node.parent.type == "variable_declarator":
             name_node = node.parent.child_by_field_name("name")
@@ -305,11 +332,11 @@ def _get_param_count(node: Any) -> int:
             if child.type in ("identifier", "assignment_pattern", "array_pattern", "object_pattern", "rest_pattern"):
                 count += 1
         return count
-    
+
     param_node = node.child_by_field_name("parameter")
     if param_node:
         return 1
-    
+
     return 0
 
 
@@ -317,14 +344,14 @@ def measure(lang: str, verbose: bool = False) -> dict:
     """Runs the full pinned-corpus scan + tree-sitter diff, returns the metrics dict."""
     if lang not in NODE_MAPS:
         sys.exit(f"tree_sitter_accuracy_audit: language {lang!r} not supported in NODE_MAPS.")
-    
+
     lang_config = NODE_MAPS[lang]
     ts_lang = lang_config.get("ts_lang", lang)
     func_node_types = lang_config["func_node_types"]
     class_node_types = lang_config["class_node_types"]
-    
+
     parser = tree_sitter_language_pack.get_parser(ts_lang)
-    
+
     corpus_dir = ensure_corpus(lang)
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -363,7 +390,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
 
                 real_funcs: dict[str, int] = {}
                 real_classes: set[str] = set()
-                
+
                 def walk(node):
                     if node.type in func_node_types:
                         name = _get_node_name(node)
@@ -375,7 +402,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             real_classes.add(name)
                     for child in node.children:
                         walk(child)
-                        
+
                 walk(tree.root_node)
 
                 metrics["files_scanned"] += 1
@@ -539,7 +566,9 @@ def run_ci_check(lang: str) -> int:
 
     improved = [k for k, d in _GATED_METRICS if k in baseline and current[k] != baseline[k]]
     if improved:
-        print(f"tree_sitter_accuracy_audit: OK -- improved on {', '.join(improved)} (consider --regenerate to lock it in).")
+        print(
+            f"tree_sitter_accuracy_audit: OK -- improved on {', '.join(improved)} (consider --regenerate to lock it in)."
+        )
     else:
         print("tree_sitter_accuracy_audit: OK -- matches the committed baseline, no regressions.")
     return 0
@@ -569,13 +598,214 @@ def run_regenerate(lang: str) -> int:
     return 0
 
 
+def _all_baseline_langs() -> list[str]:
+    """Every language with a committed tests/tree_sitter_accuracy_baseline_<lang>.json, sorted."""
+    prefix = "tree_sitter_accuracy_baseline_"
+    return sorted(p.stem[len(prefix) :] for p in (REPO_ROOT / "tests").glob(f"{prefix}*.json"))
+
+
+def run_all(mode_fn) -> int:
+    """Runs a single-language mode function (run_ci_check/run_regenerate/run_full_report)
+    across every baselined language, in one process. See `_all_baseline_langs`."""
+    langs = _all_baseline_langs()
+    failed = []
+    for lang in langs:
+        print(f"\n=== {lang} ===")
+        if mode_fn(lang) != 0:
+            failed.append(lang)
+
+    print(f"\ntree_sitter_accuracy_audit --all: {len(langs)} language(s) checked.")
+    if failed:
+        print(f"tree_sitter_accuracy_audit --all: {len(failed)} FAILED: {', '.join(failed)}")
+        return 1
+    print("tree_sitter_accuracy_audit --all: all OK.")
+    return 0
+
+
+# ----------------------------------------------------------------------------
+# --summary-table: regenerate the Markdown table in language_standards.py's
+# docstring purely from committed baselines (no live scan, no corpus needed).
+# ----------------------------------------------------------------------------
+
+_TABLE_BEGIN = "<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->"
+_TABLE_END = "<!-- TREE_SITTER_ACCURACY_TABLE:END -->"
+_LANGUAGE_STANDARDS_PATH = REPO_ROOT / "gitgalaxy" / "standards" / "language_standards.py"
+
+
+def _ratio_pct(numerator: int, denominator: int) -> Optional[float]:
+    """None (-> "N/A") when the denominator is 0, same convention the baseline JSON itself uses."""
+    if denominator <= 0:
+        return None
+    return round(100.0 * numerator / denominator, 1)
+
+
+def _fmt_pct(value: Optional[float]) -> str:
+    return "N/A" if value is None else f"{value}%"
+
+
+def generate_summary_table() -> str:
+    """Builds the Markdown table from committed baselines only. A language with no committed
+    baseline is simply absent -- unlike the hand-written table this replaced, it never emits a
+    fabricated all-N/A row for a language nobody has actually measured yet."""
+    lines = [
+        "| Language | Func Recall | Func Precision | Class Recall | Class Precision |",
+        "| -------- | ----------- | -------------- | ------------ | --------------- |",
+    ]
+    for lang in _all_baseline_langs():
+        b = load_baseline(lang)
+        if not b:
+            continue
+        func_recall = _fmt_pct(_ratio_pct(b["found_functions"], b["real_functions"]))
+        func_precision = _fmt_pct(_ratio_pct(b["found_functions"], b["found_functions"] + b["extra_functions"]))
+        class_recall = _fmt_pct(_ratio_pct(b["found_classes"], b["real_classes"]))
+        class_precision = _fmt_pct(_ratio_pct(b["found_classes"], b["found_classes"] + b["extra_classes"]))
+        lines.append(f"| {lang.title()} | {func_recall} | {func_precision} | {class_recall} | {class_precision} |")
+    return "\n".join(lines)
+
+
+def update_docstring_table() -> bool:
+    """Rewrites the table between the BEGIN/END markers in language_standards.py in place.
+    Returns True if the file's content actually changed."""
+    text = _LANGUAGE_STANDARDS_PATH.read_text(encoding="utf-8")
+    if _TABLE_BEGIN not in text or _TABLE_END not in text:
+        sys.exit(
+            f"tree_sitter_accuracy_audit: markers {_TABLE_BEGIN!r}/{_TABLE_END!r} not found in "
+            f"{_LANGUAGE_STANDARDS_PATH.relative_to(REPO_ROOT)} -- was the docstring edited by hand?"
+        )
+    replacement = f"{_TABLE_BEGIN}\n{generate_summary_table()}\n{_TABLE_END}"
+    pattern = re.compile(re.escape(_TABLE_BEGIN) + r".*?" + re.escape(_TABLE_END), re.DOTALL)
+    new_text = pattern.sub(replacement, text, count=1)
+
+    changed = new_text != text
+    if changed:
+        _LANGUAGE_STANDARDS_PATH.write_text(new_text, encoding="utf-8")
+    return changed
+
+
+def run_summary_table() -> int:
+    changed = update_docstring_table()
+    rel = _LANGUAGE_STANDARDS_PATH.relative_to(REPO_ROOT)
+    if changed:
+        print(f"tree_sitter_accuracy_audit: updated the summary table in {rel}.")
+    else:
+        print(f"tree_sitter_accuracy_audit: {rel} already matches the committed baselines, no change.")
+    return 0
+
+
+# ----------------------------------------------------------------------------
+# --history: live-measure every baselined language and append one row each to
+# a growing CSV, for graphing accuracy trends over time across pushes.
+# ----------------------------------------------------------------------------
+
+_HISTORY_PATH = REPO_ROOT / "docs" / "self_scan" / "tree_sitter_accuracy_history.csv"
+_HISTORY_FIELDS = [
+    "timestamp_utc",
+    "commit_sha",
+    "language",
+    "files_scanned",
+    "real_functions",
+    "found_functions",
+    "extra_functions",
+    "real_classes",
+    "found_classes",
+    "extra_classes",
+    "args_comparable",
+    "args_exact_match",
+    "func_recall_pct",
+    "func_precision_pct",
+    "class_recall_pct",
+    "class_precision_pct",
+]
+
+
+def _current_commit_sha() -> str:
+    result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+
+def run_history() -> int:
+    """Live-measures (not baseline-read) every language that has BOTH a committed baseline and
+    a NODE_MAPS entry, and appends a row per language. Intentionally never writes to the gating
+    baseline JSON files -- this is purely additive, observational data for graphing."""
+    langs = [lang for lang in _all_baseline_langs() if lang in NODE_MAPS]
+    skipped = [lang for lang in _all_baseline_langs() if lang not in NODE_MAPS]
+    if skipped:
+        print(
+            f"tree_sitter_accuracy_audit --history: skipping {', '.join(skipped)} "
+            f"(baseline committed but no NODE_MAPS entry to re-scan)."
+        )
+
+    timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    commit_sha = _current_commit_sha()
+
+    _HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not _HISTORY_PATH.exists()
+    with open(_HISTORY_PATH, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=_HISTORY_FIELDS)
+        if write_header:
+            writer.writeheader()
+        for lang in langs:
+            print(f"tree_sitter_accuracy_audit --history: measuring {lang}...")
+            m = measure(lang, verbose=False)
+            writer.writerow(
+                {
+                    "timestamp_utc": timestamp,
+                    "commit_sha": commit_sha,
+                    "language": lang,
+                    "files_scanned": m["files_scanned"],
+                    "real_functions": m["real_functions"],
+                    "found_functions": m["found_functions"],
+                    "extra_functions": m["extra_functions"],
+                    "real_classes": m["real_classes"],
+                    "found_classes": m["found_classes"],
+                    "extra_classes": m["extra_classes"],
+                    "args_comparable": m["args_comparable"],
+                    "args_exact_match": m["args_exact_match"],
+                    "func_recall_pct": _ratio_pct(m["found_functions"], m["real_functions"]),
+                    "func_precision_pct": _ratio_pct(m["found_functions"], m["found_functions"] + m["extra_functions"]),
+                    "class_recall_pct": _ratio_pct(m["found_classes"], m["real_classes"]),
+                    "class_precision_pct": _ratio_pct(m["found_classes"], m["found_classes"] + m["extra_classes"]),
+                }
+            )
+
+    print(
+        f"tree_sitter_accuracy_audit --history: appended {len(langs)} row(s) to {_HISTORY_PATH.relative_to(REPO_ROOT)}."
+    )
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--lang", required=True, help="Language to audit (e.g. javascript).")
+    parser.add_argument("--lang", help="Language to audit (e.g. javascript). Omit when using --all.")
+    parser.add_argument(
+        "--all", action="store_true", help="Run across every language with a committed baseline instead of one --lang."
+    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--ci", action="store_true", help="Terse baseline-gated regression check (what CI runs).")
     group.add_argument("--regenerate", action="store_true", help="Accept current numbers as the new baseline.")
+    group.add_argument(
+        "--summary-table",
+        action="store_true",
+        help="Regenerate language_standards.py's summary table from committed baselines. Ignores --lang/--all.",
+    )
+    group.add_argument(
+        "--history",
+        action="store_true",
+        help="Append current measured metrics for every baselined language to the history CSV. Ignores --lang.",
+    )
     args = parser.parse_args()
+
+    if args.summary_table:
+        return run_summary_table()
+    if args.history:
+        return run_history()
+
+    if bool(args.lang) == bool(args.all):
+        parser.error("exactly one of --lang or --all is required")
+
+    if args.all:
+        mode_fn = run_regenerate if args.regenerate else run_ci_check if args.ci else run_full_report
+        return run_all(mode_fn)
 
     if args.regenerate:
         return run_regenerate(args.lang)

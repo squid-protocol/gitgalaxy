@@ -1,0 +1,70 @@
+name: Tree-sitter Accuracy Audit
+
+# Baseline-gated regression check (same shape as ruff/mypy/dead-key-audit.yml and
+# ast-accuracy-audit.yml) for tests/tools/tree_sitter_accuracy_audit.py -- catches a
+# structural-signature regex change that quietly drops recall/precision against the
+# tree-sitter ground truth, across every language with a committed baseline.
+#
+# Scoped to paths that can actually move these numbers, unlike ast-accuracy-audit.yml's
+# repo-wide trigger -- this check cost ~1 minute locally across all 23 languages (one
+# language-crucible clone + one galaxyscope scan per language), cheap enough to run on
+# every relevant PR, but there's no reason to pay even that on a PR that only touches
+# e.g. gitgalaxy/recorders/.
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/standards/language_standards.py"
+      - "tests/tools/tree_sitter_accuracy_audit.py"
+      - "tests/tree_sitter_accuracy_baseline_*.json"
+      - ".github/workflows/tree-sitter-accuracy-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tree-sitter-accuracy-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitGalaxy PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy + tree-sitter-language-pack
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install tree-sitter-language-pack
+
+      # Same pin golden-crucible.yml uses -- this tool reuses that corpus rather than
+      # a fresh clone (see tests/tools/tree_sitter_accuracy_audit.py's own CORPUS section).
+      - name: Fetch Language Crucible corpus (pinned v1.0)
+        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Run baseline-gated regression check across every baselined language
+        run: |
+          cd gitgalaxy
+          python tests/tools/tree_sitter_accuracy_audit.py --all --ci
+
+      - name: Verify the summary table matches the committed baselines
+        run: |
+          cd gitgalaxy
+          python tests/tools/tree_sitter_accuracy_audit.py --summary-table
+          if ! git diff --exit-code -- gitgalaxy/standards/language_standards.py; then
+            echo "::error::gitgalaxy/standards/language_standards.py's summary table is stale."
+            echo "Run 'python tests/tools/tree_sitter_accuracy_audit.py --summary-table' and commit the result."
+            exit 1
+          fi

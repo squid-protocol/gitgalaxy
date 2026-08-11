@@ -130,6 +130,36 @@ NODE_MAPS = {
         "func_node_types": {"function_definition"},
         "class_node_types": set(),
     },
+    "c": {
+        "ts_lang": "c",
+        "func_node_types": {"function_definition"},
+        "class_node_types": {"struct_specifier"},
+    },
+    "cpp": {
+        "ts_lang": "cpp",
+        "func_node_types": {"function_definition", "template_function"},
+        "class_node_types": {"class_specifier", "struct_specifier"},
+    },
+    "csharp": {
+        "ts_lang": "csharp",
+        "func_node_types": {"method_declaration", "local_function_statement"},
+        "class_node_types": {"class_declaration", "struct_declaration", "interface_declaration"},
+    },
+    "java": {
+        "ts_lang": "java",
+        "func_node_types": {"method_declaration", "constructor_declaration"},
+        "class_node_types": {"class_declaration", "interface_declaration", "enum_declaration"},
+    },
+    "go": {
+        "ts_lang": "go",
+        "func_node_types": {"function_declaration", "method_declaration"},
+        "class_node_types": {"type_declaration"},
+    },
+    "rust": {
+        "ts_lang": "rust",
+        "func_node_types": {"function_item"},
+        "class_node_types": {"struct_item", "trait_item", "impl_item", "enum_item"},
+    },
 }
 
 

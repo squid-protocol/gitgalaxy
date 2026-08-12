@@ -116,6 +116,23 @@ SCOPE & LIMITATIONS
     from `real_functions`/`real_funcs` -- confirmed via `language-crucible/data/cpp/godot/variant.cpp`
     (Godot's `Variant` class defines ~40 of these). A small, rare-enough fraction of real-world C++
     (56/1491 function_definition nodes, ~3.8%, in this corpus) that it's noted rather than chased.
+
+    Rust's `extra_functions` count (#1311, investigated after #1302/#1266 broadened prism.py's
+    comment shield and exposed it) is dominated by a DIFFERENT ground-truth gap, not a GitGalaxy
+    regex-precision defect: real `fn` items whose text sits inside a `macro_rules!` definition's
+    template body, or inside a function-like macro invocation's braces (`quote! { ... }`, or a
+    custom `cfg_*! { ... }` gating wrapper as used throughout tokio). tree-sitter-rust parses both
+    shapes as one opaque `macro_rules` / `macro_invocation` node wrapping an unstructured
+    `token_tree` -- it does not (cannot, without actual macro expansion) descend into that token
+    tree to emit nested `function_item` nodes, so real_functions never counts them. GitGalaxy's
+    func_start regex has no concept of macro-brace nesting and correctly matches the `fn` text
+    regardless, which is arguably the more useful answer for a structural-signature tool (the
+    function is genuinely there in the source, once macro-expanded) -- so this reads as a
+    measurement-tool blind spot rather than something to chase by teaching func_start to detect
+    macro context. Every one of the 69 rust `extra_functions` samples present at investigation
+    time traced to one of these two macro shapes (bevy/serde/syn/tokio/wasmtime in
+    language-crucible), after the `function_signature_item` NODE_MAPS fix above already accounted
+    for the two genuinely-fixable bodyless-trait-method cases in that same sample.
 """
 
 import argparse
@@ -217,7 +234,15 @@ NODE_MAPS = {
     },
     "rust": {
         "ts_lang": "rust",
-        "func_node_types": {"function_item"},
+        # #1311: function_signature_item is the tree-sitter-rust node type for a BODYLESS
+        # fn (a trait method requirement, e.g. `fn foo(&self) -> i32;`, or a bare `extern`
+        # declaration) -- a real, named function with no `{ }` body, distinct from function_item
+        # which requires one. Confirmed via language-crucible/data/rust/serde/serde_core_de_mod.rs
+        # (IntoDeserializer::into_deserializer, DeError::struct_variant): both are real trait
+        # method signatures GitGalaxy's func_start regex correctly matches, but were previously
+        # invisible to real_functions here, so they scored as false "extra" (GitGalaxy precision
+        # defect) when the actual gap was this tool's ground truth, not GitGalaxy's regex.
+        "func_node_types": {"function_item", "function_signature_item"},
         "class_node_types": {"struct_item", "trait_item", "impl_item", "enum_item"},
     },
     "scala": {
@@ -241,7 +266,12 @@ NODE_MAPS = {
     },
     "swift": {
         "ts_lang": "swift",
-        "func_node_types": {"function_declaration"},
+        # #1311: tree-sitter-swift gives initializers their own `init_declaration` node type,
+        # distinct from `function_declaration` -- a real, named ("init") method that GitGalaxy's
+        # func_start regex correctly matches, but was previously invisible to real_functions here,
+        # so every `init` scored as a false "extra" (all 5 language-crucible/data/swift/alamofire
+        # samples at the time of investigation were plain `init` methods, not a GitGalaxy defect).
+        "func_node_types": {"function_declaration", "init_declaration"},
         "class_node_types": {"class_declaration"},
     },
     "dart": {

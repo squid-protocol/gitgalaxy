@@ -206,7 +206,11 @@ NODE_MAPS = {
     "ruby": {
         "ts_lang": "ruby",
         "func_node_types": {"method", "singleton_method"},
-        "class_node_types": {"class", "singleton_class"},
+        # #1295: "module" represents `module Foo ... end`, a real class-like entity
+        # with a name field that GitGalaxy's own class_start regex intentionally matches,
+        # but was previously invisible to real_classes here (confirmed via rails corpus
+        # examples like ActionDispatch / AbstractController).
+        "class_node_types": {"class", "singleton_class", "module"},
     },
     "php": {
         "ts_lang": "php",

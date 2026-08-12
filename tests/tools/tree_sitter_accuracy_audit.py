@@ -285,7 +285,13 @@ NODE_MAPS = {
         # invisible to real_functions here, so they scored as false "extra" (GitGalaxy precision
         # defect) when the actual gap was this tool's ground truth, not GitGalaxy's regex.
         "func_node_types": {"function_item", "function_signature_item"},
-        "class_node_types": {"struct_item", "trait_item", "impl_item", "enum_item"},
+        # #1295: "union_item" is tree-sitter-rust's node type for `union Foo { ... }` --
+        # distinct from struct_item/enum_item, a real, named class-like entity GitGalaxy's own
+        # class_start regex intentionally matches (its comment covers struct/enum/union/trait),
+        # but was invisible to real_classes here. Confirmed via wasmtime_pulley_interp.rs
+        # (FRegUnion/VRegUnion/XRegUnion, all plain top-level `union` declarations with no
+        # macro involvement) -- same ground-truth measurement-gap shape as go/kotlin/objc/zig.
+        "class_node_types": {"struct_item", "trait_item", "impl_item", "enum_item", "union_item"},
     },
     "scala": {
         "ts_lang": "scala",

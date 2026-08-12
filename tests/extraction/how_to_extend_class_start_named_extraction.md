@@ -21,7 +21,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
 what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go, objective-c, swift,
-kotlin, and zig are done** (flipped into the allowlist, see the table below); 8 remain.
+kotlin, zig, and rust are done** (flipped into the allowlist, see the table below); 7 remain.
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -46,6 +46,7 @@ during #1295's scaffolding pass -- do not re-derive this, just apply the fixes b
 | **swift** | Fixed (PR #1361): `class_start` had a capture group added (name only had an unparenthesized `[a-zA-Z_]\w*` before), widened to an optional dotted chain for nested-type extensions (`extension AFError.ParameterEncoderFailureReason`). Also hit the ground-truth measurement gap: tree-sitter-swift's protocols are a separate `protocol_declaration` node type, not `class_declaration` -- added to `NODE_MAPS["swift"]["class_node_types"]`. `real_classes` 37→38, `found_classes` 23→38, `extra_classes` stays 0. Flipped into the allowlist. |
 | **kotlin** | Fixed (PR #1365): three separate bugs stacked on this one. (1) `class_start` had no capture group -- added group 1 for the main class/interface/object/enum-class branch and group 2 for companion object's own optional name (Fortran/Lua-shaped alternation). (2) `fun interface Foo` (SAM declarations, Kotlin 1.4+) wasn't recognized -- `fun` was missing from the modifier list, a real recall gap confirmed against okhttp's `fun interface Factory`. (3) ground-truth gap: kotlin's `object` declarations (including `actual`/`expect` multiplatform variants) get their own `object_declaration` node type, not `class_declaration` -- added to `NODE_MAPS["kotlin"]["class_node_types"]` and `_get_node_name`. `real_classes` 4→7, `found_classes` 3→7, `extra_classes` stays 0. Golden master updated (okhttp/Call.kt's class count went 1→2). Flipped into the allowlist. |
 | **zig** | Fixed (PR #1367): the biggest/messiest one so far (32 corpus files, `real_classes` in the hundreds), and the first to land with `extra_classes`/`missing_classes` still non-zero by design after investigation -- same discipline as csharp's enum precedent, not a shortcut. Ground truth gap: zig's error sets (`const Foo = error{...};`) get their own `ErrorSetDecl` node type, distinct from `ContainerDecl` -- a class-like entity GitGalaxy's own `class_start` regex intentionally matches (its comment literally says "struct, enum, union, error, opaque"). Added to `NODE_MAPS["zig"]` and dispatched through the same `_get_zig_container_name` resolver. Also widened `class_start` with an optional `\(`/`\*` step-over for two confirmed corpus idioms: a parenthesized-wrapped anonymous struct (`const lenAsc = (struct {...}).lenAsc;`) and a pointer-to-opaque handle type (`const HMONITOR = *opaque {};`). Net result: `extra_classes` 10→1, `found_classes` 0→630 (was 0 because the *legacy fallback* regex structurally can't match zig's `const X = struct` shape at all -- zig's own `class_start` always had a capture group, it just wasn't on the allowlist). The remaining `extra_classes=1` ("Borrowed" in bun/MimallocArena.zig) is a confirmed tree-sitter-zig grammar limitation (the file uses Zig's newer `#field` private-field syntax, which the grammar can't parse -- `has_error=True` on that node -- so error recovery swallows the declaration), the same shape as csharp's `LanguageParser` precedent in #1264. `--regenerate` correctly refuses on a raw `extra_classes` regression (0→1) even though `found_classes` improved massively -- baseline was hand-blessed to the measured numbers, same as csharp's precedent. `missing_classes` (23→26 net) stays non-zero **by design**, categorized in the "recurring cause classes" section below rather than chased in this PR -- see class 7. |
+| **rust** | Fixed (#1295 PR): no regex change at all -- two ground-truth-side items. (1) `union_item` (tree-sitter-rust's node type for `union Foo {...}`) was missing from `NODE_MAPS["rust"]["class_node_types"]` -- a real class-like entity rust's own `class_start` regex already matches (its comment covers struct/enum/union/trait), confirmed via wasmtime's `FRegUnion`/`VRegUnion`/`XRegUnion`, plain top-level unions with no macro involvement. Added it: `real_classes`/`found_classes` 242→245, `extra_classes` 11→25 (see next point for why that's not a regression). (2) every one of the 25 remaining `extra_classes` traced to a struct/enum/trait declaration sitting inside a macro invocation or `macro_rules!`/proc-macro-template body (`cfg_not_rt! { pub(crate) struct JoinHandle<R> {...} }`, `pin_project! { pub enum MaybeDone<Fut: Future> {...} }`, `ast_struct! { pub struct Variant {...} }`, serde's `$typaram`-templated visitor structs) -- tree-sitter treats macro bodies as opaque token trees so `real_classes` can't see them at all, while GitGalaxy's regex (raw text) matches them fine. Same accepted blind spot already documented for #1311/#1319's `extra_functions`, now confirmed to apply identically to classes -- not chased, baseline hand-blessed to the measured `extra_classes=25` the same way as csharp/zig's precedent (`crucible_check.py` both modes clean: the ~80-repo golden-master corpus's own rust files didn't hit this pattern noticeably, since the legacy fallback already covered plain `struct`/`enum`/`trait` reasonably -- `union` was the only real recall gain there). Flipped into the allowlist. |
 
 ### Needs a judgment call, not a quick field-name fix
 
@@ -63,8 +64,21 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 
 ### Languages where ground truth already works -- go straight to the regex workflow below
 
-**c** (real_classes=79), **rust** (242), **dart** (167), **ruby** (9),
-**haskell** (1, small corpus). (**swift, kotlin, zig** done -- see the "Done" table above.)
+**c** (real_classes=79), **dart** (167), **ruby** (9),
+**haskell** (1, small corpus). (**swift, kotlin, zig, rust** done -- see the "Done" table above.)
+
+Note on **ruby**: `class_start_diff.py --lang ruby` shows `extra_classes=9` on top of a clean
+`found_classes=9`/`missing_classes=0` -- i.e. every real class is already matched correctly, and
+the 9 extras are `module Foo` declarations plus `class << self`/`class << @var` singleton-class
+reopening, both of which ruby's own `class_start` intentionally matches (see its "Object / Entity
+Declarations" comment in `language_standards.py`) but aren't in `NODE_MAPS["ruby"]["class_node_types"]`
+(`{"class", "singleton_class"}`). `singleton_class` IS already in that set but has no `name` field
+of its own (it wraps an expression, not an identifier) -- likely another ground-truth measurement
+gap (class 6) for `_get_node_name`, not the scope-mismatch class 5 that `module` is. Check
+`singleton_class`'s actual child structure in `tree_sitter_language_pack`'s ruby grammar before
+assuming it can't be named -- it may resolve to the enclosing class name via a short ancestor walk
+(same shape as csharp/zig's precedents), which would leave `module` as the only real scope
+question for ruby.
 
 ## Per-language workflow (once ground truth is trustworthy)
 
@@ -161,6 +175,17 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
    Each is a real, understood gap -- worth a dedicated follow-up decision (especially the
    type-annotation-position one, which recurred 6x in zig's own corpus) rather than folding
    into whichever PR happens to discover it.
+8. **Macro invocation / definition body opacity** -- a declaration is real and syntactically
+   ordinary, but sits inside a macro invocation (`pin_project! { pub enum Foo {...} }`,
+   `cfg_not_rt! { pub struct Bar {...} }`) or a `macro_rules!`/proc-macro-template body using
+   placeholder syntax (`struct Visitor<T $(, $typaram)*> {...}`). Tree-sitter treats the macro's
+   argument/body as an opaque token tree it doesn't parse into real declaration nodes, so
+   `real_classes`/`real_functions` can never see it, while GitGalaxy's regex (raw text, no
+   macro-awareness) matches it fine -- the reverse direction of class 6 (a real GitGalaxy match
+   ground truth can't corroborate, not a phantom one). Already documented for `extra_functions`
+   on rust in #1311/#1319; confirmed to apply identically to `extra_classes` on rust (#1295 PR,
+   all 25 `class_start_diff.py` extras after the `union_item` fix traced to this). Not fixable
+   without real macro expansion -- document and hand-bless the baseline, same as class 5.
 
 ## Parallelizing across languages -- NOT fully independent, unlike epic #1069's per-language files
 

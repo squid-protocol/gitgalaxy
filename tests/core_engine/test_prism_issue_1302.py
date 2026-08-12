@@ -118,3 +118,54 @@ def realMethod(): Unit = {
     assert "outer" not in result["code_stream"]  # noqa: S101
     assert "inner" not in result["code_stream"]  # noqa: S101
     assert "realMethod" in result["code_stream"]  # noqa: S101
+
+
+def test_issue_1302_stray_unpaired_backtick_in_comment_does_not_swallow_code():
+    """
+    Regression test for the backtick variant of #1302: a single stray, unpaired
+    backtick inside an ordinary comment (a real-world typo -- confirmed on a live
+    Kafka corpus file) used to pair with the next unrelated backtick anywhere later
+    in the file, masking everything in between as one giant fake "string".
+    """
+    prism = Prism(CONFIG, LANG_DEFS)
+
+    code = """
+class Test {
+  // 'protected` to allow override for testing
+  def firstMethod(): Unit = {
+    println("first")
+  }
+
+  // synchronized on `counts`
+  def secondMethod(): Unit = {
+    println("second")
+  }
+}
+"""
+
+    result = prism.split_streams(code, "scala")
+
+    assert "firstMethod" in result["code_stream"]  # noqa: S101
+    assert "secondMethod" in result["code_stream"]  # noqa: S101
+
+
+def test_issue_1302_real_backtick_identifier_still_shielded():
+    """The backtick bound must not break real short backtick-quoted identifiers."""
+    prism = Prism(CONFIG, LANG_DEFS)
+
+    code = """
+class Test {
+  def `should handle edge cases`(): Unit = {
+    println("first")
+  }
+
+  def realMethod(): Unit = {
+    println("still here")
+  }
+}
+"""
+
+    result = prism.split_streams(code, "scala")
+
+    assert "`should handle edge cases`" in result["code_stream"]  # noqa: S101
+    assert "realMethod" in result["code_stream"]  # noqa: S101

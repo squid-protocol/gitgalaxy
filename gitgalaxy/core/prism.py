@@ -725,42 +725,64 @@ class Prism:
         s_line, b_start, b_end = delims[0], delims[1], delims[2]
         lits = []
 
-        # 1. Protect Strings via Safe Masking
-        # Masking prevents the `.rfind` mathematical loop from tearing apart string literals
+        # 1. Protect Strings AND single-line comments via ONE atomic pass.
+        # Masking prevents the `.rfind` mathematical loop from tearing apart string literals.
         #
-        # BUG FIX (#1302, found while investigating #1266): the shared `LITERAL_MASK_PATTERN`'s single-quote
-        # branch is unbounded (`'(?:\\.|[^'\\])*'`), matching from ANY unpaired `'` to the
-        # NEXT unrelated `'` anywhere later in the file. Every language routed through this
-        # function has a common source of unpaired single quotes that are NOT real char
-        # literals: an English contraction inside a `//`/`--`/`;` comment ("it's", "don't"),
-        # Scala's Symbol literals (`'foo`, no closing quote), Haskell's idiomatic
-        # trailing-apostrophe identifiers (`x'`, `map'`), and Scheme's pervasive quote syntax
-        # (`'expr`). Any of these could pair up with a later, unrelated `'` and mask out
-        # thousands of real characters (confirmed on real corpus files: one Scala file's
-        # code_stream dropped to 13.75% of its original size, one Swift file to 11.06%) --
-        # silently misclassifying real functions as "string content" before `func_start` ever
-        # sees them and, since that masked span could itself land back-to-back with `s_line`
-        # on the same physical line, sometimes losing it to the comment stream entirely once
-        # single-line-comment stripping runs below. This is the exact same bug class already
-        # fixed for detector.py's Mode C/D/E shields and prism.py's own generic REGEX_MATRIX
-        # stripper (#1184/#1192/#1222) -- just never applied here. Bounding the single-quote
-        # branch's width mirrors the already-proven-safe fix `_build_brace_safe_stream`
-        # applies for Rust's lifetime-annotation `'a` (detector.py, gated `{0,10}`): real char
-        # literals in every language reaching this function are at most a few characters
-        # (`'a'`, `'\n'`, `'\u0041'`), so a short bound can't break a legitimate one while
-        # making the unbounded cascade structurally impossible.
-        bounded_shield_pattern = r'((?<!\\)"(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\]){0,10}\'|(?<!\\)`(?:\\.|[^`\\])*`)'
-        shield = re.compile(bounded_shield_pattern, re.S | re.M)
+        # BUG FIX (#1302, found while investigating #1266): this used to be the shared
+        # `LITERAL_MASK_PATTERN`'s single-quote branch, unbounded (`'(?:\\.|[^'\\])*'`),
+        # matching from ANY unpaired `'` to the NEXT unrelated `'` anywhere later in the
+        # file -- run as its own pass, BEFORE single-line comments were stripped. Every
+        # language routed through this function has a common source of unpaired single
+        # quotes that are NOT real char literals: an English contraction inside a
+        # `//`/`--`/`;` comment ("it's", "don't"), Scala's Symbol literals (`'foo`, no
+        # closing quote), Haskell's idiomatic trailing-apostrophe identifiers (`x'`,
+        # `map'`), and Scheme's pervasive quote syntax (`'expr`) -- and the identical shape
+        # recurred for the backtick branch too (Scala/Kotlin-style backtick-quoted
+        # identifiers are always short, but a single stray, unpaired backtick inside an
+        # ordinary comment -- a real upstream typo, confirmed on a live Kafka corpus file:
+        # `// 'protected` to allow override for testing` -- paired with the next unrelated
+        # backtick anywhere later, e.g. a completely separate `` `counts` `` reference).
+        # Either could mask out real characters (confirmed on real corpus files: one Scala
+        # file's code_stream dropped to 13.75% of its original size, one Swift file to
+        # 11.06%) -- silently misclassifying real functions as "string content" before
+        # `func_start` ever sees them.
+        #
+        # Bounding each quote branch's width (single-quote to 10 chars, matching char
+        # literals; backtick to 200, matching `func_start`'s own established identifier
+        # bound) closes the WORST (multi-thousand-character) cascades, but doesn't fully
+        # close the gap on its own: two unrelated backtick-marked references inside
+        # nearby comments (a realistic, even common, distance in real files) can still
+        # fall within that same bound and falsely pair with each other. The real fix,
+        # matching the same atomic-pass idiom already proven for detector.py's Mode
+        # C/D/E shields and prism.py's own generic REGEX_MATRIX stripper (#1184/#1192/
+        # #1222) and Mode B's `_build_brace_safe_stream` (which already includes `//`/`/*`
+        # as alternatives IN the same combined pattern): fold single-line-comment
+        # recognition into this SAME pass as the quote alternatives, so whichever
+        # construct starts first at a given position atomically claims its whole span.
+        # Since a `//` marker always appears at or before any quote character later on
+        # the same physical line, the comment alternative -- being the leftmost possible
+        # match start -- claims the entire line before the scanner ever reaches an
+        # apostrophe/backtick inside it, regardless of how far away an unrelated
+        # real quote/backtick happens to sit.
+        combined_pattern = re.compile(
+            r'(?<!\\)"(?:\\.|[^"\\])*"'
+            r"|(?<!\\)'(?:\\.|[^'\\]){0,10}'"
+            r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
+            rf"|{re.escape(s_line)}[^\n]*",
+            re.S | re.M,
+        )
         string_cache: dict[str, str] = {}
 
-        def _shield_replacer(m: re.Match) -> str:
-            if m.group(1):
-                key = f"__GALAXY_STR_MASK_{len(string_cache)}__"
-                string_cache[key] = m.group(1)
-                return key
-            return ""
+        def _combined_replacer(m: re.Match) -> str:
+            matched = m.group(0)
+            if matched.startswith(s_line):
+                lits.append(matched.strip())
+                return ""
+            key = f"__GALAXY_STR_MASK_{len(string_cache)}__"
+            string_cache[key] = matched
+            return key
 
-        protected_code = shield.sub(_shield_replacer, text)
+        protected_code = combined_pattern.sub(_combined_replacer, text)
 
         # --- FAST O(1) UNMASKING ROUTINE ---
         def unmask(chunk: str) -> str:
@@ -773,17 +795,7 @@ class Prism:
                 chunk,
             )
 
-        # 2. Peel single-line comments safely
-        s_line_pattern = re.compile(rf"{re.escape(s_line)}[^\n]*")
-
-        def single_callback(m: re.Match) -> str:
-            comment = m.group(0)
-            lits.append(unmask(comment).strip())
-            return ""
-
-        protected_code = s_line_pattern.sub(single_callback, protected_code)
-
-        # 3. Iteratively peel nested blocks from the inside out
+        # 2. Iteratively peel nested blocks from the inside out
         safety = 0
         while b_start in protected_code and safety < self.NESTED_PEEL_LIMIT:
             end_match = re.search(re.escape(b_end), protected_code)
@@ -806,7 +818,7 @@ class Prism:
         if safety >= self.NESTED_PEEL_LIMIT:
             self.logger.warning(f"Nested Peel Guard triggered: Reached max iteration limit ({self.NESTED_PEEL_LIMIT}).")
 
-        # 4. Final Logic Unmasking
+        # 3. Final Logic Unmasking
         return unmask(protected_code), lits
 
     def _strip_positional_comments(self, text: str, abap_mode: bool = False) -> tuple[str, str]:

@@ -1758,9 +1758,20 @@ class StructuralExtractor:
         if lang_id == "rust":
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
 
+        # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
+        # (e.g. `` `type` ``), never a long delimiter -- unlike JS/TS template literals, which
+        # legitimately span hundreds of characters/multiple lines and must stay unbounded here.
+        # An unbounded backtick branch let a single stray, unpaired backtick (a real upstream
+        # comment typo, confirmed on a live corpus file) pair with a much-later, unrelated
+        # backtick and mask out several real functions in between. Gated to scala only, same
+        # shape as the rust single-quote bound above.
+        backtick = r"`(?:\\.|[^`\\])*`"
+        if lang_id == "scala":
+            backtick = r"`(?:\\.|[^`\\]){0,200}`"
+
         combined_pattern = (
             r'""".*?"""|@"[^"]*(?:""[^"]*)*"|R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
-            r'"(?:\\.|[^"\\])*"|' + single_quote + r"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/"
+            r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
         )
 
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)

@@ -47,7 +47,7 @@ for the same metrics tracked over time across pushes to main.
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
-| Kotlin | 39.1% | 90.0% | 75.0% | 100.0% |
+| Kotlin | 39.1% | 90.0% | 100.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 71.9% | N/A | N/A |
@@ -5256,8 +5256,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # optional for the general branch -- doing that broadly would have opened a new false
             # positive on object EXPRESSIONS (`object : Base() {`, an anonymous object literal used
             # inline, a different construct from an object DECLARATION).
+            # #1295: both name alternatives wrapped in capture groups (group 1
+            # for the main class/interface/object/enum-class branch, group 2
+            # for companion object's own optional name) so the named-entity
+            # extractor (detector.py's _CLASS_START_NAMED_EXTRACTION_LANGS)
+            # can recover real names instead of flooding class_data with one
+            # "Anonymous_Class" phantom per match -- same alternation shape
+            # `_resolve_class_start_match` already handles for Fortran/Lua.
+            # #1295: `fun` added to the modifier set for `fun interface Foo {`
+            # (SAM/functional-interface declarations, mainstream since Kotlin
+            # 1.4) -- previously unrecognized, a real recall gap confirmed
+            # against okhttp's `fun interface Factory`.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*)|companion[ \t\n]+object(?:\s+(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?)",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner|fun)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*)|companion[ \t\n]+object(?:\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*))?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

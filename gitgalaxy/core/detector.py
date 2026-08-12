@@ -375,6 +375,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "groovy",
         "java",
         "javascript",
+        "kotlin",
         "lua",
         "makefile",
         "matlab",

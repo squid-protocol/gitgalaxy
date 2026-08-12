@@ -304,7 +304,12 @@ NODE_MAPS = {
         # child instead, so every match silently resolved to None pre-fix. See _get_node_name's
         # kotlin branch.
         "func_node_types": {"function_declaration", "anonymous_function"},
-        "class_node_types": {"class_declaration"},
+        # #1295: kotlin's `object` declarations (including `actual`/`expect` multiplatform
+        # variants) get their own `object_declaration` node type, distinct from
+        # `class_declaration` -- a real, named class-like entity GitGalaxy's own class_start
+        # regex intentionally matches (`class|interface|object|enum class`), invisible to
+        # real_classes here pre-fix (okhttp's `object OkHttp` singletons).
+        "class_node_types": {"class_declaration", "object_declaration"},
     },
     "swift": {
         "ts_lang": "swift",
@@ -691,6 +696,14 @@ def _get_node_name(node: Any) -> Optional[str]:
                 return child.text.decode("utf8")
         return None
     if node.type == "class_declaration":
+        for child in node.children:
+            if child.type == "type_identifier":
+                return child.text.decode("utf8")
+        return None
+    # #1295: kotlin's `object_declaration` (companion/singleton/multiplatform actual|expect
+    # object) has the same shape as class_declaration above -- no "name" field, plainly-typed
+    # `type_identifier` child.
+    if node.type == "object_declaration":
         for child in node.children:
             if child.type == "type_identifier":
                 return child.text.decode("utf8")

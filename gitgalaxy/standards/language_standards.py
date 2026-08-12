@@ -58,7 +58,7 @@ for the same metrics tracked over time across pushes to main.
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 100.0% | 83.3% |
 | Rust | 99.7% | 93.2% | 100.0% | 90.7% |
-| Scala | 100.0% | 100.0% | 70.6% | 100.0% |
+| Scala | 100.0% | 100.0% | 100.0% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
 | Swift | 98.9% | 100.0% | 100.0% | 100.0% |
@@ -9451,9 +9451,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities and OO boundaries.
+            # BUG FIX (#1295 polish pass): the modifier alternation was missing
+            # private(?:[scope])?/protected(?:[scope])? -- func_start right above already handles
+            # these correctly, class_start just never got the same list. Real recall gap, confirmed
+            # via kafka's `private class LogRecoveryThreadFactory`, `private[kafka] abstract class
+            # Acceptor`, `private[network] case class DelayedCloseSocket`.
             "class_start": re.compile(
                 r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
-                r"(?:(?:sealed|abstract|final|case|open|opaque|transparent)[ \t\n]+){0,3}"
+                r"(?:(?:sealed|abstract|final|case|open|opaque|transparent|private(?:\[[\w.]+\])?|protected(?:\[[\w.]+\])?)[ \t\n]+){0,3}"
                 r"(?:class|trait|object|enum)\s+([A-Za-z_]\w*)(?=[ \t]*[\[({]|\s+extends|\n|$)",
                 re.M,
             ),

@@ -51,7 +51,7 @@ for the same metrics tracked over time across pushes to main.
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 71.9% | N/A | N/A |
-| Objective-C | 73.5% | 98.2% | N/A | N/A |
+| Objective-C | 98.7% | 98.7% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 69.1% | 92.7% | 0.0% | 0.0% |

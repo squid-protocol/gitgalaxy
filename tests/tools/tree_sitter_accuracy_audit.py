@@ -823,6 +823,17 @@ def _get_param_count(node: Any) -> int:
         for child in node.children:
             if child.type == "ParamDeclList":
                 return sum(1 for p in child.children if p.type == "ParamDecl")
+    elif node.type in ("method_definition", "method_declaration"):
+        # #1314 (follow-up): objc's keyword-message methods have no "parameters"/"parameter"
+        # field at all -- each `label:(Type)name` segment is its own plainly-typed
+        # "method_parameter" child (see _get_node_name's objc branch above for the sibling
+        # "identifier" children this shares a parent with). Every real objc method with 1+
+        # keyword segments was measured as having 0 params against GitGalaxy's correct count
+        # (GitGalaxy's own args regex captures the whole colon-segment span, one `:(` per
+        # parameter -- see language_standards.py's objc "args" rule and detector.py's
+        # `_count_colon_selector_segments`), manufacturing a false args-mismatch on nearly
+        # every non-nullary method in the corpus.
+        return sum(1 for child in node.children if child.type == "method_parameter")
 
     return 0
 

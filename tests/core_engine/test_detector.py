@@ -2408,10 +2408,53 @@ def test_count_colon_selector_segments_helper():
         ("doThing:(int)x withOther:(int)y", 2),
         ("doThing:(int)x withOther:(int)y andThird:(NSString *)z", 3),
         ("callback:(void (^)(int))block", 1),
+        # #1314 (follow-up): a space between the `:` and the `(Type)` annotation --
+        # real, common corpus style (language-crucible/data/objective-c/worldwideweb/
+        # HyperText.h writes `applyStyle: (HTStyle *)style` throughout) -- used to
+        # undercount to 0 since the old adjacency check required `:` and `(` to be
+        # immediately consecutive characters.
+        ("applyStyle: (HTStyle *)style", 1),
+        ("doThing: (int)x withOther: (int)y", 2),
     ]
     for args_str, expected in cases:
         actual = detector._count_colon_selector_segments(args_str)
         assert actual == expected, f"_count_colon_selector_segments({args_str!r}) == {actual}, expected {expected}"
+
+
+def test_objectivec_bodyless_interface_declarations_extracted():
+    """
+    #1314 (follow-up): an @interface block's method declarations (`- foo;`,
+    `+ bar:(Type)x;`) are bodyless -- terminated by `;`, never `{...}` -- and are
+    the ENTIRE public surface of every objc header, not an edge case. Pre-fix,
+    the generic Mode-B brace-only fallback in `_extract_functions_generic_slicer`
+    (detector.py) required an actual `{` within the search window and silently
+    dropped every one of these when none was found nearby (confirmed against
+    language-crucible/data/objective-c/worldwideweb/HyperText.h: 38 of 38 real
+    interface methods were dropped, 0% recall on that file). func_start's own
+    regex already matched them correctly -- the gap was purely in detector.py's
+    downstream body-boundary search, not the regex.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "@interface HyperText : Text\n"
+        "{\n"
+        "    int slotNumber;\n"
+        "}\n"
+        "+ newAnchor:(Anchor *)anAnchor;\n"
+        "- setupWindow;\n"
+        "- readSGML:(NXStream *)stream diagnostic:(int)d;\n"
+        "@end\n"
+    )
+    detector = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn["args"] for fn in result.get("functions", [])}
+    expected = {"newAnchor": 1, "setupWindow": 0, "readSGML": 2}
+    missing = set(expected) - set(found)
+    assert not missing, f"bodyless @interface declaration(s) not extracted: {missing}"
+    for name, expected_args in expected.items():
+        assert found[name] == expected_args, f"{name}: expected args={expected_args}, got args={found[name]}"
 
 
 def test_count_haskell_type_arrows_helper():

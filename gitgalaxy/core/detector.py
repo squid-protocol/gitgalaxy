@@ -2098,6 +2098,43 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            # #1314 (follow-up): objc's func_start has two alternatives sharing one pattern --
+            # group 1 is the `-`/`+`-prefixed method-selector form, group 2 is a plain C-style
+            # prototype form. Group 1 is unambiguous: nothing but a real method signature can
+            # ever start with a bare `-`/`+`, so a bodyless `@interface` declaration (`-
+            # setupWindow;`, `+ newAnchor:(Anchor*)anAnchor;`) is exactly as safe to accept via a
+            # bare `;` terminator as rust's bodyless trait methods were in #1319 -- and this shape
+            # is the ENTIRE public surface of every objc header, not an edge case (confirmed via
+            # language-crucible/data/objective-c/worldwideweb/HyperText.h: 38 of 38 real interface
+            # methods were silently dropped here pre-fix, 0 recall on that file). Group 2 does NOT
+            # get the same treatment: unlike rust's `fn`-anchored alternative, it has no exclusion
+            # shield and can already match a bare two-token call/return statement (`return
+            # foo(x);`, `self doSomething(x);`) -- currently harmless only because the brace-only
+            # path below silently drops it when no `{` follows. Accepting `;` there too would
+            # resurrect that latent false-positive class, so group 2 keeps the original
+            # brace-only behavior. No `(`/`)`-depth tracking pitfall like rust's `[u8; 32]` case:
+            # a method's `:(Type)name` segments never contain a literal `;` or top-level `{` of
+            # their own, so depth-0 is exactly "outside any parameter's parenthesized type".
+            elif lang_id == "objective-c" and match.group(1) is not None:
+                pos = match.end()
+                depth = 0
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth += 1
+                    elif ch == ")":
+                        depth = max(0, depth - 1)
+                    elif depth == 0 and ch in (opener, ";"):
+                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                        break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
@@ -2847,6 +2884,14 @@ class StructuralExtractor:
         inside a single "(...)" (#1209). One argument per top-level `:(`
         occurrence; colons/parens inside nested brackets or string literals
         (a default value's own type, an embedded block signature) don't count.
+
+        #1314 (follow-up): the `:` and `(` don't have to be adjacent -- real
+        corpus code (language-crucible/data/objective-c/worldwideweb/HyperText.h)
+        commonly writes `applyStyle: (HTStyle *)style` with a space after the
+        colon, which the old strict `args_str[i + 1] == "("` adjacency check
+        silently undercounted to 0 params. Skipping whitespace between them
+        before checking for `(` doesn't create any new false-match risk: the
+        char skipped over is only ever whitespace, never other real content.
         """
         depth = 0
         in_string = False
@@ -2869,8 +2914,12 @@ class StructuralExtractor:
             elif ch in ")]}>":
                 if depth > 0:
                     depth -= 1
-            elif ch == ":" and depth == 0 and i + 1 < len(args_str) and args_str[i + 1] == "(":
-                count += 1
+            elif ch == ":" and depth == 0:
+                j = i + 1
+                while j < len(args_str) and args_str[j] in " \t\n":
+                    j += 1
+                if j < len(args_str) and args_str[j] == "(":
+                    count += 1
             i += 1
         return count
 

@@ -41,7 +41,7 @@ for the same metrics tracked over time across pushes to main.
 | Css | 100.0% | 100.0% | 0.0% | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
-| Go | 95.6% | 100.0% | N/A | N/A |
+| Go | 95.6% | 100.0% | 82.1% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 55.3% | 61.9% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
@@ -51,7 +51,7 @@ for the same metrics tracked over time across pushes to main.
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 71.9% | N/A | N/A |
-| Objective-C | 98.7% | 98.7% | N/A | N/A |
+| Objective-C | 98.7% | 98.7% | 100.0% | 100.0% |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 69.1% | 92.7% | 0.0% | 0.0% |

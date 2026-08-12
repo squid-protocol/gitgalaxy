@@ -702,6 +702,33 @@ def _get_node_name(node: Any) -> Optional[str]:
     if node.type == "ContainerDecl":
         return _get_zig_container_name(node)
 
+    # #1295: go's type_declaration (struct/interface/type-alias) has no "name" field of its own --
+    # the name lives on its child type_spec's own "name" field instead
+    # (`type_declaration -> type_spec(name: type_identifier)`). Confirmed via a direct parse dump:
+    # `type ScheduleResult struct {...}` real_classes measured 0 pre-fix despite the corpus
+    # obviously containing real struct/interface declarations -- a ground-truth measurement gap,
+    # not evidence GitGalaxy's own class_start regex was wrong.
+    if node.type == "type_declaration":
+        for child in node.children:
+            if child.type == "type_spec":
+                name_node = child.child_by_field_name("name")
+                if name_node:
+                    return name_node.text.decode("utf8")
+        return None
+
+    # #1295: objective-c's class_interface/class_implementation/class_declaration nodes have no
+    # "name" field -- the class name is the first plainly-typed "identifier" child
+    # (`@interface Foo : Bar` has two: Foo the class, Bar the superclass -- order matters, take
+    # the first; `@class Foo, Bar;` forward-declares multiple names per statement, comma-separated
+    # -- only the first is captured here, same accepted limitation as make's multi-target rule
+    # handling above). Confirmed via language-crucible/worldwideweb (`@implementation TcpAccess`)
+    # -- real_classes measured 0 pre-fix despite the corpus containing real class declarations.
+    if node.type in ("class_interface", "class_implementation", "class_declaration"):
+        for child in node.children:
+            if child.type == "identifier":
+                return child.text.decode("utf8")
+        return None
+
     # #1314: objective-c's method_definition/method_declaration nodes have no "name" field in
     # this grammar -- the selector's first keyword sits in a plainly-typed "identifier" child
     # (optionally preceded by a "-"/"+" and a "method_type" return-type child; a multi-keyword

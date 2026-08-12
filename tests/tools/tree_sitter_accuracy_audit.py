@@ -336,7 +336,18 @@ NODE_MAPS = {
             "generator_function",
             "generator_function_declaration",
         },
-        "class_node_types": {"class_declaration", "abstract_class_declaration"},
+        # #1338: GitGalaxy's typescript class_start rule is deliberately titled "Object / Entity
+        # Declarations" (language_standards.py), not "OOP classes" -- it matches `class|enum|
+        # interface` on purpose (and `enum TargetEntity {` is an explicit "valid" test case in
+        # tests/extraction/languages/test_typescript.py's CLASS_CASES). This NODE_MAPS entry only
+        # counted `class_declaration`/`abstract_class_declaration` as "real classes", so every
+        # correctly-matched interface/enum was measured as a false-positive "extra" class -- the
+        # same ground-truth-tool-gap shape as #1314's objc `_get_node_name` fix, not a GitGalaxy
+        # regex defect. Confirmed via direct breakdown: all 537 baseline `extra_classes` traced
+        # to real `interface_declaration` (470) / `enum_declaration` (67) nodes tree-sitter itself
+        # parses, zero unexplained false matches. Added both node types here to match what
+        # class_start actually measures itself against.
+        "class_node_types": {"class_declaration", "abstract_class_declaration", "interface_declaration", "enum_declaration"},
     },
     "html": {
         "ts_lang": "html",

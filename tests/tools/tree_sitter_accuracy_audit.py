@@ -241,7 +241,7 @@ NODE_MAPS = {
     "c": {
         "ts_lang": "c",
         "func_node_types": {"function_definition"},
-        "class_node_types": {"struct_specifier"},
+        "class_node_types": {"struct_specifier", "union_specifier", "enum_specifier"},
     },
     "cpp": {
         "ts_lang": "cpp",
@@ -364,7 +364,12 @@ NODE_MAPS = {
         # to real `interface_declaration` (470) / `enum_declaration` (67) nodes tree-sitter itself
         # parses, zero unexplained false matches. Added both node types here to match what
         # class_start actually measures itself against.
-        "class_node_types": {"class_declaration", "abstract_class_declaration", "interface_declaration", "enum_declaration"},
+        "class_node_types": {
+            "class_declaration",
+            "abstract_class_declaration",
+            "interface_declaration",
+            "enum_declaration",
+        },
     },
     "html": {
         "ts_lang": "html",
@@ -1040,9 +1045,12 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         if name:
                             real_funcs[name] = _get_param_count(node)
                     elif node.type in class_node_types:
-                        name = _get_node_name(node)
-                        if name:
-                            real_classes.add(name)
+                        if lang == "c" and node.child_by_field_name("body") is None:
+                            pass
+                        else:
+                            name = _get_node_name(node)
+                            if name:
+                                real_classes.add(name)
                     for child in node.children:
                         walk(child)
 

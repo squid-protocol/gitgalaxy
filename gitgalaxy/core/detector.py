@@ -2052,6 +2052,52 @@ class StructuralExtractor:
                     if not eq_match:
                         continue
                     end_idx = next_match_start
+            # #1319: rust's func_start regex (like csharp's above -- #789 --
+            # also stops right at the parameter list's opening `(` via a
+            # lookahead, without consuming it) never captured bodyless
+            # trait-method signatures (`fn deserialize_any<V>(self, visitor:
+            # V) -> Result<...>\nwhere\n    V: Visitor<'de>;` -- a trait
+            # *requirement*, not a default impl, so it's legitimately
+            # terminated by `;` instead of a `{...}` block). These are
+            # common in trait definitions (serde's `Deserializer` trait
+            # alone has dozens) and were silently dropped by the generic
+            # brace-only path below, which treats "no `{` in the window" as
+            # "not a real match". Mirrors csharp's arrow-vs-brace split, but
+            # unlike csharp a bare `;` here is never a false match -- every
+            # match `func_start` produces is a real `fn` declaration, never
+            # a call or bare statement, since the regex requires the
+            # literal `fn` keyword -- so both terminators are valid, not
+            # just one.
+            #
+            # The naive "whichever of `{`/`;` comes first" scan (copied
+            # verbatim from csharp) is wrong for rust specifically: array
+            # types (`[u8; 32]`, `[T; N]`) put a `;` INSIDE `[...]`, often
+            # in the very return type right before the real body's `{`
+            # (`fn hash(&self) -> [u8; 32] { ... }`) -- a bracket-blind scan
+            # would truncate a completely normal function at that `;`. Track
+            # `[`/`]` depth and only treat `{`/`;` as the terminator at
+            # depth 0.
+            elif lang_id == "rust":
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                depth = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "[":
+                        depth += 1
+                    elif ch == "]":
+                        depth = max(0, depth - 1)
+                    elif depth == 0 and (ch == opener or ch == ";"):
+                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                        break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

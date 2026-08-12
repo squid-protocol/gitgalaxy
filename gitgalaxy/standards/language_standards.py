@@ -57,7 +57,7 @@ for the same metrics tracked over time across pushes to main.
 | Powershell | 69.1% | 92.7% | 0.0% | 0.0% |
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 77.8% | 77.8% |
-| Rust | 97.5% | 95.6% | 68.2% | 93.8% |
+| Rust | 99.7% | 93.2% | 68.2% | 93.8% |
 | Scala | 100.0% | 100.0% | 70.6% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |

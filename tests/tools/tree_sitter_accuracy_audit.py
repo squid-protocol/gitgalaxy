@@ -133,6 +133,30 @@ SCOPE & LIMITATIONS
     time traced to one of these two macro shapes (bevy/serde/syn/tokio/wasmtime in
     language-crucible), after the `function_signature_item` NODE_MAPS fix above already accounted
     for the two genuinely-fixable bodyless-trait-method cases in that same sample.
+
+    #1319 (fixing rust's real recall gap for bodyless trait-method signatures --
+    `detector.py`'s `_slice_by_braces` previously dropped every `func_start` match whose window
+    never found a `{`, silently treating a legitimate `;`-terminated signature the same as a
+    non-match) raised `extra_functions` further (67 -> 108), not via a new GitGalaxy defect but by
+    exposing more instances of this SAME macro-body blind spot: `;`-terminated `fn` signatures were
+    already invisible pre-#1319 regardless of whether they sat in real code or macro-body text, so
+    only the ones in real code became newly-visible (fixed by #1319) while the ones inside
+    `macro_rules!`/custom-DSL macro invocations (e.g. wasmtime's `br_if_imm! { fn br_if_xeq32_i8(...)
+    = BrIfXeq32I8 / == / get_i32; ... }`, a hand-rolled macro DSL that reuses rust's own `fn ... ;`
+    syntax as a per-entry template, not a real trait signature) became newly "extra" here for the
+    exact same already-documented reason. Confirmed: every one of the 41 net new `extra_functions`
+    entries traces to one of the two macro shapes above (mostly `wasmtime_pulley_interp.rs`'s
+    `br_if_imm!` table, plus one `macro_rules!`-nested serde case) -- not a new, third blind-spot
+    shape.
+
+    Also #1319: `_get_param_count`'s counted child-type set (identifier/parameter_declaration/etc,
+    designed around C-family and JS-family grammars) never included rust's own parameter child
+    types (`parameter`, `self_parameter`) -- rust's args_exact_match was measuring 0 real params for
+    every single function regardless of its actual signature, silently passing only by coincidence
+    on genuinely zero-arg functions (~9% baseline). Fixed by extending the counted set for rust's
+    two `func_node_types` specifically (gated by node type, not applied to any other NODE_MAPS
+    language) -- args_exact_match went 133 -> 1446 out of 1489 comparable as a result, unrelated to
+    the `extra_functions` blind spot above but discovered by the same investigation.
 """
 
 import argparse
@@ -726,16 +750,31 @@ def _get_param_count(node: Any) -> int:
         named = params_node.named_children
         if len(named) == 1 and named[0].type == "parameter_declaration" and named[0].text.strip() == b"void":
             return 0
+        counted_types = (
+            "identifier",
+            "assignment_pattern",
+            "array_pattern",
+            "object_pattern",
+            "rest_pattern",
+            "parameter_declaration",
+        )
+        # #1319: rust's `function_item`/`function_signature_item` parameter list uses
+        # "parameter" (a typed param like `visitor: V`) and "self_parameter" (the receiver
+        # `self`/`&self`/`&mut self`) as its child node types -- neither was in the counted
+        # set above, so every rust function's measured param count silently came back 0
+        # regardless of its real signature (confirmed against language-crucible: the
+        # pre-#1319 rust args_exact_match baseline, ~9%, was coincidental zero-arg-function
+        # matches, not real counting -- e.g. `deserialize_any(self, visitor: V)` measured
+        # real=0 against GitGalaxy's correct got=2). GitGalaxy's own args counter
+        # (`_count_top_level_args` in detector.py) counts `self` as a real segment same as
+        # any other parameter (no rust-specific exclusion), so this mirrors that convention
+        # rather than trying to subtract it back out. Gated to rust's two node types only --
+        # no other NODE_MAPS language's parameter children use these type names.
+        if node.type in ("function_item", "function_signature_item"):
+            counted_types += ("parameter", "self_parameter")
         count = 0
         for child in named:
-            if child.type in (
-                "identifier",
-                "assignment_pattern",
-                "array_pattern",
-                "object_pattern",
-                "rest_pattern",
-                "parameter_declaration",
-            ):
+            if child.type in counted_types:
                 count += 1
         return count
 

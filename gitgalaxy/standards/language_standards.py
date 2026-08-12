@@ -35,7 +35,7 @@ for the same metrics tracked over time across pushes to main.
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 97.4% | 100.0% | 100.0% |
-| C | 94.0% | 99.0% | 57.0% | 86.5% |
+| C | 94.0% | 99.0% | 100.0% | 78.2% |
 | Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
 | Csharp | 99.1% | 63.4% | 89.5% | 56.7% |
 | Css | 100.0% | 100.0% | 0.0% | N/A |
@@ -3401,7 +3401,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (tests/extraction/languages/test_c_strict.py) documents that co-firing as DELIBERATE: it's how
             # the `_ops`-vtable-style dependency_injection heuristic pairs with class_start for
             # exactly this shape. Any future change here must keep that test passing.
-            "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)\b(?:\s+[a-zA-Z_]\w*)?", re.M),
+            "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)\b(?:\s+([a-zA-Z_]\w*))?", re.M),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming / Validation)
             "safety": re.compile(

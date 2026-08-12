@@ -343,6 +343,38 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
 )
 
 
+def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
+    """Given a `class_start` regex match and its pattern's total capture-group
+    count, return `(name_group_idx, name, inheritance)`.
+
+    `class_start` regexes vary in capture-group shape across the languages in
+    `_CLASS_START_NAMED_EXTRACTION_LANGS` -- most have a mandatory group 1
+    (the name) and an optional group 2 (a single inheritance parent), but
+    Fortran/Lua/ABAP-shaped patterns use alternation where the name lands in
+    EITHER group 1 or group 2 depending on which branch fired, and some
+    languages capture no name at all (pure occurrence-counting rules, e.g.
+    C/Swift -- see the frozenset's own comment). `name_group_idx` is `None`
+    in that last case; callers should fall back to `match.start(0)` for the
+    anchor position and `"Anonymous_Class"` for the name.
+
+    Factored out (rather than left inline in `splice()`) so
+    `tests/tools/class_start_diff.py` -- the offline triage tool for
+    extending the allowlist to more languages (#1295) -- can preview exactly
+    what a language's own `class_start` rule would name, using the identical
+    algorithm the live pipeline uses, with no risk of the two drifting apart.
+    """
+    if groups_count >= 1 and match.group(1):
+        name_group_idx: Optional[int] = 1
+    elif groups_count >= 2 and match.group(2):
+        name_group_idx = 2
+    else:
+        name_group_idx = None
+
+    name = match.group(name_group_idx) if name_group_idx else "Anonymous_Class"
+    inheritance = [match.group(2)] if name_group_idx == 1 and groups_count >= 2 and match.group(2) else []
+    return name_group_idx, name, inheritance
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -657,15 +689,7 @@ class StructuralExtractor:
             )
 
             for i, match in enumerate(class_matches):
-                # Prefer group 1 when it participated; fall back to group 2
-                # (Fortran/Lua/ABAP's alternate-branch name slot); otherwise
-                # this language's class_start captures no name at all.
-                if class_start_groups >= 1 and match.group(1):
-                    name_group_idx = 1
-                elif class_start_groups >= 2 and match.group(2):
-                    name_group_idx = 2
-                else:
-                    name_group_idx = None
+                name_group_idx, name, inheritance = _resolve_class_start_match(match, class_start_groups)
 
                 # Anchored on the class NAME's own position, not
                 # match.start(0): a pattern's leading optional whitespace/
@@ -696,16 +720,6 @@ class StructuralExtractor:
                 # this class, so don't count it as part of this class's range.
                 if 0 < end_idx <= len(code_stream) and code_stream[end_idx - 1] == "\n":
                     end_line -= 1
-
-                name = match.group(name_group_idx) if name_group_idx else "Anonymous_Class"
-                # Only treat group 2 as an inheritance parent when group 1
-                # was the actual name -- for Fortran/Lua/ABAP-shaped patterns
-                # group 2 is an alternate name slot (mutually exclusive with
-                # group 1 by construction), not a parent, and would otherwise
-                # get misread as one.
-                inheritance = (
-                    [match.group(2)] if name_group_idx == 1 and class_start_groups >= 2 and match.group(2) else []
-                )
 
                 classes.append(
                     {

@@ -389,6 +389,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "swift",
         "tcl",
         "typescript",
+        "zig",
     }
 )
 

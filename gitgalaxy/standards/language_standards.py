@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 98.9% | 100.0% | 100.0% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 100.0% | 100.0% |
-| Zig | 73.9% | 100.0% | 0.0% | N/A |
+| Zig | 73.9% | 100.0% | 96.0% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 
@@ -8604,8 +8604,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (struct, enum, union, error, opaque).
+            # #1295: an optional `\(` and/or `\*` step-over added between `=`
+            # and the packed/extern modifier so two real corpus-confirmed
+            # idioms aren't missed: a parenthesized-wrapped anonymous struct
+            # (`const lenAsc = (struct { ... }).lenAsc;`, common for a
+            # struct-as-namespace immediately projecting one declaration out
+            # of itself) and a pointer-to-opaque handle type (`const HMONITOR
+            # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t\n]+)?const[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t\n]*=[ \t\n]*(?:packed[ \t\n]+|extern[ \t\n]+)?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?const[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t\n]*=[ \t\n]*\(?[ \t\n]*\*?[ \t\n]*(?:packed[ \t\n]+|extern[ \t\n]+)?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

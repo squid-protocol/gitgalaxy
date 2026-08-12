@@ -406,7 +406,13 @@ NODE_MAPS = {
         # no name at all of its own -- see _get_zig_container_name's docstring for why the real
         # name lives on an ancestor VarDecl instead.
         "func_node_types": {"FnProto"},
-        "class_node_types": {"ContainerDecl"},
+        # #1295: zig's error sets (`const Foo = error{...};`) get their own `ErrorSetDecl` node
+        # type, distinct from `ContainerDecl` -- a real class-like entity GitGalaxy's own
+        # class_start regex intentionally matches (its comment says so: "Defines structural
+        # entities (struct, enum, union, error, opaque)"). Same shape as `_get_zig_container_name`
+        # (the real name lives on the enclosing VarDecl, not the ErrorSetDecl itself) so it's
+        # dispatched through the same resolver in `_get_node_name`.
+        "class_node_types": {"ContainerDecl", "ErrorSetDecl"},
     },
     "apex": {
         "ts_lang": "apex",
@@ -729,7 +735,7 @@ def _get_node_name(node: Any) -> Optional[str]:
             if child.type == "IDENTIFIER":
                 return child.text.decode("utf8")
         return None
-    if node.type == "ContainerDecl":
+    if node.type in ("ContainerDecl", "ErrorSetDecl"):
         return _get_zig_container_name(node)
 
     # #1295: go's type_declaration (struct/interface/type-alias) has no "name" field of its own --

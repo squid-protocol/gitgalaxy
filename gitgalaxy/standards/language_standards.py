@@ -10804,14 +10804,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # #1336: injected a "not a function" shield -- `(?!(?:if|for|...)\b)` -- right before
             # the C-style alternative's (?:type-token)+ loop. Without it, this alternative already
             # matched bare two-token call/return statements like `return foo(x);` (any single
-            # leading word satisfies the loop as a fake "return type"), which was only ever
-            # harmless because detector.py's brace-only fallback silently dropped the match when no
-            # `{` followed. Now that detector.py accepts a bare `;` terminator for this alternative
-            # too (see `_slice_by_braces`'s objc branch), that same match would otherwise become a
-            # phantom "function" named after whatever identifier the statement called. The shield
-            # blocks exactly the same control-flow-keyword set `branch` above already treats as
-            # non-function-starting, so real prototypes (`extern void foo(T x);`, whose leading
-            # token is always a type/modifier, never a keyword) are unaffected.
+            # leading word satisfies the loop as a fake "return type") -- previously "harmless"
+            # only because detector.py's brace-only fallback silently dropped the match when no
+            # `{` followed nearby, but a `{` from unrelated later code (e.g. a neighboring
+            # `@interface` block's own ivar-list braces) could still get wrongly attributed as
+            # this phantom "function"'s body. `_slice_by_braces`'s objc branch now explicitly
+            # detects and rejects the bodyless-`;` case for this alternative (prototypes have no
+            # body to score, so they're out of func_start's scope, not a recall gap) instead of
+            # falling through to that blind forward search -- this shield is what makes a bare
+            # statement safe to have reach that rejection path at all, rather than being
+            # misidentified as a genuine prototype. Blocks exactly the same control-flow-keyword
+            # set `branch` above already treats as non-function-starting, so real prototypes
+            # (`extern void foo(T x);`, whose leading token is always a type/modifier, never a
+            # keyword) are unaffected.
             "func_start": re.compile(
                 r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s+)*[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))?[ \t\n]*([a-zA-Z_]\w*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|[A-Z_0-9]+(?:\([^)]*\))?)*[ \t\n]*[:\{;]|$)|"
                 r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|template\s*<[^>]*>)[ \t\n]+)*"

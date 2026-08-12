@@ -57,9 +57,14 @@ OBJECTIVEC_ADVERSARIAL_TESTS = {
             ("__attribute__((always_inline)) void attrFunction(void) {", "attrFunction"),
             # #1336: bodyless C-style prototypes (terminated by `;`, not `{...}`) --
             # e.g. language-crucible/data/objective-c/worldwideweb/HyperText.h's
-            # `extern void write_rtf_header(NXStream* rtfStream);`. Pre-fix this was
-            # only ever found by accident (via a later, unrelated `{`) with a bogus
-            # body span; the regex itself already matched the name correctly.
+            # `extern void write_rtf_header(NXStream* rtfStream);`. The regex still
+            # matches the name correctly here (it's syntactically function-shaped) --
+            # detector.py's pipeline is what now explicitly excludes these from
+            # func_start's scope (a prototype has no body to score), rather than the
+            # old behavior of finding them only by accident via a later, unrelated
+            # `{` and attributing that block's span as a bogus body. See
+            # test_objectivec_bodyless_c_style_prototype_excluded_not_misattributed
+            # in tests/core_engine/test_detector.py for the pipeline-level assertion.
             ("extern void write_rtf_header(NXStream* rtfStream);", "write_rtf_header"),
             ("static int helper_prototype(int x);", "helper_prototype"),
             ("- (std::vector<std::shared_ptr<MyNamespace::MyClass>>)getVector;", "getVector"),

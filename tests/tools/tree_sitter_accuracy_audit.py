@@ -1323,6 +1323,18 @@ def run_all(mode_fn) -> int:
 # docstring purely from committed baselines (no live scan, no corpus needed).
 # ----------------------------------------------------------------------------
 
+# #1295: css/html were decided PERMANENTLY out of scope for named class extraction --
+# class_data's schema (class_name/inheritance_parents/method_count/state_entanglement) is
+# OOP-shaped, and neither CSS selectors nor generic HTML elements fit it (see
+# tests/extraction/how_to_extend_class_start_named_extraction.md's "Decided: not extending css
+# or html" section for the full reasoning). Their class_recall/class_precision numbers are
+# forced to N/A here rather than shown as a real "0.0%" -- css genuinely has real_classes=90
+# (ground truth works fine), so a bare 0% would misleadingly read as "GitGalaxy tried and
+# missed everything" rather than "GitGalaxy never attempts this by design". func_recall/
+# func_precision are NOT touched by this set -- func_start extraction is in scope and
+# genuinely measured for both languages.
+_CLASS_EXTRACTION_OUT_OF_SCOPE = frozenset({"css", "html"})
+
 _TABLE_BEGIN = "<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->"
 _TABLE_END = "<!-- TREE_SITTER_ACCURACY_TABLE:END -->"
 _LANGUAGE_STANDARDS_PATH = REPO_ROOT / "gitgalaxy" / "standards" / "language_standards.py"
@@ -1353,8 +1365,11 @@ def generate_summary_table() -> str:
             continue
         func_recall = _fmt_pct(_ratio_pct(b["found_functions"], b["real_functions"]))
         func_precision = _fmt_pct(_ratio_pct(b["found_functions"], b["found_functions"] + b["extra_functions"]))
-        class_recall = _fmt_pct(_ratio_pct(b["found_classes"], b["real_classes"]))
-        class_precision = _fmt_pct(_ratio_pct(b["found_classes"], b["found_classes"] + b["extra_classes"]))
+        if lang in _CLASS_EXTRACTION_OUT_OF_SCOPE:
+            class_recall = class_precision = "N/A"
+        else:
+            class_recall = _fmt_pct(_ratio_pct(b["found_classes"], b["real_classes"]))
+            class_precision = _fmt_pct(_ratio_pct(b["found_classes"], b["found_classes"] + b["extra_classes"]))
         lines.append(f"| {lang.title()} | {func_recall} | {func_precision} | {class_recall} | {class_precision} |")
     return "\n".join(lines)
 
@@ -1722,9 +1737,9 @@ def generate_chart_svg() -> str:
         f"etc.), which are hardened and tested separately.</text>",
         f'<text class="scope-note" x="{left_margin}" y="64">Value labels are raw counts (found/real or '
         f"found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>",
-        f'<text class="scope-note" x="{left_margin}" y="76">css and html show 0% class recall/precision '
-        f"by DESIGN, not as an unfixed gap -- named class extraction was decided permanently out of "
-        f"scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped "
+        f'<text class="scope-note" x="{left_margin}" y="76">css and html show n/a on the class panels '
+        f"by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out "
+        f"of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped "
         f"entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>",
         f'<rect x="{left_margin}" y="84" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
         f'<text class="legend-label" x="{left_margin}" y="100">0%</text>',
@@ -1741,7 +1756,13 @@ def generate_chart_svg() -> str:
         for lang in langs_all:
             num, den = _metric_num_den(data[lang], num_field, den_field)
             fractions[lang] = (num, den)
-            values[lang] = _ratio_pct(num, den)
+            # Force N/A on the class panels for languages decided permanently out of scope for
+            # named class extraction (see _CLASS_EXTRACTION_OUT_OF_SCOPE) -- a bare 0% there
+            # would misread as an unaddressed gap rather than a documented design decision.
+            if key.startswith("class_") and lang in _CLASS_EXTRACTION_OUT_OF_SCOPE:
+                values[lang] = None
+            else:
+                values[lang] = _ratio_pct(num, den)
 
         with_value = sorted(
             ((lang, values[lang]) for lang in langs_all if values[lang] is not None),

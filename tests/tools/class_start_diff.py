@@ -91,24 +91,32 @@ def _first_line_context(text: str, name: str) -> str:
     return "(name not found verbatim in file -- likely synthesized/aliased)"
 
 
-def _real_classes_in(tree: Any, class_node_types: set[str]) -> set[str]:
+def _real_classes_in(tree: Any, class_node_types: set[str], lang: str) -> set[str]:
     """Walks a tree-sitter tree, collecting ground-truth class-shaped node names."""
     found: set[str] = set()
     stack = [tree.root_node]
     while stack:
         node = stack.pop()
         if node.type in class_node_types:
-            name = tsaa._get_node_name(node)
-            if name:
-                found.add(name)
+            if lang == "c" and node.child_by_field_name("body") is None:
+                pass
+            else:
+                name = tsaa._get_node_name(node)
+                if name:
+                    found.add(name)
         stack.extend(node.children)
     return found
 
 
-def _gg_positions_in(text: str, class_start_pattern: re.Pattern, groups: int) -> dict[str, list[int]]:
+def _gg_positions_in(text: str, class_start_pattern: re.Pattern, groups: int, lang: str) -> dict[str, list[int]]:
     """Applies class_start + the shared name-resolution algorithm, returns name -> match start offsets."""
     positions: dict[str, list[int]] = {}
     for match in class_start_pattern.finditer(text):
+        if lang == "c":
+            lookahead = text[match.end() : match.end() + 200]
+            anchor_match = re.search(r"^[^\{;,)=]{0,200}?([\{;,)=])", lookahead)
+            if not anchor_match or anchor_match.group(1) != "{":
+                continue
         _, name, _ = _resolve_class_start_match(match, groups)
         positions.setdefault(name, []).append(match.start(0))
     return positions
@@ -172,7 +180,7 @@ def diff_language(lang: str) -> dict[str, Any]:
         except Exception:  # noqa: S112 -- triage tool, skip unparsable files rather than aborting the run
             continue
 
-        real_classes = _real_classes_in(tree, class_node_types)
+        real_classes = _real_classes_in(tree, class_node_types, lang)
 
         # Mirrors the real pipeline exactly, including its sharp edge:
         # `class_data` is populated per-match, but the accuracy harness reads
@@ -184,7 +192,7 @@ def diff_language(lang: str) -> dict[str, Any]:
         # capture-group-less class_start floods class_data with one phantom
         # entry per file), and hiding it here would make a language that
         # would actually flood production look clean in this tool.
-        gg_positions = _gg_positions_in(text, class_start_pattern, class_start_groups)
+        gg_positions = _gg_positions_in(text, class_start_pattern, class_start_groups, lang)
         gg_classes = set(gg_positions)
 
         extra = sorted(gg_classes - real_classes)

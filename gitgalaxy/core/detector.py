@@ -368,6 +368,7 @@ class ScopeParsingRegistry:
 _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
     {
         "apex",
+        "c",
         "cpp",
         "csharp",
         "dart",
@@ -395,6 +396,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "zig",
     }
 )
+
+_CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c"})
 
 
 def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
@@ -743,6 +746,12 @@ class StructuralExtractor:
             )
 
             for i, match in enumerate(class_matches):
+                if self.primary_lang_id in _CLASS_START_REQUIRES_BODY_ANCHOR:
+                    lookahead = code_stream[match.end() : match.end() + 200]
+                    anchor_match = re.search(r"^[^\{;,)=]{0,200}?([\{;,)=])", lookahead)
+                    if not anchor_match or anchor_match.group(1) != "{":
+                        continue
+
                 name_group_idx, name, inheritance = _resolve_class_start_match(match, class_start_groups)
 
                 # Anchored on the class NAME's own position, not

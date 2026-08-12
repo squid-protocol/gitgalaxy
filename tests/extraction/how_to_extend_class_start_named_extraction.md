@@ -20,7 +20,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 13 more languages regressed when tried the same way and were left on the legacy fallback:
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
-what this doc + `tests/tools/class_start_diff.py` exist to make cheap.
+what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go and objective-c are
+done** (flipped into the allowlist, see the table below); 11 remain.
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -36,14 +37,14 @@ implausibly low) despite the corpus obviously containing real declarations, **th
 `tree_sitter_accuracy_audit.py`'s own ground truth, not in `language_standards.py`.** Confirmed
 during #1295's scaffolding pass -- do not re-derive this, just apply the fixes below:
 
-### Fixable now: `_get_node_name` is missing a per-node-type branch (same shape as its existing Fortran/C/Make special cases)
+### Done: `_get_node_name` ground-truth fixes already landed
 
-| Language | `class_node_types` | Root cause | Fix |
-|---|---|---|---|
-| **go** | `type_declaration` | That node has no `name` field -- the name lives on its child `type_spec`'s own `name` field (`type_declaration -> type_spec(name: type_identifier)`). Confirmed via direct parse dump. | Add a branch: if `node.type == "type_declaration"`, look for a `type_spec` child and return *its* `child_by_field_name("name")`. |
-| **kotlin** | `class_declaration` | No `name` field; the identifier is a positional child (`class_declaration -> class, type_identifier, class_body`), not field-annotated. | Add a branch: if `node.type == "class_declaration"`, return the first `type_identifier` child's text. |
-| **objective-c** | `class_interface`, `class_implementation`, `class_declaration` | No `name` field; structure is `@interface, identifier(name), :, identifier(superclass), @end` -- two positional `identifier` children, first one is the name. | Add a branch: if `node.type in class_node_types`, return the *first* `identifier` child's text (order matters -- the second one is the superclass). |
-| **zig** | `ContainerDecl` | The container itself isn't named -- zig's `pub const Foo = struct {...}` idiom means the name is on the enclosing `VarDecl`'s `IDENTIFIER` child, not on `ContainerDecl` at all. Same shape as the JS `arrow_function`-in-`variable_declarator` special case already in `_get_node_name`. | Walk up from `ContainerDecl` to the nearest ancestor `VarDecl` and return its `IDENTIFIER` child's text. Needs the node's `.parent` chain, not just `child_by_field_name`. |
+| Language | Status |
+|---|---|
+| **go** | Fixed (#1295 PR): `type_declaration` has no `name` field, but its `type_spec` child does. Flipped into `_CLASS_START_NAMED_EXTRACTION_LANGS`: `found_classes` 0→69, `extra_classes` 0→0. The 15 tree-sitter-only "missing" are all plain type aliases (`type WaitStatus uint32`) that go's own `class_start` intentionally excludes (requires `struct`/`interface` to follow) -- a scope mismatch, not a recall bug, documented in the baseline commit. |
+| **objective-c** | Fixed (#1295 PR): `class_interface`/`class_implementation`/`class_declaration` have no `name` field; first positional `identifier` child is the class name (second is the superclass for `class_interface` only). Flipped into the allowlist: `found_classes` 0→5, `extra_classes` 0→0, a perfect match. |
+| **kotlin** | Ground truth already fixed as a side effect of #1313's function-extraction work (`class_declaration` branch in `_get_node_name` returns the first `type_identifier` child) -- `real_classes` now reads 4, not 0. **Not yet flipped into the allowlist**: `found_classes` is still 0, `extra_classes` is 5, all `"Anonymous_Class"` -- kotlin's `class_start` regex has no capture group (same shape as C/Swift below), so this needs the regex workflow, not more measurement-tool work. Moved to the "ground truth already works" list below. |
+| **zig** | Ground truth already fixed (`ContainerDecl` resolves via `_get_zig_container_name`, walking up to the enclosing `VarDecl`) -- `real_classes` reads 642. **Not yet flipped into the allowlist**: `extra_classes` is 10, `missing_classes` is 23 -- a real per-file diff is needed before concluding whether `class_start` over/under-matches zig's `const X = struct {...}` idiom. Moved to the "ground truth already works" list below.
 
 ### Needs a judgment call, not a quick field-name fix
 
@@ -62,7 +63,9 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 ### Languages where ground truth already works -- go straight to the regex workflow below
 
 **c** (real_classes=79), **swift** (37), **rust** (242), **dart** (167), **ruby** (9),
-**haskell** (1, small corpus).
+**haskell** (1, small corpus), **kotlin** (4 -- but `class_start` has no capture group, expect
+`"Anonymous_Class"` flooding same as C/Swift), **zig** (642, but `extra_classes`=10/
+`missing_classes`=23 needs a real per-file diff before concluding what's over/under-matching).
 
 ## Per-language workflow (once ground truth is trustworthy)
 
@@ -133,9 +136,9 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
    `class_node_types` node exists and matches real declarations, but has no `name` field
    (the name lives on a child or ancestor node instead), so `_get_node_name` silently returns
    `None` for every match and `real_classes` reads as 0 regardless of how good or bad the
-   regex is. New class discovered during #1295's scaffolding pass -- see the table above
-   (go/kotlin/objective-c/zig). **Always check this first** before touching a language's
-   `class_start` regex.
+   regex is. New class discovered during #1295's scaffolding pass -- go/kotlin/objective-c/zig
+   all hit this (now fixed, see the "Done"/"ground truth already works" tables above).
+   **Always check this first** before touching a language's `class_start` regex.
 
 ## Parallelizing across languages -- NOT fully independent, unlike epic #1069's per-language files
 

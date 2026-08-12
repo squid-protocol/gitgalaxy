@@ -10812,13 +10812,61 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # could even false-match a `:(Type)` cast expression sitting
                 # inside a DIFFERENT method's body. detector.py's
                 # `_count_colon_selector_segments` counts the real parameter
-                # count from this span by counting top-level `:(`
+                # count from this span by counting top-level `:`
                 # occurrences (one per segment) instead of commas. Branches
                 # 2/3 (Blocks and plain C-style functions) get the same
                 # capture-group treatment as every other C-family language.
-                r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*)+)|\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))[ \t\n]*(?:\{|;)",
+                #
+                # #1335: the `(Type)` cast used to be REQUIRED after every
+                # `label:`, so older, still-valid untyped keyword-message
+                # style (`- back:sender`, defaulting to `id`, common in
+                # 1990s NeXTSTEP-era code -- language-crucible/data/
+                # objective-c/worldwideweb/HyperManager.m has ~20 of these
+                # in one file) matched zero segments here and silently
+                # undercounted to args=0. Added a SECOND, separate
+                # alternative for this shape rather than loosening the
+                # existing typed one in place -- the original
+                # `(?:label)?:(Type)name` (label optional, type mandatory)
+                # stays completely unchanged (every pre-#1335 valid/invalid
+                # case for it is untouched), and the new
+                # `label:name` (label MANDATORY, no type) alternative is
+                # additive. The label is mandatory here specifically because
+                # every real keyword-message parameter has one -- this loses
+                # no real match, only narrows what an untyped segment can be.
+                #
+                # This still can't structurally tell a real untyped param
+                # (`back:sender`) apart from a body-only lookalike with the
+                # exact same shape -- a goto label followed by a statement
+                # (`label: statement;`) or a ternary's true-branch read as a
+                # label (`cond ? isOn : isOff`, "isOn" here IS a syntactically
+                # valid label) -- because those are lexically identical to a
+                # real untyped parameter; no local, bounded regex can
+                # distinguish them without knowing it's inside a method
+                # signature already. That's WHY this alternative is safe only
+                # because detector.py's `_slice_by_braces` now bounds the
+                # whole `args` search to the method's own signature text for
+                # objc specifically (never the body), making a body-only
+                # lookalike structurally unreachable in the real pipeline --
+                # see `_calculate_block_metrics`'s `args_search_text` param
+                # and tests/core_engine/test_detector.py's
+                # test_objectivec_args_body_lookalikes_excluded_by_signature_bound.
+                # In ISOLATION (the regex alone, as the adversarial test
+                # gauntlet in tests/extraction/languages/test_objectivec.py
+                # exercises it) these lookalikes DO still match -- a
+                # documented, pipeline-shielded limitation, the same shape as
+                # the pre-existing comment/string-lookalike one just below in
+                # this same file's test suite.
+                r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*|[a-zA-Z_]\w{0,80}[ \t\n]*:\s*[a-zA-Z_]\w*[ \t\n]*)+)|\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))[ \t\n]*(?:\{|;)",
                 re.M,
             ),
+            # Which `args` capture-group index represents an objc
+            # keyword-message colon-selector span (routes to
+            # `_count_colon_selector_segments` in detector.py rather than
+            # the generic comma/whitespace counters) -- see the comment on
+            # `args` above. Leading underscore excludes this from the
+            # structural-signal scan loop, same convention as haskell's
+            # `_args_arrow_count_groups`.
+            "_args_colon_selector_groups": {1},
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
             # BUG FIX: the 8 @-prefixed alternatives never matched -- same
             # \b-before-@ shape as branch's fix above.

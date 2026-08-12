@@ -27,21 +27,18 @@ ARGS_EXTRACTION_CASES = {
             )
         ],
     },
-
-    "objective-c": {
-        "valid": [
-            ("- (void)TargetFunc:(int)a withB:(NSString *)b", "TargetFunc"),
-            ("+ (instancetype)TargetFunc:(id)obj {", "TargetFunc"),
-        ],
-        "invalid": ["[self TargetFunc:a withB:b];", "if (a) {"],
-        "pathological": [
-            # Vertical fragmentation and Block callbacks
-            (
-                "- \n (void) \n TargetFunc \n : \n (NSDictionary<NSString *, id> *)data \n withCallback \n : \n (void (^)(BOOL success))callback",
-                "TargetFunc",
-            )
-        ],
-    },
+    # objective-c: removed from this legacy monolithic file (#1335) -- fully
+    # superseded by tests/extraction/languages/test_objectivec.py, which
+    # covers the args gauntlet in far more depth (per epic #813's migration
+    # of per-language cases out of these four old dict files) and reflects
+    # #1335's fix (untyped keyword-message params, e.g. `back:sender`, are
+    # now recognized). This file's stale `"invalid": ["[self
+    # TargetFunc:a withB:b];", ...]` case encoded a pre-#1335 assumption
+    # that's no longer true in isolation -- see test_objectivec.py's
+    # test_objc_args_known_limitation_body_lookalikes_shielded_by_pipeline
+    # for why a keyword-message SEND (indistinguishable in isolation from a
+    # keyword-message method SIGNATURE) is a documented, pipeline-shielded
+    # limitation of the regex now, not a live bug.
     "dart": {
         "valid": [
             ("void TargetFunc(String a, int b) {", "TargetFunc"),

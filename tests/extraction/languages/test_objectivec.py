@@ -149,13 +149,19 @@ OBJECTIVEC_ADVERSARIAL_TESTS = {
             ("crazySpacing   :   (   NSString *   )   arg", None),
             ("argWithAttr:(int)__attribute__((unused))a", None),
             ("nullability:(nonnull NSString *)str", None),
+            # #1335: older, still-valid untyped keyword-message style
+            # (defaults to `id`) -- language-crucible/data/objective-c/
+            # worldwideweb/HyperManager.m has ~20 of these in one file.
+            ("back:sender", None),
+            ("help:sender", None),
+            ("setManager:aManager", None),
+            ("closeOthers:sender", None),
+            # Mixed typed + untyped segments in the same signature.
+            ("doThing:(int)x withOther:y", None),
         ],
         "invalid": [
-            "label: statement;",
             "case 1:",
             "default:",
-            "return (condition) ? a : b;",
-            "self.property = condition ? a : b;",
         ],
         "pathological": [],
     },
@@ -258,6 +264,38 @@ def test_objc_args_known_limitation_comment_string_lookalike_shielded_by_pipelin
     args = OBJC_RULES["args"]
     assert args.search("// :(int)a") is not None
     assert args.search('@":(int)a"') is not None
+
+
+def test_objc_args_known_limitation_body_lookalikes_shielded_by_pipeline():
+    """
+    #1335: recognizing the untyped `label:name` keyword-message shape (see
+    the "valid" cases above, e.g. `back:sender`) necessarily also makes the
+    regex match body-only shapes in isolation that are lexically identical
+    to a real untyped parameter:
+    - a C goto label followed by a statement (`label: statement;`)
+    - a ternary's true-branch expression read as a label
+      (`cond ? isOn : isOff` -- "isOn" is a syntactically valid label)
+    - a keyword-message SEND (`[self TargetFunc:a withB:b];`) -- Objective-C
+      intentionally uses the exact same `label:value label2:value2` shape
+      for both a method's signature and a call site, so a call inside some
+      OTHER method's body is textually indistinguishable from a real
+      parameter list.
+
+    No local, bounded regex can tell these apart from a real untyped
+    parameter without already knowing it's inside a method signature --
+    that's exactly what detector.py's `_slice_by_braces` now establishes for
+    objc, by bounding the whole `args` search to the matched method's own
+    signature text, never its body (see `_calculate_block_metrics`'s
+    `args_search_text` param and tests/core_engine/test_detector.py's
+    test_objectivec_args_body_lookalikes_excluded_by_signature_bound), so
+    these lookalikes are unreachable in the real pipeline even though the
+    regex alone still matches them here.
+    """
+    args = OBJC_RULES["args"]
+    assert args.search("label: statement;") is not None
+    assert args.search("return (condition) ? a : b;") is not None
+    assert args.search("self.property = condition ? a : b;") is not None
+    assert args.search("[self TargetFunc:a withB:b];") is not None
 
 
 # ==============================================================================

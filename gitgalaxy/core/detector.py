@@ -1993,6 +1993,12 @@ class StructuralExtractor:
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 
+            # #1335: set (only for objc's two branches below) to the index right
+            # after the signature's own terminator (`{`/`;`) -- bounds the
+            # args-pattern search to the signature text, never the body. See
+            # `_calculate_block_metrics`'s `args_search_text` docstring.
+            objc_args_sig_end: Optional[int] = None
+
             # #789: csharp's func_start regex (unlike every other C-family
             # language here) doesn't consume the parameter list or require
             # a terminator -- it stops matching right at the opening `(`,
@@ -2131,6 +2137,7 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+                objc_args_sig_end = term_idx + 1
             # #1336: group 2 (plain C-style prototypes, e.g. `extern void
             # write_rtf_header(NXStream* rtfStream);`) does NOT get group 1's bodyless-`;`
             # treatment -- unlike group 1's method form, a prototype has no function body to
@@ -2167,6 +2174,7 @@ class StructuralExtractor:
                 if term_kind != "brace":
                     continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                objc_args_sig_end = term_idx + 1
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
@@ -2176,6 +2184,8 @@ class StructuralExtractor:
             block = code[start_idx:end_idx].strip()
             if not block:
                 continue
+
+            args_search_text = code[start_idx:objc_args_sig_end] if objc_args_sig_end is not None else None
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
@@ -2195,6 +2205,7 @@ class StructuralExtractor:
                 start_idx,
                 end_idx,
                 spatial_map,
+                args_search_text,
             )
             satellites.append(sat)
             sum_fxn_impact += mag
@@ -2913,17 +2924,21 @@ class StructuralExtractor:
         `doThing:(int)x withOther:(int)y` -- unlike every other language's
         args shape, each parameter here is its own repeated `label:(Type)name`
         segment scattered across the signature, not one comma-separated list
-        inside a single "(...)" (#1209). One argument per top-level `:(`
-        occurrence; colons/parens inside nested brackets or string literals
-        (a default value's own type, an embedded block signature) don't count.
+        inside a single "(...)" (#1209). One argument per top-level `:`
+        occurrence; colons inside nested brackets or string literals (a
+        default value's own type, an embedded block signature) don't count.
 
         #1314 (follow-up): the `:` and `(` don't have to be adjacent -- real
         corpus code (language-crucible/data/objective-c/worldwideweb/HyperText.h)
         commonly writes `applyStyle: (HTStyle *)style` with a space after the
-        colon, which the old strict `args_str[i + 1] == "("` adjacency check
-        silently undercounted to 0 params. Skipping whitespace between them
-        before checking for `(` doesn't create any new false-match risk: the
-        char skipped over is only ever whitespace, never other real content.
+        colon.
+
+        #1335: the `(Type)` cast is now optional in the source regex (older
+        untyped keyword-message style, e.g. `back:sender`, defaults to
+        `id`), so this no longer requires a `(` after the colon at all --
+        every top-level colon in `args_str` is guaranteed by the calling
+        regex's structure to be a real `label:` separator, never a stray
+        `label:` cast sitting apart from its parameter.
         """
         depth = 0
         in_string = False
@@ -2947,11 +2962,7 @@ class StructuralExtractor:
                 if depth > 0:
                     depth -= 1
             elif ch == ":" and depth == 0:
-                j = i + 1
-                while j < len(args_str) and args_str[j] in " \t\n":
-                    j += 1
-                if j < len(args_str) and args_str[j] == "(":
-                    count += 1
+                count += 1
             i += 1
         return count
 
@@ -2999,6 +3010,7 @@ class StructuralExtractor:
         start_idx: int = 0,
         end_idx: int = 0,
         spatial_map: Optional[dict[str, list[int]]] = None,
+        args_search_text: Optional[str] = None,
     ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
@@ -3008,6 +3020,18 @@ class StructuralExtractor:
         ASTs require intense compilation overhead to determine cyclomatic nesting depth.
         Because we prioritize functional intent, this engine uses standard indentation
         as a 95% accurate proxy for O(N) complexity at a fraction of the compute cost.
+
+        #1335: `args_search_text`, when given, bounds the args-pattern search to just
+        that text (a caller-computed signature-only slice) instead of the whole `block`.
+        `block` for a Mode-B (`_slice_by_braces`) function always spans the signature
+        AND its full body, so an unbounded `args_pattern.search(block)` can silently
+        match call-statement or control-flow text deep in the body instead of the real
+        signature once the signature itself doesn't match any args-pattern branch (e.g.
+        objc's `- free { if (Address) free(Address); ... }`, a zero-arg method whose own
+        signature has no parens/colons at all -- the body's own `free(Address);` call
+        wrongly "borrowed" as the args). Only objc's `_slice_by_braces` branch passes
+        this today; every other caller leaves it None and keeps the original
+        whole-`block` search.
         """
         args_pattern = rules.get("args")
 
@@ -3057,7 +3081,7 @@ class StructuralExtractor:
         args_count = 0
         if args_pattern and hasattr(args_pattern, "search"):
             try:
-                arg_match = args_pattern.search(block)
+                arg_match = args_pattern.search(args_search_text if args_search_text is not None else block)
                 if arg_match:
                     args_str = arg_match.group(arg_match.lastindex) if arg_match.lastindex else arg_match.group(0)
                     stripped = args_str.strip() if args_str else ""
@@ -3075,6 +3099,7 @@ class StructuralExtractor:
                     # never closes within the capture) fall through unchanged to
                     # the original comma/whitespace-split heuristics below.
                     arrow_count_groups = rules.get("_args_arrow_count_groups")
+                    colon_selector_groups = rules.get("_args_colon_selector_groups")
                     if arrow_count_groups and arg_match.lastindex in arrow_count_groups:
                         # Haskell `::` type signature (#1209): curried arity
                         # is the top-level arrow count, not a comma-separated
@@ -3112,12 +3137,20 @@ class StructuralExtractor:
                         # never closes within the capture) fall through unchanged to
                         # the original comma/whitespace-split heuristics below.
                         args_count = self._count_top_level_args(stripped)
-                    elif re.match(r"^(?:[a-zA-Z_]\w*[ \t\n]*)?:\s*\(", stripped):
-                        # Objective-C keyword-message selector (#1209) -- the
-                        # only shape here whose parameters aren't inside a
-                        # single "(...)" span at all, so neither the
-                        # self-contained branch above nor the comma-based one
-                        # below apply.
+                    elif colon_selector_groups and arg_match.lastindex in colon_selector_groups:
+                        # Objective-C keyword-message selector (#1209,
+                        # #1335) -- the only shape here whose parameters
+                        # aren't inside a single "(...)" span at all, so
+                        # neither the self-contained branch above nor the
+                        # comma-based one below apply. Gated on an explicit,
+                        # opt-in rules-dict flag naming the SPECIFIC
+                        # capture-group index this applies to (same
+                        # convention as haskell's `_args_arrow_count_groups`)
+                        # rather than sniffing "does stripped start with
+                        # `label?:(`" -- #1335 made the `(Type)` cast
+                        # optional, so shape-based detection can no longer
+                        # tell a real untyped segment (`back:sender`) apart
+                        # from unrelated `label: value` text by content alone.
                         args_count = self._count_colon_selector_segments(stripped)
                     elif stripped and stripped != "()":
                         if "," in args_str:

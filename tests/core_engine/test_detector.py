@@ -2318,8 +2318,19 @@ ARGS_COUNT_FIXTURES: dict[str, tuple[str, dict[str, int]]] = {
         "- (void)noop {\n    return;\n}\n"
         "- (void)doOne:(int)x {\n    return;\n}\n"
         "- (void)doTwo:(int)x withOther:(int)y {\n    return;\n}\n"
+        # #1335: untyped keyword-message params (defaults to `id`, common in
+        # 1990s NeXTSTEP-era code) used to undercount to 0.
+        '- back:sender {\n    printf("back");\n}\n'
+        # #1335: a genuinely zero-arg method (no colon at all) whose body
+        # contains its own C-style call statement used to "borrow" that
+        # call's own arg count instead of reporting 0.
+        "- free {\n    if (Address) free(Address);\n}\n"
+        # #1335: an untyped 1-param method whose body contains an unrelated
+        # multi-arg call used to "borrow" THAT call's arg count (2) instead
+        # of the method's own real arity (1).
+        '- closeOthers:sender {\n    printf("%d", w);\n}\n'
         "@end\n",
-        {"noop": 0, "doOne": 1, "doTwo": 2},
+        {"noop": 0, "doOne": 1, "doTwo": 2, "back": 1, "free": 0, "closeOthers": 1},
     ),
 }
 
@@ -2510,6 +2521,66 @@ def test_objectivec_c_style_real_definition_still_extracted():
     found = {fn["name"]: fn["args"] for fn in result.get("functions", [])}
     assert "c_style_func" in found, "real C-style function definition should still be extracted"
     assert found["c_style_func"] == 2, f"expected args=2, got args={found['c_style_func']}"
+
+
+def test_objectivec_args_body_lookalikes_excluded_by_signature_bound():
+    """
+    #1335: `_slice_by_braces`'s objc branches now bound `args_pattern.search`
+    to the method's own signature text (up through its opening `{`/`;`), via
+    `_calculate_block_metrics`'s `args_search_text` param -- never the whole
+    body. Before this, `args_pattern.search(block)` scanned the ENTIRE
+    function body, so once a method's own signature didn't match any args
+    branch (a genuinely zero-arg method, or -- pre-#1335 -- an untyped
+    keyword-message param), the search fell through and matched the first
+    C-style-shaped call/statement found later in the body instead.
+
+    This test pins the exact confirmed corpus shapes from #1335:
+    - `Anchor.m`'s `- free { if (Address) free(Address); ... }` must
+      measure 0 args, not 1 borrowed from the body's own `free(Address)`
+      call.
+    - `HyperManager.m`'s `- closeOthers:sender { ... printf("...", w); ... }`
+      (1 real untyped param) must measure 1, not 2 borrowed from the
+      unrelated `printf(...)` call's 2 comma-separated arguments.
+    - A ternary inside the body (`cond ? isOn : isOff`), and a keyword-
+      message SEND inside the body (`[self doThing:a withB:b];`) -- both of
+      which the args regex CAN still match in isolation (see
+      test_objectivec.py's
+      test_objc_args_known_limitation_body_lookalikes_shielded_by_pipeline)
+      -- must not be reachable at all once bounded to the signature.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "@implementation Anchor\n"
+        "- free {\n"
+        "    if (Address) free(Address);\n"
+        "}\n"
+        "@end\n"
+        "\n"
+        "@implementation HyperManager\n"
+        "- closeOthers:sender {\n"
+        '    printf("%d", w);\n'
+        "}\n"
+        "- flagCheck {\n"
+        "    BOOL isOn = flag ? isOn : isOff;\n"
+        "}\n"
+        "- notify {\n"
+        "    [self doThing:a withB:b];\n"
+        "}\n"
+        "@end\n"
+    )
+    detector = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn["args"] for fn in result.get("functions", [])}
+    assert found.get("free") == 0, f"expected free's args=0 (no body leak), got {found.get('free')}"
+    assert found.get("closeOthers") == 1, (
+        f"expected closeOthers's args=1 (own untyped param, no printf leak), got {found.get('closeOthers')}"
+    )
+    assert found.get("flagCheck") == 0, f"expected flagCheck's args=0 (no ternary leak), got {found.get('flagCheck')}"
+    assert found.get("notify") == 0, (
+        f"expected notify's args=0 (no keyword-message-send leak), got {found.get('notify')}"
+    )
 
 
 def test_objectivec_c_style_bare_statement_not_misidentified_as_function():

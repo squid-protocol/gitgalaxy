@@ -55,6 +55,13 @@ OBJECTIVEC_ADVERSARIAL_TESTS = {
             ("void* function_returning_pointer(char** arg) {", "function_returning_pointer"),
             ("NS_INLINE void inlineFunction(void) {", "inlineFunction"),
             ("__attribute__((always_inline)) void attrFunction(void) {", "attrFunction"),
+            # #1336: bodyless C-style prototypes (terminated by `;`, not `{...}`) --
+            # e.g. language-crucible/data/objective-c/worldwideweb/HyperText.h's
+            # `extern void write_rtf_header(NXStream* rtfStream);`. Pre-fix this was
+            # only ever found by accident (via a later, unrelated `{`) with a bogus
+            # body span; the regex itself already matched the name correctly.
+            ("extern void write_rtf_header(NXStream* rtfStream);", "write_rtf_header"),
+            ("static int helper_prototype(int x);", "helper_prototype"),
             ("- (std::vector<std::shared_ptr<MyNamespace::MyClass>>)getVector;", "getVector"),
             ("- (const std::map<std::string, std::vector<int>>&)getMap;", "getMap"),
             ("template <typename T> void cppTemplateFunction(T arg) {", "cppTemplateFunction"),
@@ -81,6 +88,18 @@ OBJECTIVEC_ADVERSARIAL_TESTS = {
             "for (int i = 0; i < 10; ++i) {",
             "WHILE_MACRO(x) {",
             "switch (x) {",
+            # #1336: the C-style alternative's identifier capture has no exclusion
+            # shield against bare two-token call/return statements (the leading word
+            # satisfies the loop as a fake "return type") -- these used to match at
+            # the regex level too, only ever staying harmless because detector.py's
+            # brace-only fallback silently dropped them when no `{` followed nearby.
+            # Now that detector.py accepts a bare `;` terminator for this
+            # alternative (mirroring the `-`/`+` method form), a "not a function"
+            # keyword shield in the regex itself must reject these outright.
+            "return foo(x);",
+            "return computeValue(a, b);",
+            "else doSomething(x);",
+            "goto cleanup(x);",
         ],
         "pathological": [
             ("- \n ( \n NSDictionary<NSString *, NSArray<NSNumber *> *> * \n ) \n TargetFunc \n :", "TargetFunc")

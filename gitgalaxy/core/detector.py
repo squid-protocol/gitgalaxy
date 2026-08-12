@@ -2108,16 +2108,22 @@ class StructuralExtractor:
             # bare `;` terminator as rust's bodyless trait methods were in #1319 -- and this shape
             # is the ENTIRE public surface of every objc header, not an edge case (confirmed via
             # language-crucible/data/objective-c/worldwideweb/HyperText.h: 38 of 38 real interface
-            # methods were silently dropped here pre-fix, 0 recall on that file). Group 2 does NOT
-            # get the same treatment: unlike rust's `fn`-anchored alternative, it has no exclusion
-            # shield and can already match a bare two-token call/return statement (`return
-            # foo(x);`, `self doSomething(x);`) -- currently harmless only because the brace-only
-            # path below silently drops it when no `{` follows. Accepting `;` there too would
-            # resurrect that latent false-positive class, so group 2 keeps the original
-            # brace-only behavior. No `(`/`)`-depth tracking pitfall like rust's `[u8; 32]` case:
-            # a method's `:(Type)name` segments never contain a literal `;` or top-level `{` of
-            # their own, so depth-0 is exactly "outside any parameter's parenthesized type".
-            elif lang_id == "objective-c" and match.group(1) is not None:
+            # methods were silently dropped here pre-fix, 0 recall on that file).
+            #
+            # #1336: group 2 (plain C-style prototypes, e.g. `extern void
+            # write_rtf_header(NXStream* rtfStream);`) now gets the same bodyless-`;` treatment.
+            # It was deliberately left brace-only when group 1 was fixed above, since -- unlike
+            # rust's `fn`-anchored alternative -- it had no exclusion shield and could already
+            # match a bare two-token call/return statement (`return foo(x);`), which was only
+            # harmless because the brace-only path silently dropped it. The regex itself
+            # (language_standards.py) now carries a "not a function" keyword shield mirroring
+            # `branch`'s own control-flow keyword set, so a bare statement can no longer reach
+            # this branch at all -- every match landing here is a real declaration, safe to
+            # bound via whichever of `{`/`;` comes first, same as group 1. No `(`/`)`-depth
+            # tracking pitfall like rust's `[u8; 32]` case: a C-style prototype's parameter list
+            # never contains a literal `;` or top-level `{` of its own, so depth-0 is exactly
+            # "outside the parameter list's parentheses".
+            elif lang_id == "objective-c" and (match.group(1) is not None or match.group(2) is not None):
                 pos = match.end()
                 depth = 0
                 term_idx, term_kind = -1, None

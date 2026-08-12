@@ -2457,6 +2457,65 @@ def test_objectivec_bodyless_interface_declarations_extracted():
         assert found[name] == expected_args, f"{name}: expected args={expected_args}, got args={found[name]}"
 
 
+def test_objectivec_bodyless_c_style_prototype_extracted():
+    """
+    #1336: the C-style alternative (plain prototypes, e.g. `extern void
+    write_rtf_header(NXStream* rtfStream);`) gets the same bodyless-`;`
+    treatment #1314's follow-up gave the `-`/`+` method alternative. Pre-fix,
+    a real prototype was found ONLY when a `{` happened to appear later in
+    the search window -- and the `{...}` it grabbed belonged to unrelated
+    code (in the corpus case, an `@interface` block's own ivar list several
+    lines later), giving the function a bogus body span. Reproduces the
+    exact shape of language-crucible/data/objective-c/worldwideweb/HyperText.h
+    (lines 19-23 verbatim).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "extern void write_rtf_header(NXStream* rtfStream);\n"
+        "extern HyperAccess * HTAccMgr;\n"
+        "\n"
+        "@interface HyperText:Text\n"
+        "{\n"
+        "    int slotNumber;\n"
+        "}\n"
+        "@end\n"
+    )
+    detector = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    assert "write_rtf_header" in found, "bodyless C-style prototype not extracted"
+    fn = found["write_rtf_header"]
+    assert fn["args"] == 1, f"write_rtf_header: expected args=1, got args={fn['args']}"
+    # The prototype's own `;` must terminate its span (line 1) -- it must NOT
+    # reach across into the unrelated @interface block's ivar-list braces (line 5-7).
+    assert fn["start_line"] == fn["end_line"] == 1, (
+        f"prototype's body span leaked past its own line: start_line={fn['start_line']}, end_line={fn['end_line']}"
+    )
+    assert fn["loc"] == 1, f"expected loc=1 for a single-line prototype, got loc={fn['loc']}"
+
+
+def test_objectivec_c_style_bare_statement_not_misidentified_as_function():
+    """
+    #1336: a bare two-token call/return statement (`return foo(x);`) must not
+    be captured as a phantom function now that the C-style alternative
+    accepts a `;` terminator. Pre-fix this was harmless only because
+    detector.py's brace-only fallback dropped any match with no nearby `{`;
+    with `;` now accepted, the regex-level "not a function" keyword shield
+    (language_standards.py) is what has to reject this, not the pipeline.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = "- (int)computeSomething {\n    return computeValue(1, 2);\n}\n"
+    detector = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"] for fn in result.get("functions", [])}
+    assert "computeValue" not in found, "bare `return foo(x);` statement misidentified as a function"
+    assert "computeSomething" in found
+
+
 def test_count_haskell_type_arrows_helper():
     """
     Direct unit coverage for `_count_haskell_type_arrows`, the Haskell

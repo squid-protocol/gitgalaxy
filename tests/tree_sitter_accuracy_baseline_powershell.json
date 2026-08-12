@@ -2,7 +2,7 @@
   "args_comparable": 0,
   "args_exact_match": 0,
   "corpus_path": "language-crucible/data/powershell",
-  "extra_classes": 6,
+  "extra_classes": 1,
   "extra_functions": 82,
   "files_scanned": 6,
   "found_classes": 0,

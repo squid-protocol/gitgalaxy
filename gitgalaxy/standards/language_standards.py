@@ -34,36 +34,36 @@ for the same metrics tracked over time across pushes to main.
 <!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
-| Apex | 100.0% | 97.4% | 0.0% | N/A |
+| Apex | 100.0% | 97.4% | 100.0% | 100.0% |
 | C | 94.0% | 99.0% | 57.0% | 86.5% |
-| Cpp | 93.4% | 95.4% | 98.6% | 82.6% |
-| Csharp | 99.1% | 58.2% | 0.0% | N/A |
+| Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
+| Csharp | 99.1% | 58.2% | 89.5% | 56.7% |
 | Css | N/A | 0.0% | N/A | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
-| Fortran | 98.3% | 88.1% | 0.0% | N/A |
+| Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | N/A | N/A |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 4.3% | 66.7% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
-| Java | 87.6% | 100.0% | 25.7% | 100.0% |
-| Javascript | 96.1% | 73.5% | 100.0% | 96.7% |
+| Java | 87.6% | 100.0% | 100.0% | 100.0% |
+| Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
 | Kotlin | N/A | 0.0% | N/A | 0.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 30.4% | 100.0% | N/A | N/A |
 | Objective-C | 100.0% | 4.4% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
-| Php | 100.0% | 99.9% | 96.4% | 96.4% |
+| Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | N/A | 0.0% | N/A | 0.0% |
-| Python | 99.7% | 99.2% | 99.6% | 99.8% |
+| Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 77.8% | 77.8% |
 | Rust | 77.9% | 97.3% | 59.9% | 93.5% |
-| Scala | 41.1% | 100.0% | 47.1% | 100.0% |
+| Scala | 41.1% | 100.0% | 58.8% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
-| Solidity | 89.5% | 93.4% | 0.0% | 0.0% |
+| Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
 | Swift | 68.2% | 95.2% | 24.3% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
-| Typescript | 92.7% | 89.8% | 96.1% | 33.8% |
+| Typescript | 92.7% | 89.8% | 100.0% | 34.7% |
 | Zig | N/A | 0.0% | N/A | N/A |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -6422,8 +6422,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Defines object-oriented and structural boundaries. Drives API Surface Area math.
             # Maps to Fortran MODULEs, SUBMODULEs, INTERFACEs, and structural TYPE definitions (Fortran's struct/class equivalent).
             # Upgraded to handle SUBMODULE (parent) child syntax and trailing comments.
+            # #1264: `(?!PROCEDURE\b)` excludes `MODULE PROCEDURE name1, name2` --
+            # a separate-module-procedure implementation stub, not a `MODULE
+            # <name>` declaration -- from being misread as a module named
+            # "PROCEDURE". Invisible until #1264 wired class_start into the
+            # named-entity extractor; previously class_start only fed a
+            # numeric signal count that never surfaced the bad name.
             "class_start": re.compile(
-                r"^[ \t]*(?!\bEND\b)(?:(?:MODULE|BLOCK\s+DATA|INTERFACE)\s+|SUBMODULE\s*(?:\([^)]*\))?\s+)([A-Za-z_]\w*)|"
+                r"^[ \t]*(?!\bEND\b)(?:(?:MODULE|BLOCK\s+DATA|INTERFACE)\s+|SUBMODULE\s*(?:\([^)]*\))?\s+)(?!PROCEDURE\b)([A-Za-z_]\w*)|"
                 r"^[ \t]*(?!\bEND\b)TYPE(?:[ \t]*::\s*|,[^:]*::\s*|\s+)([A-Za-z_]\w*)(?=[ \t]*(?:!|\n|$))",
                 re.I | re.M,
             ),

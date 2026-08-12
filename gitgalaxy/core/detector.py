@@ -301,6 +301,47 @@ class ScopeParsingRegistry:
 # THE DETECTOR (Structural Detector)
 # ------------------------------------------------------------------------------
 
+# #1264: languages whose own `class_start` rule has been verified (via
+# `python tests/tools/tree_sitter_accuracy_audit.py --lang <x>` against the
+# language-crucible corpus) to produce correct, precise named-entity
+# extraction when reused as the class-list source in `splice()`, in place of
+# the old generic `class|struct|interface|trait|enum` fallback regex. Every
+# other language's `class_start` was written purely for numeric signal-
+# counting (a structural risk-boundary count feeding `equations`/`counts`,
+# same as `branch` or `io`) and is looser than a real declaration anchor --
+# e.g. C's intentionally also matches bare struct-TYPE-usage sites like
+# `struct foo_ops ops;` (see its own inline comment, epic #813/#822) for
+# risk-signal purposes, which floods the named-entity class list with
+# phantom/misattributed entries if reused here unmodified (confirmed: C's
+# found_classes 45->0 and extra_classes 7->23 on the crucible corpus when
+# tried without this gate). Swift's `class_start` captures no name at all
+# for the same reason (pure occurrence counting). Extending this set to the
+# remaining languages needs the same kind of per-language hardening pass
+# epic #813 already did for func_start/args/class_start's OWN extraction
+# gauntlets -- tracked as a follow-up (#1295), not attempted wholesale here.
+_CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
+    {
+        "apex",
+        "cpp",
+        "csharp",
+        "fortran",
+        "groovy",
+        "java",
+        "javascript",
+        "lua",
+        "makefile",
+        "matlab",
+        "php",
+        "powershell",
+        "python",
+        "scala",
+        "shell",
+        "solidity",
+        "tcl",
+        "typescript",
+    }
+)
+
 
 class StructuralExtractor:
     """
@@ -553,13 +594,45 @@ class StructuralExtractor:
 
             # ---> NEW: FAST CLASS EXTRACTOR & FUNCTION LINKAGE <---
             classes: list[_ClassInfoWithBounds] = []
-            # Upgraded regex to catch standard OOP entities across polyglot languages
-            class_pattern = re.compile(
-                r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
-                re.MULTILINE,
+            # #1264: for the verified-clean languages in
+            # _CLASS_START_NAMED_EXTRACTION_LANGS, use each language's own
+            # `class_start` rule -- the same rule func_start already consults
+            # correctly a few lines up -- instead of one hardcoded, language-
+            # agnostic regex (`class|struct|interface|trait|enum` behind a
+            # single-slot `export|public|abstract` modifier). That fallback
+            # silently produced 0% class recall for any language whose OOP
+            # keyword isn't in that fixed set (Fortran's MODULE/TYPE,
+            # Solidity's contract/library) or whose modifier grammar allows
+            # more than one word/isn't in that 3-word list (Apex's "public
+            # with sharing", C#'s "internal sealed partial"). Everyone else
+            # stays on the legacy fallback until their own class_start is
+            # hardened for this use (see the frozenset's comment).
+            class_start_pattern = (
+                self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("class_start")
+                if self.primary_lang_id in _CLASS_START_NAMED_EXTRACTION_LANGS
+                else None
             )
-
-            class_matches = list(class_pattern.finditer(code_stream))
+            if class_start_pattern is not None:
+                class_matches = list(class_start_pattern.finditer(code_stream))
+                # class_start regexes vary in capture-group shape across
+                # these languages -- most have a mandatory group 1 (the
+                # name) and an optional group 2 (a single inheritance
+                # parent), but Fortran uses alternation where the name lands
+                # in EITHER group 1 or group 2 depending on which branch
+                # fired. Resolved per-match below rather than assumed here.
+                class_start_groups = class_start_pattern.groups
+            else:
+                # Legacy fallback: one hardcoded regex catching the common
+                # `[modifier] (class|struct|interface|trait|enum) Name`
+                # shape, for every language not yet verified safe to extract
+                # named classes from its own class_start rule.
+                class_start_pattern = re.compile(
+                    r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)"
+                    r"(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
+                    re.MULTILINE,
+                )
+                class_matches = list(class_start_pattern.finditer(code_stream))
+                class_start_groups = 2
 
             # #1040: a flat "ends at the next class match" boundary truncates
             # an outer class's scope the instant it contains a nested class,
@@ -584,14 +657,27 @@ class StructuralExtractor:
             )
 
             for i, match in enumerate(class_matches):
-                # Anchored on the class NAME's own position (group 1), not
-                # match.start(0): class_pattern's leading `\s*` can itself
-                # swallow a blank line sitting before "class", landing
-                # match.start(0) on that blank line instead of the
-                # declaration's real line -- which would corrupt the
-                # brace/indent-depth math below. The name always sits on the
-                # class's own line, so it's a reliable anchor regardless.
-                start_idx = match.start(1)
+                # Prefer group 1 when it participated; fall back to group 2
+                # (Fortran/Lua/ABAP's alternate-branch name slot); otherwise
+                # this language's class_start captures no name at all.
+                if class_start_groups >= 1 and match.group(1):
+                    name_group_idx = 1
+                elif class_start_groups >= 2 and match.group(2):
+                    name_group_idx = 2
+                else:
+                    name_group_idx = None
+
+                # Anchored on the class NAME's own position, not
+                # match.start(0): a pattern's leading optional whitespace/
+                # annotation/modifier span can itself swallow a blank line
+                # sitting before the keyword, landing match.start(0) on that
+                # blank line instead of the declaration's real line -- which
+                # would corrupt the brace/indent-depth math below. The name
+                # always sits on the class's own line, so it's a reliable
+                # anchor whenever one was captured; falls back to
+                # match.start(0) for the handful of languages whose
+                # class_start captures no name (anonymous structs, etc.).
+                start_idx = match.start(name_group_idx) if name_group_idx else match.start(0)
                 # Old flat boundary, now used only as a fallback for brace-less
                 # forward declarations where no real body can be located.
                 fallback_end_idx = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(code_stream)
@@ -611,10 +697,20 @@ class StructuralExtractor:
                 if 0 < end_idx <= len(code_stream) and code_stream[end_idx - 1] == "\n":
                     end_line -= 1
 
+                name = match.group(name_group_idx) if name_group_idx else "Anonymous_Class"
+                # Only treat group 2 as an inheritance parent when group 1
+                # was the actual name -- for Fortran/Lua/ABAP-shaped patterns
+                # group 2 is an alternate name slot (mutually exclusive with
+                # group 1 by construction), not a parent, and would otherwise
+                # get misread as one.
+                inheritance = (
+                    [match.group(2)] if name_group_idx == 1 and class_start_groups >= 2 and match.group(2) else []
+                )
+
                 classes.append(
                     {
-                        "name": match.group(1),
-                        "inheritance": [match.group(2)] if match.group(2) else [],
+                        "name": name,
+                        "inheritance": inheritance,
                         "_start_line": start_line,
                         "_end_line": end_line,
                         "method_count": 0,

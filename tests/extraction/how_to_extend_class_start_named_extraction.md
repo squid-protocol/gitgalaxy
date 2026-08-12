@@ -20,8 +20,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 13 more languages regressed when tried the same way and were left on the legacy fallback:
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
-what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go and objective-c are
-done** (flipped into the allowlist, see the table below); 11 remain.
+what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go, objective-c, and
+swift are done** (flipped into the allowlist, see the table below); 10 remain.
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -43,8 +43,9 @@ during #1295's scaffolding pass -- do not re-derive this, just apply the fixes b
 |---|---|
 | **go** | Fixed (#1295 PR): `type_declaration` has no `name` field, but its `type_spec` child does. Flipped into `_CLASS_START_NAMED_EXTRACTION_LANGS`: `found_classes` 0→69, `extra_classes` 0→0. The 15 tree-sitter-only "missing" are all plain type aliases (`type WaitStatus uint32`) that go's own `class_start` intentionally excludes (requires `struct`/`interface` to follow) -- a scope mismatch, not a recall bug, documented in the baseline commit. |
 | **objective-c** | Fixed (#1295 PR): `class_interface`/`class_implementation`/`class_declaration` have no `name` field; first positional `identifier` child is the class name (second is the superclass for `class_interface` only). Flipped into the allowlist: `found_classes` 0→5, `extra_classes` 0→0, a perfect match. |
-| **kotlin** | Ground truth already fixed as a side effect of #1313's function-extraction work (`class_declaration` branch in `_get_node_name` returns the first `type_identifier` child) -- `real_classes` now reads 4, not 0. **Not yet flipped into the allowlist**: `found_classes` is still 0, `extra_classes` is 5, all `"Anonymous_Class"` -- kotlin's `class_start` regex has no capture group (same shape as C/Swift below), so this needs the regex workflow, not more measurement-tool work. Moved to the "ground truth already works" list below. |
+| **kotlin** | Ground truth already fixed as a side effect of #1313's function-extraction work (`class_declaration` branch in `_get_node_name` returns the first `type_identifier` child) -- `real_classes` now reads 4, not 0. **Not yet flipped into the allowlist**: `found_classes` is still 0, `extra_classes` is 5, all `"Anonymous_Class"` -- kotlin's `class_start` regex has no capture group (same shape as C below), so this needs the regex workflow, not more measurement-tool work. Moved to the "ground truth already works" list below. |
 | **zig** | Ground truth already fixed (`ContainerDecl` resolves via `_get_zig_container_name`, walking up to the enclosing `VarDecl`) -- `real_classes` reads 642. **Not yet flipped into the allowlist**: `extra_classes` is 10, `missing_classes` is 23 -- a real per-file diff is needed before concluding whether `class_start` over/under-matches zig's `const X = struct {...}` idiom. Moved to the "ground truth already works" list below.
+| **swift** | Fixed (PR #1361): `class_start` had a capture group added (name only had an unparenthesized `[a-zA-Z_]\w*` before), widened to an optional dotted chain for nested-type extensions (`extension AFError.ParameterEncoderFailureReason`). Also hit the ground-truth measurement gap: tree-sitter-swift's protocols are a separate `protocol_declaration` node type, not `class_declaration` -- added to `NODE_MAPS["swift"]["class_node_types"]`. `real_classes` 37→38, `found_classes` 23→38, `extra_classes` stays 0. Flipped into the allowlist. |
 
 ### Needs a judgment call, not a quick field-name fix
 
@@ -62,10 +63,11 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 
 ### Languages where ground truth already works -- go straight to the regex workflow below
 
-**c** (real_classes=79), **swift** (37), **rust** (242), **dart** (167), **ruby** (9),
+**c** (real_classes=79), **rust** (242), **dart** (167), **ruby** (9),
 **haskell** (1, small corpus), **kotlin** (4 -- but `class_start` has no capture group, expect
-`"Anonymous_Class"` flooding same as C/Swift), **zig** (642, but `extra_classes`=10/
+`"Anonymous_Class"` flooding same as C), **zig** (642, but `extra_classes`=10/
 `missing_classes`=23 needs a real per-file diff before concluding what's over/under-matching).
+(**swift** done -- see the "Done" table above.)
 
 ## Per-language workflow (once ground truth is trustworthy)
 
@@ -76,7 +78,7 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 2. **Classify every `extra` entry** against the recurring-cause list below. A failing name is a
    finding to triage, not an automatic regex change.
 3. **If it's `"Anonymous_Class"` flooding** (the count next to it, not a single line): the
-   language's `class_start` has no/optional capture group around the name (same as C/Swift).
+   language's `class_start` has no/optional capture group around the name (same as C/kotlin).
    Decide whether the name is realistically recoverable (a capture group can be added around an
    existing optional span) or whether the rule was only ever meant for numeric counting and
    should stay off the allowlist.
@@ -112,7 +114,8 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 
 1. **No capture group at all** -- the rule was written purely for numeric signal-counting
    (`class_start` feeding `equations`/`counts`, same tier as `branch`/`io`) and never needed a
-   name. Confirmed: C, Swift, Kotlin, Groovy, PowerShell, assembly. Every match becomes
+   name. Confirmed: C, Kotlin, Groovy, PowerShell, assembly (Swift was in this class too --
+   fixed by adding a capture group, PR #1361, no other blocker). Every match becomes
    `"Anonymous_Class"`, which floods `class_data` with one phantom entry per file that has any
    match at all -- `class_start_diff.py` surfaces this explicitly (`N unnamed match(es)`), don't
    let it get filtered out of a triage pass.

@@ -243,7 +243,13 @@ NODE_MAPS = {
     },
     "csharp": {
         "ts_lang": "csharp",
-        "func_node_types": {"method_declaration", "local_function_statement"},
+        # #1314: constructor_declaration was missing here -- a real, named node
+        # (tree-sitter-c-sharp gives constructors their own node type, distinct from
+        # method_declaration) that GitGalaxy's func_start regex already correctly matches
+        # (its "Constructors" args branch and the func_start regex both special-case the
+        # no-return-type constructor shape), but was previously invisible to real_functions,
+        # so every real constructor scored as a false "extra" here.
+        "func_node_types": {"method_declaration", "local_function_statement", "constructor_declaration"},
         "class_node_types": {"class_declaration", "struct_declaration", "interface_declaration"},
     },
     "java": {
@@ -683,6 +689,23 @@ def _get_node_name(node: Any) -> Optional[str]:
         return None
     if node.type == "ContainerDecl":
         return _get_zig_container_name(node)
+
+    # #1314: objective-c's method_definition/method_declaration nodes have no "name" field in
+    # this grammar -- the selector's first keyword sits in a plainly-typed "identifier" child
+    # (optionally preceded by a "-"/"+" and a "method_type" return-type child; a multi-keyword
+    # selector like `registerAccess:(HyperAccess *)access Diagnostic:(int)d` repeats "identifier"
+    # for each later keyword, but only the FIRST one is the method's own name). Every one of
+    # these was previously invisible to real_functions here, so both node types' matches all
+    # scored as false "extra" (a measured GitGalaxy precision defect) even though GitGalaxy's own
+    # func_start regex captures the exact same first-selector-keyword name -- confirmed via
+    # language-crucible/data/objective-c/worldwideweb (e.g. HyperManager.m's `- registerAccess:`,
+    # `- traceOn:`, `+ new`), the same ground-truth-gap shape as #1313/#1311's precedents, not a
+    # GitGalaxy engine defect.
+    if node.type in ("method_definition", "method_declaration"):
+        for child in node.children:
+            if child.type == "identifier":
+                return child.text.decode("utf8")
+        return None
 
     return None
 

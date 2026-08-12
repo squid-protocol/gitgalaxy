@@ -63,6 +63,20 @@ FUNCTION_CASES: dict[str, Any] = {
         "public class TargetFunc {",  # class decl lookalike
         "if (TargetFunc == null)",  # if lookalike
         "new TargetFunc()",  # instantiation
+        # #1314: contextual keywords directly preceding a `(` in non-function
+        # constructs were captured whole as phantom functions literally named
+        # after the keyword (confirmed via real Roslyn corpus source --
+        # language-crucible/data/csharp/roslyn/{CSharpCompilation,Workspace}.cs).
+        "static (oldSolution, data) => oldSolution.AddDocuments(data.documentInfos),",  # static lambda (C# 9+)
+        "var (updated, _) = SetCurrentSolution(oldSolution, newSolution);",  # tuple deconstruction
+        "catch (Exception e) when (e is InvalidOperationException)",  # exception filter
+        "if (binaryKind is BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual)",  # pattern combinator
+        # #1314: a `foreach`/`for`/`using`/etc. statement header got silently swallowed
+        # token-by-token as fake "return type" tokens, letting the walk land on the loop
+        # expression's own receiver+method (`changes.GetAddedProjects`) as if it were a
+        # real function name -- group 1's dot-permitting identifier (meant for explicit
+        # interface implementations like `IFoo.DoWork`) also legalized `receiver.Method`.
+        "foreach (var addedProject in changes.GetAddedProjects())",  # loop header, not a function
     ],
     "pathological": [
         (

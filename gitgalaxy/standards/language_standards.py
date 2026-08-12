@@ -37,7 +37,7 @@ for the same metrics tracked over time across pushes to main.
 | Apex | 100.0% | 97.4% | 100.0% | 100.0% |
 | C | 94.0% | 99.0% | 57.0% | 86.5% |
 | Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
-| Csharp | 99.1% | 58.2% | 89.5% | 56.7% |
+| Csharp | 99.1% | 63.4% | 89.5% | 56.7% |
 | Css | 100.0% | 100.0% | 0.0% | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
@@ -51,7 +51,7 @@ for the same metrics tracked over time across pushes to main.
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 71.9% | N/A | N/A |
-| Objective-C | 100.0% | 4.4% | N/A | N/A |
+| Objective-C | 73.5% | 98.2% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 69.1% | 92.7% | 0.0% | 0.0% |
@@ -1912,11 +1912,32 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Confirmed ~4x/doubling, 1.5s at n=32000 on a bare
                 # `"int foo" + " "*n` payload. Bounded both to `{1,200}`/
                 # `{0,200}`, same fix shape already applied in cpp.
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event)\b)[a-zA-Z0-9_<>\[\]?,.()*]+[ \t\n]{1,200}){0,10}"
+                # #1314: this per-token exclusion only banned MODIFIER keywords, so a statement
+                # header preceding a call expression -- `foreach (var x in someList.Method())`,
+                # `for (...)`, `using (...)` -- could get silently swallowed token-by-token as
+                # fake "return type" tokens, letting the walk land on the call's own receiver+
+                # method (e.g. `someList.Method`) as if it were a real function name (group 1's
+                # `[\w_$.]*` already permits dots, meant for explicit interface implementations
+                # like `IFoo.DoWork`, but that also legalizes `receiver.Method` as a shape).
+                # Added the same statement/control-flow keyword set item 4 already excludes at
+                # the FINAL identifier position, plus the contextual keywords item 4 also gained
+                # below (`var`/`in`/`when`/`or`/`and`/`not`/`is`) since those can equally start a
+                # parenthesized non-function construct (`var (a, b) = ...`, `... in expr(...)`)
+                # mid-walk, not just at position zero. Confirmed via language-crucible/data/
+                # csharp/roslyn/{CSharpCompilation,Workspace}.cs (real, mainstream Roslyn source).
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)[a-zA-Z0-9_<>\[\]?,.()*]+[ \t\n]{1,200}){0,10}"
                 # 4. THE "NOT A FUNCTION" SHIELD
                 # Negative lookahead ensuring we don't accidentally capture control flow,
                 # primitive type keywords, or object instantiations as function names.
-                r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event)\b)"
+                # #1314: also excludes the contextual keywords that can directly precede a `(` in
+                # non-function constructs -- `static (args) => ...` (a static lambda, C# 9+),
+                # `var (a, b) = Method(...)` (tuple deconstruction), `catch (Ex e) when (...)`
+                # (exception filter), and the pattern-combinator keywords `or`/`and`/`not`/`is`
+                # (`x is Foo or Bar`, C# 9+ pattern matching) -- each of which was previously
+                # captured whole as a phantom function literally named "static"/"var"/"when"/"or"
+                # etc. when no preceding modifier/type tokens were consumed. Confirmed via the
+                # same Roslyn corpus files as item 3's fix above.
+                r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
                 # 5. THE IDENTIFIER CAPTURE (GROUP 1) & GENERIC STEPPER
                 # Captures the actual satellite name:
                 # - `[@A-Za-z_$]` supports C# verbatim identifiers (e.g., `@class`).

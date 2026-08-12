@@ -1,6 +1,6 @@
 {
   "args_comparable": 499,
-  "args_exact_match": 109,
+  "args_exact_match": 481,
   "corpus_path": "language-crucible/data/scala",
   "extra_classes": 0,
   "extra_functions": 0,

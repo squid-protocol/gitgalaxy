@@ -157,6 +157,18 @@ SCOPE & LIMITATIONS
     two `func_node_types` specifically (gated by node type, not applied to any other NODE_MAPS
     language) -- args_exact_match went 133 -> 1446 out of 1489 comparable as a result, unrelated to
     the `extra_functions` blind spot above but discovered by the same investigation.
+
+    #1339: the #1319 rust fix's own comment claimed its two added node types were rust-specific --
+    that turned out to be wrong for `parameter` (also csharp's and scala's real per-param node
+    type) and, separately, 8 more NODE_MAPS languages (java, apex, typescript, php, ruby, go,
+    swift, dart, matlab) each had their OWN never-audited gap in this same whitelist, from a
+    missing node type name (java/apex/typescript/php/ruby/go) to a missing field entirely
+    (swift/dart/matlab, each needing its own no-field-shape branch same as kotlin/objc/powershell
+    already had). All 11 languages showed the identical false-"real=0 regardless of actual
+    signature" symptom #1319 fixed for rust. See `_get_param_count`'s own inline comments for the
+    per-language node-type breakdown; net effect was args_exact_match roughly doubling to
+    quadrupling for most of the 11 (see #1339 for the full before/after table), with zero
+    regressions on any other NODE_MAPS language.
 """
 
 import argparse
@@ -761,6 +773,18 @@ def _get_param_count(node: Any) -> int:
     params_node = node.child_by_field_name("parameters")
     if params_node is None and node.type == "function_definition":
         params_node = _find_c_style_parameter_list(node.child_by_field_name("declarator"))
+        if params_node is None:
+            # #1339: matlab's `function_definition` has neither a "parameters" field nor a
+            # C-style declarator to unwrap -- the param list is a directly-nested
+            # `function_arguments` child with no field name of its own, wrapping plain
+            # "identifier" children (matlab has no destructuring/default-value param syntax, so
+            # the base counted_types set below -- "identifier" is already in it -- is sufficient
+            # once this node is found). Confirmed: `function y = foo(a, b)` measured real=0
+            # against GitGalaxy's correct got=2 pre-fix.
+            for child in node.children:
+                if child.type == "function_arguments":
+                    params_node = child
+                    break
     if params_node:
         # BUG FIX (#1282): tree-sitter-c/cpp represents C's explicit
         # empty-parameter-list marker `(void)` as a single `parameter_declaration`
@@ -773,6 +797,33 @@ def _get_param_count(node: Any) -> int:
         named = params_node.named_children
         if len(named) == 1 and named[0].type == "parameter_declaration" and named[0].text.strip() == b"void":
             return 0
+        # #1339: this whitelist was built around JS-family grammars (identifier/*_pattern) plus
+        # C-family "parameter_declaration" and was never widened when NODE_MAPS grew to cover
+        # grammars whose per-parameter child has a totally different type name -- confirmed via
+        # language-crucible that EVERY one of these was silently measuring 0 real params for any
+        # signature using them, the exact same false-defect shape #1319 fixed for rust alone:
+        #   - "parameter": scala's `function_definition`/`function_declaration` AND csharp's
+        #     `method_declaration`/`local_function_statement`/`constructor_declaration` (both
+        #     grammars reuse this same bare type name for an otherwise-unrelated shape to rust's).
+        #   - "formal_parameter": java's `method_declaration`/`constructor_declaration` and apex's
+        #     `method_declaration`.
+        #   - "required_parameter"/"optional_parameter": typescript's `formal_parameters` (the
+        #     typescript grammar wraps every parameter in one of these two, never a bare
+        #     "identifier" the way plain javascript does -- a default value alone does NOT make it
+        #     "optional_parameter", only a literal `?` does, e.g. `z: number = 5` above still
+        #     parses as "required_parameter").
+        #   - "simple_parameter"/"variadic_parameter"/"property_promotion_parameter": php's
+        #     `formal_parameters` (constructor property promotion, `...$rest`, and the common case
+        #     all use distinct wrapper types; a plain `&$ref`-by-reference param is still a
+        #     "simple_parameter" with a nested `reference_modifier`, no separate type needed).
+        #   - "optional_parameter"/"splat_parameter"/"hash_splat_parameter"/"block_parameter":
+        #     ruby's `method_parameters` (only the plain, no-default case is a bare "identifier";
+        #     `y=1`, `*rest`, `**kw`, `&blk` are each their own wrapper type).
+        #   - "variadic_parameter_declaration": go's `parameter_list` (`y ...string`, distinct
+        #     from the plain "parameter_declaration" already counted above).
+        # Confirmed via language-crucible for each: e.g. csharp's
+        # `GetParseDiagnostics(CancellationToken cancellationToken = default)` measured real=0
+        # against GitGalaxy's correct got=1 pre-fix.
         counted_types = (
             "identifier",
             "assignment_pattern",
@@ -780,21 +831,27 @@ def _get_param_count(node: Any) -> int:
             "object_pattern",
             "rest_pattern",
             "parameter_declaration",
+            "parameter",
+            "formal_parameter",
+            "required_parameter",
+            "optional_parameter",
+            "simple_parameter",
+            "variadic_parameter",
+            "property_promotion_parameter",
+            "splat_parameter",
+            "hash_splat_parameter",
+            "block_parameter",
+            "variadic_parameter_declaration",
         )
-        # #1319: rust's `function_item`/`function_signature_item` parameter list uses
-        # "parameter" (a typed param like `visitor: V`) and "self_parameter" (the receiver
-        # `self`/`&self`/`&mut self`) as its child node types -- neither was in the counted
-        # set above, so every rust function's measured param count silently came back 0
-        # regardless of its real signature (confirmed against language-crucible: the
-        # pre-#1319 rust args_exact_match baseline, ~9%, was coincidental zero-arg-function
-        # matches, not real counting -- e.g. `deserialize_any(self, visitor: V)` measured
-        # real=0 against GitGalaxy's correct got=2). GitGalaxy's own args counter
-        # (`_count_top_level_args` in detector.py) counts `self` as a real segment same as
-        # any other parameter (no rust-specific exclusion), so this mirrors that convention
-        # rather than trying to subtract it back out. Gated to rust's two node types only --
-        # no other NODE_MAPS language's parameter children use these type names.
+        # #1319: rust's `function_item`/`function_signature_item` parameter list ALSO uses
+        # "parameter" (now covered by the base set above) plus "self_parameter" (the receiver
+        # `self`/`&self`/`&mut self`), a type name unique to rust -- GitGalaxy's own args counter
+        # (`_count_top_level_args` in detector.py) counts `self` as a real segment same as any
+        # other parameter (no rust-specific exclusion), so this mirrors that convention rather
+        # than trying to subtract it back out. Still gated to rust's two node types since no other
+        # NODE_MAPS language's grammar has a "self_parameter" node type at all.
         if node.type in ("function_item", "function_signature_item"):
-            counted_types += ("parameter", "self_parameter")
+            counted_types += ("self_parameter",)
         count = 0
         for child in named:
             if child.type in counted_types:
@@ -808,11 +865,30 @@ def _get_param_count(node: Any) -> int:
     # #1313: none of these node types expose a "parameters"/"parameter" field either -- same
     # no-field-at-all shape the C-family branch above already handles, just with different
     # grammar-specific wrapper/child node names.
-    if node.type == "function_declaration":
-        # kotlin
+    if node.type == "function_signature":
+        # #1339: dart's `function_signature`/`method_signature` have no "parameters" field --
+        # the param list is an untyped `formal_parameter_list` child wrapping "formal_parameter"
+        # children. `method_signature` itself never resolves a name (see _get_node_name -- it has
+        # no "name" field either), so `walk()` only ever names/counts the NESTED
+        # `function_signature` it wraps, which is why only this node type needs handling here,
+        # not `method_signature`/`local_function_declaration` too (both real func_node_types).
+        for child in node.children:
+            if child.type == "formal_parameter_list":
+                return sum(1 for p in child.children if p.type == "formal_parameter")
+    elif node.type == "function_declaration":
+        # kotlin: params live inside a "function_value_parameters" wrapper.
         for child in node.children:
             if child.type == "function_value_parameters":
                 return sum(1 for p in child.children if p.type == "parameter")
+        # #1339: swift's `function_declaration` (and `init_declaration` below) has neither a
+        # "function_value_parameters" wrapper NOR any field at all -- each parameter is a bare
+        # "parameter" node sitting directly as a sibling of the "(", ")" tokens. Every real swift
+        # function with 1+ params was measured as having 0 (confirmed:
+        # `func bar(x: Int, y: String) -> Int` measured real=0 against GitGalaxy's correct got=2).
+        return sum(1 for child in node.children if child.type == "parameter")
+    elif node.type == "init_declaration":
+        # swift initializers: same bare "parameter" sibling shape as function_declaration above.
+        return sum(1 for child in node.children if child.type == "parameter")
     elif node.type == "function_statement":
         return _count_powershell_params(node)
     elif node.type == "class_method_definition":

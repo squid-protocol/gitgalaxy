@@ -1,6 +1,6 @@
 {
   "args_comparable": 1566,
-  "args_exact_match": 379,
+  "args_exact_match": 1484,
   "corpus_path": "language-crucible/data/typescript",
   "extra_classes": 537,
   "extra_functions": 177,

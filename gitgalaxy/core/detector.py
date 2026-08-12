@@ -373,6 +373,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "fortran",
         "go",
         "groovy",
+        "haskell",
         "java",
         "javascript",
         "kotlin",

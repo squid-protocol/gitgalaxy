@@ -301,7 +301,22 @@ NODE_MAPS = {
     "haskell": {
         "ts_lang": "haskell",
         "func_node_types": {"function"},
-        "class_node_types": {"class_decl", "class"},
+        # #1295: haskell's data/newtype/type declarations get their own distinct node types
+        # (data_type, newtype, type_synomym, data_family, type_family) separate from class.
+        # This is a real, named class-like entity GitGalaxy's own class_start regex
+        # intentionally matches (its comment says "Object / Entity Declarations" and the regex
+        # explicitly matches `data(?:\s+family)?|newtype|class|type(?:\s+family)?`). This was
+        # invisible to real_classes here pre-fix, causing pandoc's `data PandocOutput`/`data Filter`
+        # etc. to flag as false "extra". Note the spelling `type_synomym` is tree-sitter-haskell's own typo.
+        "class_node_types": {
+            "class_decl",
+            "class",
+            "data_type",
+            "newtype",
+            "type_synomym",
+            "data_family",
+            "type_family",
+        },
     },
     "kotlin": {
         "ts_lang": "kotlin",
@@ -364,7 +379,12 @@ NODE_MAPS = {
         # to real `interface_declaration` (470) / `enum_declaration` (67) nodes tree-sitter itself
         # parses, zero unexplained false matches. Added both node types here to match what
         # class_start actually measures itself against.
-        "class_node_types": {"class_declaration", "abstract_class_declaration", "interface_declaration", "enum_declaration"},
+        "class_node_types": {
+            "class_declaration",
+            "abstract_class_declaration",
+            "interface_declaration",
+            "enum_declaration",
+        },
     },
     "html": {
         "ts_lang": "html",

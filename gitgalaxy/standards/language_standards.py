@@ -54,7 +54,7 @@ for the same metrics tracked over time across pushes to main.
 | Objective-C | 98.7% | 98.7% | 100.0% | 100.0% |
 | Perl | 70.6% | 99.9% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
-| Powershell | 69.1% | 92.7% | 0.0% | 0.0% |
+| Powershell | 69.1% | 92.7% | 100.0% | 100.0% |
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 100.0% | 83.3% |
 | Rust | 99.7% | 93.2% | 100.0% | 90.7% |
@@ -4028,7 +4028,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I | re.M,
             ),
             # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
-            "class_start": re.compile(r"^[ \t]*(?:class|enum)\s+[a-zA-Z_]\w*", re.I | re.M),
+            # #1295-adjacent: no capture group around the name meant every match collapsed into
+            # "Anonymous_Class" in the named-extraction path -- powershell has been in
+            # _CLASS_START_NAMED_EXTRACTION_LANGS since #1264, but this specific gap was never
+            # caught (real_classes=5 in the corpus, found_classes=0). Purely additive change --
+            # doesn't alter which lines match or how many, only makes match.groups() richer.
+            "class_start": re.compile(r"^[ \t]*(?:class|enum)\s+([a-zA-Z_]\w*)", re.I | re.M),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # safety: Defensive Programming. Strict mode, validation attributes, and null-conditional access (?.).
             "safety": re.compile(

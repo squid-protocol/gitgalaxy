@@ -427,7 +427,11 @@ NODE_MAPS = {
     "powershell": {
         "ts_lang": "powershell",
         "func_node_types": {"function_statement", "class_method_definition"},
-        "class_node_types": {"class_statement"},
+        # #1295: "enum_statement" was missing -- powershell's own class_start regex
+        # intentionally matches both class and enum declarations (see its comment), but only
+        # class_statement was in this set. Resolved via the existing simple_name-child branch
+        # in _get_node_name (same shape as class_statement, just a different node type).
+        "class_node_types": {"class_statement", "enum_statement"},
     },
     "solidity": {
         "ts_lang": "solidity",
@@ -762,7 +766,11 @@ def _get_node_name(node: Any) -> Optional[str]:
             if child.type == "function_name":
                 return child.text.decode("utf8")
         return None
-    if node.type in ("class_statement", "class_method_definition"):
+    # #1295: enum_statement has the identical no-name-field shape as class_statement above --
+    # powershell's own class_start regex already intentionally matches "class|enum" (its comment
+    # says "Defines OO boundaries (Classes and Enums)"), confirmed via
+    # core/packaging.psm1's MachineOSOverride/PackageManifestResultStatus enums.
+    if node.type in ("class_statement", "class_method_definition", "enum_statement"):
         for child in node.children:
             if child.type == "simple_name":
                 return child.text.decode("utf8")
@@ -1688,7 +1696,7 @@ def generate_chart_svg() -> str:
     row_h = 15
     bar_h = 9
     header_h = 34
-    top_margin = 96  # headroom for title + two-line scope note + color-scale legend
+    top_margin = 108  # headroom for title + three-line scope note + color-scale legend
     bottom_margin = 44
     left_margin = 16
     right_margin = 16
@@ -1714,9 +1722,13 @@ def generate_chart_svg() -> str:
         f"etc.), which are hardened and tested separately.</text>",
         f'<text class="scope-note" x="{left_margin}" y="64">Value labels are raw counts (found/real or '
         f"found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>",
-        f'<rect x="{left_margin}" y="72" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
-        f'<text class="legend-label" x="{left_margin}" y="88">0%</text>',
-        f'<text class="legend-label" x="{left_margin + 140}" y="88" text-anchor="end">100% (bar color = value)</text>',
+        f'<text class="scope-note" x="{left_margin}" y="76">css and html show 0% class recall/precision '
+        f"by DESIGN, not as an unfixed gap -- named class extraction was decided permanently out of "
+        f"scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped "
+        f"entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>",
+        f'<rect x="{left_margin}" y="84" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
+        f'<text class="legend-label" x="{left_margin}" y="100">0%</text>',
+        f'<text class="legend-label" x="{left_margin + 140}" y="100" text-anchor="end">100% (bar color = value)</text>',
     ]
 
     for j, (key, title, num_field, den_field) in enumerate(_CHART_METRICS):

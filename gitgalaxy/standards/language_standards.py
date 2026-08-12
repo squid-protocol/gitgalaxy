@@ -43,7 +43,7 @@ for the same metrics tracked over time across pushes to main.
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | N/A | N/A |
 | Groovy | N/A | N/A | N/A | N/A |
-| Haskell | 4.3% | 66.7% | 100.0% | 100.0% |
+| Haskell | 3.2% | 60.0% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
@@ -57,11 +57,11 @@ for the same metrics tracked over time across pushes to main.
 | Powershell | N/A | 0.0% | N/A | 0.0% |
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 77.8% | 77.8% |
-| Rust | 77.9% | 97.3% | 59.9% | 93.5% |
-| Scala | 41.1% | 100.0% | 58.8% | 100.0% |
+| Rust | 99.1% | 95.4% | 67.8% | 93.7% |
+| Scala | 78.0% | 100.0% | 58.8% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
-| Swift | 68.2% | 95.2% | 24.3% | 100.0% |
+| Swift | 98.9% | 94.6% | 59.5% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 100.0% | 34.7% |
 | Zig | N/A | 0.0% | N/A | N/A |

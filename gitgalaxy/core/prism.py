@@ -727,7 +727,30 @@ class Prism:
 
         # 1. Protect Strings via Safe Masking
         # Masking prevents the `.rfind` mathematical loop from tearing apart string literals
-        shield = re.compile(self.LITERAL_MASK_PATTERN, re.S | re.M)
+        #
+        # BUG FIX (#1302, found while investigating #1266): the shared `LITERAL_MASK_PATTERN`'s single-quote
+        # branch is unbounded (`'(?:\\.|[^'\\])*'`), matching from ANY unpaired `'` to the
+        # NEXT unrelated `'` anywhere later in the file. Every language routed through this
+        # function has a common source of unpaired single quotes that are NOT real char
+        # literals: an English contraction inside a `//`/`--`/`;` comment ("it's", "don't"),
+        # Scala's Symbol literals (`'foo`, no closing quote), Haskell's idiomatic
+        # trailing-apostrophe identifiers (`x'`, `map'`), and Scheme's pervasive quote syntax
+        # (`'expr`). Any of these could pair up with a later, unrelated `'` and mask out
+        # thousands of real characters (confirmed on real corpus files: one Scala file's
+        # code_stream dropped to 13.75% of its original size, one Swift file to 11.06%) --
+        # silently misclassifying real functions as "string content" before `func_start` ever
+        # sees them and, since that masked span could itself land back-to-back with `s_line`
+        # on the same physical line, sometimes losing it to the comment stream entirely once
+        # single-line-comment stripping runs below. This is the exact same bug class already
+        # fixed for detector.py's Mode C/D/E shields and prism.py's own generic REGEX_MATRIX
+        # stripper (#1184/#1192/#1222) -- just never applied here. Bounding the single-quote
+        # branch's width mirrors the already-proven-safe fix `_build_brace_safe_stream`
+        # applies for Rust's lifetime-annotation `'a` (detector.py, gated `{0,10}`): real char
+        # literals in every language reaching this function are at most a few characters
+        # (`'a'`, `'\n'`, `'\u0041'`), so a short bound can't break a legitimate one while
+        # making the unbounded cascade structurally impossible.
+        bounded_shield_pattern = r'((?<!\\)"(?:\\.|[^"\\])*"|(?<!\\)\'(?:\\.|[^\'\\]){0,10}\'|(?<!\\)`(?:\\.|[^`\\])*`)'
+        shield = re.compile(bounded_shield_pattern, re.S | re.M)
         string_cache: dict[str, str] = {}
 
         def _shield_replacer(m: re.Match) -> str:

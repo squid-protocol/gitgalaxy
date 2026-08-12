@@ -336,7 +336,11 @@ NODE_MAPS = {
     "dart": {
         "ts_lang": "dart",
         "func_node_types": {"function_signature", "local_function_declaration", "method_signature"},
-        "class_node_types": {"class_definition", "mixin_application_class"},
+        # #1295: dart's `mixin` declarations get their own `mixin_declaration` node type, and
+        # `enum` declarations get `enum_declaration` -- distinct from `class_definition`, real
+        # named class-like entities GitGalaxy's own class_start regex intentionally matches,
+        # but were invisible to real_classes here (e.g. flutter's `mixin Diagnosticable`).
+        "class_node_types": {"class_definition", "mixin_application_class", "mixin_declaration", "enum_declaration"},
     },
     "objective-c": {
         "ts_lang": "objc",
@@ -783,6 +787,14 @@ def _get_node_name(node: Any) -> Optional[str]:
     # `- traceOn:`, `+ new`), the same ground-truth-gap shape as #1313/#1311's precedents, not a
     # GitGalaxy engine defect.
     if node.type in ("method_definition", "method_declaration"):
+        for child in node.children:
+            if child.type == "identifier":
+                return child.text.decode("utf8")
+        return None
+
+    # #1295: dart's mixin_declaration nodes have no "name" field in this grammar -- the name is a
+    # plainly-typed "identifier" child. (dart's enum_declaration already resolves via the fast path).
+    if node.type == "mixin_declaration":
         for child in node.children:
             if child.type == "identifier":
                 return child.text.decode("utf8")

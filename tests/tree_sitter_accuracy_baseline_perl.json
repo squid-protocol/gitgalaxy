@@ -2,11 +2,11 @@
   "args_comparable": 710,
   "args_exact_match": 120,
   "corpus_path": "language-crucible/data/perl",
-  "extra_classes": 1,
+  "extra_classes": 0,
   "extra_functions": 1,
   "files_scanned": 22,
-  "found_classes": 0,
+  "found_classes": 20,
   "found_functions": 710,
-  "real_classes": 0,
+  "real_classes": 20,
   "real_functions": 1005
 }

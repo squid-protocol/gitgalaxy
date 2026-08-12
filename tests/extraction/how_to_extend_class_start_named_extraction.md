@@ -20,9 +20,10 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 13 more languages regressed when tried the same way and were left on the legacy fallback:
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
-what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go, objective-c, swift,
-kotlin, zig, rust, haskell, c, ruby, and dart are done** (flipped into the allowlist, see the
-table below); **3 remain: css, html, perl.**
+what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **11 of 13 are done**
+(flipped into the allowlist, see the table below): go, objective-c, swift, kotlin, zig, rust,
+haskell, c, ruby, dart, perl. **css and html are permanently out of scope** -- see "Decided: not
+extending" below, not a to-do.
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -51,29 +52,41 @@ during #1295's scaffolding pass -- do not re-derive this, just apply the fixes b
 | **haskell** | Fixed (#1295 PR): no regex change -- pure ground-truth fix, same shape as rust's `union_item`. Haskell's own `class_start` regex already intentionally matches `data(?:\s+family)?\|newtype\|class\|type(?:\s+family)?` under an "Object / Entity Declarations" comment, but `NODE_MAPS["haskell"]["class_node_types"]` only had `{"class_decl", "class"}` -- missing tree-sitter-haskell's separate node types for `data`/`newtype`/`type` declarations (`data_type`, `newtype`, `type_synomym` -- that misspelling is the grammar's own, kept verbatim -- `data_family`, `type_family`), all of which expose a usable `name` field natively (no `_get_node_name` branch needed, unlike go/kotlin/zig's special-casing). Confirmed via pandoc's `data PandocOutput`/`data Filter`/etc. Added all 5 node types: `real_classes`/`found_classes` 1→16, `extra_classes` 15→0 -- a perfect match, not an accepted-gap case. Flipped into the allowlist. Delegated to an independent Gemini/Antigravity implementation pass (epic #1295's first cross-model run) with a full second-pass re-verification before merge -- see the epic's own comment thread for the process note. |
 | **c** | Fixed (#1295 PR): the hardest of the batch, flagged going in as needing real declaration-vs-usage disambiguation (recurring cause class 2) rather than a mechanical NODE_MAPS/capture-group fix. c's `class_start` intentionally matches BOTH real declarations (`struct Foo {`) and bare usage/forward-reference sites (`struct foo_ops ops;`) for a deliberate reason -- `test_c_intentional_double_classification_sweep` (epic #813/#822's `_ops`-vtable dependency-injection risk heuristic) requires that co-firing, and a prior attempt to add a trailing-`{` requirement to the shared regex was reverted for breaking it. The fix stays entirely OUT of the shared `class_start` regex's matching behavior (verified `test_c_intentional_double_classification_sweep` passes identically before/after) -- two parts instead: (1) ground truth (`tree_sitter_accuracy_audit.py`/`class_start_diff.py`): tree-sitter-c's `struct_specifier`/`union_specifier`/`enum_specifier` nodes have a `body` field that's populated for real declarations and `None` for usage sites -- only count nodes with a body as real classes (also added `union_specifier`/`enum_specifier` to `NODE_MAPS["c"]`, previously only `struct_specifier` even though c's own regex also matches union/enum). (2) `detector.py`'s NAMED-EXTRACTION loop only (a different consumer of the same matches): made the tag-name capture group capturing (purely additive -- doesn't change `.finditer()`'s match count/positions), and added a new C-specific bounded 200-char lookahead (`_CLASS_START_REQUIRES_BODY_ANCHOR`) that skips a match from `class_data` entirely unless a `{` is the first of `{;,)=` encountered after it. `real_classes` 79→61 (ground truth now excludes usage sites too), `found_classes` 0→61 (100% recall), `extra_classes` 23→17 -- all 17 residual are `"Anonymous_Class"` entries for anonymous typedef'd structs (`typedef struct { ... } Bar;`, where the alias name lives one grammar level above `struct_specifier` and isn't chased), a documented grammar-shape limitation, not an unexplained regression. Flipped into the allowlist. Implemented via an independent Gemini/Antigravity delegation pass, then independently re-verified end to end (full diff re-read, accuracy audit, the regression test by name, both crucible modes, full test suite) before merge -- see the epic's own comment thread for a process note, including a permission-boundary incident during the delegation that's worth reading before running this kind of task unattended again. |
 | **dart** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Every real class was already matched correctly by dart's own `class_start` regex (`missing_classes=0` throughout); all 8 pre-fix "extra" names traced to two tree-sitter node types missing from `NODE_MAPS["dart"]["class_node_types"]`: `mixin_declaration` (`mixin Foo on Bar { ... }` -- has no `name` field in this grammar, needed a new `_get_node_name` branch walking children for a plain `identifier` node) and `enum_declaration` (`enum Foo { ... }` -- resolves via the existing fast path, no extra code). `extra_classes` 8→0, `real_classes`/`found_classes` 167→200 -- a perfect match, confirmed via flutter's mixin/enum examples. Flipped into the allowlist. Delegated to an independent Gemini/Antigravity implementation pass, then independently re-verified end to end before merge. |
-
 | **ruby** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Added `module` to `NODE_MAPS["ruby"]["class_node_types"]` (previously only `class`, `singleton_class`) -- module declarations are a real, cleanly-named tree-sitter node type (confirmed a `name` field resolving to a `constant` node) that ruby's own `class_start` regex already intentionally matches under its "Object / Entity Declarations" comment, but were invisible to `real_classes` here. Confirmed via rails' `module ActionDispatch`/`module AbstractController`/etc. `real_classes`/`found_classes` 9→15, `extra_classes` 2→3 -- the 3 residual are all `class << self` singleton-class-reopening matches. Investigated whether to suppress these from named extraction via a change to the shared `_resolve_class_start_match` function (used by every allowlisted language, not just ruby) and decided against it: `singleton_class` genuinely has no `name` field of its own in the grammar (it wraps an expression, not an identifier), so there's no real class name being missed, and touching shared per-match resolution code for one language's cosmetic wart wasn't worth the added risk surface. Documented as an accepted gap, same precedent as csharp/zig/rust. Flipped into the allowlist. |
+| **perl** | Fixed (#1295 PR): no regex change -- pure ground-truth fix, the last "quick" one in the epic. Perl's own `class_start` regex already correctly matches `package\|class\|role` with a working capture group -- it was never the problem. `NODE_MAPS["perl"]["class_node_types"]` only targeted `class_statement` (Perl 5.38+'s brand-new `class Foo {...}` syntax), which real-world corpus code (bugzilla, exiftool) essentially never uses -- the traditional `package Foo::Bar;` idiom is Perl's dominant OOP/namespace mechanism and was completely invisible to `real_classes` (`real_classes=0` pre-fix despite the corpus containing 20 real package declarations). Added `package_statement` -- its `name` field resolves directly via the existing fast path, no custom code needed. `real_classes`/`found_classes` 0→20, `extra_classes` 0 throughout -- a perfect match. Flipped into the allowlist. |
 
-| **dart** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Every real class was already matched correctly by dart's own `class_start` regex (`missing_classes=0` throughout); all 8 pre-fix "extra" names traced to two tree-sitter node types missing from `NODE_MAPS["dart"]["class_node_types"]`: `mixin_declaration` (`mixin Foo on Bar { ... }` -- has no `name` field in this grammar, needed a new `_get_node_name` branch walking children for a plain `identifier` node) and `enum_declaration` (`enum Foo { ... }` -- resolves via the existing fast path, no extra code). `extra_classes` 8→0, `real_classes`/`found_classes` 167→200 -- a perfect match, confirmed via flutter's mixin/enum examples. Flipped into the allowlist. Delegated to an independent Gemini/Antigravity implementation pass, then independently re-verified end to end before merge. This was the last of the epic's "ground truth already trustworthy" languages -- only css/html/perl remain, and they need the judgment call below. |
+## Decided: not extending css or html -- a category mismatch, not a to-do
 
-### Needs a judgment call, not a quick field-name fix
+Both were flagged from the epic's start as needing "is this even a class" judgment calls rather
+than quick field-name fixes. Investigated properly rather than left open indefinitely:
 
-| Language | Issue |
-|---|---|
-| **perl** | `class_node_types = {"class_statement"}` targets modern Perl 5.38+ `class Foo {...}` syntax. Real-world Perl in the corpus (exiftool) uses the traditional `package Foo;` idiom almost exclusively, which is a different node type entirely -- not a name-lookup bug, a *wrong ground-truth target*. Decide whether `class_statement` is even the right node type for what GitGalaxy's own `class_start` regex means by "a perl class" (its regex matches `package`/`class`/`role`), and whether `package_statement` should be added to `class_node_types` too. |
-| **css** | `rule_set` (a CSS selector block) has no `name` field because it conceptually isn't named the way a class/struct is -- it has a *selector*, possibly compound/multiple. GitGalaxy's own CSS `class_start` regex matches selector text (`.foo`, `#bar`), a fundamentally different concept than an OOP "class". Recommend deciding whether CSS belongs in this exercise **at all** before spending time on it -- it may be a conceptual mismatch, not a bug to fix. |
-| **html** | `class_node_types = {"element"}` matches *every* HTML element, but GitGalaxy's own HTML `class_start` regex only fires on a specific curated tag list (`form`, `table`, `svg`, custom elements, etc.) -- ground truth is far broader than what the regex is trying to measure. Same "is this even the right comparison" question as CSS. |
+- **What `class_data` (the table this epic populates) actually models**: `class_name`,
+  `inheritance_parents`, `method_count`, `state_entanglement` (`gitgalaxy/recorders/record_keeper.py`).
+  That's an OOP-class schema -- real methods, real inheritance chains, real internal-state coupling.
+- **css**: its own `class_start` regex matches *selectors* (`.foo`, `#bar`) -- a fundamentally
+  different concept from an OOP class. A selector has no methods and no inheritance in the
+  code-structural sense GitGalaxy tracks elsewhere. Tree-sitter's `rule_set`/`class_selector`/
+  `id_selector` nodes don't map onto that schema at all.
+- **html**: its own `class_start` regex matches a *curated, risk-relevant tag list* (`form`,
+  `table`, `svg`, custom elements) -- chosen because those tags are complexity/attack-surface
+  signals, not because they're class-like. Tree-sitter's generic `element` node type matches every
+  tag indiscriminately, which isn't even the same target the regex is trying to measure.
 
-**Do this measurement-tool work in `tests/tools/tree_sitter_accuracy_audit.py`'s `_get_node_name`
-and `NODE_MAPS`, verify with `python tests/tools/class_start_diff.py --lang <x>` until
-`real_classes` looks plausible, *then* move to the per-language regex workflow below.** Treat
-each fix as its own small commit/PR (it changes a shared measurement file, not
-`language_standards.py`) -- don't bundle it with the regex work for the same language.
+Populating `class_data` with `.foo` selectors or `<table>` elements would mean rows with
+`method_count=0`/`inheritance_parents=[]` forever -- noise in any query or visualization built on
+that table, not a data-completeness gain. The `class_start` *numeric signal* (used in risk-scoring
+equations, a different consumer entirely) is unaffected by this decision and stays exactly as-is
+for both languages -- this is specifically about *named* extraction into `class_data`, where css
+and html don't belong. **Decision: permanently out of scope for this epic.** If this gets
+revisited later, re-derive from this section rather than re-opening the question cold.
 
-### Languages where ground truth already works -- go straight to the regex workflow below
+## Optional follow-up (not blocking, epic is otherwise complete)
 
-*(Empty as of dart's PR -- every language that had trustworthy ground truth is now in the "Done"
-table above. Only css/html/perl remain, and they're in the judgment-call table above, not here.)*
+**ruby's `singleton_class`** (`class << self`/`class << @var`) is already in `NODE_MAPS["ruby"]`
+but has no `name` field of its own in the grammar (it wraps an expression, not an identifier) --
+confirmed genuinely unnamed, not a bug, during ruby's own fix above. Low priority: 3 occurrences in
+the whole corpus, cosmetic (`class_data` gets a few singleton-reopening entries with no real name
+to give them), not worth the risk of touching the shared `_resolve_class_start_match` function for.
 
 ## Per-language workflow (once ground truth is trustworthy)
 
@@ -196,7 +209,9 @@ files are shared touchpoints every language's PR edits:
   the working tree at bless time).
 
 Prefer **one language (or the tiny obviously-related batch of single-digit-extra ones -- html,
-objective-c, kotlin, ruby all showed small counts) per PR, merged before starting the next**,
+objective-c, kotlin, ruby all showed small counts) per PR, merged before starting the next**
+(historical note: html's small-count observation predates the "Decided: not extending css or
+html" section above -- it was still an open candidate when this section was written),
 rather than fully concurrent worktree agents the way #1069's strict-signature sweep parallelized.
 If concurrency is worth it anyway (e.g. splitting the 6 ground-truth-gap fixes, which don't touch
 `language_standards.py` or the allowlist at all, from the regex-hardening languages), keep the

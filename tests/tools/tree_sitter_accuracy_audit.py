@@ -230,7 +230,13 @@ NODE_MAPS = {
             "method_declaration_statement",
             "anonymous_method_expression",
         },
-        "class_node_types": {"class_statement"},
+        # #1295: "class_statement" alone only targets Perl 5.38+'s new `class Foo {...}`
+        # syntax, which real-world corpus code (bugzilla, exiftool) essentially never uses --
+        # the traditional `package Foo::Bar;` idiom is Perl's dominant OOP/namespace mechanism
+        # and is what perl's own class_start regex actually matches (`package|class|role`).
+        # "package_statement" is a real, cleanly-named tree-sitter node type (its "name" field
+        # resolves directly, e.g. "Image::ExifTool") that was invisible to real_classes here.
+        "class_node_types": {"class_statement", "package_statement"},
     },
     "lua": {
         "ts_lang": "lua",

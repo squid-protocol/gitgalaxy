@@ -383,6 +383,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "makefile",
         "matlab",
         "objective-c",
+        "perl",
         "php",
         "powershell",
         "python",

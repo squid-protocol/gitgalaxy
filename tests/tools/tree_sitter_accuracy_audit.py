@@ -28,6 +28,12 @@ USAGE
         purpose -- unlike the self-scan DB, this is meant to accumulate across
         runs so it can be graphed over time). Never touches the gating
         baseline files -- only --regenerate does that, and only per language.
+        Adaptive: if the fresh measurement is identical (every raw count, every
+        language) to the most recently recorded batch, nothing is appended --
+        prints a message and exits 0 instead of manufacturing a duplicate row.
+        This is what lets the CI workflow's chart/CSV/PR stay a no-op on a push
+        that touched a trigger path without actually moving any language's
+        measured accuracy (see _batch_matches_measured).
     python tests/tools/tree_sitter_accuracy_audit.py --chart
         Renders the most recent --history run (the batch sharing the latest
         timestamp_utc in the CSV) as docs/self_scan/tree_sitter_accuracy_chart.svg
@@ -40,6 +46,14 @@ USAGE
         tests/ast_accuracy_audit.py's stdlib `ast` ground truth remains the actual
         CI gate for python's accuracy, unchanged). Reads the CSV only -- does not
         itself run a live scan, so run --history first for fresh numbers.
+    python tests/tools/tree_sitter_accuracy_audit.py --blurbs
+        Prints Markdown bullets describing every (language, metric) pair whose value moved
+        by >=1.0 percentage points between the two most recent --history batches in the CSV
+        (e.g. "- **javascript** func precision improved 12.3pp (61.2% -> 73.5%)"), sorted
+        biggest move first. Reads the CSV only, no live scan. Feeds the "Notable changes"
+        section of the tree-sitter-accuracy-history workflow's auto-merged PR body -- not
+        written to a committed file on purpose, this is PR-body content, not a standalone
+        artifact.
 
 CORPUS
     Unlike ast_accuracy_audit.py which pins this repo's own code via git archive,
@@ -933,10 +947,28 @@ def _current_commit_sha() -> str:
     return result.stdout.strip() if result.returncode == 0 else "unknown"
 
 
+def _batch_matches_measured(langs: list[str], measured: dict[str, dict], previous: dict[str, dict[str, int]]) -> bool:
+    """True when a freshly `measure()`d set of languages is identical (every _HISTORY_RAW_FIELDS
+    value, for the same set of languages) to the previous batch loaded by
+    `_try_load_latest_history_batch`. A language being added or dropped counts as a change even
+    if every other language is untouched -- the chart always wants a full, consistent snapshot
+    per batch (see `generate_chart_svg`), so a partial "only what changed" batch isn't an option."""
+    if set(langs) != set(previous.keys()):
+        return False
+    return all(measured[lang][field] == previous[lang][field] for lang in langs for field in _HISTORY_RAW_FIELDS)
+
+
 def run_history() -> int:
     """Live-measures (not baseline-read) every language that has BOTH a committed baseline and
-    a NODE_MAPS entry, and appends a row per language. Intentionally never writes to the gating
-    baseline JSON files -- this is purely additive, observational data for graphing."""
+    a NODE_MAPS entry. Intentionally never writes to the gating baseline JSON files -- this is
+    purely additive, observational data for graphing.
+
+    Skips appending entirely when the fresh measurement is byte-for-byte identical to the most
+    recent recorded batch (see `_batch_matches_measured`) -- e.g. a push that touched detector.py
+    for an unrelated language, or a docs-only change that happened to match one of the workflow's
+    trigger paths, shouldn't manufacture a duplicate row (or a pointless chart.svg re-render/PR)
+    just because the job ran. This is what makes --history/--chart "adaptive": the CSV and chart
+    only move when a language's measured accuracy actually moved."""
     langs = [lang for lang in _all_baseline_langs() if lang in NODE_MAPS]
     skipped = [lang for lang in _all_baseline_langs() if lang not in NODE_MAPS]
     if skipped:
@@ -944,6 +976,19 @@ def run_history() -> int:
             f"tree_sitter_accuracy_audit --history: skipping {', '.join(skipped)} "
             f"(baseline committed but no NODE_MAPS entry to re-scan)."
         )
+
+    measured: dict[str, dict] = {}
+    for lang in langs:
+        print(f"tree_sitter_accuracy_audit --history: measuring {lang}...")
+        measured[lang] = measure(lang, verbose=False)
+
+    previous = _try_load_latest_history_batch()
+    if previous is not None and _batch_matches_measured(langs, measured, previous[2]):
+        print(
+            f"tree_sitter_accuracy_audit --history: measured results match the most recent batch "
+            f"({previous[0]}) exactly -- skipping, no row appended, chart left as-is."
+        )
+        return 0
 
     timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     commit_sha = _current_commit_sha()
@@ -955,8 +1000,7 @@ def run_history() -> int:
         if write_header:
             writer.writeheader()
         for lang in langs:
-            print(f"tree_sitter_accuracy_audit --history: measuring {lang}...")
-            m = measure(lang, verbose=False)
+            m = measured[lang]
             writer.writerow(
                 {
                     "timestamp_utc": timestamp,
@@ -1102,39 +1146,55 @@ def _rainbow_gradient_defs(stops: int = 13) -> str:
     return f'<linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%">{stops_svg}</linearGradient>'
 
 
+# Shared by _load_latest_history_batch/_try_load_latest_history_batch (what --chart renders) AND
+# run_history's own unchanged-batch check (see _batch_matches_measured) -- includes files_scanned,
+# which the chart itself never plots, so that a corpus-size change (a language-crucible bump) is
+# still treated as "new data" rather than silently compared away.
+_HISTORY_RAW_FIELDS = (
+    "files_scanned",
+    "real_functions",
+    "found_functions",
+    "extra_functions",
+    "real_classes",
+    "found_classes",
+    "extra_classes",
+    "args_comparable",
+    "args_exact_match",
+)
+
+
+def _try_load_latest_history_batch() -> Optional[tuple[str, str, dict[str, dict[str, int]]]]:
+    """Same as `_load_latest_history_batch` but returns None instead of exiting when the CSV
+    doesn't exist yet or is empty, so `run_history` can use it to detect "first run ever" and
+    skip the unchanged-batch comparison rather than treating an empty file as an error."""
+    if not _HISTORY_PATH.exists():
+        return None
+    with open(_HISTORY_PATH, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        return None
+
+    latest_ts = max(row["timestamp_utc"] for row in rows)
+    latest_rows = [row for row in rows if row["timestamp_utc"] == latest_ts]
+    commit_sha = latest_rows[0]["commit_sha"]
+    data = {row["language"]: {field: int(row[field]) for field in _HISTORY_RAW_FIELDS} for row in latest_rows}
+    return latest_ts, commit_sha, data
+
+
 def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, int]]]:
     """Returns (timestamp_utc, commit_sha, {lang: {raw_count_key: int}}) for the most recent
     batch -- the rows sharing the max timestamp_utc -- in the history CSV. Returns raw counts
     (not pre-computed percentages) so the chart can show a metric's actual sample size (e.g.
     "0/117", not just "0%") -- a bare percentage reads identically whether it's backed by 4
-    samples or 400."""
-    if not _HISTORY_PATH.exists():
+    samples or 400. Unlike `_try_load_latest_history_batch`, --chart has nothing to render
+    without a real batch, so a missing/empty CSV stays a hard failure here."""
+    batch = _try_load_latest_history_batch()
+    if batch is None:
         sys.exit(
-            f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} doesn't exist yet -- run --history first."
+            f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} doesn't exist yet or is empty "
+            f"-- run --history first."
         )
-    with open(_HISTORY_PATH, encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    if not rows:
-        sys.exit(f"tree_sitter_accuracy_audit: {_HISTORY_PATH.relative_to(REPO_ROOT)} is empty.")
-
-    latest_ts = max(row["timestamp_utc"] for row in rows)
-    latest_rows = [row for row in rows if row["timestamp_utc"] == latest_ts]
-    commit_sha = latest_rows[0]["commit_sha"]
-
-    raw_fields = (
-        "real_functions",
-        "found_functions",
-        "extra_functions",
-        "real_classes",
-        "found_classes",
-        "extra_classes",
-        "args_comparable",
-        "args_exact_match",
-    )
-    data: dict[str, dict[str, int]] = {}
-    for row in latest_rows:
-        data[row["language"]] = {field: int(row[field]) for field in raw_fields}
-    return latest_ts, commit_sha, data
+    return batch
 
 
 def generate_chart_svg() -> str:
@@ -1262,6 +1322,81 @@ def run_chart() -> int:
     return 0
 
 
+# ----------------------------------------------------------------------------
+# --blurbs: diff the two most recent history batches and describe every metric
+# that moved, for the tree-sitter-accuracy-history workflow's auto-merged PR
+# body. Prints Markdown to stdout only -- deliberately not written to a
+# committed file (see the --blurbs help text: this is PR-body content, not a
+# standalone artifact to keep in sync).
+# ----------------------------------------------------------------------------
+
+_BLURB_MIN_DELTA_PP = 1.0  # ignore sub-noise wobble; a real regex/rule change moves this by more.
+
+
+def _load_last_two_batches() -> Optional[tuple[dict[str, dict[str, int]], dict[str, dict[str, int]]]]:
+    """Returns (previous_batch_data, latest_batch_data) -- each {lang: {raw_field: int}} -- for
+    the two most recent DISTINCT timestamp_utc values in the history CSV, or None if fewer than
+    two batches have been recorded yet (nothing to diff a first-ever run against)."""
+    if not _HISTORY_PATH.exists():
+        return None
+    with open(_HISTORY_PATH, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    timestamps = sorted({row["timestamp_utc"] for row in rows})
+    if len(timestamps) < 2:
+        return None
+
+    def _batch_for(ts: str) -> dict[str, dict[str, int]]:
+        return {
+            row["language"]: {field: int(row[field]) for field in _HISTORY_RAW_FIELDS}
+            for row in rows
+            if row["timestamp_utc"] == ts
+        }
+
+    return _batch_for(timestamps[-2]), _batch_for(timestamps[-1])
+
+
+def generate_blurbs() -> str:
+    """One Markdown bullet per (language, metric) pair whose value moved by at least
+    _BLURB_MIN_DELTA_PP percentage points between the previous and latest history batch, sorted
+    biggest move first. Reuses _CHART_METRICS so "what counts as a metric" can't drift between
+    the chart and the blurbs. A language/metric only present in one of the two batches (e.g. a
+    newly-added baseline) is skipped -- there's no prior value to diff against, not a 0-to-N
+    "improvement" worth announcing the same way a real accuracy move is."""
+    batches = _load_last_two_batches()
+    if batches is None:
+        return "_Only one batch recorded so far -- nothing to compare against yet._"
+    prev_data, cur_data = batches
+
+    entries: list[tuple[float, str]] = []
+    for lang in sorted(set(prev_data) & set(cur_data)):
+        for _key, title, num_field, den_field in _CHART_METRICS:
+            prev_val = _ratio_pct(*_metric_num_den(prev_data[lang], num_field, den_field))
+            cur_val = _ratio_pct(*_metric_num_den(cur_data[lang], num_field, den_field))
+            if prev_val is None or cur_val is None:
+                continue
+            delta = round(cur_val - prev_val, 1)
+            if abs(delta) < _BLURB_MIN_DELTA_PP:
+                continue
+            direction = "improved" if delta > 0 else "regressed"
+            entries.append(
+                (
+                    abs(delta),
+                    f"- **{lang}** {title} {direction} {abs(delta):.1f}pp ({prev_val:.1f}% → {cur_val:.1f}%)",
+                )
+            )
+
+    if not entries:
+        return f"_No metric moved ≥{_BLURB_MIN_DELTA_PP:g}pp since the previous batch._"
+
+    entries.sort(key=lambda pair: pair[0], reverse=True)
+    return "\n".join(text for _delta, text in entries)
+
+
+def run_blurbs() -> int:
+    print(generate_blurbs())
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--lang", help="Language to audit (e.g. javascript). Omit when using --all.")
@@ -1286,6 +1421,12 @@ def main() -> int:
         action="store_true",
         help="Render the most recent --history batch as an SVG bar chart. Ignores --lang/--all, no live scan.",
     )
+    group.add_argument(
+        "--blurbs",
+        action="store_true",
+        help="Print Markdown bullets describing every metric that moved >=1.0pp between the two "
+        "most recent --history batches. Ignores --lang/--all, no live scan.",
+    )
     args = parser.parse_args()
 
     if args.summary_table:
@@ -1294,6 +1435,8 @@ def main() -> int:
         return run_history()
     if args.chart:
         return run_chart()
+    if args.blurbs:
+        return run_blurbs()
 
     if bool(args.lang) == bool(args.all):
         parser.error("exactly one of --lang or --all is required")

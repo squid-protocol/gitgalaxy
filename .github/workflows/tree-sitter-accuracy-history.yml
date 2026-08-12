@@ -17,6 +17,16 @@ name: Tree-sitter Accuracy History
 # PR for all three, same mechanism gitgalaxy.yml uses for the LLM architecture brief -- see
 # that workflow's own comments for why a PR-then-merge instead of a direct push (branch
 # protection), and why the loop guard below is load-bearing.
+#
+# Adaptive by design, not just by trigger path: the trigger below fires on any push touching
+# detector.py/prism.py/language_standards.py, but not every such push actually moves a
+# language's measured accuracy. --history itself detects that (see
+# tree_sitter_accuracy_audit.py's `_batch_matches_measured`) and skips appending a row when the
+# fresh measurement is identical to the last recorded batch -- which means --chart re-renders
+# byte-identical output (same source batch) and --summary-table stays a no-op too, so the
+# create-pull-request step below finds nothing to diff and opens no PR. A "relevant path
+# touched" push and a "numbers actually changed" push are different things; this job only ever
+# produces visible output for the latter.
 
 on:
   push:
@@ -74,6 +84,21 @@ jobs:
           python tests/tools/tree_sitter_accuracy_audit.py --summary-table
           python tests/tools/tree_sitter_accuracy_audit.py --chart
 
+      # Diffs the batch --history just appended (if it appended one -- a no-op run leaves the
+      # CSV's two most recent batches exactly as they already were) against the one before it,
+      # and captures the Markdown as a step output for the PR body below. Always safe to run
+      # unconditionally: when --history was a no-op, create-pull-request finds no file diff and
+      # never opens a PR, so this output simply goes unused rather than needing its own `if:`.
+      - name: Generate improvement/regression blurbs
+        id: blurbs
+        run: |
+          cd gitgalaxy
+          {
+            echo "blurbs<<TREE_SITTER_BLURBS_EOF"
+            python tests/tools/tree_sitter_accuracy_audit.py --blurbs
+            echo "TREE_SITTER_BLURBS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Open PR with updated history + summary table + chart
         id: tree-sitter-history-pr
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
@@ -84,6 +109,9 @@ jobs:
           title: "docs: auto-update tree-sitter accuracy data"
           body: |
             Automated update from the latest tree-sitter accuracy measurement on `main`.
+
+            ## Notable changes since the previous batch
+            ${{ steps.blurbs.outputs.blurbs }}
 
             - Appends one row per language to `docs/self_scan/tree_sitter_accuracy_history.csv`.
             - Regenerates the summary table in `gitgalaxy/standards/language_standards.py`.

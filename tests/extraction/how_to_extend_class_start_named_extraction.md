@@ -21,7 +21,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
 what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go, objective-c, swift,
-and kotlin are done** (flipped into the allowlist, see the table below); 9 remain.
+kotlin, and zig are done** (flipped into the allowlist, see the table below); 8 remain.
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -43,9 +43,9 @@ during #1295's scaffolding pass -- do not re-derive this, just apply the fixes b
 |---|---|
 | **go** | Fixed (#1295 PR): `type_declaration` has no `name` field, but its `type_spec` child does. Flipped into `_CLASS_START_NAMED_EXTRACTION_LANGS`: `found_classes` 0→69, `extra_classes` 0→0. The 15 tree-sitter-only "missing" are all plain type aliases (`type WaitStatus uint32`) that go's own `class_start` intentionally excludes (requires `struct`/`interface` to follow) -- a scope mismatch, not a recall bug, documented in the baseline commit. |
 | **objective-c** | Fixed (#1295 PR): `class_interface`/`class_implementation`/`class_declaration` have no `name` field; first positional `identifier` child is the class name (second is the superclass for `class_interface` only). Flipped into the allowlist: `found_classes` 0→5, `extra_classes` 0→0, a perfect match. |
-| **zig** | Ground truth already fixed (`ContainerDecl` resolves via `_get_zig_container_name`, walking up to the enclosing `VarDecl`) -- `real_classes` reads 642. **Not yet flipped into the allowlist**: `extra_classes` is 10, `missing_classes` is 23 -- a real per-file diff is needed before concluding whether `class_start` over/under-matches zig's `const X = struct {...}` idiom. Moved to the "ground truth already works" list below.
 | **swift** | Fixed (PR #1361): `class_start` had a capture group added (name only had an unparenthesized `[a-zA-Z_]\w*` before), widened to an optional dotted chain for nested-type extensions (`extension AFError.ParameterEncoderFailureReason`). Also hit the ground-truth measurement gap: tree-sitter-swift's protocols are a separate `protocol_declaration` node type, not `class_declaration` -- added to `NODE_MAPS["swift"]["class_node_types"]`. `real_classes` 37→38, `found_classes` 23→38, `extra_classes` stays 0. Flipped into the allowlist. |
 | **kotlin** | Fixed (PR #1365): three separate bugs stacked on this one. (1) `class_start` had no capture group -- added group 1 for the main class/interface/object/enum-class branch and group 2 for companion object's own optional name (Fortran/Lua-shaped alternation). (2) `fun interface Foo` (SAM declarations, Kotlin 1.4+) wasn't recognized -- `fun` was missing from the modifier list, a real recall gap confirmed against okhttp's `fun interface Factory`. (3) ground-truth gap: kotlin's `object` declarations (including `actual`/`expect` multiplatform variants) get their own `object_declaration` node type, not `class_declaration` -- added to `NODE_MAPS["kotlin"]["class_node_types"]` and `_get_node_name`. `real_classes` 4→7, `found_classes` 3→7, `extra_classes` stays 0. Golden master updated (okhttp/Call.kt's class count went 1→2). Flipped into the allowlist. |
+| **zig** | Fixed (PR TBD): the biggest/messiest one so far (32 corpus files, `real_classes` in the hundreds), and the first to land with `extra_classes`/`missing_classes` still non-zero by design after investigation -- same discipline as csharp's enum precedent, not a shortcut. Ground truth gap: zig's error sets (`const Foo = error{...};`) get their own `ErrorSetDecl` node type, distinct from `ContainerDecl` -- a class-like entity GitGalaxy's own `class_start` regex intentionally matches (its comment literally says "struct, enum, union, error, opaque"). Added to `NODE_MAPS["zig"]` and dispatched through the same `_get_zig_container_name` resolver. Also widened `class_start` with an optional `\(`/`\*` step-over for two confirmed corpus idioms: a parenthesized-wrapped anonymous struct (`const lenAsc = (struct {...}).lenAsc;`) and a pointer-to-opaque handle type (`const HMONITOR = *opaque {};`). Net result: `extra_classes` 10→1, `found_classes` 0→630 (was 0 because the *legacy fallback* regex structurally can't match zig's `const X = struct` shape at all -- zig's own `class_start` always had a capture group, it just wasn't on the allowlist). The remaining `extra_classes=1` ("Borrowed" in bun/MimallocArena.zig) is a confirmed tree-sitter-zig grammar limitation (the file uses Zig's newer `#field` private-field syntax, which the grammar can't parse -- `has_error=True` on that node -- so error recovery swallows the declaration), the same shape as csharp's `LanguageParser` precedent in #1264. `--regenerate` correctly refuses on a raw `extra_classes` regression (0→1) even though `found_classes` improved massively -- baseline was hand-blessed to the measured numbers, same as csharp's precedent. `missing_classes` (23→26 net) stays non-zero **by design**, categorized in the "recurring cause classes" section below rather than chased in this PR -- see class 7. |
 
 ### Needs a judgment call, not a quick field-name fix
 
@@ -64,9 +64,7 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 ### Languages where ground truth already works -- go straight to the regex workflow below
 
 **c** (real_classes=79), **rust** (242), **dart** (167), **ruby** (9),
-**haskell** (1, small corpus), **zig** (642, but `extra_classes`=10/
-`missing_classes`=23 needs a real per-file diff before concluding what's over/under-matching).
-(**swift, kotlin** done -- see the "Done" table above.)
+**haskell** (1, small corpus). (**swift, kotlin, zig** done -- see the "Done" table above.)
 
 ## Per-language workflow (once ground truth is trustworthy)
 
@@ -141,6 +139,28 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
    regex is. New class discovered during #1295's scaffolding pass -- go/kotlin/objective-c/zig
    all hit this (now fixed, see the "Done"/"ground truth already works" tables above).
    **Always check this first** before touching a language's `class_start` regex.
+7. **The ground-truth *walk* over-reaches beyond the regex's declaration anchor** -- a variant of
+   class 5, discovered on zig (PR TBD). The ground-truth node exists, resolves to a real name, and
+   isn't a scope-*category* mismatch (it genuinely is a struct/enum/error-set) -- but the ancestor
+   walk that recovers the name (`_get_zig_container_name`, bounded to `max_hops`) finds it
+   regardless of *how deeply nested* the anonymous type is inside the enclosing declaration's
+   initializer expression, while GitGalaxy's regex only anchors on the type keyword sitting
+   *immediately* after `=` (plus a narrow, explicitly-added set of step-overs). Four concrete
+   shapes seen on zig, none fixed in that PR (documented as accepted gaps, not chased):
+   - **Nested inside a generic call's argument**: `const Extra = List(struct { u32 });` -- the
+     anonymous struct is a type *argument* to `List(...)`, not the direct RHS value.
+   - **Nested inside an array-element type**: `const targets = [_]struct {...}{...};` -- same
+     shape, the struct describes the array's element type, not `targets` itself.
+   - **Type-annotation position, not initializer position**: `var op: enum {...} = .example;` --
+     the anonymous type sits between `:` and `=`, a different grammatical slot GitGalaxy's regex
+     (which only ever looks *after* `=`) doesn't parse at all.
+   - **A binary chain of named error sets terminating in a literal**: `const X = A || B ||
+     error{C};` -- tree-sitter resolves the *whole* union's declared name correctly; GitGalaxy's
+     regex would need to skip an unbounded-looking `ident || ident || ...` chain before the
+     `error` keyword, meaningfully more regex complexity/ReDoS-review than the other step-overs.
+   Each is a real, understood gap -- worth a dedicated follow-up decision (especially the
+   type-annotation-position one, which recurred 6x in zig's own corpus) rather than folding
+   into whichever PR happens to discover it.
 
 ## Parallelizing across languages -- NOT fully independent, unlike epic #1069's per-language files
 

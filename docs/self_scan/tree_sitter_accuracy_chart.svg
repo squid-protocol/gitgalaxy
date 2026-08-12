@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="639"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-12T16:46:54+00:00 &#183; commit 069d5b5 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-12T17:03:31+00:00 &#183; commit fa8b8be &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <rect x="16" y="72" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>
@@ -287,44 +287,44 @@
 <text class="row-label" x="644" y="246.0" text-anchor="end">solidity</text>
 <rect x="652" y="238.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
 <text class="value-label" x="749.0" y="246.0">7/7</text>
-<text class="row-label" x="644" y="261.0" text-anchor="end">typescript</text>
+<text class="row-label" x="644" y="261.0" text-anchor="end">swift</text>
 <rect x="652" y="253.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="749.0" y="261.0">842/842</text>
+<text class="value-label" x="749.0" y="261.0">38/38</text>
 <rect class="stripe" x="564" y="265" width="246" height="15"/>
-<text class="row-label" x="644" y="276.0" text-anchor="end">python</text>
-<rect x="652" y="268.0" width="91.6" height="9" rx="3" fill="#292cd6"/>
-<text class="value-label" x="748.6" y="276.0">457/459</text>
-<text class="row-label" x="644" y="291.0" text-anchor="end">cpp</text>
-<rect x="652" y="283.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
-<text class="value-label" x="747.7" y="291.0">138/140</text>
+<text class="row-label" x="644" y="276.0" text-anchor="end">typescript</text>
+<rect x="652" y="268.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
+<text class="value-label" x="749.0" y="276.0">842/842</text>
+<text class="row-label" x="644" y="291.0" text-anchor="end">python</text>
+<rect x="652" y="283.0" width="91.6" height="9" rx="3" fill="#292cd6"/>
+<text class="value-label" x="748.6" y="291.0">457/459</text>
 <rect class="stripe" x="564" y="295" width="246" height="15"/>
-<text class="row-label" x="644" y="306.0" text-anchor="end">dart</text>
-<rect x="652" y="298.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
-<text class="value-label" x="745.7" y="306.0">161/167</text>
-<text class="row-label" x="644" y="321.0" text-anchor="end">csharp</text>
-<rect x="652" y="313.0" width="82.3" height="9" rx="3" fill="#2972d6"/>
-<text class="value-label" x="739.3" y="321.0">17/19</text>
+<text class="row-label" x="644" y="306.0" text-anchor="end">cpp</text>
+<rect x="652" y="298.0" width="90.7" height="9" rx="3" fill="#2933d6"/>
+<text class="value-label" x="747.7" y="306.0">138/140</text>
+<text class="row-label" x="644" y="321.0" text-anchor="end">dart</text>
+<rect x="652" y="313.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
+<text class="value-label" x="745.7" y="321.0">161/167</text>
 <rect class="stripe" x="564" y="325" width="246" height="15"/>
-<text class="row-label" x="644" y="336.0" text-anchor="end">go</text>
-<rect x="652" y="328.0" width="75.5" height="9" rx="3" fill="#29a5d6"/>
-<text class="value-label" x="732.5" y="336.0">69/84</text>
-<text class="row-label" x="644" y="351.0" text-anchor="end">ruby</text>
-<rect x="652" y="343.0" width="71.6" height="9" rx="3" fill="#29c3d6"/>
-<text class="value-label" x="728.6" y="351.0">7/9</text>
+<text class="row-label" x="644" y="336.0" text-anchor="end">csharp</text>
+<rect x="652" y="328.0" width="82.3" height="9" rx="3" fill="#2972d6"/>
+<text class="value-label" x="739.3" y="336.0">17/19</text>
+<text class="row-label" x="644" y="351.0" text-anchor="end">go</text>
+<rect x="652" y="343.0" width="75.5" height="9" rx="3" fill="#29a5d6"/>
+<text class="value-label" x="732.5" y="351.0">69/84</text>
 <rect class="stripe" x="564" y="355" width="246" height="15"/>
-<text class="row-label" x="644" y="366.0" text-anchor="end">kotlin</text>
-<rect x="652" y="358.0" width="69.0" height="9" rx="3" fill="#29d6d6"/>
-<text class="value-label" x="726.0" y="366.0">3/4</text>
-<text class="row-label" x="644" y="381.0" text-anchor="end">scala</text>
-<rect x="652" y="373.0" width="65.0" height="9" rx="3" fill="#29d6b8"/>
-<text class="value-label" x="722.0" y="381.0">12/17</text>
+<text class="row-label" x="644" y="366.0" text-anchor="end">ruby</text>
+<rect x="652" y="358.0" width="71.6" height="9" rx="3" fill="#29c3d6"/>
+<text class="value-label" x="728.6" y="366.0">7/9</text>
+<text class="row-label" x="644" y="381.0" text-anchor="end">kotlin</text>
+<rect x="652" y="373.0" width="69.0" height="9" rx="3" fill="#29d6d6"/>
+<text class="value-label" x="726.0" y="381.0">3/4</text>
 <rect class="stripe" x="564" y="385" width="246" height="15"/>
-<text class="row-label" x="644" y="396.0" text-anchor="end">rust</text>
-<rect x="652" y="388.0" width="62.7" height="9" rx="3" fill="#29d6a7"/>
-<text class="value-label" x="719.7" y="396.0">165/242</text>
-<text class="row-label" x="644" y="411.0" text-anchor="end">swift</text>
-<rect x="652" y="403.0" width="57.2" height="9" rx="3" fill="#29d67d"/>
-<text class="value-label" x="714.2" y="411.0">23/37</text>
+<text class="row-label" x="644" y="396.0" text-anchor="end">scala</text>
+<rect x="652" y="388.0" width="65.0" height="9" rx="3" fill="#29d6b8"/>
+<text class="value-label" x="722.0" y="396.0">12/17</text>
+<text class="row-label" x="644" y="411.0" text-anchor="end">rust</text>
+<rect x="652" y="403.0" width="62.7" height="9" rx="3" fill="#29d6a7"/>
+<text class="value-label" x="719.7" y="411.0">165/242</text>
 <rect class="stripe" x="564" y="415" width="246" height="15"/>
 <text class="row-label" x="644" y="426.0" text-anchor="end">c</text>
 <rect x="652" y="418.0" width="52.4" height="9" rx="3" fill="#29d659"/>
@@ -402,7 +402,7 @@
 <rect class="stripe" x="838" y="295" width="246" height="15"/>
 <text class="row-label" x="918" y="306.0" text-anchor="end">swift</text>
 <rect x="926" y="298.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="1023.0" y="306.0">23/23</text>
+<text class="value-label" x="1023.0" y="306.0">38/38</text>
 <text class="row-label" x="918" y="321.0" text-anchor="end">typescript</text>
 <rect x="926" y="313.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
 <text class="value-label" x="1023.0" y="321.0">842/842</text>

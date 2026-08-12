@@ -21,8 +21,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
 **c, css, dart, go, haskell, html, kotlin, objective-c, perl, ruby, rust, swift, zig**. Extending
 the allowlist to them -- one at a time, with real verification -- is what epic #1295 tracks, and
 what this doc + `tests/tools/class_start_diff.py` exist to make cheap. **go, objective-c, swift,
-kotlin, zig, rust, haskell, c, and dart are done** (flipped into the allowlist, see the table
-below); 4 remain.
+kotlin, zig, rust, haskell, c, ruby, and dart are done** (flipped into the allowlist, see the
+table below); **3 remain: css, html, perl.**
 
 Read `_resolve_class_start_match` in `gitgalaxy/core/detector.py` before touching anything --
 it's the exact name-resolution algorithm the live pipeline uses (prefer capture group 1, fall
@@ -52,6 +52,10 @@ during #1295's scaffolding pass -- do not re-derive this, just apply the fixes b
 | **c** | Fixed (#1295 PR): the hardest of the batch, flagged going in as needing real declaration-vs-usage disambiguation (recurring cause class 2) rather than a mechanical NODE_MAPS/capture-group fix. c's `class_start` intentionally matches BOTH real declarations (`struct Foo {`) and bare usage/forward-reference sites (`struct foo_ops ops;`) for a deliberate reason -- `test_c_intentional_double_classification_sweep` (epic #813/#822's `_ops`-vtable dependency-injection risk heuristic) requires that co-firing, and a prior attempt to add a trailing-`{` requirement to the shared regex was reverted for breaking it. The fix stays entirely OUT of the shared `class_start` regex's matching behavior (verified `test_c_intentional_double_classification_sweep` passes identically before/after) -- two parts instead: (1) ground truth (`tree_sitter_accuracy_audit.py`/`class_start_diff.py`): tree-sitter-c's `struct_specifier`/`union_specifier`/`enum_specifier` nodes have a `body` field that's populated for real declarations and `None` for usage sites -- only count nodes with a body as real classes (also added `union_specifier`/`enum_specifier` to `NODE_MAPS["c"]`, previously only `struct_specifier` even though c's own regex also matches union/enum). (2) `detector.py`'s NAMED-EXTRACTION loop only (a different consumer of the same matches): made the tag-name capture group capturing (purely additive -- doesn't change `.finditer()`'s match count/positions), and added a new C-specific bounded 200-char lookahead (`_CLASS_START_REQUIRES_BODY_ANCHOR`) that skips a match from `class_data` entirely unless a `{` is the first of `{;,)=` encountered after it. `real_classes` 79→61 (ground truth now excludes usage sites too), `found_classes` 0→61 (100% recall), `extra_classes` 23→17 -- all 17 residual are `"Anonymous_Class"` entries for anonymous typedef'd structs (`typedef struct { ... } Bar;`, where the alias name lives one grammar level above `struct_specifier` and isn't chased), a documented grammar-shape limitation, not an unexplained regression. Flipped into the allowlist. Implemented via an independent Gemini/Antigravity delegation pass, then independently re-verified end to end (full diff re-read, accuracy audit, the regression test by name, both crucible modes, full test suite) before merge -- see the epic's own comment thread for a process note, including a permission-boundary incident during the delegation that's worth reading before running this kind of task unattended again. |
 | **dart** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Every real class was already matched correctly by dart's own `class_start` regex (`missing_classes=0` throughout); all 8 pre-fix "extra" names traced to two tree-sitter node types missing from `NODE_MAPS["dart"]["class_node_types"]`: `mixin_declaration` (`mixin Foo on Bar { ... }` -- has no `name` field in this grammar, needed a new `_get_node_name` branch walking children for a plain `identifier` node) and `enum_declaration` (`enum Foo { ... }` -- resolves via the existing fast path, no extra code). `extra_classes` 8→0, `real_classes`/`found_classes` 167→200 -- a perfect match, confirmed via flutter's mixin/enum examples. Flipped into the allowlist. Delegated to an independent Gemini/Antigravity implementation pass, then independently re-verified end to end before merge. |
 
+| **ruby** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Added `module` to `NODE_MAPS["ruby"]["class_node_types"]` (previously only `class`, `singleton_class`) -- module declarations are a real, cleanly-named tree-sitter node type (confirmed a `name` field resolving to a `constant` node) that ruby's own `class_start` regex already intentionally matches under its "Object / Entity Declarations" comment, but were invisible to `real_classes` here. Confirmed via rails' `module ActionDispatch`/`module AbstractController`/etc. `real_classes`/`found_classes` 9→15, `extra_classes` 2→3 -- the 3 residual are all `class << self` singleton-class-reopening matches. Investigated whether to suppress these from named extraction via a change to the shared `_resolve_class_start_match` function (used by every allowlisted language, not just ruby) and decided against it: `singleton_class` genuinely has no `name` field of its own in the grammar (it wraps an expression, not an identifier), so there's no real class name being missed, and touching shared per-match resolution code for one language's cosmetic wart wasn't worth the added risk surface. Documented as an accepted gap, same precedent as csharp/zig/rust. Flipped into the allowlist. |
+
+| **dart** | Fixed (#1295 PR): no regex change -- pure ground-truth fix. Every real class was already matched correctly by dart's own `class_start` regex (`missing_classes=0` throughout); all 8 pre-fix "extra" names traced to two tree-sitter node types missing from `NODE_MAPS["dart"]["class_node_types"]`: `mixin_declaration` (`mixin Foo on Bar { ... }` -- has no `name` field in this grammar, needed a new `_get_node_name` branch walking children for a plain `identifier` node) and `enum_declaration` (`enum Foo { ... }` -- resolves via the existing fast path, no extra code). `extra_classes` 8→0, `real_classes`/`found_classes` 167→200 -- a perfect match, confirmed via flutter's mixin/enum examples. Flipped into the allowlist. Delegated to an independent Gemini/Antigravity implementation pass, then independently re-verified end to end before merge. This was the last of the epic's "ground truth already trustworthy" languages -- only css/html/perl remain, and they need the judgment call below. |
+
 ### Needs a judgment call, not a quick field-name fix
 
 | Language | Issue |
@@ -68,20 +72,8 @@ each fix as its own small commit/PR (it changes a shared measurement file, not
 
 ### Languages where ground truth already works -- go straight to the regex workflow below
 
-**ruby** (9). (**swift, kotlin, zig, rust, haskell, c, dart** done -- see the "Done" table above.)
-
-Note on **ruby**: `class_start_diff.py --lang ruby` shows `extra_classes=9` on top of a clean
-`found_classes=9`/`missing_classes=0` -- i.e. every real class is already matched correctly, and
-the 9 extras are `module Foo` declarations plus `class << self`/`class << @var` singleton-class
-reopening, both of which ruby's own `class_start` intentionally matches (see its "Object / Entity
-Declarations" comment in `language_standards.py`) but aren't in `NODE_MAPS["ruby"]["class_node_types"]`
-(`{"class", "singleton_class"}`). `singleton_class` IS already in that set but has no `name` field
-of its own (it wraps an expression, not an identifier) -- likely another ground-truth measurement
-gap (class 6) for `_get_node_name`, not the scope-mismatch class 5 that `module` is. Check
-`singleton_class`'s actual child structure in `tree_sitter_language_pack`'s ruby grammar before
-assuming it can't be named -- it may resolve to the enclosing class name via a short ancestor walk
-(same shape as csharp/zig's precedents), which would leave `module` as the only real scope
-question for ruby.
+*(Empty as of dart's PR -- every language that had trustworthy ground truth is now in the "Done"
+table above. Only css/html/perl remain, and they're in the judgment-call table above, not here.)*
 
 ## Per-language workflow (once ground truth is trustworthy)
 

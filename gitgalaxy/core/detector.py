@@ -386,6 +386,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "php",
         "powershell",
         "python",
+        "ruby",
         "rust",
         "scala",
         "shell",

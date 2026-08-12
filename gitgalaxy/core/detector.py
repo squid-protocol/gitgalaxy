@@ -361,9 +361,8 @@ class ScopeParsingRegistry:
 # risk-signal purposes, which floods the named-entity class list with
 # phantom/misattributed entries if reused here unmodified (confirmed: C's
 # found_classes 45->0 and extra_classes 7->23 on the crucible corpus when
-# tried without this gate). Swift's `class_start` captures no name at all
-# for the same reason (pure occurrence counting). Extending this set to the
-# remaining languages needs the same kind of per-language hardening pass
+# tried without this gate). Extending this set to the remaining languages
+# needs the same kind of per-language hardening pass
 # epic #813 already did for func_start/args/class_start's OWN extraction
 # gauntlets -- tracked as a follow-up (#1295), not attempted wholesale here.
 _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
@@ -386,6 +385,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "scala",
         "shell",
         "solidity",
+        "swift",
         "tcl",
         "typescript",
     }
@@ -402,7 +402,7 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Opti
     Fortran/Lua/ABAP-shaped patterns use alternation where the name lands in
     EITHER group 1 or group 2 depending on which branch fired, and some
     languages capture no name at all (pure occurrence-counting rules, e.g.
-    C/Swift -- see the frozenset's own comment). `name_group_idx` is `None`
+    C -- see the frozenset's own comment). `name_group_idx` is `None`
     in that last case; callers should fall back to `match.start(0)` for the
     anchor position and `"Anonymous_Class"` for the name.
 

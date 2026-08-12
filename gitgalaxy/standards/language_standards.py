@@ -61,7 +61,7 @@ for the same metrics tracked over time across pushes to main.
 | Scala | 100.0% | 100.0% | 70.6% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
-| Swift | 98.9% | 100.0% | 62.2% | 100.0% |
+| Swift | 98.9% | 100.0% | 100.0% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 100.0% | 100.0% |
 | Zig | 73.9% | 100.0% | 0.0% | N/A |
@@ -4941,8 +4941,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)
+            # #1295: name wrapped in a capture group so the named-entity
+            # extractor (detector.py's _CLASS_START_NAMED_EXTRACTION_LANGS)
+            # can recover real names instead of flooding class_data with one
+            # "Anonymous_Class" phantom per match. Widened to an optional
+            # dotted chain (`\.[a-zA-Z_]\w*`) so nested-type extensions
+            # (`extension AFError.ParameterEncoderFailureReason { ... }`,
+            # mainstream in real Swift error-handling code) capture their
+            # full qualified name instead of truncating at the first dot.
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed|indirect)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+[a-zA-Z_]\w*",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed|indirect)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

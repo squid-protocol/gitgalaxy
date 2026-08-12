@@ -314,7 +314,13 @@ NODE_MAPS = {
         # so every `init` scored as a false "extra" (all 5 language-crucible/data/swift/alamofire
         # samples at the time of investigation were plain `init` methods, not a GitGalaxy defect).
         "func_node_types": {"function_declaration", "init_declaration"},
-        "class_node_types": {"class_declaration"},
+        # #1295: tree-sitter-swift gives protocols their own `protocol_declaration` node type,
+        # distinct from `class_declaration` -- a real, named class-like entity that GitGalaxy's
+        # own class_start regex intentionally matches (`class|struct|enum|protocol|actor|
+        # extension|macro`), but was invisible to real_classes here (e.g. alamofire's
+        # `RequestDelegate` protocol, which has no corresponding `extension RequestDelegate`
+        # elsewhere in the corpus to accidentally surface its name via a class_declaration node).
+        "class_node_types": {"class_declaration", "protocol_declaration"},
     },
     "dart": {
         "ts_lang": "dart",

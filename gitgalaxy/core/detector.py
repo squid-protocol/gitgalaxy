@@ -261,6 +261,53 @@ class ScopeParsingRegistry:
             "closers": [r"\bend\b", r"\bnext\b", r"\bloop\b", r"\bwend\b"],
             "ignore_case": True,
         },
+        # #1266: MATLAB uses `end`-keyword-delimited scopes (`function...end`,
+        # `if...end`, `classdef...end`), not braces -- previously unregistered
+        # here, so it silently fell through to the default Mode B (brace-based)
+        # dispatch, which is structurally wrong for MATLAB (its ONLY brace usage
+        # is `{}` cell-array literals, unrelated to scope). Confirmed root cause
+        # of MATLAB's reported func_start recall gap: `func_start`'s own regex
+        # already matched every real function signature correctly -- the bug was
+        # entirely in routing, not the regex. `properties`/`methods`/`events`/
+        # `enumeration` are classdef sub-block openers (methods-block-nested
+        # functions were explicitly the gap #1266 called out); GNU Octave's
+        # explicit `endfunction`/`endif`/etc. dialect closers are included
+        # alongside bare `end` since this language config is shared with Octave
+        # (see "shebangs" above) and both forms are valid there.
+        "matlab": {
+            "mode": "mode_d",
+            "openers": [
+                r"\bfunction\b",
+                r"\bif\b",
+                r"\bfor\b",
+                r"\bparfor\b",
+                r"\bwhile\b",
+                r"\bswitch\b",
+                r"\btry\b",
+                r"\bclassdef\b",
+                r"\bproperties\b",
+                r"\bmethods\b",
+                r"\benumeration\b",
+                r"\bevents\b",
+            ],
+            "closers": [
+                r"\bend\b",
+                r"\bendfunction\b",
+                r"\bendif\b",
+                r"\bendfor\b",
+                r"\bendparfor\b",
+                r"\bendwhile\b",
+                r"\bendswitch\b",
+                r"\bendtry\b",
+                r"\bendclassdef\b",
+                r"\bendproperties\b",
+                r"\bendmethods\b",
+                r"\bendenumeration\b",
+                r"\bendevents\b",
+            ],
+            "function_opener": r"\bfunction\b",
+            "comment_marker": "%",
+        },
         # ==========================================
         # 🪓 INTEGRATION MODE E: Terminator Cleaving
         # ==========================================
@@ -1440,6 +1487,20 @@ class StructuralExtractor:
         # 1. Advanced Atomic Quotes
         # Order is critical: Check multi-char string markers before single quotes.
         # Handles Python ("""), C++ (R"(...)"), and standard strings.
+        #
+        # #1266: the comment-marker alternation was hardcoded to `#|--|//`, so
+        # this shield never recognized MATLAB's `%` line comments at all --
+        # unlike a "no comment support" gap in most other languages, this one
+        # is actively dangerous for MATLAB specifically because its char-array
+        # strings use the SAME unbounded single-quote branch above, so a
+        # comment's stray apostrophe (the exact #1184/#1302 bug shape) could
+        # false-open a "string" spanning to the next unrelated `'` and corrupt
+        # the open/close keyword counting this shield exists to protect.
+        # Gated to matlab only via `lang_id` (not added to the shared default
+        # set) so shell/ruby/lua/elixir/vb's existing marker set is untouched.
+        comment_markers = r"#|--|//"
+        if lang_id == "matlab":
+            comment_markers = r"%|#|--|//"
         atomic_string_pattern = (
             r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
@@ -1452,7 +1513,7 @@ class StructuralExtractor:
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
             # by `_slice_by_keywords`'s own post-hoc pass.
-            r"(?:^|(?<=[ \t]))(?P<comment>#|--|//)[^\n]*"
+            rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
         )
         text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL | re.MULTILINE)
         t_quotes = time.time()
@@ -1563,6 +1624,18 @@ class StructuralExtractor:
             )
             if m:
                 return m.group(1)
+        elif lang_key == "matlab":
+            # Mirrors func_start's own output-array step-over (`function [out1,
+            # out2] = name(...)` / `function out = name(...)` / `function
+            # name(...)`) -- the name is whatever identifier immediately
+            # precedes the parameter list, after stepping over any output
+            # assignment.
+            m = re.search(
+                r"\bfunction\s+(?:\[[^\]]*\]\s*=\s*|[a-zA-Z_]\w*\s*=\s*)?([a-zA-Z_]\w*)",
+                line,
+            )
+            if m:
+                return m.group(1)
         return "Anonymous_Block"
 
     # ==============================================================================
@@ -1624,9 +1697,22 @@ class StructuralExtractor:
                     elif family in ("single_line_only", "multi_style_dash") or lang_id in (
                         "python",
                         "yaml",
+                        # #1266: Haskell's layout rule is indentation-based (the
+                        # "off-side rule"), not brace-based -- it was falling
+                        # through to Mode B, which can never find a `{` for a
+                        # real function body, silently dropping almost every
+                        # real function. `func_start` itself only ever matches a
+                        # top-level (column-0) type-signature line
+                        # (`foo :: Int -> Int`); Mode C's dedent-boundary scan
+                        # then correctly extends that match's body through the
+                        # actual equation(s) below it (`foo x = x + 1`) until
+                        # the next column-0 definition, which is exactly the
+                        # right heuristic for Haskell's layout rule even though
+                        # it wasn't designed with Haskell in mind.
+                        "haskell",
                     ):
                         mode_name = "Mode_C_Indentation"
-                        sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map)
+                        sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
                     else:
                         mode_name = "Mode_B_Braces"
                         sats, impact = self._slice_by_braces(code, lang_id, rules, offset, spatial_map)
@@ -1942,6 +2028,30 @@ class StructuralExtractor:
                     if semi_after_arrow == -1:
                         continue
                     end_idx = semi_after_arrow + 1
+            # #1266: Scala's idiomatic parenthesis-less/single-expression method
+            # body (`def foo(x: Int): Int = x + 1`, no `{` at all -- extremely
+            # common, not a rare style) was invisible here: the generic brace-only
+            # path below drops any match whose window never finds a `{`, even
+            # though `func_start` matched a completely real `def`. Mirrors #789's
+            # csharp expression-bodied-member fix (same underlying shape, `=>`
+            # there vs. bare `=` here), but Scala has no reliable terminator
+            # (`;` is optional/rare) to bound the expression's end the way
+            # csharp's trailing `;` does -- so a brace-less match's body is
+            # bounded by the next `def`/`class`/etc. match instead. This
+            # under-captures the odd case where a `{` inside the SAME
+            # single-expression body belongs to a trailing block-argument lambda
+            # (`xs.map { y => y + 1 }.sum`) rather than the def's own block --
+            # that still gets recorded (just with a truncated body/line-range),
+            # which is strictly better than the previous silent drop.
+            elif lang_id == "scala":
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
+                if brace_idx != -1:
+                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                else:
+                    eq_match = re.search(r"(?<![=!<>])=(?!=|>)", safe_code[start_idx:search_limit])
+                    if not eq_match:
+                        continue
+                    end_idx = next_match_start
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
@@ -1976,7 +2086,7 @@ class StructuralExtractor:
 
         return satellites, sum_fxn_impact
 
-    def _build_indentation_safe_stream(self, code: str) -> str:
+    def _build_indentation_safe_stream(self, code: str, lang_id: Optional[str] = None) -> str:
         """
         Index-aligned shield for indentation-depth scans: blanks out
         triple/single-quoted string and `#`-comment content so a dedented
@@ -1984,6 +2094,16 @@ class StructuralExtractor:
         function/class body, while preserving newlines so every index
         still maps 1:1 to `code`. Shared by `_slice_by_indentation` and
         the nesting-aware class-boundary scanner (#1040).
+
+        #1266: `lang_id` selects the comment marker (`#` for python/yaml,
+        `--` for haskell -- the only two markers Mode C has ever needed to
+        route since it's currently gated to those languages) and bounds the
+        single-quote branch for haskell only, same reasoning as the rust/
+        scala bounds elsewhere: Haskell's idiomatic trailing-apostrophe
+        identifiers (`x'`, `map'`) are unpaired single quotes that could
+        otherwise cascade-pair with a much-later, unrelated one (the exact
+        #1302 bug shape) -- python/yaml have no such identifier convention,
+        so their branch stays unbounded (real Python strings can be long).
 
         #1184: strings and comments MUST be shielded in one combined-
         alternation pass, not sequential independent re.sub calls. Stripping
@@ -2005,15 +2125,19 @@ class StructuralExtractor:
             text = m.group(0)
             return "".join("\n" if c == "\n" else " " for c in text)
 
+        single_quote = r"'(?:\\.|[^'\\])*'"
+        comment_marker = r"#[^\n]*"  # Python and YAML both use "#" for comments
+        if lang_id == "haskell":
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
+            comment_marker = r"--[^\n]*"
+
         # Order matters: triple-quote markers must precede the single-char
         # quote patterns, or e.g. the double-quote alternative would match
         # the first two characters of a `"""..."""` as an empty `""` string.
         combined_pattern = (
             r'"""(?:.*?)"""|'
             r"'''(?:.*?)'''|"
-            r'"(?:\\.|[^"\\])*"|'
-            r"'(?:\\.|[^'\\])*'|"
-            r"#[^\n]*"  # Python and YAML both use "#" for comments
+            r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + comment_marker
         )
         return re.sub(combined_pattern, index_aligned_shield, code, flags=re.DOTALL)
 
@@ -2023,8 +2147,9 @@ class StructuralExtractor:
         rules: dict[str, Any],
         offset: int,
         spatial_map: dict[str, list[int]],
+        lang_id: Optional[str] = None,
     ) -> tuple[list[FunctionNode], float]:
-        """[INTEGRATION MODE C] - Density Stratification (Python, YAML)."""
+        """[INTEGRATION MODE C] - Density Stratification (Python, YAML, Haskell)."""
         satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
@@ -2034,7 +2159,7 @@ class StructuralExtractor:
 
         # 1. Apply the Index-Aligned Shield
         # Preserves exact character indices and newline counts so safe_code maps 1:1 with code.
-        safe_code = self._build_indentation_safe_stream(code)
+        safe_code = self._build_indentation_safe_stream(code, lang_id)
 
         # Match against safe_code to prevent triggering on words inside docstrings!
         try:
@@ -2110,6 +2235,22 @@ class StructuralExtractor:
                 if stripped:
                     current_indent = len(f_line) - len(stripped)
                     if current_indent <= base_indent:
+                        # #1266: Haskell's convention puts a function's type
+                        # signature and its defining equation(s) on SEPARATE
+                        # top-level (column-0) lines (`foo :: Int -> Int` then
+                        # `foo x = x + 1` right below it, both indent 0) --
+                        # unlike Python, where the body is always MORE indented
+                        # than its `def` line. A dedent-to-<=-base_indent line
+                        # that's actually a continuation clause of THIS SAME
+                        # function (the equation itself, or a further pattern-
+                        # matched clause like `foo [] = ...`) must not end the
+                        # block here, or the whole block is just the bare
+                        # signature line -- caught and dropped by the `< 2`
+                        # line-count floor below on every single-signature
+                        # function, which is nearly all of them.
+                        if lang_id == "haskell" and re.match(re.escape(name) + r"(?!['\w])", stripped):
+                            scan_pos = line_end
+                            continue
                         end_idx = scan_pos
                         break
 
@@ -2176,7 +2317,16 @@ class StructuralExtractor:
         # #1184: comment-stripping now happens INSIDE _apply_literal_shield,
         # in the same pass as string-shielding -- see that method's
         # docstring/comments for why a separate later pass was unsafe.
-        safe_code = self._apply_literal_shield(code)
+        # #1266: this call used to drop `lang_id` entirely (always passing
+        # the implicit `None` default), which silently disabled BOTH the
+        # heredoc-protection branch for ruby/perl/elixir/shell/bash (each
+        # explicitly gated on `lang_id in [...]`, never actually reachable)
+        # and, now, MATLAB's `%`-comment-marker resolution. Passing it
+        # through is a strict correctness fix -- verified via
+        # `crucible_check.py` to change nothing for the languages other than
+        # matlab (their gates were already vacuous, now genuinely active with
+        # no observed corpus diff).
+        safe_code = self._apply_literal_shield(code, lang_id)
 
         # 2. Split both into parallel arrays
         original_lines = code.splitlines(keepends=True)
@@ -2286,8 +2436,21 @@ class StructuralExtractor:
             block = "\n".join(current_satellite).strip()
             if block:
                 loc = max(len(current_satellite), 1)
+                # #1266: MATLAB's language rule permits the LAST (or every)
+                # function in a file to omit its closing `end` entirely when
+                # no local function in the same file uses one either -- a
+                # common, legitimate idiom in real corpus code (confirmed:
+                # eeglab's eeg_eval.m), not a malformed/pathological file the
+                # way an unclosed `if`/`for`/`while` block would be. Only
+                # suppress the "_[Truncated]" anomaly marker when the unclosed
+                # scope was opened by a real `function` line (i.e. got a real
+                # name from `_extract_semantic_name`, not the generic
+                # "Anonymous_Block" fallback control-flow openers still get)
+                # -- an unclosed non-function block is still worth flagging.
+                is_matlab_eof_function = lang_id == "matlab" and satellite_name not in ("Anonymous_Block", "Main")
+                final_name = satellite_name if is_matlab_eof_function else satellite_name + "_[Truncated]"
                 sat, mag = self._calculate_block_metrics(
-                    satellite_name + "_[Truncated]",
+                    final_name,
                     block,
                     loc,
                     sat_start_line,

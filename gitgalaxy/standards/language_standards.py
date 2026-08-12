@@ -43,14 +43,14 @@ for the same metrics tracked over time across pushes to main.
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | N/A | N/A |
 | Groovy | N/A | N/A | N/A | N/A |
-| Haskell | 3.2% | 60.0% | 100.0% | 100.0% |
+| Haskell | 55.3% | 61.9% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
 | Kotlin | N/A | 0.0% | N/A | 0.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
-| Matlab | 30.4% | 100.0% | N/A | N/A |
+| Matlab | 100.0% | 71.9% | N/A | N/A |
 | Objective-C | 100.0% | 4.4% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
@@ -58,7 +58,7 @@ for the same metrics tracked over time across pushes to main.
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 77.8% | 77.8% |
 | Rust | 99.7% | 95.5% | 68.2% | 93.8% |
-| Scala | 83.2% | 100.0% | 70.6% | 100.0% |
+| Scala | 100.0% | 100.0% | 70.6% | 100.0% |
 | Shell | 100.0% | 60.0% | N/A | N/A |
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
 | Swift | 98.9% | 94.6% | 62.2% | 100.0% |
@@ -9373,8 +9373,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # class. detector.py already resolves the fired group via `match.lastindex` for
                 # exactly this kind of multi-alternative name capture (see java's `(init)|
                 # (constructor)` groups), so no downstream change is needed.
+                # QUALIFIED-ACCESS FIX (#1266): `private`/`protected` accept an optional
+                # bracketed scope qualifier (`private[kafka]`, `private[this]`,
+                # `protected[network]`) -- a mainstream Scala idiom for package-/
+                # instance-private members, not a rare one (confirmed: every missing
+                # function found investigating #1266's scala recall gap on a real Kafka
+                # corpus file used this form). Without it, the bare `private`/`protected`
+                # alternative consumed nothing (no trailing whitespace immediately
+                # follows before the `[`), so the whole match failed to reach `def` at
+                # all -- not a partial/wrong match, a total miss.
                 r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
-                r"(?:(?:override|private|protected|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
+                r"(?:(?:override|private(?:\[[\w.]+\])?|protected(?:\[[\w.]+\])?|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
                 r"def[ \t\n]+(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))(?=[ \t\n]*[\[(:=]|$)",
                 re.M,
             ),

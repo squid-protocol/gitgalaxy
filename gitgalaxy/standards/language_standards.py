@@ -38,7 +38,7 @@ for the same metrics tracked over time across pushes to main.
 | C | 94.0% | 99.0% | 57.0% | 86.5% |
 | Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
 | Csharp | 99.1% | 58.2% | 89.5% | 56.7% |
-| Css | N/A | 0.0% | N/A | N/A |
+| Css | 100.0% | 100.0% | 0.0% | N/A |
 | Dart | 72.9% | 57.2% | 96.4% | 95.3% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | N/A | N/A |
@@ -47,14 +47,14 @@ for the same metrics tracked over time across pushes to main.
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
-| Kotlin | N/A | 0.0% | N/A | 0.0% |
+| Kotlin | 39.1% | 90.0% | 75.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 71.9% | N/A | N/A |
 | Objective-C | 100.0% | 4.4% | N/A | N/A |
 | Perl | 70.6% | 99.9% | N/A | 0.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
-| Powershell | N/A | 0.0% | N/A | 0.0% |
+| Powershell | 69.1% | 92.7% | 0.0% | 0.0% |
 | Python | 99.7% | 99.2% | 99.6% | 100.0% |
 | Ruby | 100.0% | 90.7% | 77.8% | 77.8% |
 | Rust | 99.7% | 95.5% | 68.2% | 93.8% |
@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 98.9% | 94.6% | 62.2% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 100.0% | 34.7% |
-| Zig | N/A | 0.0% | N/A | N/A |
+| Zig | 73.9% | 100.0% | 0.0% | N/A |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 

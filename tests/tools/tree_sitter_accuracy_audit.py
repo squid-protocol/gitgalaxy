@@ -232,6 +232,10 @@ NODE_MAPS = {
     },
     "kotlin": {
         "ts_lang": "kotlin",
+        # #1313: both node types are correctly named here, but neither exposes a "name" FIELD in
+        # this grammar -- the identifier is a plainly-typed `simple_identifier`/`type_identifier`
+        # child instead, so every match silently resolved to None pre-fix. See _get_node_name's
+        # kotlin branch.
         "func_node_types": {"function_declaration", "anonymous_function"},
         "class_node_types": {"class_declaration"},
     },
@@ -269,8 +273,22 @@ NODE_MAPS = {
     },
     "css": {
         "ts_lang": "css",
-        "func_node_types": {"at_rule"},
-        "class_node_types": {"rule_set"},
+        # #1313: "at_rule" alone (the pre-fix value) is WRONG for this grammar version --
+        # @media/@supports/@keyframes each get their OWN dedicated node type
+        # (media_statement/supports_statement/keyframes_statement), "at_rule" only covers the
+        # generic remainder (@layer, @container, @font-face, @page, @charset, @namespace, ...).
+        # GitGalaxy's own func_start rule (language_standards.py) only anchors on
+        # @media/@supports/@container/@layer/@keyframes/@-webkit-keyframes -- see
+        # _get_node_name's "at_rule" branch, which filters the generic bucket down to just
+        # @layer/@container so the other generic at-rules (out of GitGalaxy's declared scope)
+        # don't manufacture a false recall gap.
+        "func_node_types": {"media_statement", "supports_statement", "keyframes_statement", "at_rule"},
+        # #1313: "rule_set" (the pre-fix value) has no name of its own -- GitGalaxy's class_start
+        # rule fires per individual class/ID selector token, not per rule_set block, so the real
+        # ground-truth entities are the selector nodes themselves. See _get_node_name's
+        # class_selector/id_selector branch for how the name (with its "."/"#" prefix, matching
+        # GitGalaxy's own captured string) is pulled out of a compound selector.
+        "class_node_types": {"class_selector", "id_selector"},
     },
     "powershell": {
         "ts_lang": "powershell",
@@ -289,6 +307,10 @@ NODE_MAPS = {
     },
     "zig": {
         "ts_lang": "zig",
+        # #1313: "FnProto" is correctly named, but (like kotlin) has no "name" FIELD -- the
+        # identifier is a plain `IDENTIFIER` child. "ContainerDecl" (struct/enum/union/opaque) has
+        # no name at all of its own -- see _get_zig_container_name's docstring for why the real
+        # name lives on an ancestor VarDecl instead.
         "func_node_types": {"FnProto"},
         "class_node_types": {"ContainerDecl"},
     },
@@ -446,6 +468,29 @@ def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
     return None
 
 
+def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
+    """Zig struct/enum/union/opaque literals ("ContainerDecl") carry no name of their own -- the
+    grammar treats them as anonymous type EXPRESSIONS, wrapped in a chain of intermediate nodes
+    (SuffixExpr/ErrorUnionExpr/GroupedExpr/AssignExpr/...) until they land on the right-hand side
+    of a `const`/`var` declaration, which is where the real name actually lives (confirmed
+    empirically -- see #1313). This matches GitGalaxy's own class_start rule, which anchors on
+    exactly this `const NAME = ... struct|enum|union|opaque` shape rather than the container
+    itself. Walks a bounded number of ancestor hops for the enclosing VarDecl; returns None
+    (skip, don't count) for the rare shapes that never resolve to one within that bound.
+    """
+    current = node.parent
+    hops = 0
+    while current is not None and hops < max_hops:
+        if current.type == "VarDecl":
+            for child in current.children:
+                if child.type == "IDENTIFIER":
+                    return child.text.decode("utf8")
+            return None
+        current = current.parent
+        hops += 1
+    return None
+
+
 def _get_node_name(node: Any) -> Optional[str]:
     name_node = node.child_by_field_name("name")
     if name_node:
@@ -502,6 +547,89 @@ def _get_node_name(node: Any) -> Optional[str]:
                     if grandchild.type == "word":
                         return grandchild.text.decode("utf8")
                 break
+
+    # #1313: css's at-rule statement nodes (media_statement/supports_statement/
+    # keyframes_statement/the generic "at_rule" bucket) have no "name" field -- the closest
+    # thing to a name is the literal at-keyword itself, matching GitGalaxy's own func_start rule,
+    # which anchors on that same literal keyword rather than a per-instance identifier (CSS
+    # at-rules don't have one) -- see the SCOPE section's existing note on same-name collisions
+    # collapsing to one row per file, which applies here by design. The leading "@" is stripped
+    # to match GitGalaxy's own stored name: `_extract_name`'s token charset
+    # (`[a-zA-Z0-9_./%$():~-]+`) doesn't include "@", so it never survives normalization on the
+    # GitGalaxy side either.
+    if node.type == "media_statement":
+        return "media"
+    if node.type == "supports_statement":
+        return "supports"
+    if node.type == "keyframes_statement":
+        for child in node.children:
+            if child.type == "at_keyword":
+                return child.text.decode("utf8").lstrip("@")
+        return None
+    if node.type == "at_rule":
+        # The generic bucket also holds @font-face/@page/@charset/@namespace/@property/@scope --
+        # none of those are in GitGalaxy's func_start scope, so counting them here would
+        # manufacture a false recall gap. Only @layer/@container are.
+        for child in node.children:
+            if child.type == "at_keyword":
+                keyword = child.text.decode("utf8")
+                return keyword.lstrip("@") if keyword.lower() in ("@layer", "@container") else None
+        return None
+
+    # #1313: css's class/ID selector nodes have no "name" field either -- the bare identifier
+    # sits in a "class_name"/"id_name" child, needing the "."/"#" prefix re-added to match the
+    # exact string GitGalaxy's own class_start rule captures. Reading node.text directly instead
+    # would be wrong for a compound selector ("#id.combo"): tree-sitter-css nests the whole
+    # compound's byte span under the outer class_selector node, so .text includes the sibling
+    # id_selector's text too -- the "class_name"/"id_name" child is the only reliable anchor.
+    if node.type == "class_selector":
+        for child in node.children:
+            if child.type == "class_name":
+                return "." + child.text.decode("utf8")
+        return None
+    if node.type == "id_selector":
+        for child in node.children:
+            if child.type == "id_name":
+                return "#" + child.text.decode("utf8")
+        return None
+
+    # #1313: kotlin's function_declaration/class_declaration have no "name" FIELD in this
+    # grammar (unlike javascript/swift's node types of the same name, which already returned
+    # above via the fast path) -- the identifier is a plainly-typed child instead.
+    if node.type == "function_declaration":
+        for child in node.children:
+            if child.type == "simple_identifier":
+                return child.text.decode("utf8")
+        return None
+    if node.type == "class_declaration":
+        for child in node.children:
+            if child.type == "type_identifier":
+                return child.text.decode("utf8")
+        return None
+
+    # #1313: powershell's function_statement/class_statement/class_method_definition have no
+    # "name" field -- the identifier is a plainly-typed "function_name"/"simple_name" child.
+    if node.type == "function_statement":
+        for child in node.children:
+            if child.type == "function_name":
+                return child.text.decode("utf8")
+        return None
+    if node.type in ("class_statement", "class_method_definition"):
+        for child in node.children:
+            if child.type == "simple_name":
+                return child.text.decode("utf8")
+        return None
+
+    # #1313: zig's FnProto has no "name" field -- the identifier is a plainly-typed "IDENTIFIER"
+    # child. ContainerDecl has no name of its own at all -- see _get_zig_container_name.
+    if node.type == "FnProto":
+        for child in node.children:
+            if child.type == "IDENTIFIER":
+                return child.text.decode("utf8")
+        return None
+    if node.type == "ContainerDecl":
+        return _get_zig_container_name(node)
+
     return None
 
 
@@ -526,6 +654,30 @@ def _find_c_style_parameter_list(node: Any) -> Optional[Any]:
         if result is not None:
             return result
     return None
+
+
+def _count_powershell_params(node: Any) -> int:
+    """PowerShell's function_statement has no "parameters" field -- the real parameter list sits
+    on one of two mutually-exclusive shapes (#1313, confirmed against the real language-crucible
+    corpus): an inline `function_parameter_declaration` sibling (`function Foo($a, $b) { ... }`),
+    or a `param_block` nested inside the function's own `script_block`
+    (`function Foo { param($a, $b) ... }`) -- PowerShell's dominant real-world convention. Both
+    wrap the actual comma-separated params in a `parameter_list` of `script_parameter` nodes.
+    """
+    for child in node.children:
+        if child.type == "function_parameter_declaration":
+            for grandchild in child.children:
+                if grandchild.type == "parameter_list":
+                    return sum(1 for p in grandchild.children if p.type == "script_parameter")
+            return 0
+        if child.type == "script_block":
+            for grandchild in child.children:
+                if grandchild.type == "param_block":
+                    for ggc in grandchild.children:
+                        if ggc.type == "parameter_list":
+                            return sum(1 for p in ggc.children if p.type == "script_parameter")
+                    return 0
+    return 0
 
 
 def _get_param_count(node: Any) -> int:
@@ -560,6 +712,25 @@ def _get_param_count(node: Any) -> int:
     param_node = node.child_by_field_name("parameter")
     if param_node:
         return 1
+
+    # #1313: none of these node types expose a "parameters"/"parameter" field either -- same
+    # no-field-at-all shape the C-family branch above already handles, just with different
+    # grammar-specific wrapper/child node names.
+    if node.type == "function_declaration":
+        # kotlin
+        for child in node.children:
+            if child.type == "function_value_parameters":
+                return sum(1 for p in child.children if p.type == "parameter")
+    elif node.type == "function_statement":
+        return _count_powershell_params(node)
+    elif node.type == "class_method_definition":
+        for child in node.children:
+            if child.type == "class_method_parameter_list":
+                return sum(1 for p in child.children if p.type == "class_method_parameter")
+    elif node.type == "FnProto":
+        for child in node.children:
+            if child.type == "ParamDeclList":
+                return sum(1 for p in child.children if p.type == "ParamDecl")
 
     return 0
 

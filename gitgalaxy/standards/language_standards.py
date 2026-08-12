@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 89.5% | 93.4% | 100.0% | 100.0% |
 | Swift | 98.9% | 100.0% | 62.2% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
-| Typescript | 92.7% | 89.8% | 97.6% | 100.0% |
+| Typescript | 92.7% | 89.8% | 100.0% | 100.0% |
 | Zig | 73.9% | 100.0% | 0.0% | N/A |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -1182,8 +1182,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # though the class NAME itself still matched fine. Widened to
             # the established one-level-nesting idiom used elsewhere in
             # this file.
+            # BUG FIX (#1348): the modifier group was missing `const`, so
+            # TypeScript's compile-time-only `const enum Foo {` / `export
+            # const enum Foo {` form (common in vscode/assemblyscript/the
+            # typescript compiler itself) never matched at all -- `const`
+            # isn't a recognized modifier and isn't the mandatory
+            # `class|enum|interface` keyword either, so the whole rule
+            # failed to fire. Adding `const` here can't introduce new false
+            # matches on unrelated `const x = ...` statements: the entity
+            # keyword is still mandatory immediately after the modifier
+            # run, so a plain `const` declaration (no literal `class`/
+            # `enum`/`interface` token following) still doesn't match.
             "class_start": re.compile(
-                r"^[ \t]*(?:(?:export|default|abstract|declare)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
+                r"^[ \t]*(?:(?:export|default|abstract|declare|const)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

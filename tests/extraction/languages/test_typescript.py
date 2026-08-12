@@ -311,6 +311,8 @@ CLASS_CASES: dict[str, Any] = {
         ("export abstract class TargetEntity<T> implements Bar<T>, Baz {", "TargetEntity"),
         ("@Injectable()\nexport class TargetEntity {", "TargetEntity"),  # decorated Angular service
         ("class TargetEntity extends Bar<Baz<Qux>> {", "TargetEntity"),  # nested generic in extends clause
+        ("const enum TargetEntity {", "TargetEntity"),  # #1348: compile-time-only const enum
+        ("export const enum TargetEntity {", "TargetEntity"),  # #1348: exported const enum
     ],
     "invalid": [
         "const a = class {}",

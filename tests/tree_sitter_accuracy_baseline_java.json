@@ -1,12 +1,12 @@
 {
-  "args_comparable": 233,
-  "args_exact_match": 222,
+  "args_comparable": 266,
+  "args_exact_match": 234,
   "corpus_path": "language-crucible/data/java",
   "extra_classes": 0,
   "extra_functions": 0,
   "files_scanned": 7,
   "found_classes": 35,
-  "found_functions": 233,
+  "found_functions": 266,
   "real_classes": 35,
   "real_functions": 266
 }

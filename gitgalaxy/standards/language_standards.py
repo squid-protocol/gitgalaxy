@@ -41,11 +41,11 @@ for the same metrics tracked over time across pushes to main.
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 92.6% | 74.1% | 100.0% | 100.0% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
-| Go | 95.6% | 100.0% | 82.1% | 100.0% |
+| Go | 95.6% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 56.4% | 65.4% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
-| Java | 87.6% | 100.0% | 100.0% | 100.0% |
+| Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 74.1% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 95.8% | 100.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
@@ -1541,7 +1541,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # breaking any single-line one-level-nested generic bound (e.g.
                 # `public static <T, U extends Comparable<U>> T Foo(T a, U b) {`).
                 # Widened to the established one-level-nesting idiom.
-                r"(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|<(?:[^<>]|<[^<>]*>)*>)[ \t\n]+){0,5}"
+                r"(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|<(?:[^<>]|<[^<>]*>)*>|@[\w.]+(?:\([^)]*\))?)[ \t\n]+){0,5}"
                 # #1221: the return-type group used to be `{0,5}` (zero
                 # allowed) with the trailing lookahead accepting EITHER `{`
                 # OR `;` (the latter for abstract/interface method stubs,

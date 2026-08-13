@@ -47,6 +47,9 @@ FUNCTION_CASES: dict[str, Any] = {
         # Modern idiom (carried forward)
         ("public static void TargetFunc() {", "TargetFunc"),
         ("protected List<String> TargetFunc(int x) {", "TargetFunc"),
+        ("protected @Nullable AnnotationAttributes TargetFunc(AnnotationMetadata metadata) {", "TargetFunc"),
+        ("protected @Deprecated(since=\"1.0\") Foo TargetFunc(int x) {", "TargetFunc"),
+        ("public @NonNull Foo TargetFunc() {", "TargetFunc"),
         ("@Override\npublic void TargetFunc() {", "TargetFunc"),
         # Syntax-era / feature coverage
         ("public void TargetFunc() throws IOException {", "TargetFunc"),  # pre-8, checked exception

@@ -58,6 +58,9 @@ FUNCTION_CASES: dict[str, Any] = {
         # Testing-framework-shaped functions that ARE real functions
         ("[Fact]\npublic void TargetFunc() {", "TargetFunc"),  # xUnit [Fact]
         ("[Theory]\n[InlineData(1, 2)]\npublic void TargetFunc(int a, int b) {", "TargetFunc"),  # xUnit [Theory]
+        # #1418: Bodyless interface/abstract method declarations ending in a bare ';'
+        ("void TargetFunc(int x);", "TargetFunc"),
+        ("public abstract void TargetFunc(int x);", "TargetFunc"),
     ],
     "invalid": [
         "public class TargetFunc {",  # class decl lookalike
@@ -77,6 +80,8 @@ FUNCTION_CASES: dict[str, Any] = {
         # real function name -- group 1's dot-permitting identifier (meant for explicit
         # interface implementations like `IFoo.DoWork`) also legalized `receiver.Method`.
         "foreach (var addedProject in changes.GetAddedProjects())",  # loop header, not a function
+        # #1418: Multi-line bare call statement ending in ';' with no modifier/return-type prefix
+        "                    TargetFunc(\n                        ref explicitInterfaceName, ref separator);",
     ],
     "pathological": [
         (

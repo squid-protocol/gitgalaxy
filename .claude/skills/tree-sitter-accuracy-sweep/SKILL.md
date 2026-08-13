@@ -207,9 +207,30 @@ authoritative for the ruff-format-clean verdict -- don't trust an ad hoc direct 
 don't matter.
 
 Commit everything the regenerate/update steps touched (the regex file, the test file, the
-per-language baseline JSON, both golden master JSONs), push, `gh pr create`. **PR creation
-against `main` is pre-authorized by this repo's CLAUDE.md -- merging is not.** Report the PR and
-let the user decide when to merge.
+per-language baseline JSON, both golden master JSONs), push, `gh pr create`.
+
+**Auto-merge is pre-authorized specifically for this skill's PRs** (user, 2026-08-13): once a fix
+has been through the full independent-verification + done-bar checklist above (steps 7-8) and its
+own CI is green, merge it -- `gh pr merge <PR> --squash --auto` (let CI gate it rather than force
+immediate admin-merge) is fine without asking each time. This is narrower than this repo's normal
+CLAUDE.md default (PR creation is pre-authorized repo-wide, merging is not) -- **the broader
+default still applies to every other kind of PR**; this carve-out is specifically for fixes
+produced by this skill's own root-cause-then-Gemini-implements-then-independently-verify pipeline,
+not a general license to merge anything. If a fix's verification turned up something ambiguous
+(a judgment call the checklist didn't cleanly resolve, unexpectedly large/unexplained drift, a
+test that had to be loosened rather than the code fixed), stop and ask instead of merging through
+it -- the pre-authorization covers the routine case, not "trust it because it's from this skill."
+
+## Running this indefinitely (pool of 4, no fixed batch size)
+
+When asked to run this as an ongoing sweep rather than a one-off batch: keep the dispatch pool at
+4 continuously -- every time a fix's PR merges, immediately root-cause + file + dispatch the next
+worst-performing candidate from the CSV to refill the slot (step 1-6), and keep going indefinitely
+until the user says stop. There is no natural "done" state to wait for -- the CSV always has a
+next-worst language as long as any non-N/A metric is below 100%, so this only ends when told to.
+Re-run `--history` periodically (e.g. once per full pool-refill cycle, not on every single slot)
+to pick up fixes' own downstream effects on the ranking rather than working off a stale snapshot
+the whole time.
 
 ## Known gotchas checklist (recap, all confirmed at least once)
 

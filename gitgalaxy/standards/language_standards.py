@@ -37,7 +37,7 @@ for the same metrics tracked over time across pushes to main.
 | Apex | 100.0% | 97.4% | 100.0% | 100.0% |
 | C | 94.0% | 99.0% | 100.0% | 78.2% |
 | Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
-| Csharp | 99.1% | 63.4% | 89.5% | 56.7% |
+| Csharp | 99.5% | 65.0% | 89.5% | 56.7% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 93.8% | 66.8% | 100.0% | 100.0% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
@@ -1901,10 +1901,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # followed immediately by an identifier and an opening parenthesis.
                 # =====================================================================
                 r"(?!new[ \t\n]+[@A-Za-z_$][\w_$.]*(?:<[^>]{0,100}>)?[ \t\n]*\()"
+                r"(?:"
                 # 2. MODIFIERS (Linkage, Storage, & Access)
                 # Matches `public async`, `protected internal static`, etc.
                 # [VERTICAL FIX]: `[ \t\n]+` allows modifiers to wrap across newlines.
-                r"(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)[ \t\n]+){0,5}"
+                r"(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)[ \t\n]+){1,5}"
                 # 3. THE "IRON WALL" RETURN TYPE
                 # Safely captures complex modern C# return types before the function name.
                 # Supports: standard types `int`, arrays `int[]`, generics `List<T>`,
@@ -1956,7 +1957,25 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # - `(?:[ \t\n]*<[^>]{0,100}>)?` safely steps over method-level generic definitions
                 #   like `<T, U>` BEFORE hitting the opening parenthesis.
                 # [VERTICAL FIX]: Removed `\n` exclusion from the generic stepper to support multi-line generics.
-                r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\(",
+                r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+                r"|"
+                # Branch B: Has return type (no modifier)
+                r"(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)[ \t\n]+){0,5}"
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)[a-zA-Z0-9_<>\[\]?,.()*]+[ \t\n]{1,200}){1,10}"
+                r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+                r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+                r"|"
+                # Branch C: Zero-prefix (No modifier, No return type)
+                # #1418: The zero-prefix branch matches ordinary multi-line bare call statements if their
+                # argument list spans multiple lines and ends in a bare ';' with no '{'. We apply an
+                # "Invocation Shield" (similar to dart #1221 / rust #1319 / csharp's own args shield) to
+                # only allow the bare-';' tolerance on branches that matched a modifier or return type
+                # (which a real abstract/interface method declaration has). For this zero-prefix path, we
+                # require the signature to actually open a block (`{` or `=>`).
+                r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+                r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+                r"(?=[ \t\n]*(?:[^)]|\([^)]*\))*[ \t\n]*\)[ \t\n]*(?:\{|=>))"
+                r")",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

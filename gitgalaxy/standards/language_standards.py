@@ -46,7 +46,7 @@ for the same metrics tracked over time across pushes to main.
 | Haskell | 56.4% | 65.4% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
-| Javascript | 96.1% | 73.5% | 100.0% | 100.0% |
+| Javascript | 96.1% | 74.1% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 95.8% | 100.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |

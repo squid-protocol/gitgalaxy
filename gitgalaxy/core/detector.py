@@ -2336,6 +2336,83 @@ class StructuralExtractor:
                     continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 objc_args_sig_end = term_idx + 1
+            elif lang_id == "dart":
+
+                def _dart_scan_terminator(
+                    scan_start: int, stop_chars: str, *, safe_code: str = safe_code, search_limit: int = search_limit
+                ) -> tuple[int, Optional[str]]:
+                    """Paren/bracket/angle-depth-aware scan for the next top-level char
+                    in `stop_chars` starting at `scan_start`. `stop_chars` differs by
+                    caller: the params-end scan stops at a top-level `,` too (Bug 4:
+                    a bare list-element call has one right after its own `)`), but the
+                    initializer-list scan below must NOT -- a colon-initializer list
+                    (`Ctor(...) : a = b, assert(c);`) legitimately has multiple
+                    comma-separated initializers at depth 0, which aren't list-element
+                    commas at all; stopping on the first one there would wrongly reject
+                    every constructor with more than one initializer. `safe_code`/
+                    `search_limit` are bound as defaults (not closed over) since both
+                    are per-iteration loop variables -- ruff's B023 flags a nested
+                    function reading a loop variable by closure as a late-binding
+                    footgun even though this one is only ever called synchronously
+                    within the same iteration; binding at def-time is the standard fix
+                    and is clearer regardless of whether the footgun could fire here."""
+                    depth_paren = depth_bracket = depth_angle = 0
+                    pos = scan_start
+                    while pos < search_limit:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            depth_paren += 1
+                        elif ch == ")":
+                            depth_paren = max(0, depth_paren - 1)
+                        elif ch == "[":
+                            depth_bracket += 1
+                        elif ch == "]":
+                            depth_bracket = max(0, depth_bracket - 1)
+                        elif ch == "<":
+                            depth_angle += 1
+                        elif ch == ">":
+                            depth_angle = max(0, depth_angle - 1)
+                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                            if ch == "=":
+                                if "=" in stop_chars and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                                    return pos, "arrow"
+                                # a lone "=" (not "=>") is never itself a terminator --
+                                # skip it rather than falling into the dict lookup below,
+                                # which has no entry for it.
+                            elif ch in stop_chars:
+                                return pos, {opener: "brace", ";": "semi", ":": "colon", ",": "comma"}[ch]
+                        pos += 1
+                    return -1, None
+
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                term_idx, term_kind = _dart_scan_terminator(params_end_idx, opener + ";=:,")
+
+                if term_kind == "comma":
+                    continue  # Bug 4: list-element bare call
+                if term_kind == "colon":
+                    # Constructor initializer list (`Ctor(...) : a = b, assert(c);`).
+                    # Commas here separate initializers, not list elements -- keep
+                    # scanning past the whole list (excluding "," from stop_chars, so
+                    # they're skipped rather than mistaken for Bug 4's terminator) for
+                    # the real terminator: either a bodyless `;` or a body-bearing `{`.
+                    colon_term_idx, colon_term_kind = _dart_scan_terminator(term_idx + 1, opener + ";")
+                    if colon_term_kind == "brace":
+                        end_idx = self._find_balanced_end(safe_code, colon_term_idx, opener, closer)
+                    elif colon_term_kind == "semi":
+                        end_idx = colon_term_idx + 1
+                    else:
+                        continue
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1  # Bug 2: bodyless constructor
+                elif term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "arrow":
+                    semi_after_arrow = safe_code.find(";", term_idx, search_limit)
+                    if semi_after_arrow == -1:
+                        continue
+                    end_idx = semi_after_arrow + 1
+                else:
+                    continue
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

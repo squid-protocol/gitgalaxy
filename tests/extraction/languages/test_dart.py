@@ -98,6 +98,7 @@ FUNC_START_CASES = {
         ("@override\nvoid foo() {", "foo"),
         ("Stream<int> countStream(int to) async* {", "countStream"),
         ("Future<\n  Map<\n    String,\n    List<int>\n  >\n> weirdSpacing() {", "weirdSpacing"),
+        ("const ThemeData.raw({ int a = 1 }) {", "ThemeData.raw"),
     ],
     "invalid": [
         "var x = functionStart;",
@@ -111,6 +112,11 @@ FUNC_START_CASES = {
         # Issue #1421: bare `?` before ternary call, and whole call expression as return type
         "iconTheme ??= isDark\n        ? IconThemeData(color: kDefaultIconLightColor)\n        : IconThemeData(color: kDefaultIconDarkColor);",
         "ErrorSummary('setState() called after dispose(): $this'),\n  ErrorDescription(...)",
+        "const int x = 5;",
+        "const MyClass x;",
+        "implements AutofillClient {",
+        "with AutomaticKeepAliveClientMixin {",
+        "extends ContextAction<T> {",
     ],
     "xfail_invalid": [
         "print('void main() {');",
@@ -130,6 +136,64 @@ def test_dart_func_start_invalid(payload):
 @pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)
 def test_dart_func_start_xfail_invalid(payload):
     assert_invalid_no_match(DART_RULES["func_start"], payload, "dart.func_start")
+
+def test_dart_slicer_bug_2_and_4():
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+
+    # Bug 2: colon-initializer, no-braced-body constructor
+    bug2_code = "LabeledGlobalKey(this._debugLabel) : super.constructor();\nvoid nextMethod() {}"
+    blocks, _ = splicer._slice_by_braces(bug2_code, "dart", DART_RULES, 0, {})
+    assert len(blocks) == 2, "Bug 2: Should find exactly 2 functions (the constructor and nextMethod)"
+    assert blocks[0]["name"] == "LabeledGlobalKey"
+    assert bug2_code[blocks[0]["start_idx"]:blocks[0]["end_idx"]].strip() == "LabeledGlobalKey(this._debugLabel) : super.constructor();"
+    assert blocks[1]["name"] == "nextMethod"
+
+    # Bug 4: multi-line bare call-site invocation used as a list-literal element
+    bug4_code = "[\nContextMenuButtonItem(\n  type: ContextMenuButtonType.copy,\n  onPressed: null,\n),\n]"
+    blocks, _ = splicer._slice_by_braces(bug4_code, "dart", DART_RULES, 0, {})
+    assert len(blocks) == 0, "Bug 4: Should exclude the list-element bare call via Invocation Shield"
+
+
+def test_dart_slicer_multi_initializer_constructor():
+    # Regression case found during independent verification of the original bug-2 fix: a
+    # colon-initializer list is not always a single initializer ending at the first `;`/`{` --
+    # Dart allows multiple comma-separated initializers (`: a = b, assert(c);`), same as
+    # flutter/theme_data.dart's real `ThemeData.raw` constructor. The first fix attempt reused
+    # the params-end scanner (which correctly stops at a top-level `,` for Bug 4's list-element
+    # detection) for this scan too, so it wrongly stopped at the first initializer's own comma
+    # and rejected the whole constructor. The initializer-list scan must skip top-level commas
+    # instead, since they never mean "list element" once past a confirmed `:`.
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+
+    bodyless_multi_init = (
+        "class Foo {\n"
+        "  const Foo.raw({\n"
+        "    required this.a,\n"
+        "  }) : b = a, assert(a != null);\n"
+        "\n"
+        "  void nextMethod() {}\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(bodyless_multi_init, "dart", DART_RULES, 0, {})
+    names = [b["name"] for b in blocks]
+    assert "Foo.raw" in names, "multi-initializer bodyless constructor must still be found"
+    assert "nextMethod" in names
+
+    bodied_multi_init = (
+        "class Foo {\n"
+        "  Foo(this.a) : b = a, assert(a != null) {\n"
+        "    print(a);\n"
+        "  }\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(bodied_multi_init, "dart", DART_RULES, 0, {})
+    assert [b["name"] for b in blocks] == ["Foo"], "multi-initializer constructor WITH a body must still be found"
+
 
 # -------------------------------------------------------------------------
 # 3. ARGUMENTS RULES

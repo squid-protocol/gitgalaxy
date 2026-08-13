@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-13T13:04:35+00:00 &#183; commit 0fb17ed &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-13T13:37:04+00:00 &#183; commit ce7ad5a &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -86,8 +86,8 @@
 <text class="value-label" x="200.7" y="303.0">1489/1493</text>
 <rect class="stripe" x="16" y="307" width="246" height="15"/>
 <text class="row-label" x="96" y="318.0" text-anchor="end">csharp</text>
-<rect x="104" y="310.0" width="91.2" height="9" rx="3" fill="#292fd6"/>
-<text class="value-label" x="200.2" y="318.0">571/576</text>
+<rect x="104" y="310.0" width="91.5" height="9" rx="3" fill="#292cd6"/>
+<text class="value-label" x="200.5" y="318.0">573/576</text>
 <text class="row-label" x="96" y="333.0" text-anchor="end">swift</text>
 <rect x="104" y="325.0" width="91.0" height="9" rx="3" fill="#2930d6"/>
 <text class="value-label" x="200.0" y="333.0">92/93</text>
@@ -245,8 +245,8 @@
 <rect x="378" y="520.0" width="61.4" height="9" rx="3" fill="#29d69d"/>
 <text class="value-label" x="444.4" y="528.0">52/78</text>
 <text class="row-label" x="370" y="543.0" text-anchor="end">csharp</text>
-<rect x="378" y="535.0" width="58.3" height="9" rx="3" fill="#29d686"/>
-<text class="value-label" x="441.3" y="543.0">571/900</text>
+<rect x="378" y="535.0" width="59.8" height="9" rx="3" fill="#29d691"/>
+<text class="value-label" x="442.8" y="543.0">573/882</text>
 <rect class="stripe" x="290" y="547" width="246" height="15"/>
 <text class="row-label" x="370" y="558.0" text-anchor="end">shell</text>
 <rect x="378" y="550.0" width="55.2" height="9" rx="3" fill="#29d66e"/>
@@ -511,8 +511,8 @@
 <text class="value-label" x="1292.2" y="333.0">1484/1566</text>
 <rect class="stripe" x="1112" y="337" width="246" height="15"/>
 <text class="row-label" x="1192" y="348.0" text-anchor="end">csharp</text>
-<rect x="1200" y="340.0" width="86.2" height="9" rx="3" fill="#2954d6"/>
-<text class="value-label" x="1291.2" y="348.0">535/571</text>
+<rect x="1200" y="340.0" width="86.6" height="9" rx="3" fill="#2952d6"/>
+<text class="value-label" x="1291.6" y="348.0">539/573</text>
 <text class="row-label" x="1192" y="363.0" text-anchor="end">powershell</text>
 <rect x="1200" y="355.0" width="85.9" height="9" rx="3" fill="#2957d6"/>
 <text class="value-label" x="1290.9" y="363.0">71/76</text>

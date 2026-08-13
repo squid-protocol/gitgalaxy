@@ -183,3 +183,84 @@ def test_haskell_dependency_invalid(payload):
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["pathological"])
 def test_haskell_dependency_pathological(payload, expected_name):
     assert_pathological_dependency_match(HASKELL_RULES["_dependency_capture"], payload, expected_name, "_dependency_capture")  # noqa: S101
+
+# ==============================================================================
+# BLOCK SLICING / POINT-FREE LOGIC (#1312)
+# ==============================================================================
+
+def test_haskell_func_start_point_free_value_binding_rejected():
+    """#1312: point-free value bindings lack an arrow in their signature and must be rejected."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    extractor = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    payload = "defaultKaTeXURL :: Text\ndefaultKaTeXURL = \"https://...\"\n"
+    
+    # We call coding_analysis directly to exercise _slice_by_indentation.
+    segments = extractor._partition_segments(payload, "haskell")
+    
+    equations = {}
+    mitigation_telemetry = {}
+    segment_spatial_maps = [{}]
+    
+    functions, _ = extractor._function_slice(
+        segments,
+        segment_spatial_maps,
+        equations,
+        mitigation_telemetry,
+        None,
+    )
+    
+    # defaultKaTeXURL should NOT be extracted as a function
+    extracted_names = [f["name"] for f in functions]
+    assert "defaultKaTeXURL" not in extracted_names  # noqa: S101
+
+def test_haskell_func_start_point_free_function_accepted():
+    """#1312: point-free functions have an arrow in their signature and must be accepted."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    extractor = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    payload = "htmlFormat :: Text -> Bool\nhtmlFormat = (`elem` [...])\n"
+    
+    segments = extractor._partition_segments(payload, "haskell")
+    equations = {}
+    mitigation_telemetry = {}
+    segment_spatial_maps = [{}]
+    
+    functions, _ = extractor._function_slice(
+        segments,
+        segment_spatial_maps,
+        equations,
+        mitigation_telemetry,
+        None,
+    )
+    
+    extracted_names = [f["name"] for f in functions]
+    assert "htmlFormat" in extracted_names  # noqa: S101
+
+def test_haskell_func_start_wrapped_multiline_signature_accepted():
+    """#1312: real functions with wrapped multiline signatures must be accepted."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    extractor = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    # The -> is on the second line of the signature.
+    payload = "myFunc :: Int\n  -> Int\nmyFunc = (+ 1)\n"
+    
+    segments = extractor._partition_segments(payload, "haskell")
+    equations = {}
+    mitigation_telemetry = {}
+    segment_spatial_maps = [{}]
+    
+    functions, _ = extractor._function_slice(
+        segments,
+        segment_spatial_maps,
+        equations,
+        mitigation_telemetry,
+        None,
+    )
+    
+    extracted_names = [f["name"] for f in functions]
+    assert "myFunc" in extracted_names  # noqa: S101
+

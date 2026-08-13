@@ -701,6 +701,15 @@ def _get_node_name(node: Any) -> Optional[str]:
     # to match GitGalaxy's own stored name: `_extract_name`'s token charset
     # (`[a-zA-Z0-9_./%$():~-]+`) doesn't include "@", so it never survives normalization on the
     # GitGalaxy side either.
+    # #1406: ruby's singleton_class (class << self) has no "name" field. The children are literally
+    # `class`, `<<`, and the target (like `self` or `@ivar`). We reconstruct the exact string GitGalaxy's
+    # class_start regex captures ("<< self" or "<< @ivar") by appending the target child's text.
+    if node.type == "singleton_class":
+        for child in node.children:
+            if child.type not in ("class", "<<", "comment"):
+                return "<< " + child.text.decode("utf8")
+        return None
+
     if node.type == "media_statement":
         return "media"
     if node.type == "supports_statement":

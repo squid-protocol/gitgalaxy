@@ -2360,6 +2360,8 @@ class StructuralExtractor:
             else:
                 scan_pos += 1
 
+            equation_start_idx = None
+
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
@@ -2389,12 +2391,28 @@ class StructuralExtractor:
                         # line-count floor below on every single-signature
                         # function, which is nearly all of them.
                         if lang_id == "haskell" and re.match(re.escape(name) + r"(?!['\w])", stripped):
+                            if equation_start_idx is None:
+                                equation_start_idx = scan_pos
                             scan_pos = line_end
                             continue
                         end_idx = scan_pos
                         break
 
                 scan_pos = line_end
+
+            if lang_id == "haskell":
+                # #1312: point-free value bindings (e.g. `defaultKaTeXURL :: Text`) look identical
+                # to point-free functions at the `func_start` match level. The only difference is
+                # that a true function's type signature contains an arrow (`->` or linear `⊸`).
+                # We bound this check strictly to the signature span (from the match start up to
+                # the first continuation clause, or the end of the block if no equations follow)
+                # rather than using an unbounded regex lookahead in `func_start`.
+                sig_end = equation_start_idx if equation_start_idx is not None else end_idx
+                # `safe_code` has strings/comments masked, which is perfect since we don't
+                # want to match an arrow inside a default-value string literal or comment
+                signature_text = safe_code[start_idx:sig_end]
+                if "->" not in signature_text and "⊸" not in signature_text:
+                    continue
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()

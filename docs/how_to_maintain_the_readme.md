@@ -101,5 +101,7 @@ or "in progress" — a claim in the README should be true today, not aspirationa
    notice rather than fixing README.md in isolation.
 
 See `.claude/skills/readme-maintenance/SKILL.md` for the skill wrapper around this process,
-and `docs/how_to_write_release_notes.md` for the sibling guide covering release notes (same
-underlying rules, applied to a different surface).
+`docs/how_to_write_release_notes.md` for the sibling guide covering release notes (same
+underlying rules, applied to a different surface), and
+`docs/document_alignment_guide.md` for the doc one level up — which wiki/deep-dive page is
+supposed to back each README claim, and where that's currently out of sync.

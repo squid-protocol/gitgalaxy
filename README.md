@@ -64,22 +64,47 @@ Gitgalaxy can assess full repos, comprised of mixes of 50+ different languages, 
 
 <div>
 
-### **Architecture Intelligence — Security, Code Navigation, and Legacy Modernization Built on One Graph**
+### One Graph, Not Five Separate Tools
 
 Gitgalaxy's core output is one thing: a deterministic structural graph of the whole
-repository. Security auditing, refactor prioritization, and legacy-to-modern language
+repository — Python, Go, Shell, YAML, and everything else in it, represented through the
+same signal set. Security auditing, refactor prioritization, and legacy-to-modern language
 translation (see [Enterprise Codebase Tools & Use Cases](#enterprise-codebase-tools--use-cases)
-below) are all consumers of that same graph, not separate products with separate engines —
-which is why this reads closer to an architecture-intelligence platform than a single-purpose
-vulnerability scanner.
+below) are all consumers of that one graph, not separate products with separate engines —
+which is why this reads closer to an architecture-intelligence platform than a
+single-language linter with a security label on it.
 
-Most code intelligence engines use an AST, like tree-sitter, which offers an overly granular view of a repo (like asking to understand a house and getting a list of every brick and glass pane) and it limits the languages and files that can be scanned. Modern repos are poly-lingual. Many repos have old code without a good AST. To bypass this, Gitgalaxy uses a custom regex/lexical structural-analysis engine with a statistics layer on top — it builds a feature vector per file (from ~97 regex "signal" categories - that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors) and per repo (dependency graph via import resolution + PageRank/centrality), then transforms those raw counts into normalized 0–100 risk scores via sigmoid functions, and exports the result to six formats.
+Most code-intelligence engines build that graph from an AST. Tree-sitter is the best of
+them — fast, resilient to broken syntax, real grammars for dozens of languages — and
+GitGalaxy isn't claiming to out-parse it; see
+**[Claim 10](https://squid-protocol.github.io/gitgalaxy/03-10-claim-10-ast-vs-heuristic-parsing/)**
+for where each approach actually wins. The reason GitGalaxy still doesn't build one is that
+a syntax tree isn't the end product here — it's an input that would need normalizing across
+dozens of separate per-language toolchains before "risk in this Python file" and "risk in
+this Go file" mean the same thing. GitGalaxy skips that normalization step by never building the
+per-language tree at all: instead of parsing exhaustively, it matches ~97 regex "structural
+signal" categories directly against the source — function boundaries, control flow, I/O,
+state mutation, dozens more — the same signals, in the same pass, regardless of language,
+on code that doesn't need to compile. That's the actual trade: less syntactic precision per
+file, measured rather than assumed (see item 4 in
+[Proof, Not Just Claims](#proof-not-just-claims) below), in exchange for one comparable
+graph across a repository no single toolchain could parse end to end.
 
-Gitgalaxy trades AST-level precision for orders-of-magnitude speed and universal language coverage, in the same spirit that [BLAST traded Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/) exhaustive alignment for heuristic speed in genomics. Output includes SARIF, CycloneDX SBOM, a queryable SQLite knowledge graph, an LLM-optimized architecture brief, and 3D visualization data from a single scan pass — see "What Pain Point Does This Solve?" above for real scan-time figures rather than a bare adjective.
+It's the same trade sequencing makes over exhaustive alignment:
+[BLAST swapped Smith-Waterman's](https://squid-protocol.github.io/gitgalaxy/03-01-claim-1-search-strategies/)
+exhaustive comparison for fast signature matching, at the cost of some precision, to make
+genome-scale search tractable at all. GitGalaxy applies the same idea to source code —
+match structural signatures first, infer higher-level architecture from those signatures
+second — to make repository-scale, cross-language analysis tractable.
 
-The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
-
-Crossing that structural graph against git history also surfaces two specific, prioritized refactoring signals: **bus-factor risk** (load-bearing files owned almost entirely by one contributor) and **refactoring hotspots** (files that are simultaneously high-churn, high-complexity, and high-debt — the standard signal for where refactoring effort actually pays off). Both are named, file-level targets, not just a score.
+The per-file signal vector feeds a per-repo dependency graph (import resolution +
+PageRank/centrality), gets normalized into 0–100 risk scores via sigmoid functions, and
+exports to six formats in one scan pass: SARIF, CycloneDX SBOM, a queryable SQLite
+knowledge graph, an LLM-optimized architecture brief, and 3D visualization data. Crossing
+that graph against git history adds two further signals: **bus-factor risk** (load-bearing
+files owned almost entirely by one contributor) and **refactoring hotspots** (files
+simultaneously high-churn, high-complexity, and high-debt) — both named, file-level
+targets, not just a score.
 
 </div>
 
@@ -183,6 +208,18 @@ Every "structural signature" and "AST-free" claim above is backed by three thing
 1. **[3,649 per-signature regression tests](tests/README.md).** `gitgalaxy/standards/language_standards.py` defines every regex rule the engine uses to recognize a construct — a function start, an API boundary, a safety bypass — across the 45 languages that have real structural signatures (~1,970 compiled patterns total). Every one of those rules is tested for what it should match, what it should explicitly *exclude* (the false-positive check most regex-based tools skip), and that it can't be hung by an adversarial input. See **[`tests/README.md`](tests/README.md)** for the full index, and [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) for the audit that closed it out — dozens of real regex bugs found and fixed along the way, not just theoretical coverage.
 2. **A true golden diff against real, unmodified production code.** [`language-crucible`](https://github.com/squid-protocol/language-crucible) is a pinned, tagged snapshot of ~120 real subdirectories pulled from major open-source projects — Godot's C++, the Roslyn C# compiler, curl, Kubernetes, Apollo 11's AGC flight software, and more — deliberately left disconnected and uncompilable, the same hostile state real repos are in. Every pull request that touches the parsing engine re-scans that entire corpus and diffs the output, field by field, against a checked-in snapshot (`tests/golden_master_audit.json`); a diff means the output changed on real code, and it has to be explained before it's accepted — not a smoke test, an actual golden-master comparison. See [`tests/README.md`](tests/README.md#5-golden-master-differential-testing-the-language-crucible) for exactly how this is wired into CI, and [language-crucible's own README](https://github.com/squid-protocol/language-crucible) for why that corpus is built the way it is.
 3. **[Unedited raw scan output at real-world scale](https://github.com/squid-protocol/gitgalaxy-raw-output).** Where the golden-master corpus above proves correctness on ~120 curated adversarial paradigms, this repo is the complementary evidence that the engine actually runs, unmodified, across hundreds of independently-chosen real repositories — every `_galaxy_audit.json`, `_galaxy_master.db`, and `_galaxy_llm.md` the scanner produced, kept versioned per engine release. The corpus manifest pinning exactly which repos and commits were scanned currently covers a 323-repo subset of the larger batch archived there — stated plainly in that repo's own README rather than implied to be complete.
+4. **[Measured against Tree-sitter](docs/language_status/README.md), not asserted.** [`tests/tools/tree_sitter_accuracy_audit.py`](tests/tools/tree_sitter_accuracy_audit.py) diffs GitGalaxy's extraction against real AST ground truth on the [`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus, one committed baseline per language, re-measured and re-charted automatically on every push that touches the parsing engine:
+
+<p align="center">
+  <img src="docs/self_scan/tree_sitter_accuracy_chart.svg" alt="GitGalaxy structural extraction accuracy vs. Tree-sitter ground truth, ranked recall/precision panels by language" width="700">
+</p>
+
+31 languages baselined so far; each panel is ranked independently and "n/a" (no ground-truth
+instances) sorts to the bottom rather than scoring as 0%. Two languages have a full written
+audit behind the chart — [python](docs/language_status/python.md) and
+[javascript](docs/language_status/javascript.md) — which is how real defects like
+[#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (still open) got found in
+the first place; the rest of the 31 are baseline-only so far, not yet manually audited.
 
 That same raw-output batch is what the speed claim above is fit from — every repo plotted, not just the favorable Kubernetes example:
 
@@ -268,9 +305,9 @@ Drop the template for your platform straight into your pipeline — each one run
 
 ## Enterprise Codebase Tools & Use Cases
 
-The core engine's structural graph feeds a set of standalone tools built on top of it, each
-one a separate module under `gitgalaxy/tools/` that consumes the same deterministic scan
-output rather than re-parsing the repo itself.
+This is the "several consumers" half of [One Graph, Not Five Separate Tools](#one-graph-not-five-separate-tools)
+above, made concrete: each tool below is a standalone module under `gitgalaxy/tools/` that
+consumes the same deterministic scan output rather than re-parsing the repo itself.
 
 ### [Automated Legacy Migration: COBOL to Java Spring Boot](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/)
 A deterministic, high-fidelity translation pipeline. It converts legacy COBOL into fully compiling, modern Spring Boot architectures, mapping memory exactly and scaffolding JPA entities, REST controllers, and Maven builds before utilizing AI to translate isolated business logic.

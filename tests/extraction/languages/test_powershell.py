@@ -62,6 +62,8 @@ FUNCTION_CASES: dict[str, Any] = {
         ("function script:TargetFunc {", "TargetFunc"),
     ],
     "invalid": [
+        "param(",  # top-level param block lookalike
+        "[CmdletBinding()]\nparam(",  # attributed top-level param block lookalike
         "class TargetFunc",  # class decl lookalike
         "Invoke-Command",  # bare cmdlet call lookalike
         "$TargetFunc =",  # variable assignment lookalike

@@ -1879,10 +1879,19 @@ class StructuralExtractor:
         if lang_id == "zig":
             csharp_verbatim = r'@"(?:\\.|[^"\\])*"|'
 
-        combined_pattern = (
-            r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
-            r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
-        )
+        if lang_id == "powershell":
+            combined_pattern = (
+                r'@".*?\n"@|'
+                r"@'.*?\n'@|"
+                r'"(?:`"|""|[^"])*"|'
+                r"'(?:''|[^'])*'|"
+                r'<#.*?#>|#[^\n]*'
+            )
+        else:
+            combined_pattern = (
+                r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
+                r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
+            )
 
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
 

@@ -4041,8 +4041,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # keyword exclusion.
             "func_start": re.compile(
                 r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)"
-                r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+([a-zA-Z_]\w*)(?=\s*\()"
-                r"|^[ \t]*(?:(?:hidden|static)\s+)*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
+                r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)([a-zA-Z_]\w*)(?=\s*\()"
+                r"|^[ \t]*(?:(?:hidden|static)\s+)*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)"
                 r"([A-Za-z_]\w*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
                 re.I | re.M,
             ),

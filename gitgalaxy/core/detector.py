@@ -2135,7 +2135,7 @@ class StructuralExtractor:
             # would truncate a completely normal function at that `;`. Track
             # `[`/`]` depth and only treat `{`/`;` as the terminator at
             # depth 0.
-            elif lang_id in ("rust", "zig"):
+            elif lang_id in ("rust", "zig", "solidity"):
                 params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
                 depth = 0
                 pos = params_end_idx
@@ -2153,6 +2153,10 @@ class StructuralExtractor:
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "semi":
+                    if lang_id == "solidity":
+                        matched_text = match.group(0).strip()
+                        if not matched_text.startswith("function"):
+                            continue
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window

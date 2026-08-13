@@ -25,6 +25,8 @@ FUNCTION_CASES = {
         ("function TargetFunc() external payable", "TargetFunc"),
         ("function TargetFunc(uint[] memory array)", "TargetFunc"),
         ("function TargetFunc(mapping(uint => string) storage m) internal", "TargetFunc"),
+        ("function TargetFunc() virtual;", "TargetFunc"),
+        ("modifier TargetFunc() virtual;", "TargetFunc"),
     ],
     "invalid": [
         "contract TargetFunc",

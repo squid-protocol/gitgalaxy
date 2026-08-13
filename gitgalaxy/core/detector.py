@@ -2466,7 +2466,7 @@ class StructuralExtractor:
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
-            if not block or len(block.splitlines()) < 2:
+            if not block or (len(block.splitlines()) < 2 and lang_id != "haskell"):
                 continue
 
             # --- FAST O(N) LINE TRACKER ---

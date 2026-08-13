@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-13T17:50:39+00:00 &#183; commit e1f27d8 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-13T18:30:45+00:00 &#183; commit fced4ed &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -335,8 +335,8 @@
 <text class="value-label" x="745.3" y="453.0">630/656</text>
 <rect class="stripe" x="564" y="457" width="246" height="15"/>
 <text class="row-label" x="644" y="468.0" text-anchor="end">csharp</text>
-<rect x="652" y="460.0" width="82.3" height="9" rx="3" fill="#2972d6"/>
-<text class="value-label" x="739.3" y="468.0">17/19</text>
+<rect x="652" y="460.0" width="84.4" height="9" rx="3" fill="#2962d6"/>
+<text class="value-label" x="741.4" y="468.0">22/24</text>
 <text class="row-label" x="644" y="483.0" text-anchor="end">go</text>
 <rect x="652" y="475.0" width="75.5" height="9" rx="3" fill="#29a5d6"/>
 <text class="value-label" x="732.5" y="483.0">69/84</text>
@@ -440,8 +440,8 @@
 <rect x="926" y="460.0" width="71.9" height="9" rx="3" fill="#29c0d6"/>
 <text class="value-label" x="1002.9" y="468.0">61/78</text>
 <text class="row-label" x="918" y="483.0" text-anchor="end">csharp</text>
-<rect x="926" y="475.0" width="52.2" height="9" rx="3" fill="#29d657"/>
-<text class="value-label" x="983.2" y="483.0">17/30</text>
+<rect x="926" y="475.0" width="67.4" height="9" rx="3" fill="#29d6ca"/>
+<text class="value-label" x="998.4" y="483.0">22/30</text>
 <rect class="stripe" x="838" y="487" width="246" height="15"/>
 <text class="row-label" x="918" y="498.0" text-anchor="end">css</text>
 <text class="na-dash" x="932" y="498.0">n/a</text>

@@ -105,6 +105,9 @@ FUNC_START_CASES = {
         "var myFunc = () {};",
         "String s = \"Future<int> foo() { \";",
         "// void main() {",
+        # Issue #1417: Return-type shield (should not wander across `) {` and match body calls)
+        "    T? result,\n  ) {\n    Navigator.of(context).popUntilWithResult<T>(predicate, result);",
+        "  ) {\n    Identifier.method(foo);",
     ],
     "xfail_invalid": [
         "print('void main() {');",

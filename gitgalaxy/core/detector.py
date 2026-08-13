@@ -1885,7 +1885,7 @@ class StructuralExtractor:
                 r"@'.*?\n'@|"
                 r'"(?:`"|""|[^"])*"|'
                 r"'(?:''|[^'])*'|"
-                r'<#.*?#>|#[^\n]*'
+                r"<#.*?#>|#[^\n]*"
             )
         else:
             combined_pattern = (

@@ -3456,7 +3456,7 @@ class StructuralExtractor:
         # function_data row with its own constructor's (`EditorNode::
         # EditorNode`). Adding it here keeps `~EditorNode`/`::~EditorNode`
         # intact as part of the same token as the class-name suffix.
-        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~@\"-]+", clean) if w.strip("_-:")]
+        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~-]+", clean) if w.strip("_-:")]
 
         return words[-1] if words else "Unknown_Block"
 

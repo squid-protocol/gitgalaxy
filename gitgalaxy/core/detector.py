@@ -2048,22 +2048,41 @@ class StructuralExtractor:
             # exact original brace-only behavior.
             if lang_id == "csharp":
                 params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
-                brace_idx = safe_code.find(opener, params_end_idx, search_limit)
-                arrow_idx = safe_code.find("=>", params_end_idx, search_limit)
-                semi_idx = safe_code.find(";", params_end_idx, search_limit)
+                depth_paren = 0
+                depth_bracket = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif depth_paren == 0 and depth_bracket == 0:
+                        if ch == opener:
+                            term_idx, term_kind = pos, "brace"
+                            break
+                        elif ch == ";":
+                            term_idx, term_kind = pos, "semi"
+                            break
+                        elif ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                            term_idx, term_kind = pos, "arrow"
+                            break
+                    pos += 1
 
-                # Whichever of the three appears first (a -1 "not found"
-                # sorts last) decides what this match actually is.
-                candidates = [(idx, kind) for idx, kind in ((brace_idx, "brace"), (arrow_idx, "arrow")) if idx != -1]
-                if semi_idx != -1 and (not candidates or semi_idx < min(idx for idx, _ in candidates)):
+                if term_kind == "semi":
                     continue  # a bare statement -- `;` arrived before any real terminator
-                if not candidates:
+                if not term_kind:
                     continue  # neither a brace nor an arrow ever showed up in the window
-                idx, kind = min(candidates, key=lambda pair: pair[0])
-                if kind == "brace":
-                    end_idx = self._find_balanced_end(safe_code, idx, opener, closer)
+
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 else:
-                    semi_after_arrow = safe_code.find(";", idx, search_limit)
+                    semi_after_arrow = safe_code.find(";", term_idx, search_limit)
                     if semi_after_arrow == -1:
                         continue
                     end_idx = semi_after_arrow + 1

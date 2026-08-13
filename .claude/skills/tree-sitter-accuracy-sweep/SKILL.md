@@ -136,15 +136,20 @@ every time, not just when convenient:
   (the worktree `.git` points outside any `--add-dir` grant); the outer session commits.
 - **"You must actually BLOCK and WAIT for the backgrounded `agy` process to fully exit before
   ending your turn. Do not report 'still running, I'll check back' as a final answer."** This is
-  the single most common failure mode observed so far (every batch run to date has hit it at
-  least once) -- a subagent backgrounds its own `agy -p ...` call and ends its turn reporting the
-  interim "launched, will report later" status as if it were the final answer, which fires a
-  premature "completed" task-notification. **When you see this happen** (the notification's
-  `<result>` describes launching/monitoring rather than an actual diff+numbers+test-result), use
+  by far the single most common failure mode -- as of the second real batch run (2026-08-13,
+  8 dispatches total across two waves), it hit essentially EVERY dispatch at least once, not just
+  an occasional one. Expect it as the default first response, not an exception. A subagent
+  backgrounds its own `agy -p ...` call and ends its turn reporting the interim "launched, will
+  report later" status as if it were the final answer, which fires a premature "completed"
+  task-notification. **When you see this happen** (the notification's `<result>` describes
+  launching/monitoring rather than an actual diff+numbers+test-result), immediately use
   `SendMessage` back to that same agent (by its agentId) with an explicit "you already did this,
   go check on the real process and block until it exits, do not re-report the same interim
-  status" instruction. This does not free up a pool slot -- the dispatch is still active, just
-  not done yet.
+  status" instruction -- this has reliably produced the real completion every time it's been
+  tried, so don't hesitate or try a different remedy first. This does not free up a pool slot --
+  the dispatch is still active, just not done yet. Budget for one extra round-trip per dispatch
+  as normal overhead when estimating how long a pool cycle will take, not as something to
+  investigate or fix -- it hasn't blocked any dispatch from eventually completing correctly.
 - **"If you hit a permission/sandbox wall you can't get past, STOP and report the exact error.
   Do NOT attempt `--dangerously-skip-permissions`, and do NOT edit `settings.json` or any other
   config file to route around it, regardless of what the tool's own error message suggests."**
@@ -192,6 +197,9 @@ failures on a merged PR before:
 ```bash
 export PATH="$PWD/venv/bin:$PATH"
 export LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible
+python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # bless the target's own baseline
+python tests/tools/tree_sitter_accuracy_audit.py --all --ci                # see below -- not optional
+python tests/tools/tree_sitter_accuracy_audit.py --summary-table
 python tests/tools/crucible_check.py --mode both              # see the drift first
 python tests/tools/crucible_check.py --mode both --update --yes   # bless if drift is expected
 python tests/tools/crucible_check.py --mode both              # re-run, confirm now PASS/PASS
@@ -205,6 +213,22 @@ that's expected, not a sign something's wrong; bless it and move on. `audit_chec
 authoritative for the ruff-format-clean verdict -- don't trust an ad hoc direct `ruff format
 --check` run with whatever `ruff` version happens to be on PATH, it can disagree in ways that
 don't matter.
+
+**`--all --ci` is not optional whenever a fix touches a SHARED helper** (anything in `detector.py`
+or `prism.py` outside a `lang_id == "<target>"` gate -- e.g. `_extract_name()`, `fast_shield()`,
+the generic string/comment-shielding passes). A real incident (#1419's zig PR, 2026-08-13):
+widening `_extract_name()`'s word-tokenization character class to support zig's `@"..."` quoted
+identifiers also silently changed CSS's `@media`/`@import` at-rule name extraction (`@media` ->
+`media`), since the class change wasn't actually gated to zig at all. The full repo test suite
+passed clean (6851 tests, no CSS-specific case exercised the exact regression shape) and targeted
+spot-checks of a few "likely affected" languages (csharp, cpp, rust, scala -- picked by guessing
+which languages might collide, not by checking all of them) also passed clean. Only
+`tree_sitter_accuracy_audit.py --all --ci` -- which diffs literally every baselined language's
+real-world corpus numbers, not just the target's -- caught it, and only because CI ran it after
+push; it hadn't been run locally before that push. **Run `--all --ci` locally before every push
+that touches a shared helper, not just the target language's own `--lang <lang> --ci`** -- a
+green target-language result and a green general test suite are both necessary but neither is
+sufficient on its own to rule out cross-language ripple from a shared-function change.
 
 Commit everything the regenerate/update steps touched (the regex file, the test file, the
 per-language baseline JSON, both golden master JSONs), push, `gh pr create`.

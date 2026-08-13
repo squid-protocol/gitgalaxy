@@ -1,6 +1,6 @@
 {
   "args_comparable": 95,
-  "args_exact_match": 22,
+  "args_exact_match": 95,
   "corpus_path": "language-crucible/data/solidity",
   "extra_classes": 0,
   "extra_functions": 6,

@@ -991,6 +991,10 @@ def _get_param_count(node: Any) -> int:
         #   - "optional_parameter"/"splat_parameter"/"hash_splat_parameter"/"block_parameter":
         #     ruby's `method_parameters` (only the plain, no-default case is a bare "identifier";
         #     `y=1`, `*rest`, `**kw`, `&blk` are each their own wrapper type).
+        #   - "keyword_parameter": ruby's own keyword-argument form (#1506, follow-on gap from
+        #     this same #1339 whitelist -- missed the first time around). Covers BOTH the
+        #     optional (`k: v`) and required (`k:`, no default) forms, which tree-sitter-ruby
+        #     represents with the identical node type -- no `value`-field branching needed.
         #   - "variadic_parameter_declaration": go's `parameter_list` (`y ...string`, distinct
         #     from the plain "parameter_declaration" already counted above).
         # Confirmed via language-crucible for each: e.g. csharp's
@@ -1014,6 +1018,7 @@ def _get_param_count(node: Any) -> int:
             "hash_splat_parameter",
             "block_parameter",
             "variadic_parameter_declaration",
+            "keyword_parameter",
         )
         # #1319: rust's `function_item`/`function_signature_item` parameter list ALSO uses
         # "parameter" (now covered by the base set above) plus "self_parameter" (the receiver
@@ -1082,6 +1087,41 @@ def _get_param_count(node: Any) -> int:
         # `_count_colon_selector_segments`), manufacturing a false args-mismatch on nearly
         # every non-nullary method in the corpus.
         return sum(1 for child in node.children if child.type == "method_parameter")
+    elif node.type == "procedure":
+        # #1504: tcl's grammar exposes the parameter list under a field named "arguments", not
+        # "parameters" -- wraps one "argument" child per parameter (each wrapping a plain
+        # "simple_word"; Tcl has no destructuring/default-value/variadic-marker parameter shapes
+        # to special-case -- even the `args`-as-final-parameter convention is still just a plain
+        # argument/simple_word like any other).
+        arguments_node = node.child_by_field_name("arguments")
+        if arguments_node:
+            return sum(1 for child in arguments_node.children if child.type == "argument")
+    elif node.type == "function":
+        # #1505: haskell's grammar reuses the "function" node TYPE for two unrelated shapes,
+        # both inside func_node_types = {"function"}: an arrow-chain TYPE EXPRESSION nested
+        # inside a `signature` node (fields parameter/arrow/result, no "name" field of its own --
+        # already filtered out by _get_node_name returning None for it, so it never reaches
+        # here), and the REAL function equation (e.g. `configureCommonState a b = return ()`),
+        # whose fields are name/patterns/match. The "patterns" field wraps one child per
+        # parameter -- every named child (plain "variable", wildcard "_", a literal/constructor
+        # pattern like in `f 0 = ...`, etc.) is exactly one parameter position, so count all of
+        # them unconditionally rather than filtering by a specific pattern-node-type whitelist.
+        patterns_node = node.child_by_field_name("patterns")
+        if patterns_node:
+            return len(patterns_node.named_children)
+    elif node.type in ("function_definition", "modifier_definition", "constructor_definition"):
+        # #1503: solidity's function/modifier/constructor nodes have no "parameters" field at
+        # all -- individual "parameter" nodes are bare, unwrapped, field-less direct children,
+        # sitting alongside sibling fields like visibility/state_mutability/return_type_definition.
+        # Only reached when no `parameters` field / C-style declarator / matlab-style
+        # `function_arguments` child matched above -- the other "function_definition"-using
+        # languages (c/cpp/python/matlab/scala) already resolve via one of those and never fall
+        # through to here (shell's parameterless bash function_definition also reaches here, but
+        # has no "parameter"-typed children either way, so this is a harmless no-op for it).
+        # Direct (non-recursive) child scan only, so `return_type_definition`'s own nested
+        # "parameter" node(s) -- the `returns (...)` list -- are correctly excluded (they're
+        # grandchildren, not direct children, of the function/modifier/constructor node).
+        return sum(1 for child in node.children if child.type == "parameter")
 
     return 0
 

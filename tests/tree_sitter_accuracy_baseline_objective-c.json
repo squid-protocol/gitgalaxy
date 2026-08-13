@@ -1,9 +1,9 @@
 {
   "args_comparable": 149,
-  "args_exact_match": 110,
+  "args_exact_match": 148,
   "corpus_path": "language-crucible/data/objective-c",
   "extra_classes": 0,
-  "extra_functions": 2,
+  "extra_functions": 1,
   "files_scanned": 5,
   "found_classes": 5,
   "found_functions": 149,

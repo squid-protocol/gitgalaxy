@@ -1,6 +1,6 @@
 {
   "args_comparable": 81,
-  "args_exact_match": 31,
+  "args_exact_match": 43,
   "corpus_path": "language-crucible/data/haskell",
   "extra_classes": 0,
   "extra_functions": 29,

@@ -1,6 +1,6 @@
 {
   "args_comparable": 117,
-  "args_exact_match": 89,
+  "args_exact_match": 106,
   "corpus_path": "language-crucible/data/ruby",
   "extra_classes": 0,
   "extra_functions": 12,

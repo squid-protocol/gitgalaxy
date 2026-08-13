@@ -159,20 +159,22 @@ def test_javascript_func_start_known_limitation_no_whitespace_tolerance_between_
     assert func_start.search("  *TargetFunc() {"), "sanity: the real, zero-space generator form still matches"
 
 
-def test_javascript_func_start_known_limitation_bare_call_at_line_start():
+def test_javascript_func_start_bare_call_site_identifier_no_longer_matches():
     """
-    Documents a known, NOT-fixed limitation (not silently ignored): a bare
-    call statement written at true line start with no preceding modifier
-    keyword (e.g. a Jest/Mocha `it('...', () => {...})` block) is
-    structurally indistinguishable, to a single-pass regex with no scope
-    tracking, from a real class-member method signature written the same
-    way. Same fundamental ambiguity #789 (csharp) and #815 (typescript)
-    hit and deliberately did not fix at the regex level. Recorded here so
-    a future pass doesn't rediscover this.
+    Verifies that a bare call statement written at true line start with no
+    preceding modifier keyword (e.g. `swap( elem, cssShow, function() {`)
+    or a Jest/Mocha `it('...', () => {...})` block is correctly REJECTED.
+    Previously, the func_start regex falsely matched these as method definitions
+    because the `[^)]*` catch-all for parameter lists greedily consumed inline
+    callbacks (which contain their own `)`), leading to phantom extractions
+    (issue #1452). This is fixed by restricting the parenthesis match to `[^)(]*`.
     """
     func_start = JS_RULES["func_start"]
     jest_block = "describe('suite', () => {\n  it('does the thing', () => {\n    TargetFunc();\n  });\n});"
-    assert func_start.search(jest_block), "documents current (accepted) behavior: this does match"
+    swap_block = "\t\t\t\t\tswap( elem, cssShow, function() {"
+    
+    assert not func_start.search(jest_block), "the inline arrow function in the arguments prevents match"
+    assert not func_start.search(swap_block), "the inline function in the arguments prevents match"
 
 
 def test_javascript_func_start_string_literal_lookalike_still_matches_at_regex_level():

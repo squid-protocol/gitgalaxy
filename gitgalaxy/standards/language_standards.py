@@ -756,7 +756,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # working the same as before; only a bare statement with
                 # neither `{` nor `=>` anywhere (e.g. `next();`) is newly
                 # rejected.
-                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)]*\)[ \t\n]*(?:=>[ \t\n]*)?\{)"
+                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)(]*\)[ \t\n]*(?:=>[ \t\n]*)?\{)"
                 r")",
                 re.M,
             ),

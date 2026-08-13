@@ -1884,7 +1884,6 @@ class StructuralExtractor:
             r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
         )
 
-
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
 
         # Macro Shields (Strictly Gated to C-Family)

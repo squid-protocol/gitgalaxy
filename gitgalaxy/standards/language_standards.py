@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 98.9% | 100.0% | 100.0% | 100.0% |
 | Tcl | 98.6% | 98.6% | N/A | N/A |
 | Typescript | 92.7% | 89.8% | 100.0% | 100.0% |
-| Zig | 73.9% | 100.0% | 96.0% | 99.8% |
+| Zig | 98.0% | 100.0% | 96.0% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 

@@ -366,7 +366,18 @@ NODE_MAPS = {
     },
     "dart": {
         "ts_lang": "dart",
-        "func_node_types": {"function_signature", "local_function_declaration", "method_signature"},
+        # constructor_signature/constant_constructor_signature/factory_constructor_signature: dart
+        # constructors (`Foo()`, `const Foo.raw()`, `factory Foo.create()`) get their own node
+        # types, distinct from function_signature/method_signature -- see _get_node_name's dart
+        # constructor branch for why they were entirely invisible to real_functions before this.
+        "func_node_types": {
+            "function_signature",
+            "local_function_declaration",
+            "method_signature",
+            "constructor_signature",
+            "constant_constructor_signature",
+            "factory_constructor_signature",
+        },
         # #1295: dart's `mixin` declarations get their own `mixin_declaration` node type, and
         # `enum` declarations get `enum_declaration` -- distinct from `class_definition`, real
         # named class-like entities GitGalaxy's own class_start regex intentionally matches,
@@ -852,6 +863,21 @@ def _get_node_name(node: Any) -> Optional[str]:
             if child.type == "identifier":
                 return child.text.decode("utf8")
         return None
+
+    # dart's three constructor node types have no "name" field either -- the class name (and,
+    # for a named/factory constructor, the constructor name after the dot) both sit as plainly-
+    # typed "identifier" children in source order, so joining them with "." reconstructs exactly
+    # the string GitGalaxy's own func_start regex captures (e.g. "ThemeData.dark", or just
+    # "ThemeData" for the unnamed/default constructor). factory_constructor_signature nests
+    # inside a method_signature wrapper that itself has no name field and returns None above --
+    # walk() still finds this inner node directly since it's listed in func_node_types too.
+    # Confirmed via flutter/theme_data.dart: `factory ThemeData.dark(...)` and
+    # `const ThemeData.raw(...)` were both entirely invisible to real_functions before this,
+    # scoring every real constructor as a false "extra" (a ground-truth gap, not a GitGalaxy
+    # engine defect -- same shape as #1314's csharp constructor_declaration fix).
+    if node.type in ("constructor_signature", "constant_constructor_signature", "factory_constructor_signature"):
+        parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
+        return ".".join(parts) if parts else None
 
     return None
 

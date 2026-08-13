@@ -8605,7 +8605,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start: Executable Logic Anchors. Anchors logic blocks (fn). EXCLUDES struct/enum/union headers.
             "func_start": re.compile(
-                r"^[ \t]*(?:(?:pub|export|extern(?:[ \t]+\"[^\"]+\")?|inline|noinline|callconv\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\)|linksection\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\)|align\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\))[ \t\n]+)*fn[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?=[ \t\n]*\()",
+                r"^[ \t]*(?:(?:pub|export(?:[ \t]+\"(?:[^\"\\]|\\.)*\")?|extern(?:[ \t]+\"(?:[^\"\\]|\\.)*\")?|inline|noinline|callconv\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\)|linksection\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\)|align\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*\))[ \t\n]+)*fn[ \t\n]+(@\"(?:[^\"\\]|\\.)*\"|[a-zA-Z_]\w*)(?=[ \t\n]*\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (struct, enum, union, error, opaque).

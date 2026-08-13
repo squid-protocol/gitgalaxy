@@ -37,6 +37,9 @@ FUNC_START_VALID = [
     ('pub fn @"weird function name"() void {}', '@"weird function name"'),
     ("fn\t\t \nweird_whitespace()\n\t!void {", "weird_whitespace"),
     ("fn return_type_func() fn(i32) void {", "return_type_func"),
+    ('extern "stdcall" fn foo() void', "foo"),
+    ('export "c" fn bar() void', "bar"),
+    ('pub fn @"resume"() void {}', '@"resume"'),
 ]
 
 FUNC_START_INVALID = [

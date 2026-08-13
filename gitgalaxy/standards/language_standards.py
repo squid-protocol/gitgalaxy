@@ -39,7 +39,7 @@ for the same metrics tracked over time across pushes to main.
 | Cpp | 93.4% | 95.4% | 98.6% | 92.6% |
 | Csharp | 99.1% | 63.4% | 89.5% | 56.7% |
 | Css | 100.0% | 100.0% | N/A | N/A |
-| Dart | 72.9% | 57.2% | 100.0% | 100.0% |
+| Dart | 93.8% | 66.8% | 100.0% | 100.0% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | 82.1% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
@@ -9101,24 +9101,36 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # indistinguishable here, but dart's zero-prefix valid cases
             # are all constructors that always have bodies anyway, so this
             # loses no coverage).
+            # =====================================================================
+            # [ THE RETURN-TYPE BOUNDARY SHIELD (DART) ]
+            # Issue #1417: The previous return-type token class `[\w<>\[\],?(){}]`
+            # allowed `{`, `}`, `(`, `)` as valid literal characters. Combined with
+            # lazy repetition, this let the return-type guess wander across a real
+            # function's own parameter-list close and body-open `) {` and land on an
+            # unrelated identifier deep inside the body (e.g. `Navigator.of`),
+            # misreporting it as a phantom function definition.
+            # FIX: Tightened the character class to `(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))`
+            # to reject `{`/`}` entirely and only permit `(`/`)` if they are balanced.
+            # This prevents the regex from crossing structural boundaries like `) {`.
+            # =====================================================================
             "func_start": re.compile(
                 r"^[ \t]*(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
-                r"(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)"
+                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
+                r"(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
                 r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
-                r"(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){1,5}?)"
+                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
+                r"(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){1,5}?)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
                 r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|;))"
                 r"|"
-                r"(?!(?:(?:[\w<>\[\],?(){}]+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const)\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|case|when|return|throw|new|var|final|const|Function)\b)"
                 r"(?:(?:get|set|factory)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\([^)]*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{)|=>|\{))"

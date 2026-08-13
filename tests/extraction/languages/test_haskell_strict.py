@@ -43,7 +43,13 @@ _HS_SIMPLE_CASES = [
     ("func_start", "myFunc :: Int -> Int", "data myFunc ="),
     ("func_start", "(+) :: Num a => a -> a -> a", "module foo"),
     
-    ("args", ":: Int -> Int", "foo x ="),
+    # #1505 (follow-up): "foo x =" is no longer a negative case -- it's the
+    # minimal shape of a signature-less equation (`identity x = x`), which
+    # args' new group-3 alternative is specifically meant to recognize (see
+    # language_standards.py's own comment on that alternative). "data Int"
+    # is still a clean negative: "data" is one of the reserved-keyword
+    # exclusions the same alternative's negative lookahead rejects.
+    ("args", ":: Int -> Int", "data Int"),
     ("args", "\\x y -> x + y", "foo x y"),
     ("args", "@Int", "data Int"),
     
@@ -251,6 +257,15 @@ def test_haskell_redos_immunity_sweep():
     these as permanent regression pins.
     """
     assert_redos_immune(HS_RULES["args"], "x :: {-" + "-" * 100000, timeout_sec=3.0)
+    # #1505: the new equation-pattern-list alternative's `(?:TOKEN)(?:[ \t]+(?:TOKEN))*`
+    # repetition and its four disjoint-prefix token alternatives (quoted string /
+    # one-level paren group / one-level bracket group / bare identifier run) --
+    # probe a long run of space-separated tokens with no trailing "=" (worst-case
+    # backtrack: retry at every token-count boundary before failing) and a long
+    # run of unbalanced "(" (worst-case: the one-level `[^()]*` alternative can
+    # never close, so every position must fail cleanly, not hang).
+    assert_redos_immune(HS_RULES["args"], "foo " + "bar " * 50000 + "notEquals", timeout_sec=3.0)
+    assert_redos_immune(HS_RULES["args"], "foo " + "(bar " * 50000, timeout_sec=3.0)
     assert_redos_immune(HS_RULES["func_start"], "foo {-" + "-" * 100000, timeout_sec=3.0)
     assert_redos_immune(HS_RULES["class_start"], "data Foo {-" + "-" * 100000, timeout_sec=3.0)
     assert_redos_immune(HS_RULES["class_start"], "data Foo " + "bar " * 30000, timeout_sec=3.0)

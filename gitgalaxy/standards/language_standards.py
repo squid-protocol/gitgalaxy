@@ -7845,8 +7845,50 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # branches are). Group 2 (lambda params, space-separated like
             # Scheme) already gets a correct count from the existing
             # whitespace-split fallback, no special-casing needed.
+            # #1505 (follow-up): Group 3 is a signature-less function EQUATION's
+            # own LHS pattern list (`name pat1 pat2 = ...`) -- the exact shape
+            # func_start's own equation-form alternative anchors on (see that
+            # rule's comment below), needed because typeclass instance methods
+            # and where/let-local helpers routinely have no restated `::`
+            # signature at all, so group 1 never fires for their block and args
+            # silently measured 0 regardless of true arity. Anchored to the
+            # ABSOLUTE start of the block (`^` with no re.M) so it only ever
+            # reads the function's OWN first line, not some unrelated
+            # `name ... =` deeper in the body. Named in
+            # `_args_pattern_list_groups` below, which routes it to
+            # detector.py's `_count_haskell_pattern_list` -- a naive
+            # whitespace-split (the generic fallback every other language
+            # uses) wrongly splits a single parenthesized compound pattern
+            # like `(MetaList xs)` into two tokens, so this needs the same
+            # kind of dedicated counter as group 1's arrow-counting. A guard
+            # (`| cond = ...`) between the pattern list and the real `=`
+            # isn't a shape this alternative understands and simply fails to
+            # match (falls back to the pre-existing 0), not a regression.
+            #
+            # #1505 (follow-up, separate bug in the SAME rule): group 1's own
+            # character classes never included "." -- real-world Haskell
+            # overwhelmingly writes qualified/imported type names with a dot
+            # (`T.Text`, `IO.Newline`, `M.Map`), and the moment the scan hit
+            # that dot it fell out of the repetition entirely, truncating the
+            # whole captured signature to whatever came before it (confirmed:
+            # `inquotes :: T.Text -> T.Text` captured only `T` -- zero arrows
+            # counted from a real 1-arrow signature, i.e. every arrow after
+            # the first dotted type silently vanished). Added "." to both the
+            # first-char and continuation classes; safe for `_count_haskell_
+            # type_arrows` either way since it only scans for top-level "->"
+            # substrings and doesn't care what other characters ride along
+            # (e.g. a `forall a. a -> a` full-stop getting swept into the
+            # capture is harmless noise, not a new miscount).
             "args": re.compile(
-                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\',()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'\s,()\[\]]|=>|->|⊸)*)|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->|@[A-Z][a-zA-Z0-9_\']*"
+                r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\'.,()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'.\s,()\[\]]|=>|->|⊸)*)"
+                r"|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->"
+                r"|@[A-Z][a-zA-Z0-9_\']*"
+                r"|^[ \t]*(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
+                r"|class|instance|data|type|newtype|deriving|foreign|default"
+                r"|infixl|infixr|infix)\b)[a-zA-Z_][a-zA-Z0-9_']*[ \t]+"
+                r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+)"
+                r"(?:[ \t]+(?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+))*)"
+                r"[ \t]*=(?!=)(?!>)"
             ),
             # Which `args` capture-group index represents a `::` type
             # signature (routes to arrow-based counting in detector.py) --
@@ -7855,6 +7897,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # skips any rule key starting with "_", same convention
             # `_dependency_capture` uses).
             "_args_arrow_count_groups": {1},
+            # Which `args` capture-group index represents a signature-less
+            # equation's own LHS pattern list -- routes to detector.py's
+            # `_count_haskell_pattern_list` (#1505 follow-up). See the `args`
+            # comment above for why this can't reuse the generic
+            # comma/whitespace fallback.
+            "_args_pattern_list_groups": {3},
             # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
             "structural_boundaries": re.compile(
                 r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern)\b|%1\s*->|⊸"

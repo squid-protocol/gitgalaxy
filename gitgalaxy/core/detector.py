@@ -3290,6 +3290,68 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _count_haskell_pattern_list(self, text: str) -> int:
+        """
+        Counts space-separated argument patterns in a signature-less Haskell
+        function equation's own LHS (#1505 follow-up), e.g.
+        `combine newval (MetaList xs)` is 2 arguments, not 3. The generic
+        whitespace-split fallback every other language uses would wrongly
+        split the single parenthesized compound pattern `(MetaList xs)` into
+        two tokens -- this is depth- and string-aware instead: whitespace
+        inside a (), [], or a double-quoted string doesn't separate two real
+        top-level pattern arguments, only whitespace at depth 0 outside a
+        string does. Mirrors the token shapes the `args` regex's own
+        equation-pattern-list alternative captures (quoted string / one-level
+        paren group / one-level bracket group / bare identifier-ish run), so
+        this only ever needs to walk text that regex has already validated.
+        """
+        depth = 0
+        in_string = False
+        quote_char = ""
+        count = 0
+        at_boundary = True
+        i = 0
+        while i < len(text):
+            ch = text[i]
+            if in_string:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == quote_char:
+                    in_string = False
+                i += 1
+                continue
+            if ch == '"':
+                in_string = True
+                quote_char = ch
+                if at_boundary:
+                    count += 1
+                    at_boundary = False
+                i += 1
+                continue
+            if ch in "([":
+                if depth == 0 and at_boundary:
+                    count += 1
+                    at_boundary = False
+                depth += 1
+                i += 1
+                continue
+            if ch in ")]":
+                if depth > 0:
+                    depth -= 1
+                i += 1
+                continue
+            if ch in " \t":
+                if depth == 0:
+                    at_boundary = True
+                i += 1
+                continue
+            if depth == 0 and at_boundary:
+                count += 1
+                at_boundary = False
+            i += 1
+        return count
+
     def _calculate_block_metrics(
         self,
         name: str,
@@ -3391,7 +3453,19 @@ class StructuralExtractor:
                     # the original comma/whitespace-split heuristics below.
                     arrow_count_groups = rules.get("_args_arrow_count_groups")
                     colon_selector_groups = rules.get("_args_colon_selector_groups")
-                    if arrow_count_groups and arg_match.lastindex in arrow_count_groups:
+                    pattern_list_groups = rules.get("_args_pattern_list_groups")
+                    if pattern_list_groups and arg_match.lastindex in pattern_list_groups:
+                        # Haskell signature-less equation LHS (#1505 follow-up):
+                        # a naive whitespace split would wrongly split a single
+                        # parenthesized compound pattern like `(MetaList xs)`
+                        # into two tokens (and the self-contained-"(...)"
+                        # branch below only handles the case where the ENTIRE
+                        # capture is one paren group, not a mix of bare and
+                        # parenthesized patterns like `newval (MetaList xs)`),
+                        # so this needs its own dedicated depth-aware counter,
+                        # same rationale as arrow_count_groups just above.
+                        args_count = self._count_haskell_pattern_list(stripped)
+                    elif arrow_count_groups and arg_match.lastindex in arrow_count_groups:
                         # Haskell `::` type signature (#1209): curried arity
                         # is the top-level arrow count, not a comma-separated
                         # list or a whitespace-token count -- neither maps

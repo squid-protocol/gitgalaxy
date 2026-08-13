@@ -143,13 +143,29 @@ ARGS_CASES: dict[str, Any] = {
     "valid": [
         (":: Int -> Int", ":: Int -> Int"),
         (":: (Eq a) => a -> a", ":: (Eq a) => a -> a"),
+        # #1505: qualified/dotted type names must not truncate the captured
+        # signature -- pre-fix this only captured "T" (one letter, zero
+        # arrows) from a real 1-arrow signature.
+        (":: T.Text -> T.Text", ":: T.Text -> T.Text"),
         ("\\x ->", "\\x ->"),
         ("\\(x, y) ->", "\\(x, y) ->"),
         ("@Int", "@Int"),
+        # #1505: signature-less equation form -- a typeclass instance method
+        # or where/let-local helper with no restated `::` signature is
+        # defined purely by its pattern-matched LHS.
+        ("identity x = x", "identity x ="),
+        ("combine newval (MetaList xs) = MetaList xs", "combine newval (MetaList xs) ="),
     ],
     "invalid": [
         "foo",
+        # `let x = 1` is a value binding, not a function equation -- "let"
+        # must never be treated as the function name being defined (#1505).
         "let x = 1",
+        "where x = 1",
+        # A guard between the pattern list and the real `=` isn't a shape
+        # the equation-form alternative understands (#1505) -- must not
+        # match at all rather than mis-binding the guard as part of the args.
+        "foo x | x > 0 = 1",
     ],
     "pathological": [
         (":: \n (Eq a, \n Show a) \n => \n a \n -> \n a", ":: \n (Eq a, \n Show a) \n => \n a \n -> \n a"),

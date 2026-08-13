@@ -41,7 +41,7 @@ for the same metrics tracked over time across pushes to main.
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 79.8% | 71.5% | 100.0% | 100.0% |
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
-| Go | 95.6% | 100.0% | 82.1% | 100.0% |
+| Go | 95.6% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 56.4% | 65.4% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |

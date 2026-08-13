@@ -818,9 +818,21 @@ def _get_node_name(node: Any) -> Optional[str]:
     # `type ScheduleResult struct {...}` real_classes measured 0 pre-fix despite the corpus
     # obviously containing real struct/interface declarations -- a ground-truth measurement gap,
     # not evidence GitGalaxy's own class_start regex was wrong.
+    #
+    # Only struct_type/interface_type type_specs count, though: GitGalaxy's own go class_start
+    # regex deliberately anchors on `type IDENT (struct|interface)` and never matches a plain
+    # type alias (`type gcMode int32`) or a function type (`type HandlerFunc func(...)`) --
+    # counting every type_spec here (the pre-fix behavior) treated those aliases as real classes
+    # too, scoring every one of them as a false "missing" class. Same "Class 5" ground-truth
+    # scope-mismatch shape as the csharp enum / css-html precedents. Confirmed via
+    # core/mgc.go's `type gcMode int32` and `type HandlerFunc func(...)`-shaped aliases in
+    # net/http-style corpus files -- none are matched by GitGalaxy, correctly.
     if node.type == "type_declaration":
         for child in node.children:
             if child.type == "type_spec":
+                type_node = child.child_by_field_name("type")
+                if type_node is None or type_node.type not in ("struct_type", "interface_type"):
+                    continue
                 name_node = child.child_by_field_name("name")
                 if name_node:
                     return name_node.text.decode("utf8")

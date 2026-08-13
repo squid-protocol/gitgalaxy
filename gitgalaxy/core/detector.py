@@ -2149,7 +2149,12 @@ class StructuralExtractor:
                             if ch == opener:
                                 term_idx, term_kind = pos, "brace"
                                 break
-                            elif ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] != "=" and safe_code[pos - 1] not in "=!<>":
+                            elif (
+                                ch == "="
+                                and pos + 1 < search_limit
+                                and safe_code[pos + 1] != "="
+                                and safe_code[pos - 1] not in "=!<>"
+                            ):
                                 term_idx, term_kind = pos, "eq"
                                 break
                         pos += 1
@@ -2158,7 +2163,9 @@ class StructuralExtractor:
                     elif term_kind == "eq":
                         end_idx = next_match_start
                     else:
-                        end_idx = params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
+                        end_idx = (
+                            params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
+                        )
             # #1314 (follow-up): objc's func_start has two alternatives sharing one pattern --
             # group 1 is the `-`/`+`-prefixed method-selector form, group 2 is a plain C-style
             # prototype form. Group 1 is unambiguous: nothing but a real method signature can

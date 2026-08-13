@@ -43,7 +43,7 @@ for the same metrics tracked over time across pushes to main.
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
-| Haskell | 56.4% | 65.4% | 100.0% | 100.0% |
+| Haskell | 86.2% | 73.6% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 74.1% | 100.0% | 100.0% |
@@ -7861,8 +7861,44 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic (Type Signatures).
             # EXCLUDES data/type/class declarations to fix False Positives.
+            # #1442: a plain `::` type signature is the ONLY thing the first
+            # alternative below can anchor on -- but two extremely common
+            # real-world patterns never have one: typeclass instance method
+            # equations (the signature lives on the class declaration, not
+            # restated per-instance, e.g. `toJSON PlainMath = String "plain"`)
+            # and `where`-clause local helpers (Haskell allows -- and real
+            # code commonly omits -- a signature on these). Both are instead
+            # defined purely by a pattern-matched EQUATION: `name pattern...
+            # = expr`, indented under an enclosing `instance ... where` or
+            # `where` block. The second alternative anchors on that shape
+            # directly: an indented (`[ \t]+`, deliberately excluding
+            # column-0 -- unsigned top-level equations are a materially
+            # different, still-open problem, see the issue) lowercase-led
+            # identifier (real Haskell function/variable names can never
+            # start uppercase, which is what lets this cleanly reject
+            # constructor-headed patterns like `Just v = ...`), a reserved-
+            # word exclusion (so `where`/`do`/`case`/etc. themselves can
+            # never be mistaken for the bound name), then a lookahead
+            # requiring at least one non-whitespace pattern token before an
+            # unambiguous `=` (bounded to the current line via the `[^\n=]`
+            # exclusion, so this can never cross into a later line's `=` --
+            # each `=`-free line, e.g. every line of a `do` block that uses
+            # `<-` instead, fails closed). The `(?<![!<>/])`/`(?![=>])`
+            # guards keep `==`, `=>`, `<=`, `>=`, and `/=` from ever being
+            # mistaken for the defining `=`; requiring a real pattern token
+            # (not just more whitespace) before it is what excludes a bare
+            # `name = expr` value binding (mirrors #1312's point-free
+            # reasoning for the signature-anchored form -- zero args between
+            # name and `=` means "value", not "function").  A given
+            # function's 2nd+ pattern-matched clause (e.g. `toJSON`'s other
+            # 5 equations in the example above) independently satisfies this
+            # same alternative too; detector.py's `_slice_by_indentation`
+            # dedups those against the block the first clause already
+            # absorbed via the existing same-name-same-indent continuation
+            # walk, rather than emitting one node per clause.
             "func_start": re.compile(
-                r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)",
+                r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
+                r"|^[ \t]+(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

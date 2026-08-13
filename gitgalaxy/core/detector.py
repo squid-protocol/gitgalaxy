@@ -2542,6 +2542,20 @@ class StructuralExtractor:
         current_line_count = offset + 1
         last_counted_idx = 0
 
+        # #1442: haskell's equation-form func_start alternative (no `::`
+        # required -- see the rule's own comment) matches EVERY pattern-
+        # matched clause of a multi-clause function independently (e.g. each
+        # of `toJSON`'s 6 instance-method equations), not just the first.
+        # The first clause's own dedent-scan below already absorbs every
+        # sibling clause into ONE block via the pre-existing same-name-
+        # same-indent continuation walk, so clauses 2..N would otherwise
+        # each spawn their own duplicate, overlapping FunctionNode. Track
+        # the most recently accepted haskell block's (name, indent, end)
+        # and skip any later match that's just a clause already inside it.
+        last_hs_group_name: Optional[str] = None
+        last_hs_group_indent = -1
+        last_hs_group_end = -1
+
         for match in matches:
             start_idx = match.start()
 
@@ -2554,6 +2568,14 @@ class StructuralExtractor:
             line_start_idx = safe_code.rfind("\n", 0, start_idx) + 1
             first_line = safe_code[line_start_idx : match.end()]
             base_indent = len(first_line) - len(first_line.lstrip())
+
+            if (
+                lang_id == "haskell"
+                and name == last_hs_group_name
+                and base_indent == last_hs_group_indent
+                and start_idx < last_hs_group_end
+            ):
+                continue
 
             end_idx = len(safe_code)
 
@@ -2624,7 +2646,15 @@ class StructuralExtractor:
 
                 scan_pos = line_end
 
-            if lang_id == "haskell":
+            # #1442: the eqn-form alternative (group 3) has no `::` signature
+            # at all by construction -- it anchors purely on a pattern-
+            # matched equation (`name pattern... = expr`). The point-free
+            # arrow check below only makes sense for the `::`-signature
+            # alternative (groups 1/2), where a missing arrow distinguishes
+            # a point-free VALUE binding from a point-free FUNCTION; applying
+            # it to an eqn-form match would reject nearly every real one
+            # (e.g. `toJSON PlainMath = String "plain"` has no arrow at all).
+            if lang_id == "haskell" and match.group(3) is None:
                 # #1312: point-free value bindings (e.g. `defaultKaTeXURL :: Text`) look identical
                 # to point-free functions at the `func_start` match level. The only difference is
                 # that a true function's type signature contains an arrow (`->` or linear `⊸`).
@@ -2665,6 +2695,11 @@ class StructuralExtractor:
 
             satellites.append(sat)
             sum_fxn_impact += mag
+
+            if lang_id == "haskell":
+                last_hs_group_name = name
+                last_hs_group_indent = base_indent
+                last_hs_group_end = end_idx
 
         return satellites, sum_fxn_impact
 

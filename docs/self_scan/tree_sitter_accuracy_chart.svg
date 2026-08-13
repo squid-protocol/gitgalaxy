@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-13T15:58:11+00:00 &#183; commit 77d2f11 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-13T16:27:47+00:00 &#183; commit a5fe4b7 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -238,8 +238,8 @@
 <rect x="378" y="490.0" width="66.1" height="9" rx="3" fill="#29d6c1"/>
 <text class="value-label" x="449.1" y="498.0">23/32</text>
 <text class="row-label" x="370" y="513.0" text-anchor="end">dart</text>
-<rect x="378" y="505.0" width="61.5" height="9" rx="3" fill="#29d69d"/>
-<text class="value-label" x="444.5" y="513.0">677/1014</text>
+<rect x="378" y="505.0" width="63.2" height="9" rx="3" fill="#29d6ab"/>
+<text class="value-label" x="446.2" y="513.0">677/986</text>
 <rect class="stripe" x="290" y="517" width="246" height="15"/>
 <text class="row-label" x="370" y="528.0" text-anchor="end">haskell</text>
 <rect x="378" y="520.0" width="60.2" height="9" rx="3" fill="#29d694"/>
@@ -521,8 +521,8 @@
 <rect x="1200" y="370.0" width="84.0" height="9" rx="3" fill="#2965d6"/>
 <text class="value-label" x="1289.0" y="378.0">84/92</text>
 <text class="row-label" x="1192" y="393.0" text-anchor="end">dart</text>
-<rect x="1200" y="385.0" width="82.5" height="9" rx="3" fill="#2970d6"/>
-<text class="value-label" x="1287.5" y="393.0">607/677</text>
+<rect x="1200" y="385.0" width="82.6" height="9" rx="3" fill="#2970d6"/>
+<text class="value-label" x="1287.6" y="393.0">608/677</text>
 <rect class="stripe" x="1112" y="397" width="246" height="15"/>
 <text class="row-label" x="1192" y="408.0" text-anchor="end">go</text>
 <rect x="1200" y="400.0" width="82.3" height="9" rx="3" fill="#2972d6"/>

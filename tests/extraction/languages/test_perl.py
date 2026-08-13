@@ -175,3 +175,35 @@ def test_perl_dependency_capture_pathological(payload, expected_path):
         PERL_RULES["_dependency_capture"], payload, expected_path, "perl._dependency_capture"
     )
     assert_redos_immune(PERL_RULES["_dependency_capture"], payload)
+
+
+def test_perl_qr_brace_shield_does_not_desync_brace_slicing():
+    """
+    Issue #1437: a stray escaped quote inside an unrelated s/// substitution regex (not a
+    real string delimiter) used to pair with the next unrelated escaped quote later in the
+    file as a bogus "string", silently swallowing a `{` in between and desyncing
+    _slice_by_braces for every function after it. Also covers the qr{...} case that
+    motivated the issue originally -- its own internal `{`/`}` (from the {2,4}-shaped
+    COMMIT marker below) must not be miscounted as real code braces either.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    code = (
+        "sub check_etag {\n"
+        '  $x =~ s/^\\"//g;\n'
+        "  return 1;\n"
+        "}\n"
+        "\n"
+        "sub multipart_start {\n"
+        "  my $re = qr{ ^ (*COMMIT) [a-z]{2,4} };\n"
+        "  return $re;\n"
+        "}\n"
+        "\n"
+        "sub close_standby_message {\n"
+        '  $y =~ s/\\"$//g;\n'
+        "  return 0;\n"
+        "}\n"
+    )
+    ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    safe_code = ext._build_brace_safe_stream(code, "perl")
+    assert safe_code.count("{") == safe_code.count("}")

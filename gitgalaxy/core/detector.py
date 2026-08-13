@@ -1887,6 +1887,28 @@ class StructuralExtractor:
                 r"'(?:''|[^'])*'|"
                 r"<#.*?#>|#[^\n]*"
             )
+        elif lang_id == "perl":
+            # #1437: perl was falling through to the C-family default below, which shields
+            # `//`-as-line-comment and `/* */` -- neither exists in perl (`//` is the
+            # defined-or operator, e.g. `$x // $y`) -- so real code containing `//` had
+            # everything after it on the line wrongly blanked, and any coincidental `/*...*/`
+            # -shaped span (easy to hit inside a `/regex/` literal) got misparsed as a block
+            # comment. Perl's own comments are `#`-to-end-of-line, with no block-comment form.
+            #
+            # Both quote patterns are also bounded (same idiom as the rust single-quote /
+            # scala backtick bounds above): perl's `/regex/`, `m//`, `s///` etc. literals
+            # (not shielded at all here -- out of scope for #1437, which only needed the
+            # brace-delimited quote-op forms below) can contain a bare `\"`/`\'` as an
+            # escaped-literal-quote INSIDE the regex body, not a real string delimiter. An
+            # unbounded quote pattern lets that stray quote pair with the next unrelated
+            # real quote anywhere later in the file, silently swallowing everything (including
+            # any `{`/`}` characters) in between -- confirmed on this exact corpus: CGI.pm's
+            # `s/^\"//g;` / `s/\"$//g;` pair (two escaped quotes inside unrelated substitution
+            # regexes, ~15 lines apart) paired with each other as a bogus "string", desyncing
+            # `_slice_by_braces` for the rest of the file. Real perl double/single-quoted
+            # strings are essentially always short; 200 chars comfortably covers legitimate
+            # long ones while still bounding the worst-case cross-regex mispairing.
+            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"'(?:\\.|[^'\\]){0,200}'" r"|#[^\n]*"
         else:
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
@@ -1894,6 +1916,49 @@ class StructuralExtractor:
             )
 
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
+
+        # #1437: perl's brace-delimited quote-like operators (qr{...}, m{...}, s{...}{...},
+        # tr{...}{...}, y{...}{...}, q{...}, qq{...}, qw{...}, qx{...}) are NOT ordinary
+        # code blocks -- their contents are arbitrary regex/string text that can itself
+        # contain unmatched `{`/`}` (quantifiers like `{2,4}`, literal braces in a character
+        # class, etc.), which desyncs any brace-depth counter downstream. Shield each one's
+        # full span (both brace groups, for the two-part s///tr///y/// forms) using the same
+        # balanced-brace finder (`_find_balanced_end`) the rest of this class already trusts,
+        # rather than a hand-rolled depth counter -- reuses proven logic instead of
+        # duplicating it. Longest-operator-first alternation order so `qq`/`qw`/`qx`/`qr`
+        # aren't shadowed by the single-character `q` alternative matching just its own
+        # first letter.
+        if lang_id == "perl":
+
+            def blank(span: str) -> str:
+                if "\n" not in span:
+                    return " " * len(span)
+                return "\n".join(" " * len(line) for line in span.split("\n"))
+
+            perl_quote_op = re.compile(r"\b(?:qw|qq|qx|qr|tr|q|m|s|y)[ \t]*\{")
+            pos = 0
+            parts: list[str] = []
+            while True:
+                qm = perl_quote_op.search(safe_code, pos)
+                if not qm:
+                    parts.append(safe_code[pos:])
+                    break
+                parts.append(safe_code[pos : qm.start()])
+                op = qm.group(0)[:-1].strip()
+                brace_start = qm.end() - 1
+                end_idx = self._find_balanced_end(safe_code, brace_start, "{", "}")
+                parts.append(blank(safe_code[qm.start() : end_idx]))
+                pos = end_idx
+                if op in ("s", "tr", "y"):
+                    ws_match = re.match(r"[ \t]*", safe_code[pos:])
+                    ws_len = len(ws_match.group(0)) if ws_match else 0
+                    second_start = pos + ws_len
+                    if second_start < len(safe_code) and safe_code[second_start] == "{":
+                        end_idx2 = self._find_balanced_end(safe_code, second_start, "{", "}")
+                        parts.append(safe_code[pos:second_start])
+                        parts.append(blank(safe_code[second_start:end_idx2]))
+                        pos = end_idx2
+            safe_code = "".join(parts)
 
         # Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):

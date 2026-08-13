@@ -3,7 +3,7 @@
   "args_exact_match": 539,
   "corpus_path": "language-crucible/data/csharp",
   "extra_classes": 13,
-  "extra_functions": 309,
+  "extra_functions": 308,
   "files_scanned": 6,
   "found_classes": 17,
   "found_functions": 573,

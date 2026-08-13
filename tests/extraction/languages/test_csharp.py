@@ -366,3 +366,30 @@ def test_csharp_dependency_capture_known_limitation_verbatim_string_lookalike_st
     dependency_capture = CSHARP_RULES["_dependency_capture"]
     verbatim = 'string s = @"\nusing System.IO;\n";'
     assert dependency_capture.search(verbatim), "documents current (accepted, unfixed) regex behavior"
+
+
+def test_csharp_detector_issue_1428_lambda_in_args_shield():
+    """
+    Ensures that a lambda arrow (=>) inside a multi-line method argument
+    does not fool the C# function-start shield into treating the call as
+    an expression-bodied member declaration.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    code = """
+    class MyClass {
+        public void Foo() {
+            ReportManifestResourceDuplicates(
+                moduleBuilder.ManifestResources,
+                SourceAssembly.Modules.Skip(1).Select(m => m.Name),
+                AddedModulesResourceNames(resourceDiagnostics),
+                resourceDiagnostics);
+        }
+    }
+    """
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    results = detector.splice(code, "test.cs")
+    functions = [f.get("name") for f in results["functions"]]
+
+    assert "Foo" in functions
+    assert "SourceAssembly.Modules.Skip" not in functions

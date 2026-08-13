@@ -108,6 +108,9 @@ FUNC_START_CASES = {
         # Issue #1417: Return-type shield (should not wander across `) {` and match body calls)
         "    T? result,\n  ) {\n    Navigator.of(context).popUntilWithResult<T>(predicate, result);",
         "  ) {\n    Identifier.method(foo);",
+        # Issue #1421: bare `?` before ternary call, and whole call expression as return type
+        "iconTheme ??= isDark\n        ? IconThemeData(color: kDefaultIconLightColor)\n        : IconThemeData(color: kDefaultIconDarkColor);",
+        "ErrorSummary('setState() called after dispose(): $this'),\n  ErrorDescription(...)",
     ],
     "xfail_invalid": [
         "print('void main() {');",

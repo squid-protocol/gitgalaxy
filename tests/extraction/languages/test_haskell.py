@@ -264,3 +264,27 @@ def test_haskell_func_start_wrapped_multiline_signature_accepted():
     extracted_names = [f["name"] for f in functions]
     assert "myFunc" in extracted_names  # noqa: S101
 
+
+def test_haskell_func_start_abstract_method_accepted():
+    """#1435: abstract typeclass methods with no equations (1-line block) must be accepted."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    extractor = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    payload = "class HasSyntaxExtensions a where\n  getExtensions :: a -> Extensions\n"
+    
+    segments = extractor._partition_segments(payload, "haskell")
+    equations = {}
+    mitigation_telemetry = {}
+    segment_spatial_maps = [{}]
+    
+    functions, _ = extractor._function_slice(
+        segments,
+        segment_spatial_maps,
+        equations,
+        mitigation_telemetry,
+        None,
+    )
+    
+    extracted_names = [f["name"] for f in functions]
+    assert "getExtensions" in extracted_names  # noqa: S101

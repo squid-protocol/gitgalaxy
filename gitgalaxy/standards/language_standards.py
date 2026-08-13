@@ -43,7 +43,7 @@ for the same metrics tracked over time across pushes to main.
 | Fortran | 98.3% | 88.1% | 100.0% | 100.0% |
 | Go | 95.6% | 100.0% | 82.1% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
-| Haskell | 55.3% | 61.9% | 100.0% | 100.0% |
+| Haskell | 56.4% | 65.4% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 87.6% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.1% | 73.5% | 100.0% | 100.0% |

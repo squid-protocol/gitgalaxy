@@ -2122,6 +2122,43 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            elif lang_id == "kotlin":
+                paren_idx = safe_code.find("(", match.end(), search_limit)
+                brace_idx = safe_code.find(opener, match.end(), search_limit)
+                if brace_idx != -1 and (paren_idx == -1 or brace_idx < paren_idx):
+                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                else:
+                    if paren_idx == -1:
+                        continue
+                    params_end_idx = self._find_balanced_end(safe_code, paren_idx, "(", ")")
+                    depth_angle = 0
+                    depth_paren = 0
+                    pos = params_end_idx
+                    term_idx, term_kind = -1, None
+                    while pos < search_limit:
+                        ch = safe_code[pos]
+                        if ch == "<":
+                            depth_angle += 1
+                        elif ch == ">":
+                            depth_angle = max(0, depth_angle - 1)
+                        elif ch == "(":
+                            depth_paren += 1
+                        elif ch == ")":
+                            depth_paren = max(0, depth_paren - 1)
+                        elif depth_angle == 0 and depth_paren == 0:
+                            if ch == opener:
+                                term_idx, term_kind = pos, "brace"
+                                break
+                            elif ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] != "=" and safe_code[pos - 1] not in "=!<>":
+                                term_idx, term_kind = pos, "eq"
+                                break
+                        pos += 1
+                    if term_kind == "brace":
+                        end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                    elif term_kind == "eq":
+                        end_idx = next_match_start
+                    else:
+                        end_idx = params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
             # #1314 (follow-up): objc's func_start has two alternatives sharing one pattern --
             # group 1 is the `-`/`+`-prefixed method-selector form, group 2 is a plain C-style
             # prototype form. Group 1 is unambiguous: nothing but a real method signature can

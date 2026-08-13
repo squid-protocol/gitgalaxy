@@ -304,3 +304,44 @@ def test_kotlin_dependency_capture_pathological(payload, expected_path):
     assert_pathological_dependency_match(
         KOTLIN_RULES["_dependency_capture"], payload, expected_path, "kotlin._dependency_capture"
     )
+
+
+# ==============================================================================
+# STRUCTURAL EXTRACTION (body shapes)
+# ==============================================================================
+def test_kotlin_structural_extraction_body_shapes():
+    """
+    End-to-end structural extraction test for various Kotlin function body shapes
+    (regression check for epic #813 / issue #1405).
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    opt_detector = StructuralExtractor("kotlin", LANGUAGE_DEFINITIONS)
+    code = (
+        "fun normalFunc() {\n    println(1)\n}\n"
+        "fun exprFunc(): Int = 5\n"
+        "interface I {\n    fun noBody(x: Int)\n}\n"
+        "fun <T> genericNormal() {\n    println(1)\n}\n"
+        "fun <T> genericExpr(): Int = 5\n"
+        "interface IG {\n    fun <T> genericNoBody(x: T)\n}\n"
+    )
+    result = opt_detector.splice(code, "")
+    
+    extracted = {f["name"]: code[f["start_idx"]:f["end_idx"]] for f in result["functions"]}
+    
+    # Assert all expected functions were extracted
+    assert "normalFunc" in extracted
+    assert "exprFunc" in extracted
+    assert "noBody" in extracted
+    assert "genericNormal" in extracted
+    assert "genericExpr" in extracted
+    assert "genericNoBody" in extracted
+    
+    # Assert their extracted boundaries are correct (they shouldn't bleed into each other)
+    assert extracted["normalFunc"].strip() == "fun normalFunc() {\n    println(1)\n}"
+    assert extracted["exprFunc"].strip().startswith("fun exprFunc(): Int = 5")
+    assert extracted["noBody"].strip() == "fun noBody(x: Int)"
+    assert extracted["genericNormal"].strip() == "fun <T> genericNormal() {\n    println(1)\n}"
+    assert extracted["genericExpr"].strip().startswith("fun <T> genericExpr(): Int = 5")
+    assert extracted["genericNoBody"].strip() == "fun <T> genericNoBody(x: T)"

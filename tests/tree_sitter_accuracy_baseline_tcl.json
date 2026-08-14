@@ -1,9 +1,9 @@
 {
   "args_comparable": 142,
-  "args_exact_match": 119,
+  "args_exact_match": 142,
   "corpus_path": "language-crucible/data/tcl",
   "extra_classes": 0,
-  "extra_functions": 2,
+  "extra_functions": 1,
   "files_scanned": 2,
   "found_classes": 0,
   "found_functions": 142,

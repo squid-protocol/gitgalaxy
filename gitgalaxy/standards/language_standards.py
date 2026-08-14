@@ -37,7 +37,7 @@ for the same metrics tracked over time across pushes to main.
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 93.3% | 99.0% | 100.0% | 78.2% |
 | Cpp | 92.3% | 95.7% | 98.6% | 92.6% |
-| Csharp | 99.2% | 67.0% | 91.7% | 73.3% |
+| Csharp | 99.2% | 99.8% | 91.7% | 73.3% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 93.9% | 72.1% | 100.0% | 100.0% |
 | Fortran | 98.4% | 88.3% | 100.0% | 100.0% |
@@ -46,7 +46,7 @@ for the same metrics tracked over time across pushes to main.
 | Haskell | 42.1% | 75.9% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 99.1% | 100.0% | 100.0% | 100.0% |
-| Javascript | 85.1% | 75.3% | 100.0% | 100.0% |
+| Javascript | 85.1% | 98.2% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 96.4% | 100.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
@@ -54,15 +54,15 @@ for the same metrics tracked over time across pushes to main.
 | Objective-C | 98.7% | 99.3% | 100.0% | 100.0% |
 | Perl | 88.1% | 99.9% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
-| Powershell | 100.0% | 99.1% | 100.0% | 100.0% |
-| Python | 99.3% | 99.1% | 99.6% | 100.0% |
+| Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
+| Python | 99.3% | 100.0% | 99.6% | 100.0% |
 | Ruby | 100.0% | 95.4% | 100.0% | 100.0% |
 | Rust | 99.8% | 92.1% | 100.0% | 90.7% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
 | Shell | 100.0% | 100.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
-| Tcl | 98.6% | 98.6% | N/A | N/A |
+| Tcl | 98.6% | 99.3% | N/A | N/A |
 | Typescript | 92.1% | 85.6% | 100.0% | 100.0% |
 | Zig | 98.1% | 100.0% | 96.0% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->

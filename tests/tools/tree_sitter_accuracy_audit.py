@@ -226,17 +226,20 @@ SCOPE & LIMITATIONS
     where this fits (and doesn't) alongside the "AST usually wins on precision" framing in
     README.md's "One Graph, Not Five Separate Tools" section.
 
-    #1427: csharp's `extra_functions` count included real, correctly-found GitGalaxy matches
-    (`AccumulateExplicitInterfaceName`, `CanFollowCast`, `CanReuseVariableDeclarator` in
-    `roslyn/LanguageParser.cs`) misclassified as false positives because tree-sitter-c-sharp's
-    installed grammar version fails to parse a `ref struct` declaration elsewhere in the file
-    (`private ref struct DisposableResetPoint`, valid C# 7.2+, not a dialect the grammar has no
-    concept of) -- the resulting `ERROR` node cascade leaves ground truth with no record of these
-    unrelated real methods. Narrow, file+name-scoped exclusion below (not a general "any ERROR
-    node nearby" heuristic -- the ERROR node has no salvageable structural subtree to recover
-    from). This is `docs/why_gitgalaxy_beats_ast_here.md`'s Claim 3: a grammar parse-error
-    cascade corrupting ground truth for syntactically-unrelated real code, distinct from Claim 2's
-    "grammar has no concept of this dialect at all".
+    #1427/#1567: csharp's `extra_functions` count included real, correctly-found GitGalaxy
+    matches in `roslyn/LanguageParser.cs` misclassified as false positives because
+    tree-sitter-c-sharp's installed grammar version fails to parse a C# 11 list-pattern +
+    property-pattern construct at line 5198 (`modifiers is [.., SyntaxToken { Kind: ... }
+    scopedKeyword]`) -- the resulting `ERROR` node cascade leaves ground truth with zero
+    `real_functions` for the rest of the file (lines 5198-14680), not just the 3 names #1427
+    originally found and hand-excluded (that attribution also blamed the wrong construct -- a
+    `ref struct` 9,000+ lines later that parses cleanly on its own; see #1567 and
+    `docs/why_gitgalaxy_beats_ast_here.md`'s Claim 3 for the full correction). Replaced the
+    3-name allowlist with `_find_trailing_error_cascade_start`, a general, language-agnostic
+    detector for "one bad construct swallows the rest of the file" cascades, rather than
+    re-diagnosing and re-hand-listing names every time the pinned corpus file changes. This is
+    Claim 3: a grammar parse-error cascade corrupting ground truth for syntactically-unrelated
+    real code, distinct from Claim 2's "grammar has no concept of this dialect at all".
 """
 
 import argparse
@@ -1403,6 +1406,41 @@ def _align_occurrences_by_line(
     return pairs, unmatched_real, unmatched_gg
 
 
+def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500) -> Optional[int]:
+    """#1567: some real-world files trigger a grammar parse error on ONE construct that then
+    corrupts recovery for everything downstream in the same file -- not a small, cleanly-
+    recovered ERROR node, but one that swallows a large trailing region all the way (or nearly)
+    to EOF. When that happens, `real_functions` ground truth for that whole region is 0 no
+    matter what real code it contains, so any GitGalaxy match in that region is structurally
+    unpairable and shows up as a false "extra" -- not a GitGalaxy precision defect
+    (`docs/why_gitgalaxy_beats_ast_here.md`'s Claim 3).
+
+    Originally special-cased for csharp's `LanguageParser.cs` via a 3-name allowlist (#1427),
+    which turned out to undersell the actual scope by ~100x once properly bisected (#1567) --
+    replaced with this general, language-agnostic detector so a future occurrence of the same
+    failure mode (in any language/file) doesn't need its own hand-maintained name list. Returns
+    the 1-indexed line where the EARLIEST such cascade starts, or None if this file has no
+    error span shaped like one (the overwhelmingly common case -- a small/localized ERROR node
+    that recovers before EOF does NOT match this and is left alone, same as before).
+    """
+    total_lines = root_node.end_point[0] + 1
+    best_start: Optional[int] = None
+
+    def walk(node: Any) -> None:
+        nonlocal best_start
+        if node.type == "ERROR":
+            start = node.start_point[0] + 1
+            end = node.end_point[0] + 1
+            if end >= total_lines - 5 and (end - start) >= min_span_lines:
+                if best_start is None or start < best_start:
+                    best_start = start
+        for child in node.children:
+            walk(child)
+
+    walk(root_node)
+    return best_start
+
+
 def measure(lang: str, verbose: bool = False) -> dict:
     """Runs the full pinned-corpus scan + tree-sitter diff, returns the metrics dict."""
     if lang not in NODE_MAPS:
@@ -1450,6 +1488,8 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     tree = parser.parse(code_bytes)
                 except Exception:
                     continue
+
+                trailing_error_start = _find_trailing_error_cascade_start(tree.root_node)
 
                 # #1526: list, not a single int -- a name can have multiple real occurrences in
                 # one file (property getter/setter pairs, same-named methods on different
@@ -1504,17 +1544,16 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     gg_occs = sorted(gg_funcs_by_name.get(name, []), key=lambda occ: occ[0])
                     pairs, unmatched_real, unmatched_gg = _align_occurrences_by_line(real_occs, gg_occs)
 
-                    # #1427: tree-sitter-c-sharp crashes on C# 7.2+ `ref struct` syntax (e.g. DisposableResetPoint
-                    # at line 14575), causing a massive ERROR node cascade in LanguageParser.cs that engulfs
-                    # downstream methods. Since this is a known ground-truth parser gap and not a GitGalaxy
-                    # precision defect, we exclude the specific affected real names here to avoid a false "extra"
-                    # count (same shape as the Flow-typed JS gap).
-                    if (
-                        lang == "csharp"
-                        and row["file_path"].endswith("LanguageParser.cs")
-                        and name in {"AccumulateExplicitInterfaceName", "CanFollowCast", "CanReuseVariableDeclarator"}
-                    ):
-                        unmatched_gg = []
+                    # #1427/#1567: a grammar parse-error cascade (see
+                    # _find_trailing_error_cascade_start's docstring) leaves ground truth
+                    # structurally blind to a whole trailing region of this file -- any
+                    # GitGalaxy match there is unpairable by construction, not a real false
+                    # positive, so it's dropped rather than counted as "extra". #1427 originally
+                    # hand-listed 3 csharp names in `roslyn/LanguageParser.cs`; #1567 found that
+                    # undersold the real scope (0 real_functions past line 5198 of 14680) and
+                    # replaced it with this general, line-scoped, language-agnostic check.
+                    if trailing_error_start is not None:
+                        unmatched_gg = [occ for occ in unmatched_gg if occ[0] < trailing_error_start]
 
                     metrics["found_functions"] += len(pairs)
                     metrics["extra_functions"] += len(unmatched_gg)

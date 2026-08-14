@@ -3,7 +3,7 @@
   "args_exact_match": 3601,
   "corpus_path": "language-crucible/data/python",
   "extra_classes": 0,
-  "extra_functions": 32,
+  "extra_functions": 0,
   "files_scanned": 258,
   "found_classes": 457,
   "found_functions": 3601,

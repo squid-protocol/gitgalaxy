@@ -1,6 +1,6 @@
 ---
 name: tree-sitter-accuracy-sweep
-description: Run a Claude-mediated, Gemini-implemented sweep of GitGalaxy's tree-sitter accuracy gaps -- pick the worst-performing languages/metrics from docs/self_scan/tree_sitter_accuracy_history.csv, root-cause each one, file a scoped GitHub issue, dispatch the fix to a Gemini/agy subagent in an isolated worktree, and keep a pool of 4 dispatches active at a time until the backlog thins out. Use when the user asks to "run an accuracy sweep", "find the worst performing languages and fix them", "do another round of gemini fixes", "keep gemini busy on accuracy gaps", or similar recurring tree-sitter-accuracy-audit-driven work. Not for a single hand-picked language fix with no candidate-selection step (just dispatch directly), and not for extraction-gauntlet hardening with no tree-sitter ground truth involved (that's harden-language-extraction).
+description: Run a Claude-mediated, Gemini-implemented sweep of GitGalaxy's tree-sitter accuracy gaps -- pick the worst-performing languages/metrics from docs/self_scan/tree_sitter_accuracy_history.csv, root-cause each one, file a scoped GitHub issue, dispatch the fix to a Gemini/agy subagent in an isolated worktree, and keep a pool of 5 dispatches active at a time until the backlog thins out. Use when the user asks to "run an accuracy sweep", "find the worst performing languages and fix them", "do another round of gemini fixes", "keep gemini busy on accuracy gaps", or similar recurring tree-sitter-accuracy-audit-driven work. Not for a single hand-picked language fix with no candidate-selection step (just dispatch directly), and not for extraction-gauntlet hardening with no tree-sitter ground truth involved (that's harden-language-extraction).
 ---
 
 Source of truth for the underlying measurement tool is `tests/tools/tree_sitter_accuracy_audit.py
@@ -116,7 +116,7 @@ conversation is not enough; a scoped approval via `AskUserQuestion` is what actu
 `Edit` tool call through). Batch this: if you're seeding the pool with multiple languages at
 once, ask once for the whole batch of new worktree paths rather than once per language.
 
-## 6. Dispatch to Gemini -- and keep a pool of 4 active
+## 6. Dispatch to Gemini -- and keep a pool of 5 active
 
 Use `Agent` with `subagent_type: gemini-analyzer`, `run_in_background: true`. Each dispatch prompt
 must be fully self-contained (the subagent has no memory of this conversation) and MUST include,
@@ -157,16 +157,16 @@ every time, not just when convenient:
   `gemini-agy-integration` memory.)
 
 **Pool mechanics**: maintain a queue of investigated-and-issue-filed candidates (from steps 1-3)
-and a set of currently-active dispatches, target size 4. Whenever a dispatch's task-notification
+and a set of currently-active dispatches, target size 5. Whenever a dispatch's task-notification
 represents a genuine completion (not the premature-interim-report false completion above):
 1. Independently verify it (step 7) and open its PR (step 8) -- don't skip this to rush the next
    dispatch out; a bad fix merged is worse than a slow queue.
 2. Immediately backfill: if the investigated-and-issue-filed queue has a language ready, set up
    its worktree/venv/permissions (steps 4-5) and dispatch it (step 6) to bring the active count
-   back to 4. If the queue is empty but the CSV-derived candidate list (step 1) still has
+   back to 5. If the queue is empty but the CSV-derived candidate list (step 1) still has
    uninvestigated languages, root-cause and file the next one now (steps 2-3) before dispatching,
    rather than leaving a slot idle.
-3. If both are empty, let the pool shrink below 4 -- that's the sweep winding down, not a bug to
+3. If both are empty, let the pool shrink below 5 -- that's the sweep winding down, not a bug to
    fix.
 
 Use `ListAgents` if you lose track of which dispatches are still active vs. already resolved.
@@ -245,10 +245,25 @@ not a general license to merge anything. If a fix's verification turned up somet
 test that had to be loosened rather than the code fixed), stop and ask instead of merging through
 it -- the pre-authorization covers the routine case, not "trust it because it's from this skill."
 
-## Running this indefinitely (pool of 4, no fixed batch size)
+**Watching CI after push -- don't poll `gh pr checks` by hand.** Re-running `gh pr checks <PR>`
+across multiple turns to see if CI finished is pure token/turn waste -- `gh` already has a
+blocking watch mode that does the polling itself, outside your own turn budget. After every push,
+background it and let the harness notify you on completion instead:
+
+```bash
+gh pr checks <PR> --watch --interval 30   # run via Bash with run_in_background: true
+```
+
+This blocks until every check finishes and exits nonzero if any failed; the harness fires a
+completion notification the moment it exits, so there's nothing to check back on manually. With
+5 PRs potentially in flight at once, launch one backgrounded watch per PR rather than a single
+shared loop -- each is its own independent notification. This replaces any earlier ad hoc
+`sleep`-then-recheck pattern; use it as the standing method for this skill going forward.
+
+## Running this indefinitely (pool of 5, no fixed batch size)
 
 When asked to run this as an ongoing sweep rather than a one-off batch: keep the dispatch pool at
-4 continuously -- every time a fix's PR merges, immediately root-cause + file + dispatch the next
+5 continuously -- every time a fix's PR merges, immediately root-cause + file + dispatch the next
 worst-performing candidate from the CSV to refill the slot (step 1-6), and keep going indefinitely
 until the user says stop. There is no natural "done" state to wait for -- the CSV always has a
 next-worst language as long as any non-N/A metric is below 100%, so this only ends when told to.
@@ -270,7 +285,7 @@ the whole time.
   resolution only works from the main checkout.
 - Parallel-PR merge conflicts on the machine-generated files (`golden_master*.json`,
   `ruff_audit_baseline.json`, `tree_sitter_accuracy_baseline_*.json`) are a real, expected,
-  survivable cost of running a pool of 4 -- when one lands, `git merge origin/main` on the others,
+  survivable cost of running a pool of 5 -- when one lands, `git merge origin/main` on the others,
   take origin/main's version of the conflicting generated files wholesale
   (`git checkout --theirs -- <path>`), then regenerate everything fresh on the merged code and
   re-run the full step-8 checklist again rather than hand-resolving JSON conflicts.

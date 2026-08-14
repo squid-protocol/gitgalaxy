@@ -331,6 +331,7 @@ class RecordKeeper:
                 func_name TEXT,
                 complexity INTEGER,
                 loc INTEGER,
+                start_line INTEGER,
                 args INTEGER,
                 usage_status INTEGER,
                 keyword_density REAL,
@@ -707,6 +708,7 @@ class RecordKeeper:
                         str(func.get("name", "unknown_function"))[:255],
                         int(func.get("branch", 0)),
                         int(func.get("loc", 0)),
+                        int(func.get("start_line", 0)),
                         int(func.get("args", 0)),
                         int(func.get("usage_status", 0)),
                         float(func.get("keyword_density", 0.0)),
@@ -727,7 +729,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

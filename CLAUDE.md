@@ -213,6 +213,23 @@ produced a false "zero diff" pass locally while CI correctly failed on real outp
 confirming which checkout its editable install actually resolves to
 (`python -c "import gitgalaxy; print(gitgalaxy.__file__)"` from inside that venv).
 
+## Logging cases where GitGalaxy beats tree-sitter/AST ground truth
+
+The general rule, stated plainly in `README.md`'s "One Graph, Not Five Separate Tools" section, is
+that tree-sitter/AST parsing is *more precise per file* than GitGalaxy's regex-based structural
+signatures — that's the trade GitGalaxy makes for one comparable signal set across every language
+without a per-language toolchain. It doesn't hold universally, though: any time work in this repo
+turns up a specific, evidenced case where GitGalaxy's output is *more* accurate than tree-sitter's
+own parse (not just "different" — genuinely more correct, with a concrete before/after), log it as
+its own dated Claim N in `docs/why_gitgalaxy_beats_ast_here.md` rather than leaving it as a PR
+description or code comment only. Two examples already there: `args` counting in languages with no
+formal parameter-list syntax at all (bash/traditional Perl, #1518/#1519), and function recall
+inside dialect/extension syntax a base grammar has no concept of (Cython's `cdef class` inside
+plain tree-sitter-python, #1526). Keep each claim narrow and evidence-backed (a measured
+before/after, not "heuristics are sometimes better") — this doc's whole value is that it doesn't
+overstate the exception into "GitGalaxy is more accurate than tree-sitter" in general, which isn't
+true.
+
 ## Issue generation and pipeline/CI triage
 
 Two subagents with pinned models are set up for this so routine triage doesn't burn main-context

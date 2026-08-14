@@ -3,7 +3,7 @@
   "args_exact_match": 38,
   "corpus_path": "language-crucible/data/apex",
   "extra_classes": 0,
-  "extra_functions": 1,
+  "extra_functions": 2,
   "files_scanned": 4,
   "found_classes": 4,
   "found_functions": 38,

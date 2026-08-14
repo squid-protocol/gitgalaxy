@@ -1,12 +1,12 @@
 {
-  "args_comparable": 1177,
-  "args_exact_match": 1004,
+  "args_comparable": 1376,
+  "args_exact_match": 1202,
   "corpus_path": "language-crucible/data/cpp",
   "extra_classes": 11,
-  "extra_functions": 57,
+  "extra_functions": 62,
   "files_scanned": 29,
   "found_classes": 138,
-  "found_functions": 1177,
+  "found_functions": 1376,
   "real_classes": 140,
-  "real_functions": 1260
+  "real_functions": 1491
 }

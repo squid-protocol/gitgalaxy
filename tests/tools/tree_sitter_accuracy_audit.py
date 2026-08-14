@@ -81,17 +81,21 @@ BASELINE
         (see `crucible_check.py`'s own corpus pin) rather than a real finding.
 
 SCOPE & LIMITATIONS
-    A function is "found" by exact name match WITHIN ITS FILE, matching
-    ast_accuracy_audit.py's own documented trade-off -- a same-named
-    function/method collision within one file is not disambiguated by
-    class/scope, so it can produce a misleading (either falsely inflated or
-    falsely low) recall/args-match reading for that one name. Confirmed on this
-    corpus: `jquery/event.js` defines two different functions both named `on`
-    (a module-level 6-arg helper at file scope, and a 4-arg `.on()` prototype
-    method) -- both this tool's tree-sitter walk and GitGalaxy's own
-    `function_data` table only ever keep one row per name per file, so the
-    reported args-count "mismatch" for `on` in that file is this known
-    same-name-collision artifact, not a real args-counting bug in either side.
+    A function is "found" by name match WITHIN ITS FILE. Same-named occurrences
+    (property getter/setter pairs, `__init__`/`__call__` across different
+    classes, a module-level helper and a same-named prototype method) are no
+    longer collapsed onto one slot per name (#1526) -- each occurrence's real
+    `start_line` (persisted on `function_data` since #1526's companion recorder
+    change) is used to pair same-named real/found occurrences by position via
+    `_align_occurrences_by_line`, not by "whichever happened to be walked/
+    queried first or last". This isn't full scope-tracking (still no notion of
+    "which class" beyond the line-proximity signal), so a genuinely ambiguous
+    same-line-order swap is theoretically still possible, but the common cases
+    -- `jquery/event.js`'s two same-named `on` functions (a module-level 6-arg
+    helper and a 4-arg `.on()` prototype method), numpy's repeated
+    `shape`/`mask`/`recordmask` property pairs, cython's 14 separate
+    `__init__`s in one file -- now pair up correctly instead of manufacturing a
+    false args-count mismatch.
 
     Ground truth (tree-sitter) is not infallible either: the plain `javascript`
     grammar cannot fully parse Flow-typed syntax (return-type/param-type
@@ -107,6 +111,34 @@ SCOPE & LIMITATIONS
     scope tracking) or a Flow-aware grammar -- noted here so the recall/
     precision numbers aren't read as more precise than the methodology actually
     supports, same spirit as ast_accuracy_audit.py's own SCOPE section.
+
+    python's `real_functions` undercounts inside `.pyx` (Cython) files for the same class of
+    reason: tree-sitter-python is a pure-Python grammar with no notion of Cython's `cdef class`
+    syntax, so it loses track of scope across `cdef class` boundaries and doesn't reliably re-emit
+    a `function_definition` for every same-named method across multiple `cdef class` blocks (a
+    plain GitGalaxy `def`/`cdef` regex match has no such scope confusion). Confirmed via
+    `language-crucible/data/python/cython/MemoryView.pyx`: 4 separate `cdef class` blocks
+    (`array`, `Enum`, `memoryview`, `_memoryviewslice`) each define their own `__dealloc__`,
+    `__cinit__`, etc. -- GitGalaxy finds all of them; tree-sitter's ground truth is short by one or
+    more per name, so #1526's occurrence pairing correctly reports those extra GitGalaxy-found
+    occurrences as unmatched ("extra") once no longer masked by the old one-slot-per-name collapse.
+    Same "ground-truth parser gap, not a GitGalaxy precision defect" shape as the Flow-typed JS
+    note above.
+
+    matlab and shell make heavy use of GitGalaxy's own synthetic `Anonymous_Block`/
+    `__global_context__` placeholder function-like records -- `detector.py`'s fallback names for
+    top-level control-flow blocks (`if`/`for`/`while`/...) in script-style files that have no
+    enclosing named function at all (a MATLAB `.m` script, or any shell script's top-level body).
+    These exist so the complexity/risk-scoring graph has something to attach top-level logic to;
+    they were never meant to correspond to a real named function, and no real source language can
+    produce a grammar node with either literal name, so tree-sitter's ground truth structurally can
+    never contain them. `_SYNTHETIC_GG_FUNC_NAMES` excludes both from the comparison entirely (found
+    while regenerating the matlab/shell baselines post-#1526's pairing fix: left uncorrected,
+    `eeglab/eeglab.m` alone has 57 `Anonymous_Block` rows plus 1 `__global_context__`, all newly
+    counted as individually "extra" once same-named rows stopped collapsing onto one dict slot,
+    which read as a wildly misleading 18.0%/10.7% func precision for matlab/shell in the summary
+    table before the exclusion) -- see that constant's own comment for the full rationale and why
+    "Main" is deliberately not also excluded.
 
     C/C++'s `function_definition` has no top-level "name" field -- see
     `_unwrap_c_style_declarator`'s docstring for the general fix (#1265). One remaining gap in
@@ -737,8 +769,10 @@ def _get_node_name(node: Any) -> Optional[str]:
     # keyframes_statement/the generic "at_rule" bucket) have no "name" field -- the closest
     # thing to a name is the literal at-keyword itself, matching GitGalaxy's own func_start rule,
     # which anchors on that same literal keyword rather than a per-instance identifier (CSS
-    # at-rules don't have one) -- see the SCOPE section's existing note on same-name collisions
-    # collapsing to one row per file, which applies here by design. The leading "@" is stripped
+    # at-rules don't have one). Multiple `@media` blocks in one file are therefore ALWAYS
+    # same-"name" by construction, not an occasional collision -- #1526's line-based occurrence
+    # pairing (see the SCOPE section) still keeps each one distinct and pairs them by position
+    # rather than collapsing to one row per file. The leading "@" is stripped
     # to match GitGalaxy's own stored name: `_extract_name`'s token charset
     # (`[a-zA-Z0-9_./%$():~-]+`) doesn't include "@", so it never survives normalization on the
     # GitGalaxy side either.
@@ -1054,9 +1088,7 @@ def _count_perl_real_args(node: Any) -> int:
             right = n.child_by_field_name("right")
             if left is not None and right is not None and left.type == "variable_declaration":
                 if right.type == "array" and right.text == b"@_":
-                    total += sum(
-                        1 for c in left.children if c.type in ("scalar", "array", "hash", "undef_expression")
-                    )
+                    total += sum(1 for c in left.children if c.type in ("scalar", "array", "hash", "undef_expression"))
         elif n.type == "func1op_call_expression" and n.text == b"shift":
             total += 1
         for child in n.children:
@@ -1276,6 +1308,89 @@ def _get_param_count(node: Any, lang: str = "") -> int:
     return 0
 
 
+# #1526: within one file, multiple functions/methods can legitimately share a name (property
+# getter/setter pairs, `__init__`/`__new__`/`__call__` across different classes, a module-level
+# helper and a same-named prototype method). A plain "one dict entry per name" comparison collapses
+# all of them into a single slot, silently comparing whichever occurrence happened to be walked/
+# queried last against whichever happened to come first -- comparing two unrelated functions. Since
+# #1526's companion fix persists `start_line` on `function_data`, each occurrence's real source line
+# is available on both sides, so same-named occurrences can be paired by position instead of
+# collapsed. Both `real` and `gg` are pre-sorted by start_line (see call site) -- same-named
+# functions don't reorder between a source-order tree-sitter walk and a source-order detector.py
+# scan, so the correct pairing is the order-preserving (non-crossing) alignment that maximizes the
+# number of matched pairs, using total line-distance only as a tie-breaker when counts differ and
+# it's ambiguous which occurrence(s) are the unmatched extra/missing one(s).
+_SKIP_PENALTY = 1_000_000  # bigger than any real file's line count -- see docstring above
+
+# #1526 (follow-on, found while regenerating baselines after the pairing fix above): detector.py
+# uses these two literal strings as internal fallback placeholder names for constructs that AREN'T
+# real named functions -- "Anonymous_Block" for a top-level control-flow block in a script-style
+# file with no enclosing named function (see FUNC_START's matlab/shell branches), and
+# "__global_context__" for a file's implicit top-level scope. No real source language can produce
+# a `function_definition`/equivalent grammar node with either literal name, so tree-sitter's ground
+# truth structurally can NEVER contain them -- counting every GitGalaxy row with one of these names
+# as "extra" isn't measuring precision, it's comparing against a ground truth that was never able
+# to agree by construction. Confirmed the scale of the problem while regenerating the matlab/shell
+# baselines post-#1526: uncorrected, matlab's summary-table func precision read 18.0% and shell's
+# read 10.7%, both wildly misleading vs. their real per-named-function precision -- shell drops to
+# a clean 0 extra once filtered, matlab to 1 (a genuinely different, separately-meaningful anomaly:
+# a `satellite_name + "_[Truncated]"` block detector.py emits for an unclosed block hitting EOF, a
+# real diagnostic signal rather than a placeholder name, so deliberately NOT added to this
+# exclusion set). Deliberately does NOT include "Main" -- detector.py also uses that as a fallback
+# name in some branches, but unlike the two above it collides with an extremely common REAL
+# function name (C's `int main()`, etc.), so excluding it would hide genuine over/under-detection
+# of literal `main` functions.
+_SYNTHETIC_GG_FUNC_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
+
+
+def _align_occurrences_by_line(
+    real: list[tuple[int, int]], gg: list[tuple[int, int]]
+) -> tuple[list[tuple[tuple[int, int], tuple[int, int]]], list[tuple[int, int]], list[tuple[int, int]]]:
+    """Order-preserving min-cost alignment of two (start_line, param_count) lists sharing one name.
+
+    Returns (matched_pairs, unmatched_real, unmatched_gg). A match costs |line delta|; a skip on
+    either side costs `_SKIP_PENALTY`, so minimizing total cost first maximizes the match count
+    (the correct behavior whenever len(real) == len(gg): every occurrence pairs up, regardless of
+    how far apart they sit) and only falls back to skipping when the counts genuinely differ.
+    """
+    n, m = len(real), len(gg)
+    if n == 0 or m == 0:
+        return [], list(real), list(gg)
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        dp[i][0] = i * _SKIP_PENALTY
+    for j in range(1, m + 1):
+        dp[0][j] = j * _SKIP_PENALTY
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            match_cost = dp[i - 1][j - 1] + abs(real[i - 1][0] - gg[j - 1][0])
+            dp[i][j] = min(match_cost, dp[i - 1][j] + _SKIP_PENALTY, dp[i][j - 1] + _SKIP_PENALTY)
+    pairs: list[tuple[tuple[int, int], tuple[int, int]]] = []
+    unmatched_real: list[tuple[int, int]] = []
+    unmatched_gg: list[tuple[int, int]] = []
+    i, j = n, m
+    while i > 0 and j > 0:
+        match_cost = dp[i - 1][j - 1] + abs(real[i - 1][0] - gg[j - 1][0])
+        if dp[i][j] == match_cost:
+            pairs.append((real[i - 1], gg[j - 1]))
+            i -= 1
+            j -= 1
+        elif dp[i][j] == dp[i - 1][j] + _SKIP_PENALTY:
+            unmatched_real.append(real[i - 1])
+            i -= 1
+        else:
+            unmatched_gg.append(gg[j - 1])
+            j -= 1
+    while i > 0:
+        unmatched_real.append(real[i - 1])
+        i -= 1
+    while j > 0:
+        unmatched_gg.append(gg[j - 1])
+        j -= 1
+    pairs.reverse()
+    return pairs, unmatched_real, unmatched_gg
+
+
 def measure(lang: str, verbose: bool = False) -> dict:
     """Runs the full pinned-corpus scan + tree-sitter diff, returns the metrics dict."""
     if lang not in NODE_MAPS:
@@ -1324,14 +1439,20 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 except Exception:
                     continue
 
-                real_funcs: dict[str, int] = {}
+                # #1526: list, not a single int -- a name can have multiple real occurrences in
+                # one file (property getter/setter pairs, same-named methods on different
+                # classes), each kept with its start_line so same-named occurrences can be paired
+                # by position instead of collapsed onto one dict slot.
+                real_funcs: dict[str, list[tuple[int, int]]] = {}
                 real_classes: set[str] = set()
 
                 def walk(node):
                     if node.type in func_node_types:
                         name = _get_node_name(node)
                         if name:
-                            real_funcs[name] = _get_param_count(node, lang)
+                            real_funcs.setdefault(name, []).append(
+                                (node.start_point[0] + 1, _get_param_count(node, lang))
+                            )
                     elif node.type in class_node_types:
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass
@@ -1345,43 +1466,53 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 walk(tree.root_node)
 
                 metrics["files_scanned"] += 1
-                metrics["real_functions"] += len(real_funcs)
+                metrics["real_functions"] += sum(len(occs) for occs in real_funcs.values())
                 metrics["real_classes"] += len(real_classes)
 
                 gg_funcs = conn.execute(
-                    "SELECT func_name, args FROM function_data WHERE file_id = ?", (row["id"],)
+                    "SELECT func_name, args, start_line FROM function_data WHERE file_id = ?", (row["id"],)
                 ).fetchall()
                 gg_classes = {
                     r["class_name"]
                     for r in conn.execute("SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],))
                 }
-                gg_func_names = {r["func_name"] for r in gg_funcs}
-                gg_args_by_name: dict[str, Optional[int]] = {}
+                gg_funcs_by_name: dict[str, list[tuple[int, int]]] = {}
                 for r in gg_funcs:
-                    gg_args_by_name.setdefault(r["func_name"], r["args"])
+                    if r["func_name"] in _SYNTHETIC_GG_FUNC_NAMES:
+                        continue
+                    gg_funcs_by_name.setdefault(r["func_name"], []).append((r["start_line"] or 0, r["args"]))
 
-                found = real_funcs.keys() & gg_func_names
-                missing = real_funcs.keys() - gg_func_names
-                extra = gg_func_names - real_funcs.keys()
-
-                metrics["found_functions"] += len(found)
-                metrics["extra_functions"] += len(extra)
                 metrics["found_classes"] += len(real_classes & gg_classes)
                 metrics["extra_classes"] += len(gg_classes - real_classes)
 
-                for name in found:
-                    metrics["args_comparable"] += 1
-                    if gg_args_by_name.get(name) == real_funcs[name]:
-                        metrics["args_exact_match"] += 1
-                    elif verbose and len(args_mismatch_examples) < 10:
-                        args_mismatch_examples.append(
-                            f"{row['file_path']}::{name}  real={real_funcs[name]} got={gg_args_by_name.get(name)}"
-                        )
+                file_missing_names: set[str] = set()
+                file_extra_names: set[str] = set()
+                for name in real_funcs.keys() | gg_funcs_by_name.keys():
+                    real_occs = sorted(real_funcs.get(name, []), key=lambda occ: occ[0])
+                    gg_occs = sorted(gg_funcs_by_name.get(name, []), key=lambda occ: occ[0])
+                    pairs, unmatched_real, unmatched_gg = _align_occurrences_by_line(real_occs, gg_occs)
 
-                if verbose and missing and len(missing_examples) < 8:
-                    missing_examples.append((row["file_path"], sorted(missing)[:3]))
-                if verbose and extra and len(extra_examples) < 8:
-                    extra_examples.append((row["file_path"], sorted(extra)[:3]))
+                    metrics["found_functions"] += len(pairs)
+                    metrics["extra_functions"] += len(unmatched_gg)
+                    if unmatched_real:
+                        file_missing_names.add(name)
+                    if unmatched_gg:
+                        file_extra_names.add(name)
+
+                    for real_occ, gg_occ in pairs:
+                        metrics["args_comparable"] += 1
+                        if real_occ[1] == gg_occ[1]:
+                            metrics["args_exact_match"] += 1
+                        elif verbose and len(args_mismatch_examples) < 10:
+                            args_mismatch_examples.append(
+                                f"{row['file_path']}::{name}  real={real_occ[1]} got={gg_occ[1]}"
+                                f" (line {real_occ[0]} vs {gg_occ[0]})"
+                            )
+
+                if verbose and file_missing_names and len(missing_examples) < 8:
+                    missing_examples.append((row["file_path"], sorted(file_missing_names)[:3]))
+                if verbose and file_extra_names and len(extra_examples) < 8:
+                    extra_examples.append((row["file_path"], sorted(file_extra_names)[:3]))
         finally:
             conn.close()
 

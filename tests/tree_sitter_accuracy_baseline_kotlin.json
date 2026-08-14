@@ -1,12 +1,12 @@
 {
-  "args_comparable": 23,
-  "args_exact_match": 23,
+  "args_comparable": 27,
+  "args_exact_match": 27,
   "corpus_path": "language-crucible/data/kotlin",
   "extra_classes": 0,
   "extra_functions": 1,
   "files_scanned": 5,
   "found_classes": 7,
-  "found_functions": 23,
+  "found_functions": 27,
   "real_classes": 7,
-  "real_functions": 23
+  "real_functions": 27
 }

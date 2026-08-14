@@ -1,12 +1,12 @@
 {
-  "args_comparable": 1489,
-  "args_exact_match": 1446,
+  "args_comparable": 1771,
+  "args_exact_match": 1730,
   "corpus_path": "language-crucible/data/rust",
   "extra_classes": 25,
-  "extra_functions": 108,
+  "extra_functions": 152,
   "files_scanned": 43,
   "found_classes": 245,
-  "found_functions": 1489,
+  "found_functions": 1771,
   "real_classes": 245,
-  "real_functions": 1493
+  "real_functions": 1775
 }

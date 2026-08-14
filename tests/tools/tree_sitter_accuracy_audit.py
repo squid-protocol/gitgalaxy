@@ -794,6 +794,29 @@ def _get_node_name(node: Any) -> Optional[str]:
             return None
         return name_node.text.decode("utf8")
 
+    if node.type in ("constructor_signature", "constant_constructor_signature", "factory_constructor_signature"):
+        # #1569: checked first, ahead of the generic "name" field fast path below -- it would
+        # otherwise intercept `constructor_signature` first (see next paragraph) and return only
+        # the bare class name. Joins every direct "identifier"-typed child by "." instead
+        # (matching the string GitGalaxy's own func_start regex captures, e.g.
+        # "TextEditingController.fromValue", or just "TextEditingController" for the unnamed/
+        # default constructor) -- a type-based scan, not field-based, because the three dart
+        # constructor node types disagree on field tagging: `constructor_signature` tags its
+        # class-name identifier, ".", AND constructor-name identifier all with the SAME field
+        # name "name" (confirmed via field_name_for_child), while `constant_constructor_signature`
+        # and `factory_constructor_signature` tag NONE of their children with any field name at
+        # all (also confirmed directly) -- so a `children_by_field_name("name")` version works
+        # for the first node type and silently returns nothing for the other two.
+        #
+        # Why this matters: the generic fast path's `child_by_field_name("name")` only returns
+        # the FIRST field-tagged match, so for `constructor_signature` specifically it truncates
+        # every named/factory constructor down to just the bare class name -- which then collides
+        # with the class's own default constructor (both would resolve to e.g.
+        # "TextEditingController", even though GitGalaxy correctly emits the distinct
+        # "TextEditingController.fromValue" for the named one).
+        parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
+        return ".".join(parts) if parts else None
+
     name_node = node.child_by_field_name("name")
     if name_node:
         return name_node.text.decode("utf8")
@@ -1018,21 +1041,6 @@ def _get_node_name(node: Any) -> Optional[str]:
             if child.type == "identifier":
                 return child.text.decode("utf8")
         return None
-
-    # dart's three constructor node types have no "name" field either -- the class name (and,
-    # for a named/factory constructor, the constructor name after the dot) both sit as plainly-
-    # typed "identifier" children in source order, so joining them with "." reconstructs exactly
-    # the string GitGalaxy's own func_start regex captures (e.g. "ThemeData.dark", or just
-    # "ThemeData" for the unnamed/default constructor). factory_constructor_signature nests
-    # inside a method_signature wrapper that itself has no name field and returns None above --
-    # walk() still finds this inner node directly since it's listed in func_node_types too.
-    # Confirmed via flutter/theme_data.dart: `factory ThemeData.dark(...)` and
-    # `const ThemeData.raw(...)` were both entirely invisible to real_functions before this,
-    # scoring every real constructor as a false "extra" (a ground-truth gap, not a GitGalaxy
-    # engine defect -- same shape as #1314's csharp constructor_declaration fix).
-    if node.type in ("constructor_signature", "constant_constructor_signature", "factory_constructor_signature"):
-        parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
-        return ".".join(parts) if parts else None
 
     return None
 

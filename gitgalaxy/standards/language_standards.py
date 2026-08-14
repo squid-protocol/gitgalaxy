@@ -39,7 +39,7 @@ for the same metrics tracked over time across pushes to main.
 | Cpp | 92.3% | 95.7% | 98.6% | 92.6% |
 | Csharp | 99.2% | 99.8% | 91.7% | 73.3% |
 | Css | 100.0% | 100.0% | N/A | N/A |
-| Dart | 93.9% | 72.1% | 100.0% | 100.0% |
+| Dart | 94.5% | 72.6% | 100.0% | 100.0% |
 | Fortran | 98.4% | 88.3% | 100.0% | 100.0% |
 | Go | 95.7% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |

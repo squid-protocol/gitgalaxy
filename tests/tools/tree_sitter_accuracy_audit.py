@@ -1610,7 +1610,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 real_funcs: dict[str, list[tuple[int, int]]] = {}
                 real_classes: set[str] = set()
 
-                def walk(node):
+                def walk(node, is_continuation_clause=False):
                     if node.type in func_node_types:
                         # #1608: perl's `subroutine_declaration_statement`/
                         # `method_declaration_statement` node types cover BOTH a real
@@ -1633,6 +1633,31 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         # body-bearing occurrence is ever in GitGalaxy's own output.
                         if lang == "perl" and node.child_by_field_name("body") is None:
                             pass
+                        # #1614: haskell represents each pattern-matched EQUATION CLAUSE
+                        # of a single function as its own separate node (`deNote (Note _)
+                        # = ...` and `deNote x = ...` are two sibling `function` nodes
+                        # under the same `declarations`/`local_binds` parent, confirmed by
+                        # direct tree_sitter_language_pack parse) -- there is no single
+                        # grammar node representing "deNote, the function" as one unit.
+                        # GitGalaxy's own `_slice_by_indentation` (detector.py) already
+                        # merges every clause of one function into ONE reported
+                        # FunctionNode by design (#1442's own comment: "clauses 2..N would
+                        # otherwise each spawn their own duplicate, overlapping
+                        # FunctionNode"), so counting each clause as its own real
+                        # occurrence here compares GitGalaxy's correct, merged output
+                        # against an artificially inflated ground truth -- every
+                        # multi-clause function loses (clauses - 1) "real" credit it never
+                        # actually lacked. `is_continuation_clause` (set by the sibling
+                        # loop below, which is the only thing that can determine
+                        # adjacency) marks exactly this case; skip re-counting it as a
+                        # distinct occurrence, matching GitGalaxy's own semantics instead
+                        # of the grammar's raw per-clause node granularity. Measured
+                        # impact on language-crucible/data/haskell/pandoc: recall
+                        # 50.5% (275 real/139 found) -> 95.2% (146 real/139 found), same
+                        # GitGalaxy output, same alignment algorithm. See
+                        # docs/why_gitgalaxy_beats_ast_here.md Claim 4.
+                        elif lang == "haskell" and is_continuation_clause:
+                            pass
                         else:
                             name = _get_node_name(node)
                             if name:
@@ -1646,8 +1671,30 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             name = _get_node_name(node)
                             if name:
                                 real_classes.add(name)
+
+                    # #1614: track the most recently seen func-type sibling's name so a
+                    # consecutive same-name clause (haskell only) can be recognized as a
+                    # continuation rather than a new function. `comment` siblings are
+                    # skipped without resetting this -- real corpus code routinely
+                    # interleaves a trailing-line comment between two equation clauses
+                    # (e.g. Shared.hs's `go (RawInline ...) = " " -- see #2105` followed
+                    # by `go LineBreak = " "`), and tree-sitter emits that comment as its
+                    # own sibling node in between, which would otherwise wrongly split one
+                    # real clause-group into two.
+                    last_clause_name: Optional[str] = None
                     for child in node.children:
-                        walk(child)
+                        if lang == "haskell" and child.type == "comment":
+                            walk(child)
+                            continue
+                        child_is_continuation = False
+                        if lang == "haskell" and child.type in func_node_types:
+                            child_name = _get_node_name(child)
+                            if child_name is not None and child_name == last_clause_name:
+                                child_is_continuation = True
+                            last_clause_name = child_name
+                        else:
+                            last_clause_name = None
+                        walk(child, is_continuation_clause=child_is_continuation)
 
                 walk(tree.root_node)
 

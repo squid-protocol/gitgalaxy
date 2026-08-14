@@ -448,6 +448,13 @@ NODE_MAPS = {
         # constructors (`Foo()`, `const Foo.raw()`, `factory Foo.create()`) get their own node
         # types, distinct from function_signature/method_signature -- see _get_node_name's dart
         # constructor branch for why they were entirely invisible to real_functions before this.
+        # getter_signature/setter_signature/operator_signature: same shape of gap, found later
+        # (docs/why_gitgalaxy_beats_ast_here.md Claim 5) -- dart's grammar nests these one level
+        # BELOW the generic `method_signature` wrapper (which itself has no "name" field), so a
+        # ground truth walk that only recognizes function_signature/method_signature never sees a
+        # getter, setter, or operator overload at all, even though GitGalaxy's own func_start regex
+        # finds all three uniformly (its `(?:(?:get|set|factory|const)[ \t\n]+)?` prefix and
+        # `operator[ \t\n]+[^\s\w]+` alternative treat them exactly like any other method).
         "func_node_types": {
             "function_signature",
             "local_function_declaration",
@@ -455,6 +462,9 @@ NODE_MAPS = {
             "constructor_signature",
             "constant_constructor_signature",
             "factory_constructor_signature",
+            "getter_signature",
+            "setter_signature",
+            "operator_signature",
         },
         # #1295: dart's `mixin` declarations get their own `mixin_declaration` node type, and
         # `enum` declarations get `enum_declaration` -- distinct from `class_definition`, real
@@ -816,6 +826,24 @@ def _get_node_name(node: Any) -> Optional[str]:
         # "TextEditingController.fromValue" for the named one).
         parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
         return ".".join(parts) if parts else None
+
+    if node.type == "operator_signature":
+        # #Claim 5 (why_gitgalaxy_beats_ast_here.md): no child is field-tagged "name" at all --
+        # the operator symbol (`==`, `+`, `[]`, `[]=`, unary `-`, ...) is a plainly-typed child
+        # (sometimes bare, sometimes wrapped in `binary_operator`/`unary_operator`, but that
+        # wrapper's own `.text` is already just the symbol either way) sitting immediately after
+        # the literal "operator" keyword token. Joined with no space to match GitGalaxy's own
+        # captured name -- its func_start regex requires 1+ whitespace chars between the `operator`
+        # keyword and the symbol in the source text, but detector.py normalizes internal
+        # whitespace out of the captured name before storing it (confirmed: real source `operator
+        # ==(Object other)` stores as func_name "operator==").
+        seen_keyword = False
+        for child in node.children:
+            if seen_keyword:
+                return "operator" + child.text.decode("utf8")
+            if child.type == "operator":
+                seen_keyword = True
+        return None
 
     name_node = node.child_by_field_name("name")
     if name_node:
@@ -1329,13 +1357,17 @@ def _get_param_count(node: Any, lang: str = "") -> int:
     # #1313: none of these node types expose a "parameters"/"parameter" field either -- same
     # no-field-at-all shape the C-family branch above already handles, just with different
     # grammar-specific wrapper/child node names.
-    if node.type == "function_signature":
+    if node.type in ("function_signature", "setter_signature", "operator_signature"):
         # #1339: dart's `function_signature`/`method_signature` have no "parameters" field --
         # the param list is an untyped `formal_parameter_list` child wrapping "formal_parameter"
         # children. `method_signature` itself never resolves a name (see _get_node_name -- it has
         # no "name" field either), so `walk()` only ever names/counts the NESTED
         # `function_signature` it wraps, which is why only this node type needs handling here,
         # not `method_signature`/`local_function_declaration` too (both real func_node_types).
+        # `setter_signature`/`operator_signature` (Claim 5) share the exact same no-"parameters"-
+        # field, direct-`formal_parameter_list`-child shape -- `getter_signature` is deliberately
+        # NOT included here since a Dart getter can never declare parameters at all, so falling
+        # through to this function's default `return 0` is already correct for it.
         #
         # #1570: a direct child of "formal_parameter_list" is only ever a BARE required
         # parameter -- dart wraps every optional-positional (`[bool x = true]`) or named

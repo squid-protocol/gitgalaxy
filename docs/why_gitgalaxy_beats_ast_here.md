@@ -317,16 +317,105 @@ openers (the same shape #1564 already fixed for `let`, not yet extended to `wher
   clause siblings before counting), not in GitGalaxy — GitGalaxy's one-function-per-name behavior
   was the thing already correct here. Implemented in #1618.
 
+## Claim 5: uniform recognition of "function-shaped" declarations a grammar splits into a distinct, unnamed wrapper layer
+
+For a language where the grammar represents getters, setters, and operator overloads as *nested*
+node types one level *below* a generic, unnamed "method" wrapper — rather than as first-class
+siblings of a plain function/method declaration — GitGalaxy's flat regex recognizes all of them
+uniformly, with zero per-shape special-casing, because it never had a node hierarchy to consult in
+the first place. A ground-truth walk built the "obvious" way (recognize the wrapper node type,
+read its `name` field) misses every one of them, not because the grammar failed to parse them —
+it parsed them perfectly — but because the identifying field sits one level deeper than the node
+type being matched. This is a *different* mechanism from Claim 4: Claim 4 is a grammar splitting
+one logical function into too many nodes (over-counting real occurrences); Claim 5 is a grammar
+nesting one logical function inside a node whose own outer layer looks unnamed (undercounting a
+naive ground truth's real occurrences to zero for that whole shape).
+
+**The evidence:** `tests/tools/tree_sitter_accuracy_audit.py` measures dart against
+tree-sitter-dart. Every dart method — a plain function, a getter, a setter, an operator overload —
+parses as a `method_signature` node, but `method_signature` itself carries **no `name` field of
+its own**; it wraps exactly one inner node (`function_signature`, `getter_signature`,
+`setter_signature`, or `operator_signature`) that carries the real, field-tagged name. Confirmed by
+direct parse:
+
+```dart
+int get bar => 1;
+set bar(int v) {}
+bool operator==(Object other) => true;
+```
+
+produces `method_signature → getter_signature → [name] identifier "bar"`,
+`method_signature → setter_signature → [name] identifier "bar"`, and
+`method_signature → operator_signature → (no field-tagged name at all — the symbol `==` sits as a
+plain child right after the literal `operator` keyword token)`. `NODE_MAPS["dart"]`'s
+`func_node_types` (the same registry Claim 4 lives in) originally listed `method_signature` and
+`function_signature` — covering plain functions/methods correctly — but never `getter_signature`,
+`setter_signature`, or `operator_signature`, so ground truth structurally could not see a getter,
+setter, or operator overload as a "real function" at all, regardless of how correctly GitGalaxy's
+own `func_start` regex found them (its `(?:(?:get|set|factory|const)[ \t\n]+)?` prefix and
+`operator[ \t\n]+[^\s\w]+` alternative treat all four shapes identically — no dart-specific
+node-hierarchy knowledge required, because a regex was never walking a hierarchy to begin with).
+
+Measured on `language-crucible/data/dart/flutter` (the audit tool's pinned 7-file corpus,
+2026-08-14):
+
+| Metric | Before (ground truth blind to getter/setter/operator) | After (all 3 node types added to `NODE_MAPS`) |
+|---|---|---|
+| `real_functions` | 1172 | 1748 |
+| `found_functions` | 1108 | 1340 |
+| `extra_functions` | 418 | **186** |
+| func precision | 72.6% | **87.8%** |
+| args_exact_match | 960 | 1175 (86.6% → 87.7%) |
+
+`extra_functions` — GitGalaxy names ground truth had no record of — dropped by more than half
+(418 → 186) purely from teaching the ground truth to look one node deeper for these three shapes;
+GitGalaxy's own output was unchanged throughout. Fixed in `_get_node_name` (a new
+`operator_signature` branch joining the literal "operator" keyword with the following symbol
+child's text, matching how `detector.py` normalizes internal whitespace out of its own captured
+`"operator=="`-style names) and `_get_param_count` (extending the existing no-`"parameters"`-field
+`function_signature` branch to `setter_signature`/`operator_signature`, which share the identical
+direct-`formal_parameter_list`-child shape; `getter_signature` needs no branch at all since a Dart
+getter can never declare parameters).
+
+**A real gap this surfaced, filed separately, not part of this claim:** fixing the ground truth's
+blind spot also revealed that when a getter and setter (or any two same-name declarations) share
+one identifier within a file, GitGalaxy's own `detector.py` records only **one** of the two
+occurrences — confirmed directly against the real corpus DB: `editable_text.dart` has both
+`bool get enabled => _enabled;` (line 153) and `set enabled(bool newValue) {` (line 155), but
+`function_data` contains exactly one row for `enabled` (the setter, line 155). This is why
+measured func *recall* moved the *wrong* direction alongside the precision win (94.5% → 76.7%,
++576 newly-real occurrences but only +232 newly-matched) — a genuine GitGalaxy recall defect, not
+a byproduct of this claim's ground-truth fix, and not folded into Claim 5's own evidence. Filed as
+#1626, alongside four other real `func_start` false-positive bugs this same investigation turned up
+(#1622 `try`/`finally` misdetected as phantom functions, #1623 bare field/local-var declarations
+misdetected as function stubs, #1624 closure-literal-argument call sites misdetected as
+definitions, #1625 bodyless zero-prefix constructors not found) — none of those five are part of
+this claim either; they're real GitGalaxy defects to fix, not ground-truth artifacts.
+
+## Where Claim 5 does NOT apply
+
+- This is specific to grammars that nest a function-like construct's identifying node *below* the
+  generic node type a naive walk would match on (dart's `method_signature` wrapper). Grammars
+  where the function-like node itself carries the name field directly have no such gap — there, a
+  GitGalaxy/tree-sitter mismatch is a real bug to chase, same caveat as every other claim in this
+  doc.
+- Doesn't excuse the same-name-collision recall defect surfaced above — that's a real GitGalaxy
+  bug, tracked separately, not evidence for this claim.
+- The fix belonged in the audit tool's ground-truth node registry (`NODE_MAPS`) and name/arity
+  resolution (`_get_node_name`/`_get_param_count`), not in GitGalaxy — GitGalaxy's uniform
+  getter/setter/operator recognition was the thing already correct here.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
   its general "AST usually wins on precision" framing.
 - `tests/tools/tree_sitter_accuracy_audit.py`'s own module docstring cites this doc next to the
   `#1518`/`#1519` writeup (Claim 1), the Cython `.pyx` note in its SCOPE & LIMITATIONS section
-  (Claim 2), the `#1427` csharp `ref struct` parse-error writeup (Claim 3), and the haskell
-  multi-clause counting writeup (Claim 4), so a future reader hitting any of those ground-truth
-  code paths understands why it looks structurally different from the rest of
-  `_get_param_count`/the recall comparison.
+  (Claim 2), the `#1427` csharp `ref struct` parse-error writeup (Claim 3), the haskell
+  multi-clause counting writeup (Claim 4), and the dart `NODE_MAPS["dart"]["func_node_types"]`
+  comment next to `getter_signature`/`setter_signature`/`operator_signature` (Claim 5), so a future
+  reader hitting any of those ground-truth code paths understands why it looks structurally
+  different from the rest of `_get_param_count`/the recall comparison.
 - Per `CLAUDE.md`'s standing instruction, any newly-found case of GitGalaxy's structural-signature
   output being more accurate than tree-sitter's/an AST's on some signal gets logged here as its own
   Claim N, evidenced the same way — not folded into the README's general framing uncredited, and

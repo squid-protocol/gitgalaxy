@@ -282,23 +282,24 @@ by design (#1442's own comment: "clauses 2..N would otherwise each spawn their o
 overlapping FunctionNode").
 
 Measured on `language-crucible/data/haskell/pandoc` (the audit tool's pinned 7-file corpus,
-2026-08-14): the currently-shipped baseline reports `real_functions=275, found_functions=139` —
-**50.5% recall**. Re-walking the same 7 files with a clause-collapse pass (consecutive same-name
-`function`/`bind` siblings under one parent merged into a single occurrence, keyed by the first
-clause's line — i.e., asking the ground truth the same question GitGalaxy already answers) gives
-`real_functions=148, found_functions=139` — **93.9% recall**, using the exact same alignment
-algorithm (`_align_occurrences_by_line`) and the exact same GitGalaxy output, unchanged. Every one
-of the ~40 names the current (per-clause) measurement lists as "missing" in this corpus
-(`deNote`, `blockToInlines`, `isPara`, `toJSON`, `tabFilter`, `compactify`, and so on) is a
-multi-clause definition GitGalaxy found in full — the "miss" was always the (N−1)th clause of a
-function GitGalaxy had already reported once, correctly.
+2026-08-14): before this was fixed, the shipped baseline reported `real_functions=275,
+found_functions=139` — **50.5% recall**. Filed as #1614 and fixed in the audit tool itself (not
+GitGalaxy) via #1618: `measure()`'s `walk()` now collapses consecutive same-name `function`/`bind`
+siblings under one parent into a single occurrence, keyed by the first clause's line — asking the
+ground truth the same question GitGalaxy's own `detector.py` already answers, gated strictly to
+`lang == "haskell"` (verified zero behavior change across all other 30 baselined languages via
+`--all --ci`). Post-fix, the committed baseline reads `real_functions=146, found_functions=139` —
+**95.2% recall**, same alignment algorithm (`_align_occurrences_by_line`), same GitGalaxy output,
+unchanged. Every one of the ~40 names the pre-fix (per-clause) measurement listed as "missing" in
+this corpus (`deNote`, `blockToInlines`, `isPara`, `toJSON`, `tabFilter`, `compactify`, and so on)
+was a multi-clause definition GitGalaxy had found in full — the "miss" was always the (N−1)th
+clause of a function GitGalaxy had already reported once, correctly.
 
-The residual, genuine gap after collapsing (9 real misses, not a counting artifact) is a
-different, much smaller, already-scoped problem: local `where`/`let`-introduced helpers whose
+The residual, genuine gap after collapsing (7 real misses, not a counting artifact) is a
+different, much smaller problem, filed separately: local `where`/`let`-introduced helpers whose
 first clause has no `=` on its own line at all (guard-only equations like
-`isAllowedPunct c | cond = ... | otherwise = ...`), and single-line `where name args = expr`
-openers (the same shape #1564 already fixed for `let`, not yet extended to `where`) — see
-issues filed alongside this claim.
+`isAllowedPunct c | cond = ... | otherwise = ...`, #1616), and single-line `where name args = expr`
+openers (the same shape #1564 already fixed for `let`, not yet extended to `where`, #1615).
 
 ## Where Claim 4 does NOT apply
 
@@ -309,12 +310,12 @@ issues filed alongside this claim.
   tree-sitter mismatch is a real bug to chase, same caveat as every other claim in this doc.
   Prolog and Erlang have the same clause-based shape and would likely exhibit this if ever added
   to `NODE_MAPS`; not yet checked, noted here so it isn't rediscovered from scratch.
-- Doesn't excuse GitGalaxy from genuine recall gaps found *after* collapsing — the 9 residual
-  guard-only/inline-`where` misses above are real GitGalaxy defects, not an audit-tool artifact,
-  and are tracked as their own issues rather than folded into this claim.
-- The fix belongs in the audit tool's ground-truth extraction (collapse consecutive same-name
+- Doesn't excuse GitGalaxy from genuine recall gaps found *after* collapsing — the 7 residual
+  guard-only/inline-`where` misses above (#1615, #1616) are real GitGalaxy defects, not an
+  audit-tool artifact, and are tracked as their own issues rather than folded into this claim.
+- The fix belonged in the audit tool's ground-truth extraction (collapse consecutive same-name
   clause siblings before counting), not in GitGalaxy — GitGalaxy's one-function-per-name behavior
-  is the thing already correct here.
+  was the thing already correct here. Implemented in #1618.
 
 ## Where this doc is used
 

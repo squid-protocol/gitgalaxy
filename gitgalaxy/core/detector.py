@@ -2564,13 +2564,14 @@ class StructuralExtractor:
         # matched clause of a multi-clause function independently (e.g. each
         # of `toJSON`'s 6 instance-method equations), not just the first.
         # The first clause's own dedent-scan below already absorbs every
-        # sibling clause into ONE block via the pre-existing same-name-
-        # same-indent continuation walk, so clauses 2..N would otherwise
-        # each spawn their own duplicate, overlapping FunctionNode. Track
-        # the most recently accepted haskell block's (name, indent, end)
-        # and skip any later match that's just a clause already inside it.
+        # sibling clause into ONE block via the pre-existing same-name
+        # continuation walk, so clauses 2..N would otherwise each spawn their
+        # own duplicate, overlapping FunctionNode. Track the most recently
+        # accepted haskell block's (name, end) and skip any later match
+        # that's just a clause already inside it. #1564 (follow-up): this
+        # used to also require an exact indent match -- see the skip's own
+        # comment below for why that broke on multi-clause `let` bindings.
         last_hs_group_name: Optional[str] = None
-        last_hs_group_indent = -1
         last_hs_group_end = -1
 
         for match in matches:
@@ -2586,12 +2587,21 @@ class StructuralExtractor:
             first_line = safe_code[line_start_idx : match.end()]
             base_indent = len(first_line) - len(first_line.lstrip())
 
-            if (
-                lang_id == "haskell"
-                and name == last_hs_group_name
-                and base_indent == last_hs_group_indent
-                and start_idx < last_hs_group_end
-            ):
+            # #1564 (follow-up): dropped the `base_indent == last_hs_group_indent`
+            # requirement this skip used to carry. It assumed every clause of a
+            # multi-clause group shares its FIRST clause's exact indent -- true
+            # for where/instance-block siblings (all flush at the same column),
+            # but not for a multi-clause `let`, where Haskell's idiomatic style
+            # aligns clause 2+ under the bound NAME rather than under `let`
+            # itself (e.g. `let isPandocCiteproc (JSONFilter f) = ...\n      isPandocCiteproc _ = False`
+            # -- clause 2 sits 4 columns deeper than clause 1's `let`). That
+            # deeper indent is already correctly absorbed as body content by
+            # clause 1's own dedent-scan below (it only stops at a line whose
+            # indent dedents to <= base_indent), so `start_idx < last_hs_group_end`
+            # alone already proves this match is a clause nested inside the
+            # immediately-preceding same-named group, regardless of its own
+            # indent column.
+            if lang_id == "haskell" and name == last_hs_group_name and start_idx < last_hs_group_end:
                 continue
 
             end_idx = len(safe_code)
@@ -2715,7 +2725,6 @@ class StructuralExtractor:
 
             if lang_id == "haskell":
                 last_hs_group_name = name
-                last_hs_group_indent = base_indent
                 last_hs_group_end = end_idx
 
         return satellites, sum_fxn_impact
@@ -3873,7 +3882,13 @@ class StructuralExtractor:
         # function_data row with its own constructor's (`EditorNode::
         # EditorNode`). Adding it here keeps `~EditorNode`/`::~EditorNode`
         # intact as part of the same token as the class-name suffix.
-        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~-]+", clean) if w.strip("_-:")]
+        # BUG FIX (#1565): `'` (Haskell's idiomatic trailing-apostrophe/"prime"
+        # naming convention, e.g. `convertWithOpts'`) was also missing --
+        # func_start's own regex already captures the trailing prime intact,
+        # but this token-extraction pass silently truncated it right back off,
+        # so a primed function collided with (and got recorded under) its
+        # unprimed sibling's name.
+        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~'-]+", clean) if w.strip("_-:")]
 
         return words[-1] if words else "Unknown_Block"
 

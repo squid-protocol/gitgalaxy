@@ -450,6 +450,51 @@ def test_prism_haskell_block_comments_actually_nest():
     assert "outer secret" in result["comment_stream"]
 
 
+def test_prism_issue_1532_nested_comment_stripping_preserves_line_count():
+    """
+    Regression test for #1532: `_strip_nested_comments()` -- shared by every
+    "recursive_block"/"recursive_block_haskell"/"recursive_block_lisp"
+    language (rust, swift, scala, haskell, scheme) -- used to remove a block
+    comment's matched span outright (`protected_code[:start_idx] +
+    protected_code[end_match.end():]`) instead of replacing it with an equal
+    number of newlines the way the generic REGEX_MATRIX stripper's own
+    `strip_callback` already does. That silently deleted every newline the
+    comment itself spanned, so every function AFTER even one multi-line
+    block comment anywhere earlier in the file got attributed to the wrong,
+    too-early `start_line` -- cumulative for each such comment. Confirmed on
+    the real language-crucible pandoc corpus (`App.hs`): a single 11-line
+    Haddock header comment at the top of the file shifted every later
+    function's recorded start_line by exactly -10 for the rest of the file
+    (`writeFnBinary` at true line 420 was recorded at 410, etc.) -- not
+    "attributed to the wrong prior function" as originally hypothesized, but
+    a straight global line-count drift.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    cases = {
+        "rust": "/*\n * multi\n * line\n * block\n */\nfn foo() {}\n",
+        "swift": "/*\n * multi\n * line\n * block\n */\nfunc foo() {}\n",
+        "scala": "/*\n * multi\n * line\n * block\n */\ndef foo(): Unit = {}\n",
+        "haskell": "{- \n multi\n line\n block\n-}\nfoo :: Int\nfoo = 1\n",
+        "scheme": "#| \n multi\n line\n block\n|#\n(define (foo) 1)\n",
+    }
+    for lang, code in cases.items():
+        result = real_prism.split_streams(code, lang)
+        code_stream = result["code_stream"]
+        assert code_stream.count("\n") == code.count("\n"), (
+            f"{lang}: block comment stripping changed the line count "
+            f"({code_stream.count(chr(10))} vs {code.count(chr(10))} newlines) -- "
+            "this silently shifts every later function's start_line"
+        )
+        # The line the code AFTER the comment sits on must be unmoved.
+        assert code_stream.splitlines()[-1].strip() == code.splitlines()[-1].strip(), (
+            f"{lang}: the line following the block comment moved to a different line index"
+        )
+
+
 def test_prism_livecode_multi_style_live_comments():
     """
     Regression test for #708: livecode uses both classic xTalk line comments (--),

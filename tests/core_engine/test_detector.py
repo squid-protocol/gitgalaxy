@@ -657,6 +657,18 @@ def test_detector_cpp_objc_name_extraction():
     assert opt_detector._extract_name("BOOST_AUTO_TEST_CASE(MyTestName)") == "MyTestName"
     assert opt_detector._extract_name("TEST_F(MySuite, MyGTestName)") == "MySuite"
 
+    # #1565: Haskell's idiomatic trailing-apostrophe ("prime") naming
+    # convention must survive this final token-cleanup charset intact --
+    # otherwise a primed sibling like `convertWithOpts'` collapses onto its
+    # unprimed counterpart `convertWithOpts`, the same collision shape #1263
+    # fixed for C++ destructors/operators above.
+    # func_start's own regex captures just the bare identifier for haskell
+    # (the group `_slice_by_indentation` passes to `_extract_name` is
+    # already isolated to the name), so that's the realistic input here.
+    hs_detector = StructuralExtractor("haskell", MOCK_LANG_DEFS)
+    assert hs_detector._extract_name("convertWithOpts'") == "convertWithOpts'"
+    assert hs_detector._extract_name("  isWarning") == "isWarning"
+
 
 # ==============================================================================
 # TEST 11: ADVANCED APPSEC SENSORS (PHASE 4)
@@ -2605,6 +2617,49 @@ def test_objectivec_c_style_bare_statement_not_misidentified_as_function():
     found = {fn["name"] for fn in result.get("functions", [])}
     assert "computeValue" not in found, "bare `return foo(x);` statement misidentified as a function"
     assert "computeSomething" in found
+
+
+def test_detector_haskell_multiclause_let_binding_dedups_to_one_node():
+    """
+    Regression test for #1564/#1565's follow-on: a multi-clause `let`
+    binding declared inline in a `do` block, using Haskell's idiomatic
+    alignment style where clause 2+ lines up under the bound NAME rather
+    than under `let` itself:
+
+        let isPandocCiteproc (JSONFilter f) = takeBaseName f == "pandoc-citeproc"
+            isPandocCiteproc _              = False
+
+    Confirmed on the real language-crucible pandoc corpus (App.hs:270-271).
+    Before #1564, `func_start`'s "let" exclusion blocked clause 1 outright,
+    so only clause 2 (which doesn't start with "let") ever matched --
+    coincidentally producing one satellite, but only by omission, not by
+    correct dedup. Fixing #1564 let clause 1 match too, which exposed a
+    real bug in `_slice_by_indentation`'s haskell continuation-dedup: it
+    required the SAME indent as the group's first clause to treat a later
+    same-named match as an already-absorbed clause -- true for
+    where/instance-block siblings (all flush at one column, #1442), but
+    false here, since clause 2 sits deeper than clause 1's `let`. That
+    produced two separate, overlapping FunctionNodes for one real function.
+    The fix drops the indent-equality requirement (`start_idx <
+    last_hs_group_end` alone is sufficient, since clause 1's own dedent-scan
+    already proves clause 2 is body content nested inside it).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "main = do\n"
+        '  let isPandocCiteproc (JSONFilter f) = takeBaseName f == "pandoc-citeproc"\n'
+        "      isPandocCiteproc _              = False\n"
+        "  when (any isPandocCiteproc filters) $\n"
+        '    report $ Deprecated "pandoc-citeproc filter"\n'
+    )
+    detector = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    matches = [fn for fn in result.get("functions", []) if fn["name"] == "isPandocCiteproc"]
+    assert len(matches) == 1, f"expected exactly one deduped isPandocCiteproc node, got {matches}"
+    assert matches[0]["start_line"] == 2
+    assert matches[0]["args"] == 1
 
 
 def test_count_haskell_type_arrows_helper():

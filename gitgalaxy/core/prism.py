@@ -811,8 +811,17 @@ class Prism:
             # Unmask any strings safely captured within the comment block using O(1) lookup
             lits.append(unmask(block_content).strip())
 
-            # Remove from logic stream
-            protected_code = protected_code[:start_idx] + protected_code[end_match.end() :]
+            # #1532: replace with an equal count of newlines rather than deleting the
+            # span outright -- this used to drop every line the comment itself spanned,
+            # so every function AFTER even one multi-line block comment anywhere in the
+            # file got attributed to the wrong (too-early) start_line, cumulative for
+            # each such comment. Mirrors the generic REGEX_MATRIX stripper's own
+            # `strip_callback` (`"\n" * m.group(0).count("\n")`, this same file) and
+            # detector.py's index-aligned shields, which already preserve line counts
+            # the same way.
+            protected_code = (
+                protected_code[:start_idx] + ("\n" * block_content.count("\n")) + protected_code[end_match.end() :]
+            )
             safety += 1
 
         if safety >= self.NESTED_PEEL_LIMIT:

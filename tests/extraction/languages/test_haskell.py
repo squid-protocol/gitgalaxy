@@ -51,6 +51,12 @@ FUNCTION_CASES: dict[str, Any] = {
         ("  targetFunc doc (JSONFilter f) =", "targetFunc"),
         ("  targetFunc f action = do", "targetFunc"),
         (' targetFunc CiteprocFilter = object [ "type" .= String "citeproc" ]', "targetFunc"),
+        # #1564: a same-line `let name args = expr` local binding inside a
+        # `do` block -- the reserved-word exclusion used to sit right after
+        # `^[ \t]+` with no way to look past a leading "let ", so the whole
+        # line was blocked outright instead of anchoring on the real name.
+        ("  let targetFunc fmt = Format.FlavoredFormat fmt mempty", "targetFunc"),
+        ("  let targetFunc msg = messageVerbosity msg == WARNING", "targetFunc"),
     ],
     "invalid": [
         "data TargetFunc",
@@ -70,6 +76,11 @@ FUNCTION_CASES: dict[str, Any] = {
         "  targetFunc <- getLine",
         "  where",
         "  case targetFunc of",
+        # #1564: a bare multi-binding-block opener (nothing on the same
+        # line after "let") and a zero-arg `let`-bound value binding must
+        # still be excluded, same reasoning as the non-`let` cases above.
+        "  let",
+        "  let targetFunc = 5",
     ],
     "pathological": [
         ("TargetFunc \n :: \n Maybe \n ( \n Int \n -> \n Int \n )", "TargetFunc"),
@@ -155,11 +166,17 @@ ARGS_CASES: dict[str, Any] = {
         # defined purely by its pattern-matched LHS.
         ("identity x = x", "identity x ="),
         ("combine newval (MetaList xs) = MetaList xs", "combine newval (MetaList xs) ="),
+        # #1564: a same-line `let name args = expr` local binding must count
+        # its own args too, not just get recognized by func_start -- mirrors
+        # the identical fix on that rule.
+        ("let targetFunc fmt = mempty", "let targetFunc fmt ="),
     ],
     "invalid": [
         "foo",
         # `let x = 1` is a value binding, not a function equation -- "let"
         # must never be treated as the function name being defined (#1505).
+        # Still true post-#1564: the fix only skips PAST a leading "let ",
+        # it doesn't relax the zero-arg value-binding exclusion.
         "let x = 1",
         "where x = 1",
         # A guard between the pattern list and the real `=` isn't a shape

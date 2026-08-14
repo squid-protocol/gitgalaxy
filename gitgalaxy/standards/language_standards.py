@@ -7934,11 +7934,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # substrings and doesn't care what other characters ride along
             # (e.g. a `forall a. a -> a` full-stop getting swept into the
             # capture is harmless noise, not a new miscount).
+            #
+            # #1564 (follow-up, same rule): group 3's own equation-anchored
+            # alternative had the identical "let"-blocks-the-whole-line gap
+            # func_start had (see that rule's own #1564 comment below) --
+            # a same-line `let name args = expr` local binding never got its
+            # args counted, since the reserved-word exclusion sat right after
+            # `^[ \t]*` with no way to look past a leading "let ". Same fix:
+            # an optional `(?:let[ \t]+)?` skipped before the exclusion.
             "args": re.compile(
                 r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\'.,()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'.\s,()\[\]]|=>|->|⊸)*)"
                 r"|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->"
                 r"|@[A-Z][a-zA-Z0-9_\']*"
-                r"|^[ \t]*(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
+                r"|^[ \t]*(?:let[ \t]+)?(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
                 r"|class|instance|data|type|newtype|deriving|foreign|default"
                 r"|infixl|infixr|infix)\b)[a-zA-Z_][a-zA-Z0-9_']*[ \t]+"
                 r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+)"
@@ -7999,9 +8007,27 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # dedups those against the block the first clause already
             # absorbed via the existing same-name-same-indent continuation
             # walk, rather than emitting one node per clause.
+            # #1564: the reserved-word exclusion above (needed so `where`/
+            # `do`/`case`/etc. can never be mistaken for the bound name)
+            # sits immediately after `^[ \t]+`, so it also blocked the whole
+            # line whenever it happened to START with the keyword `let` --
+            # e.g. `let outputFile = fromMaybe "-" (optOutputFile opts)`,
+            # a same-line `let name args = expr` local binding declared
+            # inline in a `do` block. That shape's real name is never "let"
+            # itself, just the token right after it, but the old lookahead
+            # never got a chance to look past "let " to find it -- there's
+            # no other position on the line where `^` can anchor a retry.
+            # The new optional `(?:let[ \t]+)?` skips past a leading "let "
+            # (if present) before applying the same exclusion+capture on
+            # whatever follows, so `let name args = expr` now anchors on
+            # `name` exactly like the pre-existing non-`let` equation form
+            # -- while a bare multi-binding-block opener (`let` alone on its
+            # own line, nothing before the next line's `=`) still can't
+            # match, since the trailing `[ \t]+...=` lookahead has nothing
+            # on that same line to satisfy either way.
             "func_start": re.compile(
                 r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
-                r"|^[ \t]+(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
+                r"|^[ \t]+(?:let[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

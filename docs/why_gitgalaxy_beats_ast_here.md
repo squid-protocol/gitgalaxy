@@ -233,72 +233,6 @@ it still can't tell you a variable's inferred type, walk an expression tree, or 
 It's a narrower promise, and Claims 1 through 3 are exactly the places where that narrower promise
 turns out to be an advantage instead of a limitation.
 
-### How long can a gap like this actually last?
-
-Checked this against the upstream grammar's own bug tracker rather than assuming it's a
-one-off, since the answer changes how much weight this claim should carry. `tree-sitter-language-pack`
-pins an exact commit hash per grammar in a manifest (not "always latest"), so staleness here has
-two independent layers: whatever the upstream grammar itself hasn't fixed yet, *plus* whatever gap
-opens up between that and whenever this repo's pinned pack version last got bumped. Tracing the
-first layer for `ref struct` specifically, on `tree-sitter/tree-sitter-c-sharp`:
-
-- **Issue #14** ("Add ref_type," filed Nov 2019) — closed via a real fix, **PR #251** ("Add
-  ref/ref readonly types," Dec 2022). So basic `ref`-type support isn't an abandoned, decade-old
-  gap — it landed a bit over 3 years after being reported.
-- **Issue #361** ("`struct`'s modifiers are too sensitive to order," filed Dec 2024, **still open**
-  as of the most recent activity) — this is the live mechanism, reported independently by the
-  grammar's own users: if `ref` isn't textually adjacent to `struct` (other modifiers like
-  `private`/`partial` sitting between them), the grammar misparses the whole declaration as a
-  `ref_type` variable declaration instead of a `struct_declaration`. The reporter's own words:
-  *"It's enough to have just one such error in a file to completely mess up its parsing"* —
-  independent confirmation, from the people who wrote the grammar, of exactly the cascade Claim 3
-  describes.
-- **PR #439** (Aug 2026, days before this was written) — the maintainers shipped a set of
-  *deliberately failing* corpus tests documenting 8 more known parse gaps, explicitly framed as
-  "a bug report expressed as executable tests," not fixes.
-
-So the honest answer is **years, even against an actively-maintained grammar** — this repo had
-real commits within the month this was written. These aren't neglect; they're genuine parsing
-ambiguities (grammar conflicts that are hard to resolve without breaking something else), and the
-maintainers are transparent that a backlog of them exists on purpose rather than hidden.
-
-(Sources: [tree-sitter-c-sharp#14](https://github.com/tree-sitter/tree-sitter-c-sharp/issues/14),
-[#361](https://github.com/tree-sitter/tree-sitter-c-sharp/issues/361),
-[#439](https://github.com/tree-sitter/tree-sitter-c-sharp/pull/439),
-[xberg-io/tree-sitter-language-pack](https://github.com/xberg-io/tree-sitter-language-pack) — checked
-directly via `gh api`/`WebFetch`, not recalled from memory.)
-
-### Why GitGalaxy doesn't hit this particular wall
-
-This is the more general point Claim 3 is really an instance of. GitGalaxy commits to exactly four
-things per file — classes, functions, arguments, and a fixed set of structural signatures
-(branch/io/safety_bypasses/etc.) — never a complete, general-purpose parse tree. That narrower
-contract is what frees it from several constraints a real grammar has no choice but to carry:
-
-- **No obligation to resolve every valid ordering/combination into one canonical tree.** A grammar
-  has to decide, unambiguously, what `private ref partial readonly struct Foo` parses into for
-  *every* legal permutation of C#'s modifier keywords, because downstream consumers (LSPs,
-  refactoring tools, syntax highlighters) need one authoritative tree to build on. A regex only
-  needs to recognize "roughly this shape, in roughly this area" — modifier order essentially never
-  matters to it, because it was never trying to build a tree in the first place.
-- **No global coherence requirement.** A parse tree is one connected structure; an error anywhere
-  in it has to be *recovered from* somehow, and recovery can misattribute large stretches of
-  otherwise-normal code to the wrong node (exactly what happened here). GitGalaxy's regex matches
-  are independent per-occurrence — a construct it can't parse just doesn't match, and every other
-  match in the file is completely unaffected, because there's no shared tree state for the failure
-  to propagate through.
-- **No obligation to track the full, versioned grammar surface.** A real grammar has to be
-  extended and re-validated against every new construct a language ever adds, forever, or it
-  starts silently misparsing modern code (exactly the `ref struct` gap here). The *shape* of a
-  function or class declaration — a name, a parameter list, an opening brace — is far more stable
-  across decades of language evolution than the full grammar surface is, which is a large part of
-  why the regex approach ages better on this specific axis even as it loses on parsing depth.
-
-None of this makes GitGalaxy's structural-signature engine more *capable* than a real parser —
-it still can't tell you a variable's inferred type, walk an expression tree, or resolve a symbol.
-It's a narrower promise, and Claims 1 through 3 are exactly the places where that narrower promise
-turns out to be an advantage instead of a limitation.
-
 ## Where Claim 3 does NOT apply
 
 - This is a grammar-*implementation* limitation (a specific parser version's bug/gap on one
@@ -315,15 +249,83 @@ turns out to be an advantage instead of a limitation.
   the entire back half of the file (0 real_functions recognized past line 5198, vs. 157 before
   it), not 3 isolated names.
 
+## Claim 4: counting one function once, when a grammar's node granularity is per-clause
+
+For a language where a single function definition is legally written as multiple separate
+equations (Haskell's pattern-matching clauses: `f (Just x) = ...` / `f Nothing = ...`, still one
+function `f`), GitGalaxy's regex-based extraction already reports it the way a human — or the
+language's own compiler — counts it: **one** function. Tree-sitter's grammar, by contrast, gives
+each clause its own distinct node, because that's the right granularity for a syntax tree, not for
+"how many functions are here." Read naively as ground truth for function *count*, that per-clause
+granularity overcounts real functions by roughly (clauses − 1) for every multi-clause definition —
+a systematic measurement distortion, not a difference in what either side actually detects. This
+is a *counting-semantics* claim, distinct from Claims 1-3: not a missing signal (Claim 1), not a
+dialect the grammar can't parse (Claim 2), and not a parser bug corrupting recovery (Claim 3) — the
+grammar parses every clause correctly; the mismatch is purely in what one tree node is defined to
+represent versus what one "function" means to the language.
+
+**The evidence:** `tests/tools/tree_sitter_accuracy_audit.py`'s haskell `func_node_types` includes
+`"function"` — tree-sitter-haskell's node for a single pattern-matched equation. Parsing a minimal
+three-clause definition directly confirms each clause is its own sibling `function` node under the
+same `declarations` parent:
+
+```haskell
+deNote :: Inline -> Inline
+deNote (Note _) = Str ""
+deNote x        = x
+```
+
+produces one `signature` node plus **two separate** `function` nodes (rows 1 and 2) — tree-sitter
+has no single node representing "`deNote`, the function" as one unit; GitGalaxy's own
+`_slice_by_indentation` (detector.py) already merges exactly this shape into one `FunctionNode`
+by design (#1442's own comment: "clauses 2..N would otherwise each spawn their own duplicate,
+overlapping FunctionNode").
+
+Measured on `language-crucible/data/haskell/pandoc` (the audit tool's pinned 7-file corpus,
+2026-08-14): the currently-shipped baseline reports `real_functions=275, found_functions=139` —
+**50.5% recall**. Re-walking the same 7 files with a clause-collapse pass (consecutive same-name
+`function`/`bind` siblings under one parent merged into a single occurrence, keyed by the first
+clause's line — i.e., asking the ground truth the same question GitGalaxy already answers) gives
+`real_functions=148, found_functions=139` — **93.9% recall**, using the exact same alignment
+algorithm (`_align_occurrences_by_line`) and the exact same GitGalaxy output, unchanged. Every one
+of the ~40 names the current (per-clause) measurement lists as "missing" in this corpus
+(`deNote`, `blockToInlines`, `isPara`, `toJSON`, `tabFilter`, `compactify`, and so on) is a
+multi-clause definition GitGalaxy found in full — the "miss" was always the (N−1)th clause of a
+function GitGalaxy had already reported once, correctly.
+
+The residual, genuine gap after collapsing (9 real misses, not a counting artifact) is a
+different, much smaller, already-scoped problem: local `where`/`let`-introduced helpers whose
+first clause has no `=` on its own line at all (guard-only equations like
+`isAllowedPunct c | cond = ... | otherwise = ...`), and single-line `where name args = expr`
+openers (the same shape #1564 already fixed for `let`, not yet extended to `where`) — see
+issues filed alongside this claim.
+
+## Where Claim 4 does NOT apply
+
+- This is specific to languages whose grammar represents one logical function as multiple
+  sibling nodes (Haskell's equation clauses). Languages with one node per function declaration
+  (the overwhelming majority of the 45 languages this tool baselines) have no such mismatch —
+  there, a tree-sitter node count and a real function count already agree, and a GitGalaxy/
+  tree-sitter mismatch is a real bug to chase, same caveat as every other claim in this doc.
+  Prolog and Erlang have the same clause-based shape and would likely exhibit this if ever added
+  to `NODE_MAPS`; not yet checked, noted here so it isn't rediscovered from scratch.
+- Doesn't excuse GitGalaxy from genuine recall gaps found *after* collapsing — the 9 residual
+  guard-only/inline-`where` misses above are real GitGalaxy defects, not an audit-tool artifact,
+  and are tracked as their own issues rather than folded into this claim.
+- The fix belongs in the audit tool's ground-truth extraction (collapse consecutive same-name
+  clause siblings before counting), not in GitGalaxy — GitGalaxy's one-function-per-name behavior
+  is the thing already correct here.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
   its general "AST usually wins on precision" framing.
 - `tests/tools/tree_sitter_accuracy_audit.py`'s own module docstring cites this doc next to the
   `#1518`/`#1519` writeup (Claim 1), the Cython `.pyx` note in its SCOPE & LIMITATIONS section
-  (Claim 2), and the `#1427` csharp `ref struct` parse-error writeup (Claim 3), so a future reader
-  hitting any of those ground-truth code paths understands why it looks structurally different
-  from the rest of `_get_param_count`/the recall comparison.
+  (Claim 2), the `#1427` csharp `ref struct` parse-error writeup (Claim 3), and the haskell
+  multi-clause counting writeup (Claim 4), so a future reader hitting any of those ground-truth
+  code paths understands why it looks structurally different from the rest of
+  `_get_param_count`/the recall comparison.
 - Per `CLAUDE.md`'s standing instruction, any newly-found case of GitGalaxy's structural-signature
   output being more accurate than tree-sitter's/an AST's on some signal gets logged here as its own
   Claim N, evidenced the same way — not folded into the README's general framing uncredited, and

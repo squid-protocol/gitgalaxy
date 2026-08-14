@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-14T03:13:33+00:00 &#183; commit 63ba888 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-14T03:26:07+00:00 &#183; commit c720ca1 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -231,8 +231,8 @@
 <rect x="378" y="460.0" width="84.7" height="9" rx="3" fill="#2960d6"/>
 <text class="value-label" x="467.7" y="468.0">1771/1923</text>
 <text class="row-label" x="370" y="483.0" text-anchor="end">fortran</text>
-<rect x="378" y="475.0" width="78.9" height="9" rx="3" fill="#298bd6"/>
-<text class="value-label" x="461.9" y="483.0">121/141</text>
+<rect x="378" y="475.0" width="81.2" height="9" rx="3" fill="#297ad6"/>
+<text class="value-label" x="464.2" y="483.0">121/137</text>
 <rect class="stripe" x="290" y="487" width="246" height="15"/>
 <text class="row-label" x="370" y="498.0" text-anchor="end">typescript</text>
 <rect x="378" y="490.0" width="78.8" height="9" rx="3" fill="#298dd6"/>
@@ -499,20 +499,20 @@
 <text class="row-label" x="1192" y="288.0" text-anchor="end">tcl</text>
 <rect x="1200" y="280.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
 <text class="value-label" x="1297.0" y="288.0">142/142</text>
-<text class="row-label" x="1192" y="303.0" text-anchor="end">swift</text>
+<text class="row-label" x="1192" y="303.0" text-anchor="end">fortran</text>
 <rect x="1200" y="295.0" width="91.3" height="9" rx="3" fill="#292ed6"/>
-<text class="value-label" x="1296.3" y="303.0">130/131</text>
+<text class="value-label" x="1296.3" y="303.0">120/121</text>
 <rect class="stripe" x="1112" y="307" width="246" height="15"/>
-<text class="row-label" x="1192" y="318.0" text-anchor="end">rust</text>
-<rect x="1200" y="310.0" width="89.9" height="9" rx="3" fill="#2939d6"/>
-<text class="value-label" x="1294.9" y="318.0">1730/1771</text>
-<text class="row-label" x="1192" y="333.0" text-anchor="end">scala</text>
-<rect x="1200" y="325.0" width="89.2" height="9" rx="3" fill="#293ed6"/>
-<text class="value-label" x="1294.2" y="333.0">525/541</text>
+<text class="row-label" x="1192" y="318.0" text-anchor="end">swift</text>
+<rect x="1200" y="310.0" width="91.3" height="9" rx="3" fill="#292ed6"/>
+<text class="value-label" x="1296.3" y="318.0">130/131</text>
+<text class="row-label" x="1192" y="333.0" text-anchor="end">rust</text>
+<rect x="1200" y="325.0" width="89.9" height="9" rx="3" fill="#2939d6"/>
+<text class="value-label" x="1294.9" y="333.0">1730/1771</text>
 <rect class="stripe" x="1112" y="337" width="246" height="15"/>
-<text class="row-label" x="1192" y="348.0" text-anchor="end">fortran</text>
-<rect x="1200" y="340.0" width="89.0" height="9" rx="3" fill="#2940d6"/>
-<text class="value-label" x="1294.0" y="348.0">117/121</text>
+<text class="row-label" x="1192" y="348.0" text-anchor="end">scala</text>
+<rect x="1200" y="340.0" width="89.2" height="9" rx="3" fill="#293ed6"/>
+<text class="value-label" x="1294.2" y="348.0">525/541</text>
 <text class="row-label" x="1192" y="363.0" text-anchor="end">typescript</text>
 <rect x="1200" y="355.0" width="88.8" height="9" rx="3" fill="#2941d6"/>
 <text class="value-label" x="1293.8" y="363.0">1779/1843</text>

@@ -353,6 +353,39 @@ def test_detector_orphan_and_duplicate_logic():
     )
 
 
+def test_detector_duplicate_logic_is_scope_blind_to_shadowed_same_name_helpers():
+    """
+    Regression test for #1498: two functions sharing a name but with distinct
+    bodies (e.g. a `go` helper reused across unrelated where/let scopes) must
+    NOT be flagged as duplicate logic just because the name collides -- only
+    genuinely repeated (same name AND same normalized body) definitions should.
+    """
+    opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    code = (
+        "def go():\n"
+        "    return 1\n"
+        "\n"
+        "def go():\n"
+        "    return 2\n"
+        "\n"
+        "def repeated_name():\n"
+        "    pass\n"
+        "\n"
+        "def repeated_name():\n"
+        "    pass\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    duplicates = [f["name"] for f in result["functions"] if f.get("usage_status") == 2]
+
+    assert duplicates.count("go") == 0, "Same-named functions with different bodies were falsely flagged as duplicates!"
+    assert duplicates.count("repeated_name") == 2, "Genuinely repeated same-name/same-body functions were not flagged!"
+    assert result["equations"].get("duplicate_logic", 0) == 2, (
+        "duplicate_count should only include the true duplicate pair, not the shadowed 'go' helpers!"
+    )
+
+
 def test_detector_c_macro_dead_branch_shield():
     """
     Proves the Mode B Preprocessor Shield successfully blanks out dead

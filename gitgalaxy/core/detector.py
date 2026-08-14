@@ -838,6 +838,7 @@ class StructuralExtractor:
 
             # --- NEW: INTRA-FILE ORPHAN & DUPLICATE DETECTOR ---
             import collections
+            import hashlib
 
             # Fast, C-backed word frequency counter for the entire file
             token_counts = collections.Counter(re.findall(r"\b\w+\b", code_stream))
@@ -847,12 +848,38 @@ class StructuralExtractor:
             func_names = [f.get("name", "") for f in functions]
             func_name_counts = collections.Counter(func_names)
 
+            # Name collisions alone don't prove duplication: languages like Haskell
+            # idiomatically reuse a generic local-helper name (e.g. `go`) across many
+            # unrelated `where`/`let` scopes in the same file, which are legitimately
+            # distinct functions, not copy-pasted logic (#1498). Require the body's
+            # normalized content to also match before treating same-named functions
+            # as duplicates -- only computed for names that actually collide, since
+            # hashing every function body would be wasted work in the common case.
+            body_hash_counts: collections.Counter[tuple[str, str]] = collections.Counter()
+            func_body_hashes: dict[int, str] = {}
+            for func in functions:
+                func_name = func.get("name", "")
+                if func_name and func_name_counts[func_name] > 1:
+                    start_idx = func.get("start_idx", 0)
+                    end_idx = func.get("end_idx", start_idx)
+                    normalized_body = re.sub(r"\s+", " ", code_stream[start_idx:end_idx]).strip()
+                    body_hash = hashlib.md5(
+                        normalized_body.encode("utf-8", "ignore"), usedforsecurity=False
+                    ).hexdigest()
+                    func_body_hashes[id(func)] = body_hash
+                    body_hash_counts[(func_name, body_hash)] += 1
+
             for func in functions:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
 
-                # Check for Duplicates (Defined multiple times in the same file)
-                if func_name and func_name_counts[func_name] > 1:
+                # Check for Duplicates: same name AND materially the same body,
+                # defined multiple times in the same file.
+                if (
+                    func_name
+                    and func_name_counts[func_name] > 1
+                    and body_hash_counts[(func_name, func_body_hashes[id(func)])] > 1
+                ):
                     usage_status = 2  # 2 = Duplicate
                     duplicate_count += 1
                 elif len(func_name) > 3 and func_name not in {

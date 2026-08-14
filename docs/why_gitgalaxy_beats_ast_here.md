@@ -233,6 +233,53 @@ it still can't tell you a variable's inferred type, walk an expression tree, or 
 It's a narrower promise, and Claims 1 through 3 are exactly the places where that narrower promise
 turns out to be an advantage instead of a limitation.
 
+### Second instance (2026-08-14): javascript, where the same cascade *hallucinates* instead of going blind
+
+`#1633` found the identical root mechanism — one unparseable construct corrupting error recovery
+for unrelated real code elsewhere in the file — in `tree-sitter-javascript`, but with the opposite
+symptom shape. csharp's cascade (above) goes *blind*: the corrupted region yields zero structure,
+so GitGalaxy's real matches there look like false positives (inflated "extra"). javascript's
+cascade *hallucinates*: recovery keeps emitting structured-looking nodes in the corrupted region,
+some of which are garbage that resembles a real function definition closely enough to be counted
+as one.
+
+**The evidence:** `language-crucible/data/javascript/react/ReactFiberBeginWork.js` uses Flow type
+annotations (`function f(x: Type): ReturnType {`) that the plain (non-Flow) `tree-sitter-javascript`
+grammar can't parse — 626 separate `ERROR` nodes, the first at line 10. During recovery, the
+grammar repeatedly emits `method_definition` nodes whose "name" field resolves to a plain
+control-flow keyword: eleven separate `if (...) { ... }` statements (lines 346, 3243, 3305, 3668,
+3770, 3775, 3811, 3980, 4077, 4150, 4169) each parse as a `method_definition` literally named
+`if`, its `(...)` condition standing in for a formal parameter list. GitGalaxy, correctly, never
+reports a function named `if` — so each of these became a permanent, unfindable "missing" entry in
+`tree_sitter_accuracy_audit.py`'s ground truth, deflating measured javascript func_recall for
+something GitGalaxy was never wrong about (704 phantom-inflated "real" functions measured vs. the
+619 that remain once these are excluded, on top of a 596-vs-598-ish separate accounting of the
+already-documented "invisible Flow-typed function" gap described earlier in this doc — recall on
+this corpus moved from 85.1% to 96.6% purely from removing ground-truth garbage, GitGalaxy's own
+`found_functions`/`extra_functions`/`args_exact_match` numbers unchanged).
+
+**Why "hallucinates" needed a narrower fix than "goes blind."** csharp's cascade region has *no*
+salvageable structure at all — the fix there is a flat file+line-range exclusion. javascript's
+error recovery resyncs locally instead of staying corrupted for the rest of the file, so a first
+attempt at the equivalent fix (excluding everything past the file's detected cascade-start line
+from ground truth, mirroring csharp's fix exactly) was tried and reverted: it discarded far more
+genuinely-real, genuinely-matched functions than the handful of phantom entries it removed
+(`found_functions` dropped 599→491 while `extra_functions` went *up* — a net regression, not an
+improvement). The fix that actually worked is a targeted name+node-type filter instead of a
+region exclusion: reserved words (`if`/`for`/`while`/`switch`/`catch`/`else`/`do`) can never
+legally be a real JS identifier, but *are* legal as an object-literal property/method name written
+with an explicit `function` keyword (`catch: function(fn) { ... }`, confirmed real and common in
+`jquery/deferred.js:66`) — so the filter is scoped specifically to the ES6 shorthand-method node
+shape (`method_definition`), not the broader `function_expression`/`pair` shape that legitimate
+`catch: function(){}` uses. An earlier, broader version of the filter (any reserved-word name,
+any node type) wrongly dropped that legitimate `catch` ground-truth entry too, which then made
+GitGalaxy's own correct detection of it look like a new false positive — caught by re-running the
+audit tool after the change, not assumed correct from the diff alone.
+
+Fixed in `tests/tools/tree_sitter_accuracy_audit.py`'s `measure()` (`walk()` closure), not
+GitGalaxy's engine — this is purely a measurement-tool correction; GitGalaxy's own detected
+function set for this corpus is byte-for-byte identical before and after.
+
 ## Where Claim 3 does NOT apply
 
 - This is a grammar-*implementation* limitation (a specific parser version's bug/gap on one
@@ -247,7 +294,12 @@ turns out to be an advantage instead of a limitation.
   whole region from the line-5198 trigger to end of file), not a name list. #1427's original
   3-name exclusion was confirmed too narrow by the 2026-08-14 correction above: the real scope is
   the entire back half of the file (0 real_functions recognized past line 5198, vs. 157 before
-  it), not 3 isolated names.
+  it), not 3 isolated names. **Don't assume this generalizes to every language's cascade** — the
+  javascript instance above (`#1633`) is the counter-example: its error recovery keeps producing
+  salvageable (if occasionally garbage) structure well past the first parse error instead of going
+  fully flat, so the same region-exclusion approach actually *lost* real signal there and had to be
+  replaced with a narrower name+node-type filter. Check which shape a new instance is before
+  picking a fix, don't default to the csharp shape.
 
 ## Claim 4: counting one function once, when a grammar's node granularity is per-clause
 

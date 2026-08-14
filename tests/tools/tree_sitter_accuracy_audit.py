@@ -1501,6 +1501,25 @@ _SKIP_PENALTY = 1_000_000  # bigger than any real file's line count -- see docst
 # of literal `main` functions.
 _SYNTHETIC_GG_FUNC_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 
+# #1633: when a grammar's error recovery corrupts a downstream region (Claim 3's mechanism --
+# see docs/why_gitgalaxy_beats_ast_here.md), tree-sitter-javascript doesn't just go blind, it can
+# actively hallucinate a control-flow statement AS a `method_definition` node whose "name" field
+# resolves to the keyword itself. Confirmed via language-crucible/data/javascript/react/
+# ReactFiberBeginWork.js (626 ERROR nodes, first at line 10, from Flow-typed syntax the plain JS
+# grammar can't parse): eleven separate `if (...) { ... }` statements each produced a
+# `method_definition` node with `_get_node_name() == "if"`. Deliberately scoped to
+# `method_definition` only where this filter is applied (see the `walk()` call site) -- a reserved
+# word IS a completely valid `pair`-shaped object-literal method name when written with an
+# explicit `function` keyword (`catch: function(fn) { ... }`, confirmed real in
+# jquery/deferred.js:66), so this can't be a blanket "reserved word => never real" rule. These
+# phantom `method_definition` nodes aren't confined to one contiguous trailing region either (the
+# earliest confirmed instance, line 346, sits well before this file's own detected cascade start
+# at line 3221), and a cascade-region exclusion was tried and reverted (see the `walk()` comment
+# at the actual filter site): it discarded far more genuinely-real, genuinely-matched ground truth
+# than the phantom entries it removed, since javascript's error recovery resyncs locally rather
+# than going permanently blind for the rest of the file.
+_JS_RESERVED_STATEMENT_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "else", "do"})
+
 
 def _align_occurrences_by_line(
     real: list[tuple[int, int]], gg: list[tuple[int, int]]
@@ -1692,7 +1711,31 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             pass
                         else:
                             name = _get_node_name(node)
-                            if name:
+                            # #1633: error recovery in a Flow-typed javascript file (Claim 3's
+                            # mechanism -- see docs/why_gitgalaxy_beats_ast_here.md) can
+                            # misparse a plain control-flow statement (`if (...) { ... }`)
+                            # itself AS a `method_definition` node, with the keyword resolving
+                            # as the "name". Scoped to `method_definition` specifically (ES6
+                            # shorthand-method syntax, `name(...) { ... }`), NOT the broader
+                            # `func_node_types` set: a reserved word is completely valid as a
+                            # `pair`-shaped object-literal method name written with an explicit
+                            # `function` keyword (`catch: function(fn) { ... }`, confirmed real
+                            # and common in jquery/deferred.js:66) -- an earlier, broader version
+                            # of this filter wrongly dropped that real ground-truth entry too,
+                            # which then made GitGalaxy's own correct detection of it show up as
+                            # a false "extra". A cascade-region exclusion (excluding everything
+                            # past `trailing_error_start` instead of name-filtering) was also
+                            # tried and reverted: javascript's error recovery resyncs locally
+                            # rather than going permanently blind like csharp's #1427/#1567
+                            # cascade, so it discarded far more genuinely-real, genuinely-matched
+                            # ground truth than the handful of phantom entries it removed
+                            # (confirmed empirically: found_functions dropped 599->491 while
+                            # extra_functions went UP, a net regression).
+                            if name and not (
+                                lang == "javascript"
+                                and node.type == "method_definition"
+                                and name in _JS_RESERVED_STATEMENT_KEYWORDS
+                            ):
                                 real_funcs.setdefault(name, []).append(
                                     (node.start_point[0] + 1, _get_param_count(node, lang))
                                 )

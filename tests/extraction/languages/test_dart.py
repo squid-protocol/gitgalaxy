@@ -117,6 +117,17 @@ FUNC_START_CASES = {
         "implements AutofillClient {",
         "with AutomaticKeepAliveClientMixin {",
         "extends ContextAction<T> {",
+        # Issue #1493 (found during verification, not the issue's own scope): `assert` is
+        # a reserved Dart statement keyword, never a valid function/method name -- it was
+        # missing from func_start's keyword-exclusion lookahead, so `assert(...);` could be
+        # misdetected as a function definition. Confirmed against language-crucible's
+        # flutter corpus this was a pre-existing, widespread false-positive (hundreds of
+        # spurious "assert" entries across framework.dart/navigator.dart/object.dart/
+        # semantics.dart), not something #1493's own search_limit fix introduced -- it was
+        # already latent, just newly reachable once #1493 widened the terminator-scan window
+        # enough for `assert(...)`'s own terminator hunt to succeed instead of timing out.
+        "assert(x == 1);",
+        "assert(\n  someCondition,\n  'message',\n);",
     ],
     "xfail_invalid": [
         "print('void main() {');",
@@ -193,6 +204,29 @@ def test_dart_slicer_multi_initializer_constructor():
     )
     blocks, _ = splicer._slice_by_braces(bodied_multi_init, "dart", DART_RULES, 0, {})
     assert [b["name"] for b in blocks] == ["Foo"], "multi-initializer constructor WITH a body must still be found"
+
+
+def test_dart_slicer_long_parameter_list():
+    # Regression case for GitHub issue #1493: search_limit for terminator scan
+    # didn't account for parameter lists exceeding 2000 characters.
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+
+    # >2000 characters of parameters
+    params = ", ".join(f"required int p{i}" for i in range(250))
+    code = (
+        "class LongParams {\n"
+        f"  const LongParams({params}) : _a = 1, assert(p0 != null);\n"
+        "\n"
+        "  void normalMethod() {}\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code, "dart", DART_RULES, 0, {})
+    names = [b["name"] for b in blocks]
+    assert "LongParams" in names, "constructor with >2000-char parameter list must be found"
+    assert "normalMethod" in names
 
 
 # -------------------------------------------------------------------------

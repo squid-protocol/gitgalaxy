@@ -384,7 +384,14 @@ NODE_MAPS = {
     },
     "haskell": {
         "ts_lang": "haskell",
-        "func_node_types": {"function"},
+        # #1566: point-free definitions (`trim :: T.Text -> T.Text; trim = T.dropAround isWS`,
+        # no explicit argument patterns) parse as a top-level "bind" node, not "function" -- a
+        # real function per its type signature, but structurally invisible here before this.
+        # Gated in _get_node_name/_get_param_count (search "#1566" there) on having a paired
+        # arrow-typed "signature" sibling, so a genuine non-function value binding (`x = 5`,
+        # no arrow in its type, or no type signature at all) still isn't counted -- same
+        # reasoning GitGalaxy's own regex already applies via #1312.
+        "func_node_types": {"function", "bind"},
         # #1295: haskell's data/newtype/type declarations get their own distinct node types
         # (data_type, newtype, type_synomym, data_family, type_family) separate from class.
         # This is a real, named class-like entity GitGalaxy's own class_start regex
@@ -720,7 +727,70 @@ def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
     return None
 
 
+def _find_haskell_signature_for_bind(bind_node: Any) -> Optional[Any]:
+    """#1566: a "bind" node (point-free `name = expr`) has no type info of its own -- the arrow
+    that would make it a real function lives on a SIBLING "signature" node (`name :: A -> B`)
+    under the same parent declarations list, matched by name. Returns None if no such sibling
+    signature exists (an untyped local bind, e.g. inside a `where`/`let`) -- that case is a
+    real, separately-tracked recall gap (#1442/#1564), not something this ground truth should
+    guess at.
+    """
+    name_node = bind_node.child_by_field_name("name")
+    if name_node is None or bind_node.parent is None:
+        return None
+    target = name_node.text
+    for sibling in bind_node.parent.children:
+        if sibling.type == "signature":
+            sig_name = sibling.child_by_field_name("name")
+            if sig_name is not None and sig_name.text == target:
+                return sibling
+    return None
+
+
+def _unwrap_haskell_signature_type(type_node: Optional[Any]) -> Optional[Any]:
+    """#1566: a signature's "type" field isn't always the arrow-chain directly -- a typeclass
+    constraint (`Walkable Inline a => a -> a`) wraps it in a "context" node, and an explicit
+    `forall a. ...` wraps that again in a "forall" node, both of which expose the real
+    underlying type via their own "type" field. Unwraps both, in either order/depth, so the
+    caller always sees the real top-level type ("function" for an arrow chain, or something
+    else for a true non-function value).
+    """
+    while type_node is not None and type_node.type in ("context", "forall"):
+        type_node = type_node.child_by_field_name("type")
+    return type_node
+
+
+def _count_haskell_signature_arrows(type_node: Optional[Any]) -> int:
+    """#1566: mirrors detector.py's `_count_haskell_type_arrows` (#1209) on the ground-truth
+    side -- curried arity is the top-level arrow count, right-associated (`a -> b -> c` nests as
+    `function(a, ->, function(b, ->, c))`), so only the "result" field is ever recursed into.
+    The "parameter" field is deliberately never inspected: a higher-order parameter like
+    `(Int -> Int) -> Int` has its own nested "function" type node on the *parameter* side, which
+    must NOT be counted as an additional arrow of the outer signature.
+    """
+    type_node = _unwrap_haskell_signature_type(type_node)
+    if type_node is None or type_node.type != "function":
+        return 0
+    return 1 + _count_haskell_signature_arrows(type_node.child_by_field_name("result"))
+
+
 def _get_node_name(node: Any) -> Optional[str]:
+    if node.type == "bind":
+        # #1566: only a real function -- see func_node_types' haskell entry for the full
+        # rationale. Checked first, ahead of the generic "name" field fast path below, since
+        # that fast path would otherwise return every bind's name unconditionally, including
+        # genuine non-function value bindings.
+        name_node = node.child_by_field_name("name")
+        if name_node is None:
+            return None
+        sig = _find_haskell_signature_for_bind(node)
+        if sig is None:
+            return None
+        sig_type = _unwrap_haskell_signature_type(sig.child_by_field_name("type"))
+        if sig_type is None or sig_type.type != "function":
+            return None
+        return name_node.text.decode("utf8")
+
     name_node = node.child_by_field_name("name")
     if name_node:
         return name_node.text.decode("utf8")
@@ -1303,6 +1373,16 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         patterns_node = node.child_by_field_name("patterns")
         if patterns_node:
             return len(patterns_node.named_children)
+    elif node.type == "bind":
+        # #1566: a point-free bind has no "patterns" field at all (that's what makes it
+        # point-free) -- its curried arity only exists on the paired signature's type, the
+        # same arrow-chain _count_haskell_signature_arrows already walks for the "function"
+        # branch above's sibling "signature" node. Mirrors detector.py's own
+        # `_count_haskell_type_arrows` (#1209) so both sides of the comparison read the same
+        # signal for this shape instead of comparing a real arrow-count against a fabricated 0.
+        sig = _find_haskell_signature_for_bind(node)
+        if sig is not None:
+            return _count_haskell_signature_arrows(sig.child_by_field_name("type"))
     elif node.type in ("function_definition", "modifier_definition", "constructor_definition"):
         # #1503: solidity's function/modifier/constructor nodes have no "parameters" field at
         # all -- individual "parameter" nodes are bare, unwrapped, field-less direct children,

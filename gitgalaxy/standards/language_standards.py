@@ -52,7 +52,7 @@ for the same metrics tracked over time across pushes to main.
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 95.8% | N/A | N/A |
 | Objective-C | 98.7% | 99.3% | 100.0% | 100.0% |
-| Perl | 88.1% | 99.9% | 100.0% | 100.0% |
+| Perl | 99.7% | 99.8% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
 | Python | 99.3% | 100.0% | 99.6% | 100.0% |
@@ -7560,8 +7560,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # DIFFERENT array, nothing to do with unpacking @_. Added a
             # negative lookahead excluding those explicit-argument forms
             # (bare `shift;`/`shift` and `my $x = shift;` both still match --
-            # only an explicit `(`/`@` right after "shift" is excluded), and
-            # named in `_args_findall_sum_groups` below alongside the
+            # only an explicit `(`/`@` right after "shift" is excluded).
+            # #1607 follow-up: also added a negative LOOKBEHIND excluding a
+            # sigil (`$@%&`) immediately before "shift" -- without it, a local
+            # variable literally NAMED `$shift` (a real, if thematically
+            # ironic, idiom: e.g. exiftool's `ConvertDateTime` stores its
+            # GlobalTimeShift option in `my $shift = ...`) false-matched on
+            # every later bare reference to that variable (`if ($shift)`,
+            # `$shift =~ ...`) as if each were its own real `shift` builtin
+            # call unpacking @_ -- confirmed inflating that one function's
+            # count from a real 2 to 8. `\b` alone doesn't exclude this: `$`
+            # is a non-word character, so `\bshift\b` still matches the
+            # "shift" substring inside `$shift` starting right after the `$`.
+            # Named in `_args_findall_sum_groups` below alongside the
             # `my (...) = @_` group -- traditional Perl commonly unpacks args
             # across MULTIPLE statements (`my $class = shift;` for the
             # invocant, then later `my ($a, $b) = @_;` for the rest, or
@@ -7584,10 +7595,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "args": re.compile(
                 r"\b(?:sub|method)(\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*(\([^)]*\))"
                 r"|\bmy\s*(\([^)]*\))\s*=\s*@_"
-                r"|(\bshift\b(?!\s*[(@]))"
+                r"|((?<![$@%&])\bshift\b(?!\s*[(@]))"
                 r"|(\bmy\s+@\w+\s*=\s*@_\b)"
             ),
             "_args_findall_sum_groups": {3, 4, 5},
+            # #1607: group 2 (the "sub/method (...)" capture) matches BOTH a real
+            # modern named signature (`sub foo($a, $b)`) and a legacy bare-sigil
+            # PROTOTYPE (`sub Options($$;@)`, `sub Get8u($$)`) -- the two are
+            # syntactically indistinguishable from the regex alone (both are just
+            # "(...)" after the sub/method keyword). detector.py uses this flag to
+            # tell prototypes apart from real signatures at count time (no commas
+            # ever appear in a prototype, by grammar, regardless of true arity) and
+            # falls through to the same body-idiom scan (`_args_findall_sum_groups`)
+            # already used for signature-less traditional subs, instead of trusting
+            # a prototype's declaration for a count it can't actually give.
+            "_args_prototype_groups": {2},
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
             "structural_boundaries": re.compile(
                 r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await)\b"

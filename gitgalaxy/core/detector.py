@@ -1935,7 +1935,26 @@ class StructuralExtractor:
             # `_slice_by_braces` for the rest of the file. Real perl double/single-quoted
             # strings are essentially always short; 200 chars comfortably covers legitimate
             # long ones while still bounding the worst-case cross-regex mispairing.
-            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"'(?:\\.|[^'\\]){0,200}'" r"|#[^\n]*"
+            #
+            # #1606: perl POD documentation blocks (`=head1`/`=item ... =cut`) are never
+            # stripped from this stream at all (a separate, pre-existing gap -- perl's
+            # `line_exclusive` lexical_family has no POD-marker support), so English prose
+            # containing contractions/possessives ("doesn't", "don't", "it's", "users'")
+            # reaches this shield as plain text. Without a lookbehind, the single-quote
+            # alternative treats a contraction's apostrophe as an OPENING string delimiter
+            # and searches up to 200 chars forward for the next real `'` to close it --
+            # typically the opening quote of an unrelated real string much later -- blanking
+            # everything in between, including any real `sub name { ... }` declaration that
+            # falls inside that span. Confirmed on this exact corpus:
+            # spamassassin/Message.pm's POD prose "doesn't have a root node ..." swallowed
+            # `sub parse_body {` a few lines below entirely, and spamassassin/SpamAssassin.pm's
+            # "don't" did the same to `sub init_learner {`. A real perl string-opening quote
+            # is essentially never immediately preceded by a letter/digit/underscore (it's
+            # preceded by whitespace, an operator, or a bracket/paren) -- confirmed via this
+            # same corpus that no apostrophe-delimited quote-like operator (`q'...'`,
+            # `m'...'`, etc., which WOULD be preceded by a word character) is actually used
+            # anywhere in it, so this lookbehind has no observed false-negative cost here.
+            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'" r"|#[^\n]*"
         else:
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
@@ -1943,6 +1962,21 @@ class StructuralExtractor:
             )
 
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
+
+        # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
+        # all here -- a documented, separate gap, e.g. matching a literal brace in a real
+        # file format: `$$valPt =~ /^[\n\r]*\{[\n\r]*\\rtf/`) reads as a real structural
+        # brace to the naive depth counters below (both the quote-op shielding's own
+        # `_find_balanced_end` calls just below and `_slice_by_braces`'s downstream
+        # function-body search), throwing the depth count off by however many escaped
+        # braces go unrecognized and silently extending a function's "body" hundreds of
+        # lines past its real end. Confirmed on this exact corpus: exiftool/exiftool's
+        # `SuggestedExtension`, a real 57-line function, measured as swallowing 1206 lines
+        # because of exactly this one escaped `\{` in an RTF-detection regex. An escaped
+        # brace is never a real structural code brace in perl regardless of context, so
+        # this blanks every `\{`/`\}` globally before any brace-depth counting runs.
+        if lang_id == "perl":
+            safe_code = re.sub(r"\\[{}]", "  ", safe_code)
 
         # #1437: perl's brace-delimited quote-like operators (qr{...}, m{...}, s{...}{...},
         # tr{...}{...}, y{...}{...}, q{...}, qq{...}, qw{...}, qx{...}) are NOT ordinary
@@ -1985,6 +2019,70 @@ class StructuralExtractor:
                         parts.append(safe_code[pos:second_start])
                         parts.append(blank(safe_code[second_start:end_idx2]))
                         pos = end_idx2
+            safe_code = "".join(parts)
+
+            # #1517: mirrors the brace-delimited shielding just above, but for the
+            # SAME operators using `/` as their delimiter (`m/regex/`, `s/pat/repl/`,
+            # `tr/a-z/A-Z/`, `y///`, `qr/.../`, `q/.../`, etc.) -- arguably the more
+            # common style in real perl for these, not an edge case. `/` is also the
+            # division operator (and `//` is defined-or), so unlike the brace form this
+            # needs a real end-finder rather than reusing `_find_balanced_end` (`/`
+            # doesn't nest) -- `_find_slash_terminator` below scans for the next
+            # unescaped `/` and bails at end-of-line rather than guessing across a real
+            # statement boundary. Gated with a negative lookbehind excluding a sigil
+            # immediately before the keyword (`(?<![$@%&])`) so a bare single-letter
+            # variable div/concat expression (`$s / $b`, `@y . $x`) can't false-positive
+            # as the operator -- real perl virtually never omits the sigil on a variable
+            # reference, so this costs no real coverage. Confirmed root cause for #1517:
+            # mojo/Template.pm's `_line` (`$name =~ y/"//d;` immediately followed by
+            # `return qq{#line @{[shift]} "$name"};`) had the bare `"` in `y/"//d`
+            # false-paired by the double-quote shield above (which has no way to know
+            # it's really quote-op content, not a string) with `"$name"`'s own opening
+            # quote a line later, blanking the literal `qq{` keyword before the
+            # brace-delimited pass above ever got a chance to shield it -- swallowing the
+            # rest of the file behind an unclosed `_find_balanced_end` search. Shielding
+            # the slash-delimited op FIRST (before the general quote shield ever sees the
+            # `"` inside it) closes this at the source rather than chasing each downstream
+            # symptom.
+            def _find_slash_terminator(text: str, content_start: int) -> int:
+                pos = content_start
+                while pos < len(text):
+                    ch = text[pos]
+                    if ch == "\\":
+                        pos += 2
+                        continue
+                    if ch == "/" or ch == "\n":
+                        return pos
+                    pos += 1
+                return len(text)
+
+            perl_quote_op_slash = re.compile(r"(?<![$@%&])\b(?:qw|qq|qx|qr|tr|q|m|s|y)[ \t]*/")
+            pos = 0
+            parts = []
+            while True:
+                qm = perl_quote_op_slash.search(safe_code, pos)
+                if not qm:
+                    parts.append(safe_code[pos:])
+                    break
+                parts.append(safe_code[pos : qm.start()])
+                op = qm.group(0)[:-1].strip()
+                slash_start = qm.end() - 1
+                term1 = _find_slash_terminator(safe_code, slash_start + 1)
+                if term1 >= len(safe_code) or safe_code[term1] != "/":
+                    # Unterminated within this line -- not a real quote-op (most
+                    # likely a bare division/defined-or expression). Leave it
+                    # unshielded and resume scanning right after this match so the
+                    # loop always makes forward progress.
+                    parts.append(safe_code[qm.start() : qm.end()])
+                    pos = qm.end()
+                    continue
+                end_idx = term1 + 1
+                if op in ("s", "tr", "y"):
+                    term2 = _find_slash_terminator(safe_code, end_idx)
+                    if term2 < len(safe_code) and safe_code[term2] == "/":
+                        end_idx = term2 + 1
+                parts.append(blank(safe_code[qm.start() : end_idx]))
+                pos = end_idx
             safe_code = "".join(parts)
 
         # Macro Shields (Strictly Gated to C-Family)
@@ -3574,6 +3672,35 @@ class StructuralExtractor:
                     tcl_pattern_list_groups = rules.get("_args_tcl_pattern_list_groups")
                     findall_max_groups = rules.get("_args_findall_max_groups")
                     findall_sum_groups = rules.get("_args_findall_sum_groups")
+                    # #1607: perl's group-2 "sub/method signature" capture matches a
+                    # legacy PROTOTYPE (`sub Options($$;@)`, `sub Get8u($$)`) exactly
+                    # the same as a real modern named signature (`sub foo($a, $b)`) --
+                    # both are just "(...)" text sitting right after the sub/method
+                    # keyword. But a prototype is a sequence of bare sigils (`$`
+                    # scalar, `@` array, `%` hash, `;` optional-args marker, `\`
+                    # by-ref) with NO commas between them, BY GRAMMAR, regardless of
+                    # how many parameters it declares -- so the #1199 self-contained-
+                    # "(...)" branch below (comma-free non-empty parens = exactly 1
+                    # argument, correct for a real signature) silently locks every
+                    # prototype's count at 1 no matter its real arity. Confirmed on
+                    # the corpus: `sub Get8u($$) { return DoUnpackStd('C', @_); }`
+                    # (real arity 0, no shift/my-unpacking at all) and `sub
+                    # HDump($$$$;$$$)` (real arity 7, seven sequential shifts) both
+                    # measured got=1. A prototype gives sigil TYPES, not a reliable
+                    # argument COUNT (a real signature's own comma-count heuristic
+                    # doesn't apply, and summing sigils isn't equivalent to arity
+                    # once `;` marks an optional boundary either) -- so a prototype is
+                    # treated exactly like perl's signature-LESS traditional subs
+                    # already are (#1519): skip it and fall through to the same
+                    # body-idiom scan (`_args_findall_sum_groups`, groups 3/4/5)
+                    # rather than trusting the declaration at all.
+                    prototype_groups = rules.get("_args_prototype_groups")
+                    is_bare_prototype = False
+                    if prototype_groups and arg_match.lastindex in prototype_groups:
+                        proto_inner = (
+                            stripped[1:-1] if stripped.startswith("(") and stripped.endswith(")") else stripped
+                        )
+                        is_bare_prototype = bool(re.fullmatch(r"[$@%\\;+*&]*", proto_inner))
                     if findall_max_groups and arg_match.lastindex in findall_max_groups:
                         # Shell (#1518): a single match only ever sees the FIRST
                         # positional-parameter reference in the block, silently
@@ -3585,7 +3712,7 @@ class StructuralExtractor:
                         search_text = args_search_text if args_search_text is not None else block
                         all_matches = [m.group(0) for m in args_pattern.finditer(search_text)]
                         args_count = self._count_shell_positional_max(all_matches)
-                    elif findall_sum_groups and arg_match.lastindex in findall_sum_groups:
+                    elif findall_sum_groups and (arg_match.lastindex in findall_sum_groups or is_bare_prototype):
                         # Perl (#1519): traditional subs commonly unpack their
                         # args across MULTIPLE statements -- one `my $class =
                         # shift;` for the invocant plus a later `my ($a, $b) =
@@ -3598,12 +3725,13 @@ class StructuralExtractor:
                         # groups (the tightened `my $x = shift` shape, which
                         # deliberately excludes `shift @other`/`shift(@other)` --
                         # those shift a DIFFERENT array, not @_) contributes
-                        # exactly 1. Only reached when the single leftmost match
-                        # above ISN'T a real declared signature (group 2) -- a
-                        # sub WITH an explicit signature/prototype already took
-                        # the self-contained-"(...)" branch below via ordinary
-                        # leftmost-match precedence, since that always sits
-                        # earlier in the text than any body-level idiom.
+                        # exactly 1. Reached either when the single leftmost match
+                        # above ISN'T a real declared signature (group 2) at all, or
+                        # (#1607) IS group 2 but is a bare-sigil legacy PROTOTYPE
+                        # rather than a real named signature -- see `is_bare_prototype`
+                        # above. A sub with an actual named signature (real commas,
+                        # real identifiers) still takes the self-contained-"(...)"
+                        # branch below unchanged.
                         search_text = args_search_text if args_search_text is not None else block
                         total = 0
                         for m in args_pattern.finditer(search_text):

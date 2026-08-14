@@ -1612,11 +1612,33 @@ def measure(lang: str, verbose: bool = False) -> dict:
 
                 def walk(node):
                     if node.type in func_node_types:
-                        name = _get_node_name(node)
-                        if name:
-                            real_funcs.setdefault(name, []).append(
-                                (node.start_point[0] + 1, _get_param_count(node, lang))
-                            )
+                        # #1608: perl's `subroutine_declaration_statement`/
+                        # `method_declaration_statement` node types cover BOTH a real
+                        # `sub name { ... }` definition AND a bodyless forward
+                        # declaration (`sub name($$);` -- old-Perl style pre-declaring a
+                        # prototype so later code can call it, with the real definition
+                        # appearing further down the file). GitGalaxy correctly reports
+                        # nothing for the bodyless form (confirmed: its own func_start
+                        # match immediately fails the following brace search, since
+                        # `_slice_by_braces`'s window is bounded by the NEXT func_start
+                        # match -- these forward declarations sit one per line with no
+                        # `{` between them) -- there's no executable body for
+                        # branch/io/etc. to fire inside, so it isn't a distinct function
+                        # to find. Counting it here anyway inflates real_functions with a
+                        # permanently-unpairable entry, dragging down measured recall for
+                        # something GitGalaxy was never wrong about. Confirmed via
+                        # language-crucible/data/perl/exiftool/exiftool: dozens of names
+                        # (e.g. `AbsPath`) appear twice -- once bodyless near the top,
+                        # once with a real body much later -- and only the real,
+                        # body-bearing occurrence is ever in GitGalaxy's own output.
+                        if lang == "perl" and node.child_by_field_name("body") is None:
+                            pass
+                        else:
+                            name = _get_node_name(node)
+                            if name:
+                                real_funcs.setdefault(name, []).append(
+                                    (node.start_point[0] + 1, _get_param_count(node, lang))
+                                )
                     elif node.type in class_node_types:
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass

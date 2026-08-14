@@ -190,6 +190,143 @@ def test_perl_args_findall_sum_multi_statement_arity():
     assert check_fn["args"] == 3, f"expected 3 (1 shift + 2-tuple), got {check_fn['args']}"
 
 
+def test_perl_args_shift_excludes_sigil_prefixed_variable_name():
+    """
+    #1607 follow-up: `\\bshift\\b` alone matches the "shift" substring inside
+    a variable literally NAMED `$shift` (`$` is a non-word char, so a word
+    boundary exists right after it) -- a real, if ironic, idiom (exiftool's
+    `ConvertDateTime` stores its GlobalTimeShift option in `my $shift =
+    ...`, then references it repeatedly). Every bare reference to that
+    variable must NOT be read as its own `shift` builtin call.
+    """
+    pattern = PERL_RULES["args"]
+    assert pattern.search("shift;")
+    m = pattern.search("if ($shift) {")
+    assert not (m and m.group(0).strip() == "shift"), "matched bare 'shift' inside variable name '$shift'"
+    m2 = pattern.search("$shift =~ s/foo//;")
+    assert not (m2 and m2.group(0).strip() == "shift"), "matched bare 'shift' inside '$shift =~ ...'"
+
+
+def test_perl_args_prototype_falls_through_to_body_idiom_scan():
+    """
+    #1607: a legacy Perl PROTOTYPE (`sub Get8u($$)`) is a sequence of bare
+    sigils with NO commas, ever, regardless of true arity -- unlike a real
+    named signature (`sub foo($a, $b)`), where the #1199 comma-count
+    heuristic is correct. A prototype-only sub must fall through to the
+    same body-idiom scan (shift/my-unpack) #1519 already built for
+    signature-less traditional subs, not get locked at a false count of 1.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    payload = "sub Options($$;@)\n{\n  my $self = shift;\n  my $param = shift;\n  my $newVal = shift;\n}\n"
+    segments = extractor._partition_segments(payload, "perl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    fn = next(f for f in functions if f["name"] == "Options")
+    assert fn["args"] == 3, f"expected 3 (three sequential shifts), got {fn['args']}"
+
+    zero_arg_payload = "sub Get8u($$) { return DoUnpackStd('C', @_); }\n"
+    segments2 = extractor._partition_segments(zero_arg_payload, "perl")
+    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, {}, None)
+    fn2 = next(f for f in functions2 if f["name"] == "Get8u")
+    assert fn2["args"] == 0, f"expected 0 (no shift/my-unpack in body), got {fn2['args']}"
+
+    # A REAL named signature (commas, real identifiers) must still use the
+    # #1199 comma-count heuristic, unaffected by the prototype fallthrough.
+    real_sig_payload = "sub add($a, $b) {\n  return $a + $b;\n}\n"
+    segments3 = extractor._partition_segments(real_sig_payload, "perl")
+    functions3, _ = extractor._function_slice(segments3, [{} for _ in segments3], {}, {}, None)
+    fn3 = next(f for f in functions3 if f["name"] == "add")
+    assert fn3["args"] == 2, f"expected 2 (real named signature), got {fn3['args']}"
+
+
+def test_perl_brace_safe_stream_escaped_brace_in_regex_does_not_desync():
+    """
+    #1517: an escaped `\\{`/`\\}` inside a bare `/regex/` literal (never
+    shielded at all -- perl regex literals are out of scope for this
+    method's quote-op shielding) reads as a real structural brace to the
+    naive balanced-brace counter, silently extending a function's body far
+    past its real end. Confirmed on exiftool/exiftool's `SuggestedExtension`
+    (a real 57-line function measured as swallowing 1206 lines because of
+    one escaped `\\{` in an RTF-detection regex).
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    payload = (
+        "sub Detect($$)\n{\n"
+        "    my ($self, $val) = @_;\n"
+        "    if ($val =~ /^[\\n\\r]*\\{[\\n\\r]*\\\\rtf/) {\n"
+        "        return 'rtf';\n"
+        "    }\n"
+        "    return 'txt';\n"
+        "}\n"
+        "\n"
+        "sub After {\n"
+        "    return 1;\n"
+        "}\n"
+    )
+    segments = extractor._partition_segments(payload, "perl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    names = [f["name"] for f in functions]
+    assert "After" in names, f"escaped brace in regex swallowed the following sub; found {names}"
+    detect_fn = next(f for f in functions if f["name"] == "Detect")
+    assert detect_fn["loc"] < 12, f"escaped brace in regex desynced the brace counter, loc={detect_fn['loc']}"
+
+
+def test_perl_brace_safe_stream_slash_delimited_quote_op_stray_quote_does_not_desync():
+    """
+    #1517: a slash-delimited quote-like operator (`y/"//d`, `s/pat/repl/`,
+    `tr/a-z/A-Z/`) can contain a bare `"`/`'` in its own content that is NOT
+    a real string delimiter (e.g. `y/"//d` transliterates away literal
+    double-quotes) -- without recognizing the operator itself first, the
+    general quote shield reads that bare quote as an opening string
+    delimiter and false-pairs it with an unrelated real quote later,
+    corrupting everything in between (confirmed via
+    language-crucible/data/perl/mojo/Template.pm).
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    payload = (
+        'sub clean {\n  my $name = shift;\n  $name =~ y/"//d;\n  return $name;\n}\n\nsub After {\n  return 1;\n}\n'
+    )
+    segments = extractor._partition_segments(payload, "perl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    names = [f["name"] for f in functions]
+    assert "After" in names, f'stray quote inside y/"//d desynced the shield; found {names}'
+
+
+def test_perl_pod_contraction_apostrophe_does_not_swallow_following_sub():
+    """
+    #1606: perl POD documentation prose is never stripped from the code
+    stream (a separate, pre-existing gap), so an English contraction's
+    apostrophe ("doesn't") used to be misread by the brace-safety shield's
+    single-quote alternative as an OPENING string delimiter -- it would then
+    hunt up to 200 chars forward for the next real `'` to close it, blanking
+    everything in between (including a real `sub name { ... }` a few lines
+    below) before `_slice_by_braces`'s func_start search ever saw it.
+    Confirmed on the real corpus: spamassassin/Message.pm's POD prose
+    "doesn't have a root node ..." swallowed `sub parse_body {` whole.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    payload = (
+        "=item parse_body()\n\n"
+        "parse_body() doesn't create a new sub-tree on the first call.\n\n"
+        "=cut\n\n"
+        "sub parse_body {\n"
+        "  my ($self) = @_;\n"
+        "  return 1;\n"
+        "}\n"
+    )
+    segments = extractor._partition_segments(payload, "perl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    names = [f["name"] for f in functions]
+    assert "parse_body" in names, f"POD contraction apostrophe swallowed the following sub; found {names}"
+
+
 def test_perl_func_start_vertical_shield_and_name_capture():
     pattern = PERL_RULES["func_start"]
     m = pattern.search("sub foo {")
@@ -374,6 +511,7 @@ def test_perl_decorators_redos_immunity():
     poison = ":" + "a" * 40000
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
 
+
 def test_perl_branch_colon_ambiguity_and_defined_or():
     pattern = PERL_RULES["branch"]
     assert pattern.search("$x ? 1 : 2;"), "ternary colon should match"
@@ -382,14 +520,18 @@ def test_perl_branch_colon_ambiguity_and_defined_or():
     assert not pattern.search("Foo::Bar"), "package separator :: should NOT match"
     assert not pattern.search("$hash{key}"), "unrelated should not match"
 
+
 def test_perl_args_anonymous_and_qualified_signatures():
     pattern = PERL_RULES["args"]
     assert pattern.search("sub ($x, $y) { }"), "anonymous sub with space should match"
     assert pattern.search("sub($x) { }"), "anonymous sub without space should match"
     assert pattern.search("method ($self, $x) { }"), "anonymous method should match"
     assert pattern.search("sub Foo::Bar::baz ($x) { }"), "qualified sub with signature should match"
-    assert not pattern.search("sub Foo::Bar::baz { }"), "missing signature should not match here (handled by func_start)"
+    assert not pattern.search("sub Foo::Bar::baz { }"), (
+        "missing signature should not match here (handled by func_start)"
+    )
     assert not pattern.search("method foo { }"), "missing signature should not match here"
+
 
 def test_perl_func_start_qualified_names_and_attributes():
     pattern = PERL_RULES["func_start"]
@@ -400,6 +542,7 @@ def test_perl_func_start_qualified_names_and_attributes():
     m3 = pattern.search("sub foo\n{")
     assert m3 and m3.group(1) == "foo", "must handle vertical brace placement"
     assert not pattern.search("sub Foo::Bar::baz;"), "forward declaration without attrs/block should not match"
+
 
 def test_perl_class_start_corinna_and_versions():
     pattern = PERL_RULES["class_start"]
@@ -412,6 +555,7 @@ def test_perl_class_start_corinna_and_versions():
     m4 = pattern.search("role Throwable;")
     assert m4 and m4.group(1) == "Throwable", "must handle roles"
     assert not pattern.search("my $class = 'Point';"), "should not match string"
+
 
 def test_perl_structural_boundaries_sub_and_method():
     pattern = PERL_RULES["structural_boundaries"]

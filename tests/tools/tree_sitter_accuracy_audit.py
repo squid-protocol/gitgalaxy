@@ -1308,6 +1308,18 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         for child in named:
             if child.type in counted_types:
                 count += 1
+            elif child.type == "optional_formal_parameters":
+                # #1570: dart wraps BOTH optional-positional (`[bool x = true]`) and named
+                # (`{required this.x}`) parameters in this one node type -- reached here for
+                # dart's constructor node types specifically, since (unlike
+                # `function_signature`/`method_signature` below) `constructor_signature` DOES
+                # expose a field-tagged "parameters", so it takes this generic path instead of
+                # the dart-specific `function_signature` branch. Without this, every constructor
+                # using `{...}`/`[...]` params -- the dominant Flutter/Dart convention -- measured
+                # 0 real params regardless of how many it actually declared (confirmed:
+                # `TextEditingController({String? text})` measured real=0 against GitGalaxy's
+                # correct got=1).
+                count += sum(1 for p in child.children if p.type == "formal_parameter")
         return count
 
     param_node = node.child_by_field_name("parameter")
@@ -1324,9 +1336,21 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         # no "name" field either), so `walk()` only ever names/counts the NESTED
         # `function_signature` it wraps, which is why only this node type needs handling here,
         # not `method_signature`/`local_function_declaration` too (both real func_node_types).
+        #
+        # #1570: a direct child of "formal_parameter_list" is only ever a BARE required
+        # parameter -- dart wraps every optional-positional (`[bool x = true]`) or named
+        # (`{required this.x}`) parameter one level deeper, inside a single shared
+        # "optional_formal_parameters" node type (confirmed: both bracket styles produce this
+        # same wrapper). A direct-children-only scan silently measured 0 for any signature using
+        # either form -- the dominant convention in real Dart/Flutter code -- regardless of how
+        # many parameters it actually declared.
         for child in node.children:
             if child.type == "formal_parameter_list":
-                return sum(1 for p in child.children if p.type == "formal_parameter")
+                count = sum(1 for p in child.children if p.type == "formal_parameter")
+                for wrapper in child.children:
+                    if wrapper.type == "optional_formal_parameters":
+                        count += sum(1 for p in wrapper.children if p.type == "formal_parameter")
+                return count
     elif node.type == "function_declaration":
         # kotlin: params live inside a "function_value_parameters" wrapper.
         for child in node.children:

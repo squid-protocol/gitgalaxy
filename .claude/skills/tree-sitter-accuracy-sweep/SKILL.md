@@ -260,6 +260,22 @@ completion notification the moment it exits, so there's nothing to check back on
 shared loop -- each is its own independent notification. This replaces any earlier ad hoc
 `sleep`-then-recheck pattern; use it as the standing method for this skill going forward.
 
+**A nonzero `--watch` exit does NOT mean the PR didn't merge.** `crucible-audit` and
+`ruff-audit` are advisory, not required, status checks on this repo's branch protection --
+`gh pr merge --squash --auto` proceeds and actually lands the PR even when one of them fails
+(commonly from the merge-race below). Confirmed hitting this repeatedly at pool-of-5: the watch
+exits nonzero, but the PR is already `MERGED`. After every `--watch` completion (pass or fail),
+confirm the real outcome with `gh pr view <PR> --json state,mergedAt` before assuming either
+success or failure -- the watch's exit code tells you about one check, not about the merge.
+
+**Never switch branches in the main checkout's working tree while a background command is
+still writing files there.** A background `crucible_check.py --update`/`--regenerate` run
+writes directly to tracked files in whatever branch is currently checked out; switching branches
+mid-run (e.g. to go handle something else) can silently discard that in-flight work on the next
+`git checkout`/`git merge --abort`. If you need to do unrelated git work while a background
+bless/regenerate is running, wait for its completion notification first, or do the unrelated
+work in a different worktree -- never in the same shared tree.
+
 ## Running this indefinitely (pool of 5, no fixed batch size)
 
 When asked to run this as an ongoing sweep rather than a one-off batch: keep the dispatch pool at

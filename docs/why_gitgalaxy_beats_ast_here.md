@@ -63,6 +63,23 @@ case is documented in the tool's own module docstring (`tests/tools/tree_sitter_
 anonymous Perl sub's own `my (...) = @_` gets counted as if it belonged to the outer sub, since a
 flat regex scan has no real block-nesting awareness. Not hidden, just not chased further yet.
 
+## Other confirmed and candidate instances of this same shape
+
+Claim 1 is about a *property of the language*, not a one-off pair of languages, so it's worth
+tracking where else it shows up rather than letting bash/perl stand in as the only examples.
+
+- **m4** — confirmed, already implemented, no further work needed. `define(foo, ...)` macros have
+  no parameter-list syntax at all, identical to bash's situation; GitGalaxy's m4 `args` rule
+  already reads the same `$1`/`$2`/`$@`/`$#` body idiom (`gitgalaxy/standards/language_standards.py`,
+  m4's `"args"` rule) — this is a second, real instance of Claim 1, just never separately logged
+  until now.
+- **batch** (`.bat`/`.cmd`) — same shape again (`%1`-`%9`, `%*` read from the body, no declared
+  parameter list), but **not yet implemented**: batch's entry in `language_standards.py` currently
+  has `"rules": {}` — no `func_start`, no `args`, no structural signatures of any kind extracted
+  from batch files today. This isn't a measured win (there's nothing running to measure), it's an
+  open, scoped opportunity for a future `harden-language-extraction` pass — noted here so it
+  doesn't get lost as a one-off observation.
+
 ## Where Claim 1 does NOT apply
 
 - Any language with real formal parameter-list syntax (Python, Java, Rust, Go, JavaScript, most
@@ -126,6 +143,72 @@ methods elsewhere in the file, confirmed for three (`AccumulateExplicitInterface
 `.finditer()` against the source, an isolated single-file `galaxyscope` scan, and a direct SQL
 query against the resulting corpus DB — all three agree GitGalaxy finds exactly one occurrence of
 each, correctly, while tree-sitter's parse has no record of any of them (#1427).
+
+### How long can a gap like this actually last?
+
+Checked this against the upstream grammar's own bug tracker rather than assuming it's a
+one-off, since the answer changes how much weight this claim should carry. `tree-sitter-language-pack`
+pins an exact commit hash per grammar in a manifest (not "always latest"), so staleness here has
+two independent layers: whatever the upstream grammar itself hasn't fixed yet, *plus* whatever gap
+opens up between that and whenever this repo's pinned pack version last got bumped. Tracing the
+first layer for `ref struct` specifically, on `tree-sitter/tree-sitter-c-sharp`:
+
+- **Issue #14** ("Add ref_type," filed Nov 2019) — closed via a real fix, **PR #251** ("Add
+  ref/ref readonly types," Dec 2022). So basic `ref`-type support isn't an abandoned, decade-old
+  gap — it landed a bit over 3 years after being reported.
+- **Issue #361** ("`struct`'s modifiers are too sensitive to order," filed Dec 2024, **still open**
+  as of the most recent activity) — this is the live mechanism, reported independently by the
+  grammar's own users: if `ref` isn't textually adjacent to `struct` (other modifiers like
+  `private`/`partial` sitting between them), the grammar misparses the whole declaration as a
+  `ref_type` variable declaration instead of a `struct_declaration`. The reporter's own words:
+  *"It's enough to have just one such error in a file to completely mess up its parsing"* —
+  independent confirmation, from the people who wrote the grammar, of exactly the cascade Claim 3
+  describes.
+- **PR #439** (Aug 2026, days before this was written) — the maintainers shipped a set of
+  *deliberately failing* corpus tests documenting 8 more known parse gaps, explicitly framed as
+  "a bug report expressed as executable tests," not fixes.
+
+So the honest answer is **years, even against an actively-maintained grammar** — this repo had
+real commits within the month this was written. These aren't neglect; they're genuine parsing
+ambiguities (grammar conflicts that are hard to resolve without breaking something else), and the
+maintainers are transparent that a backlog of them exists on purpose rather than hidden.
+
+(Sources: [tree-sitter-c-sharp#14](https://github.com/tree-sitter/tree-sitter-c-sharp/issues/14),
+[#361](https://github.com/tree-sitter/tree-sitter-c-sharp/issues/361),
+[#439](https://github.com/tree-sitter/tree-sitter-c-sharp/pull/439),
+[xberg-io/tree-sitter-language-pack](https://github.com/xberg-io/tree-sitter-language-pack) — checked
+directly via `gh api`/`WebFetch`, not recalled from memory.)
+
+### Why GitGalaxy doesn't hit this particular wall
+
+This is the more general point Claim 3 is really an instance of. GitGalaxy commits to exactly four
+things per file — classes, functions, arguments, and a fixed set of structural signatures
+(branch/io/safety_bypasses/etc.) — never a complete, general-purpose parse tree. That narrower
+contract is what frees it from several constraints a real grammar has no choice but to carry:
+
+- **No obligation to resolve every valid ordering/combination into one canonical tree.** A grammar
+  has to decide, unambiguously, what `private ref partial readonly struct Foo` parses into for
+  *every* legal permutation of C#'s modifier keywords, because downstream consumers (LSPs,
+  refactoring tools, syntax highlighters) need one authoritative tree to build on. A regex only
+  needs to recognize "roughly this shape, in roughly this area" — modifier order essentially never
+  matters to it, because it was never trying to build a tree in the first place.
+- **No global coherence requirement.** A parse tree is one connected structure; an error anywhere
+  in it has to be *recovered from* somehow, and recovery can misattribute large stretches of
+  otherwise-normal code to the wrong node (exactly what happened here). GitGalaxy's regex matches
+  are independent per-occurrence — a construct it can't parse just doesn't match, and every other
+  match in the file is completely unaffected, because there's no shared tree state for the failure
+  to propagate through.
+- **No obligation to track the full, versioned grammar surface.** A real grammar has to be
+  extended and re-validated against every new construct a language ever adds, forever, or it
+  starts silently misparsing modern code (exactly the `ref struct` gap here). The *shape* of a
+  function or class declaration — a name, a parameter list, an opening brace — is far more stable
+  across decades of language evolution than the full grammar surface is, which is a large part of
+  why the regex approach ages better on this specific axis even as it loses on parsing depth.
+
+None of this makes GitGalaxy's structural-signature engine more *capable* than a real parser —
+it still can't tell you a variable's inferred type, walk an expression tree, or resolve a symbol.
+It's a narrower promise, and Claims 1 through 3 are exactly the places where that narrower promise
+turns out to be an advantage instead of a limitation.
 
 ## Where Claim 3 does NOT apply
 

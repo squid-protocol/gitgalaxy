@@ -194,6 +194,15 @@ ARGS_CASES: dict[str, Any] = {
             "def TargetFunc[T: Sequence[int]](x: T) -> T:",
             "TargetFunc",
         ),  # PEP 695 generic with nested-bracket bound -- was a real bug, now fixed
+        (
+            """async def get_partial_callable_gen_dependency(
+    value: Annotated[
+        str,
+        Depends(partial(callable_gen_dependency, "partial-callable-gen-dependency")),
+    ],
+) -> str:""",
+            "get_partial_callable_gen_dependency",
+        ),  # 2-level-nested parens in default value (issue #1527)
         ("lambda x, y: x + y", None),  # lambda
     ],
     "invalid": [

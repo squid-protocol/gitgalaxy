@@ -2337,9 +2337,27 @@ class StructuralExtractor:
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 objc_args_sig_end = term_idx + 1
             elif lang_id == "dart":
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                # #1493: the generic `search_limit = start_idx + 2000` gives most real
+                # functions (short/medium param lists) hundreds to ~2000 chars of
+                # terminator-hunt room past `params_end_idx` -- flooring the terminator
+                # scan's own budget at a small flat constant (tried +200 first) broke
+                # real cases that relied on that existing slack and dropped
+                # found_functions BELOW the pre-fix baseline. Only the pathological case
+                # -- a param list itself long enough that `params_end_idx` overruns
+                # `start_idx + 2000` -- needs extra room; `max(...)` keeps every other
+                # match byte-for-byte at the original generic bound and only widens
+                # for the specific case #1493 reported, instead of loosening the window
+                # file-wide (which was independently found to add spurious "extra"
+                # matches in unrelated files when tried as a flat `params_end_idx + 2000`).
+                dart_search_limit = min(next_match_start, max(search_limit, params_end_idx + 200))
 
                 def _dart_scan_terminator(
-                    scan_start: int, stop_chars: str, *, safe_code: str = safe_code, search_limit: int = search_limit
+                    scan_start: int,
+                    stop_chars: str,
+                    *,
+                    safe_code: str = safe_code,
+                    search_limit: int = dart_search_limit,
                 ) -> tuple[int, Optional[str]]:
                     """Paren/bracket/angle-depth-aware scan for the next top-level char
                     in `stop_chars` starting at `scan_start`. `stop_chars` differs by
@@ -2384,7 +2402,6 @@ class StructuralExtractor:
                         pos += 1
                     return -1, None
 
-                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
                 term_idx, term_kind = _dart_scan_terminator(params_end_idx, opener + ";=:,")
 
                 if term_kind == "comma":
@@ -2407,7 +2424,7 @@ class StructuralExtractor:
                 elif term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "arrow":
-                    semi_after_arrow = safe_code.find(";", term_idx, search_limit)
+                    semi_after_arrow = safe_code.find(";", term_idx, dart_search_limit)
                     if semi_after_arrow == -1:
                         continue
                     end_idx = semi_after_arrow + 1
@@ -3377,6 +3394,45 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _count_tcl_arg_list(self, text: str) -> int:
+        """
+        Counts Tcl argument list parameters, aware of brace nesting.
+        Tcl uses {name default_value} for optional arguments. This entire
+        nested brace structure counts as a single parameter.
+        Whitespace separates parameters only at depth 0.
+        """
+        depth = 0
+        count = 0
+        at_boundary = True
+        i = 0
+        while i < len(text):
+            ch = text[i]
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == "{":
+                if depth == 0 and at_boundary:
+                    count += 1
+                    at_boundary = False
+                depth += 1
+                i += 1
+                continue
+            if ch == "}":
+                if depth > 0:
+                    depth -= 1
+                i += 1
+                continue
+            if ch in " \t\r\n":
+                if depth == 0:
+                    at_boundary = True
+                i += 1
+                continue
+            if depth == 0 and at_boundary:
+                count += 1
+                at_boundary = False
+            i += 1
+        return count
+
     def _calculate_block_metrics(
         self,
         name: str,
@@ -3479,6 +3535,7 @@ class StructuralExtractor:
                     arrow_count_groups = rules.get("_args_arrow_count_groups")
                     colon_selector_groups = rules.get("_args_colon_selector_groups")
                     pattern_list_groups = rules.get("_args_pattern_list_groups")
+                    tcl_pattern_list_groups = rules.get("_args_tcl_pattern_list_groups")
                     findall_max_groups = rules.get("_args_findall_max_groups")
                     findall_sum_groups = rules.get("_args_findall_sum_groups")
                     if findall_max_groups and arg_match.lastindex in findall_max_groups:
@@ -3526,6 +3583,11 @@ class StructuralExtractor:
                             else:
                                 total += 1
                         args_count = total
+                    elif tcl_pattern_list_groups and arg_match.lastindex in tcl_pattern_list_groups:
+                        # Tcl default-value braces (#1512):
+                        # Tcl allows nested braces like {db db} for default
+                        # parameter values, which should count as a single argument.
+                        args_count = self._count_tcl_arg_list(stripped)
                     elif pattern_list_groups and arg_match.lastindex in pattern_list_groups:
                         # Haskell signature-less equation LHS (#1505 follow-up):
                         # a naive whitespace split would wrongly split a single

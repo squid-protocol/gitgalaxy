@@ -134,17 +134,40 @@ recovery for unrelated surrounding code.
 
 **The evidence:** `tests/tools/tree_sitter_accuracy_audit.py` measures csharp against
 tree-sitter-c-sharp (via `tree_sitter_language_pack`). `language-crucible/data/csharp/roslyn/LanguageParser.cs`
-(14,680 lines) declares `private ref struct DisposableResetPoint` at line 14575 — a C# 7.2+ `ref
-struct`, ordinary modern C#, not an extension syntax the grammar has no notion of. The installed
-grammar version fails to parse it (`tree.root_node.has_error == True`), and the resulting `ERROR`
-node recovery leaves the ground-truth tree with zero `method_declaration` nodes for several real
-methods elsewhere in the file, confirmed for three (`AccumulateExplicitInterfaceName`,
-`CanFollowCast`, `CanReuseVariableDeclarator`) via three independent checks: a raw regex
-`.finditer()` against the source, an isolated single-file `galaxyscope` scan, and a direct SQL
-query against the resulting corpus DB — all three agree GitGalaxy finds exactly one occurrence of
-each, correctly, while tree-sitter's parse has no record of any of them (#1427).
+(14,680 lines) was first flagged for this in #1427, which found the ground-truth tree missing
+`method_declaration` nodes for three real methods (`AccumulateExplicitInterfaceName`,
+`CanFollowCast`, `CanReuseVariableDeclarator`) and attributed it to `private ref struct
+DisposableResetPoint` at line 14575 (`tree.root_node.has_error == True`).
+
+**Correction (2026-08-14):** that attribution was wrong, and the real scope is far larger than
+three names. Re-bisecting the file confirms the `ref struct` at line 14575 parses cleanly in
+isolation — tested standalone (`private ref struct DisposableResetPoint : IDisposable { ... }`
+inside a plain class), `has_error` is `False`. The actual trigger is a C# 11 list pattern
+combined with a property pattern, over 9,000 lines earlier, at line 5198:
+```csharp
+if (modifiers is [.., SyntaxToken { Kind: SyntaxKind.ScopedKeyword } scopedKeyword])
+```
+Tested in isolation, this single construct alone produces `has_error == True`. Once tree-sitter
+hits it, recovery never resynchronizes for the rest of the file: `real_functions` ground truth is
+157 (matching GitGalaxy almost exactly — only 2 "extra") for everything *before* line 5198, and
+exactly **0** for everything from line 5198 to the end of the file (line 14680) — despite that
+region containing hundreds of ordinary, valid methods (`GetOriginalModifiers`,
+`ParseEventFieldDeclaration`, `HasEntryPointSignature`, `TryGetInterceptor`, and on). Every one of
+csharp's 316 "extra" (false-positive) functions reported by the audit tool falls in this region;
+GitGalaxy finds all of them correctly (spot-checked several against the source directly) — the
+`ref struct` at 14575 was never the cause, just one more casualty deep inside the same
+already-corrupted 9,500-line stretch. #1427's 3-name exclusion undersold this by roughly two
+orders of magnitude; a proper fix needs to exclude the whole post-5198 region of this one file,
+not name-list three functions within it.
 
 ### How long can a gap like this actually last?
+
+*Note: the tracker research below was done against the original (incorrect) `ref struct`
+attribution, before the 2026-08-14 correction above identified the real trigger as a list-pattern
++ property-pattern construct instead. It's kept as background evidence that tree-sitter-c-sharp
+has a real, independently-confirmed class of "one bad construct corrupts recovery for the rest of
+the file" bugs — the general mechanism still holds — but none of the specific issues cited below
+were checked against the list-pattern construct itself; that tracker research hasn't been done.*
 
 Checked this against the upstream grammar's own bug tracker rather than assuming it's a
 one-off, since the answer changes how much weight this claim should carry. `tree-sitter-language-pack`
@@ -220,10 +243,11 @@ turns out to be an advantage instead of a limitation.
   swallows otherwise-unrelated real code.
 - True recovery (walking into the `ERROR` node for salvageable structure) wasn't feasible here —
   the node has no structural subtree at all, just flat unstructured tokens — so the fix in
-  `tree_sitter_accuracy_audit.py` is a narrow, file+name-scoped ground-truth exclusion for the
-  three confirmed-affected names, not a general "any `ERROR` node nearby" heuristic. Other
-  functions elsewhere in the same corrupted region may still be silently affected but unconfirmed
-  — noted as an open question in #1427, not chased further.
+  `tree_sitter_accuracy_audit.py` needs to be a file+line-range-scoped ground-truth exclusion (the
+  whole region from the line-5198 trigger to end of file), not a name list. #1427's original
+  3-name exclusion was confirmed too narrow by the 2026-08-14 correction above: the real scope is
+  the entire back half of the file (0 real_functions recognized past line 5198, vs. 157 before
+  it), not 3 isolated names.
 
 ## Where this doc is used
 

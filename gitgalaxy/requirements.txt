@@ -1,4 +1,4 @@
-asttokens==3.0.1
+asttokens==3.0.2
 attrs==26.1.0
 babel==2.18.0
 backcall==0.2.0

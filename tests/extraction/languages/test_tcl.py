@@ -54,6 +54,8 @@ ARGS_CASES: dict[str, Any] = {
         ("proc TargetFunc {a b} {", "a b"),
         ("proc ::namespace::TargetFunc {args} {", "args"),
         ("proc TargetFunc {{a 1} b} {", "{a 1} b"),
+        ("proc faultsim_integrity_check {{db db}} {", "{db db}"),
+        ("proc TargetFunc {a {b 2} {c {nested list}}} {", "a {b 2} {c {nested list}}"),
     ],
     "invalid": [
         "TargetFunc a b",

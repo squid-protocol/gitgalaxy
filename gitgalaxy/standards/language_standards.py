@@ -12734,6 +12734,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*proc[ \t\n]+[a-zA-Z0-9_:\-!?]+[ \t\n]+\{((?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\}",
                 re.M,
             ),
+            # Tcl default-value argument lists (#1512): opt-in for depth-aware braced parameter parsing.
+            "_args_tcl_pattern_list_groups": {1},
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: global/upvar (globals/heat).
             "structural_boundaries": re.compile(r"\b(?:proc|return|break|continue|namespace|variable|yield)\b"),

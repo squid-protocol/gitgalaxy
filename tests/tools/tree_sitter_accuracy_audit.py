@@ -1129,6 +1129,22 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         # Confirmed via language-crucible for each: e.g. csharp's
         # `GetParseDiagnostics(CancellationToken cancellationToken = default)` measured real=0
         # against GitGalaxy's correct got=1 pre-fix.
+        #   - "typed_parameter"/"default_parameter"/"typed_default_parameter": python's own
+        #     `parameters` field wraps every non-bare parameter in one of these three (a plain
+        #     `x` is still a bare "identifier", already covered, but `x: int`, `x=1`, and
+        #     `x: int = 1` each get their own wrapper type) -- since python routes through this
+        #     branch directly (its `function_definition` has a real "parameters" field, unlike
+        #     the C-family/other grammars needing the special-cased branches below), it inherited
+        #     this same #1319/#1339-shaped gap despite predating both fixes: only bare untyped,
+        #     no-default params were ever counted, silently measuring real=2 against a true
+        #     arity of 7 for `def foo(a, b: int, c=1, d: str = "x", *args, e, **kwargs)`.
+        #   - "list_splat_pattern"/"dictionary_splat_pattern": python's `*args`/`**kwargs`,
+        #     distinct wrapper types from the three above (no default/type-annotation shape to
+        #     merge into). `positional_separator` (bare `/`) and `keyword_separator` (bare `*`
+        #     with no following name) are deliberately NOT added here -- they're arity markers,
+        #     not parameters, and GitGalaxy's own `_count_top_level_args` doesn't count them
+        #     either, so leaving them out of this whitelist keeps both counts on the same
+        #     convention.
         counted_types = (
             "identifier",
             "assignment_pattern",
@@ -1148,6 +1164,11 @@ def _get_param_count(node: Any, lang: str = "") -> int:
             "block_parameter",
             "variadic_parameter_declaration",
             "keyword_parameter",
+            "typed_parameter",
+            "default_parameter",
+            "typed_default_parameter",
+            "list_splat_pattern",
+            "dictionary_splat_pattern",
         )
         # #1319: rust's `function_item`/`function_signature_item` parameter list ALSO uses
         # "parameter" (now covered by the base set above) plus "self_parameter" (the receiver

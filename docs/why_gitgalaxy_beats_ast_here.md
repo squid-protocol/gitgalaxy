@@ -102,14 +102,55 @@ per-occurrence line-based pairing (previously, collapsing same-named occurrences
 slot per file masked this almost entirely) — every one of the resulting "extra" (GitGalaxy found,
 tree-sitter didn't) occurrences on this corpus traces to this one file and this one cause.
 
+## Claim 3: function recall when a grammar's own parse error cascades into unrelated real code
+
+For a file where the grammar hits a genuine parse error on some in-scope, valid construct it
+doesn't (yet) support, tree-sitter's error-recovery can lose track of real functions elsewhere in
+the file — including code with no syntactic relationship at all to whatever failed to parse —
+because the resulting `ERROR` node swallows a large downstream region. GitGalaxy's regex-based
+`func_start` never builds or depends on a parse tree, so it isn't affected by this cascade and
+keeps finding real occurrences the grammar's own output can no longer see. This is a *different*
+mechanism from Claim 2: Claim 2 is a grammar that has no *concept* of a dialect at all (Cython's
+`cdef class`); Claim 3 is a grammar that's *supposed* to support the construct — this is standard,
+valid, modern C# — but has an actual parsing bug/gap in the installed version that corrupts
+recovery for unrelated surrounding code.
+
+**The evidence:** `tests/tools/tree_sitter_accuracy_audit.py` measures csharp against
+tree-sitter-c-sharp (via `tree_sitter_language_pack`). `language-crucible/data/csharp/roslyn/LanguageParser.cs`
+(14,680 lines) declares `private ref struct DisposableResetPoint` at line 14575 — a C# 7.2+ `ref
+struct`, ordinary modern C#, not an extension syntax the grammar has no notion of. The installed
+grammar version fails to parse it (`tree.root_node.has_error == True`), and the resulting `ERROR`
+node recovery leaves the ground-truth tree with zero `method_declaration` nodes for several real
+methods elsewhere in the file, confirmed for three (`AccumulateExplicitInterfaceName`,
+`CanFollowCast`, `CanReuseVariableDeclarator`) via three independent checks: a raw regex
+`.finditer()` against the source, an isolated single-file `galaxyscope` scan, and a direct SQL
+query against the resulting corpus DB — all three agree GitGalaxy finds exactly one occurrence of
+each, correctly, while tree-sitter's parse has no record of any of them (#1427).
+
+## Where Claim 3 does NOT apply
+
+- This is a grammar-*implementation* limitation (a specific parser version's bug/gap on one
+  construct), not a language-design property like Claim 1, or a dialect the grammar was never
+  built to understand like Claim 2 — a fixed/newer `tree-sitter-c-sharp` release could close this
+  exact gap entirely. Don't generalize this into "GitGalaxy beats tree-sitter on csharp" — it's
+  narrow to files containing a construct the installed grammar version fails on, where recovery
+  swallows otherwise-unrelated real code.
+- True recovery (walking into the `ERROR` node for salvageable structure) wasn't feasible here —
+  the node has no structural subtree at all, just flat unstructured tokens — so the fix in
+  `tree_sitter_accuracy_audit.py` is a narrow, file+name-scoped ground-truth exclusion for the
+  three confirmed-affected names, not a general "any `ERROR` node nearby" heuristic. Other
+  functions elsewhere in the same corrupted region may still be silently affected but unconfirmed
+  — noted as an open question in #1427, not chased further.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
   its general "AST usually wins on precision" framing.
 - `tests/tools/tree_sitter_accuracy_audit.py`'s own module docstring cites this doc next to the
-  `#1518`/`#1519` writeup (Claim 1) and the Cython `.pyx` note in its SCOPE & LIMITATIONS section
-  (Claim 2), so a future reader hitting either ground-truth code path understands why it looks
-  structurally different from the rest of `_get_param_count`/the recall comparison.
+  `#1518`/`#1519` writeup (Claim 1), the Cython `.pyx` note in its SCOPE & LIMITATIONS section
+  (Claim 2), and the `#1427` csharp `ref struct` parse-error writeup (Claim 3), so a future reader
+  hitting any of those ground-truth code paths understands why it looks structurally different
+  from the rest of `_get_param_count`/the recall comparison.
 - Per `CLAUDE.md`'s standing instruction, any newly-found case of GitGalaxy's structural-signature
   output being more accurate than tree-sitter's/an AST's on some signal gets logged here as its own
   Claim N, evidenced the same way — not folded into the README's general framing uncredited, and

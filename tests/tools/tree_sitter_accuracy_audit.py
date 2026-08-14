@@ -225,6 +225,18 @@ SCOPE & LIMITATIONS
     measurement here, not a lower-precision tradeoff; see that doc for the full writeup and
     where this fits (and doesn't) alongside the "AST usually wins on precision" framing in
     README.md's "One Graph, Not Five Separate Tools" section.
+
+    #1427: csharp's `extra_functions` count included real, correctly-found GitGalaxy matches
+    (`AccumulateExplicitInterfaceName`, `CanFollowCast`, `CanReuseVariableDeclarator` in
+    `roslyn/LanguageParser.cs`) misclassified as false positives because tree-sitter-c-sharp's
+    installed grammar version fails to parse a `ref struct` declaration elsewhere in the file
+    (`private ref struct DisposableResetPoint`, valid C# 7.2+, not a dialect the grammar has no
+    concept of) -- the resulting `ERROR` node cascade leaves ground truth with no record of these
+    unrelated real methods. Narrow, file+name-scoped exclusion below (not a general "any ERROR
+    node nearby" heuristic -- the ERROR node has no salvageable structural subtree to recover
+    from). This is `docs/why_gitgalaxy_beats_ast_here.md`'s Claim 3: a grammar parse-error
+    cascade corrupting ground truth for syntactically-unrelated real code, distinct from Claim 2's
+    "grammar has no concept of this dialect at all".
 """
 
 import argparse

@@ -386,7 +386,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # truncate the capture at the default's own closing paren and
             # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -8182,7 +8182,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # truncate the capture at the default's own closing paren and
             # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\([^()]*\))*\))|\blambda\b[ \t]*([^:]*):",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|\blambda\b[ \t]*([^:]*):",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

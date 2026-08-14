@@ -40,7 +40,7 @@ for the same metrics tracked over time across pushes to main.
 | Csharp | 99.2% | 67.0% | 91.7% | 73.3% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 93.9% | 72.1% | 100.0% | 100.0% |
-| Fortran | 98.4% | 85.8% | 100.0% | 100.0% |
+| Fortran | 98.4% | 88.3% | 100.0% | 100.0% |
 | Go | 95.7% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 42.1% | 75.9% | 100.0% | 100.0% |
@@ -6488,8 +6488,24 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?:"
                 # 3a. Base Types (Primitives + Derived + Classes + Legacy + Complex)
                 r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS|DOUBLE[ \t\n]+PRECISION|DOUBLE[ \t\n]+COMPLEX)"
-                # 3b. Legacy Sizing (*8) or Modern Kinds/Lengths ((KIND=4, LEN=*)) and Attributes
-                r"[A-Za-z0-9_ \t\n&*,()=:]*?"
+                # 3b. Legacy Sizing (*8) or Modern Kinds/Lengths ((KIND=4, LEN=*)) and Attributes.
+                # #1531: this lazy class includes letters/newlines with no length cap, so on a
+                # body-less type declaration line immediately preceding an unrelated later
+                # SUBROUTINE/FUNCTION (e.g. `CHARACTER(len=*), INTENT(IN) :: message` followed a
+                # few lines later by `END SUBROUTINE wrf_message`), backtracking let it swallow
+                # the ENTIRE intervening subroutine body -- including its own trailing
+                # `END SUBROUTINE <name>` -- and match keyword+identifier there instead,
+                # producing a phantom duplicate whose start_line/args belonged to a type
+                # declaration, not any real definition. `{0,40}` caps the class at comfortably
+                # more than any real single/continued attribute list needs (confirmed against
+                # language-crucible's fortran corpus) while landing well short of the ~95+ chars
+                # needed to reach a phantom match. A per-character `(?!\bEND\b)` exclusion was
+                # tried first and is more semantically precise, but disables the `re` module's
+                # fast path for a plain bounded character class -- confirmed via direct timing
+                # (0.01s here vs. ~13s with the lookahead) on a payload of thousands of repeated
+                # type-declaration lines with one distant END, a real ReDoS regression on a
+                # non-pathological, plausible shape. A numeric bound has none of that risk.
+                r"[A-Za-z0-9_ \t\n&*,()=:]{0,40}?"
                 r")?"
                 # 4. THE EXECUTION BLOCK KEYWORD
                 # Supports multi-line continuation `&` inside the spaces

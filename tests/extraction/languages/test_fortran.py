@@ -68,6 +68,35 @@ def test_fortran_func_start_redos_immunity():
     assert_redos_immune(FORTRAN_RULES["func_start"], "PURE ELEMENTAL " * 1000 + " FUNCTION A()", timeout_sec=1.0)
 
 
+def test_fortran_func_start_no_phantom_match_across_end_boundary():
+    """#1531: a type-declaration line's lazy attribute class could backtrack across an
+    entire subroutine body -- including its own trailing END statement -- and match a
+    phantom second occurrence off the name repeated in `END SUBROUTINE <name>`. Confirmed
+    against language-crucible's fortran/wrf corpus (wrf_message, wrf_error_fatal,
+    const_module_initialize each had exactly this shape)."""
+    payload = (
+        "subroutine wrf_message(level, message)\n"
+        "   character(len=*), intent(in) :: message\n"
+        "   integer, intent(in) :: level\n"
+        "   print *, trim(message)\n"
+        "end subroutine wrf_message\n"
+    )
+    matches = list(FORTRAN_RULES["func_start"].finditer(payload))
+    names = [m.group(m.lastindex) for m in matches]
+    assert names == ["wrf_message"], f"expected exactly one real match, got {names}"
+
+
+def test_fortran_func_start_no_phantom_match_redos_immunity():
+    """Same bug class as above, but as a ReDoS probe: many repeated type-declaration lines
+    (each a valid attempt-site for the lazy attribute class to try backtracking across)
+    followed by one distant END, previously caused catastrophic-backtracking-shaped slowdown
+    once a per-character exclusion was tried as the fix -- a plain bounded quantifier avoids
+    it entirely. This is the actual adversarial shape that caught the regression during
+    development, not a synthetic one."""
+    payload = "CHARACTER(len=*), intent(in) :: x\n" * 3000 + "end subroutine foo\n"
+    assert_redos_immune(FORTRAN_RULES["func_start"], payload, timeout_sec=2.0)
+
+
 # ==============================================================================
 # ARGS (args)
 # ==============================================================================

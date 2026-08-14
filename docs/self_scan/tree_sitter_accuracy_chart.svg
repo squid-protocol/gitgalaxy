@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-14T03:26:07+00:00 &#183; commit c720ca1 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-14T14:31:16+00:00 &#183; commit e6a70aa &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -142,8 +142,8 @@
 <text class="value-label" x="187.3" y="543.0">599/704</text>
 <rect class="stripe" x="16" y="547" width="246" height="15"/>
 <text class="row-label" x="96" y="558.0" text-anchor="end">haskell</text>
-<rect x="104" y="550.0" width="38.7" height="9" rx="3" fill="#60d629"/>
-<text class="value-label" x="147.7" y="558.0">104/247</text>
+<rect x="104" y="550.0" width="43.5" height="9" rx="3" fill="#3cd629"/>
+<text class="value-label" x="152.5" y="558.0">130/275</text>
 <text class="row-label" x="96" y="573.0" text-anchor="end">groovy</text>
 <text class="na-dash" x="110" y="573.0">n/a</text>
 <rect class="stripe" x="16" y="577" width="246" height="15"/>
@@ -223,23 +223,23 @@
 <text class="row-label" x="370" y="438.0" text-anchor="end">apex</text>
 <rect x="378" y="430.0" width="87.4" height="9" rx="3" fill="#294bd6"/>
 <text class="value-label" x="470.4" y="438.0">38/40</text>
-<text class="row-label" x="370" y="453.0" text-anchor="end">solidity</text>
-<rect x="378" y="445.0" width="86.8" height="9" rx="3" fill="#2950d6"/>
-<text class="value-label" x="469.8" y="453.0">99/105</text>
+<text class="row-label" x="370" y="453.0" text-anchor="end">haskell</text>
+<rect x="378" y="445.0" width="87.3" height="9" rx="3" fill="#294cd6"/>
+<text class="value-label" x="470.3" y="453.0">130/137</text>
 <rect class="stripe" x="290" y="457" width="246" height="15"/>
-<text class="row-label" x="370" y="468.0" text-anchor="end">rust</text>
-<rect x="378" y="460.0" width="84.7" height="9" rx="3" fill="#2960d6"/>
-<text class="value-label" x="467.7" y="468.0">1771/1923</text>
-<text class="row-label" x="370" y="483.0" text-anchor="end">fortran</text>
-<rect x="378" y="475.0" width="81.2" height="9" rx="3" fill="#297ad6"/>
-<text class="value-label" x="464.2" y="483.0">121/137</text>
+<text class="row-label" x="370" y="468.0" text-anchor="end">solidity</text>
+<rect x="378" y="460.0" width="86.8" height="9" rx="3" fill="#2950d6"/>
+<text class="value-label" x="469.8" y="468.0">99/105</text>
+<text class="row-label" x="370" y="483.0" text-anchor="end">rust</text>
+<rect x="378" y="475.0" width="84.7" height="9" rx="3" fill="#2960d6"/>
+<text class="value-label" x="467.7" y="483.0">1771/1923</text>
 <rect class="stripe" x="290" y="487" width="246" height="15"/>
-<text class="row-label" x="370" y="498.0" text-anchor="end">typescript</text>
-<rect x="378" y="490.0" width="78.8" height="9" rx="3" fill="#298dd6"/>
-<text class="value-label" x="461.8" y="498.0">1843/2152</text>
-<text class="row-label" x="370" y="513.0" text-anchor="end">haskell</text>
-<rect x="378" y="505.0" width="69.8" height="9" rx="3" fill="#29d0d6"/>
-<text class="value-label" x="452.8" y="513.0">104/137</text>
+<text class="row-label" x="370" y="498.0" text-anchor="end">fortran</text>
+<rect x="378" y="490.0" width="81.2" height="9" rx="3" fill="#297ad6"/>
+<text class="value-label" x="464.2" y="498.0">121/137</text>
+<text class="row-label" x="370" y="513.0" text-anchor="end">typescript</text>
+<rect x="378" y="505.0" width="78.8" height="9" rx="3" fill="#298dd6"/>
+<text class="value-label" x="461.8" y="513.0">1843/2152</text>
 <rect class="stripe" x="290" y="517" width="246" height="15"/>
 <text class="row-label" x="370" y="528.0" text-anchor="end">javascript</text>
 <rect x="378" y="520.0" width="69.3" height="9" rx="3" fill="#29d4d6"/>
@@ -534,13 +534,13 @@
 <text class="row-label" x="1192" y="438.0" text-anchor="end">ruby</text>
 <rect x="1200" y="430.0" width="85.3" height="9" rx="3" fill="#295bd6"/>
 <text class="value-label" x="1290.3" y="438.0">115/124</text>
-<text class="row-label" x="1192" y="453.0" text-anchor="end">javascript</text>
-<rect x="1200" y="445.0" width="84.5" height="9" rx="3" fill="#2962d6"/>
-<text class="value-label" x="1289.5" y="453.0">550/599</text>
+<text class="row-label" x="1192" y="453.0" text-anchor="end">haskell</text>
+<rect x="1200" y="445.0" width="84.9" height="9" rx="3" fill="#295ed6"/>
+<text class="value-label" x="1289.9" y="453.0">120/130</text>
 <rect class="stripe" x="1112" y="457" width="246" height="15"/>
-<text class="row-label" x="1192" y="468.0" text-anchor="end">haskell</text>
-<rect x="1200" y="460.0" width="83.2" height="9" rx="3" fill="#296bd6"/>
-<text class="value-label" x="1288.2" y="468.0">94/104</text>
+<text class="row-label" x="1192" y="468.0" text-anchor="end">javascript</text>
+<rect x="1200" y="460.0" width="84.5" height="9" rx="3" fill="#2962d6"/>
+<text class="value-label" x="1289.5" y="468.0">550/599</text>
 <text class="row-label" x="1192" y="483.0" text-anchor="end">go</text>
 <rect x="1200" y="475.0" width="82.8" height="9" rx="3" fill="#296ed6"/>
 <text class="value-label" x="1287.8" y="483.0">772/858</text>

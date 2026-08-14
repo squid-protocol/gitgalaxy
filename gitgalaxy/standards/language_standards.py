@@ -4335,9 +4335,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # `${1:-${DEFAULT:-x}}` is captured in full instead of truncating
             # at the inner `}`. Confirmed linear-time (no ReDoS) up to a
             # 200k-char adversarial input before landing.
+            # #1518: whole rule wrapped in one outer capture group so
+            # detector.py's counter can name it in `_args_findall_max_groups`
+            # below -- bash has no formal parameter list at all (a function's
+            # own `()` are always empty, permanently, by grammar), so a
+            # single match only ever sees the FIRST positional-parameter
+            # reference in the block and silently drops every one after it
+            # (`readlink "$1"` ... later `"$2"` measured got=1, not 2). This
+            # tells the shared counter to re-scan the WHOLE block and take
+            # the highest $N seen instead of trusting the first hit.
             "args": re.compile(
-                r'\$(?:[1-9]|\{#?[1-9][0-9]*(?:[:#%^,/~-](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*"'
+                r'(\$(?:[1-9]|\{#?[1-9][0-9]*(?:[:#%^,/~-](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*")'
             ),
+            "_args_findall_max_groups": {1},
             # 3. linear (Sequential Boundaries)
             # Structural boundaries and straight-line execution verbs.
             # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
@@ -7527,12 +7537,41 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # the whole match including the "sub"/"my" prefix) so detector.py's
             # counter isolates just the real parameter text -- the whole-match
             # fallback overcounted every zero/one-arg signature by +1 the same
-            # way Python's did (#1199). The bare `shift` alternative is left
-            # alone -- its whole match already IS just "shift" with no prefix
-            # to pollute the count.
+            # way Python's did (#1199).
+            # #1519: the bare `(\bshift\b)` alternative used to match ANY
+            # occurrence of the word "shift" anywhere in the body -- including
+            # `shift @other_queue`/`shift(@other_queue)`, which shifts a
+            # DIFFERENT array, nothing to do with unpacking @_. Added a
+            # negative lookahead excluding those explicit-argument forms
+            # (bare `shift;`/`shift` and `my $x = shift;` both still match --
+            # only an explicit `(`/`@` right after "shift" is excluded), and
+            # named in `_args_findall_sum_groups` below alongside the
+            # `my (...) = @_` group -- traditional Perl commonly unpacks args
+            # across MULTIPLE statements (`my $class = shift;` for the
+            # invocant, then later `my ($a, $b) = @_;` for the rest, or
+            # several sequential `my $x = shift;` lines), and a single match
+            # only ever sees the first one. `_args_findall_sum_groups` tells
+            # detector.py's counter to re-scan the whole block and SUM every
+            # matching statement's own contribution instead. A sub WITH a
+            # real declared signature/prototype (group 2) is unaffected --
+            # that always sits earlier in the text than any body-level idiom,
+            # so ordinary leftmost-match search already prefers it.
+            # Group 5: the OTHER extremely common "rest of the args" idiom --
+            # `my @statuses = @_;`, a bare (parenless) array catching every
+            # remaining positional arg after some have already been `shift`ed
+            # off, e.g. `my $class = shift; my @statuses = @_;`. Distinct
+            # from group 3's `my (...) = @_` (a fixed-size destructure) --
+            # this is inherently variadic, so it contributes exactly 1 (a
+            # single "rest" slot) via the same not-self-contained-parens
+            # fallback every other non-tuple match in this sum already uses,
+            # not a real element count.
             "args": re.compile(
-                r"\b(?:sub|method)(\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*(\([^)]*\))|\bmy\s*(\([^)]*\))\s*=\s*@_|(\bshift\b)"
+                r"\b(?:sub|method)(\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*(\([^)]*\))"
+                r"|\bmy\s*(\([^)]*\))\s*=\s*@_"
+                r"|(\bshift\b(?!\s*[(@]))"
+                r"|(\bmy\s+@\w+\s*=\s*@_\b)"
             ),
+            "_args_findall_sum_groups": {3, 4, 5},
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
             "structural_boundaries": re.compile(
                 r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await)\b"

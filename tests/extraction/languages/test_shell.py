@@ -264,6 +264,25 @@ def test_shell_args_redos_immunity():
     assert args.search("${1:-default}")
 
 
+def test_shell_args_findall_max_multiple_positional_params():
+    """
+    #1518: bash has no formal parameter list at all, so a function's real
+    arg count is only knowable from EVERY positional-parameter reference in
+    its body -- a single match used to only ever see the first one, so a
+    function using both $1 and $2 measured args=1, not 2. detector.py's
+    counter must scan the whole block and take the highest index found.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    extractor = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
+    payload = 'two_args() {\n  local x="$1"\n  local y="$2"\n}\n'
+    segments = extractor._partition_segments(payload, "shell")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    fn = next(f for f in functions if f["name"] == "two_args")
+    assert fn["args"] == 2, f"expected max($1, $2) == 2, got {fn['args']}"
+
+
 # ==============================================================================
 # NOTE: shell has no class_start -- LANGUAGE_DEFINITIONS["shell"]["rules"]
 # ["class_start"] is None ("Shell is strictly procedural."). No CLASS_CASES

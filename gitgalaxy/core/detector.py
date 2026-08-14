@@ -3257,6 +3257,31 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _count_shell_positional_max(self, matches: list[str]) -> int:
+        """
+        Bash has no formal parameter-list syntax at all (`foo() { ... }`'s
+        parens are always empty, permanently, by grammar) -- args arrive via
+        $1/$2/.../"$@" referenced anywhere in the function body, not one
+        contiguous signature span. #1518: takes every positional-parameter
+        reference found in the block (via `_args_findall_max_groups`, which
+        makes the caller scan the WHOLE block instead of stopping at the
+        first match) and returns the highest numbered $N seen -- that's the
+        real minimum arg count the body demonstrably relies on. $0 (the
+        script's own name, not a function argument) is naturally excluded
+        since "0" never raises the max above a real reference. A bare
+        "$@"/"$*" reference with no numbered $N anywhere implies "at least
+        1" real argument is consumed, just not by explicit index.
+        """
+        max_index = 0
+        saw_variadic = False
+        for text in matches:
+            digits = re.search(r"[0-9]+", text)
+            if digits:
+                max_index = max(max_index, int(digits.group(0)))
+            elif "@" in text or "*" in text:
+                saw_variadic = True
+        return max_index if max_index else (1 if saw_variadic else 0)
+
     def _count_haskell_type_arrows(self, args_str: str) -> int:
         """
         Counts a Haskell function's curried arity from its flattened `::`
@@ -3454,7 +3479,54 @@ class StructuralExtractor:
                     arrow_count_groups = rules.get("_args_arrow_count_groups")
                     colon_selector_groups = rules.get("_args_colon_selector_groups")
                     pattern_list_groups = rules.get("_args_pattern_list_groups")
-                    if pattern_list_groups and arg_match.lastindex in pattern_list_groups:
+                    findall_max_groups = rules.get("_args_findall_max_groups")
+                    findall_sum_groups = rules.get("_args_findall_sum_groups")
+                    if findall_max_groups and arg_match.lastindex in findall_max_groups:
+                        # Shell (#1518): a single match only ever sees the FIRST
+                        # positional-parameter reference in the block, silently
+                        # dropping every one after it (`readlink "$1"` ... `"$2"`
+                        # measured got=1, not 2). Re-scans the whole block for
+                        # every match this rule's pattern can find and takes the
+                        # max positional index via `_count_shell_positional_max`,
+                        # instead of trusting the single leftmost match found above.
+                        search_text = args_search_text if args_search_text is not None else block
+                        all_matches = [m.group(0) for m in args_pattern.finditer(search_text)]
+                        args_count = self._count_shell_positional_max(all_matches)
+                    elif findall_sum_groups and arg_match.lastindex in findall_sum_groups:
+                        # Perl (#1519): traditional subs commonly unpack their
+                        # args across MULTIPLE statements -- one `my $class =
+                        # shift;` for the invocant plus a later `my ($a, $b) =
+                        # @_;` for the rest, or several sequential `my $x =
+                        # shift;` lines -- and a single match only ever sees
+                        # the first one. Re-scans the whole block and sums each
+                        # matched statement's own contribution: a self-contained
+                        # "(...)" match (the `my (...) = @_` shape) contributes
+                        # its comma-count; anything else matching one of these
+                        # groups (the tightened `my $x = shift` shape, which
+                        # deliberately excludes `shift @other`/`shift(@other)` --
+                        # those shift a DIFFERENT array, not @_) contributes
+                        # exactly 1. Only reached when the single leftmost match
+                        # above ISN'T a real declared signature (group 2) -- a
+                        # sub WITH an explicit signature/prototype already took
+                        # the self-contained-"(...)" branch below via ordinary
+                        # leftmost-match precedence, since that always sits
+                        # earlier in the text than any body-level idiom.
+                        search_text = args_search_text if args_search_text is not None else block
+                        total = 0
+                        for m in args_pattern.finditer(search_text):
+                            if not m.lastindex or m.lastindex not in findall_sum_groups:
+                                continue
+                            sub_str = (m.group(m.lastindex) or "").strip()
+                            if (
+                                sub_str.startswith("(")
+                                and sub_str.endswith(")")
+                                and self._matching_paren_end(sub_str, 0) == len(sub_str) - 1
+                            ):
+                                total += self._count_top_level_args(sub_str)
+                            else:
+                                total += 1
+                        args_count = total
+                    elif pattern_list_groups and arg_match.lastindex in pattern_list_groups:
                         # Haskell signature-less equation LHS (#1505 follow-up):
                         # a naive whitespace split would wrongly split a single
                         # parenthesized compound pattern like `(MetaList xs)`

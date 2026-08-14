@@ -169,6 +169,30 @@ SCOPE & LIMITATIONS
     per-language node-type breakdown; net effect was args_exact_match roughly doubling to
     quadrupling for most of the 11 (see #1339 for the full before/after table), with zero
     regressions on any other NODE_MAPS language.
+
+    #1518/#1519: shell and perl-traditional-style are architecturally different from every
+    other language this tool measures -- Bash functions (`foo() { ... }`) and traditional Perl
+    subs (`sub foo { ... }`) have NO formal parameter-list syntax at all, permanently, by
+    grammar. A function's own `()` in bash are always empty; Perl's traditional style has no
+    parens on the `sub` line whatsoever. Args instead arrive via body-level idioms: bash reads
+    $1/$2/.../"$@" wherever they're referenced; Perl reads `my (...) = @_;` and/or `shift`
+    calls. `_get_param_count`'s original branches only ever checked the DECLARATION for a
+    formal signature field, found nothing (correctly -- there genuinely is none), and reported
+    real=0 for nearly every function regardless of true arity -- args_exact_match measured a
+    misleading 0% (shell) / 14.6% (perl), which reads as "GitGalaxy's args regex is badly
+    broken" when the actual defect was in the MEASUREMENT: comparing GitGalaxy's body-aware
+    heuristic against a ground truth that only ever looked at the (nonexistent) declaration.
+    `_count_shell_real_positional_max`/`_count_perl_real_args` fixed this by walking the same
+    body text tree-sitter already parses just fine, for the exact same idioms GitGalaxy's own
+    regex reads -- a fair, apples-to-apples comparison instead of an empty-signature strawman.
+    Result: shell 0% -> 100% (3/3), perl 14.6% -> 82.1% (769/937). This is also why
+    `docs/why_gitgalaxy_beats_ast_here.md` exists: for this one specific signal, in these
+    specific no-formal-signature circumstances, a plain AST/tree-sitter-only tool has nothing
+    to read at the declaration site and can only ever report 0 -- correct, but useless for
+    coupling/complexity scoring. GitGalaxy's regex-based body scan is the more informative
+    measurement here, not a lower-precision tradeoff; see that doc for the full writeup and
+    where this fits (and doesn't) alongside the "AST usually wins on precision" framing in
+    README.md's "One Graph, Not Five Separate Tools" section.
 """
 
 import argparse
@@ -941,7 +965,112 @@ def _count_powershell_params(node: Any) -> int:
     return 0
 
 
-def _get_param_count(node: Any) -> int:
+def _count_shell_real_positional_max(node: Any) -> int:
+    """
+    Bash functions have no formal parameter list at all -- `foo() { ... }`'s
+    parens are always empty, permanently, by grammar, for every bash
+    function. Real arity is only knowable from which positional parameters
+    ($1, $2, ..., "$@") the body actually references (#1518), mirroring
+    detector.py's own `_count_shell_positional_max`. Walks the function's
+    body for every simple_expansion/expansion node whose variable_name child
+    is a positive integer and returns the highest index seen; $0 (the
+    script's own name, not a function argument) is naturally excluded since
+    "0" never raises the max above a real reference. A bare "$@"/"$*"
+    reference with no numbered $N anywhere implies "at least 1" real
+    argument is consumed, just not by explicit index. Does not descend into
+    a nested function_definition's own body -- that function's positional
+    params are its own, not this one's.
+    """
+    max_index = 0
+    saw_variadic = False
+
+    def walk(n, is_root):
+        nonlocal max_index, saw_variadic
+        if n.type == "function_definition" and not is_root:
+            return
+        if n.type in ("simple_expansion", "expansion"):
+            for child in n.children:
+                if child.type == "variable_name" and child.text.isdigit():
+                    max_index = max(max_index, int(child.text))
+                    return
+                if child.type == "special_variable_name" and child.text in (b"@", b"*"):
+                    saw_variadic = True
+                    return
+        for child in n.children:
+            walk(child, False)
+
+    walk(node, True)
+    return max_index if max_index else (1 if saw_variadic else 0)
+
+
+_PERL_SUB_NODE_TYPES = (
+    "subroutine_declaration_statement",
+    "method_declaration_statement",
+    "anonymous_subroutine_expression",
+    "anonymous_method_expression",
+)
+
+
+def _count_perl_real_args(node: Any) -> int:
+    """
+    Mirrors GitGalaxy's own args-counting precedence for perl (#1519): a
+    real, explicit signature (`sub foo($x, $y) { ... }`, Perl 5.20+ syntax)
+    wins outright if present -- confirmed via live parse that tree-sitter-perl
+    exposes this as a plain `signature` child wrapping one
+    `mandatory_parameter`/`optional_parameter` per parameter. Otherwise,
+    traditional Perl has no formal parameter list at all -- args arrive via
+    `my (...) = @_;` and/or one or more bare `shift` calls anywhere in the
+    body, matching GitGalaxy's own regex, which is a flat text scan with no
+    structural awareness of statement position/nesting (`$fields->{x} =
+    shift;` and `my $id = shift || 0;` both count just as much as a plain
+    `my $x = shift;`) -- so this recursively walks the WHOLE body the same
+    way, not just top-level statements, summing: the real element count of
+    EVERY `my (...) = @_;` assignment found (including a bare `undef`
+    placeholder slot, e.g. `my ($a, undef, $c) = @_;` to skip an unwanted
+    positional arg -- that's still a real consumed argument, just discarded,
+    confirmed via live parse as its own `undef_expression` node), plus 1 for
+    every bare `shift` call found (`func1op_call_expression` whose own
+    `.text` is exactly "shift" -- `shift @other_array`/`shift(@other_array)`
+    naturally excluded since their `.text` includes the explicit argument).
+    Does not descend into a nested sub's own body -- that function's shifted
+    args are its own, not this one's.
+    """
+    for child in node.children:
+        if child.type == "signature":
+            return len(child.named_children)
+
+    block = node.child_by_field_name("body")
+    if block is None:
+        return 0
+
+    total = 0
+
+    def walk(n, is_root):
+        nonlocal total
+        if n.type in _PERL_SUB_NODE_TYPES and not is_root:
+            return
+        if n.type == "assignment_expression":
+            left = n.child_by_field_name("left")
+            right = n.child_by_field_name("right")
+            if left is not None and right is not None and left.type == "variable_declaration":
+                if right.type == "array" and right.text == b"@_":
+                    total += sum(
+                        1 for c in left.children if c.type in ("scalar", "array", "hash", "undef_expression")
+                    )
+        elif n.type == "func1op_call_expression" and n.text == b"shift":
+            total += 1
+        for child in n.children:
+            walk(child, False)
+
+    walk(block, True)
+    return total
+
+
+def _get_param_count(node: Any, lang: str = "") -> int:
+    if lang == "shell" and node.type == "function_definition":
+        return _count_shell_real_positional_max(node)
+    if lang == "perl" and node.type in _PERL_SUB_NODE_TYPES:
+        return _count_perl_real_args(node)
     params_node = node.child_by_field_name("parameters")
     if params_node is None and node.type == "function_definition":
         params_node = _find_c_style_parameter_list(node.child_by_field_name("declarator"))
@@ -1181,7 +1310,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     if node.type in func_node_types:
                         name = _get_node_name(node)
                         if name:
-                            real_funcs[name] = _get_param_count(node)
+                            real_funcs[name] = _get_param_count(node, lang)
                     elif node.type in class_node_types:
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass

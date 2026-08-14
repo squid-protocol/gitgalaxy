@@ -78,7 +78,13 @@ Most code-intelligence engines build that graph from an AST. Tree-sitter is the 
 them — fast, resilient to broken syntax, real grammars for dozens of languages — and
 GitGalaxy isn't claiming to out-parse it; see
 **[Claim 10](https://squid-protocol.github.io/gitgalaxy/03-10-claim-10-ast-vs-heuristic-parsing/)**
-for where each approach actually wins. The reason GitGalaxy still doesn't build one is that
+for where each approach actually wins — with one narrow, measured exception: for functions with
+no formal parameter-list syntax at all (bash, traditional-style Perl), a declaration-only AST
+read has nothing to count and reports zero regardless of real arity, while GitGalaxy's
+body-aware `args` signal reads the same `$1`/`my (...) = @_`/`shift` idiom a human would; see
+[why GitGalaxy beats a plain AST here](docs/why_gitgalaxy_beats_ast_here.md) for the measured
+before/after (shell 0%→100%, perl 14.6%→82.1%) and exactly where this does and doesn't apply.
+The reason GitGalaxy still doesn't build one is that
 a syntax tree isn't the end product here — it's an input that would need normalizing across
 dozens of separate per-language toolchains before "risk in this Python file" and "risk in
 this Go file" mean the same thing. GitGalaxy skips that normalization step by never building the

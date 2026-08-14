@@ -135,9 +135,59 @@ def test_perl_args_control_flow_shield_and_redos_immunity():
     assert pattern.search("sub foo ($a, $b) { }")
     assert pattern.search("my ($a, $b) = @_;")
     assert pattern.search("shift;")
+    assert pattern.search("my $x = shift;")
     assert not pattern.search("if ($x) {"), "args hallucinated on an if statement"
     poison = "sub foo (" + "a, " * 40000
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+def test_perl_args_shift_excludes_explicit_array_argument():
+    """
+    #1519: bare `shift`/`shift;` (implicitly shifts @_, the arg-unpacking
+    idiom) must still match, but `shift @other`/`shift(@other)` -- shifting
+    a DIFFERENT array, unrelated to this sub's own arguments -- must not.
+    """
+    pattern = PERL_RULES["args"]
+    assert pattern.search("shift;")
+    assert pattern.search("my $x = shift;")
+    m = pattern.search("shift @some_queue;")
+    assert not (m and m.group(0).rstrip(";") == "shift"), "matched bare 'shift' inside 'shift @some_queue'"
+    m2 = pattern.search("shift(@some_queue);")
+    assert not (m2 and m2.group(0).rstrip(";") == "shift"), "matched bare 'shift' inside 'shift(@some_queue)'"
+
+
+def test_perl_args_bare_array_catchall_and_redos_immunity():
+    """
+    #1519: `my @statuses = @_;` (a parenless array catching every remaining
+    positional arg, e.g. after `my $class = shift;` already took the first
+    one) is a distinct, extremely common idiom from `my (...) = @_` -- both
+    must match `args`.
+    """
+    pattern = PERL_RULES["args"]
+    assert pattern.search("my @statuses = @_;")
+    assert not pattern.search("my @statuses = @other_array;"), (
+        "matched a bare array assignment that wasn't actually catching @_"
+    )
+    poison = "my @" + "a" * 40000 + " = @_;"
+    assert_redos_immune(pattern, poison, timeout_sec=3.0)
+
+
+def test_perl_args_findall_sum_multi_statement_arity():
+    """
+    #1519: traditional Perl commonly unpacks args across MULTIPLE
+    statements in one sub (`my $class = shift;` for the invocant, then
+    `my ($a, $b) = @_;` for the rest) -- detector.py's counter must SUM
+    every matching statement's contribution across the whole block, not
+    just count the first one it finds.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    payload = "sub check {\n  my $class = shift;\n  my ($param, $field) = @_;\n  return 1;\n}\n"
+    segments = extractor._partition_segments(payload, "perl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    check_fn = next(f for f in functions if f["name"] == "check")
+    assert check_fn["args"] == 3, f"expected 3 (1 shift + 2-tuple), got {check_fn['args']}"
 
 
 def test_perl_func_start_vertical_shield_and_name_capture():

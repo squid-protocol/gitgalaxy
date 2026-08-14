@@ -1,6 +1,6 @@
 {
   "args_comparable": 3,
-  "args_exact_match": 0,
+  "args_exact_match": 3,
   "corpus_path": "language-crucible/data/shell",
   "extra_classes": 0,
   "extra_functions": 2,

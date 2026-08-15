@@ -1501,6 +1501,18 @@ _SKIP_PENALTY = 1_000_000  # bigger than any real file's line count -- see docst
 # of literal `main` functions.
 _SYNTHETIC_GG_FUNC_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 
+# #1641: `_resolve_class_start_match` (gitgalaxy/core/detector.py) falls back to the literal
+# string "Anonymous_Class" as the reported name whenever a class_start regex matches with no
+# capturable tag name -- most commonly c's `typedef struct { ... } Foo;` idiom (epic #813/#822
+# deliberately made the tag name optional so this shape is *found*, just not *named*). Real,
+# correct GitGalaxy behavior -- the struct genuinely exists, there's just no name to report -- but
+# tree-sitter's ground truth can, by construction, never contain the literal string
+# "Anonymous_Class" either, so left unfiltered it's a permanent false "extra" every time GitGalaxy
+# correctly identifies an anonymous struct/union/enum. Same shape as _SYNTHETIC_GG_FUNC_NAMES
+# above, just for the class comparison. Confirmed via language-crucible/data/c/*: 17/17 (100%) of
+# c's extra_classes were exactly this one literal name, one per file, zero other names.
+_SYNTHETIC_GG_CLASS_NAMES = frozenset({"Anonymous_Class"})
+
 # #1633: when a grammar's error recovery corrupts a downstream region (Claim 3's mechanism --
 # see docs/why_gitgalaxy_beats_ast_here.md), tree-sitter-javascript doesn't just go blind, it can
 # actively hallucinate a control-flow statement AS a `method_definition` node whose "name" field
@@ -1783,6 +1795,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 gg_classes = {
                     r["class_name"]
                     for r in conn.execute("SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],))
+                    if r["class_name"] not in _SYNTHETIC_GG_CLASS_NAMES
                 }
                 gg_funcs_by_name: dict[str, list[tuple[int, int]]] = {}
                 for r in gg_funcs:
@@ -1791,7 +1804,23 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     gg_funcs_by_name.setdefault(r["func_name"], []).append((r["start_line"] or 0, r["args"]))
 
                 metrics["found_classes"] += len(real_classes & gg_classes)
-                metrics["extra_classes"] += len(gg_classes - real_classes)
+                # #1642: same "structurally unpairable, not a real false positive" cascade
+                # exception already applied to the function comparison below
+                # (`trailing_error_start`, #1427/#1567) -- extended here to classes. Unlike
+                # `function_data`, `class_data` has no `start_line` column, so this is a
+                # coarser, file-level version (skip the whole file's extra_classes rather than
+                # filtering individual occurrences by line): when a trailing error cascade is
+                # detected at all, tree-sitter's real_classes for this file is unreliable enough
+                # that any GitGalaxy-found class name absent from it can't be trusted as a
+                # genuine false positive. Confirmed via roslyn/LanguageParser.cs: the cascade is
+                # severe enough that `tree.root_node.type` itself becomes "ERROR" (not the
+                # normal `compilation_unit`), so trailing_error_start resolves to line 1 -- a
+                # file-level exclusion produces the identical outcome an occurrence-level one
+                # would here, for all 8 of that file's real, correctly-found classes (including
+                # the outer `LanguageParser` class itself, whose body spans the entire corrupted
+                # region and so never resolves into a proper `class_declaration` node at all).
+                if trailing_error_start is None:
+                    metrics["extra_classes"] += len(gg_classes - real_classes)
 
                 file_missing_names: set[str] = set()
                 file_extra_names: set[str] = set()

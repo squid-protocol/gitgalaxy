@@ -24,8 +24,7 @@
 ## What Pain Point Does This Solve?
 
 GitGalaxy exists for one recurring problem: understanding a large, real, multi-language
-codebase that doesn't compile cleanly — the state most production repositories are actually
-in, not the clean single-language input most static-analysis tooling assumes.
+codebase that doesn't compile cleanly.
 
 * **Full-system scans across 50+ languages in one pass.** No per-language toolchain, no
   successful build required. A polyglot repo with Go, YAML, Shell, and Python mixed together
@@ -35,11 +34,12 @@ in, not the clean single-language input most static-analysis tooling assumes.
   has to build first.
 * **Fast enough to run on every commit.** Most repositories scan in well under a minute —
   [Kubernetes](https://github.com/squid-protocol/gitgalaxy-raw-output/blob/main/v2.4.6/kubernetes/kubernetes_galaxy_llm.md),
-  1.39M lines across Go, YAML, JSON, Shell, and Proto, scans end to end in 50.83 seconds. Scan
-  time is fit as two regimes across a 599-repo batch — flat overhead below ~4,258 LOC, then
-  `time(s) ≈ 3.36e-05 × LOC^0.969` above it (R²=0.88, near-linear, not degrading on large
-  inputs) — see [Proof, Not Just Claims](#proof-not-just-claims) for the chart and derivation,
-  not just this rounded headline.
+  1.39M lines across Go, YAML, JSON, Shell, and Proto, scans end to end in 50.83 seconds.
+  <p align="center">
+  <img src="https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png" alt="GitGalaxy scan time vs. LOC across hundreds of repositories, log-log, both axes" width="600">
+  [gitgalaxy-raw-output's Speed Telemetry section](https://github.com/squid-protocol/gitgalaxy-raw-output#speed-telemetry).
+
+</p>
 * **CI-native output, not a standalone report.** Every scan produces a SARIF file (drops
   straight into GitHub/GitLab security dashboards), a CycloneDX SBOM (dependency compliance),
   and a 0–100 risk-exposure score per file, folder, and repo. See [Benchmarks](#benchmarks) for
@@ -163,7 +163,7 @@ codebase too large to read by hand — not the last word on whether something is
 
 Most dependency scanners work from a lookup table: they know a vulnerability exists
 because someone found it, filed it, and it now has a CVE number in a feed. That's
-useful, but it's necessarily reactive — a scanner built this way is blind to anything
+useful, but reactive — a scanner built this way is blind to anything
 that hasn't been discovered and disclosed yet, including straightforward variants of
 known-bad patterns that just look slightly different from the filed instance.
 
@@ -211,9 +211,9 @@ that it replaces what they do well.
 
 Every "structural signature" and "AST-free" claim above is backed by three things you can inspect and re-run yourself, not just take on faith:
 
-1. **[3,649 per-signature regression tests](tests/README.md).** `gitgalaxy/standards/language_standards.py` defines every regex rule the engine uses to recognize a construct — a function start, an API boundary, a safety bypass — across the 45 languages that have real structural signatures (~1,970 compiled patterns total). Every one of those rules is tested for what it should match, what it should explicitly *exclude* (the false-positive check most regex-based tools skip), and that it can't be hung by an adversarial input. See **[`tests/README.md`](tests/README.md)** for the full index, and [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) for the audit that closed it out — dozens of real regex bugs found and fixed along the way, not just theoretical coverage.
+1. **[+6000 per-signature regression tests](tests/README.md).** `gitgalaxy/standards/language_standards.py` defines every regex rule the engine uses to recognize a construct — a function start, an API boundary, a safety bypass — across the 45 languages that have real structural signatures (+2000 compiled patterns total). Every one of those rules is tested for what it should match, what it should explicitly *exclude* (the false-positive check most regex-based tools skip), and that it can't be hung by an adversarial input. See **[`tests/README.md`](tests/README.md)** for the full index, and [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) for the audit that closed it out — dozens of real regex bugs found and fixed along the way, not just theoretical coverage.
 2. **A true golden diff against real, unmodified production code.** [`language-crucible`](https://github.com/squid-protocol/language-crucible) is a pinned, tagged snapshot of ~120 real subdirectories pulled from major open-source projects — Godot's C++, the Roslyn C# compiler, curl, Kubernetes, Apollo 11's AGC flight software, and more — deliberately left disconnected and uncompilable, the same hostile state real repos are in. Every pull request that touches the parsing engine re-scans that entire corpus and diffs the output, field by field, against a checked-in snapshot (`tests/golden_master_audit.json`); a diff means the output changed on real code, and it has to be explained before it's accepted — not a smoke test, an actual golden-master comparison. See [`tests/README.md`](tests/README.md#5-golden-master-differential-testing-the-language-crucible) for exactly how this is wired into CI, and [language-crucible's own README](https://github.com/squid-protocol/language-crucible) for why that corpus is built the way it is.
-3. **[Unedited raw scan output at real-world scale](https://github.com/squid-protocol/gitgalaxy-raw-output).** Where the golden-master corpus above proves correctness on ~120 curated adversarial paradigms, this repo is the complementary evidence that the engine actually runs, unmodified, across hundreds of independently-chosen real repositories — every `_galaxy_audit.json`, `_galaxy_master.db`, and `_galaxy_llm.md` the scanner produced, kept versioned per engine release. The corpus manifest pinning exactly which repos and commits were scanned currently covers a 323-repo subset of the larger batch archived there — stated plainly in that repo's own README rather than implied to be complete.
+3. **[Unedited raw scan output at real-world scale](https://github.com/squid-protocol/gitgalaxy-raw-output).** Where the golden-master corpus above proves correctness on ~120 curated adversarial paradigms, this repo is the complementary evidence that the engine actually runs, unmodified, across hundreds of independently-chosen real repositories — every `_galaxy_audit.json`, `_galaxy_master.db`, and `_galaxy_llm.md` the scanner produced, kept versioned per engine release. The corpus manifest pinning exactly which repos and commits were scanned currently covers a 599-repo set.
 4. **[Measured against Tree-sitter](docs/language_status/README.md), not asserted.** [`tests/tools/tree_sitter_accuracy_audit.py`](tests/tools/tree_sitter_accuracy_audit.py) diffs GitGalaxy's extraction against real AST ground truth on the [`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus, one committed baseline per language, re-measured and re-charted automatically on every push that touches the parsing engine:
 
 <p align="center">
@@ -227,14 +227,6 @@ audit behind the chart — [python](docs/language_status/python.md) and
 [#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (still open) got found in
 the first place; the rest of the 31 are baseline-only so far, not yet manually audited.
 
-That same raw-output batch is what the speed claim above is fit from — every repo plotted, not just the favorable Kubernetes example:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png" alt="GitGalaxy scan time vs. LOC across hundreds of repositories, log-log, both axes" width="600">
-</p>
-
-Always the newest scanner version — full derivation and methodology in
-[gitgalaxy-raw-output's Speed Telemetry section](https://github.com/squid-protocol/gitgalaxy-raw-output#speed-telemetry).
 
 </div>
 
@@ -255,8 +247,6 @@ Always the newest scanner version — full derivation and methodology in
 ### Real-World Adoption
 
 <div align="center">
-
-GitGalaxy is meant to run *in* CI, not just get starred and forgotten — so we track CI/production integration as its own adoption signal alongside human discovery, instead of filtering it out as noise.
 
 <img src="https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/human_vs_ci_adoption.png" alt="GitGalaxy: Human Discovery vs. Production Integration" width="700">
 

@@ -1,6 +1,6 @@
 {
   "args_comparable": 2700,
-  "args_exact_match": 2046,
+  "args_exact_match": 2700,
   "corpus_path": "language-crucible/data/zig",
   "extra_classes": 1,
   "extra_functions": 0,

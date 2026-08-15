@@ -168,6 +168,37 @@ def test_c_args_pathological(payload, expected_name):
     assert_pathological_match(C_RULES["args"], payload, expected_name, "c.args")
 
 
+def test_c_args_lowercase_typedef_pointer_with_body_call_regression():
+    """
+    Regression test for issue #1646: a function whose SIGNATURE has a
+    plain-lowercase custom-typedef pointer parameter (`compiler *c`)
+    and whose BODY contains a `SOMETHING(SomeCall(a->b, c))`-shaped
+    nested call. The signature's own args should be what gets counted (2),
+    not the body call.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
+    code = """
+int _PyCompile_MaybeAddStaticAttributeToClass(compiler *c, expr_ty e) {
+    RETURN_IF_ERROR(PySet_Add(u->u_static_attributes, e->v.Attribute.attr));
+}
+"""
+    satellites, _ = detector._slice_by_braces(
+        code=code,
+        lang_id="c",
+        rules=C_RULES,
+        offset=0,
+        spatial_map={},
+    )
+    assert len(satellites) == 1
+    assert satellites[0]["args_count"] == 2, (
+        f"Expected 2 args, got {satellites[0]['args_count']}. "
+        f"If 1, the regex falsely matched the body call. If 0, the regex failed to match the signature."
+    )
+
+
 # ==============================================================================
 # CLASS_START (class_start)
 # ==============================================================================

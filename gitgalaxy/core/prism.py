@@ -930,6 +930,101 @@ class Prism:
         code, comments = [], []
         carry_quote: Optional[str] = None
 
+        if lang_id == "perl":
+            perl_bare_regex_preceding = re.compile(
+                r"(?:(?:=~|!~|\(|,|;|\{|&&|\|\|)[ \t]*$)|(?:\b(?:if|unless|while|split|grep|map|return)[ \t]+$)"
+            )
+            perl_candidate_pattern = re.compile(r"\b(?:qw|qq|qx|qr|tr|q|m|s|y)[ \t]*[\{/]|/")
+
+            def _mask_perl_line(line: str, masked_literals: list[str]) -> str:
+                pos = 0
+                parts = []
+                while pos < len(line):
+                    match = perl_candidate_pattern.search(line, pos)
+                    if not match:
+                        parts.append(line[pos:])
+                        break
+                    start = match.start()
+                    parts.append(line[pos:start])
+                    matched_str = match.group(0)
+                    is_brace_op = matched_str.endswith("{")
+                    is_slash_op = matched_str.endswith("/") and len(matched_str) > 1
+                    is_bare_slash = matched_str == "/"
+                    if is_bare_slash and not perl_bare_regex_preceding.search(line[:start]):
+                        parts.append("/")
+                        pos = start + 1
+                        continue
+                    op_start_idx = start
+                    if is_brace_op:
+                        depth = 1
+                        idx = match.end()
+                        while idx < len(line):
+                            ch = line[idx]
+                            if ch == "\\":
+                                idx += 2
+                                continue
+                            if ch == "{":
+                                depth += 1
+                            elif ch == "}":
+                                depth -= 1
+                                if depth == 0:
+                                    break
+                            idx += 1
+                        op_keyword = matched_str[:-1].strip()
+                        end_idx = min(idx + 1, len(line))
+                        if op_keyword in ("s", "tr", "y") and end_idx < len(line):
+                            ws_match = re.match(r"[ \t]*", line[end_idx:])
+                            ws_len = len(ws_match.group(0)) if ws_match else 0
+                            second_start = end_idx + ws_len
+                            if second_start < len(line) and line[second_start] == "{":
+                                depth = 1
+                                idx2 = second_start + 1
+                                while idx2 < len(line):
+                                    ch = line[idx2]
+                                    if ch == "\\":
+                                        idx2 += 2
+                                        continue
+                                    if ch == "{":
+                                        depth += 1
+                                    elif ch == "}":
+                                        depth -= 1
+                                        if depth == 0:
+                                            break
+                                    idx2 += 1
+                                end_idx = min(idx2 + 1, len(line))
+                        span_text = line[op_start_idx:end_idx]
+                        masked_literals.append(span_text)
+                        parts.append(f"__MASK_{len(masked_literals) - 1}__")
+                        pos = end_idx
+                    else:
+                        idx = match.end()
+                        while idx < len(line):
+                            ch = line[idx]
+                            if ch == "\\":
+                                idx += 2
+                                continue
+                            if ch == "/":
+                                break
+                            idx += 1
+                        end_idx = min(idx + 1, len(line))
+                        op_keyword = matched_str[:-1].strip() if is_slash_op else ""
+                        if op_keyword in ("s", "tr", "y") and end_idx < len(line):
+                            idx2 = end_idx
+                            while idx2 < len(line):
+                                ch = line[idx2]
+                                if ch == "\\":
+                                    idx2 += 2
+                                    continue
+                                if ch == "/":
+                                    break
+                                idx2 += 1
+                            end_idx = min(idx2 + 1, len(line))
+                        span_text = line[op_start_idx:end_idx]
+                        masked_literals.append(span_text)
+                        parts.append(f"__MASK_{len(masked_literals) - 1}__")
+                        pos = end_idx
+                return "".join(parts)
+
         for line in text.splitlines():
             head = ""
             if carry_quote is not None:
@@ -943,6 +1038,9 @@ class Prism:
                 head, line, carry_quote = line[: m.end()], line[m.end() :], None
 
             masked_line, masked_literals = self._mask_line_literals(line)
+
+            if lang_id == "perl":
+                masked_line = _mask_perl_line(masked_line, masked_literals)
 
             if pattern.search(masked_line):
                 parts = pattern.split(masked_line, 1)
@@ -982,4 +1080,8 @@ class Prism:
 
     def _restore_masked_literals(self, masked: str, masked_literals: list[str]) -> str:
         """Reverses _mask_line_literals, substituting each `__MASK_N__` placeholder back for its original literal text."""
-        return re.sub(r"__MASK_(\d+)__", lambda m: masked_literals[int(m.group(1))], masked)
+        prev = None
+        while masked != prev:
+            prev = masked
+            masked = re.sub(r"__MASK_(\d+)__", lambda m: masked_literals[int(m.group(1))], masked)
+        return masked

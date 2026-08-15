@@ -2121,20 +2121,81 @@ def test_detector_csharp_lambda_default_parameter_arrow_not_mistaken_for_body():
 def test_detector_csharp_expression_body_fallback_gated_to_csharp_only():
     """
     The `=>`-then-`;` fallback in _slice_by_braces is explicitly gated to
-    `lang_id == "csharp"` -- proves it doesn't change behavior for other
-    Mode-B (brace-slicing) languages that also use `=>` for lambdas
-    (e.g. javascript/typescript arrow functions assigned to a const,
-    which are not real func_start matches and must still produce zero
-    satellites, not a hallucinated one via the new fallback).
+    `lang_id == "csharp"`. javascript/typescript get their own brace-less
+    arrow handling (issue #1629 -- those are real func_start matches and
+    must be recorded, not dropped), so a language with NO such branch (php)
+    is the control that proves the fallback doesn't leak beyond the
+    languages that own it.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-    js_detector = StructuralExtractor("javascript", LANGUAGE_DEFINITIONS)
-    js_rules = LANGUAGE_DEFINITIONS["javascript"]["rules"]
+    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
+    php_rules = LANGUAGE_DEFINITIONS["php"]["rules"]
     code = "const double = (x) => x * 2;\n"
 
-    satellites, _ = js_detector._slice_by_braces(code, "javascript", js_rules, 0, {})
-    assert satellites == [], "the csharp-only arrow fallback must not fire for other languages"
+    satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
+    assert satellites == [], "the csharp arrow fallback must not fire for languages without their own handling"
+
+
+# ==============================================================================
+# JAVASCRIPT/TYPESCRIPT EXPRESSION-BODIED ARROWS (issue #1629)
+# ==============================================================================
+def test_detector_js_ts_expression_body_arrows_recorded():
+    """
+    Issue #1629: arrow functions with expression bodies (no "{" at all --
+    "const swap = <E, A>(ma) => isLeft(ma) ? ...") were silently dropped by
+    the generic brace-only fallback in _slice_by_braces, the single largest
+    recall gap in the typescript corpus (>55% of missing functions). The
+    func_start lookahead has already proved an arrow follows the identifier,
+    so a brace-less match is a real function whose body ends at its own ";"
+    (or at the next func_start match when semicolons are omitted).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    cases = [
+        # Simple brace-less arrow terminated by ";".
+        ("typescript", "const add = (x: number, y: number) => x + y;\n", ["add"]),
+        # Curried fp-style arrow spanning two lines, ";"-terminated.
+        (
+            "typescript",
+            "export const swap = <E, A>(ma: Either<E, A>): Either<A, E> =>\n"
+            "  isLeft(ma) ? right(ma.left) : left(ma.right);\n",
+            ["swap"],
+        ),
+        # ASI -- no semicolons; each arrow is bounded by the next func_start match.
+        ("typescript", "const f = (x) => x\nconst g = (y) => y + 1\n", ["f", "g"]),
+        # A ";" inside nested parens must not truncate the expression body.
+        ("typescript", "const f = (x) => (x ? { a: 1 } : { b: 2 });\n", ["f"]),
+        # A "{" inside a parameter's TYPE annotation is not the body.
+        ("typescript", "const f = (x: {a: number}) => x.a;\n", ["f"]),
+        # Class field arrows (already valid func_start matches) now resolve.
+        (
+            "typescript",
+            "class C {\n  private readonly bar = (x: number) => x * 2;\n}\n",
+            ["bar"],
+        ),
+        # Object-literal method-shorthand property (member form, not an
+        # assignment -- brace-less member matches stay dropped, the #1631
+        # interface/type-member tradeoff).
+        ("typescript", "const obj = {\n  foo: (x) => x + 1,\n};\n", []),
+        # javascript shares the same handling.
+        ("javascript", "const double = (x) => x * 2;\n", ["double"]),
+        ("javascript", "let f = async (x) => await g(x);\n", ["f"]),
+        # Brace-bodied functions (arrows and declarations) are unchanged.
+        ("typescript", "function withBody(a: string): void {\n  console.log(a);\n}\n", ["withBody"]),
+        (
+            "typescript",
+            "export const withBraceBody = (a: number) => {\n  return a * 2;\n};\n",
+            ["withBraceBody"],
+        ),
+    ]
+
+    for lang, code, expected in cases:
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert names == expected, f"[{lang}] expected {expected}, got {names}: {code!r}"
 
 
 # ==============================================================================

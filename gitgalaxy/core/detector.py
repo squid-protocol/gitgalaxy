@@ -2555,6 +2555,123 @@ class StructuralExtractor:
                     end_idx = semi_after_arrow + 1
                 else:
                     continue
+            elif lang_id in ("typescript", "javascript"):
+                # An identifier immediately preceded by "=>" is a return-type
+                # position, not a value assignment: in "=> M = (M) => ..."
+                # (fp-ts's curried signatures) the "M" is the type, and the
+                # "= (M) =>" that follows belongs to the enclosing function's
+                # implementation. func_start's lookahead cannot tell the two
+                # apart at the regex level, so reject them here.
+                prev = start_idx - 1
+                # Skip spaces/tabs only, never newlines: a ">" on a PREVIOUS
+                # line belongs to some unrelated construct (an HTML tag, a
+                # template literal's ">"), while the "=>" that makes this a
+                # return-type position always sits on the same line as the
+                # identifier.
+                while prev >= 0 and safe_code[prev] in " \t":
+                    prev -= 1
+                if prev >= 0 and safe_code[prev] == ">":
+                    continue
+                # #1629: expression-bodied arrow functions (const swap =
+                # <E, A>(ma) => isLeft(ma) ? right(ma.left) : left(ma.right))
+                # have no { at all, and the generic brace-only fallback
+                # silently dropped every one of them -- the single largest
+                # recall gap in the typescript corpus (88 of 159 missing
+                # functions, >55%), dominant in functional-style code (fp-ts
+                # and friends). The func_start lookahead has already proved
+                # an arrow (or "function") follows the identifier, so the
+                # only open question is where the body ends: at a body-bearing
+                # "{" when one shows up, at the expression's own terminating
+                # ";" (paren/bracket-aware, so a ";" inside a nested
+                # type/object literal can't truncate it), or -- when the file
+                # omits semicolons (ASI) -- at the next func_start match,
+                # mirroring the scala/kotlin "= expr" handling.
+                #
+                # Only the ASSIGNMENT form (IDENT = ... =>) gets this
+                # treatment. The member form (line-start "IDENT: ... =>",
+                # alternative 3) is what interface/type function-typed
+                # members match -- "bar: (x) => void;" in an interface is a
+                # type signature, not a function (issue #1631) -- so a
+                # brace-less member match keeps falling through to the
+                # generic brace-only path below instead of being recorded
+                # with a ";"-bounded span. Distinguish the two by the first
+                # top-level "=" after the match: a bare "=" (not "=>") means
+                # an assignment value follows; an "=" that is the "=>"'s own
+                # equals means the identifier was just a type member.
+                # The scan stops at a top-level "{" or ";" as well as at a
+                # bare "=": a ";" before any "=" means a bodyless member
+                # (an interface/type signature, or a plain field like
+                # "toImpl: (...) => any | undefined;" whose own ";" arrives
+                # before the next line's "="), and a "{" means a brace body
+                # the generic path below resolves anyway.
+                is_assignment = False
+                depth_paren = depth_bracket = 0
+                pos = match.end()
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif depth_paren == 0 and depth_bracket == 0:
+                        if ch == "=":
+                            is_assignment = pos + 1 >= search_limit or safe_code[pos + 1] != ">"
+                            break
+                        if ch == ";" or ch == opener:
+                            break
+                    pos += 1
+
+                if is_assignment:
+                    # "track.createInterpolant = function Named(...) { ... }":
+                    # a NAMED function expression is already recorded by
+                    # func_start's function branch (alternative 1) under its
+                    # own name, so recording the property alias here too would
+                    # double-count one function under two names (the alias
+                    # never matches tree-sitter's name for the same node).
+                    # Only anonymous "function()" / arrow values need the
+                    # assignment form's own record.
+                    rhs_match = re.match(
+                        r"\s*=\s*(?:async\s+)?function\s+[a-zA-Z_$][\w$]*\s*\(",
+                        safe_code[match.end() : match.end() + 200],
+                    )
+                    if rhs_match:
+                        continue
+                    depth_paren = depth_bracket = 0
+                    pos = match.end()
+                    term_idx, term_kind = -1, None
+                    while pos < search_limit:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            depth_paren += 1
+                        elif ch == ")":
+                            depth_paren = max(0, depth_paren - 1)
+                        elif ch == "[":
+                            depth_bracket += 1
+                        elif ch == "]":
+                            depth_bracket = max(0, depth_bracket - 1)
+                        elif depth_paren == 0 and depth_bracket == 0:
+                            if ch == opener:
+                                term_idx, term_kind = pos, "brace"
+                                break
+                            elif ch == ";":
+                                term_idx, term_kind = pos, "semi"
+                                break
+                        pos += 1
+                    if term_kind == "brace":
+                        end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                    elif term_kind == "semi":
+                        end_idx = term_idx + 1
+                    else:
+                        end_idx = next_match_start
+                else:
+                    brace_idx = safe_code.find(opener, start_idx, search_limit)
+                    if brace_idx == -1:
+                        continue
+                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

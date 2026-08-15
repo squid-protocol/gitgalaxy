@@ -2209,6 +2209,27 @@ class StructuralExtractor:
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
 
+            # #1631: typescript's func_start colon-annotated-arrow branch
+            # cannot distinguish a real arrow-function property from a
+            # parameter's function-type annotation -- both are the same
+            # `IDENT: (...) => ...` surface syntax, but only the property
+            # has a runtime function. A nested parameter (`f: (a: A) => B`
+            # inside an interface member's own signature, fp-ts pipeable.ts's
+            # `f`/`g` phantoms) is always the first thing after an
+            # already-open parameter list, so its line is directly preceded
+            # by `(`. An object-literal arrow property is never preceded by
+            # `(` -- its enclosing `{` is -- so dropping line-anchored
+            # matches whose preceding non-whitespace char is `(` removes
+            # the phantom parameter annotations without touching real
+            # arrow-function properties. JavaScript shares the same regex
+            # branch and the same ambiguity, so the gate covers both.
+            if lang_id in ("typescript", "javascript"):
+                p = start_idx - 2  # start_idx - 1 is the line's own \n
+                while p >= 0 and safe_code[p] in " \t":
+                    p -= 1
+                if p >= 0 and safe_code[p] == "(":
+                    continue
+
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 

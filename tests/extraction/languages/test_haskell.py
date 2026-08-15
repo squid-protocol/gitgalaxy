@@ -57,6 +57,10 @@ FUNCTION_CASES: dict[str, Any] = {
         # line was blocked outright instead of anchoring on the real name.
         ("  let targetFunc fmt = Format.FlavoredFormat fmt mempty", "targetFunc"),
         ("  let targetFunc msg = messageVerbosity msg == WARNING", "targetFunc"),
+        # #1616: guard-only equations (no `=` on the same line, immediately followed
+        # by an indented `|` guard on the next line)
+        ("  isAllowedPunct c\n    | extensionEnabled Ext_gfm_auto_identifiers exts = c == '-'", "isAllowedPunct"),
+        ("  isAllowedPunct c\n    | extensionEnabled Ext_gfm_auto_identifiers exts = c == '-'\n    | otherwise = c == '_'", "isAllowedPunct"),
     ],
     "invalid": [
         "data TargetFunc",
@@ -81,6 +85,9 @@ FUNCTION_CASES: dict[str, Any] = {
         # still be excluded, same reasoning as the non-`let` cases above.
         "  let",
         "  let targetFunc = 5",
+        # #1616: guard-only equation fallback must not fire on a name followed
+        # by a `|` on the next line at the SAME or SHALLOWER indent.
+        "  notAGuard c\n  | not a guard",
     ],
     "pathological": [
         ("TargetFunc \n :: \n Maybe \n ( \n Int \n -> \n Int \n )", "TargetFunc"),

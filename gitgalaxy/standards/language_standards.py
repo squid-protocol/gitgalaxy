@@ -7953,6 +7953,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (`| cond = ...`) between the pattern list and the real `=`
             # isn't a shape this alternative understands and simply fails to
             # match (falls back to the pre-existing 0), not a regression.
+            # #1616 (follow-up): extended this same group-3 alternative to also
+            # accept a guard-only naming line (no `=` on the same line, just
+            # immediately followed by `\n[ \t]+\|`), keeping it in sync with
+            # func_start's own #1616 fix below.
             #
             # #1505 (follow-up, separate bug in the SAME rule): group 1's own
             # character classes never included "." -- real-world Haskell
@@ -7985,7 +7989,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"|infixl|infixr|infix)\b)[a-zA-Z_][a-zA-Z0-9_']*[ \t]+"
                 r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+)"
                 r"(?:[ \t]+(?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+))*)"
-                r"[ \t]*=(?!=)(?!>)"
+                r"[ \t]*(?:=(?!=)(?!>)|\n[ \t]+\|)"
             ),
             # Which `args` capture-group index represents a `::` type
             # signature (routes to arrow-based counting in detector.py) --
@@ -8059,9 +8063,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # own line, nothing before the next line's `=`) still can't
             # match, since the trailing `[ \t]+...=` lookahead has nothing
             # on that same line to satisfy either way.
+            # #1616: the trailing `[ \t]+...=` lookahead above required an `=`
+            # on the exact same line as the name and pattern list. This missed
+            # guard-only equations (e.g. `isAllowedPunct c \n | cond = ...`)
+            # where the `=` only appears on the indented guard lines below.
+            # Extended the lookahead to accept either an unambiguous `=` on the
+            # same line OR the line ending without an `=`/newline and immediately
+            # followed by an indented guard `\n\3[ \t]+\|` (where `\3` is the
+            # captured leading indent). Bounded and conservative:
+            # this explicitly doesn't parse the indentation stack to prove the `|`
+            # belongs to this binding vs. a sibling, but its limitation is
+            # documented and ReDoS safe since the same-line prefix scan `[^\n=]*`
+            # still fails closed if it hits a real `=` or crosses a newline.
             "func_start": re.compile(
                 r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
-                r"|^[ \t]+(?:let[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
+                r"|^([ \t]+)(?:let[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

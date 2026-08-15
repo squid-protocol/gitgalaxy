@@ -3,7 +3,7 @@
   "args_exact_match": 1186,
   "corpus_path": "language-crucible/data/dart",
   "extra_classes": 0,
-  "extra_functions": 78,
+  "extra_functions": 30,
   "files_scanned": 7,
   "found_classes": 200,
   "found_functions": 1349,

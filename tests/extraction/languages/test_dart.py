@@ -236,6 +236,58 @@ def test_dart_slicer_long_parameter_list():
     assert "normalMethod" in names
 
 
+def test_dart_slicer_bug_5_closure_invocation():
+    # Regression case for GitHub issue #1624: closure-arguments in calls were wrongly identified as functions.
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+
+    # empty-args closure invocation shape
+    code1 = (
+        "class Foo {\n"
+        "  void nextMethod() {\n"
+        "    setState(() {\n"
+        "      x = 1;\n"
+        "    });\n"
+        "  }\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code1, "dart", DART_RULES, 0, {})
+    names = [b["name"] for b in blocks]
+    assert "setState" not in names, "Bug 5: Should exclude empty-args closure invocation"
+    assert "nextMethod" in names
+
+    # multi-arg closure invocation shape
+    code2 = (
+        "class Bar {\n"
+        "  void run() {\n"
+        "    _addAction(action, (Object? args) {\n"
+        "      assert(args == null);\n"
+        "      handler();\n"
+        "    });\n"
+        "  }\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code2, "dart", DART_RULES, 0, {})
+    names = [b["name"] for b in blocks]
+    assert "_addAction" not in names, "Bug 5: Should exclude multi-arg closure invocation"
+    assert "run" in names
+
+    # No regression: named-parameter constructor must still be found
+    code3 = (
+        "class Baz {\n"
+        "  const Baz.raw({required this.a}) : b = a;\n"
+        "  void foo(int a, {int x = 1}) {\n"
+        "  }\n"
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code3, "dart", DART_RULES, 0, {})
+    names = [b["name"] for b in blocks]
+    assert "Baz.raw" in names, "No regression: named-parameter bodyless constructor must still be found"
+    assert "foo" in names, "No regression: named-parameter method must still be found"
+
+
 # -------------------------------------------------------------------------
 # 3. ARGUMENTS RULES
 # -------------------------------------------------------------------------

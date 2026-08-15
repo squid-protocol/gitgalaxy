@@ -2519,6 +2519,56 @@ class StructuralExtractor:
                 args_sig_end = term_idx + 1
             elif lang_id == "dart":
                 params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+
+                # #1624: Invocation Shield for closure arguments.
+                # A regular parameter list tracks only parens `()` and ignores `{}`. However, a call whose
+                # argument is a closure (e.g. `setState(() { ... });`) will have a `{` inside its parens.
+                # Since the parameter list scan is brace-blind, it walks through the entire closure body
+                # and stops at the final `)`, treating the trailing `;` as a bodyless function terminator.
+                # We identify closure arguments by checking if any `{` at depth 1 (directly inside the
+                # outer parens) is immediately preceded by a `)` (the closure's own parameter list closing).
+                # A `{` preceded by `(` or `,` is a legitimate named-parameter block, not a closure.
+                def _dart_is_closure_invocation(
+                    scan_start: int,
+                    scan_end: int,
+                    *,
+                    safe_code: str = safe_code,
+                ) -> bool:
+                    pos = scan_start
+                    # Shield against getters without parens: if we hit a body/arrow before any paren,
+                    # the first paren we eventually find isn't a parameter list.
+                    while pos < scan_end:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            break
+                        if ch in "{;=":
+                            return False
+                        pos += 1
+
+                    depth = 0
+                    while pos < scan_end:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            depth += 1
+                        elif ch == ")":
+                            depth = max(0, depth - 1)
+                        elif ch == "{" and depth == 1:
+                            back_pos = pos - 1
+                            steps = 0
+                            while back_pos >= scan_start and steps < 200:
+                                b_ch = safe_code[back_pos]
+                                if b_ch not in " \t\n\r":
+                                    if b_ch == ")":
+                                        return True
+                                    break
+                                back_pos -= 1
+                                steps += 1
+                        pos += 1
+                    return False
+
+                if _dart_is_closure_invocation(match.end(), params_end_idx):
+                    continue
+
                 # #1493: the generic `search_limit = start_idx + 2000` gives most real
                 # functions (short/medium param lists) hundreds to ~2000 chars of
                 # terminator-hunt room past `params_end_idx` -- flooring the terminator

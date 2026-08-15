@@ -69,6 +69,21 @@ FUNCTION_CASES: dict[str, Any] = {
             "export const TargetFunc: React.FC<Props> = ({ a, b }) => {",
             "TargetFunc",
         ),  # typed-arrow assignment with explicit type annotation (was a real bug, now fixed)
+        # Issue #1630: callback-typed parameters (nested parens in the parameter list)
+        # used to break the zero-prefix branch's flat `\([^)]*\)` terminator, dropping
+        # the WHOLE signature at the regex level. These now match.
+        (
+            "constructor(transport: ConnectionTransport, onDisconnect: () => void) {",
+            "constructor",
+        ),  # class constructor with a callback-typed parameter
+        (
+            "addObjectListener(eventName: (string | symbol), handler: (...args: any[]) => void) {",
+            "addObjectListener",
+        ),  # method with union + rest-callback parameters
+        (
+            "constructor(transport: ConnectionTransport, onDisconnect: () => void, protocolLogger: ProtocolLogger) {",
+            "constructor",
+        ),  # playwright bidiConnection.ts shape
     ],
     "invalid": [
         "class TargetFunc implements Interface",
@@ -144,24 +159,25 @@ def test_typescript_func_start_pathological(payload, expected_name):
     assert_pathological_match(TS_RULES["func_start"], payload, expected_name, "typescript.func_start")
 
 
-def test_typescript_func_start_known_limitation_bare_call_at_line_start():
+def test_typescript_func_start_bare_call_site_identifier_no_longer_matches():
     """
-    Documents a known, NOT-fixed limitation (not silently ignored): a bare
-    call statement written at true line start with no preceding modifier
-    keyword (e.g. a Jest/Mocha `it('...', () => {...})` block) is
-    structurally indistinguishable, to a single-pass regex with no scope
-    tracking, from a real class-member method signature written the same
-    way. Both are `IDENT(...)` at true line start. Fixing this would need
-    either scope-awareness (is this inside a class/interface body?) this
-    engine doesn't have, or a terminator requirement that would reintroduce
-    the exact same "extraction gauntlet expects bare fragments to match"
-    conflict that #789 (csharp) hit -- see how_to_add_a_language.md and this
-    issue's own findings. Recorded here so a future pass doesn't rediscover
-    this and spend time on a fix that was already deliberately deferred.
+    A bare call statement written at true line start with no preceding
+    modifier keyword (e.g. a Jest/Mocha `it('...', () => {...})` block)
+    is correctly REJECTED. This was previously a documented false positive
+    (known limitation): the old flat `[^)]*` parameter-list class
+    stopped at the first inner `)` of the inline callback's `()`, so
+    `describe('suite', () => {` matched as if the whole callback were a
+    method signature. Once the parameter list tolerates one level of nested
+    parens (issue #1630), the outer `(` must actually close again before
+    the terminator -- `describe('suite', () => {` has no closing paren
+    before the block, so it no longer matches. Mirrors the identical
+    javascript fix in #1452.
     """
     func_start = TS_RULES["func_start"]
     jest_block = "describe('suite', () => {\n  it('does the thing', () => {\n    TargetFunc();\n  });\n});"
-    assert func_start.search(jest_block), "documents current (accepted) behavior: this does match"
+    swap_block = "\t\t\t\t\tswap( elem, cssShow, function() {"
+    assert not func_start.search(jest_block), "the inline arrow function in the arguments prevents match"
+    assert not func_start.search(swap_block), "the inline function in the arguments prevents match"
 
 
 def test_typescript_func_start_string_literal_lookalike_still_matches_at_regex_level():

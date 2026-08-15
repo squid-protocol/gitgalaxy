@@ -230,3 +230,100 @@ def test_perl_1517_bare_regex_embedded_hash_not_comment():
     code_stripped, _ = prism._strip_single_line_comments(code, "perl")
     assert "if ($arg =~ /^#/) {" in code_stripped
     assert "return;" in code_stripped
+
+
+# ==============================================================================
+# PERL ARGS SUMMING (Root Causes 2, 3, 4)
+# ==============================================================================
+def test_perl_args_summing():
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["perl"]["rules"]
+
+    def _get_args_count(code: str) -> int:
+        sat, _ = extractor._calculate_block_metrics(
+            name="test_sub",
+            block=code,
+            loc=code.count("\n") + 1,
+            start_line=1,
+            end_line=code.count("\n") + 1,
+            rules=rules,
+            start_idx=0,
+            end_idx=len(code),
+            spatial_map={},
+        )
+        return sat.get("args_count", 0)
+
+    # 1. Traditional prototype: skipped by signature capture, falls through to sum the body.
+    # Should sum to 2 (two shifts), even though prototype is ($$).
+    code_proto = """sub foo($$) {
+        my $x = shift;
+        my $y = shift;
+    }"""
+    assert _get_args_count(code_proto) == 2
+
+    # 2. Multiple separate shift/my-unpacking statements.
+    code_multiple = """sub ValidateDependencies {
+        my $self = shift;
+        my $pkg = shift;
+        my $deps = shift;
+    }"""
+    assert _get_args_count(code_multiple) == 3
+
+    # 3. Bare shift (not shifting an explicitly named array).
+    # Also verify it doesn't overcount `shift @other_array`.
+    code_bare_shift = """sub process {
+        my $x = shift;
+        shift;
+        shift @other_queue;
+        my $y = shift || 0;
+    }"""
+    assert _get_args_count(code_bare_shift) == 3
+
+    # 4. Bare catch-all array assignment.
+    code_catch_all = """sub finalize {
+        my $class = shift;
+        my @rest = @_;
+    }"""
+    assert _get_args_count(code_catch_all) == 2
+
+
+def test_perl_forward_decl_does_not_grab_unrelated_brace_getascii_bug_1609():
+    """
+    Issue #1609: A bodyless forward declaration (e.g. `sub GetASCII($);`) should not
+    accidentally grab a `{` from a later, unrelated block (e.g. `END { ... }`) that
+    falls within its search window. It should be rejected as a valid function.
+    Real bodied functions before/after must still be correctly extracted.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "sub real_sub_before {\n"
+        "    return 1;\n"
+        "}\n"
+        "\n"
+        "sub GetASCII($);\n"
+        "\n"
+        "$SIG{INT}  = 'SigInt';\n"
+        "END {\n"
+        "    Cleanup();\n"
+        "}\n"
+        "\n"
+        "sub real_sub_after {\n"
+        "    return 2;\n"
+        "}\n"
+    )
+
+    ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["perl"]["rules"]
+
+    functions, _ = ext._slice_by_braces(code, "perl", rules, 0, {})
+
+    found_names = [f.get("name") for f in functions]
+    assert "GetASCII" not in found_names
+    assert "real_sub_before" in found_names
+    assert "real_sub_after" in found_names
+    assert len(functions) == 2

@@ -1888,7 +1888,23 @@ class StructuralExtractor:
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id == "rust":
+        if lang_id in ("rust", "zig"):
+            # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
+            # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are
+            # never shielded at all here (a separate, pre-existing gap) -- so a real
+            # contraction/possessive apostrophe inside one of those strings' prose content
+            # (e.g. "Compare Zig's CPU feature detection", language-crucible's own
+            # zig/main.zig:128) reaches this unbounded pattern as an unpaired `'`, which then
+            # greedily searches forward for the NEXT unrelated `'` (found ~44 lines later, in
+            # "won't", main.zig:172) and blanks everything in between -- including the `{` of
+            # `pub fn log(...) {` at main.zig:142. That one swallowed `{` desyncs the brace-depth
+            # counter for the rest of the scan: whichever function's body search was already in
+            # flight when the desync hit (here, `wasi_cwd` at line 60) never finds its real
+            # closing brace and instead swallows every subsequent line until some later,
+            # unrelated `}` happens to rebalance the count -- confirmed on this exact corpus:
+            # `wasi_cwd`'s reported body swallowed lines 60-7104 (nearly the whole 7529-line
+            # file), stuck at 18 total functions found regardless of #1419's separate
+            # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
@@ -2210,14 +2226,54 @@ class StructuralExtractor:
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
 
+            # #1631: typescript's func_start colon-annotated-arrow branch
+            # cannot distinguish a real arrow-function property from a
+            # parameter's function-type annotation -- both are the same
+            # `IDENT: (...) => ...` surface syntax, but only the property
+            # has a runtime function. A nested parameter (`f: (a: A) => B`
+            # inside an interface member's own signature, fp-ts pipeable.ts's
+            # `f`/`g` phantoms) is always the first thing after an
+            # already-open parameter list, so its line is directly preceded
+            # by `(`. An object-literal arrow property is never preceded by
+            # `(` -- its enclosing `{` is -- so dropping line-anchored
+            # matches whose preceding non-whitespace char is `(` removes
+            # the phantom parameter annotations without touching real
+            # arrow-function properties. JavaScript shares the same regex
+            # branch and the same ambiguity, so the gate covers both.
+            if lang_id in ("typescript", "javascript"):
+                p = start_idx - 2  # start_idx - 1 is the line's own \n
+                while p >= 0 and safe_code[p] in " \t":
+                    p -= 1
+                if p >= 0 and safe_code[p] == "(":
+                    continue
+
+            # #1632: the object-literal-method branch matches `IDENT :` followed
+            # by a function/arrow -- but a ternary's true branch (`cond ? name :
+            # function() { ... }`, jquery/deferred.js:182-184) has the identical
+            # `name :\nfunction() {` surface while `name` is a plain identifier
+            # reference, not an object key. A real object/namespace key is never
+            # preceded (skipping whitespace/newlines) by `?` -- that position is
+            # exclusively the ternary true-branch -- so a bounded backward scan
+            # for the preceding non-whitespace char rules the shape out the same
+            # way #1221's Invocation Shield rules out bare call statements.
+            # JavaScript and TypeScript share the branch, so the gate covers both.
+            if lang_id in ("typescript", "javascript"):
+                p = start_idx - 1
+                back_steps = 0
+                while p >= 0 and back_steps < 200 and safe_code[p] in " \t\n\r":
+                    p -= 1
+                    back_steps += 1
+                if p >= 0 and safe_code[p] == "?":
+                    continue
+
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 
-            # #1335: set (only for objc's two branches below) to the index right
+            # #1335: set to the index right
             # after the signature's own terminator (`{`/`;`) -- bounds the
             # args-pattern search to the signature text, never the body. See
             # `_calculate_block_metrics`'s `args_search_text` docstring.
-            objc_args_sig_end: Optional[int] = None
+            args_sig_end: Optional[int] = None
 
             # #789: csharp's func_start regex (unlike every other C-family
             # language here) doesn't consume the parameter list or require
@@ -2424,7 +2480,7 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
-                objc_args_sig_end = term_idx + 1
+                args_sig_end = term_idx + 1
             # #1336: group 2 (plain C-style prototypes, e.g. `extern void
             # write_rtf_header(NXStream* rtfStream);`) does NOT get group 1's bodyless-`;`
             # treatment -- unlike group 1's method form, a prototype has no function body to
@@ -2461,7 +2517,7 @@ class StructuralExtractor:
                 if term_kind != "brace":
                     continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
-                objc_args_sig_end = term_idx + 1
+                args_sig_end = term_idx + 1
             elif lang_id == "dart":
                 params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
                 # #1493: the generic `search_limit = start_idx + 2000` gives most real
@@ -2556,17 +2612,111 @@ class StructuralExtractor:
                     end_idx = semi_after_arrow + 1
                 else:
                     continue
+            # #1629: typescript/javascript idiomatically use brace-less,
+            # expression-bodied arrow functions (`const swap = (x) => x + 1`,
+            # curried FP chains with no `{` anywhere in the definition --
+            # fp-ts's primary export shape). The generic brace-only fallback
+            # below drops every one of them; at least 88 of the corpus's 159
+            # func recall misses are this shape. Mirror #1266's scala
+            # approach: when no `{` shows up in the window, find the first
+            # un-nested `=>` after the signature and bound the expression
+            # body by the next func_start match (TS/JS arrow bodies have no
+            # reliable `;` terminator either, so the next-match bound is the
+            # closer analogy than csharp's trailing-semicolon scan).
+            elif lang_id in ("typescript", "javascript"):
+                # A brace-less assignment match that is itself in expression
+                # position (preceding non-whitespace char is `>`/`)`/`,`) is a
+                # return type, not a name -- `=> M = (M) => ...` in fp-ts's
+                # foldMap reports a phantom `M`. Only declaration-position
+                # matches (`const swap = ...`, line-start object members) are
+                # real functions.
+                if start_idx > 0:
+                    p = start_idx - 1
+                    while p >= 0 and safe_code[p] in " \t":
+                        p -= 1
+                    if p >= 0 and safe_code[p] in ">),":
+                        continue
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
+                if brace_idx != -1:
+                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                else:
+                    # Only assignment-shaped matches (`const foo = ... => ...`
+                    # or `foo: Type = ... => ...`) are real runtime functions.
+                    # An interface/type member's function-type annotation
+                    # (`readonly alt: <A>(...) => ...`, no `=` anywhere before
+                    # its `=>`) is pure type-level syntax -- #1631's remaining
+                    # phantom shape -- so require an un-nested `=` before the
+                    # first `=>`.
+                    depth_paren = depth_bracket = depth_angle = 0
+                    pos = match.end()
+                    saw_assignment = False
+                    arrow_idx = -1
+                    while pos < search_limit:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            depth_paren += 1
+                        elif ch == ")":
+                            depth_paren = max(0, depth_paren - 1)
+                        elif ch == "[":
+                            depth_bracket += 1
+                        elif ch == "]":
+                            depth_bracket = max(0, depth_bracket - 1)
+                        elif ch == "<":
+                            depth_angle += 1
+                        elif ch == ">":
+                            depth_angle = max(0, depth_angle - 1)
+                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                            if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                                if saw_assignment:
+                                    arrow_idx = pos
+                                    break
+                                break  # the `=>` belongs to an annotation, not an assignment
+                            if ch == "=":
+                                saw_assignment = True
+                            elif ch in ";{":
+                                break  # the statement ended without an arrow -- not a function body
+                        pos += 1
+                    if arrow_idx == -1:
+                        continue
+                    end_idx = next_match_start
+            # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
+            # are not real function definitions and should not have a block/body
+            # attributed to them. Because func_start correctly only matches line-anchored
+            # sub/method declarations, any match that sees a `;` terminator before its
+            # real `{` body is a forward declaration. This mirrors objc-group-2's (#1336)
+            # bodyless-prototype rejection. Note that Perl prototypes can contain a semicolon
+            # (e.g., `sub Options($$;@)`), so we MUST track paren depth to avoid
+            # confusing a prototype's internal semicolon with a top-level statement terminator.
+            elif lang_id == "perl":
+                pos = match.end()
+                depth_paren = 0
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif depth_paren == 0 and ch in (opener, ";"):
+                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                        break
+                    pos += 1
+                if term_kind != "brace":
+                    continue  # bodyless forward declaration (or neither terminator in the window)
+                end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
                     continue
                 end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                if lang_id == "c":
+                    args_sig_end = brace_idx
 
             block = code[start_idx:end_idx].strip()
             if not block:
                 continue
 
-            args_search_text = code[start_idx:objc_args_sig_end] if objc_args_sig_end is not None else None
+            args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
@@ -2692,13 +2842,27 @@ class StructuralExtractor:
         # The first clause's own dedent-scan below already absorbs every
         # sibling clause into ONE block via the pre-existing same-name
         # continuation walk, so clauses 2..N would otherwise each spawn their
-        # own duplicate, overlapping FunctionNode. Track the most recently
-        # accepted haskell block's (name, end) and skip any later match
-        # that's just a clause already inside it. #1564 (follow-up): this
-        # used to also require an exact indent match -- see the skip's own
-        # comment below for why that broke on multi-clause `let` bindings.
-        last_hs_group_name: Optional[str] = None
-        last_hs_group_end = -1
+        # own duplicate, overlapping FunctionNode. Track a STACK of
+        # (name, end) frames for every haskell group currently still "open"
+        # (its span hasn't ended yet) and skip any later match that's just a
+        # clause already inside one of them. #1564 (follow-up): this used to
+        # also require an exact indent match -- see the skip's own comment
+        # below for why that broke on multi-clause `let` bindings.
+        #
+        # #1616 (follow-up): a single (name, end) slot (rather than a stack)
+        # broke as soon as a DIFFERENTLY-named match started nested inside
+        # the tracked span -- e.g. a `let`-bound local like `adjustNum`
+        # inside an outer multi-clause `go`'s own `do`-block, only visible
+        # after this issue's own guard-only fix. That inner match correctly
+        # needs its own tracking slot (so ITS siblings can dedup against
+        # it), but overwriting the single slot lost the outer group entirely
+        # -- a later `go` clause, still within the outer group's real span,
+        # then failed the name check against "adjustNum" and was wrongly
+        # recorded as a second, separate "go". A stack keeps the outer
+        # frame alive underneath the inner one; popping closed frames (whose
+        # span has ended) before each check lets a later match "return" to
+        # whichever enclosing frame is still actually open, at any depth.
+        haskell_group_stack: list[tuple[str, int]] = []
 
         for match in matches:
             start_idx = match.start()
@@ -2727,8 +2891,11 @@ class StructuralExtractor:
             # alone already proves this match is a clause nested inside the
             # immediately-preceding same-named group, regardless of its own
             # indent column.
-            if lang_id == "haskell" and name == last_hs_group_name and start_idx < last_hs_group_end:
-                continue
+            if lang_id == "haskell":
+                while haskell_group_stack and haskell_group_stack[-1][1] <= start_idx:
+                    haskell_group_stack.pop()
+                if any(fname == name and start_idx < fend for fname, fend in haskell_group_stack):
+                    continue
 
             end_idx = len(safe_code)
 
@@ -2850,8 +3017,7 @@ class StructuralExtractor:
             sum_fxn_impact += mag
 
             if lang_id == "haskell":
-                last_hs_group_name = name
-                last_hs_group_end = end_idx
+                haskell_group_stack.append((name, end_idx))
 
         return satellites, sum_fxn_impact
 

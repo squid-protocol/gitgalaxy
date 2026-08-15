@@ -99,6 +99,8 @@ FUNC_START_CASES = {
         ("Stream<int> countStream(int to) async* {", "countStream"),
         ("Future<\n  Map<\n    String,\n    List<int>\n  >\n> weirdSpacing() {", "weirdSpacing"),
         ("const ThemeData.raw({ int a = 1 }) {", "ThemeData.raw"),
+        ("external void externalFunc();", "externalFunc"),
+        ("String get name;", "name"),
     ],
     "invalid": [
         "var x = functionStart;",
@@ -117,6 +119,9 @@ FUNC_START_CASES = {
         "implements AutofillClient {",
         "with AutomaticKeepAliveClientMixin {",
         "extends ContextAction<T> {",
+        "AnimationController? foo;",
+        "SelectionChangedCause cause;",
+        "late List<Element> _children;",
         # Issue #1493 (found during verification, not the issue's own scope): `assert` is
         # a reserved Dart statement keyword, never a valid function/method name -- it was
         # missing from func_start's keyword-exclusion lookahead, so `assert(...);` could be

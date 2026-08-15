@@ -43,7 +43,7 @@ for the same metrics tracked over time across pushes to main.
 | Fortran | 98.4% | 88.3% | 100.0% | 100.0% |
 | Go | 95.7% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
-| Haskell | 95.2% | 98.6% | 100.0% | 100.0% |
+| Haskell | 97.3% | 98.6% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
 | Java | 99.1% | 100.0% | 100.0% | 100.0% |
 | Javascript | 96.6% | 98.2% | 100.0% | 100.0% |
@@ -7976,11 +7976,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # args counted, since the reserved-word exclusion sat right after
             # `^[ \t]*` with no way to look past a leading "let ". Same fix:
             # an optional `(?:let[ \t]+)?` skipped before the exclusion.
+            #
+            # #1615 (follow-up, same rule): extended the same optional skip
+            # to `where`, mirroring func_start's #1615 fix -- a same-line
+            # `where name args = expr` binding is now found by func_start,
+            # so args needs the identical `where`-skip or those newly-found
+            # functions get a wrong (0) arg count instead of simply being
+            # absent as before.
             "args": re.compile(
                 r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\'.,()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'.\s,()\[\]]|=>|->|⊸)*)"
                 r"|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->"
                 r"|@[A-Z][a-zA-Z0-9_\']*"
-                r"|^[ \t]*(?:let[ \t]+)?(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
+                r"|^[ \t]*(?:(?:let|where)[ \t]+)?(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
                 r"|class|instance|data|type|newtype|deriving|foreign|default"
                 r"|infixl|infixr|infix)\b)[a-zA-Z_][a-zA-Z0-9_']*[ \t]+"
                 r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+)"
@@ -8059,9 +8066,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # own line, nothing before the next line's `=`) still can't
             # match, since the trailing `[ \t]+...=` lookahead has nothing
             # on that same line to satisfy either way.
+            # #1615: extended the same optional-skip treatment to `where`
+            # for same-line where-clause bindings, e.g.
+            # `where matchTags tags = flip elem tags . T.toLower`.
             "func_start": re.compile(
                 r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
-                r"|^[ \t]+(?:let[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
+                r"|^[ \t]+(?:(?:let|where)[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?<![!<>/])=(?![=>]))",
                 re.M,
             ),
             # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

@@ -2209,6 +2209,25 @@ class StructuralExtractor:
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
 
+            # #1632: the object-literal-method branch matches `IDENT :` followed
+            # by a function/arrow -- but a ternary's true branch (`cond ? name :
+            # function() { ... }`, jquery/deferred.js:182-184) has the identical
+            # `name :\nfunction() {` surface while `name` is a plain identifier
+            # reference, not an object key. A real object/namespace key is never
+            # preceded (skipping whitespace/newlines) by `?` -- that position is
+            # exclusively the ternary true-branch -- so a bounded backward scan
+            # for the preceding non-whitespace char rules the shape out the same
+            # way #1221's Invocation Shield rules out bare call statements.
+            # JavaScript and TypeScript share the branch, so the gate covers both.
+            if lang_id in ("typescript", "javascript"):
+                p = start_idx - 1
+                back_steps = 0
+                while p >= 0 and back_steps < 200 and safe_code[p] in " \t\n\r":
+                    p -= 1
+                    back_steps += 1
+                if p >= 0 and safe_code[p] == "?":
+                    continue
+
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 

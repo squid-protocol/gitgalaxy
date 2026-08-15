@@ -2140,6 +2140,35 @@ def test_detector_csharp_expression_body_fallback_gated_to_csharp_only():
 # ==============================================================================
 # JAVASCRIPT/TYPESCRIPT STRING-LITERAL FALSE POSITIVE (epic #813, #814/#815)
 # ==============================================================================
+def test_detector_ts_js_ternary_branch_not_misattributed_as_function():
+    """
+    Regression test for issue #1632: the object-literal-method branch
+    matches `IDENT :` followed by a function/arrow -- but a ternary's true
+    branch (`cond ? name : function() { ... }`, jquery/deferred.js:182-184)
+    has the identical `name :\nfunction() {` surface while `name` is a
+    plain identifier reference, not an object key. The fix skips matches
+    whose preceding non-whitespace char (bounded backward scan) is `?`.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang in ("javascript", "typescript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        code = (
+            "process = special ?\n"
+            "    mightThrow :\n"
+            "    function() {\n"
+            "        try {\n"
+            "            mightThrow();\n"
+            "        } catch (e) {\n"
+            "        }\n"
+            "    };\n"
+        )
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert "mightThrow" not in names, f"[{lang}] ternary true-branch misattributed as a function: {names}"
+
+
 def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
     """
     Regression test for a real bug found while hardening the extraction

@@ -207,3 +207,60 @@ def test_perl_qr_brace_shield_does_not_desync_brace_slicing():
     ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
     safe_code = ext._build_brace_safe_stream(code, "perl")
     assert safe_code.count("{") == safe_code.count("}")
+
+# ==============================================================================
+# PERL ARGS SUMMING (Root Causes 2, 3, 4)
+# ==============================================================================
+def test_perl_args_summing():
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["perl"]["rules"]
+
+    def _get_args_count(code: str) -> int:
+        sat, _ = extractor._calculate_block_metrics(
+            name="test_sub",
+            block=code,
+            loc=code.count("\n") + 1,
+            start_line=1,
+            end_line=code.count("\n") + 1,
+            rules=rules,
+            start_idx=0,
+            end_idx=len(code),
+            spatial_map={},
+        )
+        return sat.get("args_count", 0)
+
+    # 1. Traditional prototype: skipped by signature capture, falls through to sum the body.
+    # Should sum to 2 (two shifts), even though prototype is ($$).
+    code_proto = """sub foo($$) {
+        my $x = shift;
+        my $y = shift;
+    }"""
+    assert _get_args_count(code_proto) == 2
+
+    # 2. Multiple separate shift/my-unpacking statements.
+    code_multiple = """sub ValidateDependencies {
+        my $self = shift;
+        my $pkg = shift;
+        my $deps = shift;
+    }"""
+    assert _get_args_count(code_multiple) == 3
+
+    # 3. Bare shift (not shifting an explicitly named array).
+    # Also verify it doesn't overcount `shift @other_array`.
+    code_bare_shift = """sub process {
+        my $x = shift;
+        shift;
+        shift @other_queue;
+        my $y = shift || 0;
+    }"""
+    assert _get_args_count(code_bare_shift) == 3
+
+    # 4. Bare catch-all array assignment.
+    code_catch_all = """sub finalize {
+        my $class = shift;
+        my @rest = @_;
+    }"""
+    assert _get_args_count(code_catch_all) == 2

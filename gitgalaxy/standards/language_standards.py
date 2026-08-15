@@ -35,9 +35,9 @@ for the same metrics tracked over time across pushes to main.
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
-| C | 93.3% | 99.0% | 100.0% | 78.2% |
+| C | 93.3% | 99.5% | 100.0% | 100.0% |
 | Cpp | 92.3% | 95.7% | 98.6% | 92.6% |
-| Csharp | 99.2% | 99.8% | 91.7% | 73.3% |
+| Csharp | 99.2% | 99.8% | 91.7% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 76.7% | 87.8% | 100.0% | 100.0% |
 | Fortran | 98.4% | 88.3% | 100.0% | 100.0% |

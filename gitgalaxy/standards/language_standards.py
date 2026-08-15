@@ -3371,7 +3371,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # convention (`_PyStackRef`, `_Bool`, ...), extremely common in
                 # cpython internals and not covered by cpp's own version of this
                 # fallback.
-                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t)\b(?:[^)(]|\([^)]*\))*\))",
+                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t|[a-z_]\w*\s+[*&]*\s*[a-zA-Z_]\w*)\b(?:[^)(]|\([^)]*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

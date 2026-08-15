@@ -134,6 +134,10 @@ class SignalProcessor:
         # ---> NEW: Fetch the Archetype Matrix
         self.CONTEXT_VIOLATION_MATRIX = security_profiles.get("CONTEXT_VIOLATION_MATRIX", {})
 
+        # Dimension-mismatch warnings are deduplicated per (vector len, centroid
+        # len, model) so a stale model doesn't spam one warning per function/file.
+        self._archetype_dim_warned: set[tuple[int, int, str]] = set()
+
         self.logger.info("Signal Processor Online | Context-Aware Risk Schema & ML Archetypes loaded.")
 
     def _classify_archetype(
@@ -151,9 +155,28 @@ class SignalProcessor:
             return best_match, 0.0, fingerprint
 
         for arch_name, centroid_vector in archetypes_dict.items():
+            if len(scaled_vector) != len(centroid_vector):
+                # #1157/#1158: this mismatch used to be silently truncated
+                # (zip()/min() over the shorter sequence), producing a
+                # confidently-wrong archetype label with no signal that the
+                # classification was untrustworthy. Refuse to classify and say
+                # why instead. Warn once per (vector, centroid) length pair so
+                # a big scan doesn't spam one line per function/file.
+                warn_key = (len(scaled_vector), len(centroid_vector), arch_name)
+                if warn_key not in self._archetype_dim_warned:
+                    self._archetype_dim_warned.add(warn_key)
+                    self.logger.warning(
+                        "Archetype dimension mismatch: live vector has %d dims but centroid '%s' has %d; "
+                        "skipping classification rather than silently truncating",
+                        len(scaled_vector),
+                        arch_name,
+                        len(centroid_vector),
+                    )
+                return "Unclassified", 0.0, {}
+
             dist_sq = 0.0
 
-            for i in range(min(len(scaled_vector), len(centroid_vector))):
+            for i in range(len(scaled_vector)):
                 dist_sq += (scaled_vector[i] - centroid_vector[i]) ** 2
 
             distance = math.sqrt(dist_sq)
@@ -573,18 +596,24 @@ class SignalProcessor:
                             iqr = f_iqrs[i] if i < len(f_iqrs) and f_iqrs[i] > 0 else 1.0
                             scaled_vec.append((val - med) / iqr)
 
-                        min_dist = float("inf")
-                        for c_key, centroid in f_centroids.items():
-                            dist = math.sqrt(sum((a - b) ** 2 for a, b in zip(scaled_vec, centroid)))
-                            if dist < min_dist:
-                                min_dist = dist
-                                try:
-                                    # If the key is numbered like "Cluster 0", extract the 0
-                                    c_idx = int(str(c_key).split(" ")[-1])
-                                    s["archetype"] = f_names[c_idx] if c_idx < len(f_names) else c_key
-                                except ValueError:
-                                    # If the key is already the name (e.g., "Interfaces"), use it directly!
-                                    s["archetype"] = str(c_key)
+                        # Route through the shared classifier instead of a second,
+                        # hand-rolled distance loop so function- and file-level
+                        # classification can't drift apart (#1157). The helper
+                        # refuses to compare vectors of different lengths, so a
+                        # stale model (62-dim scalers/centroids vs. the 5-dim
+                        # live vector) leaves the function "Unclassified" rather
+                        # than emitting a silently-truncated label.
+                        best_key, _, _ = self._classify_archetype(scaled_vec, f_centroids)
+                        if best_key == "Unclassified":
+                            s["archetype"] = "Unclassified"
+                        else:
+                            try:
+                                # If the key is numbered like "Cluster 0", extract the 0
+                                c_idx = int(str(best_key).split(" ")[-1])
+                                s["archetype"] = f_names[c_idx] if c_idx < len(f_names) else best_key
+                            except ValueError:
+                                # If the key is already the name (e.g., "Interfaces"), use it directly!
+                                s["archetype"] = str(best_key)
 
                 # 3. Calculate Structural Inequality (Gini)
                 if len(complexities) > 1 and sum(complexities) > 0:

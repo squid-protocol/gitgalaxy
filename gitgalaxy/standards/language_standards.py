@@ -8805,6 +8805,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "args": re.compile(
                 r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"
             ),
+            # #1645: group 1 above captures ONLY the bare inner parameter-list
+            # text -- never a self-wrapped "(...)" pair of its own (unlike
+            # python's args group, this one never shares group(0) with a
+            # "fn name(...)" prefix). Tells detector.py's args-counting to
+            # depth-count top-level commas directly over the whole captured
+            # string instead of either the naive whitespace-split fallback
+            # (which miscounts a single typed param like `self: Default` as 2
+            # tokens) or `_count_top_level_args`'s default wrapper-detection
+            # (which mistakes a param TYPE's own parens -- `ctx: @This()`,
+            # function-pointer params -- for the signature's outer wrapper and
+            # truncates/zeroes the count). See `_args_bare_body_groups` in
+            # detector.py's `_calculate_block_metrics` for the full story.
+            "_args_bare_body_groups": {1},
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
             "structural_boundaries": re.compile(
                 r"(?<!@\")\b(var|return|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b(?!\")"

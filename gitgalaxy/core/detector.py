@@ -3293,7 +3293,7 @@ class StructuralExtractor:
             i += 1
         return len(text)
 
-    def _count_top_level_args(self, args_str: str) -> int:
+    def _count_top_level_args(self, args_str: str, treat_as_body: bool = False) -> int:
         """
         Depth- and string-aware argument counter for a captured function signature.
 
@@ -3318,11 +3318,23 @@ class StructuralExtractor:
         doesn't count it either, so counting every comma-separated segment as
         one argument overcounts any such signature by exactly one per marker
         (#1199, #1209).
+
+        `treat_as_body=True` (#1645) skips the "find the first '(' and re-slice
+        into it" wrapper-detection entirely, treating `args_str` as ALREADY the
+        bare parameter-list body with no signature prefix or wrapper of its own.
+        For a capture shape where that's genuinely true (zig's `args` regex --
+        unlike python's, it captures only the inner text, never sharing group(0)
+        with a "fn name(...)" prefix), the default `.find("(")` heuristic is
+        actively wrong the moment any PARAMETER'S OWN TYPE contains literal
+        parens (`ctx: @This()`, a function-pointer param typed `fn (...) void`):
+        it mistakes that inner paren for the outer wrapper and re-slices to just
+        its contents, silently truncating or zeroing the real body.
         """
         body = args_str
-        open_idx = args_str.find("(")
-        if open_idx != -1:
-            body = args_str[open_idx + 1 : self._matching_paren_end(args_str, open_idx)]
+        if not treat_as_body:
+            open_idx = args_str.find("(")
+            if open_idx != -1:
+                body = args_str[open_idx + 1 : self._matching_paren_end(args_str, open_idx)]
 
         if not body.strip():
             return 0
@@ -3347,7 +3359,22 @@ class StructuralExtractor:
             elif ch in "([{<":
                 depth += 1
             elif ch in ")]}>":
-                if depth > 0:
+                # #1645: a bare `>` is treated as a generic-closing bracket (Rust
+                # `Vec<T>`, TS/C++ templates), but zig's `=>` switch/match-arm
+                # arrow is a two-char token whose `>` isn't a bracket at all --
+                # decrementing depth on it let a switch-expression's internal
+                # commas leak out as false top-level argument separators (zig
+                # `result_status: switch (operation) { .a, .b => X, ... }` as a
+                # parameter's type measured got=10 against real=4). Scoped to
+                # `treat_as_body` (zig's own call path) rather than fixed
+                # unconditionally: other languages sharing this counter reach
+                # `>` only via the wrapper-detected `body` slice, where a stray
+                # `->`/`=>` inside already-truncated text is a different,
+                # pre-existing bug this narrower guard deliberately leaves alone
+                # rather than risk shifting their baselines in a zig-scoped fix.
+                if treat_as_body and ch == ">" and i > 0 and body[i - 1] in "=-":
+                    pass
+                elif depth > 0:
                     depth -= 1
             elif ch == "," and depth == 0:
                 segments.append(body[seg_start:i])
@@ -3666,6 +3693,7 @@ class StructuralExtractor:
                     # `(define (func arg1 arg2)`, whose outer "(define" paren
                     # never closes within the capture) fall through unchanged to
                     # the original comma/whitespace-split heuristics below.
+                    bare_body_groups = rules.get("_args_bare_body_groups")
                     arrow_count_groups = rules.get("_args_arrow_count_groups")
                     colon_selector_groups = rules.get("_args_colon_selector_groups")
                     pattern_list_groups = rules.get("_args_pattern_list_groups")
@@ -3701,7 +3729,37 @@ class StructuralExtractor:
                             stripped[1:-1] if stripped.startswith("(") and stripped.endswith(")") else stripped
                         )
                         is_bare_prototype = bool(re.fullmatch(r"[$@%\\;+*&]*", proto_inner))
-                    if findall_max_groups and arg_match.lastindex in findall_max_groups:
+                    if bare_body_groups and arg_match.lastindex in bare_body_groups:
+                        # Zig (#1645): unlike python's args group (which still shares
+                        # group(0) with "def name(...)" and so needs the #1199
+                        # self-contained-"(...)" detection above to know it's already
+                        # unwrapped), zig's "args" regex captures ONLY the inner
+                        # parameter-list text -- there is no surrounding "(...)" in
+                        # the captured group at all, by construction of the regex
+                        # itself. That broke BOTH downstream heuristics:
+                        #   - comma-free single param (`self: Default`) has an
+                        #     internal space in its type annotation, so the
+                        #     whitespace-split fallback below miscounted it as 2
+                        #     tokens instead of 1 (measured got=2/3 against real=1,
+                        #     the majority of zig's args mismatches).
+                        #   - multi-param lists where a param's TYPE itself contains
+                        #     literal parens (`ctx: @This()`, `fn (?*anyopaque) void`
+                        #     function-pointer params -- both idiomatic, common Zig)
+                        #     broke `_count_top_level_args`'s own wrapper-detection:
+                        #     it assumes the first "(" it finds via `.find("(")` is
+                        #     the outer wrapper of the whole signature (true for
+                        #     python's "def foo(x, y)"-shaped capture) and re-slices
+                        #     to "between that paren and its match" -- for zig's
+                        #     already-bare capture that first "(" is instead some
+                        #     inner type's own parens (e.g. `@This()`'s empty pair),
+                        #     silently truncating or zeroing the counted body
+                        #     (measured got=0/1 against real up to 12).
+                        # `treat_as_body=True` skips that wrapper-detection entirely
+                        # and depth-counts commas over the ENTIRE captured string as
+                        # already being the parameter-list body, which is correct by
+                        # construction for this regex shape.
+                        args_count = self._count_top_level_args(args_str, treat_as_body=True)
+                    elif findall_max_groups and arg_match.lastindex in findall_max_groups:
                         # Shell (#1518): a single match only ever sees the FIRST
                         # positional-parameter reference in the block, silently
                         # dropping every one after it (`readlink "$1"` ... `"$2"`

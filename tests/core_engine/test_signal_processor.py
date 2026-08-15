@@ -1451,3 +1451,144 @@ def test_signal_processor_ecosystem_native_match_is_neutral(processor):
     assert no_meta_res["risk_vector"][idx_safety] == native_res["risk_vector"][idx_safety], (
         "A native ecosystem match should score identically to having no folder context at all!"
     )
+
+
+# ==============================================================================
+# K-MEANS ARCHETYPE CLASSIFICATION (#1157 / #1158)
+# ==============================================================================
+# The pre-trained archetype models (function: 62-dim, file: 115-dim,
+# per-language: 74-dim) carry no feature-name metadata and no training script
+# lives in this repo, while the live feature vectors are 5-dim (function) and
+# 83-dim (file). They have never matched, and the old distance loops silently
+# truncated to the shorter sequence -- producing confidently-wrong labels.
+# These tests pin the loud-failure guard: a mismatch must yield "Unclassified"
+# (plus one warning per vector/centroid length pair), never a truncated label.
+
+
+def test_classify_archetype_rejects_dimension_mismatch(processor, caplog):
+    """A live vector and centroid of different lengths must not be compared."""
+    result = processor._classify_archetype([0.5, 0.5], {"cluster_0": [1.0, 2.0, 3.0]})
+
+    assert result == ("Unclassified", 0.0, {}), (
+        "Dimension mismatch must fall back to Unclassified instead of truncating"
+    )
+    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
+        "The mismatch should be logged loudly"
+    )
+
+
+def test_classify_archetype_matching_dims_classifies_normally(processor):
+    """Matching dimensions keep the nearest-centroid behavior intact."""
+    centroids = {
+        "cluster_near": [0.0, 0.0],
+        "cluster_far": [10.0, 10.0],
+    }
+    best, drift, fingerprint = processor._classify_archetype([1.0, 1.0], centroids)
+
+    assert best == "cluster_near"
+    assert drift == round(2**0.5, 3)
+    assert set(fingerprint) == {"cluster_near", "cluster_far"}
+
+
+def test_function_archetype_unclassified_when_model_dims_mismatch(processor, caplog):
+    """
+    The shipped GENERAL_FUNCTION_INFERENCE_MODEL is 62-dim while the live
+    per-function vector is 5-dim (#1157): classification must fail loudly and
+    leave every function "Unclassified" instead of a truncated label.
+    """
+    functions = [
+        {
+            "name": "hot_path",
+            "loc": 30,
+            "branch": 25,
+            "args": 4,
+            "keyword_density": 0.15,
+            "control_flow_ratio": 0.9,
+            "cf_ratio": 0.9,
+        }
+    ]
+    meta, sig = create_synthetic_star(processor, "mismatch", 50, functions=functions)
+    processor.calculate_risk_vector(meta, sig)
+
+    assert functions[0]["archetype"] == "Unclassified"
+    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
+        "The 5-vs-62 mismatch should be logged loudly"
+    )
+
+
+def test_function_archetype_classified_when_model_matches_live_dims(processor, monkeypatch):
+    """
+    With a model that actually matches the 5-dim live vector, the shared
+    classifier should still classify the function (regression guard for the
+    #1157 refactor that routes function classification through
+    _classify_archetype). The shipped model keys are "fxn_cluster_N", which
+    the name-mapping code passes through verbatim (only space-numbered keys
+    like "Cluster 0" map onto the cluster_names list).
+    """
+    fake_model = {
+        "SCALER_MEDIANS": [0.0, 0.0, 0.0, 0.0, 0.0],
+        "SCALER_IQRS": [1.0, 1.0, 1.0, 1.0, 1.0],
+        "ARCHETYPES_K2": {
+            "fxn_cluster_0": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "fxn_cluster_1": [10.0, 10.0, 10.0, 10.0, 10.0],
+        },
+        "cluster_names": ["Utility/Helper", "State Mutator"],
+    }
+    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", fake_model)
+
+    functions = [
+        {
+            "name": "mutator",
+            "loc": 30,
+            "branch": 25,
+            "args": 4,
+            "keyword_density": 0.15,
+            "control_flow_ratio": 0.9,
+            "cf_ratio": 0.9,
+        }
+    ]
+    meta, sig = create_synthetic_star(processor, "match", 50, functions=functions)
+    processor.calculate_risk_vector(meta, sig)
+
+    assert functions[0]["archetype"] == "fxn_cluster_1"
+
+
+def test_file_archetype_unclassified_when_model_dims_mismatch(processor, caplog):
+    """
+    The shipped GENERAL_FILE_INFERENCE_MODEL is 115-dim while the live
+    raw_vector is 83-dim (#1158): every executable file must become
+    "Unclassified" rather than being labeled from a truncated comparison.
+    """
+    meta, sig = create_synthetic_star(processor, "file_mismatch", 50, {"branch": 20})
+    res = processor.calculate_risk_vector(meta, sig)
+
+    assert res["telemetry"]["archetype"] == "Unclassified"
+    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
+        "The 83-vs-115 mismatch should be logged loudly"
+    )
+
+
+def test_file_archetype_classified_when_model_matches_live_dims(monkeypatch):
+    """
+    With an 83-dim model matching the live raw_vector, file-level classification
+    still labels files through _classify_archetype (regression guard for #1158's
+    loud-failure guard not over-correcting into always-Unclassified).
+    """
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+    n_dims = len(SignalProcessor.SIGNAL_SCHEMA) - 19 + 7  # filtered signals + 7 engineered
+    fake_model = {
+        "SCALER_MEDIANS": [0.0] * n_dims,
+        "SCALER_IQRS": [1.0] * n_dims,
+        "ARCHETYPES_K2": {
+            "file_cluster_0": [100.0] * n_dims,
+            "file_cluster_1": [0.0] * n_dims,
+        },
+    }
+    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FILE_INFERENCE_MODEL", fake_model)
+    processor = SignalProcessor()
+
+    meta, sig = create_synthetic_star(processor, "file_match", 50, {"branch": 20})
+    res = processor.calculate_risk_vector(meta, sig)
+
+    assert res["telemetry"]["archetype"] == "file_cluster_1"

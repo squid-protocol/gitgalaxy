@@ -37,7 +37,7 @@ for the same metrics tracked over time across pushes to main.
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 93.3% | 99.5% | 100.0% | 100.0% |
 | Cpp | 92.3% | 95.7% | 98.6% | 92.6% |
-| Csharp | 99.2% | 99.8% | 91.7% | 100.0% |
+| Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 77.2% | 97.8% | 100.0% | 100.0% |
 | Fortran | 98.4% | 88.3% | 100.0% | 100.0% |
@@ -2000,8 +2000,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (`record Foo<T>(T Value) : Base<T>`, C# 9+ records / C# 12 primary constructors on
             # classes/structs, mainstream and common) for the same reason -- the `(...)` between the
             # generics and the `:` was equally unconsumed.
+            # #1708: modifier alternation was missing `readonly`/`ref` -- C# 7.2+
+            # `readonly struct`, `ref struct`, and `readonly ref struct` declarations
+            # (mainstream in modern codebases, e.g. Roslyn's own parser) structurally failed to
+            # match, a pure class_recall gap. Verified via roslyn/CSharpCompilation.cs
+            # (`readonly struct ImportInfo`) and roslyn/LanguageParser.cs
+            # (`readonly ref struct ParserSyntaxContextResetter`): found_classes 22 -> 24,
+            # class recall 91.7% -> 100%, zero precision cost (extra_classes still 0).
             "class_start": re.compile(
-                r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\((?:[^()]|\([^()]*\))*\))?(?:\s*:\s*([A-Za-z_$][\w_$, \t<>\?]*))?",
+                r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\((?:[^()]|\([^()]*\))*\))?(?:\s*:\s*([A-Za-z_$][\w_$, \t<>\?]*))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

@@ -189,11 +189,34 @@ CLASS_CASES: dict[str, Any] = {
             "public class TargetEntity(int x) : Base(x) {",
             "TargetEntity",
         ),  # C# 12 primary-constructor class (non-generic), base
+        (
+            "readonly struct TargetEntity",
+            "TargetEntity",
+        ),  # C# 7.2 readonly struct -- was a total miss before #1708
+        (
+            "readonly ref struct TargetEntity",
+            "TargetEntity",
+        ),  # C# 7.2 readonly ref struct
+        (
+            "ref struct TargetEntity",
+            "TargetEntity",
+        ),  # C# 7.2 ref struct
+        (
+            "ref readonly struct TargetEntity<T>",
+            "TargetEntity",
+        ),  # ref readonly, generic
+        (
+            "public readonly record struct TargetEntity",
+            "TargetEntity",
+        ),  # C# 10 readonly record struct
     ],
     "invalid": [
         "var obj = new TargetEntity();",
         "public classList",
         "typeof(TargetEntity)",
+        "readonly int MaxValue",  # field/const declaration, not a type
+        "private readonly string name;",  # field declaration, not a type
+        "ref readonly int GetRef()",  # ref-local return type, not a type decl
     ],
     "pathological": [
         (

@@ -1888,7 +1888,23 @@ class StructuralExtractor:
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id == "rust":
+        if lang_id in ("rust", "zig"):
+            # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
+            # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are
+            # never shielded at all here (a separate, pre-existing gap) -- so a real
+            # contraction/possessive apostrophe inside one of those strings' prose content
+            # (e.g. "Compare Zig's CPU feature detection", language-crucible's own
+            # zig/main.zig:128) reaches this unbounded pattern as an unpaired `'`, which then
+            # greedily searches forward for the NEXT unrelated `'` (found ~44 lines later, in
+            # "won't", main.zig:172) and blanks everything in between -- including the `{` of
+            # `pub fn log(...) {` at main.zig:142. That one swallowed `{` desyncs the brace-depth
+            # counter for the rest of the scan: whichever function's body search was already in
+            # flight when the desync hit (here, `wasi_cwd` at line 60) never finds its real
+            # closing brace and instead swallows every subsequent line until some later,
+            # unrelated `}` happens to rebalance the count -- confirmed on this exact corpus:
+            # `wasi_cwd`'s reported body swallowed lines 60-7104 (nearly the whole 7529-line
+            # file), stuck at 18 total functions found regardless of #1419's separate
+            # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape

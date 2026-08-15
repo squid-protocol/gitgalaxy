@@ -2810,3 +2810,51 @@ def test_count_haskell_type_arrows_helper():
     for args_str, expected in cases:
         actual = detector._count_haskell_type_arrows(args_str)
         assert actual == expected, f"_count_haskell_type_arrows({args_str!r}) == {actual}, expected {expected}"
+
+
+def test_detector_zig_single_quote_bound_prevents_cross_line_swallow():
+    """
+    Regression test for issue #1426: zig's char literals ('a', '\\n',
+    '\\u{1F600}') are short-lived like rust's, but _build_brace_safe_stream's
+    single-quote pattern used to be unbounded for zig. A real contraction/
+    possessive apostrophe in prose (e.g. inside a zig `\\\\`-prefixed
+    multi-line string literal, never shielded at all) reached that unbounded
+    pattern as an unpaired `'`, which then greedily searched forward for the
+    NEXT unrelated `'` -- blanking every real `{`/`}` in between, including a
+    real function's own opening brace. That single swallowed `{` desyncs the
+    brace-depth counter for the rest of the file: whichever function's body
+    search was already in flight never finds its real closing brace and
+    swallows everything until some later, unrelated `}` happens to
+    rebalance the count. Confirmed on this exact corpus shape
+    (language-crucible's zig/main.zig): a `wasi_cwd`-shaped function ahead
+    of the apostrophe swallowed the rest of the file, hiding every function
+    after it (`ZigClang_main` and friends included).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "fn wasi_cwd() void {\n"
+        "    doStuff();\n"
+        "}\n"
+        "\n"
+        'const usage = "" ++\n'
+        "    \\\\  detect-cpu   Compare Zig's CPU feature detection\n"
+        "    \\\\  llvm-ints    Dump a list of things\n"
+        ";\n"
+        "\n"
+        "pub fn log(\n"
+        "    comptime level: u8,\n"
+        ") void {\n"
+        "    doLogging();\n"
+        "}\n"
+        "\n"
+        "extern fn ZigClang_main(argc: c_int) c_int;\n"
+    )
+    detector = StructuralExtractor("zig", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["zig"]["rules"]
+    satellites, _ = detector._slice_by_braces(code, "zig", rules, 0, {})
+    names = [s["name"] for s in satellites]
+    assert "wasi_cwd" in names, f"wasi_cwd's own body should stay bounded to itself: {names}"
+    assert "log" in names, f"log must not be swallowed by wasi_cwd's body: {names}"
+    wasi_cwd = next(s for s in satellites if s["name"] == "wasi_cwd")
+    assert wasi_cwd["loc"] <= 3, f"wasi_cwd's body must not swallow the rest of the file: loc={wasi_cwd['loc']}"

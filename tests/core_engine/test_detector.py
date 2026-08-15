@@ -2187,6 +2187,52 @@ def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
         assert names == ["realFn"], f"[{lang}] string-literal lookalike still hallucinated a function: {names}"
 
 
+def test_detector_ts_param_function_type_annotation_not_counted_as_function():
+    """
+    Regression test for issue #1631: typescript's func_start
+    colon-annotated-arrow branch cannot distinguish a real arrow-function
+    property from a parameter's function-type annotation -- both are the
+    same `IDENT: (...) => ...` surface syntax, but only the property has a
+    runtime function. A nested parameter (`f: (a: A) => B` inside an
+    interface member's own signature, e.g. fp-ts pipeable.ts's `f`/`g`
+    phantoms) is always the first thing after an already-open parameter
+    list, so its line is directly preceded by `(`; those line-anchored
+    matches are now dropped in _slice_by_braces. An object-literal arrow
+    property is never preceded by `(` (its enclosing `{` is), so it must
+    still be counted.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+
+        # fp-ts pipeable.ts shape: a generic function-type member whose
+        # parameter list carries its own function-typed parameters.
+        interface_code = (
+            "export interface PipeableApply2<F extends URIS2> {\n"
+            "  readonly chainFirst: <S, R, E, A, B>(\n"
+            "    f: (a: A) => Kind4<F, S, R, E, B>\n"
+            "  ) => (ma: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, A>\n"
+            "}\n"
+        )
+        satellites, _ = detector._slice_by_braces(interface_code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert "f" not in names, f"[{lang}] parameter annotation counted as a function: {names}"
+
+        # The object-literal arrow property must still be counted: its line
+        # is preceded by `{`/`,`, never `(`.
+        object_code = (
+            "export const Either = {\n"
+            "  URI,\n"
+            "  ap: (fab, fa) => ({ fab, fa }),\n"
+            "}\n"
+        )
+        satellites2, _ = detector._slice_by_braces(object_code, lang, rules, 0, {})
+        names2 = [s["name"] for s in satellites2]
+        assert "ap" in names2, f"[{lang}] object-literal arrow property dropped: {names2}"
+
+
 def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
     """
     The safe_code-matching fix above is deliberately gated to

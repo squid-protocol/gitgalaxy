@@ -427,6 +427,41 @@ def test_haskell_func_start_where_clause_local_helpers_accepted():
     assert "withMessages" in names  # noqa: S101
 
 
+def test_haskell_func_start_nested_local_does_not_break_outer_clause_dedup():
+    """#1616 (follow-up): a single (name, end) tracking slot broke as soon as a
+    differently-named match started nested inside the tracked span -- e.g. a
+    `let`-bound guard-only local (`adjustNum`) inside an outer multi-clause `go`'s
+    own `do`-block. The inner match correctly needs its own tracking (so ITS
+    siblings can dedup against it), but overwriting a single slot lost the outer
+    group entirely: a later `go` clause, still within the outer group's real span,
+    then failed the name check and was wrongly recorded as a second "go". Real
+    example: pandoc's Shared.hs `adjustSectionLevels`."""
+    payload = (
+        "go :: [Block] -> S.State [Int] [Block]\n"
+        "go (Header level (ident,classes,kvs) title':xs) = do\n"
+        "  lastnum <- S.get\n"
+        "  let adjustNum lev numComponent\n"
+        "        | lev < level = numComponent\n"
+        "        | lev == level = numComponent + 1\n"
+        "        | otherwise = 0\n"
+        "  let newnum = zipWith adjustNum [minLevel..level] (lastnum ++ repeat 0)\n"
+        "  rest' <- go xs\n"
+        "  return $ Div divattr rest'\n"
+        "go (Div divattr (Header level hattr title':ys) : xs)\n"
+        "    | all isHeading ys\n"
+        "    , notColumns dclasses = do\n"
+        "  inner <- go (Header level hattr title':ys)\n"
+        "  return inner\n"
+        "go (Div attr xs : rest) = do\n"
+        "  xs' <- go xs\n"
+        "  return $ Div attr xs'\n"
+        "go [] = return []\n"
+    )
+    names = _extract_function_names(payload)
+    assert names.count("go") == 1  # noqa: S101 -- 4 clauses (1 sig-form + 3 eqn-form), must dedup as ONE
+    assert "adjustNum" in names  # noqa: S101 -- the nested local must still be found on its own
+
+
 def test_haskell_func_start_where_clause_zero_arg_binding_rejected():
     """#1442: a plain `where`-bound value binding (no argument pattern before `=`)
     must stay rejected, same as #1312's top-level point-free-value precedent."""

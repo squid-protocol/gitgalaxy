@@ -2816,13 +2816,27 @@ class StructuralExtractor:
         # The first clause's own dedent-scan below already absorbs every
         # sibling clause into ONE block via the pre-existing same-name
         # continuation walk, so clauses 2..N would otherwise each spawn their
-        # own duplicate, overlapping FunctionNode. Track the most recently
-        # accepted haskell block's (name, end) and skip any later match
-        # that's just a clause already inside it. #1564 (follow-up): this
-        # used to also require an exact indent match -- see the skip's own
-        # comment below for why that broke on multi-clause `let` bindings.
-        last_hs_group_name: Optional[str] = None
-        last_hs_group_end = -1
+        # own duplicate, overlapping FunctionNode. Track a STACK of
+        # (name, end) frames for every haskell group currently still "open"
+        # (its span hasn't ended yet) and skip any later match that's just a
+        # clause already inside one of them. #1564 (follow-up): this used to
+        # also require an exact indent match -- see the skip's own comment
+        # below for why that broke on multi-clause `let` bindings.
+        #
+        # #1616 (follow-up): a single (name, end) slot (rather than a stack)
+        # broke as soon as a DIFFERENTLY-named match started nested inside
+        # the tracked span -- e.g. a `let`-bound local like `adjustNum`
+        # inside an outer multi-clause `go`'s own `do`-block, only visible
+        # after this issue's own guard-only fix. That inner match correctly
+        # needs its own tracking slot (so ITS siblings can dedup against
+        # it), but overwriting the single slot lost the outer group entirely
+        # -- a later `go` clause, still within the outer group's real span,
+        # then failed the name check against "adjustNum" and was wrongly
+        # recorded as a second, separate "go". A stack keeps the outer
+        # frame alive underneath the inner one; popping closed frames (whose
+        # span has ended) before each check lets a later match "return" to
+        # whichever enclosing frame is still actually open, at any depth.
+        haskell_group_stack: list[tuple[str, int]] = []
 
         for match in matches:
             start_idx = match.start()
@@ -2851,8 +2865,11 @@ class StructuralExtractor:
             # alone already proves this match is a clause nested inside the
             # immediately-preceding same-named group, regardless of its own
             # indent column.
-            if lang_id == "haskell" and name == last_hs_group_name and start_idx < last_hs_group_end:
-                continue
+            if lang_id == "haskell":
+                while haskell_group_stack and haskell_group_stack[-1][1] <= start_idx:
+                    haskell_group_stack.pop()
+                if any(fname == name and start_idx < fend for fname, fend in haskell_group_stack):
+                    continue
 
             end_idx = len(safe_code)
 
@@ -2974,8 +2991,7 @@ class StructuralExtractor:
             sum_fxn_impact += mag
 
             if lang_id == "haskell":
-                last_hs_group_name = name
-                last_hs_group_end = end_idx
+                haskell_group_stack.append((name, end_idx))
 
         return satellites, sum_fxn_impact
 

@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-15T20:38:41+00:00 &#183; commit 942f000 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-15T20:43:26+00:00 &#183; commit a90fc09 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -234,12 +234,12 @@
 <rect x="378" y="475.0" width="87.4" height="9" rx="3" fill="#294bd6"/>
 <text class="value-label" x="470.4" y="483.0">38/40</text>
 <rect class="stripe" x="290" y="487" width="246" height="15"/>
-<text class="row-label" x="370" y="498.0" text-anchor="end">solidity</text>
-<rect x="378" y="490.0" width="86.8" height="9" rx="3" fill="#2950d6"/>
-<text class="value-label" x="469.8" y="498.0">99/105</text>
-<text class="row-label" x="370" y="513.0" text-anchor="end">dart</text>
-<rect x="378" y="505.0" width="84.7" height="9" rx="3" fill="#2960d6"/>
-<text class="value-label" x="467.7" y="513.0">1349/1465</text>
+<text class="row-label" x="370" y="498.0" text-anchor="end">dart</text>
+<rect x="378" y="490.0" width="86.9" height="9" rx="3" fill="#294fd6"/>
+<text class="value-label" x="469.9" y="498.0">1349/1427</text>
+<text class="row-label" x="370" y="513.0" text-anchor="end">solidity</text>
+<rect x="378" y="505.0" width="86.8" height="9" rx="3" fill="#2950d6"/>
+<text class="value-label" x="469.8" y="513.0">99/105</text>
 <rect class="stripe" x="290" y="517" width="246" height="15"/>
 <text class="row-label" x="370" y="528.0" text-anchor="end">rust</text>
 <rect x="378" y="520.0" width="84.7" height="9" rx="3" fill="#2960d6"/>

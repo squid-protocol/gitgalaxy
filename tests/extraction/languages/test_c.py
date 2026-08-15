@@ -139,9 +139,27 @@ ARGS_CASES: dict[str, Any] = {
         ("void TargetFunc(int a, float *b) {", "TargetFunc"),
         ("static inline struct MyStruct* TargetFunc(void) {", "TargetFunc"),
         ("int TargetFunc(const char *fmt, ...) {", "TargetFunc"),  # variadic function args
+        # #1646: plain lowercase typedef first params (no _t suffix) -- `compiler *c`,
+        # `expr_ty e` -- previously failed the typed-parameter whitelist, so the
+        # search fell through to a lookalike call in the body.
+        ("int TargetFunc(compiler *c, expr_ty e) {", "TargetFunc"),
+        ("int TargetFunc(mod_ty mod, PyArena *arena) {", "TargetFunc"),
+        # the full #1646 repro shape: return type on its own line, lowercase
+        # typedef first param, and a body call that used to be matched instead.
+        (
+            "int\n"
+            "TargetFunc(compiler *c, expr_ty e)\n"
+            "{\n"
+            "    RETURN_IF_ERROR(PySet_Add(u->u_static_attributes, e->v.Attribute.attr));\n"
+            "    return 0;\n"
+            "}",
+            "TargetFunc",
+        ),
     ],
     "invalid": [
         "TargetFunc(a, b);",
+        "TargetFunc(a);",  # single bare lowercase arg is a call, not a signature
+        "helper(a, b);",  # lowercase callee + lowercase args must not pass as a signature
         "while (a < b) {",
     ],
     "pathological": [

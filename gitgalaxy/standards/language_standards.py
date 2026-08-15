@@ -3371,7 +3371,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # convention (`_PyStackRef`, `_Bool`, ...), extremely common in
                 # cpython internals and not covered by cpp's own version of this
                 # fallback.
-                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t)\b(?:[^)(]|\([^)]*\))*\))",
+                # BUG FIX (#1646): the whitelist still missed plain lowercase
+                # typedef names (no `_t` suffix) that are everywhere in real
+                # C internals -- `compiler *c`, `mod_ty`, `expr_ty`,
+                # `asdl_seq *`, `identifier`. A signature whose FIRST
+                # parameter uses one (_PyCompile_MaybeAddStaticAttributeToClass
+                # (compiler *c, expr_ty e)) failed the whole regex, and
+                # args_pattern.search() on the block fell through to a
+                # lookalike `identifier(...)` call deeper in the body
+                # (e.g. RETURN_IF_ERROR(PySet_Add(...))), counting the wrong
+                # text. Added a `[a-z_]\w*` branch requiring the type+name
+                # pair (`compiler *c`, `expr_ty e`, with optional pointer
+                # stars between) -- so the signature is accepted while a
+                # bare call argument (`helper(a, b)`) still can't pass as
+                # a "type". The signature sits at the top of the block, so
+                # a genuine match always beats any body call.
+                r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t|[a-z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*)\b(?:[^)(]|\([^)]*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

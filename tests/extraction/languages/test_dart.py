@@ -128,6 +128,15 @@ FUNC_START_CASES = {
         # enough for `assert(...)`'s own terminator hunt to succeed instead of timing out.
         "assert(x == 1);",
         "assert(\n  someCondition,\n  'message',\n);",
+        # Issue #1622: try/finally were missing from func_start's keyword
+        # exclusion lookahead -- a "try {" / "finally {" block at line start
+        # matched as a phantom zero-arg function named "try"/"finally"
+        # (tens of spurious entries in the flutter corpus, ~9% of dart's
+        # func_start false-positive rate).
+        "try {",
+        "finally {",
+        "    try {",
+        "  } finally {",
     ],
     "xfail_invalid": [
         "print('void main() {');",

@@ -2555,6 +2555,73 @@ class StructuralExtractor:
                     end_idx = semi_after_arrow + 1
                 else:
                     continue
+            # #1629: typescript/javascript idiomatically use brace-less,
+            # expression-bodied arrow functions (`const swap = (x) => x + 1`,
+            # curried FP chains with no `{` anywhere in the definition --
+            # fp-ts's primary export shape). The generic brace-only fallback
+            # below drops every one of them; at least 88 of the corpus's 159
+            # func recall misses are this shape. Mirror #1266's scala
+            # approach: when no `{` shows up in the window, find the first
+            # un-nested `=>` after the signature and bound the expression
+            # body by the next func_start match (TS/JS arrow bodies have no
+            # reliable `;` terminator either, so the next-match bound is the
+            # closer analogy than csharp's trailing-semicolon scan).
+            elif lang_id in ("typescript", "javascript"):
+                # A brace-less assignment match that is itself in expression
+                # position (preceding non-whitespace char is `>`/`)`/`,`) is a
+                # return type, not a name -- `=> M = (M) => ...` in fp-ts's
+                # foldMap reports a phantom `M`. Only declaration-position
+                # matches (`const swap = ...`, line-start object members) are
+                # real functions.
+                if start_idx > 0:
+                    p = start_idx - 1
+                    while p >= 0 and safe_code[p] in " \t":
+                        p -= 1
+                    if p >= 0 and safe_code[p] in ">),":
+                        continue
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
+                if brace_idx != -1:
+                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                else:
+                    # Only assignment-shaped matches (`const foo = ... => ...`
+                    # or `foo: Type = ... => ...`) are real runtime functions.
+                    # An interface/type member's function-type annotation
+                    # (`readonly alt: <A>(...) => ...`, no `=` anywhere before
+                    # its `=>`) is pure type-level syntax -- #1631's remaining
+                    # phantom shape -- so require an un-nested `=` before the
+                    # first `=>`.
+                    depth_paren = depth_bracket = depth_angle = 0
+                    pos = match.end()
+                    saw_assignment = False
+                    arrow_idx = -1
+                    while pos < search_limit:
+                        ch = safe_code[pos]
+                        if ch == "(":
+                            depth_paren += 1
+                        elif ch == ")":
+                            depth_paren = max(0, depth_paren - 1)
+                        elif ch == "[":
+                            depth_bracket += 1
+                        elif ch == "]":
+                            depth_bracket = max(0, depth_bracket - 1)
+                        elif ch == "<":
+                            depth_angle += 1
+                        elif ch == ">":
+                            depth_angle = max(0, depth_angle - 1)
+                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                            if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                                if saw_assignment:
+                                    arrow_idx = pos
+                                    break
+                                break  # the `=>` belongs to an annotation, not an assignment
+                            if ch == "=":
+                                saw_assignment = True
+                            elif ch in ";{":
+                                break  # the statement ended without an arrow -- not a function body
+                        pos += 1
+                    if arrow_idx == -1:
+                        continue
+                    end_idx = next_match_start
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

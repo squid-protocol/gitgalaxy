@@ -208,6 +208,7 @@ def test_perl_qr_brace_shield_does_not_desync_brace_slicing():
     safe_code = ext._build_brace_safe_stream(code, "perl")
     assert safe_code.count("{") == safe_code.count("}")
 
+
 # ==============================================================================
 # PERL ARGS SUMMING (Root Causes 2, 3, 4)
 # ==============================================================================
@@ -264,3 +265,42 @@ def test_perl_args_summing():
         my @rest = @_;
     }"""
     assert _get_args_count(code_catch_all) == 2
+
+
+def test_perl_forward_decl_does_not_grab_unrelated_brace_getascii_bug_1609():
+    """
+    Issue #1609: A bodyless forward declaration (e.g. `sub GetASCII($);`) should not
+    accidentally grab a `{` from a later, unrelated block (e.g. `END { ... }`) that
+    falls within its search window. It should be rejected as a valid function.
+    Real bodied functions before/after must still be correctly extracted.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "sub real_sub_before {\n"
+        "    return 1;\n"
+        "}\n"
+        "\n"
+        "sub GetASCII($);\n"
+        "\n"
+        "$SIG{INT}  = 'SigInt';\n"
+        "END {\n"
+        "    Cleanup();\n"
+        "}\n"
+        "\n"
+        "sub real_sub_after {\n"
+        "    return 2;\n"
+        "}\n"
+    )
+
+    ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["perl"]["rules"]
+
+    functions, _ = ext._slice_by_braces(code, "perl", rules, 0, {})
+
+    found_names = [f.get("name") for f in functions]
+    assert "GetASCII" not in found_names
+    assert "real_sub_before" in found_names
+    assert "real_sub_after" in found_names
+    assert len(functions) == 2

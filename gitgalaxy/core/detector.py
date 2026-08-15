@@ -2662,6 +2662,31 @@ class StructuralExtractor:
                     if arrow_idx == -1:
                         continue
                     end_idx = next_match_start
+            # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
+            # are not real function definitions and should not have a block/body
+            # attributed to them. Because func_start correctly only matches line-anchored
+            # sub/method declarations, any match that sees a `;` terminator before its
+            # real `{` body is a forward declaration. This mirrors objc-group-2's (#1336)
+            # bodyless-prototype rejection. Note that Perl prototypes can contain a semicolon
+            # (e.g., `sub Options($$;@)`), so we MUST track paren depth to avoid
+            # confusing a prototype's internal semicolon with a top-level statement terminator.
+            elif lang_id == "perl":
+                pos = match.end()
+                depth_paren = 0
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif depth_paren == 0 and ch in (opener, ";"):
+                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                        break
+                    pos += 1
+                if term_kind != "brace":
+                    continue  # bodyless forward declaration (or neither terminator in the window)
+                end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

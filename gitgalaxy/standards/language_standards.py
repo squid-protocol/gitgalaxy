@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
-| Typescript | 92.1% | 85.6% | 100.0% | 100.0% |
+| Typescript | 93.7% | 86.3% | 100.0% | 100.0% |
 | Zig | 98.1% | 100.0% | 96.0% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -1154,7 +1154,19 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r")"
                 r"(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r"|"
-                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\([^)]*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # BUG FIX (epic #1261 / issue #1630): the zero-prefix branch's
+                # parameter-list terminator used a FLAT `\([^)]*\)` character class,
+                # which cannot represent even one level of nested parens. Any
+                # callback-typed parameter (`onDisconnect: () => void`, `handler:
+                # (...args: any[]) => void`) has an inner `()`, so the class stopped
+                # at the first inner `)`, the terminator lookahead then failed to find
+                # its `{`/`;`/`:` anchor, and the WHOLE signature -- constructor or
+                # method -- silently stopped matching (regex-level non-match, not just a
+                # misrecord). Replaced with the bounded one-level-nesting form
+                # `\((?:[^()]|\([^()]*\))*\)` -- same Rule 11 shape the generic
+                # step-over already uses (`(?:[^<>]|<[^<>]*>)*`), linear because the
+                # two alternatives never match overlapping text.
+                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\([^()]*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

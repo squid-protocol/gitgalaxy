@@ -2118,23 +2118,46 @@ def test_detector_csharp_lambda_default_parameter_arrow_not_mistaken_for_body():
     assert "f(1)" in code[: code.index(";") + 1]
 
 
-def test_detector_csharp_expression_body_fallback_gated_to_csharp_only():
+def test_detector_ts_js_braceless_arrow_capture():
     """
-    The `=>`-then-`;` fallback in _slice_by_braces is explicitly gated to
-    `lang_id == "csharp"` -- proves it doesn't change behavior for other
-    Mode-B (brace-slicing) languages that also use `=>` for lambdas
-    (e.g. javascript/typescript arrow functions assigned to a const,
-    which are not real func_start matches and must still produce zero
-    satellites, not a hallucinated one via the new fallback).
+    #1629: typescript/javascript brace-less arrow functions
+    (`const double = (x) => x * 2;`) are real functions and must be
+    captured by _slice_by_braces, not dropped by the generic brace-only
+    fallback. This replaced the old expectation (tested pre-#1629 in
+    test_detector_csharp_expression_body_fallback_gated_to_csharp_only)
+    that no non-csharp language may use an arrow fallback -- TS/JS now
+    have their own next-match-bounded version of that handling, because
+    brace-less expression bodies are their dominant export shape
+    (88 of 159 corpus recall misses were this shape).
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-    js_detector = StructuralExtractor("javascript", LANGUAGE_DEFINITIONS)
-    js_rules = LANGUAGE_DEFINITIONS["javascript"]["rules"]
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        code = "const double = (x) => x * 2;\n"
+
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert names == ["double"], f"[{lang}] brace-less arrow not captured: {names}"
+
+
+def test_detector_ts_js_braceless_arrow_capture_gated_from_other_mode_b_languages():
+    """
+    The #1629 brace-less arrow capture is deliberately gated to
+    `lang_id in ("typescript", "javascript")` -- other Mode-B languages
+    keep the generic brace-only fallback. Proves a Mode-B language without
+    the gate still drops a brace-less arrow-shaped const rather than
+    hallucinating a function from it.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
+    php_rules = LANGUAGE_DEFINITIONS["php"]["rules"]
     code = "const double = (x) => x * 2;\n"
 
-    satellites, _ = js_detector._slice_by_braces(code, "javascript", js_rules, 0, {})
-    assert satellites == [], "the csharp-only arrow fallback must not fire for other languages"
+    satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
+    assert satellites == [], "the ts/js brace-less arrow capture must not fire for other Mode-B languages"
 
 
 # ==============================================================================

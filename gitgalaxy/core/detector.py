@@ -2212,11 +2212,11 @@ class StructuralExtractor:
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
 
-            # #1335: set (only for objc's two branches below) to the index right
+            # #1335: set to the index right
             # after the signature's own terminator (`{`/`;`) -- bounds the
             # args-pattern search to the signature text, never the body. See
             # `_calculate_block_metrics`'s `args_search_text` docstring.
-            objc_args_sig_end: Optional[int] = None
+            args_sig_end: Optional[int] = None
 
             # #789: csharp's func_start regex (unlike every other C-family
             # language here) doesn't consume the parameter list or require
@@ -2423,7 +2423,7 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
-                objc_args_sig_end = term_idx + 1
+                args_sig_end = term_idx + 1
             # #1336: group 2 (plain C-style prototypes, e.g. `extern void
             # write_rtf_header(NXStream* rtfStream);`) does NOT get group 1's bodyless-`;`
             # treatment -- unlike group 1's method form, a prototype has no function body to
@@ -2460,7 +2460,7 @@ class StructuralExtractor:
                 if term_kind != "brace":
                     continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
-                objc_args_sig_end = term_idx + 1
+                args_sig_end = term_idx + 1
             elif lang_id == "dart":
                 params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
                 # #1493: the generic `search_limit = start_idx + 2000` gives most real
@@ -2560,12 +2560,14 @@ class StructuralExtractor:
                 if brace_idx == -1:
                     continue
                 end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
+                if lang_id == "c":
+                    args_sig_end = brace_idx
 
             block = code[start_idx:end_idx].strip()
             if not block:
                 continue
 
-            args_search_text = code[start_idx:objc_args_sig_end] if objc_args_sig_end is not None else None
+            args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):

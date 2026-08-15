@@ -1954,14 +1954,14 @@ class StructuralExtractor:
             # same corpus that no apostrophe-delimited quote-like operator (`q'...'`,
             # `m'...'`, etc., which WOULD be preceded by a word character) is actually used
             # anywhere in it, so this lookbehind has no observed false-negative cost here.
-            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'" r"|#[^\n]*"
+            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'"
         else:
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
-        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL)
+        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
         # all here -- a documented, separate gap, e.g. matching a literal brace in a real
@@ -2084,6 +2084,7 @@ class StructuralExtractor:
                 parts.append(blank(safe_code[qm.start() : end_idx]))
                 pos = end_idx
             safe_code = "".join(parts)
+            safe_code = re.sub(combined_pattern, fast_shield, safe_code, flags=re.DOTALL)
 
         # Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):

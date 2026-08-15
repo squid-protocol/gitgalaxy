@@ -207,3 +207,26 @@ def test_perl_qr_brace_shield_does_not_desync_brace_slicing():
     ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
     safe_code = ext._build_brace_safe_stream(code, "perl")
     assert safe_code.count("{") == safe_code.count("}")
+
+
+def test_perl_1517_brace_quote_op_embedded_hash_not_comment():
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = 'sub _line {\n  my $name = shift->name;\n  return qq{#line @{[shift]} "$name"};\n}\n'
+    code_stripped, _ = prism._strip_single_line_comments(code, "perl")
+    # Should not truncate the third line
+    assert "return qq{" in code_stripped
+    assert "};" in code_stripped
+
+
+def test_perl_1517_bare_regex_embedded_hash_not_comment():
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = "sub FilterArgfileLine {\n  if ($arg =~ /^#/) {  # comment lines begin with '#'\n    return;\n  }\n}\n"
+    code_stripped, _ = prism._strip_single_line_comments(code, "perl")
+    assert "if ($arg =~ /^#/) {" in code_stripped
+    assert "return;" in code_stripped

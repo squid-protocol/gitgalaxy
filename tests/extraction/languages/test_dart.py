@@ -133,6 +133,8 @@ FUNC_START_CASES = {
         # enough for `assert(...)`'s own terminator hunt to succeed instead of timing out.
         "assert(x == 1);",
         "assert(\n  someCondition,\n  'message',\n);",
+        "    try {",
+        "    finally {",
     ],
     "xfail_invalid": [
         "print('void main() {');",

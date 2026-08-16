@@ -66,6 +66,10 @@ MOCK_LANG_DEFS = {
             "structural_boundaries": re.compile(r"(?<![:.])\b(puts|require|include)\b(?!:)"),
         },
     },
+    "typescript": {
+        "lexical_family": "c_style_comment",
+        "rules": {},
+    },
 }
 
 

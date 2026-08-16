@@ -35,6 +35,15 @@ When you submit a Pull Request that alters the blAST engine, your candidate chan
 * **The Metrics:** The output is assessed strictly on four vectors: **Accuracy, Speed, Utility, and Ethos.**
 * Only changes that are mathematically and practically *measurably better* across the broader ecosystem will be incorporated into the `main` branch.
 
+**Run both gates locally before opening the PR — they catch different things:**
+
+```
+python tests/tools/crucible_check.py                          # the ~80-repo Differential Scan above
+python tests/tools/tree_sitter_accuracy_audit.py --all --ci   # per-language recall/precision vs. tree-sitter ground truth
+```
+
+A passing Differential Scan does **not** mean the tree-sitter accuracy audit also passes — it's a separate corpus and a separate comparison (measured recall/precision against real parser output, not a before/after diff), so a change can pass one and quietly regress the other in a file neither the ~80-repo baseline nor your target repo happens to cover. Both are required for any change to `gitgalaxy/core/detector.py`, `prism.py`, or `language_standards.py`.
+
 ---
 
 ## 🛠️ Submitting Pull Requests
@@ -45,7 +54,7 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 2. **Maintain the Contract:** Ensure that any backend changes to the CLI do not break the universal JSON schema contract expected by the frontend Observatory. 
 3. **Test Visually:** Run your newly generated `_galaxy.json` through either **[GitGalaxy.io](https://gitgalaxy.io)** or your local **Airgap Observatory** to verify that 3D WebGPU rendering and visual physics constraints remain intact. 
 4. **Document:** If you are adding new language phenotypes or altering the parsing logic, please update the [Language Lens](docs/wiki/02-05-language-lens.md) documentation in the wiki.
-5. **Pass the CI Pipeline Locally:** Before pushing, always run `ruff check .` to check for linter errors (like the strict `flake8-bandit` rules which require you to append `# noqa: S101` to all `assert` statements in tests). You should also verify that all `pytest` checks pass.
+5. **Pass the CI Pipeline Locally:** Before pushing, always run `ruff check .` to check for linter errors (like the strict `flake8-bandit` rules which require you to append `# noqa: S101` to all `assert` statements in tests). You should also verify that all `pytest` checks pass. If your change touches parsing/engine logic, also run `crucible_check.py` **and** `tree_sitter_accuracy_audit.py --all --ci` (see the Differential Scan section above) — they check different things and both are required.
 6. **Submit:** Open a PR with a clear title. Explain the *why* behind your structural changes, not just the *what*. Be sure to include the link to the target repository so we can include it in the Differential Scan.
 
 ---

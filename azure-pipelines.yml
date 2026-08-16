@@ -9,6 +9,15 @@ trigger:
     include:
       - v*
 
+# No `pr:` trigger on purpose: this pipeline previously ran on every GitHub PR
+# via the Azure Pipelines GitHub App's default PR-validation behavior (which
+# fires whenever `pr:` is unset), burning the org's Microsoft-hosted free
+# minutes across every PR in addition to `trigger:`'s push/tag runs. It's
+# also redundant -- GitHub Actions' gitgalaxy.yml already runs the same
+# --fail-on-malware scan on every PR for free. `pr: none` restricts this
+# pipeline to `trigger:`'s push-to-main/tag-push cases only.
+pr: none
+
 variables:
   GG_TOOL: 'galaxyscope'
   GG_TARGET: '.'

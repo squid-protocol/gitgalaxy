@@ -2741,6 +2741,44 @@ def test_go_bodyless_declaration_not_misattributed_following_block():
     assert "bar" in found, "ordinary braced function after the struct must still be extracted"
 
 
+def test_go_channel_direction_operator_does_not_poison_body_scan():
+    """
+    #1760 review follow-up: Go's channel-direction operator (chan<- / <-chan)
+    contains a lone < that an angle-bracket depth counter would never balance,
+    stalling the body-boundary scan and silently dropping every following
+    function. Go has no angle-bracket grouping (generics are [T any]), so the
+    Go branch must track parens and brackets only.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "package main\n"
+        "\n"
+        "func makeSendChan() chan<- int {\n"
+        "\tch := make(chan int)\n"
+        "\treturn ch\n"
+        "}\n"
+        "\n"
+        "func makeRecvChan() <-chan int {\n"
+        "\tch := make(chan int)\n"
+        "\treturn ch\n"
+        "}\n"
+        "\n"
+        "func add(a, b int) int {\n"
+        "\treturn a + b\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected = {"makeSendChan", "makeRecvChan", "add"}
+    missing = expected - set(found)
+    assert not missing, f"Go function(s) dropped by channel operator: {missing}"
+    assert found["makeSendChan"]["args"] == 0, "makeSendChan should take no args"
+    assert found["makeRecvChan"]["args"] == 0, "makeRecvChan should take no args"
+
+
 def test_go_struct_return_type_not_truncated_at_type_literal_brace():
     """
     #1756 wrinkle: a return type that itself contains a brace group

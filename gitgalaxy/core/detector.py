@@ -2434,7 +2434,12 @@ class StructuralExtractor:
             # scanning.
             elif lang_id == "go":
                 params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
-                depth_paren = depth_bracket = depth_angle = 0
+                # Go has no angle-bracket grouping: generics use square brackets
+                # ([T any]), so < and > only ever appear as operators -- most
+                # notably the channel-direction operator (chan<- / <-chan),
+                # whose lone < would poison an angle-depth counter and stall the
+                # scan below. Track parens and brackets only.
+                depth_paren = depth_bracket = 0
                 pos = params_end_idx
                 term_idx, term_kind = -1, None
                 while pos < search_limit:
@@ -2447,11 +2452,7 @@ class StructuralExtractor:
                         depth_bracket += 1
                     elif ch == "]":
                         depth_bracket = max(0, depth_bracket - 1)
-                    elif ch == "<":
-                        depth_angle += 1
-                    elif ch == ">":
-                        depth_angle = max(0, depth_angle - 1)
-                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                    elif depth_paren == 0 and depth_bracket == 0:
                         if ch == opener:
                             # A brace group that is a type literal (struct{
                             # ... } / interface{ ... } in the return type)

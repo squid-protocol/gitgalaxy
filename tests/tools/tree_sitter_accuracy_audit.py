@@ -485,7 +485,9 @@ NODE_MAPS = {
         "ts_lang": "typescript",
         "func_node_types": {
             "function_declaration",
+            "function_signature",
             "method_definition",
+            "method_signature",
             "arrow_function",
             "function_expression",
             "generator_function",
@@ -866,6 +868,10 @@ def _get_node_name(node: Any) -> Optional[str]:
             key = node.parent.child_by_field_name("key")
             if key and key.type == "property_identifier":
                 return key.text.decode("utf8")
+        if node.parent and node.parent.type == "public_field_definition":
+            name_node = node.parent.child_by_field_name("name")
+            if name_node:
+                return name_node.text.decode("utf8")
 
     # C/C++'s function_definition has no top-level "name" field at all -- see
     # _unwrap_c_style_declarator's own docstring (#1265). No-op for any other NODE_MAPS language

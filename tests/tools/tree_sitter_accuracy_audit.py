@@ -11,6 +11,10 @@ USAGE
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript --ci
     python tests/tools/tree_sitter_accuracy_audit.py --lang javascript --regenerate
+        Also refreshes the --summary-table below in the same run (it's a pure
+        derivation from committed baselines, so this is free) -- no separate
+        manual --summary-table step needed to keep CI's "summary table matches
+        committed baselines" check passing.
     python tests/tools/tree_sitter_accuracy_audit.py --all --ci
         Runs --ci for every language that has a committed baseline file
         (tests/tree_sitter_accuracy_baseline_<lang>.json), not just one --lang.
@@ -1652,6 +1656,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
             }
             missing_examples: list[tuple[str, list[str]]] = []
             extra_examples: list[tuple[str, list[str]]] = []
+            extra_class_examples: list[tuple[str, list[str]]] = []
             args_mismatch_examples: list[str] = []
 
             for row in files:
@@ -1803,6 +1808,9 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         continue
                     gg_funcs_by_name.setdefault(r["func_name"], []).append((r["start_line"] or 0, r["args"]))
 
+                missing_cls = real_classes - gg_classes
+                if missing_cls:
+                    print(f"MISSING CLASSES IN {row['file_path']}: {missing_cls}")
                 metrics["found_classes"] += len(real_classes & gg_classes)
                 # #1642: same "structurally unpairable, not a real false positive" cascade
                 # exception already applied to the function comparison below
@@ -1820,7 +1828,10 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 # the outer `LanguageParser` class itself, whose body spans the entire corrupted
                 # region and so never resolves into a proper `class_declaration` node at all).
                 if trailing_error_start is None:
-                    metrics["extra_classes"] += len(gg_classes - real_classes)
+                    extra_cls = gg_classes - real_classes
+                    metrics["extra_classes"] += len(extra_cls)
+                    if verbose and extra_cls and len(extra_class_examples) < 8:
+                        extra_class_examples.append((row["file_path"], sorted(list(extra_cls))[:5]))
 
                 file_missing_names: set[str] = set()
                 file_extra_names: set[str] = set()
@@ -1857,16 +1868,17 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                 f" (line {real_occ[0]} vs {gg_occ[0]})"
                             )
 
-                if verbose and file_missing_names and len(missing_examples) < 8:
-                    missing_examples.append((row["file_path"], sorted(file_missing_names)[:3]))
-                if verbose and file_extra_names and len(extra_examples) < 8:
-                    extra_examples.append((row["file_path"], sorted(file_extra_names)[:3]))
+                if verbose and file_missing_names and len(missing_examples) < 100:
+                    missing_examples.append((row["file_path"], sorted(file_missing_names)))
+                if verbose and file_extra_names and len(extra_examples) < 100:
+                    extra_examples.append((row["file_path"], sorted(file_extra_names)))
         finally:
             conn.close()
 
     if verbose:
         metrics["_missing_examples"] = missing_examples
         metrics["_extra_examples"] = extra_examples
+        metrics["_extra_class_examples"] = extra_class_examples
         metrics["_args_mismatch_examples"] = args_mismatch_examples
     return metrics
 
@@ -1925,6 +1937,10 @@ def _print_report(current: dict, baseline: dict) -> None:
     if current.get("_extra_examples"):
         print("\nSample extra (GitGalaxy reported a name `tree-sitter` has no record of):")
         for path, names in current["_extra_examples"]:
+            print(f"  {path}: {names}")
+    if current.get("_extra_class_examples"):
+        print("\nSample extra classes (GitGalaxy reported a class `tree-sitter` has no record of):")
+        for path, names in current["_extra_class_examples"]:
             print(f"  {path}: {names}")
     if current.get("_args_mismatch_examples"):
         print("\nSample args-count mismatches:")
@@ -2013,6 +2029,14 @@ def run_regenerate(lang: str) -> int:
         json.dump(to_write, f, indent=2, sort_keys=True)
         f.write("\n")
     print(f"\ntree_sitter_accuracy_audit: wrote new baseline to {baseline_path.relative_to(REPO_ROOT)}.")
+
+    # generate_summary_table() reads committed baselines only (no live scan), so it's cheap and
+    # correct to refresh it here every time -- this is what keeps the CI "summary table matches
+    # committed baselines" check from being a second, easy-to-forget manual step that fails on a
+    # push after --regenerate alone (see CI's own "Verify the summary table" step).
+    if update_docstring_table():
+        rel = _LANGUAGE_STANDARDS_PATH.relative_to(REPO_ROOT)
+        print(f"tree_sitter_accuracy_audit: also updated the summary table in {rel} to match.")
     return 0
 
 

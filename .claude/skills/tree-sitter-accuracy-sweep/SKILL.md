@@ -183,9 +183,10 @@ green" self-report as sufficient on its own -- re-run things yourself:
    probe, or just re-run the language's own `test_<lang>_strict.py` ReDoS harness).
 3. Re-run the exact `pytest` command yourself; don't just read the subagent's claimed output.
 4. Re-run `LANGUAGE_CRUCIBLE_PATH=... venv/bin/python tests/tools/tree_sitter_accuracy_audit.py
-   --lang <lang> --regenerate` (writes `tests/tree_sitter_accuracy_baseline_<lang>.json`) then
-   `--summary-table` (updates `language_standards.py`'s docstring table). Confirm the numbers
-   moved the direction the issue predicted.
+   --lang <lang> --regenerate` (writes `tests/tree_sitter_accuracy_baseline_<lang>.json` and, since
+   it's a pure derivation from committed baselines, also refreshes `language_standards.py`'s
+   docstring table in the same run -- no separate `--summary-table` step needed). Confirm the
+   numbers moved the direction the issue predicted.
 5. **File a new issue for anything you notice along the way that's outside the current issue's
    scope** (see step 3's note) -- don't just mention it in the PR body.
 
@@ -197,9 +198,8 @@ failures on a merged PR before:
 ```bash
 export PATH="$PWD/venv/bin:$PATH"
 export LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible
-python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # bless the target's own baseline
+python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # bless the baseline + summary table together
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci                # see below -- not optional
-python tests/tools/tree_sitter_accuracy_audit.py --summary-table
 python tests/tools/crucible_check.py --mode both              # see the drift first
 python tests/tools/crucible_check.py --mode both --update --yes   # bless if drift is expected
 python tests/tools/crucible_check.py --mode both              # re-run, confirm now PASS/PASS

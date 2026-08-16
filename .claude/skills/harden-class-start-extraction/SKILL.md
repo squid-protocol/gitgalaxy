@@ -39,7 +39,8 @@ currently have trustworthy ground truth to test a `class_start` regex against.
 4. **Fix real regex bugs with the full discipline**: ReDoS scaling check on any quantifier
    change, follow `gitgalaxy/standards/how_to_add_a_language.md`'s 12 engine rules.
 5. **Flip the allowlist and verify for real** -- the how-to doc's step 6 has the exact command
-   sequence (`tree_sitter_accuracy_audit.py --lang <x> --ci` then `--regenerate`, `--summary-table`,
+   sequence (`tree_sitter_accuracy_audit.py --lang <x> --ci` then `--regenerate` -- which now also
+   refreshes the summary table itself, no separate `--summary-table` step needed --
    `crucible_check.py` both modes, `audit_check.py --regenerate` for pure line-shifts, the relevant
    pytest suites). The raw-text triage in step 2 is not a substitute for this.
 6. **Close the loop**: comment on #1295 with the result, append any newly-confirmed recurring-cause

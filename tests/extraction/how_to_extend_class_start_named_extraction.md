@@ -116,8 +116,7 @@ to give them), not worth the risk of touching the shared `_resolve_class_start_m
    ```bash
    # add <lang> to _CLASS_START_NAMED_EXTRACTION_LANGS in gitgalaxy/core/detector.py
    python tests/tools/tree_sitter_accuracy_audit.py --lang <x> --ci
-   python tests/tools/tree_sitter_accuracy_audit.py --lang <x> --regenerate   # if clean/improved
-   python tests/tools/tree_sitter_accuracy_audit.py --summary-table
+   python tests/tools/tree_sitter_accuracy_audit.py --lang <x> --regenerate   # if clean/improved -- also refreshes the summary table
    python tests/tools/crucible_check.py                                       # both modes
    python tests/tools/audit_check.py --regenerate                             # if pure line-shifts
    python -m pytest tests/core_engine/ tests/extraction/

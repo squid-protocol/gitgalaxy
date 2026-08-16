@@ -1006,86 +1006,16 @@ class Orchestrator:
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
 
             # ==========================================================
-            # PHASE 10.5: CI/CD POLICY ENFORCEMENT GATE
+            # PHASE 10.5: THREAT SUPPRESSION (Apply Config Exclusions & Mitigations)
             # ==========================================================
-            self.policy_failed = False
-            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
-
-            if self.config.get("FAIL_ON_SECRETS") or self.config.get("FAIL_ON_MALWARE") or max_systemic_threat > 0.0:
-                logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
-
-                from gitgalaxy.metrics.signal_processor import SignalProcessor
-
-                for file_data in repository_graph or []:
-                    # 1. Absolute Security Floor (Secrets)
-                    if self.config.get("FAIL_ON_SECRETS"):
-                        has_secrets = False
-
-                        # Extract mitigations safely
-                        mitigs = file_data.get("mitigations", [])
-                        if isinstance(mitigs, dict):
-                            mitigs = list(mitigs.keys())
-                        elif not isinstance(mitigs, list):
-                            mitigs = []
-
-                        if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
-                            # Check Risk Vector
-                            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
-                                idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
-                                rv = file_data.get("risk_vector", [])
-                                if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
-                                    has_secrets = True
-
-                            # THE FIX: Bulletproof Truthiness Check
-                            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                            if isinstance(ts, dict):
-                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
-                                    has_secrets = True
-
-                            # Check Domain Context
-                            ctx = file_data.get("telemetry", {}).get("domain_context", {})
-                            if isinstance(ctx, dict):
-                                warning_msg = ctx.get("warning", "")
-                                if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
-                                    has_secrets = True
-
-                        if has_secrets:
-                            logger.critical(
-                                f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
-                            )
-                            self.policy_failed = True
-
-                    # 2. XGBoost Malware Floor
-                    if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
-                        ai_class = (
-                            file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                        )
-                        logger.critical(
-                            f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
-                        )
-                        self.policy_failed = True
-
-                    # 3. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
-                    if max_systemic_threat > 0.0:
-                        risk_vec = file_data.get("risk_vector", [])
-                        cumulative_risk = (
-                            sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
-                        )
-
-                        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
-                        blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
-
-                        systemic_threat = cumulative_risk * blast_radius
-
-                        if systemic_threat >= max_systemic_threat:
-                            logger.critical(
-                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}"
-                            )
-                            self.policy_failed = True
-
-            # ==========================================================
-            # PHASE 10.8: SARIF SANITIZATION (Purge Suppressed Alerts & Config Exclusions)
-            # ==========================================================
+            # Runs BEFORE the policy gate (Phase 10.6) on purpose: SARIF_IGNORED_PATHS /
+            # SARIF_IGNORED_RULES / per-file mitigations are supposed to shield known-noisy
+            # paths (e.g. gitgalaxy/standards/'s regex-dense rule files) from build-breaking
+            # false positives, not just from the exported SARIF JSON. Suppressing is_ml_threat
+            # and zeroing risk_vector here, ahead of the gate, is what makes that exclusion
+            # list actually protect --fail-on-malware/--fail-on-secrets/--max-risk-exposure/
+            # --max-systemic-threat -- it used to only sanitize post-gate SARIF output, so an
+            # excluded path could still fail the build with no way to suppress it.
             logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
 
             ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
@@ -1174,6 +1104,100 @@ class Orchestrator:
                         or "ml_threat" in mitigs
                     ):
                         file_data["is_ml_threat"] = False
+
+            # ==========================================================
+            # PHASE 10.6: CI/CD POLICY ENFORCEMENT GATE
+            # ==========================================================
+            self.policy_failed = False
+            max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
+            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
+
+            if (
+                self.config.get("FAIL_ON_SECRETS")
+                or self.config.get("FAIL_ON_MALWARE")
+                or max_risk_allowed > 0.0
+                or max_systemic_threat > 0.0
+            ):
+                logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
+
+                from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+                for file_data in repository_graph or []:
+                    # 1. Absolute Security Floor (Secrets)
+                    if self.config.get("FAIL_ON_SECRETS"):
+                        has_secrets = False
+
+                        # Extract mitigations safely
+                        mitigs = file_data.get("mitigations", [])
+                        if isinstance(mitigs, dict):
+                            mitigs = list(mitigs.keys())
+                        elif not isinstance(mitigs, list):
+                            mitigs = []
+
+                        if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
+                            # Check Risk Vector
+                            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                                idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                                rv = file_data.get("risk_vector", [])
+                                if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
+                                    has_secrets = True
+
+                            # THE FIX: Bulletproof Truthiness Check
+                            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                            if isinstance(ts, dict):
+                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
+                                    has_secrets = True
+
+                            # Check Domain Context
+                            ctx = file_data.get("telemetry", {}).get("domain_context", {})
+                            if isinstance(ctx, dict):
+                                warning_msg = ctx.get("warning", "")
+                                if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
+                                    has_secrets = True
+
+                        if has_secrets:
+                            logger.critical(
+                                f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
+                            )
+                            self.policy_failed = True
+
+                    # 2. XGBoost Malware Floor
+                    if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
+                        ai_class = (
+                            file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                        )
+                        logger.critical(
+                            f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
+                        )
+                        self.policy_failed = True
+
+                    # 3. Maximum Risk Exposure Ratchet (per-file)
+                    if max_risk_allowed > 0.0:
+                        risk_vec = file_data.get("risk_vector", [])
+                        highest_risk = max(risk_vec) if isinstance(risk_vec, list) and risk_vec else 0.0
+                        if highest_risk >= max_risk_allowed:
+                            logger.critical(
+                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)"
+                            )
+                            self.policy_failed = True
+
+                    # 4. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
+                    if max_systemic_threat > 0.0:
+                        risk_vec = file_data.get("risk_vector", [])
+                        cumulative_risk = (
+                            sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
+                        )
+
+                        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
+                        blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
+
+                        systemic_threat = cumulative_risk * blast_radius
+
+                        if systemic_threat >= max_systemic_threat:
+                            logger.critical(
+                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}"
+                            )
+                            self.policy_failed = True
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING

@@ -2519,7 +2519,21 @@ class StructuralExtractor:
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 args_sig_end = term_idx + 1
             elif lang_id == "dart":
-                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                pos = match.end()
+                has_parens = False
+                while pos < next_match_start and pos < len(safe_code):
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        has_parens = True
+                        break
+                    elif ch in "{;=":
+                        break
+                    pos += 1
+
+                if has_parens:
+                    params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                else:
+                    params_end_idx = match.end()
 
                 # #1624: Invocation Shield for closure arguments.
                 # A regular parameter list tracks only parens `()` and ignores `{}`. However, a call whose
@@ -2569,7 +2583,6 @@ class StructuralExtractor:
 
                 if _dart_is_closure_invocation(match.end(), params_end_idx):
                     continue
-
                 # #1493: the generic `search_limit = start_idx + 2000` gives most real
                 # functions (short/medium param lists) hundreds to ~2000 chars of
                 # terminator-hunt room past `params_end_idx` -- flooring the terminator

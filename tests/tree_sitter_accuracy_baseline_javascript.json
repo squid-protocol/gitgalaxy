@@ -3,7 +3,7 @@
   "args_exact_match": 550,
   "corpus_path": "language-crucible/data/javascript",
   "extra_classes": 0,
-  "extra_functions": 11,
+  "extra_functions": 10,
   "files_scanned": 18,
   "found_classes": 29,
   "found_functions": 599,

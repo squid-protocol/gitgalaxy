@@ -3018,7 +3018,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # literal `[*&]`, the other forbids consuming past the first
                 # non-whitespace char), so this doesn't reopen the Rule 14
                 # backtracking gap the surrounding bounds were built to close.
-                r"(?:(?![ \t]*#)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*"
+                r"(?:(?![ \t]*#)(?!(?:[a-zA-Z_]\w*::)*operator\b)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*"
                 r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?"
                 r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
                 # 5. THE "NOT A FUNCTION" SHIELD
@@ -3032,7 +3032,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
                 # .cpp file, declared in the header) are mainstream, common C++ -- completely
                 # invisible to func_start before this fix.
-                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*|(?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?)"
+                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
                 r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"

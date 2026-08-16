@@ -809,7 +809,9 @@ class StructuralExtractor:
                 func_line = func.get("start_line", 0)
                 innermost_cls: Optional[_ClassInfoWithBounds] = None
                 for cls in classes:
-                    if cls["_start_line"] <= func_line <= cls["_end_line"] and (innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]):
+                    if cls["_start_line"] <= func_line <= cls["_end_line"] and (
+                        innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
+                    ):
                         innermost_cls = cls
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
@@ -2758,7 +2760,7 @@ class StructuralExtractor:
                                             d_angle -= 1
                                         p_idx -= 1
                                     if outer_container in ("(", "<", "["):
-                                        break # it's a type annotation inside a parameter list or generic
+                                        break  # it's a type annotation inside a parameter list or generic
                                 term_idx = pos
                                 term_kind = "arrow"
                                 break
@@ -2780,7 +2782,6 @@ class StructuralExtractor:
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
                 else:
-                    print(f"DEBUG match='{match.group(0)}' term_kind={term_kind} start_idx={start_idx}")
                     continue
             # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
             # are not real function definitions and should not have a block/body

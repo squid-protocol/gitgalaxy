@@ -697,9 +697,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Name groups added to branches 1/3 too, purely so existing
                 # extraction tests keep passing.
                 r"(?:"
-                r"\b(?:async[ \t\n]+)?function[ \t\n]*\*?[ \t\n]*(\w*)[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
-                r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
-                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return)\b)(#?[a-zA-Z_$][\w$]*)[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*\{)"
+                r"\b(?:async[ \t\n]+)?function[ \t\n]*\*?[ \t\n]*(\w*)[ \t\n]*(\([^)]*\))|"
+                r"(\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
+                r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return)\b)(#?[a-zA-Z_$][\w$]*)[ \t\n]*(\([^)]*\))(?=[ \t\n]*\{)"
                 r")",
                 re.M,
             ),
@@ -1020,7 +1020,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # same way Python's did (#1199). Name groups added to branches
             # 1/4 too, purely so existing extraction tests keep passing.
             "args": re.compile(
-                r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|([a-zA-Z_$][\w$]{0,100})[ \t]*=>|^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
+                r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))|"
+                r"(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|"
+                r"([a-zA-Z_$][\w$]{0,100})[ \t]*=>|"
+                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -1073,16 +1076,6 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # accuracy" tradeoff used throughout this file).
             # BUG FIX (epic #813/#815): the same alternative also required
             # the identifier to be followed *directly* by `=`, missing the
-            # extremely common idiomatic pattern of an explicit type
-            # annotation between the two (`const Foo: React.FC<Props> = (
-            # { a, b }) => {`, `const Foo: (x: number) => void = (x) => {
-            # ... }`). Added an optional bounded type-annotation skip
-            # (`:` then up to 200 chars excluding `=`/`;`/`{`, so it can't
-            # cross into the real assignment/statement boundary) before the
-            # `=` check. Bounded and excludes the same characters the `=>`
-            # alternatives already exclude, so it can't create a new
-            # adjacent-overlapping-quantifier (Rule 14) shape with the
-            # `[ \t\n]*` that follows it.
             "func_start": re.compile(
                 r"(?:"
                 # =====================================================================
@@ -1094,9 +1087,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the isolated function name and the generic parameters.
                 # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
                 # =====================================================================
-                r"\b(?:async\s+)?function[ \t\n*]+[a-zA-Z_$][\w$]*(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
-                r"\b(?<!type )[a-zA-Z_$][\w$]*(?=(?:[ \t\n]*:[ \t\n]{0,50}[^=;{]{0,200})?[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"\b(?:async\s+)?function[ \t\n*]+(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
+                r"\b(?<!type )(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:[^=;{}]|=>){0,200})?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
                 # `(` follows, nothing more -- so any bare call statement
@@ -1152,7 +1145,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"|"
                 r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)"
                 r")"
-                r"(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                r"(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r"|"
                 # BUG FIX (epic #1261 / issue #1630): the zero-prefix branch's
                 # parameter-list terminator used a FLAT `\([^)]*\)` character class,
@@ -1166,7 +1159,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `\((?:[^()]|\([^()]*\))*\)` -- same Rule 11 shape the generic
                 # step-over already uses (`(?:[^<>]|<[^<>]*>)*`), linear because the
                 # two alternatives never match overlapping text.
-                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(?:\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\([^()]*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\([^()]*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

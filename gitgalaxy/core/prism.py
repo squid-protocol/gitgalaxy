@@ -839,6 +839,7 @@ class Prism:
             if (len(line) >= 1 and line[0] in self.POSITIONAL_ANCHORS) or (
                 len(line) >= 7 and line[6] in self.POSITIONAL_ANCHORS
             ):
+                code.append("")
                 lits.append(line)
                 continue
 
@@ -857,6 +858,7 @@ class Prism:
                 lits.append("!" + parts[1])
             else:
                 code.append(line)
+                lits.append("")
 
         return "\n".join(code), "\n".join(lits)
 

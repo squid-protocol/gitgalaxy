@@ -1551,8 +1551,8 @@ class StructuralExtractor:
             r"'''.*?'''|"  # Python Triple Single
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
-            r'"(?:\\.|[^"\\])*"|'  # Standard Double
-            r"'(?:\\.|[^'\\])*'|"  # Standard Single
+            r'"(?:\\.|[^"\\\n\r])*"|'  # Standard Double
+            r"'(?:\\.|[^'\\\n\r])*'|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
@@ -1846,6 +1846,8 @@ class StructuralExtractor:
             current_line_count += code.count("\n", last_counted_idx, start_idx)
             last_counted_idx = start_idx
             start_line = current_line_count
+            if "landuse_init" in name.lower():
+                self.logger.critical(f"DEBUG_LANDUSE: match_start_idx={start_idx}, start_line={start_line}, current_line_count={current_line_count}, offset={offset}")
 
             loc = block.count("\n") + 1
             end_line = start_line + loc - 1

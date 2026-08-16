@@ -1846,8 +1846,6 @@ class StructuralExtractor:
             current_line_count += code.count("\n", last_counted_idx, start_idx)
             last_counted_idx = start_idx
             start_line = current_line_count
-            if "landuse_init" in name.lower():
-                self.logger.critical(f"DEBUG_LANDUSE: match_start_idx={start_idx}, start_line={start_line}, current_line_count={current_line_count}, offset={offset}")
 
             loc = block.count("\n") + 1
             end_line = start_line + loc - 1
@@ -2128,16 +2126,14 @@ class StructuralExtractor:
                     elif stripped.startswith(("#else", "#elif")):
                         if not in_dead_branch and dead_nesting_depth == 0:
                             in_dead_branch = True
-                    elif stripped.startswith("#endif"):
-                        if in_dead_branch:
-                            if dead_nesting_depth > 0:
-                                dead_nesting_depth -= 1
-                            else:
-                                in_dead_branch = False
+                    elif stripped.startswith("#endif") and in_dead_branch:
+                        if dead_nesting_depth > 0:
+                            dead_nesting_depth -= 1
+                        else:
+                            in_dead_branch = False
 
-                    if stripped.startswith("#define"):
-                        if stripped.rstrip(" \t\r\n").endswith("\\"):
-                            in_multiline_macro = True
+                    if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
+                        in_multiline_macro = True
 
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
                     continue
@@ -2997,10 +2993,7 @@ class StructuralExtractor:
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
                 next_nl = safe_code.find("\n", scan_pos)
-                if next_nl == -1:
-                    line_end = len(safe_code)
-                else:
-                    line_end = next_nl + 1
+                line_end = len(safe_code) if next_nl == -1 else next_nl + 1
 
                 f_line = safe_code[scan_pos:line_end]
                 stripped = f_line.lstrip()
@@ -4213,7 +4206,7 @@ class StructuralExtractor:
             "Boolean",
         }
         # Deduplicate and filter (excluding the function calling itself recursively)
-        calls_out = list(set([c for c in raw_calls if c not in ignore_keywords and c != name]))[:20]
+        calls_out = list({c for c in raw_calls if c not in ignore_keywords and c != name})[:20]
 
         sat: FunctionNode = {
             "name": name,

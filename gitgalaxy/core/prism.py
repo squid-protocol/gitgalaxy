@@ -107,15 +107,15 @@ class Prism:
         # [^'\\] span newlines), swallowing every real // and /* */ comment
         # in between as one giant "literal" -- the code stream then carries
         # comment text into the detector and coding_loc is inflated.
-        # C++ char literals are always short ('a', '\n', '\x41', '\''), so
-        # bounding the branch to 10 chars -- the same bound #1302 already
-        # applies to the recursive_block shield -- closes the cascade without
-        # dropping any real literal. Kept per-language because the shared
-        # pattern must stay unbounded for JS/PHP single-quoted strings.
+        # C++ char literals are short, but C++23 named escapes (\\N{...}) can
+        # run much longer than 10 chars, so the branch is bounded to 64 -- wide
+        # enough for any real literal, still far too short for a cross-file
+        # cascade. Kept per-language because the shared pattern must stay
+        # unbounded for JS/PHP single-quoted strings.
         self.CPP_LITERAL_MASK_PATTERN = (
             r'((?<!\\)"(?:\\.|[^"\\])*"'
             r"|[0-9a-fA-F]'[0-9a-fA-F]"
-            r"|(?<!\\)'(?:\\.|[^'\\]){0,10}'"
+            r"|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
             r"|(?<!\\)`(?:\\.|[^`\\])*`)"
         )
 

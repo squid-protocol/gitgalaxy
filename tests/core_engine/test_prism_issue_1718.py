@@ -162,3 +162,20 @@ void f(void) {
 
     c_result = prism.split_streams(c_code, "c")
     assert "'single quoted text // still one literal'" in c_result["code_stream"]  # noqa: S101
+
+
+def test_issue_1718_cpp23_named_escape_literal_stays_intact():
+    """
+    C++23 named character escapes (\\N{...}) are much longer than 10 chars
+    and contain braces. The C++ char-literal branch must stay wide enough
+    to shield them whole, so a real (if rare) literal isn't clipped.
+    """
+    prism = Prism(CONFIG, LANG_DEFS)
+
+    code = "int main() {\n    char32_t c = '\\N{LATIN CAPITAL LETTER A}';\n    // a comment after the named escape\n    return 0;\n}\n"
+
+    result = prism.split_streams(code, "cpp")
+
+    assert r"\N{LATIN CAPITAL LETTER A}" in result["code_stream"]  # noqa: S101
+    assert "// a comment after the named escape" not in result["code_stream"]  # noqa: S101
+    assert "int main" in result["code_stream"]  # noqa: S101

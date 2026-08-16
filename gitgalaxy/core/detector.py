@@ -1895,7 +1895,7 @@ class StructuralExtractor:
             # real function body in between from the brace scan. Consume separators as their own
             # alternative (same shape as prism.py's CPP_LITERAL_MASK_PATTERN) and bound the branch
             # to 10 chars, matching #1302/#1426.
-            single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,10}'"
+            single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
         elif lang_id in ("rust", "zig"):
             # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
             # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are

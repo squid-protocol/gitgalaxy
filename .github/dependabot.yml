@@ -8,6 +8,14 @@ updates:
       default-days: 7
     labels:
       - "github-actions"
+    groups:
+      # init/analyze/upload-sarif are separate `uses:` lines Dependabot otherwise bumps in
+      # independent PRs, but CodeQL hard-fails if init and analyze are ever on different
+      # versions ("Loaded a configuration file for version 'X', but running version 'Y'") --
+      # see #1577/#1578. Grouping means one PR bumps every github/codeql-action/* line together.
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"
 
   - package-ecosystem: "pip"
     directory: "/"

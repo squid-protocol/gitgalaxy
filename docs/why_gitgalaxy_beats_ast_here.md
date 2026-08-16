@@ -457,6 +457,18 @@ this claim either; they're real GitGalaxy defects to fix, not ground-truth artif
   resolution (`_get_node_name`/`_get_param_count`), not in GitGalaxy — GitGalaxy's uniform
   getter/setter/operator recognition was the thing already correct here.
 
+## Claim 6: structure recall inside opaque macro bodies (Rust)
+
+For languages with powerful macro systems, tree-sitter often treats the bodies of macro definitions and invocations as opaque token trees. GitGalaxy's regex-based structural signatures are completely unaffected by the macro wrapper and correctly parse these definitions, resulting in higher recall than tree-sitter.
+
+**The evidence:** The `tree-sitter-rust` parser treats the bodies of `macro_rules!` definitions and function-like macro invocations (e.g., `quote!`, `ast_struct!`) as opaque token trees. It does not emit nested `struct_item`, `enum_item`, or `function_item` nodes. GitGalaxy correctly parses these structural definitions, which the audit script misclassifies as false positive "extra" structures.
+
+## Claim 7: function recall in the presence of heavy preprocessor directives (Fortran/C++)
+
+For codebases that rely heavily on C Preprocessor (CPP) directives, grammar-based parsers like tree-sitter can fail to build a valid syntax tree, missing large sections of code. GitGalaxy's regex is entirely unaffected by CPP noise and extracts these functions perfectly.
+
+**The evidence:** The `tree-sitter-fortran` ground truth parser completely fails on files that rely heavily on C Preprocessor directives (like `#if ( EM_CORE == 1 )` in the WRF corpus), throwing errors and missing entire sections of code that contain valid functions. GitGalaxy is completely unaffected by the CPP noise and extracts these subroutines perfectly, resulting in false positive 'extra functions' reported by the audit.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to

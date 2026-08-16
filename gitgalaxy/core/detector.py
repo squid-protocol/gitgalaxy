@@ -2405,6 +2405,84 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            # #1756: Go's bodyless function declarations (assembly-backed
+            # implementations and //go:linkname targets -- e.g. "func
+            # memmove(to, from unsafe.Pointer, n uintptr)" with no { body,
+            # legal and common in the stdlib) were silently dropped by the
+            # generic brace-only fallback below: Go's automatic-semicolon-
+            # insertion rule means a bodyless declaration ends at the end of
+            # its signature line without a literal ";", so the brace search
+            # either found nothing in the bounded window (brace_idx == -1,
+            # match discarded) or -- when a struct/interface literal
+            # happened to appear later -- attributed an unrelated block as
+            # the function's body. Mirrors #1319's rust bodyless
+            # trait-method handling, with the declaration bound taken from
+            # Go's own ASI rule: after the parameter list closes, the first
+            # top-level { is the body; a literal ";" or (far more common)
+            # the end of the line means the declaration is bodyless. "func"
+            # at line start is unambiguous in Go (never a call or bare
+            # statement), so a bodyless terminator is never a false match.
+            #
+            # One Go-specific wrinkle: a return type may itself contain a
+            # brace group ("func f() struct{ X int } { ... }",
+            # "interface{ ... }"), which sits at top level after the
+            # parameter list and would be mistaken for the body. Such a
+            # group is always closed on the same line, and a real body {
+            # always follows on that same line -- so a top-level { whose
+            # balanced close is followed by another { before the line ends
+            # is a type literal, not the body; skip past it and keep
+            # scanning.
+            elif lang_id == "go":
+                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                depth_paren = depth_bracket = depth_angle = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                        if ch == opener:
+                            # A brace group that is a type literal (struct{
+                            # ... } / interface{ ... } in the return type)
+                            # closes before the line ends and is followed by
+                            # the real body's { on that same line -- or, for
+                            # a bodyless declaration, by the end of the
+                            # line. Only a { whose balanced close is NOT
+                            # followed by another { before the next newline
+                            # is the function's own body.
+                            group_end = self._find_balanced_end(safe_code, pos, opener, closer)
+                            line_end = safe_code.find("\n", group_end + 1, search_limit)
+                            if line_end == -1:
+                                line_end = search_limit
+                            if safe_code.find(opener, group_end + 1, line_end) != -1:
+                                pos = group_end + 1
+                                continue
+                            term_idx, term_kind = pos, "brace"
+                            break
+                        elif ch == ";":
+                            term_idx, term_kind = pos, "semi"
+                            break
+                        elif ch == "\n":
+                            term_idx, term_kind = pos, "eol"
+                            break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind in ("semi", "eol"):
+                    end_idx = term_idx + 1
+                else:
+                    continue  # neither a body nor a bodyless declaration bound showed up in the window
             elif lang_id == "kotlin":
                 paren_idx = safe_code.find("(", match.end(), search_limit)
                 brace_idx = safe_code.find(opener, match.end(), search_limit)

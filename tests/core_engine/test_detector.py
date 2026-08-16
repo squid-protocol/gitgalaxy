@@ -2251,12 +2251,7 @@ def test_detector_ts_param_function_type_annotation_not_counted_as_function():
 
         # The object-literal arrow property must still be counted: its line
         # is preceded by `{`/`,`, never `(`.
-        object_code = (
-            "export const Either = {\n"
-            "  URI,\n"
-            "  ap: (fab, fa) => ({ fab, fa }),\n"
-            "}\n"
-        )
+        object_code = "export const Either = {\n  URI,\n  ap: (fab, fa) => ({ fab, fa }),\n}\n"
         satellites2, _ = detector._slice_by_braces(object_code, lang, rules, 0, {})
         names2 = [s["name"] for s in satellites2]
         assert "ap" in names2, f"[{lang}] object-literal arrow property dropped: {names2}"
@@ -2664,6 +2659,119 @@ def test_objectivec_c_style_real_definition_still_extracted():
     found = {fn["name"]: fn["args"] for fn in result.get("functions", [])}
     assert "c_style_func" in found, "real C-style function definition should still be extracted"
     assert found["c_style_func"] == 2, f"expected args=2, got args={found['c_style_func']}"
+
+
+def test_go_bodyless_function_declarations_extracted():
+    """
+    #1756: Go's bodyless function declarations (assembly-backed
+    implementations and //go:linkname targets -- func memmove(to, from
+    unsafe.Pointer, n uintptr) with no { body) have no brace group, and
+    Go's automatic-semicolon-insertion rule means the declaration ends at
+    the end of its signature line without a literal ;. The generic
+    Mode-B brace-only fallback in _slice_by_braces (detector.py)
+    required a { within the search window and silently dropped every
+    one of these. func_start's own regex always matched them -- the gap
+    was purely in detector.py's downstream body-boundary search, not the
+    regex (the same shape as #1314/#1319's rust/objc bodyless handling).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "package runtime\n"
+        "\n"
+        "func memmove(to, from unsafe.Pointer, n uintptr)\n"
+        "\n"
+        "func add(a, b int) int {\n"
+        "\treturn a + b\n"
+        "}\n"
+        "\n"
+        "//go:linkname gogo runtime.gogo\n"
+        "func gogo()\n"
+        "\n"
+        "func sub(a, b int) int {\n"
+        "\treturn a - b\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected = {"memmove", "gogo", "add", "sub"}
+    missing = expected - set(found)
+    assert not missing, f"Go function declaration(s) not extracted: {missing}"
+    assert found["memmove"]["args"] == 3, f"expected memmove args=3, got args={found['memmove']['args']}"
+    # Bodyless declarations span their signature line only -- no phantom body.
+    assert found["memmove"]["start_line"] == found["memmove"]["end_line"], (
+        "bodyless memmove should span just its signature line"
+    )
+    assert found["gogo"]["start_line"] == found["gogo"]["end_line"], "bodyless gogo should span just its signature line"
+
+
+def test_go_bodyless_declaration_not_misattributed_following_block():
+    """
+    #1756 companion: when a bodyless declaration is followed by an
+    unrelated brace block (a struct literal later in the file), the
+    pre-fix generic brace search grabbed that block as the phantom
+    function's body. A bodyless declaration must end at its own
+    signature line instead.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "package main\n"
+        "\n"
+        "func flushICache(begin, end uintptr)\n"
+        "\n"
+        "type Foo struct {\n"
+        "\tX int\n"
+        "}\n"
+        "\n"
+        "func bar() int {\n"
+        "\treturn 1\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    assert "flushICache" in found, "bodyless flushICache should be extracted"
+    assert found["flushICache"]["end_line"] == 3, (
+        f"flushICache must end at its own signature line, got end_line={found['flushICache']['end_line']}"
+    )
+    assert "bar" in found, "ordinary braced function after the struct must still be extracted"
+
+
+def test_go_struct_return_type_not_truncated_at_type_literal_brace():
+    """
+    #1756 wrinkle: a return type that itself contains a brace group
+    (func f() struct{ X int } { ... }) puts a top-level { before the real
+    body -- the generic brace search stopped at the struct literal's {,
+    truncating the function's span to the type. The real body must be
+    included.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "package main\n"
+        "\n"
+        "func makePoint() struct{ X, Y int } {\n"
+        "\treturn struct{ X, Y int }{1, 2}\n"
+        "}\n"
+        "\n"
+        "func other() int {\n"
+        "\treturn 2\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    assert "makePoint" in found, "makePoint should be extracted"
+    assert found["makePoint"]["start_line"] == 3
+    assert found["makePoint"]["end_line"] == 5, (
+        f"makePoint's span must include its real body, got end_line={found['makePoint']['end_line']}"
+    )
+    assert "other" in found, "ordinary braced function after it must still be extracted"
 
 
 def test_objectivec_args_body_lookalikes_excluded_by_signature_bound():

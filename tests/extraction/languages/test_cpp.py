@@ -61,6 +61,22 @@ FUNCTION_CASES: dict[str, Any] = {
             "TargetClass::operator=",
         ),  # out-of-line operator= -- was a real bug, now fixed
         (
+            "MyClass::operator()() const {",
+            "MyClass::operator()",
+        ),  # functor operator()
+        (
+            "MyClass::operator bool() const {",
+            "MyClass::operator bool",
+        ),  # primitive type conversion operator
+        (
+            "MyClass::operator std::string() const {",
+            "MyClass::operator std::string",
+        ),  # namespace-qualified type conversion operator
+        (
+            "MyClass::operator Foo() const {",
+            "MyClass::operator Foo",
+        ),  # custom type conversion operator
+        (
             "MyClass::MyClass(int x) : field_(x), other_(0) {",
             "MyClass::MyClass",
         ),  # out-of-line constructor, multi-field member-init list

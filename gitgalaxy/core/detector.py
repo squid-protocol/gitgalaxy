@@ -2105,9 +2105,28 @@ class StructuralExtractor:
         # Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):
             lines = safe_code.splitlines(keepends=True)
-            in_dead_branch = False
-            dead_nesting_depth = 0
+            # Per-open-#if branch policy. Each stack entry is a (policy, side)
+            # pair where policy is the #if condition's static truth value and
+            # side is which branch of that #if we are currently in:
+            #   policy True  (#if 1 / #if true)   -> first branch alive, #else dead
+            #   policy False (#if 0 / #if false)  -> first branch dead, #else alive
+            #   policy None  (unknown, e.g. #if FOO / #ifdef FOO)
+            #                                -> scan BOTH branches. This is the
+            #                                   #1720 fix: tree-sitter ground truth
+            #                                   parses both, and implementations
+            #                                   living in #else were being blanked.
+            # any() over the stack: an inner #if inside an outer dead region stays
+            # dead even if its own condition would flip it; #endif pops restore it.
+            branch_stack: list[tuple[Optional[bool], str]] = []
             in_multiline_macro = False
+
+            def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
+                policy, side = entry
+                if policy is True:
+                    return side == "else"
+                if policy is False:
+                    return side == "first"
+                return False
 
             for i in range(len(lines)):
                 line = lines[i]
@@ -2120,17 +2139,18 @@ class StructuralExtractor:
                     continue
 
                 if stripped.startswith("#"):
-                    if stripped.startswith("#if"):
-                        if in_dead_branch:
-                            dead_nesting_depth += 1
-                    elif stripped.startswith(("#else", "#elif")):
-                        if not in_dead_branch and dead_nesting_depth == 0:
-                            in_dead_branch = True
-                    elif stripped.startswith("#endif") and in_dead_branch:
-                        if dead_nesting_depth > 0:
-                            dead_nesting_depth -= 1
-                        else:
-                            in_dead_branch = False
+                    if stripped.startswith("#if "):
+                        branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
+                    elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
+                        branch_stack.append((None, "first"))
+                    elif stripped.startswith("#elif ") and branch_stack:
+                        # an #elif starts a fresh condition on the else side
+                        branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
+                    elif stripped.startswith("#else") and branch_stack:
+                        policy, _ = branch_stack[-1]
+                        branch_stack[-1] = (policy, "else")
+                    elif stripped.startswith("#endif") and branch_stack:
+                        branch_stack.pop()
 
                     if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
                         in_multiline_macro = True
@@ -2138,12 +2158,38 @@ class StructuralExtractor:
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
                     continue
 
-                if in_dead_branch:
+                if any(_branch_dead(e) for e in branch_stack):
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
 
             safe_code = "".join(lines)
 
         return safe_code
+
+    @staticmethod
+    def _classify_preproc_condition(condition: str) -> Optional[bool]:
+        """
+        Returns the static truth value of a C-family preprocessor #if condition,
+        or None when it cannot be evaluated without a macro table.
+
+        Recognized constants (after stripping C comments and whitespace):
+          True  -- "1", "true", "TRUE"
+          False -- "0", "false", "FALSE"
+          None  -- everything else (macro names, defined(X), expressions)
+
+        Used by _build_brace_safe_stream's macro shield so #else branches that
+        genuinely contain implementations are scanned instead of blindly blanked
+        (#1720): only a statically-true #if (#if 1) makes its #else branch dead,
+        and only a statically-false #if (#if 0) makes its first branch dead.
+        """
+        if condition is None:
+            return None
+        # strip C-style comments and surrounding whitespace
+        cond = re.sub(r"/\*.*?\*/|//.*$", "", condition, flags=re.S).strip()
+        if cond in ("1", "true", "TRUE", "True"):
+            return True
+        if cond in ("0", "false", "FALSE", "False"):
+            return False
+        return None
 
     def _slice_by_braces(
         self,

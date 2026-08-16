@@ -1,4 +1,3 @@
-import sys
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
@@ -753,7 +752,7 @@ class StructuralExtractor:
                     lookahead = code_stream[match.end() : match.end() + 200]
                     anchor_match = re.search(r"^[^\{;,)=]{0,200}?([\{;,)=])", lookahead)
                     if not anchor_match or anchor_match.group(1) != "{":
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
 
                 name_group_idx, name, inheritance = _resolve_class_start_match(match, class_start_groups)
 
@@ -1032,12 +1031,12 @@ class StructuralExtractor:
                     if has_block_text:
                         break
                     else:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                 if re_boundary and hasattr(re_boundary, "match") and re_boundary.match(line_str):
                     break
                 purpose_buffer.append(line_str)
                 has_block_text = True
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             if active_capture == "line":
                 if (
@@ -1048,13 +1047,13 @@ class StructuralExtractor:
                     active_capture = None
                 else:
                     fallback_buffer.append(line_str)
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
             if re_purpose_block and hasattr(re_purpose_block, "match") and re_purpose_block.match(line_str):
                 active_capture = "block"
                 purpose_buffer = []
                 has_block_text = False
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             if re_purpose_line and hasattr(re_purpose_line, "match") and not purpose_buffer:
                 try:
@@ -1070,7 +1069,7 @@ class StructuralExtractor:
                             fallback_buffer.append(purpose_text)
                 except Exception as e:
                     self.logger.debug(f"Purpose-line regex extraction failed, skipping this line: {e}")
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
         final_purpose = purpose_buffer if purpose_buffer else fallback_buffer
         if final_purpose:
@@ -1097,7 +1096,7 @@ class StructuralExtractor:
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
             if not prev:
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if (
                 prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
                 or prev.endswith("*/")
@@ -1105,7 +1104,7 @@ class StructuralExtractor:
             ):
                 doc_buffer.insert(0, prev)
             elif prev.startswith("@") or prev.startswith("["):  # Step over decorators safely
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             else:
                 break
 
@@ -1115,7 +1114,7 @@ class StructuralExtractor:
             for j in range(i + 1, min(len(self.raw_content_lines), i + 10)):
                 nxt = self.raw_content_lines[j].strip()
                 if not nxt:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if not in_below_doc:
                     # Only the FIRST non-blank line below the signature is
                     # checked for whether it opens a docstring/comment block.
@@ -1162,7 +1161,7 @@ class StructuralExtractor:
 
         for t in triggers:
             if t["start"] < last_idx:
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             if t["start"] > last_idx:
                 chunk = content[last_idx : t["start"]]
@@ -1326,7 +1325,7 @@ class StructuralExtractor:
 
             for rule_name, pattern in rules.items():
                 if rule_name.startswith("_"):
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
 
@@ -1334,15 +1333,15 @@ class StructuralExtractor:
                     self.logger.warning(
                         f"[DIAGNOSTIC] Unregistered rule '{mapped_key}' found in '{seg_lang}'. Ignoring to preserve schema."
                     )
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 if not pattern:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 raw_pat = getattr(pattern, "pattern", str(pattern))
                 clean_pat = raw_pat.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "").strip()
                 if clean_pat in ("", "()", "(?:)", "^", "$"):
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 try:
                     t_rule_start = time.perf_counter()
@@ -1584,7 +1583,7 @@ class StructuralExtractor:
                         active_heredoc_delimiter = None
                     else:
                         shielded_lines.append("")
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 match = heredoc_opener_pattern.search(line)
                 if match:
@@ -1832,7 +1831,7 @@ class StructuralExtractor:
 
             block = code[start_idx : start_idx + end_offset].strip()
             if not block or len(block.splitlines()) < 2:
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if raw_name is None:
@@ -2067,7 +2066,7 @@ class StructuralExtractor:
                     ch = text[pos]
                     if ch == "\\":
                         pos += 2
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                     if ch == "/" or ch == "\n":
                         return pos
                     pos += 1
@@ -2092,7 +2091,7 @@ class StructuralExtractor:
                     # loop always makes forward progress.
                     parts.append(safe_code[qm.start() : qm.end()])
                     pos = qm.end()
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 end_idx = term1 + 1
                 if op in ("s", "tr", "y"):
                     term2 = _find_slash_terminator(safe_code, end_idx)
@@ -2118,7 +2117,7 @@ class StructuralExtractor:
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
                     if not stripped.rstrip(" \t\r\n").endswith("\\"):
                         in_multiline_macro = False
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 if stripped.startswith("#"):
                     if stripped.startswith("#if"):
@@ -2137,7 +2136,7 @@ class StructuralExtractor:
                         in_multiline_macro = True
 
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 if in_dead_branch:
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
@@ -2210,7 +2209,7 @@ class StructuralExtractor:
 
         # #1041: this used to skip any match whose start fell before the
         # previously accepted match's end ("if start_idx < last_end_idx:
-        # print(f"Skipping at line {sys._getframe().f_lineno}"); continue"), on the theory that it must already be inside an
+        # continue"), on the theory that it must already be inside an
         # in-progress function. But a nested/inner function declaration
         # necessarily starts before its enclosing function's end -- so that
         # guard silently dropped every nested function instead of counting
@@ -2244,7 +2243,7 @@ class StructuralExtractor:
                 while p >= 0 and safe_code[p] in " \t":
                     p -= 1
                 if p >= 0 and safe_code[p] == "(":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
             # #1632: the object-literal-method branch matches `IDENT :` followed
             # by a function/arrow -- but a ternary's true branch (`cond ? name :
@@ -2263,7 +2262,7 @@ class StructuralExtractor:
                     p -= 1
                     back_steps += 1
                 if p >= 0 and safe_code[p] == "?":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
@@ -2321,16 +2320,16 @@ class StructuralExtractor:
                     pos += 1
 
                 if term_kind == "semi":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # a bare statement -- `;` arrived before any real terminator
+                    continue  # a bare statement -- `;` arrived before any real terminator
                 if not term_kind:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # neither a brace nor an arrow ever showed up in the window
+                    continue  # neither a brace nor an arrow ever showed up in the window
 
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 else:
                     semi_after_arrow = safe_code.find(";", term_idx, search_limit)
                     if semi_after_arrow == -1:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                     end_idx = semi_after_arrow + 1
             # #1266: Scala's idiomatic parenthesis-less/single-expression method
             # body (`def foo(x: Int): Int = x + 1`, no `{` at all -- extremely
@@ -2348,31 +2347,13 @@ class StructuralExtractor:
             # that still gets recorded (just with a truncated body/line-range),
             # which is strictly better than the previous silent drop.
             elif lang_id == "scala":
-                brace_idx = -1
-                pos = start_idx
-                depth_paren = depth_bracket = depth_angle = 0
-                while pos < search_limit:
-                    ch = safe_code[pos]
-                    if ch == "(": depth_paren += 1
-                    elif ch == ")": depth_paren = max(0, depth_paren - 1)
-                    elif ch == "[": depth_bracket += 1
-                    elif ch == "]": depth_bracket = max(0, depth_bracket - 1)
-                    elif ch == "<": depth_angle += 1
-                    elif ch == ">": depth_angle = max(0, depth_angle - 1)
-                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
-                        if ch == opener:
-                            brace_idx = pos
-                            break
-                        if ch == ";":
-                            break
-                    pos += 1
-                
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx != -1:
                     end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
                 else:
                     eq_match = re.search(r"(?<![=!<>])=(?!=|>)", safe_code[start_idx:search_limit])
                     if not eq_match:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                     end_idx = next_match_start
             # #1319: rust's func_start regex (like csharp's above -- #789 --
             # also stops right at the parameter list's opening `(` via a
@@ -2420,10 +2401,10 @@ class StructuralExtractor:
                     if lang_id == "solidity":
                         matched_text = match.group(0).strip()
                         if not matched_text.startswith("function"):
-                            print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                            continue
                     end_idx = term_idx + 1
                 else:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+                    continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             elif lang_id == "kotlin":
                 paren_idx = safe_code.find("(", match.end(), search_limit)
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
@@ -2431,7 +2412,7 @@ class StructuralExtractor:
                     end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
                 else:
                     if paren_idx == -1:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                     params_end_idx = self._find_balanced_end(safe_code, paren_idx, "(", ")")
                     depth_angle = 0
                     depth_paren = 0
@@ -2496,7 +2477,7 @@ class StructuralExtractor:
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
                 else:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+                    continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
                 args_sig_end = term_idx + 1
             # #1336: group 2 (plain C-style prototypes, e.g. `extern void
             # write_rtf_header(NXStream* rtfStream);`) does NOT get group 1's bodyless-`;`
@@ -2532,7 +2513,7 @@ class StructuralExtractor:
                         break
                     pos += 1
                 if term_kind != "brace":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
+                    continue  # a bodyless prototype (or neither terminator in the window) -- out of func_start's scope
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 args_sig_end = term_idx + 1
             elif lang_id == "dart":
@@ -2599,7 +2580,7 @@ class StructuralExtractor:
                     return False
 
                 if _dart_is_closure_invocation(match.end(), params_end_idx):
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 # #1493: the generic `search_limit = start_idx + 2000` gives most real
                 # functions (short/medium param lists) hundreds to ~2000 chars of
                 # terminator-hunt room past `params_end_idx` -- flooring the terminator
@@ -2667,7 +2648,7 @@ class StructuralExtractor:
                 term_idx, term_kind = _dart_scan_terminator(params_end_idx, opener + ";=:,")
 
                 if term_kind == "comma":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # Bug 4: list-element bare call
+                    continue  # Bug 4: list-element bare call
                 if term_kind == "colon":
                     # Constructor initializer list (`Ctor(...) : a = b, assert(c);`).
                     # Commas here separate initializers, not list elements -- keep
@@ -2680,7 +2661,7 @@ class StructuralExtractor:
                     elif colon_term_kind == "semi":
                         end_idx = colon_term_idx + 1
                     else:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                 elif term_kind == "semi":
                     end_idx = term_idx + 1  # Bug 2: bodyless constructor
                 elif term_kind == "brace":
@@ -2688,10 +2669,10 @@ class StructuralExtractor:
                 elif term_kind == "arrow":
                     semi_after_arrow = safe_code.find(";", term_idx, dart_search_limit)
                     if semi_after_arrow == -1:
-                        print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                        continue
                     end_idx = semi_after_arrow + 1
                 else:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
             # #1629: typescript/javascript idiomatically use brace-less,
             # expression-bodied arrow functions (`const swap = (x) => x + 1`,
             # curried FP chains with no `{` anywhere in the definition --
@@ -2714,105 +2695,54 @@ class StructuralExtractor:
                     p = start_idx - 1
                     while p >= 0 and safe_code[p] in " \t":
                         p -= 1
-                    if p >= 0 and safe_code[p] in ">,)":
+                    if p >= 0 and safe_code[p] in ">),":
                         continue
-                brace_idx = -1
-                pos = start_idx
                 depth_paren = depth_bracket = depth_angle = 0
+                pos = match.end()
+                saw_assignment = False
+                term_idx = -1
+                term_kind = None
                 while pos < search_limit:
                     ch = safe_code[pos]
-                    if depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
                         if ch == opener:
-                            brace_idx = pos
+                            term_idx = pos
+                            term_kind = "brace"
                             break
-                        if ch == ";":
-                            break
-                    if ch == "(": depth_paren += 1
-                    elif ch == ")": depth_paren = max(0, depth_paren - 1)
-                    elif ch == "[": depth_bracket += 1
-                    elif ch == "]": depth_bracket = max(0, depth_bracket - 1)
-                    elif ch == "<": depth_angle += 1
-                    elif ch == ">": depth_angle = max(0, depth_angle - 1)
+                        if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                            if saw_assignment:
+                                term_idx = pos
+                                term_kind = "arrow"
+                                break
+                            break  # the `=>` belongs to an annotation, not an assignment
+                        if ch == "=":
+                            saw_assignment = True
+                        elif ch == ";":
+                            term_idx = pos
+                            term_kind = "semi"
+                            break  # bodyless prototype
                     pos += 1
-                
-                if brace_idx != -1:
-                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
-                else:
-                    # Only assignment-shaped matches (`const foo = ... => ...`
-                    # or `foo: Type = ... => ...`) are real runtime functions.
-                    # An interface/type member's function-type annotation
-                    # (`readonly alt: <A>(...) => ...`, no `=` anywhere before
-                    # its `=>`) is pure type-level syntax -- #1631's remaining
-                    # phantom shape -- so require an un-nested `=` before the
-                    # first `=>`.
-                    depth_paren = depth_bracket = depth_angle = 0
-                    pos = match.end()
-                    saw_assignment = False
-                    saw_colon = False
-                    arrow_idx = -1
-                    while pos < search_limit:
-                        ch = safe_code[pos]
-                        if ch == "(":
-                            depth_paren += 1
-                        elif ch == ")":
-                            depth_paren = max(0, depth_paren - 1)
-                        elif ch == "[":
-                            depth_bracket += 1
-                        elif ch == "]":
-                            depth_bracket = max(0, depth_bracket - 1)
-                        elif ch == "<":
-                            depth_angle += 1
-                        elif ch == ">":
-                            depth_angle = max(0, depth_angle - 1)
-                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
-                            if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
-                                if saw_assignment or saw_colon:
-                                    if saw_colon and not saw_assignment:
-                                        p_idx = start_idx - 1
-                                        d_paren = d_bracket = d_angle = d_brace = 0
-                                        outer_container = None
-                                        while p_idx >= 0:
-                                            c_ch = safe_code[p_idx]
-                                            if c_ch == "}": d_brace += 1
-                                            elif c_ch == "{":
-                                                if d_brace == 0:
-                                                    outer_container = "{"
-                                                    break
-                                                d_brace -= 1
-                                            elif c_ch == ")": d_paren += 1
-                                            elif c_ch == "(":
-                                                if d_paren == 0:
-                                                    outer_container = "("
-                                                    break
-                                                d_paren -= 1
-                                            elif c_ch == "]": d_bracket += 1
-                                            elif c_ch == "[":
-                                                if d_bracket == 0:
-                                                    outer_container = "["
-                                                    break
-                                                d_bracket -= 1
-                                            elif c_ch == ">": d_angle += 1
-                                            elif c_ch == "<":
-                                                if d_angle == 0:
-                                                    outer_container = "<"
-                                                    break
-                                                d_angle -= 1
-                                            p_idx -= 1
-                                        if outer_container in ("(", "<", "["):
-                                            break
-                                    arrow_idx = pos
-                                    break
-                                break  # the `=>` belongs to an annotation, not an assignment
-                            if ch == "=":
-                                saw_assignment = True
-                            if ch == ":":
-                                saw_colon = True
-                            elif ch in ";{":
-                                break  # the statement ended without an arrow -- not a function body
-                        pos += 1
-                    if arrow_idx == -1:
-                        continue
+
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "arrow":
                     end_idx = next_match_start
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue
             # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
             # are not real function definitions and should not have a block/body
             # attributed to them. Because func_start correctly only matches line-anchored
@@ -2836,37 +2766,19 @@ class StructuralExtractor:
                         break
                     pos += 1
                 if term_kind != "brace":
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue  # bodyless forward declaration (or neither terminator in the window)
+                    continue  # bodyless forward declaration (or neither terminator in the window)
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
             else:
-                brace_idx = -1
-                pos = start_idx
-                depth_paren = depth_bracket = depth_angle = 0
-                while pos < search_limit:
-                    ch = safe_code[pos]
-                    if depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
-                        if ch == opener:
-                            brace_idx = pos
-                            break
-                        if ch == ";":
-                            break
-                    if ch == "(": depth_paren += 1
-                    elif ch == ")": depth_paren = max(0, depth_paren - 1)
-                    elif ch == "[": depth_bracket += 1
-                    elif ch == "]": depth_bracket = max(0, depth_bracket - 1)
-                    elif ch == "<": depth_angle += 1
-                    elif ch == ">": depth_angle = max(0, depth_angle - 1)
-                    pos += 1
-                
+                brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
                 if lang_id == "c":
                     args_sig_end = brace_idx
 
             block = code[start_idx:end_idx].strip()
             if not block:
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
 
@@ -3047,7 +2959,7 @@ class StructuralExtractor:
                 while haskell_group_stack and haskell_group_stack[-1][1] <= start_idx:
                     haskell_group_stack.pop()
                 if any(fname == name and start_idx < fend for fname, fend in haskell_group_stack):
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
             end_idx = len(safe_code)
 
@@ -3109,7 +3021,7 @@ class StructuralExtractor:
                             if equation_start_idx is None:
                                 equation_start_idx = scan_pos
                             scan_pos = line_end
-                            print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                            continue
                         end_idx = scan_pos
                         break
 
@@ -3135,12 +3047,12 @@ class StructuralExtractor:
                 # want to match an arrow inside a default-value string literal or comment
                 signature_text = safe_code[start_idx:sig_end]
                 if "->" not in signature_text and "⊸" not in signature_text:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
             if not block or (len(block.splitlines()) < 2 and lang_id != "haskell"):
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             # --- FAST O(N) LINE TRACKER ---
             current_line_count += code.count("\n", last_counted_idx, start_idx)
@@ -3389,9 +3301,9 @@ class StructuralExtractor:
 
             for i in range(n):
                 if depth_before_line[i] <= 0:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if not function_opener_pattern.search(safe_lines[i]):
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 local_depth = 0
                 block_lines: list[str] = []
@@ -3408,7 +3320,7 @@ class StructuralExtractor:
 
                 block = "\n".join(block_lines).strip()
                 if not block:
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
 
                 name = self._extract_semantic_name(safe_lines[i], lang_key) or "Main"
                 loc = max(len(block_lines), 1)
@@ -3502,7 +3414,7 @@ class StructuralExtractor:
             if not safe_line.strip() and not is_orbiting:
                 sat_start_line = current_line_offset + 1
                 current_char_offset += len(orig_line)
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
 
             # Check for block ignition
             if not is_orbiting:
@@ -3594,7 +3506,7 @@ class StructuralExtractor:
             if in_string:
                 if ch == "\\":
                     i += 2
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if ch == quote_char:
                     in_string = False
             elif ch in ("'", '"', "`"):
@@ -3666,7 +3578,7 @@ class StructuralExtractor:
             if in_string:
                 if ch == "\\":
                     i += 2
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if ch == quote_char:
                     in_string = False
             elif ch in ("'", '"', "`"):
@@ -3688,7 +3600,7 @@ class StructuralExtractor:
                 # `->`/`=>` inside already-truncated text is a different,
                 # pre-existing bug this narrower guard deliberately leaves alone
                 # rather than risk shifting their baselines in a zig-scoped fix.
-                if treat_as_body and ch == ">" and i > 0 and body[i - 1] in "=-":
+                if ch == ">" and i > 0 and body[i - 1] in "=-":
                     pass
                 elif depth > 0:
                     depth -= 1
@@ -3735,7 +3647,7 @@ class StructuralExtractor:
             if in_string:
                 if ch == "\\":
                     i += 2
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if ch == quote_char:
                     in_string = False
             elif ch in ("'", '"', "`"):
@@ -3835,11 +3747,11 @@ class StructuralExtractor:
             if in_string:
                 if ch == "\\":
                     i += 2
-                    print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                    continue
                 if ch == quote_char:
                     in_string = False
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch == '"':
                 in_string = True
                 quote_char = ch
@@ -3847,24 +3759,24 @@ class StructuralExtractor:
                     count += 1
                     at_boundary = False
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch in "([":
                 if depth == 0 and at_boundary:
                     count += 1
                     at_boundary = False
                 depth += 1
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch in ")]":
                 if depth > 0:
                     depth -= 1
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch in " \t":
                 if depth == 0:
                     at_boundary = True
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if depth == 0 and at_boundary:
                 count += 1
                 at_boundary = False
@@ -3886,24 +3798,24 @@ class StructuralExtractor:
             ch = text[i]
             if ch == "\\":
                 i += 2
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch == "{":
                 if depth == 0 and at_boundary:
                     count += 1
                     at_boundary = False
                 depth += 1
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch == "}":
                 if depth > 0:
                     depth -= 1
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if ch in " \t\r\n":
                 if depth == 0:
                     at_boundary = True
                 i += 1
-                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                continue
             if depth == 0 and at_boundary:
                 count += 1
                 at_boundary = False
@@ -4110,7 +4022,7 @@ class StructuralExtractor:
                         total = 0
                         for m in args_pattern.finditer(search_text):
                             if not m.lastindex or m.lastindex not in findall_sum_groups:
-                                print(f"Skipping at line {sys._getframe().f_lineno}"); continue
+                                continue
                             sub_str = (m.group(m.lastindex) or "").strip()
                             if (
                                 sub_str.startswith("(")

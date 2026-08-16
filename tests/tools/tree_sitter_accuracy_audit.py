@@ -665,8 +665,6 @@ def run_engine_scan(corpus_dir: Path, tmp_dir: Path) -> Path:
     if not galaxyscope:
         sys.exit("tree_sitter_accuracy_audit: galaxyscope not found on PATH -- activate the venv (pip install -e .)")
 
-    tmp_dir = Path("/tmp/fixed_audit_dir")
-    tmp_dir.mkdir(exist_ok=True)
     output_stub = tmp_dir / "scan.json"
     result = subprocess.run(
         [
@@ -795,16 +793,7 @@ def _count_haskell_signature_arrows(type_node: Optional[Any]) -> int:
     return 1 + _count_haskell_signature_arrows(type_node.child_by_field_name("result"))
 
 
-def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[str]:
-    # Use code_bytes if available to accurately read names, rather than .text which may misalign
-    def _read_text(n: Any) -> str:
-        return _read_text(n) if code_bytes is None else code_bytes[n.start_byte:n.end_byte].decode("utf8")
-
-    if node.type in ("method_signature", "function_signature"):
-        name = _read_text(node.child_by_field_name("name") or node)
-        if name in ("constructor", "catch", "finally", "then"):
-            return None
-
+def _get_node_name(node: Any) -> Optional[str]:
     if node.type == "bind":
         # #1566: only a real function -- see func_node_types' haskell entry for the full
         # rationale. Checked first, ahead of the generic "name" field fast path below, since
@@ -819,7 +808,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
         sig_type = _unwrap_haskell_signature_type(sig.child_by_field_name("type"))
         if sig_type is None or sig_type.type != "function":
             return None
-        return _read_text(name_node)
+        return name_node.text.decode("utf8")
 
     if node.type in ("constructor_signature", "constant_constructor_signature", "factory_constructor_signature"):
         # #1569: checked first, ahead of the generic "name" field fast path below -- it would
@@ -841,7 +830,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
         # with the class's own default constructor (both would resolve to e.g.
         # "TextEditingController", even though GitGalaxy correctly emits the distinct
         # "TextEditingController.fromValue" for the named one).
-        parts = [_read_text(child) for child in node.children if child.type == "identifier"]
+        parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
         return ".".join(parts) if parts else None
 
     if node.type == "operator_signature":
@@ -857,32 +846,32 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
         seen_keyword = False
         for child in node.children:
             if seen_keyword:
-                return "operator" + _read_text(child)
+                return "operator" + child.text.decode("utf8")
             if child.type == "operator":
                 seen_keyword = True
         return None
 
     name_node = node.child_by_field_name("name")
     if name_node:
-        return _read_text(name_node)
+        return name_node.text.decode("utf8")
 
     if node.type in ("arrow_function", "function_expression"):
         if node.parent and node.parent.type == "variable_declarator":
             name_node = node.parent.child_by_field_name("name")
             if name_node:
-                return _read_text(name_node)
+                return name_node.text.decode("utf8")
         if node.parent and node.parent.type == "assignment_expression":
             left = node.parent.child_by_field_name("left")
             if left and left.type in ("identifier", "member_expression"):
-                return _read_text(left).split(".")[-1]
+                return left.text.decode("utf8").split(".")[-1]
         if node.parent and node.parent.type == "pair":
             key = node.parent.child_by_field_name("key")
             if key and key.type == "property_identifier":
-                return _read_text(key)
+                return key.text.decode("utf8")
         if node.parent and node.parent.type == "public_field_definition":
             name_node = node.parent.child_by_field_name("name")
             if name_node:
-                return _read_text(name_node)
+                return name_node.text.decode("utf8")
 
     # C/C++'s function_definition has no top-level "name" field at all -- see
     # _unwrap_c_style_declarator's own docstring (#1265). No-op for any other NODE_MAPS language
@@ -905,11 +894,11 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     ):
         for child in node.children:
             if child.type == "name":
-                return _read_text(child)
+                return child.text.decode("utf8")
     if node.type == "derived_type_statement":
         for child in node.children:
             if child.type == "type_name":
-                return _read_text(child)
+                return child.text.decode("utf8")
 
     # tree-sitter-make's "rule" node has no name field at all -- a rule can list multiple
     # space-separated targets ("a b c: deps"), so take the first the same way GitGalaxy's own
@@ -919,7 +908,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
             if child.type == "targets":
                 for grandchild in child.children:
                     if grandchild.type == "word":
-                        return _read_text(grandchild)
+                        return grandchild.text.decode("utf8")
                 break
 
     # #1313: css's at-rule statement nodes (media_statement/supports_statement/
@@ -939,7 +928,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "singleton_class":
         for child in node.children:
             if child.type not in ("class", "<<", "comment"):
-                return "<< " + _read_text(child)
+                return "<< " + child.text.decode("utf8")
         return None
 
     if node.type == "media_statement":
@@ -949,7 +938,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "keyframes_statement":
         for child in node.children:
             if child.type == "at_keyword":
-                return _read_text(child).lstrip("@")
+                return child.text.decode("utf8").lstrip("@")
         return None
     if node.type == "at_rule":
         # The generic bucket also holds @font-face/@page/@charset/@namespace/@property/@scope --
@@ -957,7 +946,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
         # manufacture a false recall gap. Only @layer/@container are.
         for child in node.children:
             if child.type == "at_keyword":
-                keyword = _read_text(child)
+                keyword = child.text.decode("utf8")
                 return keyword.lstrip("@") if keyword.lower() in ("@layer", "@container") else None
         return None
 
@@ -970,12 +959,12 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "class_selector":
         for child in node.children:
             if child.type == "class_name":
-                return "." + _read_text(child)
+                return "." + child.text.decode("utf8")
         return None
     if node.type == "id_selector":
         for child in node.children:
             if child.type == "id_name":
-                return "#" + _read_text(child)
+                return "#" + child.text.decode("utf8")
         return None
 
     # #1313: kotlin's function_declaration/class_declaration have no "name" FIELD in this
@@ -984,12 +973,12 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "function_declaration":
         for child in node.children:
             if child.type == "simple_identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
     if node.type == "class_declaration":
         for child in node.children:
             if child.type == "type_identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
     # #1295: kotlin's `object_declaration` (companion/singleton/multiplatform actual|expect
     # object) has the same shape as class_declaration above -- no "name" field, plainly-typed
@@ -997,7 +986,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "object_declaration":
         for child in node.children:
             if child.type == "type_identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
 
     # #1313: powershell's function_statement/class_statement/class_method_definition have no
@@ -1005,7 +994,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "function_statement":
         for child in node.children:
             if child.type == "function_name":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
     # #1295: enum_statement has the identical no-name-field shape as class_statement above --
     # powershell's own class_start regex already intentionally matches "class|enum" (its comment
@@ -1014,7 +1003,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type in ("class_statement", "class_method_definition", "enum_statement"):
         for child in node.children:
             if child.type == "simple_name":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
 
     # #1313: zig's FnProto has no "name" field -- the identifier is a plainly-typed "IDENTIFIER"
@@ -1022,7 +1011,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "FnProto":
         for child in node.children:
             if child.type == "IDENTIFIER":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
     if node.type in ("ContainerDecl", "ErrorSetDecl"):
         return _get_zig_container_name(node)
@@ -1050,7 +1039,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
                     continue
                 name_node = child.child_by_field_name("name")
                 if name_node:
-                    return _read_text(name_node)
+                    return name_node.text.decode("utf8")
         return None
 
     # #1295: objective-c's class_interface/class_implementation/class_declaration nodes have no
@@ -1063,7 +1052,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type in ("class_interface", "class_implementation", "class_declaration"):
         for child in node.children:
             if child.type == "identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
 
     # #1314: objective-c's method_definition/method_declaration nodes have no "name" field in
@@ -1080,7 +1069,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type in ("method_definition", "method_declaration"):
         for child in node.children:
             if child.type == "identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
 
     # #1295: dart's mixin_declaration nodes have no "name" field in this grammar -- the name is a
@@ -1088,7 +1077,7 @@ def _get_node_name(node: Any, code_bytes: Optional[bytes] = None) -> Optional[st
     if node.type == "mixin_declaration":
         for child in node.children:
             if child.type == "identifier":
-                return _read_text(child)
+                return child.text.decode("utf8")
         return None
 
     return None
@@ -1740,7 +1729,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         if (lang == "perl" and node.child_by_field_name("body") is None) or (lang == "haskell" and is_continuation_clause):
                             pass
                         else:
-                            name = _get_node_name(node, code_bytes)
+                            name = _get_node_name(node)
                             # #1633: error recovery in a Flow-typed javascript file (Claim 3's
                             # mechanism -- see docs/why_gitgalaxy_beats_ast_here.md) can
                             # misparse a plain control-flow statement (`if (...) { ... }`)
@@ -1773,7 +1762,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass
                         else:
-                            name = _get_node_name(node, code_bytes)
+                            name = _get_node_name(node)
                             if name:
                                 real_classes.add(name)
 
@@ -1793,7 +1782,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             continue
                         child_is_continuation = False
                         if lang == "haskell" and child.type in func_node_types:
-                            child_name = _get_node_name(child, code_bytes)
+                            child_name = _get_node_name(child)
                             if child_name is not None and child_name == last_clause_name:
                                 child_is_continuation = True
                             last_clause_name = child_name

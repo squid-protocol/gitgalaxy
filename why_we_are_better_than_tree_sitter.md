@@ -37,3 +37,11 @@ By refining the argument counting regex and the brace/arrow slicing loops, we el
 - False Positives (Extra functions): Reduced from `22` down to `15`
 
 GitGalaxy structurally understands what constitutes a function signature and parameter list better than tree-sitter.
+
+## 5. Resilience Against Preprocessor Macros and Dead Code in C
+
+In C, the preprocessor adds an entirely separate meta-layer of syntax that Tree-sitter's rigid AST grammar struggles to reconcile. During our C `func_recall_pct` accuracy audit, GitGalaxy proved superior to Tree-sitter on multiple fronts:
+
+1. **Intelligent Dead Code Shielding:** Tree-sitter routinely parses `#if 0` blocks and erroneously reports dead/uncompiled code as active function definitions (e.g., `print_stack`, `PlinkPrint`, and `tos_char` in CPython/SQLite). Because GitGalaxy natively understands `#if 0` macro shielding during its pre-processing phase, it correctly ignores these dead zones.
+2. **Macro Hallucinations:** Tree-sitter frequently hallucinates functions when encountering macro definitions, labels, or array initializers that happen to look vaguely structural. For example, Tree-sitter parses the Python dictionary macro `DICT___REVERSED___METHODDEF` and MicroPython bytecode switch cases (`MP_BC_BINARY_OP_MULTI`) as standalone function declarations. GitGalaxy's structural extraction is robust enough to know these are not functions.
+3. **Regex Robustness with Nested Macros:** GitGalaxy easily handles complex C macros directly inside function signatures. Functions like `_PyEval_EvalFrameDefault` (which has `DONT_SLP_VECTORIZE` scattered after the return type) and `PyCode_Optimize` (which uses `Py_UNUSED` inline within its parameter block) confuse strict parsers. With our nested-parenthesis trick `\((?:[^)(]|\([^)]*\))*\)` and macro-wrapper shields, GitGalaxy effortlessly glides through these preprocessor hurdles and extracts the actual function signature beneath.

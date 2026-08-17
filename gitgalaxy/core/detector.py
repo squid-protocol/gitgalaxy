@@ -809,9 +809,10 @@ class StructuralExtractor:
                 func_line = func.get("start_line", 0)
                 innermost_cls: Optional[_ClassInfoWithBounds] = None
                 for cls in classes:
-                    if cls["_start_line"] <= func_line <= cls["_end_line"]:
-                        if innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]:
-                            innermost_cls = cls
+                    if cls["_start_line"] <= func_line <= cls["_end_line"] and (
+                        innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
+                    ):
+                        innermost_cls = cls
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -2694,60 +2695,102 @@ class StructuralExtractor:
             # closer analogy than csharp's trailing-semicolon scan).
             elif lang_id in ("typescript", "javascript"):
                 # A brace-less assignment match that is itself in expression
-                # position (preceding non-whitespace char is `>`/`)`/`,`) is a
+                # position (preceding non-whitespace char is `>`/`)`) is a
                 # return type, not a name -- `=> M = (M) => ...` in fp-ts's
-                # foldMap reports a phantom `M`. Only declaration-position
-                # matches (`const swap = ...`, line-start object members) are
-                # real functions.
+                # foldMap reports a phantom `M`. We removed `,` from this check
+                # because object literal properties are preceded by `,`.
                 if start_idx > 0:
                     p = start_idx - 1
                     while p >= 0 and safe_code[p] in " \t":
                         p -= 1
-                    if p >= 0 and safe_code[p] in ">),":
+                    if p >= 0 and safe_code[p] in ">)":
                         continue
-                brace_idx = safe_code.find(opener, start_idx, search_limit)
-                if brace_idx != -1:
-                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
-                else:
-                    # Only assignment-shaped matches (`const foo = ... => ...`
-                    # or `foo: Type = ... => ...`) are real runtime functions.
-                    # An interface/type member's function-type annotation
-                    # (`readonly alt: <A>(...) => ...`, no `=` anywhere before
-                    # its `=>`) is pure type-level syntax -- #1631's remaining
-                    # phantom shape -- so require an un-nested `=` before the
-                    # first `=>`.
-                    depth_paren = depth_bracket = depth_angle = 0
-                    pos = match.end()
-                    saw_assignment = False
-                    arrow_idx = -1
-                    while pos < search_limit:
-                        ch = safe_code[pos]
-                        if ch == "(":
-                            depth_paren += 1
-                        elif ch == ")":
-                            depth_paren = max(0, depth_paren - 1)
-                        elif ch == "[":
-                            depth_bracket += 1
-                        elif ch == "]":
-                            depth_bracket = max(0, depth_bracket - 1)
-                        elif ch == "<":
-                            depth_angle += 1
-                        elif ch == ">":
-                            depth_angle = max(0, depth_angle - 1)
-                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
-                            if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
-                                if saw_assignment:
-                                    arrow_idx = pos
-                                    break
-                                break  # the `=>` belongs to an annotation, not an assignment
-                            if ch == "=":
-                                saw_assignment = True
-                            elif ch in ";{":
-                                break  # the statement ended without an arrow -- not a function body
-                        pos += 1
-                    if arrow_idx == -1:
-                        continue
+                depth_paren = depth_bracket = depth_angle = 0
+                pos = match.end()
+                saw_assignment = False
+                saw_colon = False
+                term_idx = -1
+                term_kind = None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                        if ch == opener:
+                            term_idx = pos
+                            term_kind = "brace"
+                            break
+                        if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                            if saw_assignment or saw_colon:
+                                if saw_colon and not saw_assignment:
+                                    p_idx = start_idx - 1
+                                    d_paren = d_bracket = d_angle = d_brace = 0
+                                    outer_container = None
+                                    while p_idx >= 0:
+                                        c_ch = safe_code[p_idx]
+                                        if c_ch == "}":
+                                            d_brace += 1
+                                        elif c_ch == "{":
+                                            if d_brace == 0:
+                                                outer_container = "{"
+                                                break
+                                            d_brace -= 1
+                                        elif c_ch == ")":
+                                            d_paren += 1
+                                        elif c_ch == "(":
+                                            if d_paren == 0:
+                                                outer_container = "("
+                                                break
+                                            d_paren -= 1
+                                        elif c_ch == "]":
+                                            d_bracket += 1
+                                        elif c_ch == "[":
+                                            if d_bracket == 0:
+                                                outer_container = "["
+                                                break
+                                            d_bracket -= 1
+                                        elif c_ch == ">":
+                                            d_angle += 1
+                                        elif c_ch == "<":
+                                            if d_angle == 0:
+                                                outer_container = "<"
+                                                break
+                                            d_angle -= 1
+                                        p_idx -= 1
+                                    if outer_container in ("(", "<", "["):
+                                        break  # it's a type annotation inside a parameter list or generic
+                                term_idx = pos
+                                term_kind = "arrow"
+                                break
+                            break  # the `=>` belongs to an annotation, not an assignment
+                        if ch == "=":
+                            saw_assignment = True
+                        elif ch == ":":
+                            saw_colon = True
+                        elif ch == ";":
+                            term_idx = pos
+                            term_kind = "semi"
+                            break  # bodyless prototype
+                    pos += 1
+
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "arrow":
                     end_idx = next_match_start
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue
             # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
             # are not real function definitions and should not have a block/body
             # attributed to them. Because func_start correctly only matches line-anchored
@@ -3605,7 +3648,7 @@ class StructuralExtractor:
                 # `->`/`=>` inside already-truncated text is a different,
                 # pre-existing bug this narrower guard deliberately leaves alone
                 # rather than risk shifting their baselines in a zig-scoped fix.
-                if treat_as_body and ch == ">" and i > 0 and body[i - 1] in "=-":
+                if ch == ">" and i > 0 and body[i - 1] in "=-":
                     pass
                 elif depth > 0:
                     depth -= 1

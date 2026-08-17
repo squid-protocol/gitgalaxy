@@ -426,6 +426,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     logic_data["metadata"] = {}
                 logic_data["metadata"]["doc_umbrella"] = guidestar.documentation_coverage.get(dir_path, 0.0)
 
+                print("GG SPLICE FUNCS:", [f["name"] for f in logic_data.get("functions", [])])
+
                 logger.debug(f"[WORKER-TRACE] <<< EXITING EXTRACTOR: {rel_path}")
 
             # --- Phase 5.5: Security Lens (Passive Observers) ---

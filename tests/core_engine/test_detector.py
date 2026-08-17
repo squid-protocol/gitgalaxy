@@ -66,6 +66,10 @@ MOCK_LANG_DEFS = {
             "structural_boundaries": re.compile(r"(?<![:.])\b(puts|require|include)\b(?!:)"),
         },
     },
+    "typescript": {
+        "lexical_family": "c_style_comment",
+        "rules": {},
+    },
 }
 
 
@@ -1628,7 +1632,7 @@ def test_detector_tiktoken_mass_success():
             def encode(self, text, disallowed_special=()):
                 return [1, 2, 3, 4, 5]  # Simulate 5 tokens
 
-        with patch("gitgalaxy.core.detector.ENCODER", MockEncoder()):
+        with patch("gitgalaxy.core.detector.ENCODER", MockEncoder(), create=True):
             mass = get_token_mass("def mock_func(): pass")
             assert mass == 5, "Token mass calculation failed to use the encoder!"
 
@@ -2858,3 +2862,56 @@ def test_detector_zig_single_quote_bound_prevents_cross_line_swallow():
     assert "log" in names, f"log must not be swallowed by wasi_cwd's body: {names}"
     wasi_cwd = next(s for s in satellites if s["name"] == "wasi_cwd")
     assert wasi_cwd["loc"] <= 3, f"wasi_cwd's body must not swallow the rest of the file: loc={wasi_cwd['loc']}"
+
+def test_detector_depth_aware_brace_idx():
+    """
+    Proves that a brace inside a parameter list does not prematurely end the signature 
+    scan and cause argument count truncation for TypeScript.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    # Give the mock some TS rules
+    opt.languages["typescript"]["rules"]["func_start"] = re.compile(
+        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
+    )
+    opt.languages["typescript"]["rules"]["args"] = re.compile(
+        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))"
+    )
+    code = "function test_func(options: { url: string, cb: () => void }) {\n    return 1;\n}\n"
+    res = opt.splice(code, "")
+    assert len(res["functions"]) == 1
+    # Without depth-aware brace_idx, the brace inside the options object would truncate the signature
+    # causing args_pattern to fail. With it, it should correctly identify 1 arg.
+    assert res["functions"][0]["args_count"] == 1
+
+
+def test_detector_nested_parens_in_args():
+    """
+    Proves that the top level argument counting correctly tracks braces and brackets 
+    to prevent commas inside object literals from artificially inflating the argument count.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    # The _count_top_level_args handles splitting. 
+    # An argument `options: { a: string, b: string }` should be counted as 1 argument, not 2.
+    assert opt._count_top_level_args("(options: { a: string, b: string }, cb: (x, y) => void)") == 2
+    assert opt._count_top_level_args("(arr: [1, 2, 3], nested: { x: [1, 2] })") == 2
+
+def test_detector_nested_functions_in_signature_dropped():
+    """
+    Proves that the signature_end logic correctly skips nested functions 
+    (like f: (a: A) => B inside flatMap's signature) rather than treating them as top-level.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    opt.languages["typescript"]["rules"]["func_start"] = re.compile(
+        r"^[ \t]*([a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))", re.M
+    )
+    opt.languages["typescript"]["rules"]["args"] = re.compile(r"")
+    
+    code = (
+        "export const flatMap: {\n"
+        "  <A, E2, B>(f: (a: A) => Either<E2, B>): <E1>(ma: Either<E1, A>) => Either<E1 | E2, B>\n"
+        "} = dual\n"
+    )
+    # The regex would match `f` as a func_start, but the signature_end logic in `_slice_by_braces`
+    # should prevent it from being extracted as a real satellite function.
+    satellites, _ = opt._slice_by_braces(code, "typescript", opt.languages["typescript"]["rules"], 0, {})
+    assert len(satellites) == 0, "Nested parameter function `f` should have been skipped by signature_end logic!"

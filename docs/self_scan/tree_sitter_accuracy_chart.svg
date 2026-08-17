@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-17T01:05:45+00:00 &#183; commit 6b022e6 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-17T02:01:37+00:00 &#183; commit 424bdea &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -138,8 +138,8 @@
 <rect x="104" y="520.0" width="85.9" height="9" rx="3" fill="#2957d6"/>
 <text class="value-label" x="194.9" y="528.0">1672/1790</text>
 <text class="row-label" x="96" y="543.0" text-anchor="end">cpp</text>
-<rect x="104" y="535.0" width="85.6" height="9" rx="3" fill="#2959d6"/>
-<text class="value-label" x="194.6" y="543.0">1386/1491</text>
+<rect x="104" y="535.0" width="85.9" height="9" rx="3" fill="#2957d6"/>
+<text class="value-label" x="194.9" y="543.0">1392/1491</text>
 <rect class="stripe" x="16" y="547" width="246" height="15"/>
 <text class="row-label" x="96" y="558.0" text-anchor="end">typescript</text>
 <rect x="104" y="550.0" width="85.1" height="9" rx="3" fill="#295dd6"/>
@@ -238,8 +238,8 @@
 <rect x="378" y="490.0" width="88.7" height="9" rx="3" fill="#2942d6"/>
 <text class="value-label" x="471.7" y="498.0">27/28</text>
 <text class="row-label" x="370" y="513.0" text-anchor="end">cpp</text>
-<rect x="378" y="505.0" width="88.5" height="9" rx="3" fill="#2943d6"/>
-<text class="value-label" x="471.5" y="513.0">1386/1441</text>
+<rect x="378" y="505.0" width="88.0" height="9" rx="3" fill="#2947d6"/>
+<text class="value-label" x="471.0" y="513.0">1392/1454</text>
 <rect class="stripe" x="290" y="517" width="246" height="15"/>
 <text class="row-label" x="370" y="528.0" text-anchor="end">ruby</text>
 <rect x="378" y="520.0" width="87.8" height="9" rx="3" fill="#2949d6"/>
@@ -555,13 +555,13 @@
 <text class="row-label" x="1192" y="528.0" text-anchor="end">go</text>
 <rect x="1200" y="520.0" width="82.7" height="9" rx="3" fill="#296fd6"/>
 <text class="value-label" x="1287.7" y="528.0">806/897</text>
-<text class="row-label" x="1192" y="543.0" text-anchor="end">cpp</text>
-<rect x="1200" y="535.0" width="80.2" height="9" rx="3" fill="#2982d6"/>
-<text class="value-label" x="1285.2" y="543.0">1209/1386</text>
+<text class="row-label" x="1192" y="543.0" text-anchor="end">java</text>
+<rect x="1200" y="535.0" width="80.0" height="9" rx="3" fill="#2983d6"/>
+<text class="value-label" x="1285.0" y="543.0">274/315</text>
 <rect class="stripe" x="1112" y="547" width="246" height="15"/>
-<text class="row-label" x="1192" y="558.0" text-anchor="end">java</text>
-<rect x="1200" y="550.0" width="80.0" height="9" rx="3" fill="#2983d6"/>
-<text class="value-label" x="1285.0" y="558.0">274/315</text>
+<text class="row-label" x="1192" y="558.0" text-anchor="end">cpp</text>
+<rect x="1200" y="550.0" width="79.8" height="9" rx="3" fill="#2985d6"/>
+<text class="value-label" x="1284.8" y="558.0">1207/1392</text>
 <text class="row-label" x="1192" y="573.0" text-anchor="end">groovy</text>
 <text class="na-dash" x="1206" y="573.0">n/a</text>
 <rect class="stripe" x="1112" y="577" width="246" height="15"/>

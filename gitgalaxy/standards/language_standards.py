@@ -41,7 +41,7 @@ for the same metrics tracked over time across pushes to main.
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 96.0% | 97.8% | 100.0% | 100.0% |
 | Fortran | 98.4% | 100.0% | 100.0% | 100.0% |
-| Go | 95.7% | 100.0% | 100.0% | 100.0% |
+| Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 100.0% | 98.6% | 100.0% | 100.0% |
 | Html | N/A | N/A | N/A | N/A |
@@ -56,8 +56,8 @@ for the same metrics tracked over time across pushes to main.
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
 | Python | 99.3% | 100.0% | 99.6% | 100.0% |
-| Ruby | 100.0% | 95.4% | 100.0% | 100.0% |
-| Rust | 99.8% | 100.0% | 100.0% | 100.0% |
+| Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
+| Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
 | Shell | 100.0% | 100.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
@@ -2617,7 +2617,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # a genuinely empty closure `|| ...`. Name group added to the
                 # first alternative too, purely so existing extraction tests
                 # keep passing.
-                r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|->|<(?:[^<>]|->|<(?:[^<>]|->)*>)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
+                r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->)*>)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -2647,7 +2647,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?:#\[[^\]]*\][ \t\n]*){0,5}"
                 r"(?:pub(?:\([^)]*\))?[ \t\n]+){0,3}"
                 r"(?:(?:const|async|unsafe|extern(?:[ \t\n]+\"[^\"]*\")?)[ \t\n]+){0,3}"
-                r"fn[ \t\n]+(?:r#)?([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>]|->|<(?:[^<>]|->|<(?:[^<>]|->)*>)*>)*>)?[ \t\n]*(?=\()",
+                r"fn[ \t\n]+(?:r#)?([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->)*>)*>)*>)?[ \t\n]*(?=\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

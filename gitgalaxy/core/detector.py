@@ -809,9 +809,10 @@ class StructuralExtractor:
                 func_line = func.get("start_line", 0)
                 innermost_cls: Optional[_ClassInfoWithBounds] = None
                 for cls in classes:
-                    if cls["_start_line"] <= func_line <= cls["_end_line"]:
-                        if innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]:
-                            innermost_cls = cls
+                    if cls["_start_line"] <= func_line <= cls["_end_line"] and (
+                        innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
+                    ):
+                        innermost_cls = cls
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -1888,7 +1889,15 @@ class StructuralExtractor:
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id in ("rust", "zig"):
+        if lang_id == "cpp":
+            # #1718: C++14+ digit separators (512'000, 1'000'000, 0xDE'AD) use ' inside
+            # numeric literals. The unbounded branch read a separator as a char-literal opener
+            # and paired it with the next unrelated ' anywhere later in the file, blanking every
+            # real function body in between from the brace scan. Consume separators as their own
+            # alternative (same shape as prism.py's CPP_LITERAL_MASK_PATTERN) and bound the branch
+            # to 64 chars, matching #1302/#1426.
+            single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
+        elif lang_id in ("rust", "zig"):
             # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
             # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are
             # never shielded at all here (a separate, pre-existing gap) -- so a real
@@ -2105,9 +2114,28 @@ class StructuralExtractor:
         # Macro Shields (Strictly Gated to C-Family)
         if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):
             lines = safe_code.splitlines(keepends=True)
-            in_dead_branch = False
-            dead_nesting_depth = 0
+            # Per-open-#if branch policy. Each stack entry is a (policy, side)
+            # pair where policy is the #if condition's static truth value and
+            # side is which branch of that #if we are currently in:
+            #   policy True  (#if 1 / #if true)   -> first branch alive, #else dead
+            #   policy False (#if 0 / #if false)  -> first branch dead, #else alive
+            #   policy None  (unknown, e.g. #if FOO / #ifdef FOO)
+            #                                -> scan BOTH branches. This is the
+            #                                   #1720 fix: tree-sitter ground truth
+            #                                   parses both, and implementations
+            #                                   living in #else were being blanked.
+            # any() over the stack: an inner #if inside an outer dead region stays
+            # dead even if its own condition would flip it; #endif pops restore it.
+            branch_stack: list[tuple[Optional[bool], str]] = []
             in_multiline_macro = False
+
+            def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
+                policy, side = entry
+                if policy is True:
+                    return side == "else"
+                if policy is False:
+                    return side == "first"
+                return False
 
             for i in range(len(lines)):
                 line = lines[i]
@@ -2120,17 +2148,18 @@ class StructuralExtractor:
                     continue
 
                 if stripped.startswith("#"):
-                    if stripped.startswith("#if"):
-                        if in_dead_branch:
-                            dead_nesting_depth += 1
-                    elif stripped.startswith(("#else", "#elif")):
-                        if not in_dead_branch and dead_nesting_depth == 0:
-                            in_dead_branch = True
-                    elif stripped.startswith("#endif") and in_dead_branch:
-                        if dead_nesting_depth > 0:
-                            dead_nesting_depth -= 1
-                        else:
-                            in_dead_branch = False
+                    if re.match(r"#if\b", stripped):
+                        branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
+                    elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
+                        branch_stack.append((None, "first"))
+                    elif re.match(r"#elif\b", stripped) and branch_stack:
+                        # an #elif starts a fresh condition on the else side
+                        branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
+                    elif stripped.startswith("#else") and branch_stack:
+                        policy, _ = branch_stack[-1]
+                        branch_stack[-1] = (policy, "else")
+                    elif stripped.startswith("#endif") and branch_stack:
+                        branch_stack.pop()
 
                     if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
                         in_multiline_macro = True
@@ -2138,12 +2167,38 @@ class StructuralExtractor:
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
                     continue
 
-                if in_dead_branch:
+                if any(_branch_dead(e) for e in branch_stack):
                     lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
 
             safe_code = "".join(lines)
 
         return safe_code
+
+    @staticmethod
+    def _classify_preproc_condition(condition: str) -> Optional[bool]:
+        """
+        Returns the static truth value of a C-family preprocessor #if condition,
+        or None when it cannot be evaluated without a macro table.
+
+        Recognized constants (after stripping C comments and whitespace):
+          True  -- "1", "true", "TRUE"
+          False -- "0", "false", "FALSE"
+          None  -- everything else (macro names, defined(X), expressions)
+
+        Used by _build_brace_safe_stream's macro shield so #else branches that
+        genuinely contain implementations are scanned instead of blindly blanked
+        (#1720): only a statically-true #if (#if 1) makes its #else branch dead,
+        and only a statically-false #if (#if 0) makes its first branch dead.
+        """
+        if condition is None:
+            return None
+        # strip C-style comments and surrounding whitespace
+        cond = re.sub(r"/\*.*?\*/|//.*$", "", condition, flags=re.S).strip()
+        if cond in ("1", "true", "TRUE", "True"):
+            return True
+        if cond in ("0", "false", "FALSE", "False"):
+            return False
+        return None
 
     def _slice_by_braces(
         self,
@@ -2765,60 +2820,102 @@ class StructuralExtractor:
             # closer analogy than csharp's trailing-semicolon scan).
             elif lang_id in ("typescript", "javascript"):
                 # A brace-less assignment match that is itself in expression
-                # position (preceding non-whitespace char is `>`/`)`/`,`) is a
+                # position (preceding non-whitespace char is `>`/`)`) is a
                 # return type, not a name -- `=> M = (M) => ...` in fp-ts's
-                # foldMap reports a phantom `M`. Only declaration-position
-                # matches (`const swap = ...`, line-start object members) are
-                # real functions.
+                # foldMap reports a phantom `M`. We removed `,` from this check
+                # because object literal properties are preceded by `,`.
                 if start_idx > 0:
                     p = start_idx - 1
                     while p >= 0 and safe_code[p] in " \t":
                         p -= 1
-                    if p >= 0 and safe_code[p] in ">),":
+                    if p >= 0 and safe_code[p] in ">)":
                         continue
-                brace_idx = safe_code.find(opener, start_idx, search_limit)
-                if brace_idx != -1:
-                    end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
-                else:
-                    # Only assignment-shaped matches (`const foo = ... => ...`
-                    # or `foo: Type = ... => ...`) are real runtime functions.
-                    # An interface/type member's function-type annotation
-                    # (`readonly alt: <A>(...) => ...`, no `=` anywhere before
-                    # its `=>`) is pure type-level syntax -- #1631's remaining
-                    # phantom shape -- so require an un-nested `=` before the
-                    # first `=>`.
-                    depth_paren = depth_bracket = depth_angle = 0
-                    pos = match.end()
-                    saw_assignment = False
-                    arrow_idx = -1
-                    while pos < search_limit:
-                        ch = safe_code[pos]
-                        if ch == "(":
-                            depth_paren += 1
-                        elif ch == ")":
-                            depth_paren = max(0, depth_paren - 1)
-                        elif ch == "[":
-                            depth_bracket += 1
-                        elif ch == "]":
-                            depth_bracket = max(0, depth_bracket - 1)
-                        elif ch == "<":
-                            depth_angle += 1
-                        elif ch == ">":
-                            depth_angle = max(0, depth_angle - 1)
-                        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
-                            if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
-                                if saw_assignment:
-                                    arrow_idx = pos
-                                    break
-                                break  # the `=>` belongs to an annotation, not an assignment
-                            if ch == "=":
-                                saw_assignment = True
-                            elif ch in ";{":
-                                break  # the statement ended without an arrow -- not a function body
-                        pos += 1
-                    if arrow_idx == -1:
-                        continue
+                depth_paren = depth_bracket = depth_angle = 0
+                pos = match.end()
+                saw_assignment = False
+                saw_colon = False
+                term_idx = -1
+                term_kind = None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+                        if ch == opener:
+                            term_idx = pos
+                            term_kind = "brace"
+                            break
+                        if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                            if saw_assignment or saw_colon:
+                                if saw_colon and not saw_assignment:
+                                    p_idx = start_idx - 1
+                                    d_paren = d_bracket = d_angle = d_brace = 0
+                                    outer_container = None
+                                    while p_idx >= 0:
+                                        c_ch = safe_code[p_idx]
+                                        if c_ch == "}":
+                                            d_brace += 1
+                                        elif c_ch == "{":
+                                            if d_brace == 0:
+                                                outer_container = "{"
+                                                break
+                                            d_brace -= 1
+                                        elif c_ch == ")":
+                                            d_paren += 1
+                                        elif c_ch == "(":
+                                            if d_paren == 0:
+                                                outer_container = "("
+                                                break
+                                            d_paren -= 1
+                                        elif c_ch == "]":
+                                            d_bracket += 1
+                                        elif c_ch == "[":
+                                            if d_bracket == 0:
+                                                outer_container = "["
+                                                break
+                                            d_bracket -= 1
+                                        elif c_ch == ">":
+                                            d_angle += 1
+                                        elif c_ch == "<":
+                                            if d_angle == 0:
+                                                outer_container = "<"
+                                                break
+                                            d_angle -= 1
+                                        p_idx -= 1
+                                    if outer_container in ("(", "<", "["):
+                                        break  # it's a type annotation inside a parameter list or generic
+                                term_idx = pos
+                                term_kind = "arrow"
+                                break
+                            break  # the `=>` belongs to an annotation, not an assignment
+                        if ch == "=":
+                            saw_assignment = True
+                        elif ch == ":":
+                            saw_colon = True
+                        elif ch == ";":
+                            term_idx = pos
+                            term_kind = "semi"
+                            break  # bodyless prototype
+                    pos += 1
+
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "arrow":
                     end_idx = next_match_start
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue
             # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
             # are not real function definitions and should not have a block/body
             # attributed to them. Because func_start correctly only matches line-anchored
@@ -3676,7 +3773,7 @@ class StructuralExtractor:
                 # `->`/`=>` inside already-truncated text is a different,
                 # pre-existing bug this narrower guard deliberately leaves alone
                 # rather than risk shifting their baselines in a zig-scoped fix.
-                if treat_as_body and ch == ">" and i > 0 and body[i - 1] in "=-":
+                if ch == ">" and i > 0 and body[i - 1] in "=-":
                     pass
                 elif depth > 0:
                     depth -= 1

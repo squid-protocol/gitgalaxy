@@ -66,6 +66,10 @@ MOCK_LANG_DEFS = {
             "structural_boundaries": re.compile(r"(?<![:.])\b(puts|require|include)\b(?!:)"),
         },
     },
+    "typescript": {
+        "lexical_family": "c_style_comment",
+        "rules": {},
+    },
 }
 
 
@@ -407,6 +411,102 @@ def test_detector_c_macro_dead_branch_shield():
     # Because 'high_risk_execution' is in the dead branch, it should be scrubbed by the preprocessor shield
     # before the regex engine even sees it.
     assert result["equations"]["high_risk_execution"] == 0, "Failed to scrub dead preprocessor branches!"
+
+
+def test_detector_c_macro_else_branch_is_scanned_issue_1720():
+    """
+    Regression test for #1720: the preprocessor shield used to assume the
+    first branch of every #if/#ifdef is the active one and blindly blanked
+    the #else branch, so real implementations living in #else were silently
+    dropped from extraction. With an unknown condition (e.g. #if FEATURE_FLAG)
+    the shield now scans BOTH branches; only statically-decidable conditions
+    (#if 0 / #if 1) prune a branch.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "#if FEATURE_FLAG\n"
+        "int fastImplementation() {\n"
+        "    return 1;\n"
+        "}\n"
+        "#else\n"
+        "int portableImplementation() {\n"
+        "    return 2;\n"
+        "}\n"
+        "#endif\n"
+    )
+
+    result = opt_detector.splice(code, "")
+
+    names = [f["name"] for f in result["functions"]]
+    assert "fastImplementation" in names, "First branch of an unknown #if must still be scanned!"
+    assert "portableImplementation" in names, (
+        "#1720: implementation living in the #else branch was dropped from extraction!"
+    )
+
+
+def test_detector_c_macro_static_truth_prunes_branches():
+    """
+    Companion to the #1720 fix: statically-decidable #if conditions still
+    prune the dead branch. #if 0 => first branch dead, #else alive;
+    #if 1 => first branch alive, #else dead. Nested blocks must also honor
+    the outer branch's liveness (any() over the open-#if stack).
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+
+    code_if_zero = "#if 0\nint deadFast() {\n    return 1;\n}\n#else\nint aliveFallback() {\n    return 2;\n}\n#endif\n"
+    names_zero = [f["name"] for f in opt_detector.splice(code_if_zero, "")["functions"]]
+    assert "deadFast" not in names_zero, "#if 0 first branch must be pruned!"
+    assert "aliveFallback" in names_zero, "#if 0 #else branch must survive!"
+
+    code_if_one = "#if 1\nint aliveFast() {\n    return 1;\n}\n#else\nint deadFallback() {\n    return 2;\n}\n#endif\n"
+    names_one = [f["name"] for f in opt_detector.splice(code_if_one, "")["functions"]]
+    assert "aliveFast" in names_one, "#if 1 first branch must survive!"
+    assert "deadFallback" not in names_one, "#if 1 #else branch must be pruned!"
+
+
+def test_detector_c_macro_no_space_boundaries_issue_1764():
+    """
+    Regression test for a bug where `#if(1)` or `#elif(0)` (valid C preprocessor
+    syntax without a space) failed to push onto the branch stack because
+    `startswith("#if ")` was used. This led to premature `#endif` pops and
+    desynced branch nesting.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "#if 0\n"
+        "int deadOne() { return 1; }\n"
+        "#if(1)\n"
+        "int deadTwo() { return 2; }\n"
+        "#endif\n"
+        "int deadThree() { return 3; }\n"  # should stay dead -- still inside outer #if 0, before #else
+        "#else\n"
+        "int aliveOne() { return 4; }\n"
+        "#endif\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "deadThree" not in names, "Premature pop caused dead code to be scanned as alive!"
+    assert "aliveOne" in names, "Valid #else branch was dropped due to stack desync!"
+
+    code_nested = (
+        "#if 0\n"
+        "int a() { return 1; }\n"
+        "#else\n"
+        "int b() { return 2; }\n"
+        "#if 1\n"
+        "int c() { return 3; }\n"
+        "#else\n"
+        "int d() { return 4; }\n"
+        "#endif\n"
+        "int e() { return 5; }\n"
+        "#endif\n"
+    )
+    names_nested = [f["name"] for f in opt_detector.splice(code_nested, "")["functions"]]
+    assert set(names_nested) == {"b", "c", "e"}, (
+        "Nested #if liveness was not honored: expected only b, c, e, got %r" % names_nested
+    )
 
 
 def test_detector_nested_function_is_counted_as_own_node_braces():
@@ -1628,7 +1728,7 @@ def test_detector_tiktoken_mass_success():
             def encode(self, text, disallowed_special=()):
                 return [1, 2, 3, 4, 5]  # Simulate 5 tokens
 
-        with patch("gitgalaxy.core.detector.ENCODER", MockEncoder()):
+        with patch("gitgalaxy.core.detector.ENCODER", MockEncoder(), create=True):
             mass = get_token_mass("def mock_func(): pass")
             assert mass == 5, "Token mass calculation failed to use the encoder!"
 
@@ -3004,3 +3104,56 @@ def test_detector_zig_single_quote_bound_prevents_cross_line_swallow():
     assert "log" in names, f"log must not be swallowed by wasi_cwd's body: {names}"
     wasi_cwd = next(s for s in satellites if s["name"] == "wasi_cwd")
     assert wasi_cwd["loc"] <= 3, f"wasi_cwd's body must not swallow the rest of the file: loc={wasi_cwd['loc']}"
+
+def test_detector_depth_aware_brace_idx():
+    """
+    Proves that a brace inside a parameter list does not prematurely end the signature 
+    scan and cause argument count truncation for TypeScript.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    # Give the mock some TS rules
+    opt.languages["typescript"]["rules"]["func_start"] = re.compile(
+        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
+    )
+    opt.languages["typescript"]["rules"]["args"] = re.compile(
+        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))"
+    )
+    code = "function test_func(options: { url: string, cb: () => void }) {\n    return 1;\n}\n"
+    res = opt.splice(code, "")
+    assert len(res["functions"]) == 1
+    # Without depth-aware brace_idx, the brace inside the options object would truncate the signature
+    # causing args_pattern to fail. With it, it should correctly identify 1 arg.
+    assert res["functions"][0]["args_count"] == 1
+
+
+def test_detector_nested_parens_in_args():
+    """
+    Proves that the top level argument counting correctly tracks braces and brackets 
+    to prevent commas inside object literals from artificially inflating the argument count.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    # The _count_top_level_args handles splitting. 
+    # An argument `options: { a: string, b: string }` should be counted as 1 argument, not 2.
+    assert opt._count_top_level_args("(options: { a: string, b: string }, cb: (x, y) => void)") == 2
+    assert opt._count_top_level_args("(arr: [1, 2, 3], nested: { x: [1, 2] })") == 2
+
+def test_detector_nested_functions_in_signature_dropped():
+    """
+    Proves that the signature_end logic correctly skips nested functions 
+    (like f: (a: A) => B inside flatMap's signature) rather than treating them as top-level.
+    """
+    opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
+    opt.languages["typescript"]["rules"]["func_start"] = re.compile(
+        r"^[ \t]*([a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))", re.M
+    )
+    opt.languages["typescript"]["rules"]["args"] = re.compile(r"")
+    
+    code = (
+        "export const flatMap: {\n"
+        "  <A, E2, B>(f: (a: A) => Either<E2, B>): <E1>(ma: Either<E1, A>) => Either<E1 | E2, B>\n"
+        "} = dual\n"
+    )
+    # The regex would match `f` as a func_start, but the signature_end logic in `_slice_by_braces`
+    # should prevent it from being extracted as a real satellite function.
+    satellites, _ = opt._slice_by_braces(code, "typescript", opt.languages["typescript"]["rules"], 0, {})
+    assert len(satellites) == 0, "Nested parameter function `f` should have been skipped by signature_end logic!"

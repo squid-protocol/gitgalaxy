@@ -12042,7 +12042,7 @@
 <p><em>Note: The engine employs an "Inert Data Shield," intentionally bypassing static files like <code>.json</code>, <code>.md</code>, and <code>.css</code> to maintain extreme processing velocity.</em></p>
 <h2 id="deployment-pipeline">Deployment Pipeline</h2>
 <p>To deploy the firewall, bind it to a CI/CD workflow step immediately after dependencies are installed, but before the application builds.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example: Scanning a Node.js project&#39;s dependencies</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example: Scanning a Node.js project's dependencies</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>gitgalaxy/tools/supply_chain_firewall.py<span class="w"> </span>./node_modules
 </code></pre></div>
 <h3 id="the-mission-report">The Mission Report</h3>
@@ -12063,8 +12063,8 @@
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a> File Allowlist Bypasses: 0
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>----------------------------------------------------------
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>🚨 [BLACKLISTED IMPORT] Malicious package &#39;node-ipc&#39; blocked in: node-ipc/dao.js
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>🚨 [ZERO-TRUST BREACH] Unknown package &#39;random-string-gen&#39; blocked by Strict Mode in: src/utils.js
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>🚨 [BLACKLISTED IMPORT] Malicious package 'node-ipc' blocked in: node-ipc/dao.js
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>🚨 [ZERO-TRUST BREACH] Unknown package 'random-string-gen' blocked by Strict Mode in: src/utils.js
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>❌ BUILD FAILED: 4 infected dependencies or policy violations blocked.
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>==========================================================

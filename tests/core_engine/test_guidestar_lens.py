@@ -1,7 +1,8 @@
-import os
-import pytest
 import json
+import os
 from unittest.mock import patch
+
+import pytest
 
 # Adjust this import to match your project structure
 from gitgalaxy.core.guidestar_lens import GuideStarLens

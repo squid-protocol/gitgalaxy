@@ -216,6 +216,7 @@ class ScopeParsingRegistry:
             # the "openers" entry above, kept as its own key rather than
             # reused by index since the two lists could diverge later.
             "function_opener": r"(?<![:.])\bdef\b(?!:)",
+            "class_opener": r"(?<![:.])\b(?:class|module)\b(?!:)",
         },
         "lua": {
             "mode": "mode_d",
@@ -1914,7 +1915,7 @@ class StructuralExtractor:
             # `wasi_cwd`'s reported body swallowed lines 60-7104 (nearly the whole 7529-line
             # file), stuck at 18 total functions found regardless of #1419's separate
             # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
-            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
+            single_quote = r"'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r]){0,10}'"
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
         # (e.g. `` `type` ``), never a long delimiter -- unlike JS/TS template literals, which
@@ -3224,7 +3225,7 @@ class StructuralExtractor:
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
-            if not block or (len(block.splitlines()) < 2 and lang_id != "haskell"):
+            if not block or (len(block.splitlines()) < 2 and lang_id not in ("haskell", "python")):
                 continue
 
             # --- FAST O(N) LINE TRACKER ---
@@ -3273,6 +3274,9 @@ class StructuralExtractor:
         open_pattern = re.compile("|".join(config["openers"]), flags)
         close_pattern = re.compile("|".join(config["closers"]), flags)
 
+        class_opener = config.get("class_opener")
+        class_opener_pattern = re.compile(class_opener, flags) if class_opener else None
+
         satellites = []
         sum_fxn_impact = 0.0
 
@@ -3281,6 +3285,7 @@ class StructuralExtractor:
 
         stack_depth = 0
         satellite_name = "Main"
+        is_current_satellite_class = False
 
         # 1. Apply the comprehensive Atomic Literal Shield
         # #1184: comment-stripping now happens INSIDE _apply_literal_shield,
@@ -3355,6 +3360,9 @@ class StructuralExtractor:
                 if net_change > 0:
                     satellite_name = self._extract_semantic_name(safe_line, lang_key)
                     current_satellite = [orig_line]
+                    is_current_satellite_class = (
+                        bool(class_opener_pattern.search(safe_line)) if class_opener_pattern else False
+                    )
                     stack_depth += net_change
                     sat_start_line = current_line_offset + 1
                     sat_start_char = current_char_offset
@@ -3374,7 +3382,7 @@ class StructuralExtractor:
 
                 if stack_depth <= 0:
                     block = "\n".join(current_satellite).strip()
-                    if block:
+                    if block and not is_current_satellite_class:
                         loc = max(len(current_satellite), 1)
                         sat_end_line = current_line_offset + 1
                         sat_end_char = current_char_offset + len(orig_line)
@@ -3395,6 +3403,7 @@ class StructuralExtractor:
                     current_satellite = []
                     satellite_name = "Main"
                     stack_depth = 0
+                    is_current_satellite_class = False
 
             current_line_offset += 1
             current_char_offset += len(orig_line)
@@ -3403,7 +3412,7 @@ class StructuralExtractor:
 
         if stack_depth > 0 and current_satellite:
             block = "\n".join(current_satellite).strip()
-            if block:
+            if block and not is_current_satellite_class:
                 loc = max(len(current_satellite), 1)
                 # #1266: MATLAB's language rule permits the LAST (or every)
                 # function in a file to omit its closing `end` entirely when
@@ -3754,9 +3763,18 @@ class StructuralExtractor:
                     continue
                 if ch == quote_char:
                     in_string = False
-            elif ch in ("'", '"', "`"):
+            elif ch in ('"', "`"):
                 in_string = True
                 quote_char = ch
+            elif ch == "'":
+                if getattr(self, "language", "") in ("rust", "scala") and re.match(
+                    r"[a-zA-Z_]\w*\b(?!')", body[i + 1 :]
+                ):
+                    # It's a Rust lifetime or Scala symbol (e.g. `'a>`, `'_ `), not a string literal
+                    pass
+                else:
+                    in_string = True
+                    quote_char = ch
             elif ch in "([{<":
                 depth += 1
             elif ch in ")]}>":
@@ -4424,6 +4442,10 @@ class StructuralExtractor:
         if match_strip.startswith('@"'):
             return match_strip
 
+        # 1.2 Python Decorator Stripping
+        if "@" in match_strip and "def " in match_strip:
+            match_strip = re.sub(r"(?:@[\w.]+(?:\([^)]*\))?\s+)+", "", match_strip)
+
         # 1. Objective-C Message Passing Normalization
         if match_strip.startswith("-") or match_strip.startswith("+"):
             clean_objc = re.sub(r"^[-+]\s*(?:\([^)]+\))?\s*", "", match_strip)
@@ -4502,7 +4524,10 @@ class StructuralExtractor:
         # but this token-extraction pass silently truncated it right back off,
         # so a primed function collided with (and got recorded under) its
         # unprimed sibling's name.
-        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~'-]+", clean) if w.strip("_-:")]
+        # BUG FIX: `[` and `]` (TypeScript's computed properties like `[Symbol.asyncIterator]`)
+        # were missing, causing them to be extracted as `Symbol.asyncIterator`, misaligning
+        # with AST engines.
+        words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~'\-\[\]]+", clean) if w.strip("_-:")]
 
         return words[-1] if words else "Unknown_Block"
 

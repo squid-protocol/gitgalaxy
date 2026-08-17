@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # GO: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #583)
 # ==============================================================================

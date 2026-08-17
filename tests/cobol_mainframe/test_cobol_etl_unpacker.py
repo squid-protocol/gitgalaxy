@@ -1,6 +1,6 @@
-import sys
-import json
 import csv
+import json
+import sys
 from unittest.mock import patch
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
@@ -127,7 +127,7 @@ def test_unpack_ebcdic_file_e2e(tmp_path):
     # 4. Verify CSV Output
     assert csv_out.exists(), "ETL Unpacker failed to generate the CSV!"
 
-    with open(csv_out, "r", encoding="utf-8") as f:
+    with open(csv_out, encoding="utf-8") as f:
         reader = list(csv.reader(f))
 
         # Header

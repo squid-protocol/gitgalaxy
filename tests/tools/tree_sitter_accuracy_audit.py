@@ -1762,36 +1762,44 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             pass
                         else:
                             name = _get_node_name(node)
-                            # #1633: error recovery in a Flow-typed javascript file (Claim 3's
-                            # mechanism -- see docs/why_gitgalaxy_beats_ast_here.md) can
-                            # misparse a plain control-flow statement (`if (...) { ... }`)
-                            # itself AS a `method_definition` node, with the keyword resolving
-                            # as the "name". Scoped to `method_definition` specifically (ES6
-                            # shorthand-method syntax, `name(...) { ... }`), NOT the broader
-                            # `func_node_types` set: a reserved word is completely valid as a
-                            # `pair`-shaped object-literal method name written with an explicit
-                            # `function` keyword (`catch: function(fn) { ... }`, confirmed real
-                            # and common in jquery/deferred.js:66) -- an earlier, broader version
-                            # of this filter wrongly dropped that real ground-truth entry too,
-                            # which then made GitGalaxy's own correct detection of it show up as
-                            # a false "extra". A cascade-region exclusion (excluding everything
-                            # past `trailing_error_start` instead of name-filtering) was also
-                            # tried and reverted: javascript's error recovery resyncs locally
-                            # rather than going permanently blind like csharp's #1427/#1567
-                            # cascade, so it discarded far more genuinely-real, genuinely-matched
-                            # ground truth than the handful of phantom entries it removed
-                            # (confirmed empirically: found_functions dropped 599->491 while
-                            # extra_functions went UP, a net regression).
-                            if name and not (
-                                lang == "javascript"
-                                and node.type == "method_definition"
-                                and (name in _JS_RESERVED_STATEMENT_KEYWORDS or name in _JS_KNOWN_FLOW_HALLUCINATIONS)
-                            ) and not (
-                                lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS
-                            ):
-                                real_funcs.setdefault(name, []).append(
-                                    (node.start_point[0] + 1, _get_param_count(node, lang))
-                                )
+                            if lang == "typescript" and name in ("catch", "finally"):
+                                pass  # Intentional drop of control flow
+                            elif lang == "typescript" and name == "constructor" and node.type in ("method_signature", "function_signature"):
+                                pass  # Intentional drop of bodyless constructors
+                            # Intentional drop of bodyless overloads (function_declaration without body)
+                            elif lang == "typescript" and node.type == "function_declaration" and node.child_by_field_name("body") is None:
+                                pass
+                            else:
+                                # #1633: error recovery in a Flow-typed javascript file (Claim 3's
+                                # mechanism -- see docs/why_gitgalaxy_beats_ast_here.md) can
+                                # misparse a plain control-flow statement (`if (...) { ... }`)
+                                # itself AS a `method_definition` node, with the keyword resolving
+                                # as the "name". Scoped to `method_definition` specifically (ES6
+                                # shorthand-method syntax, `name(...) { ... }`), NOT the broader
+                                # `func_node_types` set: a reserved word is completely valid as a
+                                # `pair`-shaped object-literal method name written with an explicit
+                                # `function` keyword (`catch: function(fn) { ... }`, confirmed real
+                                # and common in jquery/deferred.js:66) -- an earlier, broader version
+                                # of this filter wrongly dropped that real ground-truth entry too,
+                                # which then made GitGalaxy's own correct detection of it show up as
+                                # a false "extra". A cascade-region exclusion (excluding everything
+                                # past `trailing_error_start` instead of name-filtering) was also
+                                # tried and reverted: javascript's error recovery resyncs locally
+                                # rather than going permanently blind like csharp's #1427/#1567
+                                # cascade, so it discarded far more genuinely-real, genuinely-matched
+                                # ground truth than the handful of phantom entries it removed
+                                # (confirmed empirically: found_functions dropped 599->491 while
+                                # extra_functions went UP, a net regression).
+                                if name and not (
+                                    lang == "javascript"
+                                    and node.type == "method_definition"
+                                    and (name in _JS_RESERVED_STATEMENT_KEYWORDS or name in _JS_KNOWN_FLOW_HALLUCINATIONS)
+                                ) and not (
+                                    lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS
+                                ):
+                                    real_funcs.setdefault(name, []).append(
+                                        (node.start_point[0] + 1, _get_param_count(node, lang))
+                                    )
                     elif node.type in class_node_types:
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass

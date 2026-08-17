@@ -1,8 +1,9 @@
-import pytest
-import re
-import math
 import logging
+import math
+import re
 from unittest.mock import patch
+
+import pytest
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.spatial_mapper import SpatialMapper
@@ -622,11 +623,13 @@ def test_detector_mode_d_ruby_nested_methods_inside_class():
 
     result = opt_detector.splice(code, "")
     names = [f["name"] for f in result["functions"]]
+    class_names = [c["name"] for c in result.get("classes", [])]
 
     assert "build" in names, "Singleton method nested in a class was swallowed!"
     assert "initialize" in names, "Nested method was swallowed into the enclosing class satellite!"
     assert "increment" in names, "Nested method was swallowed into the enclosing class satellite!"
-    assert "Widget" in names, "The enclosing class's own satellite should still be reported."
+    assert "Widget" in class_names, "The enclosing class's own satellite should still be reported."
+
 
 
 # ==============================================================================
@@ -903,9 +906,8 @@ def test_detector_catastrophic_fallbacks():
         opt_detector,
         "_partition_segments",
         side_effect=TimeoutError("Hardware thread timeout exceeded"),
-    ):
-        with pytest.raises(TimeoutError):
-            opt_detector.splice("def foo(): pass", "")
+    ), pytest.raises(TimeoutError):
+        opt_detector.splice("def foo(): pass", "")
 
 
 # ==============================================================================
@@ -2050,8 +2052,8 @@ def test_detector_yaml_json_csv_now_flow_through_normally():
     markdown fix.
     """
     from gitgalaxy.core.prism import Prism
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
 
@@ -3113,10 +3115,10 @@ def test_detector_depth_aware_brace_idx():
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
     # Give the mock some TS rules
     opt.languages["typescript"]["rules"]["func_start"] = re.compile(
-        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
+        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
     )
     opt.languages["typescript"]["rules"]["args"] = re.compile(
-        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))"
+        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))"
     )
     code = "function test_func(options: { url: string, cb: () => void }) {\n    return 1;\n}\n"
     res = opt.splice(code, "")
@@ -3132,7 +3134,7 @@ def test_detector_nested_parens_in_args():
     to prevent commas inside object literals from artificially inflating the argument count.
     """
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
-    # The _count_top_level_args handles splitting. 
+    # The _count_top_level_args handles splitting.
     # An argument `options: { a: string, b: string }` should be counted as 1 argument, not 2.
     assert opt._count_top_level_args("(options: { a: string, b: string }, cb: (x, y) => void)") == 2
     assert opt._count_top_level_args("(arr: [1, 2, 3], nested: { x: [1, 2] })") == 2
@@ -3147,7 +3149,7 @@ def test_detector_nested_functions_in_signature_dropped():
         r"^[ \t]*([a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))", re.M
     )
     opt.languages["typescript"]["rules"]["args"] = re.compile(r"")
-    
+
     code = (
         "export const flatMap: {\n"
         "  <A, E2, B>(f: (a: A) => Either<E2, B>): <E1>(ma: Either<E1, A>) => Either<E1 | E2, B>\n"

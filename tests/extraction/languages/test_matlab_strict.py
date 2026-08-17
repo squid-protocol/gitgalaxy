@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # ==============================================================================
 # MATLAB: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #598, part of epic #518)
@@ -129,7 +128,7 @@ def test_matlab_func_start_comments_and_semicolons():
     semicolons (`;`) after the function name when there are no parens.
     """
     func_start = MATLAB_RULES["func_start"]
-    
+
     for line in (
         "function foo%",
         "function foo % comment",
@@ -148,7 +147,7 @@ def test_matlab_args_vertical_output_array_shield():
     fix in `func_start`).
     """
     args = MATLAB_RULES["args"]
-    
+
     for line in (
         "function [a, b] =\nfoo(x)",
         "function [a, b]\n= foo(x)",
@@ -158,7 +157,7 @@ def test_matlab_args_vertical_output_array_shield():
         "function y = foo(x)",
     ):
         assert args.search(line), f"args failed on {line!r}"
-    
+
     # Negative cases: shouldn't match if no parameter list is given
     assert not args.search("function foo")
     assert not args.search("function [a] = foo")
@@ -179,15 +178,15 @@ def test_matlab_class_start_newlines_and_comments():
     trailing comments (`%`) or semicolons (`;`) without failing the lookahead.
     """
     class_start = MATLAB_RULES["class_start"]
-    
+
     # Vertically wrapped inheritance without `...` (MATLAB allows this in some contexts, or devs try it)
     m1 = class_start.search("classdef \n (Sealed) \n MyClass \n < handle")
     assert m1 and m1.group(1) == "MyClass"
-    
+
     # No space before comment
     m2 = class_start.search("classdef MyClass% a comment")
     assert m2 and m2.group(1) == "MyClass"
-    
+
     # No space before semicolon
     m3 = class_start.search("classdef MyClass;")
     assert m3 and m3.group(1) == "MyClass"
@@ -199,13 +198,13 @@ def test_matlab_branch_adversarial_boundaries():
     on identifiers that contain branch keywords as substrings.
     """
     branch = MATLAB_RULES["branch"]
-    
+
     # Negative cases
     assert not branch.search("if_var = 1;")
     assert not branch.search("my_if = 1;")
     assert not branch.search("catchME_outside = true;")
     assert not branch.search("try_count = 5;")
-    
+
     # Positive cases
     assert branch.search("if (x)")
     assert branch.search("catch ME")
@@ -217,12 +216,12 @@ def test_matlab_structural_boundaries_adversarial():
     Ensures `structural_boundaries` keywords respect word boundaries.
     """
     sb = MATLAB_RULES["structural_boundaries"]
-    
+
     assert not sb.search("classdef_name = 'foo';")
     assert not sb.search("my_methods = [];")
     assert not sb.search("events_list = {};")
     assert not sb.search("global_var = 1;")
-    
+
     assert sb.search("events")
     assert sb.search("global x")
 

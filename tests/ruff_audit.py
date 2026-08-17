@@ -109,7 +109,7 @@ def run_ruff_format_check() -> bool:
 def load_baseline() -> Dict[str, str]:
     if not BASELINE_PATH.exists():
         return {}
-    with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+    with open(BASELINE_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 

@@ -1,10 +1,11 @@
-import pytest
-import sys
 import json
 import multiprocessing
-import yaml
+import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+import yaml
 
 import gitgalaxy.tools.supply_chain_security.supply_chain_firewall as firewall_module
 from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -295,9 +296,8 @@ def test_main_corrupted_json(tmp_path, capsys):
     broken_graph = tmp_path / "broken.json"
     broken_graph.write_text("{ broken_json: ", encoding="utf-8")
 
-    with patch("sys.argv", ["supply_chain_firewall.py", str(broken_graph)]):
-        with pytest.raises(SystemExit) as exc_info:
-            firewall_module.main()
+    with patch("sys.argv", ["supply_chain_firewall.py", str(broken_graph)]), pytest.raises(SystemExit) as exc_info:
+        firewall_module.main()
 
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
@@ -542,9 +542,8 @@ def test_density_dilution_fix_for_build_scripts(tmp_path):
     graph_file = tmp_path / "results.json"
     graph_file.write_text(json.dumps(mock_ram_graph), encoding="utf-8")
 
-    with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]):
-        with pytest.raises(SystemExit):
-            firewall_module.main()
+    with patch.object(sys, "argv", ["supply_chain_firewall.py", str(graph_file)]), pytest.raises(SystemExit):
+        firewall_module.main()
 
 
 # ==============================================================================

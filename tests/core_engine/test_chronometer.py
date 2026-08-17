@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from gitgalaxy.metrics.chronometer import Chronometer
 

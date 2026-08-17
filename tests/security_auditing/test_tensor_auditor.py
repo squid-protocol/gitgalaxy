@@ -1,6 +1,7 @@
-import pytest
 import json
 import struct
+
+import pytest
 
 # Adjust this import to match your project structure
 from gitgalaxy.metrics.tensor_scanner import TensorScanner

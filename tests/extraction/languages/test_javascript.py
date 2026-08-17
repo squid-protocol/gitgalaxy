@@ -172,7 +172,7 @@ def test_javascript_func_start_bare_call_site_identifier_no_longer_matches():
     func_start = JS_RULES["func_start"]
     jest_block = "describe('suite', () => {\n  it('does the thing', () => {\n    TargetFunc();\n  });\n});"
     swap_block = "\t\t\t\t\tswap( elem, cssShow, function() {"
-    
+
     assert not func_start.search(jest_block), "the inline arrow function in the arguments prevents match"
     assert not func_start.search(swap_block), "the inline function in the arguments prevents match"
 

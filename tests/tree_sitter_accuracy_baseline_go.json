@@ -1,12 +1,12 @@
 {
-  "args_comparable": 858,
-  "args_exact_match": 772,
+  "args_comparable": 897,
+  "args_exact_match": 822,
   "corpus_path": "language-crucible/data/go",
   "extra_classes": 0,
   "extra_functions": 0,
   "files_scanned": 14,
   "found_classes": 69,
-  "found_functions": 858,
+  "found_functions": 897,
   "real_classes": 69,
   "real_functions": 897
 }

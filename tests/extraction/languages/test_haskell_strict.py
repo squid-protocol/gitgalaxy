@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # HASKELL: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #585)
 # ==============================================================================
@@ -33,16 +32,16 @@ _HS_SIMPLE_CASES = [
     ("branch", "if x then y else z", "x = 1"),
     ("branch", "case x of", "x = 1"),
     ("branch", "\\cases True -> 1", "x = 1"),
-    
+
     ("class_start", "data Animal = Dog | Cat", "import Animal"),
     ("class_start", "newtype Wrapper = Wrapper Int", "Wrapper Int"),
     ("class_start", "class (Eq a) => Ord a where", "Ord a"),
     ("class_start", "data Foo = Bar", "Foo = Bar"),
     ("class_start", "type family F a", "F a ="),
-    
+
     ("func_start", "myFunc :: Int -> Int", "data myFunc ="),
     ("func_start", "(+) :: Num a => a -> a -> a", "module foo"),
-    
+
     # #1505 (follow-up): "foo x =" is no longer a negative case -- it's the
     # minimal shape of a signature-less equation (`identity x = x`), which
     # args' new group-3 alternative is specifically meant to recognize (see
@@ -52,23 +51,23 @@ _HS_SIMPLE_CASES = [
     ("args", ":: Int -> Int", "data Int"),
     ("args", "\\x y -> x + y", "foo x y"),
     ("args", "@Int", "data Int"),
-    
+
     # --- Deepened Adversarial Cases ---
-    
+
     # branch deep
     ("branch", "  | x > 0 = True", "[x | x <- xs]"),
     ("branch", "\\case\n  Nothing -> 0", "casey = 5"),
     ("branch", "\\cases\n  Just x, Nothing -> x", "casesy = 5"),
     ("branch", "if True then 1 else 2", "iffy = 5"),
     ("branch", "MultiWayIf", "MultiWayIfy = 5"),
-    
+
     # args deep
     ("args", "foo :: {- block comment -}\n  Int -> Int", "foo = bar"),
     ("args", "\\(Foo x) y -> x", "foo x y"),
     ("args", "\\  x   y   ->  x", "email@example.com"),
     ("args", "@String", "data String"),
     ("args", ":: a ⊸ b", ":: !"),
-    
+
     # func_start deep
     ("func_start", "myFunc' :: Int -> Int", "myFunc ="),
     ("func_start", "(>>=) :: Monad m => m a -> (a -> m b) -> m b", ">>= 5"),
@@ -76,7 +75,7 @@ _HS_SIMPLE_CASES = [
     ("func_start", "foo {- comment \n comment -} :: Int", "foo {- -} = 5"),
     ("func_start", "foo -- comment \n  :: Int", "foo --\n = 5"),
     ("func_start", "foreign import ccall safe \"sin\" c_sin :: Double -> Double", "let :: Int"),
-    
+
     # class_start deep
     ("class_start", "class (Eq a, Show a) => MyClass a where", "MyClass a"),
     ("class_start", "data {-# UNPACK #-} Foo = Foo", "Foo = Foo"),
@@ -85,7 +84,7 @@ _HS_SIMPLE_CASES = [
     ("class_start", "newtype Identity a = Identity a", "Identity a"),
     ("class_start", "type family F a :: *", "type instance F Int = Bool"),
     ("class_start", "data family D a", "classy = 5"),
-    
+
     # structural_boundaries deep
     ("structural_boundaries", "pattern Arrow t1 t2 = App \"->\" [t1, t2]", "patterny = 5"),
     ("structural_boundaries", "mdo\n  x <- y", "mdoy = 5"),

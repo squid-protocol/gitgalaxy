@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
 # was split into tests/extraction/languages/, one file per language) alongside
@@ -110,14 +109,14 @@ _POWERSHELL_SIMPLE_CASES = [
     ("branch", "$x = $y ? 1 : 2", "$status = ${?}"),
     ("branch", "Get-Process | ? Name -eq 'pwsh'", "Get-Process"),
     ("branch", "Get-Process | ?{$_.Name -eq 'pwsh'}", "$branch = 1"),
-    
+
     ("args", "param ( [int]$x, [string]$y )", "if ($x -eq $y) {"),
     ("args", "function global:Foo($x) {", "while ($true) {"),
     ("args", "hidden [int] Foo($a) {", "hidden $myVar = 5"),
     ("args", "static [string] Bar($b, $c) {", "foreach ($x in $y) {"),
     ("args", "hidden static [System.Collections.Generic.List[int]] GetItems($d) {", "switch ($x) {"),
     ("args", "[void] DoThing( $a, $b ) {", "$x = Foo($y) {"),
-    
+
     ("func_start", "function global:Foo {", "if ($x) {"),
     ("func_start", "hidden Foo() {", "$hiddenVar = 1"),
     ("func_start", "[int] Foo() {", "while ($true) {"),

@@ -19,8 +19,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import assert_redos_immune, _best_of_timing  # noqa: E402 # type: ignore
-
+from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
 
 # ==============================================================================
 # YACC: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #616)

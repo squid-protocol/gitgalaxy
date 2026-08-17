@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # ==============================================================================
 # M4: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #595, part of epic #518)
@@ -81,7 +80,7 @@ _M4_DEEP_CASES = [
     ("func_start", "AC_DEFUN_ONCE([foo])", "AC_DEFUN_ONCE_EXTRA([foo])"),
     ("func_start", "AU_DEFUN([foo], [bar])", "echo AU_DEFUN"),
     ("func_start", "m4_defun([foo], [bar])", "m4_defun_not"),
-    
+
     # args
     ("args", "$1", "${1}"),
     ("args", "$123", "$a"),
@@ -89,28 +88,28 @@ _M4_DEEP_CASES = [
     ("args", "$*", "$_"),
     ("args", "$#", "$!"),
     ("args", " $0 ", "${\\@}"),
-    
+
     # branch
     ("branch", "AS_IF([test], [true])", "AS_IF_SUFFIX"),
     ("branch", "ifelse(A, B, C)", "my_ifelse()"),
     ("branch", "m4_case([$1], [a], [b])", "m4_case_X"),
     ("branch", "m4_ifval([$1], [yes])", "m4_ifvalue"),
     ("branch", "AS_CASE([$x], [y], [z])", "HAS_CASE"),
-    
+
     # structural_boundaries
     ("structural_boundaries", "divert(-1)", "divert_text"),
     ("structural_boundaries", "m4_divert(1)", "m4_divert_text"),
     ("structural_boundaries", "AC_REQUIRE([foo])", "AC_REQUIRE_CPP"),
     ("structural_boundaries", "undivert(1)", "undiverted"),
     ("structural_boundaries", "m4_require([foo])", "m4_requirements"),
-    
+
     # safety (missing plurals we just fixed)
     ("safety", "AC_CHECK_HEADERS([foo.h])", "AC_CHECK_HEADERS_EXTRA"),
     ("safety", "AC_CHECK_FUNCS([foo_func])", "AC_CHECK_FUNCS_EXTRA"),
     ("safety", "AC_CHECK_PROGS([AWK])", "AC_CHECK_PROGS_EXTRA"),
     ("safety", "AC_CHECK_HEADER([bar.h])", "AC_CHECK_HEADER_X"),
     ("safety", "AC_CHECK_PROG([foo])", "AC_CHECK_PROG_X"),
-    
+
     # spec_exposure (fixing the bug we found)
     ("spec_exposure", "[SPEC-999]", "[special]"),
     ("spec_exposure", "[audit]", "[specific]"),

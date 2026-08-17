@@ -63,7 +63,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOT = REPO_ROOT / "gitgalaxy"
@@ -96,7 +96,7 @@ def run_mypy() -> Dict[str, str]:
 def load_baseline() -> Dict[str, str]:
     if not BASELINE_PATH.exists():
         return {}
-    with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+    with open(BASELINE_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 

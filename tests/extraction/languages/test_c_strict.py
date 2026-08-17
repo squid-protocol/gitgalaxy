@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -20,7 +20,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import assert_redos_immune, _best_of_timing  # noqa: E402 # type: ignore
+from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
 
 
 # ==============================================================================
@@ -82,14 +82,14 @@ C_RULES = LANGUAGE_DEFINITIONS["c"]["rules"]
 
 _C_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-    
+
     # --- DEEP CASES FOR branch ---
     ("branch", "if(x) {", "ifdef FOO"),
     ("branch", "} else if (", "form_data = 1;"),
     ("branch", "case 1:", "case_name"),
     ("branch", "x && y", "x & y"),
     ("branch", "a ? b : c", "int a = 1;"),
-    
+
     # --- DEEP CASES FOR args ---
     ("args", "void myfunc(int (*cb)(int))", "foo(a, b);"),
     ("args", "foo(const struct foo *f)", "return (int)x;"),
@@ -98,7 +98,7 @@ _C_SIMPLE_CASES = [
     ("args", "int my_func(unsigned long int * x)", "sizeof(int)"),
     ("args", "macro_like(enum x y)", "typeof(int)"),
     ("args", "void func(char buf[10])", "_Alignof(int)"),
-    
+
     # --- DEEP CASES FOR func_start ---
     ("func_start", "int main(int argc, char **argv) {", "if (x) {"),
     ("func_start", "static inline void * my_func(void) {", "int a = 1;"),
@@ -107,21 +107,21 @@ _C_SIMPLE_CASES = [
     ("func_start", "int \n myfunc(void) \n {", "for (int i=0; i<10; i++) {"),
     ("func_start", "int old_style(a, b) int a; int b; {", "MACRO(x)\\nint x;"),
     ("func_start", "void _Generic_func() {", "return (x) {"),
-    
+
     # --- DEEP CASES FOR class_start ---
     ("class_start", "struct Point {", "int x;"),
     ("class_start", "typedef struct {", "structing foo;"),
     ("class_start", "enum foo", "instruction"),
     ("class_start", "union bar", "unionize"),
     ("class_start", "  typedef union bar", "reunion"),
-    
+
     # --- DEEP CASES FOR structural_boundaries ---
     ("structural_boundaries", "return x;", "return_val = 1;"),
     ("structural_boundaries", "struct foo", "structured_data"),
     ("structural_boundaries", "_BitInt(32)", "voidable"),
     ("structural_boundaries", "alignas(16)", "true_story"),
     ("structural_boundaries", "typedef int my_int;", "enum_name"),
-    
+
     # Original simple cases (remaining):
     ("safety", "assert(x > 0);", "x = 1;"),
     ("safety_bypasses", "strcpy(dst, src);", "memcpy(dst, src, n);"),

@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # SQLITE: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #612)
 # ==============================================================================
@@ -102,7 +101,7 @@ _SQLITE_SIMPLE_CASES = [
     ("branch", "SELECT IIF(x>0, 'A', 'B')", "SELECT x_iif FROM t"),
     ("branch", "SELECT x FROM t HAVING COUNT(*) > 1", "SELECT having_clause FROM t"),
     ("branch", "SELECT CASE x WHEN 1 THEN 2 ELSE 3 END", "SELECT end_time FROM t"),
-    
+
     # args
     ("args", "WITH recursive my_cte (col1, col2) AS (SELECT 1, 2)", "WITH my_cte AS (SELECT 1, 2)"),
     ("args", "SELECT * FROM t WHERE id IN (SELECT id FROM other)", "SELECT * FROM t WHERE id = 1"),

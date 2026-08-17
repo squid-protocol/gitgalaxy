@@ -34,7 +34,7 @@ def test_sarif_ml_threat_confidence_reads_the_real_producer_key(tmp_path):
         output_path=str(output_path),
     )
 
-    with open(output_path, "r", encoding="utf-8") as f:
+    with open(output_path, encoding="utf-8") as f:
         payload = json.load(f)
 
     results = payload["runs"][0]["results"]

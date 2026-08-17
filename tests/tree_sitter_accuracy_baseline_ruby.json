@@ -3,7 +3,7 @@
   "args_exact_match": 115,
   "corpus_path": "language-crucible/data/ruby",
   "extra_classes": 0,
-  "extra_functions": 6,
+  "extra_functions": 0,
   "files_scanned": 7,
   "found_classes": 18,
   "found_functions": 124,

@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -20,7 +20,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import assert_redos_immune, _best_of_timing  # noqa: E402 # type: ignore
+from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
 
 
 # ==============================================================================
@@ -224,7 +224,7 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("branch", "goto MyLabel;", "gotcha"),
     ("branch", "switch\n(", "switcher"),
     ("branch", "x ? y : z", "public int? Foo"),
-    
+
     # args:
     ("args", "public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n    BrokenMethod(int a, string b)", "BrokenMethod(a, b);"),
     ("args", "public void Foo(ref int x, out string y, params int[] z)", "Foo(ref x, out y);"),
@@ -237,7 +237,7 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("args", "record Person(string Name, int Age);", "new Person();"),
     ("args", "public static Complex operator +(Complex a, Complex b)", "a + b;"),
     ("args", "public static implicit operator int(MyClass x)", "int x = 1;"),
-    
+
     # func_start:
     ("func_start", "public async Task<List<string>> FetchData() {", "int x = 1;"),
     ("func_start", "[Obsolete]\n[return: MaybeNull]\npublic void Foo()", "int x = 1;"),
@@ -247,14 +247,14 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("func_start", "static readonly ref readonly int Foo()", "int x = 1;"),
     ("func_start", "public static implicit operator int(MyClass x) {", "int x = 1;"),
     ("func_start", "public static Complex operator +(Complex a, Complex b) {", "public delegate void MyDelegate();"),
-    
+
     # class_start:
     ("class_start", "public abstract partial class MyClass<T, U> : Base<T>, IMyInterface", "new MyClass();"),
     ("class_start", "internal file record struct MyRecord(int X, int Y) : IPoint;", "new MyRecord();"),
     ("class_start", "[Serializable]\npublic class Foo {", "Foo x;"),
     ("class_start", "class Foo<T> : Base<T> {", "Foo<int> x;"),
     ("class_start", "record struct Foo<T>(T Value) : Base<T>;", "Foo<int> x;"),
-    
+
     # structural_boundaries:
     ("structural_boundaries", "namespace My.Name.Space;", "My.Name.Space x;"),
     ("structural_boundaries", "public enum Color", "Color.Red;"),

@@ -105,17 +105,17 @@ FUNCTION_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["valid"])
 def test_haskell_func_start_valid(payload, expected_name):
-    assert_valid_match(HASKELL_RULES["func_start"], payload, expected_name, "func_start")  # noqa: S101
+    assert_valid_match(HASKELL_RULES["func_start"], payload, expected_name, "func_start")
 
 
 @pytest.mark.parametrize("payload", FUNCTION_CASES["invalid"])
 def test_haskell_func_start_invalid(payload):
-    assert_invalid_no_match(HASKELL_RULES["func_start"], payload, "func_start")  # noqa: S101
+    assert_invalid_no_match(HASKELL_RULES["func_start"], payload, "func_start")
 
 
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_haskell_func_start_pathological(payload, expected_name):
-    assert_pathological_match(HASKELL_RULES["func_start"], payload, expected_name, "func_start")  # noqa: S101
+    assert_pathological_match(HASKELL_RULES["func_start"], payload, expected_name, "func_start")
 
 
 # ==============================================================================
@@ -147,17 +147,17 @@ CLASS_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["valid"])
 def test_haskell_class_start_valid(payload, expected_name):
-    assert_valid_match(HASKELL_RULES["class_start"], payload, expected_name, "class_start")  # noqa: S101
+    assert_valid_match(HASKELL_RULES["class_start"], payload, expected_name, "class_start")
 
 
 @pytest.mark.parametrize("payload", CLASS_CASES["invalid"])
 def test_haskell_class_start_invalid(payload):
-    assert_invalid_no_match(HASKELL_RULES["class_start"], payload, "class_start")  # noqa: S101
+    assert_invalid_no_match(HASKELL_RULES["class_start"], payload, "class_start")
 
 
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["pathological"])
 def test_haskell_class_start_pathological(payload, expected_name):
-    assert_pathological_match(HASKELL_RULES["class_start"], payload, expected_name, "class_start")  # noqa: S101
+    assert_pathological_match(HASKELL_RULES["class_start"], payload, expected_name, "class_start")
 
 
 # ==============================================================================
@@ -250,19 +250,19 @@ DEPENDENCY_CASES: dict[str, Any] = {
 
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["valid"])
 def test_haskell_dependency_valid(payload, expected_name):
-    assert_valid_dependency_match(HASKELL_RULES["_dependency_capture"], payload, expected_name, "_dependency_capture")  # noqa: S101
+    assert_valid_dependency_match(HASKELL_RULES["_dependency_capture"], payload, expected_name, "_dependency_capture")
 
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_haskell_dependency_invalid(payload):
-    assert_invalid_no_match(HASKELL_RULES["_dependency_capture"], payload, "_dependency_capture")  # noqa: S101
+    assert_invalid_no_match(HASKELL_RULES["_dependency_capture"], payload, "_dependency_capture")
 
 
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_CASES["pathological"])
 def test_haskell_dependency_pathological(payload, expected_name):
     assert_pathological_dependency_match(
         HASKELL_RULES["_dependency_capture"], payload, expected_name, "_dependency_capture"
-    )  # noqa: S101
+    )
 
 
 # ==============================================================================

@@ -327,9 +327,9 @@ def test_kotlin_structural_extraction_body_shapes():
         "interface IG {\n    fun <T> genericNoBody(x: T)\n}\n"
     )
     result = opt_detector.splice(code, "")
-    
+
     extracted = {f["name"]: code[f["start_idx"]:f["end_idx"]] for f in result["functions"]}
-    
+
     # Assert all expected functions were extracted
     assert "normalFunc" in extracted
     assert "exprFunc" in extracted
@@ -337,7 +337,7 @@ def test_kotlin_structural_extraction_body_shapes():
     assert "genericNormal" in extracted
     assert "genericExpr" in extracted
     assert "genericNoBody" in extracted
-    
+
     # Assert their extracted boundaries are correct (they shouldn't bleed into each other)
     assert extracted["normalFunc"].strip() == "fun normalFunc() {\n    println(1)\n}"
     assert extracted["exprFunc"].strip().startswith("fun exprFunc(): Int = 5")

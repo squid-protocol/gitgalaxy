@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # PYTHON: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #606)
 # ==============================================================================
@@ -97,7 +96,7 @@ _PY_SIMPLE_CASES = [
     ("branch", "while True:", "while_loop = False"),
     ("branch", "with open('f.txt') as f:", "without = True"),
     ("branch", "for i in range(10):", "format_string"),
-    
+
     # args (generics, newlines, edge-case lambdas)
     ("args", "def foo[T, U](x, y):", "define_foo = 1"),
     ("args", "def foo(\n    a,\n    b\n):", "definition = True"),
@@ -188,13 +187,13 @@ def test_python_class_start_captures_name_and_bases():
     assert m is not None
     assert m.group(1) == "Dog"
     assert "Animal" in m.group(2)
-    
+
     # Multiline
     m2 = pattern.search("class Foo(\n    Base1,\n    Base2\n):")
     assert m2 is not None
     assert m2.group(1) == "Foo"
     assert "Base2" in m2.group(2)
-    
+
     # Generics
     m3 = pattern.search("class Foo(Generic[T]):")
     assert m3 is not None

@@ -67,6 +67,6 @@ def test_issue_1718_cpp23_named_escape_literal_stays_intact():
     rules = LANGUAGE_DEFINITIONS["cpp"]["rules"]
     satellites, _ = detector._slice_by_braces(code, "cpp", rules, 0, {})
     names = [s["name"] for s in satellites]
-    
+
     assert "main" in names, f"main should be found: {names}"
     assert "nextFunction" in names, f"nextFunction should be found: {names}"

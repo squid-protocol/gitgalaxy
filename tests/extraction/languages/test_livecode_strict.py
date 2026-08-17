@@ -8,12 +8,12 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import multiprocessing
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
-import multiprocessing
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -22,7 +22,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import _detonate, assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -120,7 +119,7 @@ _LIVECODE_SIMPLE_CASES = [
     ("branch", "try\n  put 1\ncatch tError", "command notAFunction"),
     ("branch", "finally", "put branching into x"),
     ("branch", "if (x = 1) and (y = 2) then", "put 1 into if_func"),
-    
+
     # --- DEEP ADVERSARIAL CASES: args ---
     ("args", "on myHandler p1, p2, p3", "on myHandler"),
     ("args", "function calculateTotal pPrice, pTax", "command myCmd\n  put 1 into x"),
@@ -128,21 +127,21 @@ _LIVECODE_SIMPLE_CASES = [
     ("args", "getprop myProp pIndex", "put 1 into x -- on myHandler pArg"),
     ("args", "on myCmd arg1\r\n", "on myCmd  \r\n"),
     ("args", "on myHandler   p1,p2   ", "command myCmd  -- comment"),
-    
+
     # --- DEEP ADVERSARIAL CASES: func_start ---
     ("func_start", "private command myCmd", "put on into x"),
     ("func_start", "on my-Command_123", "command_not_start"),
     ("func_start", "function myFunc\r\n", "on  \r\n"),
     ("func_start", "public   getprop   myProp", "private  put 1 into x"),
     ("func_start", "setprop myProp", "functionality_test"),
-    
+
     # --- DEEP ADVERSARIAL CASES: class_start ---
     ("class_start", "widget com.livecode.widget.button", "widget_button"),
     ("class_start", "module myMod -- comment", "library_not_start"),
     ("class_start", "behavior myBehavior\r\n", "script  \r\n"),
     ("class_start", "library com.livecode.library", "module  "),
     ("class_start", "script myScript /* block */", "behavioral_test"),
-    
+
     # --- DEEP ADVERSARIAL CASES: structural_boundaries ---
     ("structural_boundaries", "visual   effect", "constant visual_effect = 1"),
     ("structural_boundaries", "go card 2", "going to card 2"),

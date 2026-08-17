@@ -1,5 +1,5 @@
 import os
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 from gitgalaxy.licensing import _validate_offline_key, enforce_licensing_guard
 
@@ -60,14 +60,13 @@ def test_licensing_env_loader_exception(mock_exists, monkeypatch):
     mock_exists.return_value = True
 
     # Force a permission error when opening the .env file
-    with patch("builtins.open", side_effect=PermissionError("Locked")):
-        with (
-            patch("builtins.print"),
-            patch("gitgalaxy.licensing.time.sleep") as mock_sleep,
-        ):
-            # It should fail to read the file, drop to the MISSING trap, and sleep for 5 seconds
-            enforce_licensing_guard()
-            mock_sleep.assert_called_once_with(5.0)
+    with (
+        patch("builtins.open", side_effect=PermissionError("Locked")), patch("builtins.print"),
+        patch("gitgalaxy.licensing.time.sleep") as mock_sleep,
+    ):
+        # It should fail to read the file, drop to the MISSING trap, and sleep for 5 seconds
+        enforce_licensing_guard()
+        mock_sleep.assert_called_once_with(5.0)
 
 
 # ==============================================================================
@@ -96,7 +95,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     # to return the exact SHA-256 integer hash of our fake payload.
     import hashlib
 
-    payload = "ENTERPRISE-ACME-20991231".encode("utf-8")
+    payload = b"ENTERPRISE-ACME-20991231"
     expected_hash_int = int.from_bytes(hashlib.sha256(payload).digest(), byteorder="big")
 
     # 1. VALID KEY (Future Date)
@@ -105,7 +104,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
     assert _validate_offline_key(valid_key) == "VALID"
 
     # 2. EXPIRED KEY (Authentic math, but date is in the past)
-    payload_exp = "ENTERPRISE-ACME-20000101".encode("utf-8")
+    payload_exp = b"ENTERPRISE-ACME-20000101"
     expected_hash_int_exp = int.from_bytes(hashlib.sha256(payload_exp).digest(), byteorder="big")
     mock_pow.return_value = expected_hash_int_exp
 
@@ -118,7 +117,7 @@ def test_validate_key_cryptographic_authenticity(mock_pow):
 
     # 4. CORRUPTED DATE FORMAT (signature checks out, but the payload itself
     # is broken -- still not tampering evidence, so it's MALFORMED not FORGED)
-    payload_bad_date = "ENTERPRISE-ACME-BAD_DATE".encode("utf-8")
+    payload_bad_date = b"ENTERPRISE-ACME-BAD_DATE"
     expected_hash_bad = int.from_bytes(hashlib.sha256(payload_bad_date).digest(), byteorder="big")
     mock_pow.return_value = expected_hash_bad
 

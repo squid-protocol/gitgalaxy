@@ -1,10 +1,8 @@
-import pytest
 import json
-import sys
 import logging
 from unittest.mock import patch
 
-from gitgalaxy.recorders.sbom_recorder import UniversalManifestSlicer, SbomRecorder
+from gitgalaxy.recorders.sbom_recorder import SbomRecorder, UniversalManifestSlicer
 from gitgalaxy.security.manifest_parser import SUPPORTED_MANIFEST_SUFFIXES
 
 

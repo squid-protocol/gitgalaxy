@@ -6,7 +6,6 @@ if _EXTRACTION_DIR not in sys.path:
     sys.path.insert(0, _EXTRACTION_DIR)
 
 import pytest
-
 from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
     assert_valid_dependency_match,
@@ -141,7 +140,7 @@ def test_php_class_start():
 
     for payload, _ in invalid:
         assert_invalid_no_match(PHP_RULES["class_start"], payload, "php.class_start")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
 
@@ -208,7 +207,7 @@ def test_php_args():
 
     for payload, _ in invalid:
         assert_invalid_no_match(PHP_RULES["args"], payload, "php.args")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
 
@@ -252,7 +251,7 @@ def test_php_dependency_capture():
         ("use SomeTrait, AnotherTrait {", None),
         ("AnotherTrait::method as alias;", None),
     ]
-    
+
     xfail_invalid = [
         ("// require 'test.php';", None),
         ("$str = 'require \"foo.php\";';", None),
@@ -265,6 +264,6 @@ def test_php_dependency_capture():
 
     for payload, _ in invalid:
         assert_invalid_no_match(PHP_RULES["_dependency_capture"], payload, "php._dependency_capture")
-        
+
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))

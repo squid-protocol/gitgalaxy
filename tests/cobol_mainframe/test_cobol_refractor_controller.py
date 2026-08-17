@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.cobol_refractor_controller as controller_module
@@ -127,9 +128,8 @@ def test_process_payload_corporate_header_and_exception(tmp_path):
 # ==============================================================================
 def test_main_missing_target(capsys):
     """Proves the CLI gracefully aborts if the legacy directory doesn't exist."""
-    with patch("sys.argv", ["refract", "missing_legacy_repo_12345"]):
-        with pytest.raises(SystemExit) as exc_info:
-            controller_module.main()
+    with patch("sys.argv", ["refract", "missing_legacy_repo_12345"]), pytest.raises(SystemExit) as exc_info:
+        controller_module.main()
 
     assert exc_info.value.code == 1
     assert "does not exist" in capsys.readouterr().out
@@ -143,9 +143,8 @@ def test_main_empty_target(tmp_path, capsys):
     repo_dir = tmp_path / "empty_repo"
     repo_dir.mkdir()
 
-    with patch("sys.argv", ["refract", str(repo_dir)]):
-        with pytest.raises(SystemExit) as exc_info:
-            controller_module.main()
+    with patch("sys.argv", ["refract", str(repo_dir)]), pytest.raises(SystemExit) as exc_info:
+        controller_module.main()
 
     assert exc_info.value.code == 0
     assert "No executable COBOL files found" in capsys.readouterr().out

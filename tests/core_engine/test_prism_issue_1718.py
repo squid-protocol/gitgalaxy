@@ -143,7 +143,7 @@ function foo() { return s; }
     assert (
         "'this is a long single-quoted string with // not a comment and /* also not */ inside'"
         in js_result["code_stream"]
-    )  # noqa: S101
+    )
 
     php_code = """
 <?php

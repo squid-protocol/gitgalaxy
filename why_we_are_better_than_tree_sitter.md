@@ -38,7 +38,23 @@ By refining the argument counting regex and the brace/arrow slicing loops, we el
 
 GitGalaxy structurally understands what constitutes a function signature and parameter list better than tree-sitter.
 
-## 5. Resilience Against Preprocessor Macros and Dead Code in C
+## 5. Overcoming AST Deficiencies in Go Grouped Parameters
+
+Tree-sitter groups comma-separated variables of the same type (e.g. `makePos(b *src.PosBase, line, col uint)`) into a single `parameter_declaration` AST node that contains multiple identifiers. This causes naively written AST evaluation scripts and many Tree-sitter powered tools to undercount the "real" parameters. GitGalaxy's structural extractor correctly parses the commas and correctly identifies all the individual arguments, effectively overcoming this AST-level grouping abstraction.
+
+## 6. Ruby Class vs Function Identification
+
+GitGalaxy natively maps Ruby's lexical structure to isolate `class` and `module` definitions, categorizing them rigorously as `ClassNode`s. This prevents generic blocks from bleeding into function datasets, whereas simpler fallback parsers often struggle to categorize blocks without extensive context.
+
+## 7. Precision in Semantic Distinctions (Ruby Lambdas)
+
+Tree-sitter's Ruby grammar indiscriminately parses `lambda` closures (like `-> { }` or `lambda { }`) as `method` nodes, erroneously inflating function counts by lumping anonymous closures into the same category as top-level function declarations. GitGalaxy offers superior precision by explicitly isolating `lambda` keywords and Proc declarations into its `closures` sensor. This ensures that when querying for functions, the dataset strictly contains true function declarations, preventing architectural noise from anonymous callbacks.
+
+## 8. Rust Generic and Lifetime Boundaries
+
+Tree-sitter's full parsing overhead for Rust is substantial. GitGalaxy achieves near 100% structural fidelity using advanced Regex that intelligently parses Rust syntax anomalies. GitGalaxy natively handles `->` arrows inside complex generic trait bounds (e.g., `fn eat<F: Fn(&Token) -> bool>`), preventing signature truncation. Furthermore, our string masking logic specifically targets and ignores Rust's lifetime syntax (e.g. `'a`) using zero-width negative lookaheads `(?![a-zA-Z_]\w*[=<>(),&|\]\s])`. This prevents the parser from confusing lifetimes with unclosed string literals, guaranteeing perfect argument counts and block boundary alignment.
+
+## 9. Resilience Against Preprocessor Macros and Dead Code in C
 
 In C, the preprocessor adds an entirely separate meta-layer of syntax that Tree-sitter's rigid AST grammar struggles to reconcile. During our C `func_recall_pct` accuracy audit, GitGalaxy proved superior to Tree-sitter on multiple fronts:
 

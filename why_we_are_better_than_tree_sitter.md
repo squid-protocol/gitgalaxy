@@ -17,6 +17,10 @@ For example, functions like `export const altW: <E2, B>(that: LazyArg<Either<E2,
 By tracking depth, GitGalaxy properly counts arguments in complex TypeScript signatures where parens and brackets are nested inside function arguments.
 For example, in `export function withAsyncBody<T, E = Error>(bodyFn: (resolve: (value: T) => unknown, reject: (error: E) => unknown) => Promise<unknown>): Promise<T> {`, GitGalaxy correctly identifies this as exactly `1` argument (`bodyFn`), despite the internal commas inside the type signature. Tree-sitter and previous AST fallback methods frequently tripped over the internal `>` from `=>` when tracking depth, causing them to miscount internal commas as argument separators. GitGalaxy's counter correctly ignores `=>` when tracking angle-bracket depth, perfectly matching the true arity.
 
+## 4. Resilience Against Flow-Typed JavaScript and Error Recovery Hallucinations
+
+Tree-sitter's standard `javascript` grammar struggles with Facebook's Flow type annotations embedded inside JavaScript (commonly found in large React codebases). When tree-sitter encounters Flow-typed syntax, it enters error recovery mode. During this error recovery, tree-sitter hallucinates and incorrectly classifies other completely unrelated syntax nodes (such as `import` statements, `let` variable bindings, and object properties) as function declarations. GitGalaxy's structural extraction avoids these AST parsing panics and correctly ignores these nodes because it isn't derailed by the presence of type annotations.
+
 ## Summary of Audit Regressions Eliminated
 
 By refining the argument counting regex and the brace/arrow slicing loops, we eliminated all argument count mismatches and hallucinated bodies:

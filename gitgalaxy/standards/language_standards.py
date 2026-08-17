@@ -6209,7 +6209,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
             "class_start": re.compile(
-                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+)(?=[^{};]*\{)",
+                r"(?<!\*[ \t\n])(?<!\*)(?<![\"'\\])(\.(?:[a-zA-Z_\-]|\\(?:[0-9a-fA-F]{1,6}\s?|[^0-9a-fA-F\n\r\t\f]))(?:[^\s{>+~:,. \"\'\[\]\(\)\;\\]|\\.)*|\#(?:[a-zA-Z_\-]|\\(?:[0-9a-fA-F]{1,6}\s?|[^0-9a-fA-F\n\r\t\f]))(?:[^\s{>+~:,. \"\'\[\]\(\)\;\\]|\\.)*)(?=[^{};]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

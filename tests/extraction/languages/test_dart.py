@@ -101,6 +101,7 @@ FUNC_START_CASES = {
         ("const ThemeData.raw({ int a = 1 }) {", "ThemeData.raw"),
         ("external void externalFunc();", "externalFunc"),
         ("String get name;", "name"),
+        ("_CopySelectionAction(this.state);", "_CopySelectionAction"),
     ],
     "invalid": [
         "var x = functionStart;",

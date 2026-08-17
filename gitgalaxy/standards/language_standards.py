@@ -6209,7 +6209,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
             "class_start": re.compile(
-                r"(\.[a-zA-Z_-][^\s{>+~:,. \"\'\[\]\(\)\;]*|\#[a-zA-Z_-][^\s{>+~:,. \"\'\[\]\(\)\;]*)(?=[^{};]*\{)",
+                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+)(?=[^{};]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8877,7 +8877,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # of itself) and a pointer-to-opaque handle type (`const HMONITOR
             # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t]+)?(?:const|var)[ \t]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[^=:\n;]*[=:][^;{]*?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:[ \t\n]*:[ \t\n]*[a-zA-Z0-9_.*()]+)?[ \t\n]*=[ \t\n]*\(?[ \t\n]*\*?[ \t\n]*(?:(?:packed|extern|align\([^)]*\))[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

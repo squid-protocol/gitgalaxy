@@ -15,11 +15,11 @@ a ReDoS scaling sweep, boundary/ambiguity audits) adapted to one regex instead
 of forty, plus a pure-Python classifier function instead of a regex family.
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -28,7 +28,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent.parent / "extraction" / "la
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import assert_redos_immune, _best_of_timing  # noqa: E402 # type: ignore
+from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
 
 
 @pytest.fixture(scope="module")

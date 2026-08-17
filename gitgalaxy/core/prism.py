@@ -803,7 +803,7 @@ class Prism:
         # real quote/backtick happens to sit.
         combined_pattern = re.compile(
             r'(?<!\\)"(?:\\.|[^"\\])*"'
-            r"|(?<!\\)'(?:\\.|[^'\\]){0,10}'"
+            r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
             r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
             rf"|{re.escape(s_line)}[^\n]*",
             re.S | re.M,

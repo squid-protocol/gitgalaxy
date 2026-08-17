@@ -1,9 +1,9 @@
 from gitgalaxy.core.spatial_correlation import (
-    correlate_signals,
-    correlate_scoped,
-    filter_positions_in_range,
     apply_dampener_correlations,
     correlate_against_ledger,
+    correlate_scoped,
+    correlate_signals,
+    filter_positions_in_range,
 )
 
 

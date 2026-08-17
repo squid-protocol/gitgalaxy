@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # ==============================================================================
 # JCL: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #590, part of epic #518)

@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # DART: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #578)
 # ==============================================================================
@@ -86,14 +85,14 @@ _DART_DEEP_CASES = [
     ('branch', 'when (x)', 'int counter = 5;'),
     ('branch', 'case Foo():', 'caseInSensitive = true;'),
     ('branch', 'a ?? b', 'a + b'),
-    
+
     # args
     ('args', 'Future<void> foo<T>(int x, {required String y}) async {', 'if (x > 0) {'),
     ('args', 'void bar(List<Map<String, int>> data) =>', 'while (x == 5) {'),
     ('args', '(int a, [int? b]) =>', 'switch (x) {'),
     ('args', 'Map<String, dynamic> parse(String json) {', 'catch (e) {'),
     ('args', 'void foo() : super() {', 'return (x) {'),
-    
+
     # func_start
     ('func_start', '  @override\n  Future<Map<String, dynamic>> fetchData() async {', 'class Foo {'),
     ('func_start', 'external void externalFunc();', 'mixin Bar {'),

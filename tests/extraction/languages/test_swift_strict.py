@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
 # was split into tests/extraction/languages/, one file per language) alongside
@@ -141,7 +140,7 @@ _SWIFT_SIMPLE_CASES = [
     ("regex_execution", "let re = try Regex(pattern)", "regexPattern = String"),
     ("time_date_logic", "let d = Date()", "dateString = formatter.string(from: date)"),
     ("ipc_rpc_bridges", "URLSession.shared.dataTask(with: url)", "processedCount += 1"),
-    
+
     # DEEP ADVERSARIAL CASES
     ("branch", "throws(Error)", "func myThrows(x: Int) {"),
     ("branch", "try? perform()", "a != b"),

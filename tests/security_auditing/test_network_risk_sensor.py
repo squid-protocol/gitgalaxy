@@ -1,9 +1,10 @@
-import pytest
-from unittest.mock import patch
 import copy
+from unittest.mock import patch
+
+import pytest
 
 # Adjust this import to match your project structure
-from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor, HAS_NETWORKX
+from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
 
 # ==============================================================================
 # MOCK STELLAR TOPOLOGY

@@ -1,16 +1,15 @@
 import json
-import yaml
-import pytest
 from unittest.mock import patch
 
+import pytest
+import yaml
+
 from gitgalaxy.tools.network_auditing.full_api_network_map import (
-    run_api_audit,
-    main,
     auto_discover_swagger,
-    parse_official_swagger,
+    main,
     map_physical_codebase,
-    normalize_endpoint,
-    calculate_api_drift,
+    parse_official_swagger,
+    run_api_audit,
 )
 
 
@@ -192,9 +191,8 @@ def test_physical_mapper_exception_handling(tmp_path):
 # ==============================================================================
 def test_cli_missing_target(capsys):
     """Verifies the CLI aborts gracefully if the target directory doesn't exist."""
-    with patch("sys.argv", ["api_map", "missing_repo_12345"]):
-        with pytest.raises(SystemExit) as exc_info:
-            main()
+    with patch("sys.argv", ["api_map", "missing_repo_12345"]), pytest.raises(SystemExit) as exc_info:
+        main()
     assert exc_info.value.code == 1
     assert "Error: Target source directory" in capsys.readouterr().out
 
@@ -207,9 +205,8 @@ def test_cli_no_swagger_found(tmp_path, capsys):
     repo_dir = tmp_path / "empty_repo"
     repo_dir.mkdir()
 
-    with patch("sys.argv", ["api_map", str(repo_dir)]):
-        with pytest.raises(SystemExit) as exc_info:
-            main()
+    with patch("sys.argv", ["api_map", str(repo_dir)]), pytest.raises(SystemExit) as exc_info:
+        main()
     assert exc_info.value.code == 1
     assert "[ABORT] No OpenAPI/Swagger specifications found" in capsys.readouterr().out
 
@@ -228,9 +225,8 @@ def test_cli_ambiguous_swaggers(tmp_path, capsys):
     (repo_dir / "api_v1" / "swagger.json").write_text('{"paths":{}}', encoding="utf-8")
     (repo_dir / "api_v2" / "swagger.json").write_text('{"paths":{}}', encoding="utf-8")
 
-    with patch("sys.argv", ["api_map", str(repo_dir)]):
-        with pytest.raises(SystemExit) as exc_info:
-            main()
+    with patch("sys.argv", ["api_map", str(repo_dir)]), pytest.raises(SystemExit) as exc_info:
+        main()
 
     assert exc_info.value.code == 1
     captured = capsys.readouterr()

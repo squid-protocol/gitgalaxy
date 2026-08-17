@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -391,28 +390,28 @@ def test_zig_deep_structural_signatures_ambiguity():
     assert branch.search("const a = b orelse c;")
     assert branch.search("a && b")
     assert branch.search("a || b")
-    
+
     # Negative (exact identifier escapes)
     assert not branch.search('const @"if" = 5;')
     assert not branch.search('const @"catch" = true;')
-    
+
     # 2. args
     args = ZIG_RULES["args"]
     # Deep parens up to depth 4
     deep_args = 'fn max(a: typeof(foo(bar(baz())))) void {'
     m = args.search(deep_args)
     assert m and m.group(1) == "a: typeof(foo(bar(baz())))", "args regex should handle deep nested parens"
-    
+
     # Missing delimiter (should not match endlessly or match invalid args)
     assert not args.search('fn broken(a: type, ')
-    
+
     # 3. func_start
     func_start = ZIG_RULES["func_start"]
     # Weird modifier stacking and nested parens in attributes
     weird_func = 'pub inline extern "C" callconv(.C) align(@alignOf(T(u8, F(1)))) linksection(".text.(main)") fn @"my weird func"() void {'
     m = func_start.search(weird_func)
     assert m and m.group(1) == '@"my weird func"', "func_start should handle complex modifier stacking and deep parens in align()"
-    
+
     # 4. class_start
     class_start = ZIG_RULES["class_start"]
     assert class_start.search('pub const Tuple = struct {')
@@ -421,10 +420,10 @@ def test_zig_deep_structural_signatures_ambiguity():
     assert class_start.search('const MyUnion = extern union {')
     assert class_start.search('const E = error {')
     assert class_start.search('const O = opaque {')
-    
+
     # Negative (type info)
     assert not class_start.search('const Foo = @typeInfo(T).Struct;')
-    
+
     # 5. structural_boundaries
     struct_bounds = ZIG_RULES["structural_boundaries"]
     assert struct_bounds.search('var x: i32 = 0;')
@@ -436,7 +435,7 @@ def test_zig_deep_structural_signatures_ambiguity():
     assert struct_bounds.search('suspend {}')
     assert struct_bounds.search('await p;')
     assert struct_bounds.search('usingnamespace std;')
-    
+
     # Negative (exact identifier escapes)
     assert not struct_bounds.search('const @"var" = 5;')
     assert not struct_bounds.search('const @"return" = 5;')

@@ -1,6 +1,7 @@
-import pytest
 import sys
 from unittest.mock import patch
+
+import pytest
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.terabyte_log_scanning.pii_leak_hunter as pii_module

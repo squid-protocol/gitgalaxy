@@ -55,7 +55,7 @@ import ast
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Set, Optional
+from typing import Dict, List, NamedTuple, Optional, Set
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOTS = [REPO_ROOT / "gitgalaxy"]
@@ -295,7 +295,7 @@ def load_baseline() -> Dict[str, str]:
     """Returns {key: reason} for every already-known, not-yet-fixed lead."""
     if not BASELINE_PATH.exists():
         return {}
-    with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+    with open(BASELINE_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 

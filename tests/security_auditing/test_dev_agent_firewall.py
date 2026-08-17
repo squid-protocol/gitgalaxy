@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
 
 

@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # ==============================================================================
 # ASSEMBLY: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #574, part of epic #518)
@@ -39,17 +38,17 @@ _ASM_SIMPLE_CASES = [
     ("branch", "\tloop .retry", "\tmov eax, ebx"),
     ("branch", "\tblr x19", "\tmov eax, ebx"),
     ("branch", "\tjmp foo", "\tmov eax, ebx"),
-    
+
     # args (deep)
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     ("args", "\tmov edi, 5", "\tmov eax, ebx"),
-    
+
     # func_start (deep)
     ("func_start", "_start:\n", "\tmov eax, ebx"),
     ("func_start", "@main_loop:\n", "\tmov eax, ebx"),
@@ -60,7 +59,7 @@ _ASM_SIMPLE_CASES = [
     ("func_start", "myFunc:\n\tret", "1:\n"),
     ("func_start", "myFunc:\n\tret", "\t.text:\n"),
     ("func_start", "myFunc:\n\tret", "\tret"),
-    
+
     # class_start (deep)
     ("class_start", "my_struc struc", "\tmov eax, ebx"),
     ("class_start", "\t.struct my_struct", "\tmov eax, ebx"),

@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
-
 
 # ==============================================================================
 # DOCKERFILE: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #579, part of epic #518)
@@ -35,28 +34,28 @@ _DOCKERFILE_DEEP_CASES = [
     ("branch", "RUN while true; do sleep 1; done", "LABEL specific=\"value\""),
     ("branch", "RUN command || exit 1", "RUN echo '|'"),
     ("branch", "RUN case \"$1\" in start) ;; esac", "ENV casey=1"),
-    
+
     # --- args ---
     ("args", "ARG VERSION=latest", "ENV ARG=1"),
     ("args", "ARG \\\n NAME=value", "RUN echo ARG"),
     ("args", "  arg   foo", "ARG"),  # ARG with no name is invalid/should not match
     ("args", "ARG\t_my_arg", "ARGH=1"),
     ("args", "ARG\\\nNAME", "RUN ARG=1"),
-    
+
     # --- func_start ---
     ("func_start", "CMD[\"executable\"]", "FROM ubuntu"),
     ("func_start", "RUN\\\n apt-get update", "RUNNING_CMD=yes"),
     ("func_start", "ENTRYPOINT \\\n [\"/bin/sh\"]", "# RUN apt-get"),
     ("func_start", "HEALTHCHECK --interval=5m CMD curl", "RUN=foo"),
     ("func_start", "  cMd [\"executable\"]", "FROM\\\nubuntu"),
-    
+
     # --- class_start ---
     ("class_start", "FROM ubuntu", "FROM_IMAGE=ubuntu"),
     ("class_start", "FROM \\\n ubuntu", "RUN echo FROM"),
     ("class_start", "FROM\\\nscratch", "# FROM ubuntu"),
     ("class_start", "  from   ubuntu", "FROM"),
     ("class_start", "FROM --platform=linux/amd64 ubuntu", "ENFROM=1"),
-    
+
     # --- structural_boundaries ---
     ("structural_boundaries", "WORKDIR /app", "RUN echo WORKDIR"),
     ("structural_boundaries", "USER root", "CMD [\"USER\", \"root\"]"),
@@ -623,12 +622,12 @@ def test_dockerfile_updated_signatures_redos_immunity():
     args_pattern = DOCKERFILE_RULES["args"]
     func_start = DOCKERFILE_RULES["func_start"]
     class_start = DOCKERFILE_RULES["class_start"]
-    
+
     # args: test long strings of continuations
     assert_redos_immune(args_pattern, "ARG " + "\\\n" * 20000, timeout_sec=3.0)
-    
+
     # func_start: test long strings of continuations
     assert_redos_immune(func_start, "RUN " + "\\\n" * 20000, timeout_sec=3.0)
-    
+
     # class_start: test long strings of continuations
     assert_redos_immune(class_start, "FROM " + "\\\n" * 20000, timeout_sec=3.0)

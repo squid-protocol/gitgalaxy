@@ -5,6 +5,7 @@ tests/extraction/how_to_harden_extraction.md for the methodology.
 
 import sys
 from pathlib import Path
+
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS

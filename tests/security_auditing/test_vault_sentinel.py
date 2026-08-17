@@ -1,7 +1,8 @@
-import pytest
 import sys
-import yaml
 from unittest.mock import patch
+
+import pytest
+import yaml
 
 import gitgalaxy.tools.supply_chain_security.vault_sentinel as sentinel_module
 

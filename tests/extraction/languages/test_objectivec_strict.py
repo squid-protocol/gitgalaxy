@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # ==============================================================================
 # OBJECTIVE-C: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #601)
 # ==============================================================================
@@ -96,25 +95,25 @@ _OBJC_SIMPLE_CASES = [
     ("branch", "int x = a ? b : c;", "NSString *url = @\"https://try.example.com\";"),
     ("branch", "@finally {", "@finallysomething"),
     ("branch", "    goto label;", "gotofail"),
-    
+
     ("args", ": (NSString *)name", "if (a) {"),
     ("args", ":(id<MyProto>)arg", "while (1) {"),
     ("args", "^(int a, int b) {", "catch (NSException *e) {"),
     ("args", "void my_func(int a, void (*cb)(int)) {", "sizeof(int);"),
     ("args", ":(void(^)(BOOL, NSError *))completion", "__attribute__((unused))"),
-    
+
     ("func_start", "- (void)doThing:(id)arg;", "void(^my_block)(void) = ^{"),
     ("func_start", "- (NSDictionary<NSString *, id> *)doThing {", "@interface Foo"),
     ("func_start", "+ (id<MyProto>)doThing {", "int x = 1;"),
     ("func_start", "static void (*my_func_ptr)(int) {", "struct Node {"),
     ("func_start", "extern \"C\" void my_export_func(void);", "typedef int MyInt;"),
-    
+
     ("class_start", "@interface MyClass // comment", "@interfaceFoo"),
     ("class_start", "@implementation MyClass {", "@implementationBar"),
     ("class_start", "@interface MyClass /* comment */", "my_struct"),
     ("class_start", "@interface MyClass: NSObject", "@class Foo;"),
     ("class_start", "@interface MyClass (Category)", "int my_interface = 1;"),
-    
+
     ("structural_boundaries", "@interface Foo : NSObject", "@interfaceFoo"),
     ("structural_boundaries", "__strong id obj = nil;", "my_strong_var"),
     ("structural_boundaries", "@synthesize prop = _prop;", "@synthesize_it"),

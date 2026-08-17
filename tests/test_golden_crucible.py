@@ -20,11 +20,11 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_TIKTOKEN, HAS_PYYAML
+from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_PYYAML, HAS_TIKTOKEN
 from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
-import golden_diff  # noqa: E402
+import golden_diff
 
 pytestmark = pytest.mark.golden_crucible
 

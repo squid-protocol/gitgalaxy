@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 
 
@@ -1304,10 +1305,11 @@ def test_sarif_exact_loc_injection():
     Ensures the SARIF exporter consumes the threat_locations array and outputs
     the exact line number instead of falling back to line 1.
     """
-    from gitgalaxy.recorders.sarif_recorder import SarifRecorder
     import json
-    import tempfile
     import os
+    import tempfile
+
+    from gitgalaxy.recorders.sarif_recorder import SarifRecorder
 
     recorder = SarifRecorder()
 
@@ -1328,7 +1330,7 @@ def test_sarif_exact_loc_injection():
     try:
         recorder.generate_report([mock_file], {}, {}, temp_path)
 
-        with open(temp_path, "r") as f:
+        with open(temp_path) as f:
             sarif_output = json.load(f)
 
         results = sarif_output["runs"][0]["results"]

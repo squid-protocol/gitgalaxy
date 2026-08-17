@@ -8,11 +8,11 @@ mode). See tests/core_engine/test_language_standards_strict.py's git history
 for the original single-file layout and section banners (Issue references, etc).
 """
 
+import re
 import sys
 from pathlib import Path
 
 import pytest
-import re
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -132,14 +132,14 @@ _COBOL_SIMPLE_CASES = [
     ("func_start", "       SOME-PARA.", "       PROCEDURE DIVISION."),
     ("func_start", "000100 VALID-FUNC-WITH-MARGIN.", "000100 WORKING-STORAGE SECTION."),
     ("func_start", "      -VALID-WITH-DASH.", "      *COMMENT-SHOULD-NOT-MATCH."),
-    
+
     # class_start: trailing clauses, optional names
     ("class_start", "       PROGRAM-ID. MYPROG IS INITIAL.", "       100-PROCESS-RECORDS SECTION."),
     ("class_start", "       CLASS-ID. FOO INHERITS BASE.", "       01 WS-DATA."),
-    
-    
+
+
     ("class_start", "000100 PROGRAM-ID. P1.", "       PROCEDURE DIVISION."),
-    
+
     # structural_boundaries:
     ("structural_boundaries", "PROCEDURE DIVISION", "MOVE X TO Y."),
     ("structural_boundaries", "XML PARSE", "MOVE X TO Y."),

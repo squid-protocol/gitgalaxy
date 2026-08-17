@@ -21,7 +21,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
 # was split into tests/extraction/languages/, one file per language) alongside
@@ -163,11 +162,11 @@ def test_php_signature_positive_and_negative(signature, positive, negative):
 def test_php_signature_deep_cases(signature, positive, negative):
     pattern = PHP_RULES[signature]
     assert pattern is not None, f"php's {signature!r} rule is unexpectedly None"
-    
+
     # Using re.search on the positive cases
     if positive is not None:
         assert pattern.search(positive), f"php {signature!r} failed to match its deep positive case: {positive!r}"
-    
+
     # Using re.search on the negative cases
     if negative is not None:
         assert not pattern.search(negative), (

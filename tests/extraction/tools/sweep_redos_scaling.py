@@ -1,8 +1,8 @@
 import ast
-import os
 import glob
-import time
+import os
 import sys
+import time
 
 # Ensure gitgalaxy module is resolvable
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
@@ -37,27 +37,27 @@ def run_sweep(sizes=DEFAULT_SIZES):
     """
     vuln_count = 0
     total_tested = 0
-    
+
     file_to_lang = {
         'test_objectivec_strict.py': 'objective-c',
         'test_embedded_python_strict.py': 'embedded_python',
     }
-    
+
     pattern_files = glob.glob("tests/extraction/languages/test_*_strict.py")
-    
+
     for filepath in pattern_files:
         filename = os.path.basename(filepath)
         lang = file_to_lang.get(filename, filename.split('_')[1] if '_' in filename else None)
-            
+
         if not lang or lang not in LANGUAGE_DEFINITIONS:
             continue
-            
-        with open(filepath, 'r') as f:
+
+        with open(filepath) as f:
             try:
                 tree = ast.parse(f.read())
             except Exception:
                 continue
-            
+
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and getattr(node.func, 'id', '') == 'assert_redos_immune':
                 try:
@@ -65,20 +65,20 @@ def run_sweep(sizes=DEFAULT_SIZES):
                     rule_node = node.args[0]
                     rule_key = rule_node.slice.value if isinstance(rule_node, ast.Subscript) else getattr(rule_node, 'id', None)
                     if not rule_key or rule_key not in LANGUAGE_DEFINITIONS[lang]['rules']: continue
-                    
+
                     pattern = LANGUAGE_DEFINITIONS[lang]['rules'][rule_key]
                     if not pattern: continue
-                    
+
                     durations = []
                     for n in sizes:
                         payload = _eval_node_with_n(node.args[1], n)
                         start = time.perf_counter()
                         pattern.search(payload)
                         durations.append(time.perf_counter() - start)
-                    
+
                     ratios = [durations[i] / durations[i-1] for i in range(1, len(durations)) if durations[i-1] > 0.0001]
                     total_tested += 1
-                    
+
                     if ratios:
                         max_ratio = max(ratios)
                         # A real O(n^2) backtracking bug will consistently show ~4.0x per doubling.
@@ -90,7 +90,7 @@ def run_sweep(sizes=DEFAULT_SIZES):
                     # Ignore payloads that are too complex to be evaluated by this basic AST scraper
                     pass
 
-    print(f"\nReDoS Geometric Sweep Complete.")
+    print("\nReDoS Geometric Sweep Complete.")
     print(f"Tested {total_tested} rules across {len(pattern_files)} test files.")
     print(f"Found {vuln_count} true O(n^2) scaling vulnerabilities.")
 

@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import pytest
 import yaml
-from unittest.mock import patch
 
 import gitgalaxy.tools.supply_chain_security.binary_anomaly_detector as xray_module
 from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
@@ -152,9 +153,8 @@ def test_xray_run_audit_exception(mock_aperture_class, mock_security_class, tmp_
 # ==============================================================================
 def test_main_missing_target(capsys):
     """Proves the CLI catches invalid directories and exits safely."""
-    with patch("sys.argv", ["xray", "non_existent_folder_path_12345"]):
-        with pytest.raises(SystemExit) as exc_info:
-            xray_module.main()
+    with patch("sys.argv", ["xray", "non_existent_folder_path_12345"]), pytest.raises(SystemExit) as exc_info:
+        xray_module.main()
 
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
@@ -223,9 +223,8 @@ def test_main_anomaly_detected(mock_aperture_class, mock_security_class, tmp_pat
         {"counts": {"entropy": 5.0, "bitwise_ops": 1}} if "HIGH ENTROPY" in content else {"counts": {}}
     )
 
-    with patch("sys.argv", ["xray", str(repo_dir), "--config", config_path]):
-        with pytest.raises(SystemExit) as exc_info:
-            xray_module.main()
+    with patch("sys.argv", ["xray", str(repo_dir), "--config", config_path]), pytest.raises(SystemExit) as exc_info:
+        xray_module.main()
 
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
@@ -248,9 +247,8 @@ def test_main_file_read_exception(mock_aperture_class, mock_security_class, tmp_
     repo_dir.mkdir()
     (repo_dir / "unreadable.dat").write_text("data", encoding="utf-8")
 
-    with patch("sys.argv", ["xray", str(repo_dir)]):
-        with patch("builtins.open", side_effect=PermissionError("Locked")):
-            xray_module.main()
+    with patch("sys.argv", ["xray", str(repo_dir)]), patch("builtins.open", side_effect=PermissionError("Locked")):
+        xray_module.main()
 
 
 # ==============================================================================

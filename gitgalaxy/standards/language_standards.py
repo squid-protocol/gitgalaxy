@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 99.7% | 99.5% | 100.0% | 100.0% |
-| Cpp | 93.4% | 95.7% | 98.6% | 92.6% |
+| Cpp | 93.4% | 95.7% | 100.0% | 94.0% |
 | Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 96.0% | 97.8% | 100.0% | 100.0% |
@@ -55,7 +55,7 @@ for the same metrics tracked over time across pushes to main.
 | Perl | 100.0% | 99.9% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
-| Python | 100.0% | 100.0% | 99.6% | 100.0% |
+| Python | 100.0% | 100.0% | 100.0% | 100.0% |
 | Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
 | Typescript | 97.2% | 99.5% | 100.0% | 100.0% |
-| Zig | 100.0% | 100.0% | 96.0% | 99.8% |
+| Zig | 100.0% | 100.0% | 100.0% | 98.6% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 
@@ -409,7 +409,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # easy miss for the same reason java's #816 class_start bug was (name looks fine,
             # inheritance info silently vanishes).
             "class_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}class[ \t]+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\(([^)]*)\))?",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:cdef[ \t]+|cpdef[ \t]+)?class[ \t]+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\(([^)]*)\))?",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -3067,7 +3067,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "class_start": re.compile(
                 r"^[ \t]*(?:export[ \t\n]+)?"
                 r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-                r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*)",
+                r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -6209,7 +6209,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines discrete visual entities via Class and ID selectors.
             "class_start": re.compile(
-                r"(?:^[ \t]*|[,>+~]\s*)(\.(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+|\#(?:\\(?:[0-9a-fA-F]{1,6}\s?|.)|[^\s{>+~:,. \"\'\[\]\\])+)(?=[^{]*\{)",
+                r"(\.[a-zA-Z_-][^\s{>+~:,. \"\'\[\]\(\)\;]*|\#[a-zA-Z_-][^\s{>+~:,. \"\'\[\]\(\)\;]*)(?=[^{};]*\{)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8877,7 +8877,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # of itself) and a pointer-to-opaque handle type (`const HMONITOR
             # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t\n]+)?const[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t\n]*=[ \t\n]*\(?[ \t\n]*\*?[ \t\n]*(?:packed[ \t\n]+|extern[ \t\n]+)?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t]+)?(?:const|var)[ \t]+(@\"[^\"]+\"|[a-zA-Z_]\w*)[^=:\n;]*[=:][^;{]*?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

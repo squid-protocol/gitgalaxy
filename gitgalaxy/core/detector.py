@@ -372,6 +372,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "c",
         "cpp",
         "csharp",
+        "css",
         "dart",
         "fortran",
         "go",

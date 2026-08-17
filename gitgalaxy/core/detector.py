@@ -4445,7 +4445,7 @@ class StructuralExtractor:
             # Group 1 now grabs the optional `(Ident::)+` chain immediately
             # before the `operator` keyword and it's prefixed back on below.
             op_match = re.search(
-                r"((?:[a-zA-Z_]\w*::)*)\b(operator\s*(?:\[\s*\]|\(\s*\)|[^a-zA-Z0-9_\s({]+|[a-zA-Z_]\w*(?:\s*\*+)?))",
+                r"((?:[a-zA-Z_]\w*::)*)\b(operator\s*(?:\[\s*\]|\(\s*\)|(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:\s*\*+)?|[^a-zA-Z0-9_\s({]+))",
                 match_strip,
             )
             if op_match:

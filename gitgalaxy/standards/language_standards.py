@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 93.3% | 99.5% | 100.0% | 100.0% |
-| Cpp | 92.3% | 96.2% | 98.6% | 92.6% |
+| Cpp | 93.4% | 95.7% | 98.6% | 92.6% |
 | Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 96.0% | 97.8% | 100.0% | 100.0% |
@@ -3025,7 +3025,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
                 # .cpp file, declared in the header) are mainstream, common C++ -- completely
                 # invisible to func_start before this fix.
-                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
+                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
                 r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"

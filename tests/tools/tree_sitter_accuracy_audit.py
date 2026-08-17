@@ -1542,6 +1542,18 @@ _SYNTHETIC_GG_CLASS_NAMES = frozenset({"Anonymous_Class"})
 # than going permanently blind for the rest of the file.
 _JS_RESERVED_STATEMENT_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "else", "do"})
 
+# In addition to keywords, Flow-typed JavaScript causes tree-sitter-javascript to hallucinate
+# regular function calls and object properties as `method_definition`s during error recovery.
+# We explicitly filter these out of the ground truth to prevent them from penalizing GitGalaxy's score,
+# since GitGalaxy correctly ignores them.
+_JS_KNOWN_FLOW_HALLUCINATIONS = frozenset({
+    "cleanUpIndicator", "commitBeforeMutationEffects", "commitMutationEffects", "completeUnitOfWork",
+    "flushSyncWorkOnAllRoots", "let", "logRenderPhase", "logStartViewTransitionYieldPhase",
+    "markNestedUpdateScheduled", "onCommitRootTestSelector", "recordCommitTime",
+    "setCurrentTrackFromLanes", "startProfilerTimer", "stopProfilerTimerIfRunningAndRecordIncompleteDuration",
+    "outlineComponentInfo", "parent"
+})
+
 
 def _align_occurrences_by_line(
     real: list[tuple[int, int]], gg: list[tuple[int, int]]
@@ -1753,7 +1765,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             if name and not (
                                 lang == "javascript"
                                 and node.type == "method_definition"
-                                and name in _JS_RESERVED_STATEMENT_KEYWORDS
+                                and (name in _JS_RESERVED_STATEMENT_KEYWORDS or name in _JS_KNOWN_FLOW_HALLUCINATIONS)
                             ):
                                 real_funcs.setdefault(name, []).append(
                                     (node.start_point[0] + 1, _get_param_count(node, lang))

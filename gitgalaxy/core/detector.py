@@ -1888,13 +1888,13 @@ class StructuralExtractor:
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id in ("cpp", "c"):
+        if lang_id == "cpp":
             # #1718: C++14+ digit separators (512'000, 1'000'000, 0xDE'AD) use ' inside
             # numeric literals. The unbounded branch read a separator as a char-literal opener
             # and paired it with the next unrelated ' anywhere later in the file, blanking every
             # real function body in between from the brace scan. Consume separators as their own
             # alternative (same shape as prism.py's CPP_LITERAL_MASK_PATTERN) and bound the branch
-            # to 10 chars, matching #1302/#1426.
+            # to 64 chars, matching #1302/#1426.
             single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
         elif lang_id in ("rust", "zig"):
             # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived

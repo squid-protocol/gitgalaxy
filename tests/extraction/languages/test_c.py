@@ -56,6 +56,12 @@ FUNCTION_CASES: dict[str, Any] = {
         ),  # K&R old-style function definition
         # Testing-framework-shaped functions that ARE real functions
         ("void test_TargetFunc(void) {", "test_TargetFunc"),  # Unity-style test function
+        # Macros after return type and complex nested parenthesis args
+        ("PyObject* _Py_HOT_FUNCTION DONT_SLP_VECTORIZE \n TargetFunc(PyThreadState *tstate) {", "TargetFunc"),
+        ("int TargetFunc(PyObject* Py_UNUSED(consts)) {", "TargetFunc"),
+        ("Py_ssize_t TargetFunc(int (*check_lookup)(PyDictObject *, Py_ssize_t)) {", "TargetFunc"),
+        # K&R style with macro return type
+        ("PRIVATE void TargetFunc(out,plp,tag)\nFILE *out;\nstruct plink *plp;\nchar *tag;\n{", "TargetFunc"),
     ],
     "invalid": [
         "typedef struct TargetFunc {",  # struct decl lookalike

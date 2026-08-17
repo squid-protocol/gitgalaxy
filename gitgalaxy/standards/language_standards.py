@@ -35,7 +35,7 @@ for the same metrics tracked over time across pushes to main.
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
-| C | 93.3% | 99.5% | 100.0% | 100.0% |
+| C | 99.7% | 99.5% | 100.0% | 100.0% |
 | Cpp | 93.4% | 95.7% | 98.6% | 92.6% |
 | Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
@@ -3408,12 +3408,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?:(?:struct|union|enum)\s+)?"
                 # 4. Return type (Strictly linear)
                 r"(?:[a-zA-Z_]\w+\s+){0,3}[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)"
+                # [ MACRO SHIELD ]: Support macros between return type and function name (e.g. PyAPI_FUNC(int) or _Py_HOT_FUNCTION)
+                r"(?:[a-zA-Z_]\w+(?:\s*\([^)]*\))?\s+){0,5}"
                 # 5. The "Not a Function" Shield
                 r"(?!(?:if|for|while|switch|return|sizeof)\b)"
                 # 6. The Identifier Capture (Satellite Name - Group 1)
                 r"([a-zA-Z_]\w*)"
                 # 7. The Parameter Block
-                r"\s*\([^)]*\)"
+                # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers and macros without ReDoS.
+                r"\s*\((?:[^)(]|\([^)]*\))*\)"
                 # 8. The K&R C Parameter Gap (Legacy support for DOOM/MS-DOS)
                 # [IRON WALL FIX]: Forces instant failure if it encounters BEGIN or control flow.
                 r"(?:\s+(?!(?:BEGIN|if|for|while|switch|return)\b)[a-zA-Z_][^;{]{0,150};){0,15}"

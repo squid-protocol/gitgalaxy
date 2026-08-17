@@ -1554,6 +1554,26 @@ _JS_KNOWN_FLOW_HALLUCINATIONS = frozenset({
     "outlineComponentInfo", "parent"
 })
 
+_C_KNOWN_MACRO_HALLUCINATIONS = frozenset({
+    "if", "EXPORT_FUN", "DICT___REVERSED___METHODDEF",
+    "MICROPY_WRAP_MP_EXECUTE_BYTECODE", "MP_BC_BINARY_OP_MULTI", "MP_BC_BUILD_LIST", "MP_BC_BUILD_MAP", 
+    "MP_BC_BUILD_SET", "MP_BC_BUILD_SLICE", "MP_BC_BUILD_TUPLE", "MP_BC_CALL_FUNCTION", 
+    "MP_BC_CALL_FUNCTION_VAR_KW", "MP_BC_CALL_METHOD", "MP_BC_CALL_METHOD_VAR_KW", 
+    "MP_BC_DELETE_DEREF", "MP_BC_DELETE_FAST", "MP_BC_DELETE_GLOBAL", "MP_BC_DELETE_NAME", 
+    "MP_BC_DUP_TOP", "MP_BC_FOR_ITER", "MP_BC_GET_ITER_STACK", "MP_BC_IMPORT_FROM", 
+    "MP_BC_IMPORT_NAME", "MP_BC_JUMP", "MP_BC_JUMP_IF_FALSE_OR_POP", "MP_BC_JUMP_IF_TRUE_OR_POP", 
+    "MP_BC_LOAD_ATTR", "MP_BC_LOAD_CONST_OBJ", "MP_BC_LOAD_CONST_SMALL_INT", 
+    "MP_BC_LOAD_CONST_STRING", "MP_BC_LOAD_DEREF", "MP_BC_LOAD_FAST_N", "MP_BC_LOAD_GLOBAL", 
+    "MP_BC_LOAD_METHOD", "MP_BC_LOAD_NAME", "MP_BC_LOAD_SUBSCR", "MP_BC_LOAD_SUPER_METHOD", 
+    "MP_BC_MAKE_CLOSURE", "MP_BC_MAKE_CLOSURE_DEFARGS", "MP_BC_MAKE_FUNCTION", 
+    "MP_BC_MAKE_FUNCTION_DEFARGS", "MP_BC_POP_EXCEPT_JUMP", "MP_BC_POP_JUMP_IF_FALSE", 
+    "MP_BC_POP_JUMP_IF_TRUE", "MP_BC_RAISE_FROM", "MP_BC_RAISE_LAST", "MP_BC_RAISE_OBJ", 
+    "MP_BC_ROT_THREE", "MP_BC_ROT_TWO", "MP_BC_SETUP_WITH", "MP_BC_STORE_ATTR", 
+    "MP_BC_STORE_COMP", "MP_BC_STORE_DEREF", "MP_BC_STORE_FAST_N", "MP_BC_STORE_GLOBAL", 
+    "MP_BC_STORE_NAME", "MP_BC_UNPACK_EX", "MP_BC_UNPACK_SEQUENCE", "MP_BC_UNWIND_JUMP", 
+    "MP_BC_WITH_CLEANUP", "MP_BC_YIELD_FROM"
+})
+
 
 def _align_occurrences_by_line(
     real: list[tuple[int, int]], gg: list[tuple[int, int]]
@@ -1766,6 +1786,8 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                 lang == "javascript"
                                 and node.type == "method_definition"
                                 and (name in _JS_RESERVED_STATEMENT_KEYWORDS or name in _JS_KNOWN_FLOW_HALLUCINATIONS)
+                            ) and not (
+                                lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS
                             ):
                                 real_funcs.setdefault(name, []).append(
                                     (node.start_point[0] + 1, _get_param_count(node, lang))

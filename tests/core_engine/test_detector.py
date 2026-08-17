@@ -3115,10 +3115,10 @@ def test_detector_depth_aware_brace_idx():
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
     # Give the mock some TS rules
     opt.languages["typescript"]["rules"]["func_start"] = re.compile(
-        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
+        r"^[ \t]*(?:function\s+)?([a-zA-Z_$][\w$]*)\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\s*\{", re.M
     )
     opt.languages["typescript"]["rules"]["args"] = re.compile(
-        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))"
+        r"([a-zA-Z_$][\w$]*)\s*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))"
     )
     code = "function test_func(options: { url: string, cb: () => void }) {\n    return 1;\n}\n"
     res = opt.splice(code, "")

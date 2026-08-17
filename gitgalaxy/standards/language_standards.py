@@ -55,7 +55,7 @@ for the same metrics tracked over time across pushes to main.
 | Perl | 100.0% | 99.9% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 96.6% |
 | Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
-| Python | 99.3% | 100.0% | 99.6% | 100.0% |
+| Python | 100.0% | 100.0% | 99.6% | 100.0% |
 | Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
-| Typescript | 97.1% | 99.5% | 100.0% | 100.0% |
+| Typescript | 97.2% | 99.5% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 96.0% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -724,7 +724,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # This allows the lookahead to safely cross vertical line breaks without
                 # resorting to an unbounded `\s*` which causes ReDoS.
                 # =====================================================================
-                r"(?:^|[^<>(,\s])[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 # GENERATOR METHOD FIX (epic #813/#814): class/object-literal generator
                 # methods (`*foo() {}`, `async *foo() {}`, `static *foo() {}`) were
@@ -1088,7 +1088,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
                 # =====================================================================
                 r"\b(?:async\s+)?function[ \t\n*]+(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
-                r"(?:^|[^<>(,\s])[ \t\n]*(?<!\.\.\.)\b(?<!type )(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b(?<!type )(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$)))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
@@ -2267,7 +2267,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Name group added too, purely so existing extraction tests (which
             # check the captured name) keep passing.
             "args": re.compile(
-                r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?(\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))", re.M
+                r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?(\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))",
+                re.M,
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: const/var (freeze_hits) and Capitalization (encapsulation).
@@ -2617,7 +2618,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # a genuinely empty closure `|| ...`. Name group added to the
                 # first alternative too, purely so existing extraction tests
                 # keep passing.
-                r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->)*>)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
+                r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)
@@ -2647,7 +2648,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?:#\[[^\]]*\][ \t\n]*){0,5}"
                 r"(?:pub(?:\([^)]*\))?[ \t\n]+){0,3}"
                 r"(?:(?:const|async|unsafe|extern(?:[ \t\n]+\"[^\"]*\")?)[ \t\n]+){0,3}"
-                r"fn[ \t\n]+(?:r#)?([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->)*>)*>)*>)?[ \t\n]*(?=\()",
+                r"fn[ \t\n]+(?:r#)?([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(?=\()",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

@@ -1554,7 +1554,7 @@ class StructuralExtractor:
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
             r'"(?:\\.|[^"\\\n\r])*"|'  # Standard Double
-            r"'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r])*'|"  # Standard Single
+            r"'(?:\\.|[^'\\\n\r])*'|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
@@ -3360,7 +3360,9 @@ class StructuralExtractor:
                 if net_change > 0:
                     satellite_name = self._extract_semantic_name(safe_line, lang_key)
                     current_satellite = [orig_line]
-                    is_current_satellite_class = bool(class_opener_pattern.search(safe_line)) if class_opener_pattern else False
+                    is_current_satellite_class = (
+                        bool(class_opener_pattern.search(safe_line)) if class_opener_pattern else False
+                    )
                     stack_depth += net_change
                     sat_start_line = current_line_offset + 1
                     sat_start_char = current_char_offset
@@ -3765,7 +3767,9 @@ class StructuralExtractor:
                 in_string = True
                 quote_char = ch
             elif ch == "'":
-                if getattr(self, "language", "") in ("rust", "scala") and re.match(r"[a-zA-Z_]\w*\b(?!')", body[i + 1 :]):
+                if getattr(self, "language", "") in ("rust", "scala") and re.match(
+                    r"[a-zA-Z_]\w*\b(?!')", body[i + 1 :]
+                ):
                     # It's a Rust lifetime or Scala symbol (e.g. `'a>`, `'_ `), not a string literal
                     pass
                 else:

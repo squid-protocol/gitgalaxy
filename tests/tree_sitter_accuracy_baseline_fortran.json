@@ -3,7 +3,7 @@
   "args_exact_match": 120,
   "corpus_path": "language-crucible/data/fortran",
   "extra_classes": 0,
-  "extra_functions": 11,
+  "extra_functions": 0,
   "files_scanned": 6,
   "found_classes": 11,
   "found_functions": 121,

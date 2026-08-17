@@ -84,12 +84,20 @@ FUNCTION_CASES: dict[str, Any] = {
             "constructor(transport: ConnectionTransport, onDisconnect: () => void, protocolLogger: ProtocolLogger) {",
             "constructor",
         ),  # playwright bidiConnection.ts shape
+        # new issues fixed
+        ("const _alt: Alt2<URI>['alt'] = (fa, that) => {", "_alt"),
+        ("  isUnderTest: () => {", "isUnderTest"),
+        ("  dispose() {", "dispose"),
+        ("  [Symbol.asyncIterator]() {", "[Symbol.asyncIterator]"),
+        ("this._emitManyFn = (items) => {", "_emitManyFn"),
+        ("const predicate = (event) => {", "predicate"),
     ],
     "invalid": [
         "class TargetFunc implements Interface",
         "interface TargetFunc",
         "type Foo = (a: T) => R;",  # type alias -- was a real bug, now fixed
         "export type Foo = (a: T) => R;",
+        "f: (...a: A) => B,", # arrow function type annotation defined at the start of a line
         "class Foo {\n  @Input() TargetFunc: string;\n}",  # decorated field, not a method
         "type TargetFunc = () => void;",
         "if (this.TargetFunc as unknown as boolean) {",

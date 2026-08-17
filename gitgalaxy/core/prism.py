@@ -99,6 +99,26 @@ class Prism:
         # Defends against catastrophic backtracking and logic erosion inside strings
         self.LITERAL_MASK_PATTERN = PRISM_CONFIG.get("SHIELD_PATTERN", "")
 
+        # #1718: C++ (C++14+) uses a single quote as a digit separator inside
+        # numeric literals (512'000, 1'000'000'000, 0xDE'AD). The shared
+        # SHIELD_PATTERN's single-quote branch is unbounded, so a separator
+        # `'` is mistaken for the opening quote of a char literal and pairs
+        # with the NEXT unrelated `'` anywhere later in the file (re.S lets
+        # [^'\\] span newlines), swallowing every real // and /* */ comment
+        # in between as one giant "literal" -- the code stream then carries
+        # comment text into the detector and coding_loc is inflated.
+        # C++ char literals are short, but C++23 named escapes (\\N{...}) can
+        # run much longer than 10 chars, so the branch is bounded to 64 -- wide
+        # enough for any real literal, still far too short for a cross-file
+        # cascade. Kept per-language because the shared pattern must stay
+        # unbounded for JS/PHP single-quoted strings.
+        self.CPP_LITERAL_MASK_PATTERN = (
+            r'((?<!\\)"(?:\\.|[^"\\])*"'
+            r"|[0-9a-fA-F]'[0-9a-fA-F]"
+            r"|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
+            r"|(?<!\\)`(?:\\.|[^`\\])*`)"
+        )
+
         # #1271: detects a quote that opens but never closes before end-of-
         # line -- a backslash-newline-continued literal (legal in both Ruby
         # and Python) -- so _strip_single_line_comments can carry that
@@ -135,6 +155,13 @@ class Prism:
 
         # --- TIER 2: REGEX PRE-COMPILATION ---
         self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
+
+        # #1718: C++ digit separators (512'000) must not pair with a later
+        # `'` as a char literal, so C++ uses a bounded single-quote shield
+        # in the generic standard_block stripper (see _strip_segment_comments).
+        self.CPP_REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix(
+            literal_pattern=self.CPP_LITERAL_MASK_PATTERN
+        )
 
         # #697: _strip_single_line_comments() used to hardcode `#|--|;|//`
         # regardless of what a given family's real delimiters are. #1193:
@@ -323,6 +350,15 @@ class Prism:
 
         # 3. GENERIC STRIPPER
         pattern = self.REGEX_MATRIX.get(family)
+        if lang_id == "cpp" and family == "standard_block":
+            # #1718: C++ digit separators (512'000) use `'` as a digit
+            # separator, which the unbounded shared single-quote branch
+            # misreads as a char literal opener that pairs with the next
+            # unrelated `'` anywhere later in the file -- swallowing every
+            # real comment in between. Route C++ through the bounded
+            # CPP_REGEX_MATRIX so separators can't cascade into a false
+            # literal (JS/PHP keep the unbounded shared pattern).
+            pattern = self.CPP_REGEX_MATRIX.get(family) or pattern
         if not pattern:
             return text, "\n".join(lits)
 
@@ -339,7 +375,7 @@ class Prism:
         code = pattern.sub(strip_callback, text)
         return code, "\n".join(lits)
 
-    def _compile_regex_matrix(self) -> dict[str, re.Pattern]:
+    def _compile_regex_matrix(self, literal_pattern: Optional[str] = None) -> dict[str, re.Pattern]:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
         matrix = {}
 
@@ -438,7 +474,8 @@ class Prism:
                 try:
                     # ---> THE FIX: Strip any rogue inline flags injected by the config <---
                     p = p.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "")
-                    full_pattern = f"{self.LITERAL_MASK_PATTERN}|{p}"
+                    literal_mask = literal_pattern or self.LITERAL_MASK_PATTERN
+                    full_pattern = f"{literal_mask}|{p}"
 
                     flags = re.S | re.M
                     if fam_key == "line_exclusive":

@@ -459,6 +459,33 @@ def test_detector_c_macro_static_truth_prunes_branches():
     assert "aliveFast" in names_one, "#if 1 first branch must survive!"
     assert "deadFallback" not in names_one, "#if 1 #else branch must be pruned!"
 
+
+def test_detector_c_macro_no_space_boundaries_issue_1764():
+    """
+    Regression test for a bug where `#if(1)` or `#elif(0)` (valid C preprocessor
+    syntax without a space) failed to push onto the branch stack because
+    `startswith("#if ")` was used. This led to premature `#endif` pops and
+    desynced branch nesting.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "#if 0\n"
+        "int deadOne() { return 1; }\n"
+        "#if(1)\n"
+        "int deadTwo() { return 2; }\n"
+        "#endif\n"
+        "int deadThree() { return 3; }\n"  # should stay dead -- still inside outer #if 0, before #else
+        "#else\n"
+        "int aliveOne() { return 4; }\n"
+        "#endif\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "deadThree" not in names, "Premature pop caused dead code to be scanned as alive!"
+    assert "aliveOne" in names, "Valid #else branch was dropped due to stack desync!"
+
     code_nested = (
         "#if 0\n"
         "int a() { return 1; }\n"

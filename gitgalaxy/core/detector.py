@@ -2139,11 +2139,11 @@ class StructuralExtractor:
                     continue
 
                 if stripped.startswith("#"):
-                    if stripped.startswith("#if "):
+                    if re.match(r"#if\b", stripped):
                         branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
                     elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
                         branch_stack.append((None, "first"))
-                    elif stripped.startswith("#elif ") and branch_stack:
+                    elif re.match(r"#elif\b", stripped) and branch_stack:
                         # an #elif starts a fresh condition on the else side
                         branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
                     elif stripped.startswith("#else") and branch_stack:

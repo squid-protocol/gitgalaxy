@@ -41,6 +41,32 @@ GitGalaxy extracts structural signatures from but tree-sitter has no grammar for
 JCL, assembly, and others) get a GitGalaxy-only row (`gg_only=1`) with every `ts_*` column left
 blank, not scored as a loss.
 
+## tree-sitter as a baseline, not as infallible ground truth
+
+Treat this tool's numbers as a well-calibrated baseline that gets corrected when it's wrong, not
+as an oracle. The confirmed cases already exist and are documented, not hypothetical: the audit
+script's SCOPE & LIMITATIONS section names specific instances (Cython scope loss across `cdef
+class` boundaries, Flow-typed JS the plain grammar can't parse, `matlab`/`shell` synthetic
+placeholder names, C++ operator-cast declarators, Rust functions hidden inside macro bodies)
+where the reconciled ground truth built from tree-sitter's parse is itself wrong, and GitGalaxy's
+own reading is the one that turned out to be right on inspection. When that happens the baseline
+gets adjusted (`--regenerate`, always reviewed, never a blind `cp`) — this is closer to "a crutch
+we lean on and periodically x-ray" than "the answer key."
+
+That said, for a *new* repository being added to `language-crucible`, comparing against
+tree-sitter remains the practical way to start: one dependency
+(`tree-sitter-language-pack`), real per-language grammars for everything already baselined, and
+a mechanism (this tool) that already exists and is wired into CI. It's a solid first check, just
+not the last word.
+
+The longer-term direction is away from treating any single tool as ground truth at all, toward
+comparing GitGalaxy against multiple independently-biased extraction tools and reconciling
+where they disagree by actually reading the source at the point of disagreement — the same
+manual-verification instinct behind the confirmed cases above, made systematic instead of
+ad hoc. A `universal-ctags`-based comparison is in progress toward that end (a separate,
+standalone tool — `tests/tools/tree_sitter_accuracy_audit.py` itself is not being modified to
+add it). This section will link to it once it exists rather than describe it ahead of time.
+
 ## Files
 
 - **`tree_sitter_accuracy_chart.svg`** — the current snapshot: a small-multiples bar chart, five

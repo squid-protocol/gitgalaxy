@@ -469,6 +469,72 @@ For codebases that rely heavily on C Preprocessor (CPP) directives, grammar-base
 
 **The evidence:** The `tree-sitter-fortran` ground truth parser completely fails on files that rely heavily on C Preprocessor directives (like `#if ( EM_CORE == 1 )` in the WRF corpus), throwing errors and missing entire sections of code that contain valid functions. GitGalaxy is completely unaffected by the CPP noise and extracts these subroutines perfectly, resulting in false positive 'extra functions' reported by the audit.
 
+## Claim 8: precision under C preprocessor noise — dead-code shielding and macro hallucinations
+
+For C, the preprocessor adds a meta-layer of syntax (conditional compilation, macro definitions)
+that a plain AST read can mistake for real function definitions. This is the PRECISION mirror of
+Claim 7's recall claim: Claim 7 is about tree-sitter *missing* real functions when CPP breaks its
+parse; this is about tree-sitter's raw node stream *hallucinating* functions that were never real
+to begin with — a dead `#if 0` block, a macro definition, a bytecode switch-case label that merely
+looks structural.
+
+**The evidence:** `tests/tools/tree_sitter_accuracy_audit.py`'s `_C_KNOWN_MACRO_HALLUCINATIONS`
+skip list (added while chasing false "extra" reports for CPython/SQLite/MicroPython in the c
+corpus) exists because tree-sitter's raw C grammar parse genuinely reports these as
+`function_definition` nodes — `#if 0`-guarded dead code (`print_stack`, `PlinkPrint`,
+`tos_char`), and macro-shaped constructs that only look like a definition
+(`DICT___REVERSED___METHODDEF`, `MP_BC_BINARY_OP_MULTI`). #1849's dual-bar instrumentation in
+`measure()` now measures this directly instead of requiring a one-off count: on the committed c
+baseline (`tests/tree_sitter_accuracy_baseline_c.json`), GitGalaxy's own `extra_functions` is 9
+(genuine regex false positives) while tree-sitter's raw, uncorrected reading has
+`ts_extra_functions` = 71 — the gap is exactly the skip-list corrections, i.e. exactly this claim,
+now a live measured number instead of a doc snapshot. The same file's c `class_data` shows the
+same shape for bodyless forward-declared structs: `extra_classes` is 0 for GitGalaxy vs.
+`ts_extra_classes` = 27 for tree-sitter's raw reading.
+
+## Claim 9: argument counting across grouped parameter declarations (Go)
+
+Go allows grouping consecutive same-typed parameters under one shared type annotation
+(`func makePos(b *src.PosBase, line, col uint) Pos`) — `line` and `col` share `uint` without
+repeating it. `tree-sitter-go` wraps this whole group in a single `parameter_declaration` AST
+node containing multiple identifier children, which a naive "one node, one parameter" AST walk
+undercounts as a single parameter. GitGalaxy's args counter reads the actual comma-separated
+identifiers inside the group, not the wrapper node count.
+
+**The evidence:** Scanning `func makePos(b *src.PosBase, line, col uint) Pos { ... }` in isolation
+(2026-08-18, current `gitgalaxy/core/detector.py`) reports `args=3` (`b`, `line`, `col`), matching
+the true arity — a wrapper-node-count read would report 2 (one per `parameter_declaration`, not
+per identifier).
+
+## Claim 10: excluding anonymous closures from named-function counts (Ruby)
+
+`tree-sitter-ruby` parses `lambda { ... }`/`-> { ... }` closures using its `method` node type —
+the same node type real named `def`-declared methods use — so a plain "count every `method` node"
+AST read conflates anonymous closures with real named function declarations, inflating the
+function count. GitGalaxy's `func_start` only matches named `def`/`class`-scoped declarations;
+`lambda`/`->`/`Proc.new` closures are a separate, deliberately distinct signal
+(`closures` in the structural-signature set), not counted as functions.
+
+**The evidence:** Scanning a file with one real method containing two closures
+(`def bar; x = -> { 1 }; y = lambda { 2 }; end`) (2026-08-18, current `gitgalaxy/core/detector.py`)
+reports exactly one function (`bar`) — the two closures are correctly excluded from
+`function_data`, not counted as two additional (anonymous, unnamed) function rows the way a plain
+`method`-node walk would.
+
+## Claim 11: disambiguating a generic trait-bound arrow from a return-type arrow (Rust)
+
+Rust's generic trait bounds can themselves contain a `->` (e.g. `Fn(&Token) -> bool` inside
+`F: Fn(&Token) -> bool`), sitting between the parameter list's opening paren and the function's
+OWN return-type arrow. A parameter-list scanner that stops at the first `->` it sees, or gets
+confused by the bound's nested parens, can misparse the boundary between the generic bound and
+the real parameter list. GitGalaxy's args counter correctly treats the bound's arrow as opaque and
+still resolves the real parameter list.
+
+**The evidence:** Scanning `fn eat<F: Fn(&Token) -> bool>(f: F) -> bool { ... }` in isolation
+(2026-08-18, current `gitgalaxy/core/detector.py`) reports `args=1` (`f`), the true arity — a
+scanner confused by the bound's internal `->`/parens would either miscount or fail to find the
+real parameter list at all.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
@@ -484,3 +550,23 @@ For codebases that rely heavily on C Preprocessor (CPP) directives, grammar-base
   output being more accurate than tree-sitter's/an AST's on some signal gets logged here as its own
   Claim N, evidenced the same way — not folded into the README's general framing uncredited, and
   not left undocumented because it's a narrow case.
+- #1849 added a second, symmetric measurement to `tree_sitter_accuracy_audit.py`: `ts_found_*`/
+  `ts_extra_*`/`ts_args_exact_match`, tree-sitter's own raw (uncorrected) reading scored against
+  the same reconciled ground truth GitGalaxy is scored against, rendered as a second bar per
+  language on `docs/self_scan/tree_sitter_accuracy_chart.svg`. Claim 8 is the first claim in this
+  doc backed directly by that live measurement (`ts_extra_functions`/`ts_extra_classes` on the c
+  baseline) rather than a one-off manual count — future claims of this shape (tree-sitter's raw
+  reading being noisier than GitGalaxy's) should cite the same fields instead of re-deriving a
+  fresh count by hand. Its Phase 1 scope note applies here too: the recall side of that
+  measurement (`ts_found_functions` vs. `real_functions`) reads 100% by construction and isn't
+  yet informative — only the precision and args fields are.
+- Claims 9-11 (Go grouped parameters, Ruby closures, Rust generic-bound arrows) consolidate and
+  fact-check content from a since-deleted root-level `why_we_are_better_than_tree_sitter.md`,
+  which didn't follow this doc's narrow/dated/evidenced-claim discipline (blanket "GitGalaxy is
+  better than tree-sitter" framing, unverifiable snapshot numbers). Its TypeScript-signature-
+  parsing content (bodyless overloads, nested generics, curried arrows) was deliberately NOT
+  carried forward here — the ground-truth construction in `measure()` treats those specifically as
+  *not* comparable to tree-sitter's output at all (an intentional exclusion, not tree-sitter
+  "missing" them), so restating it as a tree-sitter-beats-tree-sitter claim would itself be an
+  overstatement of exactly the kind this doc exists to avoid. Revisit only with a clean,
+  independently-verified before/after.

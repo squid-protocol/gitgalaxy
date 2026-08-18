@@ -42,9 +42,14 @@ USAGE
         Renders the most recent --history run (the batch sharing the latest
         timestamp_utc in the CSV) as docs/self_scan/tree_sitter_accuracy_chart.svg
         -- a small-multiples bar chart, five independent metric panels (func
-        recall/precision, class recall/precision, args exact-match), each ranked by
-        its OWN value (best at top, N/A at the bottom -- not rankable as a score).
-        Bar fill is a red(low)->blue(high) hue-sweep keyed to that bar's value.
+        recall/precision, class recall/precision, args exact-match). #1849: each
+        language now renders as TWO stacked bars per panel -- GitGalaxy on top,
+        tree-sitter's own raw reading on the bottom, both scored against the same
+        reconciled ground truth (see measure()'s raw_ts_funcs/raw_ts_classes
+        comment for what that can and can't show yet). Panels are ranked by
+        GitGalaxy's value only (best at top, N/A at the bottom -- not rankable as
+        a score); tree-sitter's bar rides along at its GitGalaxy counterpart's row.
+        Bar fill is a red(low)->blue(high) hue-sweep keyed to that bar's OWN value.
         Includes python via NODE_MAPS like every other language now (see that
         entry's own comment: this is for --chart/--history uniformity only --
         tests/ast_accuracy_audit.py's stdlib `ast` ground truth remains the actual
@@ -258,7 +263,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, NamedTuple, Optional
 
 import tree_sitter_language_pack
 
@@ -295,7 +300,13 @@ NODE_MAPS = {
             "anonymous_function",
             "arrow_function",
         },
-        "class_node_types": {"class_declaration", "anonymous_class", "interface_declaration", "trait_declaration", "enum_declaration"},
+        "class_node_types": {
+            "class_declaration",
+            "anonymous_class",
+            "interface_declaration",
+            "trait_declaration",
+            "enum_declaration",
+        },
     },
     "perl": {
         "ts_lang": "perl",
@@ -1477,6 +1488,17 @@ def _get_param_count(node: Any, lang: str = "") -> int:
     return 0
 
 
+def _get_param_count_declaration_only(node: Any, lang: str) -> int:
+    """#1849: tree-sitter's own naive args reading -- `_get_param_count` minus its shell/perl
+    body-aware early-returns, i.e. exactly the declaration-only view a plain AST walk would use.
+    Passing `lang=""` is sufficient to skip both early-returns (neither matches an empty string)
+    without duplicating the rest of `_get_param_count`'s body -- every other branch below those
+    two is keyed off `node.type`, not `lang`, so behavior for every other language is unchanged.
+    This reproduces Claim 1's "before" baseline (docs/why_gitgalaxy_beats_ast_here.md: shell 0%,
+    perl 14.6%) as a live metric instead of a one-off doc snapshot."""
+    return _get_param_count(node, lang="")
+
+
 # #1526: within one file, multiple functions/methods can legitimately share a name (property
 # getter/setter pairs, `__init__`/`__new__`/`__call__` across different classes, a module-level
 # helper and a same-named prototype method). A plain "one dict entry per name" comparison collapses
@@ -1546,33 +1568,92 @@ _JS_RESERVED_STATEMENT_KEYWORDS = frozenset({"if", "for", "while", "switch", "ca
 # regular function calls and object properties as `method_definition`s during error recovery.
 # We explicitly filter these out of the ground truth to prevent them from penalizing GitGalaxy's score,
 # since GitGalaxy correctly ignores them.
-_JS_KNOWN_FLOW_HALLUCINATIONS = frozenset({
-    "cleanUpIndicator", "commitBeforeMutationEffects", "commitMutationEffects", "completeUnitOfWork",
-    "flushSyncWorkOnAllRoots", "let", "logRenderPhase", "logStartViewTransitionYieldPhase",
-    "markNestedUpdateScheduled", "onCommitRootTestSelector", "recordCommitTime",
-    "setCurrentTrackFromLanes", "startProfilerTimer", "stopProfilerTimerIfRunningAndRecordIncompleteDuration",
-    "outlineComponentInfo", "parent"
-})
+_JS_KNOWN_FLOW_HALLUCINATIONS = frozenset(
+    {
+        "cleanUpIndicator",
+        "commitBeforeMutationEffects",
+        "commitMutationEffects",
+        "completeUnitOfWork",
+        "flushSyncWorkOnAllRoots",
+        "let",
+        "logRenderPhase",
+        "logStartViewTransitionYieldPhase",
+        "markNestedUpdateScheduled",
+        "onCommitRootTestSelector",
+        "recordCommitTime",
+        "setCurrentTrackFromLanes",
+        "startProfilerTimer",
+        "stopProfilerTimerIfRunningAndRecordIncompleteDuration",
+        "outlineComponentInfo",
+        "parent",
+    }
+)
 
-_C_KNOWN_MACRO_HALLUCINATIONS = frozenset({
-    "if", "EXPORT_FUN", "DICT___REVERSED___METHODDEF",
-    "MICROPY_WRAP_MP_EXECUTE_BYTECODE", "MP_BC_BINARY_OP_MULTI", "MP_BC_BUILD_LIST", "MP_BC_BUILD_MAP",
-    "MP_BC_BUILD_SET", "MP_BC_BUILD_SLICE", "MP_BC_BUILD_TUPLE", "MP_BC_CALL_FUNCTION",
-    "MP_BC_CALL_FUNCTION_VAR_KW", "MP_BC_CALL_METHOD", "MP_BC_CALL_METHOD_VAR_KW",
-    "MP_BC_DELETE_DEREF", "MP_BC_DELETE_FAST", "MP_BC_DELETE_GLOBAL", "MP_BC_DELETE_NAME",
-    "MP_BC_DUP_TOP", "MP_BC_FOR_ITER", "MP_BC_GET_ITER_STACK", "MP_BC_IMPORT_FROM",
-    "MP_BC_IMPORT_NAME", "MP_BC_JUMP", "MP_BC_JUMP_IF_FALSE_OR_POP", "MP_BC_JUMP_IF_TRUE_OR_POP",
-    "MP_BC_LOAD_ATTR", "MP_BC_LOAD_CONST_OBJ", "MP_BC_LOAD_CONST_SMALL_INT",
-    "MP_BC_LOAD_CONST_STRING", "MP_BC_LOAD_DEREF", "MP_BC_LOAD_FAST_N", "MP_BC_LOAD_GLOBAL",
-    "MP_BC_LOAD_METHOD", "MP_BC_LOAD_NAME", "MP_BC_LOAD_SUBSCR", "MP_BC_LOAD_SUPER_METHOD",
-    "MP_BC_MAKE_CLOSURE", "MP_BC_MAKE_CLOSURE_DEFARGS", "MP_BC_MAKE_FUNCTION",
-    "MP_BC_MAKE_FUNCTION_DEFARGS", "MP_BC_POP_EXCEPT_JUMP", "MP_BC_POP_JUMP_IF_FALSE",
-    "MP_BC_POP_JUMP_IF_TRUE", "MP_BC_RAISE_FROM", "MP_BC_RAISE_LAST", "MP_BC_RAISE_OBJ",
-    "MP_BC_ROT_THREE", "MP_BC_ROT_TWO", "MP_BC_SETUP_WITH", "MP_BC_STORE_ATTR",
-    "MP_BC_STORE_COMP", "MP_BC_STORE_DEREF", "MP_BC_STORE_FAST_N", "MP_BC_STORE_GLOBAL",
-    "MP_BC_STORE_NAME", "MP_BC_UNPACK_EX", "MP_BC_UNPACK_SEQUENCE", "MP_BC_UNWIND_JUMP",
-    "MP_BC_WITH_CLEANUP", "MP_BC_YIELD_FROM"
-})
+_C_KNOWN_MACRO_HALLUCINATIONS = frozenset(
+    {
+        "if",
+        "EXPORT_FUN",
+        "DICT___REVERSED___METHODDEF",
+        "MICROPY_WRAP_MP_EXECUTE_BYTECODE",
+        "MP_BC_BINARY_OP_MULTI",
+        "MP_BC_BUILD_LIST",
+        "MP_BC_BUILD_MAP",
+        "MP_BC_BUILD_SET",
+        "MP_BC_BUILD_SLICE",
+        "MP_BC_BUILD_TUPLE",
+        "MP_BC_CALL_FUNCTION",
+        "MP_BC_CALL_FUNCTION_VAR_KW",
+        "MP_BC_CALL_METHOD",
+        "MP_BC_CALL_METHOD_VAR_KW",
+        "MP_BC_DELETE_DEREF",
+        "MP_BC_DELETE_FAST",
+        "MP_BC_DELETE_GLOBAL",
+        "MP_BC_DELETE_NAME",
+        "MP_BC_DUP_TOP",
+        "MP_BC_FOR_ITER",
+        "MP_BC_GET_ITER_STACK",
+        "MP_BC_IMPORT_FROM",
+        "MP_BC_IMPORT_NAME",
+        "MP_BC_JUMP",
+        "MP_BC_JUMP_IF_FALSE_OR_POP",
+        "MP_BC_JUMP_IF_TRUE_OR_POP",
+        "MP_BC_LOAD_ATTR",
+        "MP_BC_LOAD_CONST_OBJ",
+        "MP_BC_LOAD_CONST_SMALL_INT",
+        "MP_BC_LOAD_CONST_STRING",
+        "MP_BC_LOAD_DEREF",
+        "MP_BC_LOAD_FAST_N",
+        "MP_BC_LOAD_GLOBAL",
+        "MP_BC_LOAD_METHOD",
+        "MP_BC_LOAD_NAME",
+        "MP_BC_LOAD_SUBSCR",
+        "MP_BC_LOAD_SUPER_METHOD",
+        "MP_BC_MAKE_CLOSURE",
+        "MP_BC_MAKE_CLOSURE_DEFARGS",
+        "MP_BC_MAKE_FUNCTION",
+        "MP_BC_MAKE_FUNCTION_DEFARGS",
+        "MP_BC_POP_EXCEPT_JUMP",
+        "MP_BC_POP_JUMP_IF_FALSE",
+        "MP_BC_POP_JUMP_IF_TRUE",
+        "MP_BC_RAISE_FROM",
+        "MP_BC_RAISE_LAST",
+        "MP_BC_RAISE_OBJ",
+        "MP_BC_ROT_THREE",
+        "MP_BC_ROT_TWO",
+        "MP_BC_SETUP_WITH",
+        "MP_BC_STORE_ATTR",
+        "MP_BC_STORE_COMP",
+        "MP_BC_STORE_DEREF",
+        "MP_BC_STORE_FAST_N",
+        "MP_BC_STORE_GLOBAL",
+        "MP_BC_STORE_NAME",
+        "MP_BC_UNPACK_EX",
+        "MP_BC_UNPACK_SEQUENCE",
+        "MP_BC_UNWIND_JUMP",
+        "MP_BC_WITH_CLEANUP",
+        "MP_BC_YIELD_FROM",
+    }
+)
 
 
 def _align_occurrences_by_line(
@@ -1633,7 +1714,9 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     ranges = []
 
     def walk(node: Any) -> None:
-        if (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation")) or (ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_"))):
+        if (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation")) or (
+            ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_"))
+        ):
             ranges.append((node.start_point[0] + 1, node.end_point[0] + 1))
 
         for child in node.children:
@@ -1711,6 +1794,17 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 "extra_classes": 0,
                 "args_comparable": 0,
                 "args_exact_match": 0,
+                # Tree-sitter's OWN numbers, scored against the exact same reconciled
+                # real_funcs/real_classes ground truth as GitGalaxy above -- see the "Phase 1"
+                # note on `raw_ts_funcs`/`raw_ts_classes` in `walk()` below for what this can and
+                # can't show yet. Informational only: never gated (`_GATED_METRICS` doesn't
+                # reference these), since a `tree_sitter_language_pack` version bump shouldn't
+                # fail this repo's own CI.
+                "ts_found_functions": 0,
+                "ts_extra_functions": 0,
+                "ts_found_classes": 0,
+                "ts_extra_classes": 0,
+                "ts_args_exact_match": 0,
             }
             missing_examples: list[tuple[str, list[str]]] = []
             extra_examples: list[tuple[str, list[str]]] = []
@@ -1736,9 +1830,35 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 # by position instead of collapsed onto one dict slot.
                 real_funcs: dict[str, list[tuple[int, int]]] = {}
                 real_classes: set[str] = set()
+                # #1849 Phase 1: tree-sitter's OWN raw reading, scored against real_funcs/
+                # real_classes exactly like GitGalaxy is below. real_funcs is a STRICT SUBSET of
+                # raw_ts_funcs by construction -- every real_funcs correction (perl bodyless dedup,
+                # TS bodyless drops, JS Flow/reserved-keyword hallucinations, C macro
+                # hallucinations, C bodyless class forward-decls) is exactly one already-documented
+                # blind spot (docs/why_gitgalaxy_beats_ast_here.md), and raw_ts_funcs simply DOESN'T
+                # apply those corrections. This means tree-sitter's own recall against real_funcs
+                # will always read 100% here (it can't miss what its own uncorrected walk defines
+                # the ground truth from) -- that's a known Phase 1 limitation, not a bug: showing
+                # tree-sitter's recall loss inside a parse-error cascade (Claim 3) requires
+                # promoting those already-manually-verified regions into ground truth, deferred to
+                # a follow-up. What Phase 1 DOES show honestly: tree-sitter's own PRECISION loss
+                # from exactly the corrections above, and (via real_func_node_by_occ below) its
+                # args accuracy using a declaration-only reading instead of GitGalaxy's/ground
+                # truth's body-aware one.
+                raw_ts_funcs: dict[str, list[tuple[int, int]]] = {}
+                raw_ts_classes: set[str] = set()
+                # (name, start_line) -> the tree-sitter node backing that real_funcs occurrence,
+                # so args_exact_match's existing (real, gg) pairing loop can also compute a
+                # declaration-only reading for the same pair without a second tree walk.
+                real_func_node_by_occ: dict[tuple[str, int], Any] = {}
 
                 def walk(node, is_continuation_clause=False):
                     if node.type in func_node_types:
+                        raw_name = _get_node_name(node)
+                        if raw_name and not (lang == "haskell" and is_continuation_clause):
+                            raw_ts_funcs.setdefault(raw_name, []).append(
+                                (node.start_point[0] + 1, _get_param_count(node, lang))
+                            )
                         # #1608: perl's `subroutine_declaration_statement`/
                         # `method_declaration_statement` node types cover BOTH a real
                         # `sub name { ... }` definition AND a bodyless forward
@@ -1758,14 +1878,24 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         # (e.g. `AbsPath`) appear twice -- once bodyless near the top,
                         # once with a real body much later -- and only the real,
                         # body-bearing occurrence is ever in GitGalaxy's own output.
-                        if (lang == "perl" and node.child_by_field_name("body") is None) or (lang == "haskell" and is_continuation_clause):
+                        if (lang == "perl" and node.child_by_field_name("body") is None) or (
+                            lang == "haskell" and is_continuation_clause
+                        ):
                             pass
                         else:
                             name = _get_node_name(node)
-                            if lang == "typescript" and name == "constructor" and node.type in ("method_signature", "function_signature"):
+                            if (
+                                lang == "typescript"
+                                and name == "constructor"
+                                and node.type in ("method_signature", "function_signature")
+                            ):
                                 pass  # Intentional drop of bodyless constructors
                             # Intentional drop of bodyless overloads (function_declaration without body)
-                            elif lang == "typescript" and node.type == "function_declaration" and node.child_by_field_name("body") is None:
+                            elif (
+                                lang == "typescript"
+                                and node.type == "function_declaration"
+                                and node.child_by_field_name("body") is None
+                            ):
                                 pass
                             else:
                                 # #1633: error recovery in a Flow-typed javascript file (Claim 3's
@@ -1788,17 +1918,25 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                 # ground truth than the handful of phantom entries it removed
                                 # (confirmed empirically: found_functions dropped 599->491 while
                                 # extra_functions went UP, a net regression).
-                                if name and not (
-                                    lang == "javascript"
-                                    and node.type == "method_definition"
-                                    and (name in _JS_RESERVED_STATEMENT_KEYWORDS or name in _JS_KNOWN_FLOW_HALLUCINATIONS)
-                                ) and not (
-                                    lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS
-                                ):
-                                    real_funcs.setdefault(name, []).append(
-                                        (node.start_point[0] + 1, _get_param_count(node, lang))
+                                if (
+                                    name
+                                    and not (
+                                        lang == "javascript"
+                                        and node.type == "method_definition"
+                                        and (
+                                            name in _JS_RESERVED_STATEMENT_KEYWORDS
+                                            or name in _JS_KNOWN_FLOW_HALLUCINATIONS
+                                        )
                                     )
+                                    and not (lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS)
+                                ):
+                                    start_line = node.start_point[0] + 1
+                                    real_funcs.setdefault(name, []).append((start_line, _get_param_count(node, lang)))
+                                    real_func_node_by_occ[(name, start_line)] = node
                     elif node.type in class_node_types:
+                        raw_class_name = _get_node_name(node)
+                        if raw_class_name:
+                            raw_ts_classes.add(raw_class_name)
                         if lang == "c" and node.child_by_field_name("body") is None:
                             pass
                         else:
@@ -1875,12 +2013,37 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     if verbose and extra_cls and len(extra_class_examples) < 8:
                         extra_class_examples.append((row["file_path"], sorted(extra_cls)[:5]))
 
+                # #1849: tree-sitter's own class numbers, same reconciled ground truth, same
+                # cascade-region exclusion GitGalaxy's extra_classes above already applies (set-
+                # based comparison, same as GitGalaxy's -- class_data has no start_line to align
+                # occurrences by).
+                metrics["ts_found_classes"] += len(real_classes & raw_ts_classes)
+                if trailing_error_start is None and not blind_spot_ranges:
+                    ts_extra_cls = raw_ts_classes - real_classes
+                    metrics["ts_extra_classes"] += len(ts_extra_cls)
+
                 file_missing_names: set[str] = set()
                 file_extra_names: set[str] = set()
-                for name in real_funcs.keys() | gg_funcs_by_name.keys():
+                for name in real_funcs.keys() | gg_funcs_by_name.keys() | raw_ts_funcs.keys():
                     real_occs = sorted(real_funcs.get(name, []), key=lambda occ: occ[0])
                     gg_occs = sorted(gg_funcs_by_name.get(name, []), key=lambda occ: occ[0])
                     pairs, unmatched_real, unmatched_gg = _align_occurrences_by_line(real_occs, gg_occs)
+
+                    raw_occs = sorted(raw_ts_funcs.get(name, []), key=lambda occ: occ[0])
+                    ts_pairs, _ts_unmatched_real, unmatched_raw = _align_occurrences_by_line(real_occs, raw_occs)
+                    if trailing_error_start is not None or blind_spot_ranges:
+                        filtered_unmatched_raw = [
+                            (raw_start, raw_args)
+                            for raw_start, raw_args in unmatched_raw
+                            if not any(start <= raw_start <= end for start, end in blind_spot_ranges)
+                        ]
+                        unmatched_raw = [
+                            occ
+                            for occ in filtered_unmatched_raw
+                            if not (trailing_error_start is not None and occ[0] >= trailing_error_start)
+                        ]
+                    metrics["ts_found_functions"] += len(ts_pairs)
+                    metrics["ts_extra_functions"] += len(unmatched_raw)
 
                     # #1427/#1567: a grammar parse-error cascade (see
                     # _find_trailing_error_cascade_start's docstring) leaves ground truth
@@ -1902,7 +2065,8 @@ def measure(lang: str, verbose: bool = False) -> dict:
 
                             filtered_unmatched_gg.append((gg_start, args))
                         unmatched_gg = [
-                            occ for occ in filtered_unmatched_gg
+                            occ
+                            for occ in filtered_unmatched_gg
                             if not (trailing_error_start is not None and occ[0] >= trailing_error_start)
                         ]
 
@@ -1922,6 +2086,14 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                 f"{row['file_path']}::{name}  real={real_occ[1]} got={gg_occ[1]}"
                                 f" (line {real_occ[0]} vs {gg_occ[0]})"
                             )
+                        # #1849: tree-sitter's own args reading on this SAME pair -- a plain
+                        # declaration-only count (no shell/perl body-aware fallback), reproducing
+                        # Claim 1's "before" baseline (docs/why_gitgalaxy_beats_ast_here.md) as a
+                        # live per-run metric. Shares args_comparable as its denominator so both
+                        # bars are directly comparable on the chart.
+                        ts_node = real_func_node_by_occ.get((name, real_occ[0]))
+                        if ts_node is not None and _get_param_count_declaration_only(ts_node, lang) == real_occ[1]:
+                            metrics["ts_args_exact_match"] += 1
 
                 if verbose and file_missing_names and len(missing_examples) < 100:
                     missing_examples.append((row["file_path"], sorted(file_missing_names)))
@@ -2227,7 +2399,55 @@ _HISTORY_FIELDS = [
     "func_precision_pct",
     "class_recall_pct",
     "class_precision_pct",
+    # #1849: tree-sitter's own numbers, same reconciled ground truth -- see measure()'s
+    # raw_ts_funcs/raw_ts_classes docstring comment for the Phase 1 scope/limitations.
+    "ts_found_functions",
+    "ts_extra_functions",
+    "ts_found_classes",
+    "ts_extra_classes",
+    "ts_args_exact_match",
+    "ts_func_recall_pct",
+    "ts_func_precision_pct",
+    "ts_class_recall_pct",
+    "ts_class_precision_pct",
+    "ts_args_match_pct",
 ]
+
+
+def _csv_int(row: dict[str, str], field: str) -> int:
+    """int(row[field]), but a missing or blank cell reads as 0 instead of crashing -- covers rows
+    written before a column was added to `_HISTORY_FIELDS` (see `_migrate_history_csv_schema`:
+    those rows get backfilled with "" for the new columns, not a fabricated 0 in the CSV itself,
+    since they genuinely weren't measured -- this is just what a *reader* does with that blank)."""
+    value = row.get(field)
+    return int(value) if value not in (None, "") else 0
+
+
+def _migrate_history_csv_schema() -> None:
+    """Rewrites docs/self_scan/tree_sitter_accuracy_history.csv in place if its on-disk header
+    doesn't match the current `_HISTORY_FIELDS` (e.g. #1849 added five ts_* columns to an
+    already-accumulating file). `csv.DictWriter` in append mode writes fields in `fieldnames`
+    order with no regard for whatever header already exists on disk -- appending new-schema rows
+    under an old-schema header silently desyncs the file (old header column count != new rows'
+    value count), which makes the new columns permanently unreadable by name via a plain
+    `csv.DictReader`, not just untidy. A no-op when the header already matches (the common case:
+    every run after the first one following a schema change)."""
+    if not _HISTORY_PATH.exists():
+        return
+    with open(_HISTORY_PATH, newline="", encoding="utf-8") as f:
+        existing_header = next(csv.reader(f), [])
+    if existing_header == _HISTORY_FIELDS:
+        return
+    with open(_HISTORY_PATH, newline="", encoding="utf-8") as f:
+        existing_rows = list(csv.DictReader(f))
+    with open(_HISTORY_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=_HISTORY_FIELDS, restval="")
+        writer.writeheader()
+        writer.writerows(existing_rows)
+    print(
+        f"tree_sitter_accuracy_audit: migrated {_HISTORY_PATH.relative_to(REPO_ROOT)} to the current "
+        f"column set ({len(existing_rows)} existing row(s) backfilled with blank cells for new columns)."
+    )
 
 
 def _current_commit_sha() -> str:
@@ -2257,6 +2477,7 @@ def run_history() -> int:
     trigger paths, shouldn't manufacture a duplicate row (or a pointless chart.svg re-render/PR)
     just because the job ran. This is what makes --history/--chart "adaptive": the CSV and chart
     only move when a language's measured accuracy actually moved."""
+    _migrate_history_csv_schema()
     langs = [lang for lang in _all_baseline_langs() if lang in NODE_MAPS]
     skipped = [lang for lang in _all_baseline_langs() if lang not in NODE_MAPS]
     if skipped:
@@ -2307,6 +2528,20 @@ def run_history() -> int:
                     "func_precision_pct": _ratio_pct(m["found_functions"], m["found_functions"] + m["extra_functions"]),
                     "class_recall_pct": _ratio_pct(m["found_classes"], m["real_classes"]),
                     "class_precision_pct": _ratio_pct(m["found_classes"], m["found_classes"] + m["extra_classes"]),
+                    "ts_found_functions": m["ts_found_functions"],
+                    "ts_extra_functions": m["ts_extra_functions"],
+                    "ts_found_classes": m["ts_found_classes"],
+                    "ts_extra_classes": m["ts_extra_classes"],
+                    "ts_args_exact_match": m["ts_args_exact_match"],
+                    "ts_func_recall_pct": _ratio_pct(m["ts_found_functions"], m["real_functions"]),
+                    "ts_func_precision_pct": _ratio_pct(
+                        m["ts_found_functions"], m["ts_found_functions"] + m["ts_extra_functions"]
+                    ),
+                    "ts_class_recall_pct": _ratio_pct(m["ts_found_classes"], m["real_classes"]),
+                    "ts_class_precision_pct": _ratio_pct(
+                        m["ts_found_classes"], m["ts_found_classes"] + m["ts_extra_classes"]
+                    ),
+                    "ts_args_match_pct": _ratio_pct(m["ts_args_exact_match"], m["args_comparable"]),
                 }
             )
 
@@ -2322,30 +2557,74 @@ def run_history() -> int:
 # ----------------------------------------------------------------------------
 
 _CHART_PATH = REPO_ROOT / "docs" / "self_scan" / "tree_sitter_accuracy_chart.svg"
-# (metric key, panel title, (num_field, den_field_or_expr)) -- num/den are raw-count fields from
-# _load_latest_history_batch's row dict, read directly off each bar so the chart can show e.g.
-# "0/117" instead of just "0%" (see _load_latest_history_batch's own docstring for why that
-# distinction matters -- a percentage alone doesn't say whether it's backed by 4 samples or 400).
+
+
+class _ChartMetric(NamedTuple):
+    """One panel's worth of definition: GitGalaxy's (num, den) fields and tree-sitter's own
+    (num, den) fields for the SAME metric, scored against the same reconciled ground truth (see
+    measure()'s raw_ts_funcs/raw_ts_classes comment, #1849). num/den are raw-count fields from
+    _load_latest_history_batch's row dict, read directly off each bar so the chart can show e.g.
+    "0/117" instead of just "0%" (a percentage alone doesn't say whether it's backed by 4 samples
+    or 400). den is either a real row key or one of the synthetic "__..._plus_extra_<x>__"
+    markers _metric_num_den resolves (found+extra isn't a field the CSV stores directly)."""
+
+    key: str
+    title: str
+    gg_num: str
+    gg_den: str
+    ts_num: str
+    ts_den: str
+
+
 _CHART_METRICS = (
-    ("func_recall_pct", "Func Recall", "found_functions", "real_functions"),
-    ("func_precision_pct", "Func Precision", "found_functions", "__found_plus_extra_functions__"),
-    ("class_recall_pct", "Class Recall", "found_classes", "real_classes"),
-    ("class_precision_pct", "Class Precision", "found_classes", "__found_plus_extra_classes__"),
+    _ChartMetric(
+        "func_recall_pct", "Func Recall", "found_functions", "real_functions", "ts_found_functions", "real_functions"
+    ),
+    _ChartMetric(
+        "func_precision_pct",
+        "Func Precision",
+        "found_functions",
+        "__found_plus_extra_functions__",
+        "ts_found_functions",
+        "__ts_found_plus_extra_functions__",
+    ),
+    _ChartMetric(
+        "class_recall_pct", "Class Recall", "found_classes", "real_classes", "ts_found_classes", "real_classes"
+    ),
+    _ChartMetric(
+        "class_precision_pct",
+        "Class Precision",
+        "found_classes",
+        "__found_plus_extra_classes__",
+        "ts_found_classes",
+        "__ts_found_plus_extra_classes__",
+    ),
     # Args has only one ratio in the data (exact-match), not a recall/precision pair -- labeled
     # distinctly rather than forced into that framing.
-    ("args_match_pct", "Args Exact-Match", "args_exact_match", "args_comparable"),
+    _ChartMetric(
+        "args_match_pct",
+        "Args Exact-Match",
+        "args_exact_match",
+        "args_comparable",
+        "ts_args_exact_match",
+        "args_comparable",
+    ),
 )
 
 
 def _metric_num_den(row: dict[str, int], num_field: str, den_field: str) -> tuple[int, int]:
-    """den_field is either a real key in `row` or one of the two synthetic
-    "__found_plus_extra_<x>__" markers _CHART_METRICS uses for the two precision denominators
+    """den_field is either a real key in `row` or one of the four synthetic
+    "__[ts_]found_plus_extra_<x>__" markers _CHART_METRICS uses for the precision denominators
     (found + extra isn't a field the CSV stores directly)."""
     num = row[num_field]
     if den_field == "__found_plus_extra_functions__":
         den = row["found_functions"] + row["extra_functions"]
     elif den_field == "__found_plus_extra_classes__":
         den = row["found_classes"] + row["extra_classes"]
+    elif den_field == "__ts_found_plus_extra_functions__":
+        den = row["ts_found_functions"] + row["ts_extra_functions"]
+    elif den_field == "__ts_found_plus_extra_classes__":
+        den = row["ts_found_classes"] + row["ts_extra_classes"]
     else:
         den = row[den_field]
     return num, den
@@ -2448,6 +2727,11 @@ _HISTORY_RAW_FIELDS = (
     "extra_classes",
     "args_comparable",
     "args_exact_match",
+    "ts_found_functions",
+    "ts_extra_functions",
+    "ts_found_classes",
+    "ts_extra_classes",
+    "ts_args_exact_match",
 )
 
 
@@ -2465,7 +2749,7 @@ def _try_load_latest_history_batch() -> Optional[tuple[str, str, dict[str, dict[
     latest_ts = max(row["timestamp_utc"] for row in rows)
     latest_rows = [row for row in rows if row["timestamp_utc"] == latest_ts]
     commit_sha = latest_rows[0]["commit_sha"]
-    data = {row["language"]: {field: int(row[field]) for field in _HISTORY_RAW_FIELDS} for row in latest_rows}
+    data = {row["language"]: {field: _csv_int(row, field) for field in _HISTORY_RAW_FIELDS} for row in latest_rows}
     return latest_ts, commit_sha, data
 
 
@@ -2487,21 +2771,29 @@ def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, int]]]:
 
 def generate_chart_svg() -> str:
     """Small multiples: one independent panel per metric in _CHART_METRICS, each with its OWN
-    label column -- each panel is ranked by its own value, best at top, worst at bottom, so row
-    order legitimately differs panel to panel (unlike the original shared-label-column design,
-    which required one common order across all five). N/A (no ground-truth instances for that
-    language) can't be ranked against a real score, so it sorts as its own alphabetical group
-    below every real value, not scored as 0%. Bar fill is a red(low)->blue(high) hue-sweep LUT
-    keyed to that bar's own value (see _rainbow_hex) -- color and position both encode magnitude
-    here, a deliberate redundancy the requester wanted.
+    label column. #1849: each language now renders as TWO stacked bars per panel -- GitGalaxy on
+    top, tree-sitter's own raw reading on the bottom, both scored against the SAME reconciled
+    ground truth (measure()'s real_funcs/real_classes; see that function's raw_ts_funcs comment).
+    Row order is still ranked by GitGalaxy's value alone (best at top, worst at bottom) -- it
+    stays the primary tool being tracked; tree-sitter's bar rides along at whatever row its
+    GitGalaxy counterpart lands on, which is exactly what makes a per-language gap visible at a
+    glance. N/A (no ground-truth instances for that language) can't be ranked against a real
+    score, so it sorts as its own alphabetical group below every real value, not scored as 0%.
+    Bar fill is a red(low)->blue(high) hue-sweep LUT keyed to that bar's OWN value (see
+    _rainbow_hex) -- color still encodes magnitude for each bar independently; a bar's vertical
+    position (top/bottom of its row band) encodes which tool it is, not color, since color is
+    already spoken for.
 
     Value labels show the raw fraction ("0/117"), not a bare percentage -- a percentage alone
     looks identical whether it's backed by 4 samples or 400, and reads as "failing" even where
-    the underlying gap is a handful of missed matches on a thin corpus. The scope note under the
-    title exists for the same reason: this chart measures ONLY func_start/args/class_start name
+    the underlying gap is a handful of missed matches on a thin corpus. The scope notes under the
+    title exist for the same reason: this chart measures ONLY func_start/args/class_start name
     extraction, not GitGalaxy's structural-signature risk rules, and without that context a wall
     of red bars reads as "the product is failing" rather than "this one narrow feature has known,
-    already-triaged gaps."""
+    already-triaged gaps." One of those notes is a Phase 1 limitation, not a bug: tree-sitter's
+    own recall panels read 100% by construction right now, because ground truth is still walked
+    from tree-sitter's own tree -- exposing its real parse-error-cascade recall loss (Claim 3)
+    needs those regions promoted into ground truth, deferred to a follow-up (#1849)."""
     timestamp, commit_sha, data = _load_latest_history_batch()
     langs_all = sorted(data.keys())
     n = len(langs_all)
@@ -2509,10 +2801,11 @@ def generate_chart_svg() -> str:
     label_col_w = 88
     bar_col_w = 158
     panel_gap = 28
-    row_h = 15
-    bar_h = 9
+    row_h = 28  # tall enough for two stacked sub-bars (GitGalaxy on top, tree-sitter below)
+    bar_h = 8
+    sub_gap = 2
     header_h = 34
-    top_margin = 108  # headroom for title + three-line scope note + color-scale legend
+    top_margin = 152  # headroom for title + five-line scope note + color-scale legend
     bottom_margin = 44
     left_margin = 16
     right_margin = 16
@@ -2530,7 +2823,8 @@ def generate_chart_svg() -> str:
         _CHART_STYLE,
         f"<defs>{_rainbow_gradient_defs()}</defs>",
         f'<rect class="surface" x="0" y="0" width="{width}" height="{height}"/>',
-        f'<text class="title" x="{left_margin}" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>',
+        f'<text class="title" x="{left_margin}" y="20">Tree-sitter Accuracy by Language -- '
+        f"GitGalaxy vs. Tree-sitter, Most Recent Run</text>",
         f'<text class="subtitle" x="{left_margin}" y="36">{timestamp} &#183; commit {commit_sha[:7]} &#183; '
         f"{n} languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>",
         f'<text class="scope-note" x="{left_margin}" y="52">Measures func_start/args/class_start NAME '
@@ -2542,41 +2836,54 @@ def generate_chart_svg() -> str:
         f"by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out "
         f"of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped "
         f"entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>",
-        f'<rect x="{left_margin}" y="84" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
-        f'<text class="legend-label" x="{left_margin}" y="100">0%</text>',
-        f'<text class="legend-label" x="{left_margin + 140}" y="100" text-anchor="end">100% (bar color = value)</text>',
+        f'<text class="scope-note" x="{left_margin}" y="88">Each language: TOP bar = GitGalaxy, BOTTOM '
+        f"bar = tree-sitter's own raw reading -- both scored against the same reconciled ground truth "
+        f"(docs/why_gitgalaxy_beats_ast_here.md). Rows are ranked by GitGalaxy's value only.</text>",
+        f'<text class="scope-note" x="{left_margin}" y="100">Tree-sitter\'s Func/Class Recall panels read '
+        f"100% by construction (Phase 1): ground truth is still walked from tree-sitter's own tree, so its "
+        f"parse-error-cascade recall loss isn't visible yet -- only its precision/args panels are (#1849).</text>",
+        f'<rect x="{left_margin}" y="112" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
+        f'<text class="legend-label" x="{left_margin}" y="128">0%</text>',
+        f'<text class="legend-label" x="{left_margin + 140}" y="128" text-anchor="end">100% (bar color = value)</text>',
     ]
 
-    for j, (key, title, num_field, den_field) in enumerate(_CHART_METRICS):
+    for j, m in enumerate(_CHART_METRICS):
         panel_x = left_margin + j * (panel_w + panel_gap)
         label_x = panel_x + label_col_w - 8
         col_x = panel_x + label_col_w
 
-        fractions: dict[str, tuple[int, int]] = {}
-        values: dict[str, Optional[float]] = {}
+        gg_fractions: dict[str, tuple[int, int]] = {}
+        gg_values: dict[str, Optional[float]] = {}
+        ts_fractions: dict[str, tuple[int, int]] = {}
+        ts_values: dict[str, Optional[float]] = {}
         for lang in langs_all:
-            num, den = _metric_num_den(data[lang], num_field, den_field)
-            fractions[lang] = (num, den)
+            gg_num, gg_den = _metric_num_den(data[lang], m.gg_num, m.gg_den)
+            ts_num, ts_den = _metric_num_den(data[lang], m.ts_num, m.ts_den)
+            gg_fractions[lang] = (gg_num, gg_den)
+            ts_fractions[lang] = (ts_num, ts_den)
             # Force N/A on the class panels for languages decided permanently out of scope for
             # named class extraction (see _CLASS_EXTRACTION_OUT_OF_SCOPE) -- a bare 0% there
             # would misread as an unaddressed gap rather than a documented design decision.
-            if key.startswith("class_") and lang in _CLASS_EXTRACTION_OUT_OF_SCOPE:
-                values[lang] = None
+            if m.key.startswith("class_") and lang in _CLASS_EXTRACTION_OUT_OF_SCOPE:
+                gg_values[lang] = None
+                ts_values[lang] = None
             else:
-                values[lang] = _ratio_pct(num, den)
+                gg_values[lang] = _ratio_pct(gg_num, gg_den)
+                ts_values[lang] = _ratio_pct(ts_num, ts_den)
 
+        # Ranked by GitGalaxy's value only -- see docstring. Tree-sitter's bar just rides along.
         with_value = sorted(
-            ((lang, values[lang]) for lang in langs_all if values[lang] is not None),
+            ((lang, gg_values[lang]) for lang in langs_all if gg_values[lang] is not None),
             key=lambda pair: pair[1],
             reverse=True,
         )
-        without_value = sorted(lang for lang in langs_all if values[lang] is None)
-        ordered: list[tuple[str, Optional[float]]] = with_value + [(lang, None) for lang in without_value]
+        without_value = sorted(lang for lang in langs_all if gg_values[lang] is None)
+        ordered: list[str] = [lang for lang, _v in with_value] + without_value
 
-        parts.append(f'<text class="col-title" x="{col_x}" y="{top_margin + header_h - 12}">{title}</text>')
+        parts.append(f'<text class="col-title" x="{col_x}" y="{top_margin + header_h - 12}">{m.title}</text>')
         parts.append(f'<line class="axis" x1="{col_x}" y1="{rows_top}" x2="{col_x}" y2="{rows_top + n * row_h}"/>')
 
-        for i, (lang, value) in enumerate(ordered):
+        for i, lang in enumerate(ordered):
             row_y = rows_top + i * row_h
             if i % 2 == 1:
                 parts.append(f'<rect class="stripe" x="{panel_x}" y="{row_y}" width="{panel_w}" height="{row_h}"/>')
@@ -2584,23 +2891,30 @@ def generate_chart_svg() -> str:
             label_y = row_y + row_h / 2 + 3.5
             parts.append(f'<text class="row-label" x="{label_x}" y="{label_y:.1f}" text-anchor="end">{lang}</text>')
 
-            num, den = fractions[lang]
-            if value is None:
-                parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{label_y:.1f}">n/a</text>')
-                continue
-            bar_w = max(1.5, (value / 100.0) * bar_max_w)
-            bar_y = row_y + (row_h - bar_h) / 2
-            parts.append(
-                f'<rect x="{col_x}" y="{bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="3" '
-                f'fill="{_rainbow_hex(value)}"/>'
-            )
-            parts.append(f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{label_y:.1f}">{num}/{den}</text>')
+            gg_bar_y = row_y + (row_h - 2 * bar_h - sub_gap) / 2
+            ts_bar_y = gg_bar_y + bar_h + sub_gap
+            for value, (num, den), bar_y in (
+                (gg_values[lang], gg_fractions[lang], gg_bar_y),
+                (ts_values[lang], ts_fractions[lang], ts_bar_y),
+            ):
+                text_y = bar_y + bar_h / 2 + 3.5
+                if value is None:
+                    parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{text_y:.1f}">n/a</text>')
+                    continue
+                bar_w = max(1.5, (value / 100.0) * bar_max_w)
+                parts.append(
+                    f'<rect x="{col_x}" y="{bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="2.5" '
+                    f'fill="{_rainbow_hex(value)}"/>'
+                )
+                parts.append(
+                    f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{text_y:.1f}">{num}/{den}</text>'
+                )
 
     parts.append(
         f'<text class="footer" x="{left_margin}" y="{height - 20}">Generated by '
-        f"tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently, best "
-        f'at top; "n/a" (no ground-truth instances for that language) sorts to the bottom, not scored '
-        f"as 0%.</text>"
+        f"tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently by "
+        f'GitGalaxy\'s value, best at top; "n/a" (no ground-truth instances for that language) sorts to '
+        f"the bottom, not scored as 0%.</text>"
     )
     parts.append(
         f'<text class="footer" x="{left_margin}" y="{height - 8}">Recall panels ("found/real"): a low '
@@ -2645,7 +2959,7 @@ def _load_last_two_batches() -> Optional[tuple[dict[str, dict[str, int]], dict[s
 
     def _batch_for(ts: str) -> dict[str, dict[str, int]]:
         return {
-            row["language"]: {field: int(row[field]) for field in _HISTORY_RAW_FIELDS}
+            row["language"]: {field: _csv_int(row, field) for field in _HISTORY_RAW_FIELDS}
             for row in rows
             if row["timestamp_utc"] == ts
         }
@@ -2667,9 +2981,13 @@ def generate_blurbs() -> str:
 
     entries: list[tuple[float, str]] = []
     for lang in sorted(set(prev_data) & set(cur_data)):
-        for _key, title, num_field, den_field in _CHART_METRICS:
-            prev_val = _ratio_pct(*_metric_num_den(prev_data[lang], num_field, den_field))
-            cur_val = _ratio_pct(*_metric_num_den(cur_data[lang], num_field, den_field))
+        # GitGalaxy-only, same as before #1849 -- this feeds the auto-merged PR's "Notable
+        # changes" section, which is about GitGalaxy's own accuracy moving from a code change in
+        # that same PR, not tree-sitter's (tree-sitter's own numbers move only when
+        # tree_sitter_language_pack itself is upgraded, an unrelated PR).
+        for m in _CHART_METRICS:
+            prev_val = _ratio_pct(*_metric_num_den(prev_data[lang], m.gg_num, m.gg_den))
+            cur_val = _ratio_pct(*_metric_num_den(cur_data[lang], m.gg_num, m.gg_den))
             if prev_val is None or cur_val is None:
                 continue
             delta = round(cur_val - prev_val, 1)
@@ -2679,7 +2997,7 @@ def generate_blurbs() -> str:
             entries.append(
                 (
                     abs(delta),
-                    f"- **{lang}** {title} {direction} {abs(delta):.1f}pp ({prev_val:.1f}% → {cur_val:.1f}%)",
+                    f"- **{lang}** {m.title} {direction} {abs(delta):.1f}pp ({prev_val:.1f}% → {cur_val:.1f}%)",
                 )
             )
 

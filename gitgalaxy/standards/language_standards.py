@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 99.7% | 99.5% | 100.0% | 100.0% |
-| Cpp | 93.4% | 95.7% | 87.1% | 100.0% |
+| Cpp | 93.4% | 95.7% | 100.0% | 100.0% |
 | Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.0% | 97.9% | 100.0% | 100.0% |
@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
 | Typescript | 97.2% | 99.5% | 100.0% | 100.0% |
-| Zig | 100.0% | 100.0% | 97.4% | 99.8% |
+| Zig | 100.0% | 100.0% | 98.8% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 
@@ -3067,7 +3067,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "class_start": re.compile(
                 r"^[ \t]*(?:export[ \t\n]+)?"
                 r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-                r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
+                r"(?:class|struct|union|enum(?:[ \t\n]+class|[ \t\n]+struct)?)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -8877,7 +8877,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # of itself) and a pointer-to-opaque handle type (`const HMONITOR
             # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=:;]){0,150}[=:][ \t\n]*(?:(?:\(|\*)[ \t\n]*)*(?:(?:packed|extern|inline)[ \t\n]+|align\([^)]*\)[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=;]){0,150}=[ \t\n]*(?:List\([ \t\n]*|\[_\][ \t\n]*|if[ \t]*\([^)]*\)[ \t\n]*|(?:[A-Za-z0-9_. \t\n]+\|\|[ \t\n]*)+|(?:\(|\*)[ \t\n]*|(?:packed|extern|inline)[ \t\n]+|align\([^)]*\)[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

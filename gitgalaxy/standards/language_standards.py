@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
-| Typescript | 97.6% | 99.5% | 100.0% | 100.0% |
+| Typescript | 97.6% | 99.6% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 98.8% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -1135,8 +1135,28 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # real function value. Blacklisted the closed, small set of
                 # TS primitive/utility type keywords to close that gap
                 # without losing the general lowercase-identifier case.
-                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
-                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                #
+                # BUG FIX (issue #1840): the gap between a param-list's
+                # closing `)` and the eventual `=>` (`[^=;{]*`) was unbounded
+                # in WHAT it could contain, only in how much of it -- so it
+                # happily skipped straight over an entirely unrelated,
+                # already-closed method-chain call sitting between the two,
+                # landing on a LATER arrow that has nothing to do with the
+                # assigned identifier. Real example: `const deps = (await
+                # Promise.all([...])).flatMap(o => o);` -- the outer
+                # `(await Promise.all([...]))` is a real, fully-closed
+                # parenthesized expression (not `deps`'s own parameter
+                # list), but `[^=;{]*` cheerfully consumed `.flatMap(o `
+                # -- including its OWN unrelated open paren -- to reach the
+                # `flatMap` callback's `=>`, false-matching `deps` as if it
+                # were an arrow function. A real arrow's param-list-to-`=>`
+                # gap is just an optional return-type annotation, which
+                # never legitimately contains a bare, unbalanced `(` or `)`
+                # of its own -- excluding both from the gap (`[^=;{()]*`)
+                # closes this without narrowing any genuine case (return
+                # types use `<...>` for generics, not `(...)`).
+                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{()]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{()]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
                 # `(` follows, nothing more -- so any bare call statement

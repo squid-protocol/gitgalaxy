@@ -1762,9 +1762,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             pass
                         else:
                             name = _get_node_name(node)
-                            if lang == "typescript" and name in ("catch", "finally"):
-                                pass  # Intentional drop of control flow
-                            elif lang == "typescript" and name == "constructor" and node.type in ("method_signature", "function_signature"):
+                            if lang == "typescript" and name == "constructor" and node.type in ("method_signature", "function_signature"):
                                 pass  # Intentional drop of bodyless constructors
                             # Intentional drop of bodyless overloads (function_declaration without body)
                             elif lang == "typescript" and node.type == "function_declaration" and node.child_by_field_name("body") is None:

@@ -45,6 +45,17 @@ dependencies = []
 [project.optional-dependencies]
 yaml = ["PyYAML>=6.0"]
 
+# Unlike `yaml` above, this extra is never imported by anything under gitgalaxy/ and changes no
+# behavior of the shipped engine -- it exists purely so a contributor can
+# `pip install -e .[tri-comparison]` instead of a separate manual `pip install
+# tree-sitter-language-pack` before running tests/tools/tri_comparison_gatherer.py (which
+# verifies GitGalaxy's own extraction against tree-sitter and universal-ctags on the
+# language-crucible corpus). universal-ctags itself is a system binary, not a Python package, and
+# can't be listed here -- see tests/tools/ctags_reader.py's own module docstring for install
+# instructions. Still opt-in like every other extra: a plain `pip install gitgalaxy` installs
+# neither, so this doesn't touch the "0 dependencies" claim in README.md's proof strip.
+tri-comparison = ["tree-sitter-language-pack"]
+
 [project.urls]
 "Homepage" = "https://gitgalaxy.io"
 "Documentation" = "https://squid-protocol.github.io/gitgalaxy/"

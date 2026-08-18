@@ -46,9 +46,9 @@ USAGE
         language now renders as TWO stacked bars per panel -- GitGalaxy on top,
         tree-sitter's own raw reading on the bottom, both scored against the same
         reconciled ground truth (see measure()'s raw_ts_funcs/raw_ts_classes
-        comment for what that can and can't show yet). Panels are ranked by
-        GitGalaxy's value only (best at top, N/A at the bottom -- not rankable as
-        a score); tree-sitter's bar rides along at its GitGalaxy counterpart's row.
+        comment for what that can and can't show yet). Rows share ONE alphabetical
+        language order across all five panels (not ranked per panel by value) so a
+        single language's numbers can be read straight across every column.
         Bar fill is a red(low)->blue(high) hue-sweep keyed to that bar's OWN value.
         Includes python via NODE_MAPS like every other language now (see that
         entry's own comment: this is for --chart/--history uniformity only --
@@ -1795,11 +1795,10 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 "args_comparable": 0,
                 "args_exact_match": 0,
                 # Tree-sitter's OWN numbers, scored against the exact same reconciled
-                # real_funcs/real_classes ground truth as GitGalaxy above -- see the "Phase 1"
-                # note on `raw_ts_funcs`/`raw_ts_classes` in `walk()` below for what this can and
-                # can't show yet. Informational only: never gated (`_GATED_METRICS` doesn't
-                # reference these), since a `tree_sitter_language_pack` version bump shouldn't
-                # fail this repo's own CI.
+                # real_funcs/real_classes ground truth as GitGalaxy above -- see the
+                # `raw_ts_funcs`/`raw_ts_classes` note in `walk()` below. Informational only:
+                # never gated (`_GATED_METRICS` doesn't reference these), since a
+                # `tree_sitter_language_pack` version bump shouldn't fail this repo's own CI.
                 "ts_found_functions": 0,
                 "ts_extra_functions": 0,
                 "ts_found_classes": 0,
@@ -1830,21 +1829,21 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 # by position instead of collapsed onto one dict slot.
                 real_funcs: dict[str, list[tuple[int, int]]] = {}
                 real_classes: set[str] = set()
-                # #1849 Phase 1: tree-sitter's OWN raw reading, scored against real_funcs/
-                # real_classes exactly like GitGalaxy is below. real_funcs is a STRICT SUBSET of
-                # raw_ts_funcs by construction -- every real_funcs correction (perl bodyless dedup,
-                # TS bodyless drops, JS Flow/reserved-keyword hallucinations, C macro
-                # hallucinations, C bodyless class forward-decls) is exactly one already-documented
-                # blind spot (docs/why_gitgalaxy_beats_ast_here.md), and raw_ts_funcs simply DOESN'T
-                # apply those corrections. This means tree-sitter's own recall against real_funcs
-                # will always read 100% here (it can't miss what its own uncorrected walk defines
-                # the ground truth from) -- that's a known Phase 1 limitation, not a bug: showing
-                # tree-sitter's recall loss inside a parse-error cascade (Claim 3) requires
-                # promoting those already-manually-verified regions into ground truth, deferred to
-                # a follow-up. What Phase 1 DOES show honestly: tree-sitter's own PRECISION loss
-                # from exactly the corrections above, and (via real_func_node_by_occ below) its
-                # args accuracy using a declaration-only reading instead of GitGalaxy's/ground
-                # truth's body-aware one.
+                # #1849: tree-sitter's OWN raw reading, scored against real_funcs/real_classes
+                # exactly like GitGalaxy is below. Two distinct kinds of correction separate
+                # real_funcs from this raw walk:
+                #  - PRECISION corrections (perl bodyless dedup, TS bodyless drops, JS Flow/
+                #    reserved-keyword hallucinations, C macro hallucinations, C bodyless class
+                #    forward-decls): real_funcs simply doesn't apply them, so they show up as
+                #    tree-sitter's own false positives once compared (ts_extra_functions).
+                #  - RECALL promotion (Phase 2, below, after gg_funcs_by_name is built): GitGalaxy
+                #    matches living inside an already-identified blind-spot/cascade region --
+                #    where tree-sitter's tree has NO structure at all -- get added to real_funcs/
+                #    real_classes directly, since raw_ts_funcs structurally can't gain entries
+                #    there (there's nothing in tree-sitter's own tree to walk). That's what lets
+                #    ts_found_functions legitimately read below 100% for csharp/fortran/rust
+                #    instead of trivially matching whatever the raw walk itself defined ground
+                #    truth from.
                 raw_ts_funcs: dict[str, list[tuple[int, int]]] = {}
                 raw_ts_classes: set[str] = set()
                 # (name, start_line) -> the tree-sitter node backing that real_funcs occurrence,
@@ -1971,8 +1970,6 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 walk(tree.root_node)
 
                 metrics["files_scanned"] += 1
-                metrics["real_functions"] += sum(len(occs) for occs in real_funcs.values())
-                metrics["real_classes"] += len(real_classes)
 
                 gg_funcs = conn.execute(
                     "SELECT func_name, args, start_line FROM function_data WHERE file_id = ?", (row["id"],)
@@ -1987,6 +1984,61 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     if r["func_name"] in _SYNTHETIC_GG_FUNC_NAMES:
                         continue
                     gg_funcs_by_name.setdefault(r["func_name"], []).append((r["start_line"] or 0, r["args"]))
+
+                # #1849 Phase 2: promote GitGalaxy's own matches inside an already-identified
+                # blind-spot/cascade region into the shared ground truth, instead of merely
+                # excluding them from extra_functions/extra_classes scoring (the pre-Phase-2
+                # behavior, still kept below as a belt-and-suspenders filter). These are regions
+                # where tree-sitter's OWN tree has no structure at all (an ERROR node swallowed
+                # it) -- the exclusion rule already trusted every GG match here as real, this
+                # extends that same trust from "don't penalize" to "count as found", which is what
+                # lets tree-sitter's OWN recall legitimately show the miss instead of reading 100%
+                # by construction (see measure()'s raw_ts_funcs comment). No tree-sitter node
+                # backs a promoted entry (that's the whole point of it being in this region) --
+                # real_func_node_by_occ is deliberately left unpopulated for these, so the args
+                # comparison naturally skips them rather than inventing a declaration-only reading
+                # with nothing to read.
+                #
+                # `blind_spot_ranges` is already narrowly lang-scoped inside
+                # `_find_blind_spot_ranges` itself (only ever non-empty for rust/fortran, per
+                # Claims 6/7's evidence: rust macro_rules! bodies, fortran #ifdef-triggered ERROR
+                # spans), safe to trust unconditionally here. `trailing_error_start` is NOT
+                # lang-scoped the same way -- it's a general "one bad construct corrupts recovery
+                # for the rest of the file" detector, and Claim 3 explicitly documents that this
+                # shape does NOT generalize safely to every language: csharp's cascade is
+                # confirmed fully blind (0 real_functions past the trigger line, independently
+                # verified against source), but javascript's "resyncs locally" instead -- real,
+                # salvageable structure keeps appearing throughout the flagged region, which is
+                # exactly why a region-exclusion fix for javascript's OWN precision was tried and
+                # reverted there (discarded far more real ground truth than the handful of phantom
+                # entries it removed). Promoting blindly on `trailing_error_start` for javascript
+                # (or any other not-independently-verified language) risks blessing a genuine
+                # GitGalaxy false positive as ground truth in exactly the region most likely to
+                # contain one -- so cascade-based promotion is scoped to csharp only, the one
+                # language this was actually verified against (#1427/#1567), until another
+                # language gets the same source-level verification Claim 3 describes.
+                cascade_promotable = lang == "csharp" and trailing_error_start is not None
+                if cascade_promotable or blind_spot_ranges:
+                    for gg_name, gg_occs_all in gg_funcs_by_name.items():
+                        existing_lines = {ln for ln, _ in real_funcs.get(gg_name, [])}
+                        for gg_start, gg_args in gg_occs_all:
+                            if gg_start in existing_lines:
+                                continue
+                            in_region = (cascade_promotable and gg_start >= trailing_error_start) or any(
+                                start <= gg_start <= end for start, end in blind_spot_ranges
+                            )
+                            if in_region:
+                                real_funcs.setdefault(gg_name, []).append((gg_start, gg_args))
+                                existing_lines.add(gg_start)
+                    # Class-side promotion is file-level, same granularity the exclusion below
+                    # already uses (class_data has no start_line to align occurrences by) -- once
+                    # a file is flagged as a blind-spot/cascade file at all, every GG class name
+                    # absent from ground truth there gets the same trust every GG *function* match
+                    # in the same file just got above.
+                    real_classes |= gg_classes - real_classes
+
+                metrics["real_functions"] += sum(len(occs) for occs in real_funcs.values())
+                metrics["real_classes"] += len(real_classes)
 
                 missing_cls = real_classes - gg_classes
                 if missing_cls:
@@ -2400,7 +2452,7 @@ _HISTORY_FIELDS = [
     "class_recall_pct",
     "class_precision_pct",
     # #1849: tree-sitter's own numbers, same reconciled ground truth -- see measure()'s
-    # raw_ts_funcs/raw_ts_classes docstring comment for the Phase 1 scope/limitations.
+    # raw_ts_funcs/raw_ts_classes docstring comment for what does and doesn't move these.
     "ts_found_functions",
     "ts_extra_functions",
     "ts_found_classes",
@@ -2774,15 +2826,17 @@ def generate_chart_svg() -> str:
     label column. #1849: each language now renders as TWO stacked bars per panel -- GitGalaxy on
     top, tree-sitter's own raw reading on the bottom, both scored against the SAME reconciled
     ground truth (measure()'s real_funcs/real_classes; see that function's raw_ts_funcs comment).
-    Row order is still ranked by GitGalaxy's value alone (best at top, worst at bottom) -- it
-    stays the primary tool being tracked; tree-sitter's bar rides along at whatever row its
-    GitGalaxy counterpart lands on, which is exactly what makes a per-language gap visible at a
-    glance. N/A (no ground-truth instances for that language) can't be ranked against a real
-    score, so it sorts as its own alphabetical group below every real value, not scored as 0%.
-    Bar fill is a red(low)->blue(high) hue-sweep LUT keyed to that bar's OWN value (see
-    _rainbow_hex) -- color still encodes magnitude for each bar independently; a bar's vertical
-    position (top/bottom of its row band) encodes which tool it is, not color, since color is
-    already spoken for.
+
+    Rows share ONE alphabetical language order across all five panels (previously each panel was
+    independently ranked by GitGalaxy's value, which put a given language at a different row in
+    every column -- useful for "what's the best/worst language on this one metric" but actively
+    hostile to "pick a language, see all five of its numbers at a glance", which is the more
+    common way to actually read this chart). A continuous full-width stripe band (drawn once,
+    behind every panel, not per-panel) reinforces the same row across the panel gaps so the eye
+    doesn't lose the row when it crosses from one panel to the next. Bar fill is still a
+    red(low)->blue(high) hue-sweep LUT keyed to that bar's OWN value (see _rainbow_hex) -- color
+    still encodes magnitude for each bar independently; a bar's vertical position (top/bottom of
+    its row band) encodes which tool it is, not color, since color is already spoken for.
 
     Value labels show the raw fraction ("0/117"), not a bare percentage -- a percentage alone
     looks identical whether it's backed by 4 samples or 400, and reads as "failing" even where
@@ -2790,10 +2844,12 @@ def generate_chart_svg() -> str:
     title exist for the same reason: this chart measures ONLY func_start/args/class_start name
     extraction, not GitGalaxy's structural-signature risk rules, and without that context a wall
     of red bars reads as "the product is failing" rather than "this one narrow feature has known,
-    already-triaged gaps." One of those notes is a Phase 1 limitation, not a bug: tree-sitter's
-    own recall panels read 100% by construction right now, because ground truth is still walked
-    from tree-sitter's own tree -- exposing its real parse-error-cascade recall loss (Claim 3)
-    needs those regions promoted into ground truth, deferred to a follow-up (#1849)."""
+    already-triaged gaps." One of those notes explains the recall panels specifically: for most
+    languages tree-sitter's own recall reads 100% by construction (ground truth is walked from its
+    own tree, so it can't miss what it defines), EXCEPT csharp/fortran/rust, where already-verified
+    blind-spot/cascade regions are promoted into ground truth (measure()'s Phase 2 promotion step)
+    so tree-sitter's real recall loss there (Claims 3/6/7) shows up as a genuine gap instead of
+    reading artificially perfect."""
     timestamp, commit_sha, data = _load_latest_history_batch()
     langs_all = sorted(data.keys())
     n = len(langs_all)
@@ -2838,14 +2894,26 @@ def generate_chart_svg() -> str:
         f"entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>",
         f'<text class="scope-note" x="{left_margin}" y="88">Each language: TOP bar = GitGalaxy, BOTTOM '
         f"bar = tree-sitter's own raw reading -- both scored against the same reconciled ground truth "
-        f"(docs/why_gitgalaxy_beats_ast_here.md). Rows are ranked by GitGalaxy's value only.</text>",
-        f'<text class="scope-note" x="{left_margin}" y="100">Tree-sitter\'s Func/Class Recall panels read '
-        f"100% by construction (Phase 1): ground truth is still walked from tree-sitter's own tree, so its "
-        f"parse-error-cascade recall loss isn't visible yet -- only its precision/args panels are (#1849).</text>",
+        f"(docs/why_gitgalaxy_beats_ast_here.md). Rows share ONE alphabetical order across all five "
+        f"panels so a language's numbers can be read straight across.</text>",
+        f'<text class="scope-note" x="{left_margin}" y="100">Tree-sitter\'s recall panels read 100% for most '
+        f"languages by construction (ground truth is walked from its own tree) -- EXCEPT csharp/fortran/rust, "
+        f"where source-verified parse-error-cascade/opaque-macro regions (Claims 3/6/7) are promoted into "
+        f"ground truth, so a real recall gap shows there instead (#1849).</text>",
         f'<rect x="{left_margin}" y="112" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
         f'<text class="legend-label" x="{left_margin}" y="128">0%</text>',
         f'<text class="legend-label" x="{left_margin + 140}" y="128" text-anchor="end">100% (bar color = value)</text>',
     ]
+
+    # Shared row order: plain alphabetical (langs_all is already sorted), identical in every
+    # panel -- see docstring for why this replaced the old per-panel value ranking. Striping is
+    # drawn ONCE here, full chart width, behind every panel, so the same row stays visually
+    # continuous across the panel gaps instead of resetting per panel.
+    full_width = width - left_margin - right_margin
+    for i in range(n):
+        if i % 2 == 1:
+            row_y = rows_top + i * row_h
+            parts.append(f'<rect class="stripe" x="{left_margin}" y="{row_y}" width="{full_width}" height="{row_h}"/>')
 
     for j, m in enumerate(_CHART_METRICS):
         panel_x = left_margin + j * (panel_w + panel_gap)
@@ -2871,22 +2939,11 @@ def generate_chart_svg() -> str:
                 gg_values[lang] = _ratio_pct(gg_num, gg_den)
                 ts_values[lang] = _ratio_pct(ts_num, ts_den)
 
-        # Ranked by GitGalaxy's value only -- see docstring. Tree-sitter's bar just rides along.
-        with_value = sorted(
-            ((lang, gg_values[lang]) for lang in langs_all if gg_values[lang] is not None),
-            key=lambda pair: pair[1],
-            reverse=True,
-        )
-        without_value = sorted(lang for lang in langs_all if gg_values[lang] is None)
-        ordered: list[str] = [lang for lang, _v in with_value] + without_value
-
         parts.append(f'<text class="col-title" x="{col_x}" y="{top_margin + header_h - 12}">{m.title}</text>')
         parts.append(f'<line class="axis" x1="{col_x}" y1="{rows_top}" x2="{col_x}" y2="{rows_top + n * row_h}"/>')
 
-        for i, lang in enumerate(ordered):
+        for i, lang in enumerate(langs_all):
             row_y = rows_top + i * row_h
-            if i % 2 == 1:
-                parts.append(f'<rect class="stripe" x="{panel_x}" y="{row_y}" width="{panel_w}" height="{row_h}"/>')
 
             label_y = row_y + row_h / 2 + 3.5
             parts.append(f'<text class="row-label" x="{label_x}" y="{label_y:.1f}" text-anchor="end">{lang}</text>')
@@ -2912,9 +2969,9 @@ def generate_chart_svg() -> str:
 
     parts.append(
         f'<text class="footer" x="{left_margin}" y="{height - 20}">Generated by '
-        f"tests/tools/tree_sitter_accuracy_audit.py --chart. Each panel is ranked independently by "
-        f'GitGalaxy\'s value, best at top; "n/a" (no ground-truth instances for that language) sorts to '
-        f"the bottom, not scored as 0%.</text>"
+        f"tests/tools/tree_sitter_accuracy_audit.py --chart. Rows are in one alphabetical order shared "
+        f'by every panel -- pick a language and read straight across; "n/a" means no ground-truth '
+        f"instances for that language on that panel, not a 0% score.</text>"
     )
     parts.append(
         f'<text class="footer" x="{left_margin}" y="{height - 8}">Recall panels ("found/real"): a low '

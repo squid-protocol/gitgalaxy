@@ -557,9 +557,17 @@ real parameter list at all.
   doc backed directly by that live measurement (`ts_extra_functions`/`ts_extra_classes` on the c
   baseline) rather than a one-off manual count — future claims of this shape (tree-sitter's raw
   reading being noisier than GitGalaxy's) should cite the same fields instead of re-deriving a
-  fresh count by hand. Its Phase 1 scope note applies here too: the recall side of that
-  measurement (`ts_found_functions` vs. `real_functions`) reads 100% by construction and isn't
-  yet informative — only the precision and args fields are.
+  fresh count by hand. The recall side (`ts_found_functions` vs. `real_functions`) reads 100% by
+  construction for most languages (ground truth is walked from tree-sitter's own tree, so it can't
+  miss what it defines) — except csharp/fortran/rust, where `measure()`'s promotion step adds
+  already-source-verified blind-spot/cascade-region GitGalaxy matches (Claims 3/6/7) directly into
+  ground truth, so tree-sitter's real recall loss there shows as a genuine gap instead of reading
+  artificially perfect. That promotion is deliberately NOT applied to every language that happens
+  to trigger the general cascade detector — javascript is the documented counter-example (Claim 3:
+  its cascade "resyncs locally" rather than going fully blind), so blind-promoting there risks
+  blessing a genuine GitGalaxy false positive as ground truth. Scoped to csharp specifically (the
+  one language independently verified fully-blind) until another language gets the same
+  source-level verification.
 - Claims 9-11 (Go grouped parameters, Ruby closures, Rust generic-bound arrows) consolidate and
   fact-check content from a since-deleted root-level `why_we_are_better_than_tree_sitter.md`,
   which didn't follow this doc's narrow/dated/evidenced-claim discipline (blanket "GitGalaxy is

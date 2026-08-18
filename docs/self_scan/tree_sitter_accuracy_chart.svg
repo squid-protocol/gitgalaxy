@@ -37,7 +37,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1374" height="651"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-18T03:19:00+00:00 &#183; commit eb7ae34 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-18T12:51:20+00:00 &#183; commit 03415d9 &#183; 31 languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -138,8 +138,8 @@
 <rect x="104" y="520.0" width="90.5" height="9" rx="3" fill="#2934d6"/>
 <text class="value-label" x="199.5" y="528.0">121/123</text>
 <text class="row-label" x="96" y="543.0" text-anchor="end">typescript</text>
-<rect x="104" y="535.0" width="89.4" height="9" rx="3" fill="#293cd6"/>
-<text class="value-label" x="198.4" y="543.0">2710/2787</text>
+<rect x="104" y="535.0" width="89.8" height="9" rx="3" fill="#2939d6"/>
+<text class="value-label" x="198.8" y="543.0">2720/2787</text>
 <rect class="stripe" x="16" y="547" width="246" height="15"/>
 <text class="row-label" x="96" y="558.0" text-anchor="end">cpp</text>
 <rect x="104" y="550.0" width="85.9" height="9" rx="3" fill="#2957d6"/>
@@ -215,7 +215,7 @@
 <rect class="stripe" x="290" y="397" width="246" height="15"/>
 <text class="row-label" x="370" y="408.0" text-anchor="end">typescript</text>
 <rect x="378" y="400.0" width="91.5" height="9" rx="3" fill="#292cd6"/>
-<text class="value-label" x="474.5" y="408.0">2710/2723</text>
+<text class="value-label" x="474.5" y="408.0">2720/2734</text>
 <text class="row-label" x="370" y="423.0" text-anchor="end">objective-c</text>
 <rect x="378" y="415.0" width="91.4" height="9" rx="3" fill="#292ed6"/>
 <text class="value-label" x="474.4" y="423.0">151/152</text>
@@ -501,7 +501,7 @@
 <text class="value-label" x="1297.0" y="288.0">142/142</text>
 <text class="row-label" x="1192" y="303.0" text-anchor="end">typescript</text>
 <rect x="1200" y="295.0" width="92.0" height="9" rx="3" fill="#2929d6"/>
-<text class="value-label" x="1297.0" y="303.0">2710/2710</text>
+<text class="value-label" x="1297.0" y="303.0">2720/2720</text>
 <rect class="stripe" x="1112" y="307" width="246" height="15"/>
 <text class="row-label" x="1192" y="318.0" text-anchor="end">zig</text>
 <rect x="1200" y="310.0" width="92.0" height="9" rx="3" fill="#2929d6"/>

@@ -2,7 +2,7 @@
   "args_comparable": 2750,
   "args_exact_match": 2750,
   "corpus_path": "language-crucible/data/zig",
-  "extra_classes": 9,
+  "extra_classes": 12,
   "extra_functions": 0,
   "files_scanned": 32,
   "found_classes": 656,

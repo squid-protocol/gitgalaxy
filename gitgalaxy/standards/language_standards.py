@@ -64,7 +64,7 @@ for the same metrics tracked over time across pushes to main.
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
 | Typescript | 97.2% | 99.5% | 100.0% | 100.0% |
-| Zig | 100.0% | 100.0% | 100.0% | 98.6% |
+| Zig | 100.0% | 100.0% | 100.0% | 98.2% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
 
@@ -8877,7 +8877,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # of itself) and a pointer-to-opaque handle type (`const HMONITOR
             # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:[ \t\n]*:[ \t\n]*[a-zA-Z0-9_.*()]+)?[ \t\n]*=[ \t\n]*\(?[ \t\n]*\*?[ \t\n]*(?:(?:packed|extern|align\([^)]*\))[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=:;]){0,150}[=:][ \t\n]*(?:(?!\b(?:const|var)\b)[^;\"']){0,150}?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

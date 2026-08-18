@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 99.7% | 99.5% | 100.0% | 100.0% |
-| Cpp | 93.4% | 95.7% | 100.0% | 100.0% |
+| Cpp | 93.4% | 95.7% | 87.1% | 100.0% |
 | Csharp | 99.2% | 99.8% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.0% | 97.9% | 100.0% | 100.0% |
@@ -3067,7 +3067,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "class_start": re.compile(
                 r"^[ \t]*(?:export[ \t\n]+)?"
                 r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-                r"(?:class|struct|union|enum(?:[ \t\n]+class|[ \t\n]+struct)?)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
+                r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

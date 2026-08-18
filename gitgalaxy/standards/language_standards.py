@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 99.2% | 99.2% | 100.0% | 100.0% |
 | Tcl | 98.6% | 99.3% | N/A | N/A |
-| Typescript | 97.2% | 99.5% | 100.0% | 100.0% |
+| Typescript | 97.6% | 99.5% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 98.8% | 99.8% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -1088,8 +1088,55 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
                 # =====================================================================
                 r"\b(?:async\s+)?function[ \t\n*]+(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
-                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b(?<!type )(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\([^()]*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$)))|"
+                # BUG FIX (issue #1838, P2): a constructor parameter property
+                # (`constructor(private readonly interval: number, private
+                # readonly nowFn = () => Date.now())`) puts an
+                # `IDENT = arrow` default-value shape INSIDE the enclosing,
+                # still-open parameter list -- textually indistinguishable
+                # from a real top-level/class-field `IDENT = arrow`
+                # assignment without paren-depth tracking, which this
+                # single-pass regex doesn't have. `public`/`private`/
+                # `protected`/`readonly` immediately after `,` or `(` is
+                # UNIQUE to this TS parameter-property syntax though: no
+                # other valid TypeScript construct puts one of those four
+                # contextual keywords directly after a bare `,` or `(`
+                # (they're otherwise only legal as class-member modifiers,
+                # which are never comma/paren-adjacent). Python's `re`
+                # requires fixed-width lookbehind, so this enumerates the
+                # 7 valid modifier/modifier-pair combinations x 2 preceding
+                # delimiters as 14 separate fixed-width negative lookbehinds
+                # (each individually fixed-width; stdlib `re` rejects a
+                # single lookbehind with internally-variable-length
+                # alternation) rather than one general "are we inside an
+                # unclosed paren" check.
+                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b(?<!type )"
+                r"(?<!,\spublic\s)(?<!,\sprivate\s)(?<!,\sprotected\s)(?<!,\sreadonly\s)"
+                r"(?<!,\spublic\sreadonly\s)(?<!,\sprivate\sreadonly\s)(?<!,\sprotected\sreadonly\s)"
+                r"(?<!\(public\s)(?<!\(private\s)(?<!\(protected\s)(?<!\(readonly\s)"
+                r"(?<!\(public\sreadonly\s)(?<!\(private\sreadonly\s)(?<!\(protected\sreadonly\s)"
+                r"(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?"
+                # BUG FIX (issue #1838, R2): the arrow-body terminator only
+                # accepted a body starting with `{`/`<`/`(`/end-of-line --
+                # missed the common point-free/FP-style shape where the body
+                # is a bare call or bare identifier reference (`=>
+                # pipe(fab, ap(fa))`, `=> scheduled`, `=> this.foo()`).
+                # Widened with two more alternatives: an identifier
+                # immediately followed by `(` (an unambiguous call shape --
+                # types never call anything, so this can't collide with a
+                # function-TYPE signature's return type), and a bare
+                # lowercase-leading identifier. The bare-identifier
+                # alternative is deliberately restricted to `[a-z_]` (never
+                # `[A-Z]`) since real custom TypeScript type names are
+                # conventionally PascalCase by community/compiler-team
+                # convention -- but TS's own BUILT-IN primitive/utility type
+                # keywords (`void`, `string`, `number`, ...) are lowercase
+                # too, so a member-signature's return type (`c: (x: T) =>
+                # void;`) would otherwise false-positive as if `void` were a
+                # real function value. Blacklisted the closed, small set of
+                # TS primitive/utility type keywords to close that gap
+                # without losing the general lowercase-identifier case.
+                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[^=;{]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
                 # `(` follows, nothing more -- so any bare call statement
@@ -1123,6 +1170,29 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # known, accepted gap of this same trade-off --
                 # indistinguishable from `next();` without scope-awareness
                 # this engine doesn't have.
+                # NOT FIXED (issue #1838, P1 -- ruled out, left as-is on
+                # purpose): `protected abstract createReferencedObject(...): T;`
+                # has no implementation by TypeScript's own grammar (abstract
+                # methods can never carry a body), and tree-sitter itself
+                # parses it as a distinct `abstract_method_signature` node --
+                # not `method_definition`/`method_signature` -- so the
+                # tree-sitter-accuracy audit never counts it as ground truth,
+                # making this branch's match look like a false positive there.
+                # An earlier attempt excluded `abstract`-prefixed signatures
+                # from this branch entirely to chase that number, but
+                # `tests/extraction/languages/test_typescript.py`'s own
+                # `func_start` gauntlet has an explicit, intentional valid
+                # case for exactly this shape (`abstract TargetFunc(): void;`
+                # inside `abstract class Foo`) -- GitGalaxy's structural-
+                # signature counting is deliberately broader than tree-sitter's
+                # AST node taxonomy here (an abstract method declaration is
+                # still a real structural unit worth a branch/io/complexity
+                # signal, even with no body of its own), and the gauntlet is
+                # this file's authoritative correctness spec, not the
+                # tree-sitter diff. Fixing "for tree-sitter" would have broken
+                # a real, already-agreed-on test. Left unmatched-by-design;
+                # the audit's own extra_functions number for this case is a
+                # known, accepted tool-methodology mismatch, not a GitGalaxy bug.
                 # BUG FIX (Rule 14, ReDoS -- confirmed ~O(n^2), 4.1s at
                 # n=16000 pure trailing-whitespace payload): branch B's two
                 # `[ \t\n]*` after `\)` and after the optional `:Type`
@@ -1145,8 +1215,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"|"
                 r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)"
                 r")"
-                r"(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                r"(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r"|"
+                # BUG FIX (R3): The arrow-value (Branch 5 / standalone value) branch
+                # is known to fail on mid-statement function values (e.g. `const a = b || () => {}`)
+                # because the `^[ \t]*` anchor enforces it must be the start of a line. We cannot
+                # easily fix this without massive ReDoS or losing precision.
+                # Mid-statement function values cannot be reliably matched without a full AST.
                 # BUG FIX (epic #1261 / issue #1630): the zero-prefix branch's
                 # parameter-list terminator used a FLAT `\([^)]*\)` character class,
                 # which cannot represent even one level of nested parens. Any
@@ -1159,7 +1234,31 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `\((?:[^()]|\([^()]*\))*\)` -- same Rule 11 shape the generic
                 # step-over already uses (`(?:[^<>]|<[^<>]*>)*`), linear because the
                 # two alternatives never match overlapping text.
-                r"^[ \t]*(?!(?:class|interface|type|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\([^()]*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # BUG FIX (issue #1838, R1): one level of nesting still wasn't
+                # enough -- a callback-typed parameter can itself contain a
+                # parenthesized sub-expression (nesting depth 2 from the outer
+                # list-paren), e.g. `appendPlaceholder(value: string | ((snippet:
+                # SnippetString) => any), number?: number): SnippetString;`
+                # (`vscode/vscode.d.ts:4180`). Recursed the same non-overlapping
+                # idiom one level deeper: `\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)`.
+                # Still linear (each level's alternatives don't overlap the level
+                # above it), same Rule 11 reasoning, just applied twice.
+                #
+                # NOTE: an earlier version of this fix ALSO added a `constructor`-
+                # specific bare-`;` terminator alternative here, on the theory that
+                # bodyless ambient/overload constructors (`constructor(...);` with
+                # no return-type annotation) were a real recall gap. That was
+                # wrong: `tests/tools/tree_sitter_accuracy_audit.py`'s own ground
+                # truth (search "Intentional drop of bodyless constructors")
+                # deliberately excludes exactly this node shape (`method_signature`/
+                # `function_signature` named "constructor") from what counts as a
+                # real function -- so matching it only manufactured new false
+                # positives across every `.d.ts`-style declaration file in the
+                # corpus (confirmed: reverting this addition alone dropped
+                # `extra_functions` by dozens on the pinned corpus). Left
+                # unmatched, on purpose -- see issue #1838's discussion for the
+                # full trace.
+                r"^[ \t]*(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

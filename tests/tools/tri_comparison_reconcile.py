@@ -142,14 +142,33 @@ def reconcile_symbols(
     results: list[FileReadings],
     symbol_type: str,
     available_tools: tuple[str, ...],
-) -> tuple[dict[str, MetricScore], dict[str, MetricScore], list[DiscrepancyGroup]]:
+) -> tuple[dict[str, MetricScore], dict[str, MetricScore], dict[str, MetricScore], list[DiscrepancyGroup]]:
     """symbol_type: "function" or "class". available_tools: whichever of ALL_TOOLS actually have
     a reading for this language -- both tree-sitter (absent for 9 of GitGalaxy's 45 languages,
     ctags-only there) and ctags (absent for 7 of the 31 tree-sitter-baselined languages) are
     independently optional per language; GitGalaxy is the only one always present.
-    Returns (existence_scores, args_scores, discrepancy_groups). args_scores is only ever
-    non-empty for symbol_type == "function" -- classes carry no args value in any reader."""
-    existence_scores = {t: MetricScore(t, 0, 0) for t in available_tools}
+
+    Returns (recall_scores, precision_scores, args_scores, discrepancy_groups). args_scores is
+    only ever non-empty for symbol_type == "function" -- classes carry no args value in any
+    reader. recall_scores and precision_scores are two different views of the exact same
+    underlying per-slot agreement data (there's no separate "precision ground truth" to measure
+    against -- see this module's own docstring for why no reader is privileged), which is also
+    why both draw on the SAME "existence" discrepancy groups below rather than needing a second,
+    separate discrepancy dimension:
+      - recall_t = (slots tool t reported) / (every slot ANY available tool reported -- the
+        union). Was this function's only "existence_scores" before recall/precision were split
+        apart; unchanged in meaning, just renamed.
+      - precision_t = (slots tool t reported that at least one OTHER available tool also
+        reported) / (slots tool t reported, period). A tool that reports something nobody else
+        agrees with pays for it here, not in recall -- confirmed meaningful on real data: rust's
+        152 GitGalaxy-only occurrences (tree-sitter and ctags both independently miss them) leave
+        GitGalaxy's recall at 100% (it's the superset) but its precision below 100% (some of what
+        it alone reports is uncorroborated), while tree-sitter/ctags sit at ~92% recall but
+        ~100% precision there -- a real, classic recall/precision tradeoff, not a coincidence of
+        this specific formula.
+    """
+    recall_scores = {t: MetricScore(t, 0, 0) for t in available_tools}
+    precision_scores = {t: MetricScore(t, 0, 0) for t in available_tools}
     args_scores = {t: MetricScore(t, 0, 0) for t in available_tools}
     existence_groups: dict[frozenset, DiscrepancyGroup] = {}
     args_groups: dict[frozenset, DiscrepancyGroup] = {}
@@ -174,19 +193,29 @@ def reconcile_symbols(
                 present = frozenset(t for t, o in slot.items() if o is not None)
                 absent = frozenset(available_tools) - present
 
-                # Score is each tool's own recall against the UNION of every occurrence-slot any
+                # Recall: each tool's own rate against the UNION of every occurrence-slot any
                 # available tool reported -- every slot counts once in every tool's denominator,
                 # and a tool's numerator moves only for slots IT reported, whether or not the
                 # other tools agreed. This is a real, honest number regardless of validation
                 # status: "no credit for anyone until a human signs off" would silently deflate
                 # every tool's rate on disputed slots and conflate two different questions (what
                 # did each tool find vs. do we trust the disputed cases yet). Validation status
-                # drives the ledger and the chart's gray/colored decision separately, below and
-                # in tri_comparison_ledger.py -- never the score itself.
+                # drives the ledger and the chart's asterisk decision separately, below and in
+                # tri_comparison_ledger.py -- never the score itself.
                 for t in available_tools:
-                    existence_scores[t].total_slots += 1
+                    recall_scores[t].total_slots += 1
                     if t in present:
-                        existence_scores[t].matched_consensus += 1
+                        recall_scores[t].matched_consensus += 1
+
+                # Precision: scoped to what EACH tool itself reported, not the shared union --
+                # a tool that's absent from this slot doesn't have its precision denominator
+                # touched by it at all (precision is "of what you claimed, how much held up",
+                # not "how much of everything did you claim"). len(present) >= 2 means at least
+                # one OTHER available tool corroborates this specific slot.
+                for t in present:
+                    precision_scores[t].total_slots += 1
+                    if len(present) >= 2:
+                        precision_scores[t].matched_consensus += 1
 
                 if present != frozenset(available_tools):
                     key = frozenset([("agree", present), ("dissent", absent)])
@@ -229,11 +258,32 @@ def reconcile_symbols(
                     for t in comparable:
                         args_scores[t].matched_consensus += 1
                 else:
+                    # BUG FIXED: this branch used to award matched_consensus to nobody at all --
+                    # the exact same "no credit until everyone agrees" mistake already caught and
+                    # fixed for recall/precision above, just never applied here too. A 2-vs-1
+                    # split has two tools that genuinely agree with EACH OTHER; denying them
+                    # credit because a third tool differs was silently deflating every language's
+                    # args score below what the data actually supports (confirmed: no language
+                    # could reach 100% even when only a small minority of occurrences had any
+                    # disagreement at all, since majority-agreeing tools were being penalized for
+                    # a minority outlier they had nothing to do with).
                     agree_val_counts = defaultdict(list)
                     for t, v in comparable.items():
                         agree_val_counts[v].append(t)
-                    majority_val, majority_tools = max(agree_val_counts.items(), key=lambda kv: len(kv[1]))
-                    majority_tools = frozenset(majority_tools)
+                    ranked = sorted(agree_val_counts.items(), key=lambda kv: -len(kv[1]))
+                    top_tools = ranked[0][1]
+                    second_size = len(ranked[1][1]) if len(ranked) > 1 else 0
+                    if len(top_tools) > second_size:
+                        # A REAL majority (strictly larger than the next-biggest group) -- e.g.
+                        # 2 tools agree, 1 differs. Only the tied case (2 comparable tools that
+                        # simply disagree, or a genuine 3-way split with no group larger than
+                        # any other) has no real majority; nobody gets credit there, correctly,
+                        # since there's no sense in which any side "won" a tie.
+                        majority_tools = frozenset(top_tools)
+                        for t in majority_tools:
+                            args_scores[t].matched_consensus += 1
+                    else:
+                        majority_tools = frozenset()
                     minority_tools = frozenset(comparable) - majority_tools
                     key = frozenset([("agree", majority_tools), ("dissent", minority_tools)])
                     grp = args_groups.setdefault(
@@ -254,4 +304,4 @@ def reconcile_symbols(
                         )
 
     all_groups = list(existence_groups.values()) + list(args_groups.values())
-    return existence_scores, args_scores, all_groups
+    return recall_scores, precision_scores, args_scores, all_groups

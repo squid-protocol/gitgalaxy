@@ -132,26 +132,40 @@ def merge_and_save(
 
 
 def is_language_metric_clean(
-    language: str, symbol_type: str, metric: str, path: Path = LEDGER_PATH
+    language: str, symbol_type: str, metric: str, path: Path = LEDGER_PATH, aspect: str = "recall"
 ) -> bool:
-    """The one question the chart actually needs answered: does GitGalaxy's bar for this
-    (language, symbol_type, metric) render gray or colored? True (colored) means either no
+    """The one question the chart actually needs answered: does GitGalaxy's value label for this
+    (language, symbol_type, metric) get a `*` (an unaudited loss) or not? True means either no
     discrepancy currently reproduces here, or every one that does has a validated verdict.
-    False (gray) means at least one currently-reproducing, GitGalaxy-involving discrepancy for
-    this cell has never been investigated. A discrepancy where GitGalaxy is on the AGREEING side
-    (e.g. csharp's agree[ctags,gitgalaxy]_vs[tree_sitter]) doesn't gray the chart on its own --
-    "gray bars for any situation where gitgalaxy is beaten" per the design this implements: only
-    shapes where gitgalaxy is in `dissenting_tools` matter here.
+
+    `aspect` matters because recall and precision fail in OPPOSITE shapes, and checking the wrong
+    one silently misses real cases -- confirmed on rust: GitGalaxy's func precision (92.1%,
+    genuinely beaten by both tree-sitter and ctags at 100%) rendered with no `*` at all under the
+    recall-only check this function used to be, because GitGalaxy was never in `dissenting_tools`
+    for the shape actually causing that gap.
+      - "recall" (default; also correct for the "args" metric, whose discrepancy groups are
+        already majority/minority-shaped, not agree/disagree-shaped): GitGalaxy MISSED something
+        real -- flagged when GitGalaxy is in `dissenting_tools` (recall's actual failure mode).
+      - "precision": GitGalaxy is the LONE, uncorroborated claimant of something -- flagged only
+        when GitGalaxy is in `agreeing_tools` AND is the ONLY tool in that set (present but
+        nobody else backs it up). A shape like csharp's agree[ctags,gitgalaxy]_vs[tree_sitter]
+        does NOT flag precision -- ctags corroborates GitGalaxy there, precision is fine; only
+        agree[gitgalaxy]_vs[...] (GitGalaxy truly alone) does.
     """
     ledger = load_ledger(path)
     for entry in ledger.get("entries", {}).values():
-        if (
+        if not (
             entry["language"] == language
             and entry["symbol_type"] == symbol_type
             and entry["metric"] == metric
             and entry["still_reproduces"]
-            and "gitgalaxy" in entry["dissenting_tools"]
             and entry["status"] != "validated"
         ):
+            continue
+        if aspect == "precision":
+            flagged = entry["agreeing_tools"] == ["gitgalaxy"]
+        else:
+            flagged = "gitgalaxy" in entry["dissenting_tools"]
+        if flagged:
             return False
     return True

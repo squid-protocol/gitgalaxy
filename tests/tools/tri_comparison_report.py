@@ -111,12 +111,12 @@ def generate_report(ledger_path: Path = LEDGER_PATH) -> str:
         "# Tri-Comparison Points of Interest",
         "",
         "Generated from `tri_comparison_ledger.json` by `tests/tools/tri_comparison_report.py "
-        "--write` -- do not hand-edit this file, edit the ledger and regenerate. See "
-        "`docs/self_scan/how_to_investigate_a_discrepancy.md` for what ❓ entries are asking for.",
+        + "--write` -- do not hand-edit this file, edit the ledger and regenerate. See "
+        + "`docs/self_scan/how_to_investigate_a_discrepancy.md` for what ❓ entries are asking for.",
         "",
         "Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest "
-        "occurrence count first within each tier -- see this script's own module docstring for "
-        "why that order.",
+        + "occurrence count first within each tier -- see this script's own module docstring for "
+        + "why that order.",
         "",
     ]
 

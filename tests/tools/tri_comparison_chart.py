@@ -77,7 +77,8 @@ _GG_ONLY_LANGS = (
 )
 
 _TOOL_LABEL = {"gitgalaxy": "GitGalaxy", "tree_sitter": "tree-sitter", "ctags": "ctags"}
-_TOOL_ORDER = ("gitgalaxy", "tree_sitter", "ctags")
+# Fixed tool order everywhere in this chart -- reuses reconcile.py's ALL_TOOLS rather than a
+# second, easy-to-drift copy of the same three-tuple.
 
 # Categorical palette slots 1-3 (validated all-pairs, both modes -- see dataviz skill's
 # references/palette.md). Light-mode values; this is a static, light-surface-only SVG, matching
@@ -206,27 +207,27 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
 
     parts: list[str] = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-        f'width="{width}" height="{height}" font-family="system-ui, -apple-system, Segoe UI, sans-serif">',
+        + f'width="{width}" height="{height}" font-family="system-ui, -apple-system, Segoe UI, sans-serif">',
         _CHART_STYLE,
         f'<rect class="surface" x="0" y="0" width="{width}" height="{height}"/>',
         f'<text class="title" x="{left_margin}" y="20">GitGalaxy Structural Extraction: Tri-Comparison '
-        f"vs. Tree-sitter and ctags</text>",
+        + f"vs. Tree-sitter and ctags</text>",
         f'<text class="subtitle" x="{left_margin}" y="36">{datetime.now(timezone.utc).strftime("%Y-%m-%d")} '
-        f"&#183; source: tests/tools/tri_comparison_chart.py &#183; "
-        f"ledger: docs/self_scan/tri_comparison_ledger.json</text>",
+        + f"&#183; source: tests/tools/tri_comparison_chart.py &#183; "
+        + f"ledger: docs/self_scan/tri_comparison_ledger.json</text>",
         f'<text class="scope-note" x="{left_margin}" y="52">No tool is ground truth -- each bar is that '
-        f"tool's own agreement rate vs. everything anyone found.</text>",
+        + f"tool's own agreement rate vs. everything anyone found.</text>",
         f'<text class="scope-note" x="{left_margin}" y="64">Bar groups vary 1-3 by language\'s tool coverage '
-        f"-- order is always GitGalaxy, tree-sitter, ctags.</text>",
+        + f"-- order is always GitGalaxy, tree-sitter, ctags.</text>",
         f'<text class="scope-note" x="{left_margin}" y="76">GitGalaxy\'s bar is GRAY when beaten and '
-        f"unaudited, colored when tied or validated.</text>",
+        + f"unaudited, colored when tied or validated.</text>",
         f'<text class="scope-note" x="{left_margin}" y="88">See docs/self_scan/how_to_investigate_a_discrepancy.md '
-        f"for what an unaudited gap means.</text>",
+        + f"for what an unaudited gap means.</text>",
     ]
 
     legend_y = 108
     lx = left_margin
-    for tool in _TOOL_ORDER:
+    for tool in ALL_TOOLS:
         parts.append(f'<rect x="{lx}" y="{legend_y - 8}" width="14" height="8" rx="2" fill="{_COLOR_TOOL[tool]}"/>')
         parts.append(f'<text class="legend-label" x="{lx + 18}" y="{legend_y}">{_TOOL_LABEL[tool]}</text>')
         lx += 18 + 9 * len(_TOOL_LABEL[tool]) + 20

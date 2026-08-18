@@ -295,7 +295,7 @@ NODE_MAPS = {
             "anonymous_function",
             "arrow_function",
         },
-        "class_node_types": {"class_declaration", "anonymous_class"},
+        "class_node_types": {"class_declaration", "anonymous_class", "interface_declaration", "trait_declaration", "enum_declaration"},
     },
     "perl": {
         "ts_lang": "perl",
@@ -336,7 +336,7 @@ NODE_MAPS = {
         # phantom "functions" that are actually casts and calls. See _unwrap_c_style_declarator
         # for how function_definition's real (nested, field-less) name is now extracted.
         "func_node_types": {"function_definition"},
-        "class_node_types": {"class_specifier", "struct_specifier"},
+        "class_node_types": {"class_specifier", "struct_specifier", "enum_specifier", "union_specifier"},
     },
     "csharp": {
         "ts_lang": "csharp",
@@ -1556,21 +1556,21 @@ _JS_KNOWN_FLOW_HALLUCINATIONS = frozenset({
 
 _C_KNOWN_MACRO_HALLUCINATIONS = frozenset({
     "if", "EXPORT_FUN", "DICT___REVERSED___METHODDEF",
-    "MICROPY_WRAP_MP_EXECUTE_BYTECODE", "MP_BC_BINARY_OP_MULTI", "MP_BC_BUILD_LIST", "MP_BC_BUILD_MAP", 
-    "MP_BC_BUILD_SET", "MP_BC_BUILD_SLICE", "MP_BC_BUILD_TUPLE", "MP_BC_CALL_FUNCTION", 
-    "MP_BC_CALL_FUNCTION_VAR_KW", "MP_BC_CALL_METHOD", "MP_BC_CALL_METHOD_VAR_KW", 
-    "MP_BC_DELETE_DEREF", "MP_BC_DELETE_FAST", "MP_BC_DELETE_GLOBAL", "MP_BC_DELETE_NAME", 
-    "MP_BC_DUP_TOP", "MP_BC_FOR_ITER", "MP_BC_GET_ITER_STACK", "MP_BC_IMPORT_FROM", 
-    "MP_BC_IMPORT_NAME", "MP_BC_JUMP", "MP_BC_JUMP_IF_FALSE_OR_POP", "MP_BC_JUMP_IF_TRUE_OR_POP", 
-    "MP_BC_LOAD_ATTR", "MP_BC_LOAD_CONST_OBJ", "MP_BC_LOAD_CONST_SMALL_INT", 
-    "MP_BC_LOAD_CONST_STRING", "MP_BC_LOAD_DEREF", "MP_BC_LOAD_FAST_N", "MP_BC_LOAD_GLOBAL", 
-    "MP_BC_LOAD_METHOD", "MP_BC_LOAD_NAME", "MP_BC_LOAD_SUBSCR", "MP_BC_LOAD_SUPER_METHOD", 
-    "MP_BC_MAKE_CLOSURE", "MP_BC_MAKE_CLOSURE_DEFARGS", "MP_BC_MAKE_FUNCTION", 
-    "MP_BC_MAKE_FUNCTION_DEFARGS", "MP_BC_POP_EXCEPT_JUMP", "MP_BC_POP_JUMP_IF_FALSE", 
-    "MP_BC_POP_JUMP_IF_TRUE", "MP_BC_RAISE_FROM", "MP_BC_RAISE_LAST", "MP_BC_RAISE_OBJ", 
-    "MP_BC_ROT_THREE", "MP_BC_ROT_TWO", "MP_BC_SETUP_WITH", "MP_BC_STORE_ATTR", 
-    "MP_BC_STORE_COMP", "MP_BC_STORE_DEREF", "MP_BC_STORE_FAST_N", "MP_BC_STORE_GLOBAL", 
-    "MP_BC_STORE_NAME", "MP_BC_UNPACK_EX", "MP_BC_UNPACK_SEQUENCE", "MP_BC_UNWIND_JUMP", 
+    "MICROPY_WRAP_MP_EXECUTE_BYTECODE", "MP_BC_BINARY_OP_MULTI", "MP_BC_BUILD_LIST", "MP_BC_BUILD_MAP",
+    "MP_BC_BUILD_SET", "MP_BC_BUILD_SLICE", "MP_BC_BUILD_TUPLE", "MP_BC_CALL_FUNCTION",
+    "MP_BC_CALL_FUNCTION_VAR_KW", "MP_BC_CALL_METHOD", "MP_BC_CALL_METHOD_VAR_KW",
+    "MP_BC_DELETE_DEREF", "MP_BC_DELETE_FAST", "MP_BC_DELETE_GLOBAL", "MP_BC_DELETE_NAME",
+    "MP_BC_DUP_TOP", "MP_BC_FOR_ITER", "MP_BC_GET_ITER_STACK", "MP_BC_IMPORT_FROM",
+    "MP_BC_IMPORT_NAME", "MP_BC_JUMP", "MP_BC_JUMP_IF_FALSE_OR_POP", "MP_BC_JUMP_IF_TRUE_OR_POP",
+    "MP_BC_LOAD_ATTR", "MP_BC_LOAD_CONST_OBJ", "MP_BC_LOAD_CONST_SMALL_INT",
+    "MP_BC_LOAD_CONST_STRING", "MP_BC_LOAD_DEREF", "MP_BC_LOAD_FAST_N", "MP_BC_LOAD_GLOBAL",
+    "MP_BC_LOAD_METHOD", "MP_BC_LOAD_NAME", "MP_BC_LOAD_SUBSCR", "MP_BC_LOAD_SUPER_METHOD",
+    "MP_BC_MAKE_CLOSURE", "MP_BC_MAKE_CLOSURE_DEFARGS", "MP_BC_MAKE_FUNCTION",
+    "MP_BC_MAKE_FUNCTION_DEFARGS", "MP_BC_POP_EXCEPT_JUMP", "MP_BC_POP_JUMP_IF_FALSE",
+    "MP_BC_POP_JUMP_IF_TRUE", "MP_BC_RAISE_FROM", "MP_BC_RAISE_LAST", "MP_BC_RAISE_OBJ",
+    "MP_BC_ROT_THREE", "MP_BC_ROT_TWO", "MP_BC_SETUP_WITH", "MP_BC_STORE_ATTR",
+    "MP_BC_STORE_COMP", "MP_BC_STORE_DEREF", "MP_BC_STORE_FAST_N", "MP_BC_STORE_GLOBAL",
+    "MP_BC_STORE_NAME", "MP_BC_UNPACK_EX", "MP_BC_UNPACK_SEQUENCE", "MP_BC_UNWIND_JUMP",
     "MP_BC_WITH_CLEANUP", "MP_BC_YIELD_FROM"
 })
 

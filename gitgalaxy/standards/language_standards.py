@@ -8877,7 +8877,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # of itself) and a pointer-to-opaque handle type (`const HMONITOR
             # = *opaque {};`, the standard idiom for an opaque OS handle).
             "class_start": re.compile(
-                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=:;]){0,150}[=:][ \t\n]*(?:(?!\b(?:const|var)\b)[^;\"']){0,150}?(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+                r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=:;]){0,150}[=:][ \t\n]*(?:(?:\(|\*)[ \t\n]*)*(?:(?:packed|extern|inline)[ \t\n]+|align\([^)]*\)[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
                 re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

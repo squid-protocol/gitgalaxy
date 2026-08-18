@@ -37,7 +37,15 @@ USAGE
         prints a message and exits 0 instead of manufacturing a duplicate row.
         This is what lets the CI workflow's chart/CSV/PR stay a no-op on a push
         that touched a trigger path without actually moving any language's
-        measured accuracy (see _batch_matches_measured).
+        measured accuracy (see _batch_matches_measured). Also measures every
+        gg_only language (see _gg_only_langs) -- languages GitGalaxy extracts
+        functions from but that have no NODE_MAPS entry at all, via
+        measure_gg_only() instead of measure() -- so the chart can show a real
+        GitGalaxy count for them (tree-sitter side permanently n/a) instead of
+        omitting them entirely. A gg_only language with no language-crucible
+        corpus yet (e.g. `ada`) gets a stub row (gg_only_data_available=0, every
+        count 0) rather than crashing the run -- fills in whenever the corpus
+        catches up, no code change needed here.
     python tests/tools/tree_sitter_accuracy_audit.py --chart
         Renders the most recent --history run (the batch sharing the latest
         timestamp_utc in the CSV) as docs/self_scan/tree_sitter_accuracy_chart.svg
@@ -47,9 +55,13 @@ USAGE
         tree-sitter's own raw reading on the bottom, both scored against the same
         reconciled ground truth (see measure()'s raw_ts_funcs/raw_ts_classes
         comment for what that can and can't show yet). Rows share ONE alphabetical
-        language order across all five panels (not ranked per panel by value) so a
-        single language's numbers can be read straight across every column.
+        language order across all five panels, printed once in a shared label
+        column, so a single language's numbers can be read straight across every
+        column. Whenever the two bars in a cell actually differ, the cell gets an
+        amber outline plus a "G"/"T" badge for whichever tool scored higher there.
         Bar fill is a red(low)->blue(high) hue-sweep keyed to that bar's OWN value.
+        gg_only languages (see --history above) render a plain gray found-count
+        bar instead of a scored ratio, tree-sitter side always n/a.
         Includes python via NODE_MAPS like every other language now (see that
         entry's own comment: this is for --chart/--history uniformity only --
         tests/ast_accuracy_audit.py's stdlib `ast` ground truth remains the actual
@@ -266,6 +278,8 @@ from pathlib import Path
 from typing import Any, NamedTuple, Optional
 
 import tree_sitter_language_pack
+
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CRUCIBLE_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
@@ -652,6 +666,22 @@ NODE_MAPS = {
 #     against regardless of node-type mapping.
 #   - ada: language-crucible has no `data/ada` directory at all (as of the v1.0 pin) -- nothing to
 #     measure against yet; revisit if/when the corpus adds Ada samples.
+
+
+def _gg_only_langs() -> list[str]:
+    """Languages GitGalaxy has a func_start rule for but which aren't in NODE_MAPS -- either not
+    yet mapped (a real future candidate: abap/agc_assembly/assembly/embedded_python/jcl/livecode/
+    m4/sqlite/yacc, as of this writing) or permanently excluded for one of the documented reasons
+    in the comment block just above (cobol/dockerfile/scheme/yaml). Computed dynamically against
+    LANGUAGE_DEFINITIONS rather than hand-listed, so a language added to either side later shows
+    up (or drops out) here automatically instead of needing separate bookkeeping. --history/--chart
+    use this to render a GitGalaxy-only row (a real count, tree-sitter permanently n/a) instead of
+    silently omitting these languages from the chart entirely -- see measure_gg_only()."""
+    return sorted(
+        lang
+        for lang, defn in LANGUAGE_DEFINITIONS.items()
+        if defn.get("rules", {}).get("func_start") and lang not in NODE_MAPS
+    )
 
 
 def _get_baseline_path(lang: str) -> Path:
@@ -1761,6 +1791,38 @@ def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500
     return best_start
 
 
+def measure_gg_only(lang: str) -> Optional[dict]:
+    """Plain GitGalaxy-only count for a language with no tree-sitter comparison at all (see
+    _gg_only_langs). Runs the same corpus/engine-scan pipeline as measure() but skips the
+    tree-sitter parse/diff step entirely -- there's no NODE_MAPS entry to parse against -- and
+    just counts GitGalaxy's own found_functions/found_classes, same synthetic-name filtering
+    (_SYNTHETIC_GG_FUNC_NAMES/_SYNTHETIC_GG_CLASS_NAMES) the real comparison already applies.
+
+    Returns None (not a crash) when language-crucible has no corpus directory for this language
+    yet -- e.g. `ada`, per the NODE_MAPS comment block. --history writes a stub "awaiting data"
+    row for that case rather than failing the whole run; the chart is meant to read as a roster
+    that fills in over time, not a fixed list that requires every language pre-populated."""
+    data_dir = CRUCIBLE_PATH / "data" / lang
+    if not data_dir.exists():
+        return None
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = run_engine_scan(data_dir, Path(tmp))
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            files = conn.execute("SELECT id FROM file_data WHERE language = ?", (lang,)).fetchall()
+            found_functions = 0
+            found_classes = 0
+            for row in files:
+                funcs = conn.execute("SELECT func_name FROM function_data WHERE file_id = ?", (row["id"],)).fetchall()
+                found_functions += sum(1 for r in funcs if r["func_name"] not in _SYNTHETIC_GG_FUNC_NAMES)
+                classes = conn.execute("SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],)).fetchall()
+                found_classes += sum(1 for r in classes if r["class_name"] not in _SYNTHETIC_GG_CLASS_NAMES)
+        finally:
+            conn.close()
+    return {"files_scanned": len(files), "found_functions": found_functions, "found_classes": found_classes}
+
+
 def measure(lang: str, verbose: bool = False) -> dict:
     """Runs the full pinned-corpus scan + tree-sitter diff, returns the metrics dict."""
     if lang not in NODE_MAPS:
@@ -2463,6 +2525,14 @@ _HISTORY_FIELDS = [
     "ts_class_recall_pct",
     "ts_class_precision_pct",
     "ts_args_match_pct",
+    # GitGalaxy-only rows (see _gg_only_langs/measure_gg_only): languages with no NODE_MAPS entry
+    # at all, so every ts_*/real_*/extra_*/args_* field above is meaningless and stays 0 -- only
+    # found_functions/found_classes carry real data, reused as-is (a "found" count is exactly
+    # what a plain GitGalaxy-only scan produces). gg_only=1 flags the row for the chart's special
+    # rendering path; gg_only_data_available=0 additionally means language-crucible has no corpus
+    # for this language yet (e.g. ada), i.e. even found_functions/found_classes are unmeasured.
+    "gg_only",
+    "gg_only_data_available",
 ]
 
 
@@ -2518,10 +2588,53 @@ def _batch_matches_measured(langs: list[str], measured: dict[str, dict], previou
     return all(measured[lang][field] == previous[lang][field] for lang in langs for field in _HISTORY_RAW_FIELDS)
 
 
+def _history_row(lang: str, raw: dict[str, int]) -> dict[str, Any]:
+    """Builds one full _HISTORY_FIELDS-shaped row (percentage fields included) from a raw-count
+    dict already shaped like _HISTORY_RAW_FIELDS. Shared by both tree-sitter-comparable languages
+    and gg_only languages (see _gg_only_langs) -- for the latter, every *_pct field naturally
+    comes out None/blank via _ratio_pct's own "denominator <= 0" rule, since all the comparison
+    denominators (real_functions, found_functions+extra_functions, etc.) are 0 by construction
+    for a row with no tree-sitter side at all. No gg_only-specific branching needed here."""
+    return {
+        "files_scanned": raw["files_scanned"],
+        "real_functions": raw["real_functions"],
+        "found_functions": raw["found_functions"],
+        "extra_functions": raw["extra_functions"],
+        "real_classes": raw["real_classes"],
+        "found_classes": raw["found_classes"],
+        "extra_classes": raw["extra_classes"],
+        "args_comparable": raw["args_comparable"],
+        "args_exact_match": raw["args_exact_match"],
+        "func_recall_pct": _ratio_pct(raw["found_functions"], raw["real_functions"]),
+        "func_precision_pct": _ratio_pct(raw["found_functions"], raw["found_functions"] + raw["extra_functions"]),
+        "class_recall_pct": _ratio_pct(raw["found_classes"], raw["real_classes"]),
+        "class_precision_pct": _ratio_pct(raw["found_classes"], raw["found_classes"] + raw["extra_classes"]),
+        "ts_found_functions": raw["ts_found_functions"],
+        "ts_extra_functions": raw["ts_extra_functions"],
+        "ts_found_classes": raw["ts_found_classes"],
+        "ts_extra_classes": raw["ts_extra_classes"],
+        "ts_args_exact_match": raw["ts_args_exact_match"],
+        "ts_func_recall_pct": _ratio_pct(raw["ts_found_functions"], raw["real_functions"]),
+        "ts_func_precision_pct": _ratio_pct(
+            raw["ts_found_functions"], raw["ts_found_functions"] + raw["ts_extra_functions"]
+        ),
+        "ts_class_recall_pct": _ratio_pct(raw["ts_found_classes"], raw["real_classes"]),
+        "ts_class_precision_pct": _ratio_pct(
+            raw["ts_found_classes"], raw["ts_found_classes"] + raw["ts_extra_classes"]
+        ),
+        "ts_args_match_pct": _ratio_pct(raw["ts_args_exact_match"], raw["args_comparable"]),
+        "gg_only": raw["gg_only"],
+        "gg_only_data_available": raw["gg_only_data_available"],
+    }
+
+
 def run_history() -> int:
     """Live-measures (not baseline-read) every language that has BOTH a committed baseline and
-    a NODE_MAPS entry. Intentionally never writes to the gating baseline JSON files -- this is
-    purely additive, observational data for graphing.
+    a NODE_MAPS entry, PLUS every gg_only language (see _gg_only_langs) -- languages GitGalaxy
+    extracts functions from but that have no tree-sitter comparison at all, either not yet mapped
+    or permanently excluded (NODE_MAPS's own comment block explains which and why). Intentionally
+    never writes to the gating baseline JSON files -- this is purely additive, observational data
+    for graphing.
 
     Skips appending entirely when the fresh measurement is byte-for-byte identical to the most
     recent recorded batch (see `_batch_matches_measured`) -- e.g. a push that touched detector.py
@@ -2537,14 +2650,42 @@ def run_history() -> int:
             f"tree_sitter_accuracy_audit --history: skipping {', '.join(skipped)} "
             f"(baseline committed but no NODE_MAPS entry to re-scan)."
         )
+    gg_only_langs = _gg_only_langs()
 
-    measured: dict[str, dict] = {}
+    raw: dict[str, dict[str, int]] = {}
     for lang in langs:
         print(f"tree_sitter_accuracy_audit --history: measuring {lang}...")
-        measured[lang] = measure(lang, verbose=False)
+        m = measure(lang, verbose=False)
+        raw[lang] = {field: m[field] for field in _HISTORY_RAW_FIELDS if field in m}
+        raw[lang]["gg_only"] = 0
+        raw[lang]["gg_only_data_available"] = 1
 
+    gg_only_zero_fields = tuple(
+        f
+        for f in _HISTORY_RAW_FIELDS
+        if f not in ("files_scanned", "found_functions", "found_classes", "gg_only", "gg_only_data_available")
+    )
+    for lang in gg_only_langs:
+        print(
+            f"tree_sitter_accuracy_audit --history: measuring {lang} (GitGalaxy-only, no tree-sitter grammar mapped)..."
+        )
+        gm = measure_gg_only(lang)
+        row: dict[str, int] = dict.fromkeys(gg_only_zero_fields, 0)
+        if gm is None:
+            row.update(files_scanned=0, found_functions=0, found_classes=0, gg_only=1, gg_only_data_available=0)
+        else:
+            row.update(
+                files_scanned=gm["files_scanned"],
+                found_functions=gm["found_functions"],
+                found_classes=gm["found_classes"],
+                gg_only=1,
+                gg_only_data_available=1,
+            )
+        raw[lang] = row
+
+    all_langs = langs + gg_only_langs
     previous = _try_load_latest_history_batch()
-    if previous is not None and _batch_matches_measured(langs, measured, previous[2]):
+    if previous is not None and _batch_matches_measured(all_langs, raw, previous[2]):
         print(
             f"tree_sitter_accuracy_audit --history: measured results match the most recent batch "
             f"({previous[0]}) exactly -- skipping, no row appended, chart left as-is."
@@ -2560,45 +2701,19 @@ def run_history() -> int:
         writer = csv.DictWriter(f, fieldnames=_HISTORY_FIELDS)
         if write_header:
             writer.writeheader()
-        for lang in langs:
-            m = measured[lang]
+        for lang in all_langs:
             writer.writerow(
                 {
                     "timestamp_utc": timestamp,
                     "commit_sha": commit_sha,
                     "language": lang,
-                    "files_scanned": m["files_scanned"],
-                    "real_functions": m["real_functions"],
-                    "found_functions": m["found_functions"],
-                    "extra_functions": m["extra_functions"],
-                    "real_classes": m["real_classes"],
-                    "found_classes": m["found_classes"],
-                    "extra_classes": m["extra_classes"],
-                    "args_comparable": m["args_comparable"],
-                    "args_exact_match": m["args_exact_match"],
-                    "func_recall_pct": _ratio_pct(m["found_functions"], m["real_functions"]),
-                    "func_precision_pct": _ratio_pct(m["found_functions"], m["found_functions"] + m["extra_functions"]),
-                    "class_recall_pct": _ratio_pct(m["found_classes"], m["real_classes"]),
-                    "class_precision_pct": _ratio_pct(m["found_classes"], m["found_classes"] + m["extra_classes"]),
-                    "ts_found_functions": m["ts_found_functions"],
-                    "ts_extra_functions": m["ts_extra_functions"],
-                    "ts_found_classes": m["ts_found_classes"],
-                    "ts_extra_classes": m["ts_extra_classes"],
-                    "ts_args_exact_match": m["ts_args_exact_match"],
-                    "ts_func_recall_pct": _ratio_pct(m["ts_found_functions"], m["real_functions"]),
-                    "ts_func_precision_pct": _ratio_pct(
-                        m["ts_found_functions"], m["ts_found_functions"] + m["ts_extra_functions"]
-                    ),
-                    "ts_class_recall_pct": _ratio_pct(m["ts_found_classes"], m["real_classes"]),
-                    "ts_class_precision_pct": _ratio_pct(
-                        m["ts_found_classes"], m["ts_found_classes"] + m["ts_extra_classes"]
-                    ),
-                    "ts_args_match_pct": _ratio_pct(m["ts_args_exact_match"], m["args_comparable"]),
+                    **_history_row(lang, raw[lang]),
                 }
             )
 
     print(
-        f"tree_sitter_accuracy_audit --history: appended {len(langs)} row(s) to {_HISTORY_PATH.relative_to(REPO_ROOT)}."
+        f"tree_sitter_accuracy_audit --history: appended {len(all_langs)} row(s) to "
+        f"{_HISTORY_PATH.relative_to(REPO_ROOT)} ({len(langs)} tree-sitter-compared, {len(gg_only_langs)} GitGalaxy-only)."
     )
     return 0
 
@@ -2707,6 +2822,11 @@ _CHART_STYLE = """<style><![CDATA[
   .stripe { fill: #f1f0ed; }
   .axis { stroke: #e4e2dd; stroke-width: 1; }
   .footer { fill: #52514e; font-size: 9px; }
+  .diff-outline { fill: none; stroke: #c9971f; stroke-width: 1.25; }
+  .badge-gg { fill: #0d9488; }
+  .badge-ts { fill: #7c3aed; }
+  .badge-text { fill: #ffffff; font-weight: 700; font-size: 8px; text-anchor: middle; }
+  .bar-neutral { fill: #9a988f; }
   @media (prefers-color-scheme: dark) {
     .surface { fill: #1a1a19; }
     .title { fill: #ffffff; }
@@ -2720,6 +2840,10 @@ _CHART_STYLE = """<style><![CDATA[
     .stripe { fill: #242422; }
     .axis { stroke: #33322f; }
     .footer { fill: #c3c2b7; }
+    .diff-outline { stroke: #e0ab35; }
+    .badge-gg { fill: #14b8a6; }
+    .badge-ts { fill: #a78bfa; }
+    .bar-neutral { fill: #7a7972; }
   }
 ]]></style>
 """
@@ -2784,6 +2908,8 @@ _HISTORY_RAW_FIELDS = (
     "ts_found_classes",
     "ts_extra_classes",
     "ts_args_exact_match",
+    "gg_only",
+    "gg_only_data_available",
 )
 
 
@@ -2822,21 +2948,27 @@ def _load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, int]]]:
 
 
 def generate_chart_svg() -> str:
-    """Small multiples: one independent panel per metric in _CHART_METRICS, each with its OWN
-    label column. #1849: each language now renders as TWO stacked bars per panel -- GitGalaxy on
-    top, tree-sitter's own raw reading on the bottom, both scored against the SAME reconciled
-    ground truth (measure()'s real_funcs/real_classes; see that function's raw_ts_funcs comment).
+    """Small multiples: one independent panel per metric in _CHART_METRICS. #1849: each language
+    renders as TWO stacked bars per panel -- GitGalaxy on top, tree-sitter's own raw reading on
+    the bottom, both scored against the SAME reconciled ground truth (measure()'s real_funcs/
+    real_classes; see that function's raw_ts_funcs comment).
 
-    Rows share ONE alphabetical language order across all five panels (previously each panel was
-    independently ranked by GitGalaxy's value, which put a given language at a different row in
-    every column -- useful for "what's the best/worst language on this one metric" but actively
-    hostile to "pick a language, see all five of its numbers at a glance", which is the more
-    common way to actually read this chart). A continuous full-width stripe band (drawn once,
-    behind every panel, not per-panel) reinforces the same row across the panel gaps so the eye
-    doesn't lose the row when it crosses from one panel to the next. Bar fill is still a
-    red(low)->blue(high) hue-sweep LUT keyed to that bar's OWN value (see _rainbow_hex) -- color
-    still encodes magnitude for each bar independently; a bar's vertical position (top/bottom of
-    its row band) encodes which tool it is, not color, since color is already spoken for.
+    Rows share ONE alphabetical language order across all five panels, printed ONCE in a shared
+    label column at the far left rather than repeated in every panel (previously each panel had
+    its own label column AND was independently ranked by GitGalaxy's value, which put a given
+    language at a different row in every column -- useful for "what's the best/worst language on
+    this one metric" but actively hostile to "pick a language, see all five of its numbers at a
+    glance", which is the more common way to actually read this chart). A continuous full-width
+    stripe band (drawn once, behind every panel) reinforces the same row across the panel gaps so
+    the eye doesn't lose it crossing from one panel to the next.
+
+    Whenever a language's two bars in one panel actually differ (both real, non-N/A values, not
+    equal), the whole cell gets an amber outline plus a small "G"/"T" badge in a dedicated gutter
+    at the start of the panel -- whichever tool scored higher on that specific metric, letter AND
+    color (not color alone, for CVD readers) so a difference is legible even skimming past the
+    bars themselves. Bar fill is still a red(low)->blue(high) hue-sweep LUT keyed to that bar's
+    OWN value (see _rainbow_hex) -- color still encodes magnitude for each bar independently; a
+    bar's vertical position (top/bottom of its row band) encodes which tool it is.
 
     Value labels show the raw fraction ("0/117"), not a bare percentage -- a percentage alone
     looks identical whether it's backed by 4 samples or 400, and reads as "failing" even where
@@ -2853,23 +2985,26 @@ def generate_chart_svg() -> str:
     timestamp, commit_sha, data = _load_latest_history_batch()
     langs_all = sorted(data.keys())
     n = len(langs_all)
+    gg_only_count = sum(1 for lang in langs_all if data[lang].get("gg_only"))
 
-    label_col_w = 88
+    shared_label_col_w = 112  # wide enough for "embedded_python", the longest current name
+    badge_col_w = 15  # per-panel gutter for the G/T "who scored higher here" stamp
     bar_col_w = 158
     panel_gap = 28
     row_h = 28  # tall enough for two stacked sub-bars (GitGalaxy on top, tree-sitter below)
     bar_h = 8
     sub_gap = 2
     header_h = 34
-    top_margin = 152  # headroom for title + five-line scope note + color-scale legend
-    bottom_margin = 44
+    top_margin = 164  # headroom for title + six-line scope note + color-scale legend
+    bottom_margin = 56  # three footer lines
     left_margin = 16
     right_margin = 16
     bar_max_w = bar_col_w - 66  # leaves room for a fraction like "1147/1152" riding the bar's tip
 
-    panel_w = label_col_w + bar_col_w
+    panel_w = badge_col_w + bar_col_w
     n_panels = len(_CHART_METRICS)
-    width = left_margin + n_panels * panel_w + (n_panels - 1) * panel_gap + right_margin
+    bars_start_x = left_margin + shared_label_col_w
+    width = bars_start_x + n_panels * panel_w + (n_panels - 1) * panel_gap + right_margin
     height = top_margin + header_h + n * row_h + bottom_margin
     rows_top = top_margin + header_h
 
@@ -2882,7 +3017,8 @@ def generate_chart_svg() -> str:
         f'<text class="title" x="{left_margin}" y="20">Tree-sitter Accuracy by Language -- '
         f"GitGalaxy vs. Tree-sitter, Most Recent Run</text>",
         f'<text class="subtitle" x="{left_margin}" y="36">{timestamp} &#183; commit {commit_sha[:7]} &#183; '
-        f"{n} languages &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>",
+        f"{n} languages ({n - gg_only_count} tree-sitter-compared, {gg_only_count} GitGalaxy-only) &#183; "
+        f"source: docs/self_scan/tree_sitter_accuracy_history.csv</text>",
         f'<text class="scope-note" x="{left_margin}" y="52">Measures func_start/args/class_start NAME '
         f"extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/"
         f"etc.), which are hardened and tested separately.</text>",
@@ -2900,35 +3036,74 @@ def generate_chart_svg() -> str:
         f"languages by construction (ground truth is walked from its own tree) -- EXCEPT csharp/fortran/rust, "
         f"where source-verified parse-error-cascade/opaque-macro regions (Claims 3/6/7) are promoted into "
         f"ground truth, so a real recall gap shows there instead (#1849).</text>",
-        f'<rect x="{left_margin}" y="112" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
-        f'<text class="legend-label" x="{left_margin}" y="128">0%</text>',
-        f'<text class="legend-label" x="{left_margin + 140}" y="128" text-anchor="end">100% (bar color = value)</text>',
+        f'<text class="scope-note" x="{left_margin}" y="112">GitGalaxy-only languages (gray bar, no tree-sitter '
+        f"grammar mapped -- see NODE_MAPS's own comment for which and why) show a plain found-count instead of "
+        f'a scored ratio; "awaiting data" means language-crucible has no corpus for that language yet.</text>',
+        f'<rect x="{left_margin}" y="124" width="140" height="8" rx="2" fill="url(#rainbow-legend)"/>',
+        f'<text class="legend-label" x="{left_margin}" y="140">0%</text>',
+        f'<text class="legend-label" x="{left_margin + 140}" y="140" text-anchor="end">100% (bar color = value)</text>',
+        f'<circle cx="{left_margin + 220}" cy="134" r="6" class="badge-gg"/>',
+        f'<text class="badge-text" x="{left_margin + 220}" y="136.5">G</text>',
+        f'<text class="legend-label" x="{left_margin + 232}" y="140">GitGalaxy scored higher</text>',
+        f'<circle cx="{left_margin + 360}" cy="134" r="6" class="badge-ts"/>',
+        f'<text class="badge-text" x="{left_margin + 360}" y="136.5">T</text>',
+        f'<text class="legend-label" x="{left_margin + 372}" y="140">Tree-sitter scored higher (outlined cell)</text>',
+        f'<rect x="{left_margin + 620}" y="130" width="24" height="8" rx="2" class="bar-neutral"/>',
+        f'<text class="legend-label" x="{left_margin + 650}" y="140">GitGalaxy-only found-count (no tree-sitter side)</text>',
     ]
 
     # Shared row order: plain alphabetical (langs_all is already sorted), identical in every
-    # panel -- see docstring for why this replaced the old per-panel value ranking. Striping is
-    # drawn ONCE here, full chart width, behind every panel, so the same row stays visually
-    # continuous across the panel gaps instead of resetting per panel.
+    # panel -- see docstring for why this replaced the old per-panel value ranking. Striping and
+    # the language-name label are drawn ONCE here (not per panel): striping spans the full chart
+    # width behind every panel so the same row stays visually continuous across the panel gaps,
+    # and a single shared label column means a language's name isn't repeated five times.
     full_width = width - left_margin - right_margin
-    for i in range(n):
+    label_x = left_margin + shared_label_col_w - 8
+    for i, lang in enumerate(langs_all):
+        row_y = rows_top + i * row_h
         if i % 2 == 1:
-            row_y = rows_top + i * row_h
             parts.append(f'<rect class="stripe" x="{left_margin}" y="{row_y}" width="{full_width}" height="{row_h}"/>')
+        label_y = row_y + row_h / 2 + 3.5
+        parts.append(f'<text class="row-label" x="{label_x}" y="{label_y:.1f}" text-anchor="end">{lang}</text>')
 
     for j, m in enumerate(_CHART_METRICS):
-        panel_x = left_margin + j * (panel_w + panel_gap)
-        label_x = panel_x + label_col_w - 8
-        col_x = panel_x + label_col_w
+        panel_x = bars_start_x + j * (panel_w + panel_gap)
+        col_x = panel_x + badge_col_w
 
         gg_fractions: dict[str, tuple[int, int]] = {}
         gg_values: dict[str, Optional[float]] = {}
         ts_fractions: dict[str, tuple[int, int]] = {}
         ts_values: dict[str, Optional[float]] = {}
+        # GG-only languages (see _gg_only_langs): no tree-sitter side at all, so gg_values/
+        # ts_values stay None for them (nothing to score as a ratio) -- gg_count instead carries
+        # a raw found-count for the one or two panels where that's meaningful (Func Recall always;
+        # Class Recall only if this language's own class_start rule exists at all), rendered as a
+        # distinct neutral full-width bar rather than a red->blue scored one.
+        gg_count: dict[str, Optional[int]] = {}
         for lang in langs_all:
-            gg_num, gg_den = _metric_num_den(data[lang], m.gg_num, m.gg_den)
-            ts_num, ts_den = _metric_num_den(data[lang], m.ts_num, m.ts_den)
+            row = data[lang]
+            if row.get("gg_only"):
+                gg_fractions[lang] = (0, 0)
+                ts_fractions[lang] = (0, 0)
+                ts_values[lang] = None
+                gg_values[lang] = None
+                if not row.get("gg_only_data_available"):
+                    gg_count[lang] = None
+                elif m.key == "func_recall_pct":
+                    gg_count[lang] = row["found_functions"]
+                elif m.key == "class_recall_pct" and LANGUAGE_DEFINITIONS.get(lang, {}).get("rules", {}).get(
+                    "class_start"
+                ):
+                    gg_count[lang] = row["found_classes"]
+                else:
+                    gg_count[lang] = None
+                continue
+
+            gg_num, gg_den = _metric_num_den(row, m.gg_num, m.gg_den)
+            ts_num, ts_den = _metric_num_den(row, m.ts_num, m.ts_den)
             gg_fractions[lang] = (gg_num, gg_den)
             ts_fractions[lang] = (ts_num, ts_den)
+            gg_count[lang] = None
             # Force N/A on the class panels for languages decided permanently out of scope for
             # named class extraction (see _CLASS_EXTRACTION_OUT_OF_SCOPE) -- a bare 0% there
             # would misread as an unaddressed gap rather than a documented design decision.
@@ -2945,39 +3120,81 @@ def generate_chart_svg() -> str:
         for i, lang in enumerate(langs_all):
             row_y = rows_top + i * row_h
 
-            label_y = row_y + row_h / 2 + 3.5
-            parts.append(f'<text class="row-label" x="{label_x}" y="{label_y:.1f}" text-anchor="end">{lang}</text>')
+            # Every-difference highlight: whenever both tools have a real (non-N/A) value for
+            # this language+panel and they don't match exactly, outline the cell and stamp which
+            # tool scored higher -- "G"/"T", not just a color, so it reads fine without relying on
+            # color perception alone. Ties (equal values) get neither: nothing to call out. GG-only
+            # rows never reach here (ts_val is always None for them), by construction.
+            gg_val, ts_val = gg_values[lang], ts_values[lang]
+            if gg_val is not None and ts_val is not None and gg_val != ts_val:
+                parts.append(
+                    f'<rect class="diff-outline" x="{panel_x + 0.75:.1f}" y="{row_y + 0.75:.1f}" '
+                    f'width="{panel_w - 1.5:.1f}" height="{row_h - 1.5:.1f}" rx="3"/>'
+                )
+                winner, badge_class = ("G", "badge-gg") if gg_val > ts_val else ("T", "badge-ts")
+                badge_cx = panel_x + badge_col_w / 2
+                badge_cy = row_y + row_h / 2
+                parts.append(f'<circle cx="{badge_cx:.1f}" cy="{badge_cy:.1f}" r="6" class="{badge_class}"/>')
+                parts.append(f'<text class="badge-text" x="{badge_cx:.1f}" y="{badge_cy + 2.5:.1f}">{winner}</text>')
 
             gg_bar_y = row_y + (row_h - 2 * bar_h - sub_gap) / 2
             ts_bar_y = gg_bar_y + bar_h + sub_gap
-            for value, (num, den), bar_y in (
-                (gg_values[lang], gg_fractions[lang], gg_bar_y),
-                (ts_values[lang], ts_fractions[lang], ts_bar_y),
-            ):
-                text_y = bar_y + bar_h / 2 + 3.5
-                if value is None:
-                    parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{text_y:.1f}">n/a</text>')
-                    continue
-                bar_w = max(1.5, (value / 100.0) * bar_max_w)
+
+            gg_text_y = gg_bar_y + bar_h / 2 + 3.5
+            if gg_count.get(lang) is not None:
                 parts.append(
-                    f'<rect x="{col_x}" y="{bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="2.5" '
-                    f'fill="{_rainbow_hex(value)}"/>'
+                    f'<rect x="{col_x}" y="{gg_bar_y:.1f}" width="{bar_max_w:.1f}" height="{bar_h}" rx="2.5" '
+                    f'class="bar-neutral"/>'
                 )
                 parts.append(
-                    f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{text_y:.1f}">{num}/{den}</text>'
+                    f'<text class="value-label" x="{col_x + bar_max_w + 5:.1f}" y="{gg_text_y:.1f}">'
+                    f"{gg_count[lang]} found</text>"
+                )
+            elif gg_val is None:
+                parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{gg_text_y:.1f}">n/a</text>')
+            else:
+                num, den = gg_fractions[lang]
+                bar_w = max(1.5, (gg_val / 100.0) * bar_max_w)
+                parts.append(
+                    f'<rect x="{col_x}" y="{gg_bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="2.5" '
+                    f'fill="{_rainbow_hex(gg_val)}"/>'
+                )
+                parts.append(
+                    f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{gg_text_y:.1f}">{num}/{den}</text>'
+                )
+
+            ts_text_y = ts_bar_y + bar_h / 2 + 3.5
+            if ts_val is None:
+                parts.append(f'<text class="na-dash" x="{col_x + 6}" y="{ts_text_y:.1f}">n/a</text>')
+            else:
+                num, den = ts_fractions[lang]
+                bar_w = max(1.5, (ts_val / 100.0) * bar_max_w)
+                parts.append(
+                    f'<rect x="{col_x}" y="{ts_bar_y:.1f}" width="{bar_w:.1f}" height="{bar_h}" rx="2.5" '
+                    f'fill="{_rainbow_hex(ts_val)}"/>'
+                )
+                parts.append(
+                    f'<text class="value-label" x="{col_x + bar_w + 5:.1f}" y="{ts_text_y:.1f}">{num}/{den}</text>'
                 )
 
     parts.append(
-        f'<text class="footer" x="{left_margin}" y="{height - 20}">Generated by '
+        f'<text class="footer" x="{left_margin}" y="{height - 32}">Generated by '
         f"tests/tools/tree_sitter_accuracy_audit.py --chart. Rows are in one alphabetical order shared "
         f'by every panel -- pick a language and read straight across; "n/a" means no ground-truth '
         f"instances for that language on that panel, not a 0% score.</text>"
     )
     parts.append(
-        f'<text class="footer" x="{left_margin}" y="{height - 8}">Recall panels ("found/real"): a low '
+        f'<text class="footer" x="{left_margin}" y="{height - 20}">Recall panels ("found/real"): a low '
         f"fraction on a small denominator (e.g. 7/23) is a thinner signal than the same ratio on a large "
         f'one. Precision panels ("found/found+extra"): a large denominator relative to the panel\'s own '
         f"found-count means many false positives, not just misses -- read the two numbers, not just the bar.</text>"
+    )
+    parts.append(
+        f'<text class="footer" x="{left_margin}" y="{height - 8}">A "T" badge means tree-sitter\'s raw reading '
+        f"scored higher on THIS metric in THIS run -- for a language with no documented hallucination/noise "
+        f"correction (see docs/why_gitgalaxy_beats_ast_here.md), its raw reading equals ground truth by "
+        f"construction, so any unrelated GitGalaxy precision defect alone is enough to trigger it. Not a "
+        f"general tree-sitter-vs-GitGalaxy verdict -- read the two fractions.</text>"
     )
     parts.append("</svg>")
     return "\n".join(parts)

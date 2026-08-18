@@ -214,15 +214,19 @@ Every "structural signature" and "AST-free" claim above is backed by three thing
 1. **[+6000 per-signature regression tests](tests/README.md).** `gitgalaxy/standards/language_standards.py` defines every regex rule the engine uses to recognize a construct — a function start, an API boundary, a safety bypass — across the 45 languages that have real structural signatures (+2000 compiled patterns total). Every one of those rules is tested for what it should match, what it should explicitly *exclude* (the false-positive check most regex-based tools skip), and that it can't be hung by an adversarial input. See **[`tests/README.md`](tests/README.md)** for the full index, and [epic #518](https://github.com/squid-protocol/gitgalaxy/issues/518) for the audit that closed it out — dozens of real regex bugs found and fixed along the way, not just theoretical coverage.
 2. **A true golden diff against real, unmodified production code.** [`language-crucible`](https://github.com/squid-protocol/language-crucible) is a pinned, tagged snapshot of ~120 real subdirectories pulled from major open-source projects — Godot's C++, the Roslyn C# compiler, curl, Kubernetes, Apollo 11's AGC flight software, and more — deliberately left disconnected and uncompilable, the same hostile state real repos are in. Every pull request that touches the parsing engine re-scans that entire corpus and diffs the output, field by field, against a checked-in snapshot (`tests/golden_master_audit.json`); a diff means the output changed on real code, and it has to be explained before it's accepted — not a smoke test, an actual golden-master comparison. See [`tests/README.md`](tests/README.md#5-golden-master-differential-testing-the-language-crucible) for exactly how this is wired into CI, and [language-crucible's own README](https://github.com/squid-protocol/language-crucible) for why that corpus is built the way it is.
 3. **[Unedited raw scan output at real-world scale](https://github.com/squid-protocol/gitgalaxy-raw-output).** Where the golden-master corpus above proves correctness on ~120 curated adversarial paradigms, this repo is the complementary evidence that the engine actually runs, unmodified, across hundreds of independently-chosen real repositories — every `_galaxy_audit.json`, `_galaxy_master.db`, and `_galaxy_llm.md` the scanner produced, kept versioned per engine release. The corpus manifest pinning exactly which repos and commits were scanned currently covers a 599-repo set.
-4. **[Measured against Tree-sitter](docs/language_status/README.md), not asserted.** [`tests/tools/tree_sitter_accuracy_audit.py`](tests/tools/tree_sitter_accuracy_audit.py) diffs GitGalaxy's extraction against real AST ground truth on the [`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus, one committed baseline per language, re-measured and re-charted automatically on every push that touches the parsing engine:
+4. **[Measured against Tree-sitter](docs/self_scan/README.md), not asserted.** [`tests/tools/tree_sitter_accuracy_audit.py`](tests/tools/tree_sitter_accuracy_audit.py) diffs GitGalaxy's extraction against real AST ground truth on the [`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus, one committed baseline per language, re-measured and re-charted automatically on every push that touches the parsing engine:
 
 <p align="center">
   <img src="docs/self_scan/tree_sitter_accuracy_chart.svg" alt="GitGalaxy structural extraction accuracy vs. Tree-sitter ground truth, ranked recall/precision panels by language" width="700">
 </p>
 
 31 languages baselined so far; each panel is ranked independently and "n/a" (no ground-truth
-instances) sorts to the bottom rather than scoring as 0%. Two languages have a full written
-audit behind the chart — [python](docs/language_status/python.md) and
+instances) sorts to the bottom rather than scoring as 0%. Methodology, per-column definitions,
+and the full accumulating history behind this chart are in
+[`docs/self_scan/README.md`](docs/self_scan/README.md) (raw data:
+[`tree_sitter_accuracy_history.csv`](docs/self_scan/tree_sitter_accuracy_history.csv)). Two
+languages have a full written audit one level deeper than this chart —
+[python](docs/language_status/python.md) and
 [javascript](docs/language_status/javascript.md) — which is how real defects like
 [#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (still open) got found in
 the first place; the rest of the 31 are baseline-only so far, not yet manually audited.

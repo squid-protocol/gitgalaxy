@@ -2,11 +2,11 @@
   "args_comparable": 1702,
   "args_exact_match": 1702,
   "corpus_path": "language-crucible/data/php",
-  "extra_classes": 1,
+  "extra_classes": 0,
   "extra_functions": 1,
   "files_scanned": 35,
-  "found_classes": 28,
+  "found_classes": 29,
   "found_functions": 1702,
-  "real_classes": 28,
+  "real_classes": 29,
   "real_functions": 1702
 }

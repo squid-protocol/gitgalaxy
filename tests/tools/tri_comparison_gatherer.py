@@ -60,6 +60,7 @@ CTAGS' OWN READING
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import sys
 import tempfile
@@ -184,6 +185,23 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     return funcs, classes
 
 
+_CTAGS_ANON_NAME_RE = re.compile(r"^__anon[0-9a-f]+$")
+
+
+def _is_ctags_synthetic_anon_name(name: str) -> bool:
+    """universal-ctags synthesizes a placeholder name (`__anon<hex hash>`, e.g.
+    `__anon2570bd640108`) for an anonymous struct/union/enum (`typedef struct { ... } Foo;` --
+    real, common C, e.g. cpython/ceval.c's platform-specific pthread attr shim) so it has
+    something to key the tag on internally. Neither GitGalaxy nor tree-sitter report a name for
+    an anonymous type at all (there genuinely isn't one), so ctags' internal bookkeeping name
+    always shows up as a lone `agree[ctags]_vs[gitgalaxy,tree_sitter]` false discrepancy --
+    confirmed via c/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter] (23 occurrences,
+    every single sample this exact shape, spanning cpython/doom). The same exclusion GitGalaxy's
+    own synthetic placeholder names already get (_SYNTHETIC_GG_FUNC_NAMES/
+    _SYNTHETIC_GG_CLASS_NAMES) applied to ctags' equivalent."""
+    return bool(_CTAGS_ANON_NAME_RE.match(name))
+
+
 def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileReadings]:
     """Runs GitGalaxy always, tree-sitter if this language has a NODE_MAPS entry, and ctags if
     ctags_reader.ctags_available(lang) -- over every corpus file for `lang`, returns one
@@ -257,12 +275,12 @@ def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileRe
                             args=_count_ctags_signature_params(s.signature),
                         )
                         for s in ct_syms
-                        if s.kind in ctags_func_kinds
+                        if s.kind in ctags_func_kinds and not _is_ctags_synthetic_anon_name(s.name)
                     ]
                     ctags_classes = [
                         Occurrence(name=s.name, line=s.line if s.line >= 0 else None, args=None)
                         for s in ct_syms
-                        if s.kind in ctags_class_kinds
+                        if s.kind in ctags_class_kinds and not _is_ctags_synthetic_anon_name(s.name)
                     ]
                 else:
                     ctags_funcs, ctags_classes = [], []

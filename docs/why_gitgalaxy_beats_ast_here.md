@@ -280,6 +280,23 @@ Fixed in `tests/tools/tree_sitter_accuracy_audit.py`'s `measure()` (`walk()` clo
 GitGalaxy's engine — this is purely a measurement-tool correction; GitGalaxy's own detected
 function set for this corpus is byte-for-byte identical before and after.
 
+## A third confirmed instance: C, local single-function recovery (2026-08-19)
+
+A narrower version of this same mechanism, found via the tri-comparison ledger
+(`c/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`, 4 occurrences,
+`cpython/typeobject.c`): a bare macro-invocation LINE at file scope with no expansion available to
+a raw grammar walk (`SLOT1(slot_mp_subscript, __getitem__, PyObject *)`, `SLOT0(slot_tp_str,
+__str__)` — real CPython macros that generate a wrapper function, but aren't themselves valid
+freestanding C without expansion) locally confuses both tree-sitter's and ctags' parse of the
+SINGLE function immediately following it. Confirmed directly at 4 sites, same shape every time —
+`slot_mp_ass_subscript` (line 10544), `slot_nb_inplace_power` (10697), `slot_tp_repr` (10714),
+`slot_tp_hash` (10730) are all ordinary, unremarkable `static ... name(...) { ... }` definitions
+with nothing unusual about them individually; each sits directly after one of these bare macro
+lines. GitGalaxy's regex has no such adjacency sensitivity and finds all 4 correctly; ctags and
+tree-sitter both miss all 4. Unlike the csharp/javascript cascades above, this recovers
+immediately (only the one adjacent function is lost, not everything downstream) — a third,
+narrower recovery shape worth naming alongside the other two rather than assuming either.
+
 ## Where Claim 3 does NOT apply
 
 - This is a grammar-*implementation* limitation (a specific parser version's bug/gap on one

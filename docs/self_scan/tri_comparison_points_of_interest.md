@@ -8,7 +8,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `agc_assembly` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 760 occurrences as of 2026-08-19T20:11:37Z*
+*2-vs-1 -- 760 occurrences as of 2026-08-19T20:26:16Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`agc_assembly/function/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -29,7 +29,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `apex` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:11:39Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:26:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -42,7 +42,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `assembly` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 52 occurrences as of 2026-08-19T20:11:41Z*
+*2-vs-1 -- 52 occurrences as of 2026-08-19T20:26:20Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`assembly/function/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -61,7 +61,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `assembly` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:11:41Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:26:20Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`assembly/function/existence/agree[ctags]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -77,28 +77,9 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ## c
 
-### ❓ `c` class existence: ctags agree, GitGalaxy, tree-sitter differ
-
-*2-vs-1 -- 23 occurrences as of 2026-08-19T20:11:46Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| cpython/ceval.c | `__anon2570bd640108` | *(n/a)* | *(n/a)* | 94 |
-| cpython/dictobject.c | `__anonf1d666540108` | *(n/a)* | *(n/a)* | 5420 |
-| cpython/object.c | `__anone3f65c900108` | *(n/a)* | *(n/a)* | 2973 |
-| cpython/typeobject.c | `__anonb81650120108` | *(n/a)* | *(n/a)* | 3808 |
-| cpython/typeobject.c | `__anonb81650120208` | *(n/a)* | *(n/a)* | 3830 |
-| cpython/typeobject.c | `__anonb81650120308` | *(n/a)* | *(n/a)* | 3936 |
-| cpython/typeobject.c | `__anonb81650120408` | *(n/a)* | *(n/a)* | 4191 |
-| cpython/typeobject.c | `__anonb81650120508` | *(n/a)* | *(n/a)* | 12342 |
-| doom/r_bsp.c | `__anoneeedd6d90108` | *(n/a)* | *(n/a)* | 81 |
-| doom/r_defs.h | `__anond0514f7b0108` | *(n/a)* | *(n/a)* | 72 |
-
 ### ❓ `c` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 13 occurrences as of 2026-08-19T20:11:46Z*
+*2-vs-1 -- 13 occurrences as of 2026-08-19T20:26:25Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -117,7 +98,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `c` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 9 occurrences as of 2026-08-19T20:11:46Z*
+*2-vs-1 -- 9 occurrences as of 2026-08-19T20:26:25Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -125,7 +106,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 |---|---|---|---|---|
 | cpython/frameobject.c | `kind` | *(n/a)* | 1175 | *(n/a)* |
 | cpython/gc.c | `flagstates` | *(n/a)* | 377 | *(n/a)* |
-| micropython/objtype.c | `_setname_list_t` | *(n/a)* | 980 | *(n/a)* |
+| micropython/objtype.c | `_setname_list_t` | *(n/a)* | 981 | *(n/a)* |
 | sqlite/lemon.c | `option_type` | *(n/a)* | 271 | *(n/a)* |
 | sqlite/lemon.c | `symbol_type` | *(n/a)* | 319 | *(n/a)* |
 | sqlite/lemon.c | `e_assoc` | *(n/a)* | 324 | *(n/a)* |
@@ -135,7 +116,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `c` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 8 occurrences as of 2026-08-19T20:11:46Z*
+*2-vs-1 -- 8 occurrences as of 2026-08-19T20:26:25Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -150,100 +131,9 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 | doom/r_bsp.c | `R_CheckBBox` | 381 | 381 | *(n/a)* |
 | doom/r_bsp.c | `R_AddLine` | 259 | 259 | *(n/a)* |
 
-### ❓ `c` function existence: ctags agree, GitGalaxy, tree-sitter differ
-
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:11:46Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| cpython/typeobject.c | `RICHCMP_WRAPPER` | *(n/a)* | *(n/a)* | 10099 |
-| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10626 |
-| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10682 |
-| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10728 |
-| cpython/typeobject.c | `SLOT1` | *(n/a)* | *(n/a)* | 10542 |
-| cpython/typeobject.c | `SLOT1` | *(n/a)* | *(n/a)* | 10703 |
-| cpython/typeobject.c | `SLOT1BINFULL` | *(n/a)* | *(n/a)* | 10575 |
-
-### ❓ `c` function existence: GitGalaxy agree, tree-sitter, ctags differ
-
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:11:46Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| cpython/typeobject.c | `slot_tp_hash` | 10730 | *(n/a)* | *(n/a)* |
-| cpython/typeobject.c | `slot_mp_ass_subscript` | 10544 | *(n/a)* | *(n/a)* |
-| cpython/typeobject.c | `slot_tp_repr` | 10714 | *(n/a)* | *(n/a)* |
-| cpython/typeobject.c | `slot_nb_inplace_power` | 10697 | *(n/a)* | *(n/a)* |
-
-### ❓ `c` function existence: tree-sitter, ctags agree, GitGalaxy differ
-
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:11:46Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| micropython/emitnative.c | `EXPORT_FUN` | *(n/a)* | 300 | 300 |
-| micropython/emitnative.c | `EXPORT_FUN` | *(n/a)* | 320 | 320 |
-| micropython/vm.c | `MICROPY_WRAP_MP_EXECUTE_BYTECODE` | *(n/a)* | 220 | 220 |
-
-### ❓ `c` function args: GitGalaxy, ctags agree, tree-sitter differ
-
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:11:46Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`c/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| micropython/gc.c | `gc_mark_subtree` | 2 | 1 | 2 |
-
-### ✅ `c` class existence: tree-sitter agree, GitGalaxy, ctags differ
-
-*2-vs-1 -- 525 occurrences as of 2026-08-19T20:11:46Z*
-
-**Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
-> Confirmed tooling defect in tri_comparison_gatherer.py's own raw tree-sitter walk, now fixed -- not a GitGalaxy defect (GitGalaxy and ctags are both correct in every sampled case). Independently verified all 8 sampled cases (7 distinct source lines, one -- compile.c:223 -- has both a declaration and a cast on the same line, explaining the duplicate sample) against real source: every single one is a pointer declaration, function parameter, or cast referencing an ALREADY-DEFINED struct type (`struct compiler_unit *u`, `(struct compiler_unit *)ptr`, etc.), never a `struct X { ... } ` definition. tree-sitter-c's `struct_specifier`/`union_specifier`/`enum_specifier` node type covers both a real definition and a bare type reference, distinguished only by whether the node has a `body` field -- `_walk_tree_sitter` counted every matching node type without checking for a body, so it counted every REFERENCE as a new class. `tests/tools/tree_sitter_accuracy_audit.py`'s own walk() already has this exact fix for C (`lang == 'c' and node.child_by_field_name('body') is None: pass`) -- ported the identical check into `_walk_tree_sitter`, same shape as the earlier haskell clause-splitting fix in this same file (a case where the newer, simpler walk didn't reuse a drop-rule the older tool already had, because it structurally can't apply the SAME reasoning that excludes ground-truth judgment calls -- a node's own `body` field is a neutral structural fact, not a cross-tool ground-truth call). Fix verified: this is the single largest shape in the entire ledger (525 occurrences, all from the same mechanism given how common struct-pointer usage is in idiomatic C), so this one fix plausibly clears most of it. No GitHub issue needed -- fixed directly in this same commit.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| cpython/ceval.c | `_py_code_state` | *(n/a)* | 3577 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 101 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 187 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 223 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 223 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 239 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 247 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 251 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 263 | *(n/a)* |
-| cpython/compile.c | `compiler_unit` | *(n/a)* | 586 | *(n/a)* |
-
-### ✅ `c` function args: GitGalaxy, tree-sitter agree, ctags differ
-
-*2-vs-1 -- 104 occurrences as of 2026-08-19T20:11:46Z*
-
-**Verdict** (by Claude Sonnet 5 (resolved + fixed directly, no dispatch needed), 2026-08-19T00:00:00Z):
-> Not a GitGalaxy or ctags defect -- a bug in this tool's OWN _count_ctags_signature_params (tri_comparison_gatherer.py), now fixed. Confirmed directly: ran ctags against cpython/ceval.c, PyEval_GetLocals(void)'s raw signature field is literally the text '(void)'. GitGalaxy and tree-sitter both already special-case C's explicit empty-parameter-list idiom (0 real args, matching detector.py's own _count_top_level_args docstring) -- _count_ctags_signature_params did not, splitting '(void)' into one non-empty segment and counting it as 1 real parameter (the same class of bug its own docstring already describes fixing twice for Python's trailing-comma and bare * / marker cases). Added 'void' to the segment-exclusion set alongside the existing '*'/'/'/'**' -- verified fix: _count_ctags_signature_params('(void)') now returns 0. This corpus (cpython) uses the (void) idiom extremely heavily, plausibly explaining most/all of the 104 occurrences; not independently re-verified beyond the sample, but the mechanism is unconditional (any '(void)' signature was miscounted the same way, corpus-wide) so high confidence it generalizes. No GitHub issue needed -- fixed directly in this same commit, not a repo-code defect.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| cpython/ceval.c | `PyEval_GetLocals` | 0 | 0 | 1 |
-| cpython/ceval.c | `_PyEval_GetFrameLocals` | 0 | 0 | 1 |
-| cpython/ceval.c | `PyEval_GetFrame` | 0 | 0 | 1 |
-| cpython/ceval.c | `PyEval_GetFrameGlobals` | 0 | 0 | 1 |
-| cpython/ceval.c | `Py_GetRecursionLimit` | 0 | 0 | 1 |
-| cpython/ceval.c | `_PyEval_GetCoroutineOriginTrackingDepth` | 0 | 0 | 1 |
-| cpython/ceval.c | `_PyEval_GetAsyncGenFirstiter` | 0 | 0 | 1 |
-| cpython/ceval.c | `_PyEval_GetAsyncGenFinalizer` | 0 | 0 | 1 |
-| cpython/ceval.c | `_PyEval_GetFrame` | 0 | 0 | 1 |
-| cpython/ceval.c | `PyEval_GetBuiltins` | 0 | 0 | 1 |
-
 ### ✅ `c` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 74 occurrences as of 2026-08-19T20:11:46Z*
+*2-vs-1 -- 74 occurrences as of 2026-08-19T20:26:25Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Confirmed, independently verified all 6 sampled names against real source -- GitGalaxy and ctags both correct, tree-sitter over-recalling from two related but distinct preprocessor-driven mechanisms, both already covered by existing infrastructure: (1) keyword/macro misparse -- 'if' (dictobject.c:522-527, an `#if SIZEOF_VOID_P > 4` / `else if` sequence desyncs the parse) and 'DICT___REVERSED___METHODDEF' (dictobject.c:5102, a PyMethodDef array-initializer macro, not a definition) are both ALREADY in tree_sitter_accuracy_audit.py's `_C_KNOWN_MACRO_HALLUCINATIONS` exclusion set (confirmed by reading it directly) -- this tri-comparison tool's raw walk deliberately doesn't apply that list (it's a curated, ground-truth-shaped judgment call, appropriately left to reconciliation per this module's own stated design, not baked into the walk). (2) dead #if 0 code -- '_PyObject_ManagedDictValidityCheck' (dictobject.c:7396) and 'tos_char'/'print_stack'/'print_stacks' (frameobject.c:1264-1313) are genuinely well-formed function definitions sitting entirely inside `#if 0 ... #endif` guards; tree-sitter has no preprocessor model and parses the dead branch as live code. Both mechanisms are already the exact shape docs/why_gitgalaxy_beats_ast_here.md's Claim 8 names generically ('a dead #if 0 block... macro definitions... that merely look structural') -- added these 4 new concrete citations to Claim 8's evidence section rather than treating this as a new finding. No GitHub issue -- both tools already behave as intended; this is expected, already-documented tree-sitter preprocessor-blindness surfacing under the new tri-comparison reconciliation, not a fresh defect.
@@ -261,11 +151,86 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 | cpython/object.c | `if` | *(n/a)* | 1272 | *(n/a)* |
 | micropython/gc.c | `if` | *(n/a)* | 1353 | *(n/a)* |
 
+### ✅ `c` class existence: ctags agree, GitGalaxy, tree-sitter differ
+
+*2-vs-1 -- 23 occurrences as of 2026-08-19T20:26:25Z*
+
+**Verdict** (by Claude Sonnet 5 (resolved + fixed directly, no dispatch needed), 2026-08-19T00:00:00Z):
+> Confirmed tooling gap, now fixed -- not a GitGalaxy or tree-sitter defect. Every one of the 10 sampled names (__anon2570bd640108, __anonf1d666540108, etc.) is ctags' own synthesized placeholder name for an anonymous struct/union/enum, confirmed directly: cpython/ceval.c's __anon2570bd640108 backs a real `typedef struct { ... }` (the platform pthread-attr shim at line ~94) with no name in the source. GitGalaxy and tree-sitter both correctly report nothing (there is no real name to report); ctags synthesizes one for its own internal bookkeeping. Same category as GitGalaxy's own _SYNTHETIC_GG_CLASS_NAMES exclusion, just on ctags' side -- added _is_ctags_synthetic_anon_name() to tri_comparison_gatherer.py (matches ctags' documented __anon<hex> naming convention, applied to both func and class ctags readings) and documented in ctags_reader.py alongside its existing per-language notes. Generalizes to the full 23 by construction (a structural naming-pattern match, not a per-instance judgment).
+
+| file | name | GitGalaxy | tree-sitter | ctags |
+|---|---|---|---|---|
+| cpython/ceval.c | `__anon2570bd640108` | *(n/a)* | *(n/a)* | 94 |
+| cpython/dictobject.c | `__anonf1d666540108` | *(n/a)* | *(n/a)* | 5420 |
+| cpython/object.c | `__anone3f65c900108` | *(n/a)* | *(n/a)* | 2973 |
+| cpython/typeobject.c | `__anonb81650120108` | *(n/a)* | *(n/a)* | 3808 |
+| cpython/typeobject.c | `__anonb81650120208` | *(n/a)* | *(n/a)* | 3830 |
+| cpython/typeobject.c | `__anonb81650120308` | *(n/a)* | *(n/a)* | 3936 |
+| cpython/typeobject.c | `__anonb81650120408` | *(n/a)* | *(n/a)* | 4191 |
+| cpython/typeobject.c | `__anonb81650120508` | *(n/a)* | *(n/a)* | 12342 |
+| doom/r_bsp.c | `__anoneeedd6d90108` | *(n/a)* | *(n/a)* | 81 |
+| doom/r_defs.h | `__anond0514f7b0108` | *(n/a)* | *(n/a)* | 72 |
+
+### ✅ `c` function existence: ctags agree, GitGalaxy, tree-sitter differ
+
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:26:25Z*
+
+**Verdict** (by Claude Sonnet 5 (resolved + fixed directly, no dispatch needed), 2026-08-19T00:00:00Z):
+> Confirmed real ctags limitation, not a GitGalaxy or tree-sitter defect -- resolved directly (no dispatch needed), source read confirms all 7 sampled names. RICHCMP_WRAPPER/SLOT0/SLOT1/SLOT1BINFULL are all-caps macro names; every occurrence is a MACRO INVOCATION (a call to a previously-#define'd boilerplate-generating macro), not a function definition -- confirmed at cpython/typeobject.c:10099 (`RICHCMP_WRAPPER(lt, Py_LT)`) and :10544 (`SLOT1(slot_mp_subscript, __getitem__, PyObject *)`), same shape as the multiple SLOT0/SLOT1 hits at different lines (each is a separate invocation of the same macro generating a different wrapper function). ctags' regex-based C parser tags the macro-invocation site itself as a function; GitGalaxy and tree-sitter both correctly don't. Deliberately NOT fixed with a curated name-exclusion list in the gatherer (unlike the sibling __anon* class shape, this would require hand-curating specific macro names -- the same ground-truth-judgment category tri_comparison_gatherer.py's own docstring reasons belongs in reconciliation, not the raw reader) -- documented in ctags_reader.py instead, alongside its existing per-language notes.
+
+| file | name | GitGalaxy | tree-sitter | ctags |
+|---|---|---|---|---|
+| cpython/typeobject.c | `RICHCMP_WRAPPER` | *(n/a)* | *(n/a)* | 10099 |
+| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10626 |
+| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10682 |
+| cpython/typeobject.c | `SLOT0` | *(n/a)* | *(n/a)* | 10728 |
+| cpython/typeobject.c | `SLOT1` | *(n/a)* | *(n/a)* | 10542 |
+| cpython/typeobject.c | `SLOT1` | *(n/a)* | *(n/a)* | 10703 |
+| cpython/typeobject.c | `SLOT1BINFULL` | *(n/a)* | *(n/a)* | 10575 |
+
+### ✅ `c` function existence: GitGalaxy agree, tree-sitter, ctags differ
+
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:26:25Z*
+
+**Verdict** (by Claude Sonnet 5 (resolved directly, no dispatch needed), 2026-08-19T00:00:00Z):
+> Confirmed GitGalaxy correct, real finding -- a new, narrower instance of Claim 3 (parse-error cascade), added to docs/why_gitgalaxy_beats_ast_here.md. All 4 sampled names (slot_mp_ass_subscript:10544, slot_nb_inplace_power:10697, slot_tp_repr:10714, slot_tp_hash:10730, all cpython/typeobject.c) are ordinary, unremarkable function definitions -- nothing unusual individually -- but each sits directly after a bare SLOT0/SLOT1 macro-invocation LINE (`SLOT1(slot_mp_subscript, __getitem__, PyObject *)`, `SLOT0(slot_tp_str, __str__)`, etc.) that isn't valid freestanding C without macro expansion. GitGalaxy's regex has no adjacency sensitivity and finds all 4 correctly; both ctags and tree-sitter locally lose the SINGLE function immediately following each such line (recovers after just one function, not a full cascade to EOF -- confirmed by resolving all 4 as isolated single-function misses, not a growing region). Resolved directly, no dispatch needed -- same pattern verified at all 4 sample points before writing up.
+
+| file | name | GitGalaxy | tree-sitter | ctags |
+|---|---|---|---|---|
+| cpython/typeobject.c | `slot_tp_hash` | 10730 | *(n/a)* | *(n/a)* |
+| cpython/typeobject.c | `slot_mp_ass_subscript` | 10544 | *(n/a)* | *(n/a)* |
+| cpython/typeobject.c | `slot_tp_repr` | 10714 | *(n/a)* | *(n/a)* |
+| cpython/typeobject.c | `slot_nb_inplace_power` | 10697 | *(n/a)* | *(n/a)* |
+
+### ✅ `c` function existence: tree-sitter, ctags agree, GitGalaxy differ
+
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:26:25Z*
+
+**Verdict** (by Claude Sonnet 5 (resolved directly, no dispatch needed), 2026-08-19T00:00:00Z):
+> Not a new finding -- both sampled names are ALREADY in tree_sitter_accuracy_audit.py's _C_KNOWN_MACRO_HALLUCINATIONS exclusion set (confirmed by grep: 'EXPORT_FUN' and 'MICROPY_WRAP_MP_EXECUTE_BYTECODE' both present). This shape is the same already-documented macro-hallucination mechanism (Claim 8) as the earlier tree-sitter-alone shape, just with ctags ALSO independently hallucinating the same 2 names the same way (both tools' regex/grammar parsers get fooled by the same macro-definition text). GitGalaxy correctly excludes both. Resolved directly, no dispatch needed.
+
+| file | name | GitGalaxy | tree-sitter | ctags |
+|---|---|---|---|---|
+| micropython/emitnative.c | `EXPORT_FUN` | *(n/a)* | 300 | 300 |
+| micropython/emitnative.c | `EXPORT_FUN` | *(n/a)* | 320 | 320 |
+| micropython/vm.c | `MICROPY_WRAP_MP_EXECUTE_BYTECODE` | *(n/a)* | 220 | 220 |
+
+### ✅ `c` function args: GitGalaxy, ctags agree, tree-sitter differ
+
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:25Z*
+
+**Verdict** (by Claude Sonnet 5 (resolved directly, no dispatch needed), 2026-08-19T00:00:00Z):
+> Not a tool defect on either side -- an inherent CPP-conditional-compilation ambiguity. gc_mark_subtree is declared AND defined twice in micropython/gc.c, once under `#if MICROPY_GC_SPLIT_HEAP` (2 args: area, block -- lines 137/501) and once under the matching `#else` (1 arg: block -- lines 139/503). Neither signature is more 'real' than the other -- which one actually compiles depends on a macro none of these three tools evaluates (no real preprocessor run in any of them). GG and ctags happened to align on the 2-arg branch, tree-sitter on the 1-arg branch; this is a coin-flip of which #if branch a tool's occurrence-matching happens to pick up, not a real disagreement about ground truth. N=1 in this corpus -- not chased further given the tiny sample and the ambiguity being structural rather than a bug.
+
+| file | name | GitGalaxy | tree-sitter | ctags |
+|---|---|---|---|---|
+| micropython/gc.c | `gc_mark_subtree` | 2 | 1 | 2 |
+
 ## cobol
 
 ### ❓ `cobol` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 133 occurrences as of 2026-08-19T20:11:51Z*
+*2-vs-1 -- 133 occurrences as of 2026-08-19T20:26:31Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cobol/function/existence/agree[ctags]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -284,7 +249,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cobol` class existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 19 occurrences as of 2026-08-19T20:11:51Z*
+*2-vs-1 -- 19 occurrences as of 2026-08-19T20:26:31Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cobol/class/existence/agree[ctags]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -303,7 +268,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cobol` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 18 occurrences as of 2026-08-19T20:11:51Z*
+*2-vs-1 -- 18 occurrences as of 2026-08-19T20:26:31Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cobol/function/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -324,7 +289,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1270 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 1270 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -343,7 +308,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1061 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 1061 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -362,7 +327,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 120 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 120 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -381,7 +346,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 98 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 98 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -400,7 +365,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 70 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 70 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -419,7 +384,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 24 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 24 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -438,7 +403,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` class existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 22 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 22 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/class/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -457,7 +422,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -469,7 +434,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -480,7 +445,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -490,7 +455,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:11:56Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -500,7 +465,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `cpp` function args: none agree, GitGalaxy, tree-sitter, ctags differ
 
-*3-way split -- 1 occurrence as of 2026-08-19T20:11:56Z*
+*3-way split -- 1 occurrence as of 2026-08-19T20:26:35Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`cpp/function/args/agree[none]_vs[ctags,gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -512,7 +477,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 271 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 271 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -531,7 +496,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 107 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 107 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -550,7 +515,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 48 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 48 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -569,7 +534,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -585,7 +550,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` class existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/class/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -600,7 +565,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 5 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 5 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -614,7 +579,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -627,7 +592,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -640,7 +605,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -652,7 +617,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -662,7 +627,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -672,7 +637,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:02Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -682,7 +647,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `csharp` function args: none agree, GitGalaxy, tree-sitter, ctags differ
 
-*3-way split -- 1 occurrence as of 2026-08-19T20:12:02Z*
+*3-way split -- 1 occurrence as of 2026-08-19T20:26:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`csharp/function/args/agree[none]_vs[ctags,gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -694,7 +659,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `css` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:12:03Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:26:42Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`css/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -708,7 +673,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `dart` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 37 occurrences as of 2026-08-19T20:12:07Z*
+*2-vs-1 -- 37 occurrences as of 2026-08-19T20:26:46Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`dart/function/existence/agree[gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -727,7 +692,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `dart` function existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 18 occurrences as of 2026-08-19T20:12:07Z*
+*2-vs-1 -- 18 occurrences as of 2026-08-19T20:26:46Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`dart/function/existence/agree[tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -746,7 +711,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `dart` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 216 occurrences as of 2026-08-19T20:12:07Z*
+*3-way split -- 216 occurrences as of 2026-08-19T20:26:46Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`dart/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -767,7 +732,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `fortran` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 14 occurrences as of 2026-08-19T20:12:13Z*
+*2-vs-1 -- 14 occurrences as of 2026-08-19T20:26:52Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`fortran/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -786,7 +751,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `fortran` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 8 occurrences as of 2026-08-19T20:12:13Z*
+*2-vs-1 -- 8 occurrences as of 2026-08-19T20:26:52Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`fortran/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -803,7 +768,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `fortran` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:12:13Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:26:52Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`fortran/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -814,7 +779,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `fortran` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:12:13Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:26:52Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`fortran/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -825,7 +790,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `fortran` function args: none agree, GitGalaxy, tree-sitter, ctags differ
 
-*3-way split -- 1 occurrence as of 2026-08-19T20:12:13Z*
+*3-way split -- 1 occurrence as of 2026-08-19T20:26:52Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`fortran/function/args/agree[none]_vs[ctags,gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -837,7 +802,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `go` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 75 occurrences as of 2026-08-19T20:12:15Z*
+*2-vs-1 -- 75 occurrences as of 2026-08-19T20:26:55Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`go/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -858,7 +823,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 103 occurrences as of 2026-08-19T20:12:18Z*
+*2-vs-1 -- 103 occurrences as of 2026-08-19T20:26:57Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > All 10 sampled cases are ctags-side artifacts, not real GitGalaxy/tree-sitter misses -- confirmed via direct `ctags -x` output against the corpus. Three distinct ctags Haskell-parser weaknesses cover the sample: (1) multi-clause double/triple-tagging -- ctags tags every pattern-matched equation line as its own occurrence of the name (writerFn/writeFnBinary/expandFilterPath: confirmed 2-3 raw ctags tags per function, one per clause; a file-wide count found 45 such extra same-name tags across the 7-file corpus, e.g. blockToInlines alone has 14). GitGalaxy/tree-sitter both correctly anchor to the FIRST clause only, leaving ctags' later-clause tags as the ones unpaired. (2) keyword-as-identifier misparsing -- `class`/`where`/`pattern` (from PatternSynonyms) get tagged as function names when ctags fails to parse past the keyword; confirmed at Options.hs:62 (`class HasSyntaxExtensions`), Parsing.hs:184 (module-header `where`), and 3 PatternSynonyms declarations in Options.hs. (3) CAF/value-vs-function kind collapse -- defaultAbbrevs/defaultKaTeXURL/defaultMathJaxURL/defaultWebTeXURL are zero-arg top-level VALUES (non-arrow type signatures), not functions; ctags has no value/variable kind at all (`ctags --list-kinds-full=Haskell` shows only constructor/function/module/type) so it lumps every `name = expr` binding into "function". GitGalaxy (language_standards.py haskell rules, #1312) and tree-sitter's own audit tooling (_find_haskell_signature_for_bind, #1566) both independently make the same value-vs-function distinction correctly -- real cross-tool corroboration, not coincidence. (4) TH-splice call sites misread as definitions -- deriveJSON at Options.hs:454/458 is a Template Haskell splice INVOKING an imported function, not defining one; ctags misparses the call as a definition. No GitGalaxy/tree-sitter defect anywhere in this shape; purely a ctags parser limitation, same category as the already-documented empty CTAGS_CLASS_KINDS['haskell'].
@@ -878,7 +843,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 69 occurrences as of 2026-08-19T20:12:18Z*
+*2-vs-1 -- 69 occurrences as of 2026-08-19T20:26:57Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > Confirmed: all 10 sampled misses (and, by cross-check against additional non-sampled instances in Options.hs/Shared.hs, plausibly all 69) are locally-scoped function definitions -- `instance ... where` methods, `where`-clause helpers, or `let`-bound names inside `do` blocks -- never top-level module definitions. ctags' Haskell parser has no layout-rule/scope awareness and only tags equations anchored at column 1; it correctly handles multi-clause TOP-LEVEL definitions (verified via expandFilterPath, writeFnBinary, writerFn -- all tag fine, clauses and all), so this is a pure scope blind spot, not a clause-counting bug (distinct from the tree-sitter clause-splitting bug fixed earlier in this same effort, which shares 2 of the 10 sample names by coincidence of subject matter, not root cause). GitGalaxy and tree-sitter are both correct; ctags is not wrong so much as structurally incapable of seeing these. Known, expected limitation of ctags' Haskell parser, now documented alongside its existing Haskell notes in tests/tools/ctags_reader.py -- not a GitHub issue, nothing in this repo to fix.
@@ -898,7 +863,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 16 occurrences as of 2026-08-19T20:12:18Z*
+*2-vs-1 -- 16 occurrences as of 2026-08-19T20:26:57Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > Not a real discrepancy -- structural tooling gap, already documented in the codebase. tests/tools/ctags_reader.py:39-40,228 sets CTAGS_CLASS_KINDS['haskell'] = set() on purpose: "ctags' Haskell parser has no class-shaped kind at all (constructor/function/module/type only)". Every example in this shape (data/newtype/class declarations -- ReaderOptions, CiteMethod, HasSyntaxExtensions, etc.) is real; ctags structurally cannot report any of them for this language, not a sample-specific miss. No action needed beyond this note.
@@ -918,7 +883,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:12:18Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:26:57Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > Mixed shape, resolved by reading both of the 2 occurrences directly (no larger sample needed). (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- NOT a real function. Imported from Text.Pandoc.Extensions (Shared.hs:114), only ever appears as a guard-clause call (`| extensionEnabled Ext_gfm_auto_identifiers exts = ...`). GitGalaxy's regex misreads a guard-clause invocation as a definition -- genuine GitGalaxy false positive, worth its own engine bug against language_standards.py's haskell func_start rule.
@@ -930,7 +895,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 9 occurrences as of 2026-08-19T20:12:18Z*
+*3-way split -- 9 occurrences as of 2026-08-19T20:26:57Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > One systematic cause, confirmed by reading source for 3 of the 9 (getMetadataFromFiles App.hs:395-397, splitTextByIndices Shared.hs:142-143, tabFilter Shared.hs:256-259) and consistent with the shape of the remaining 6. Every case is a point-free/eta-reduced Haskell equation: the type signature declares N params, but the specific clause GitGalaxy and tree-sitter both align to only explicitly binds N-1 of them, handling the trailing argument via composition (`.`) or `\case`. GitGalaxy counts arity from the full type signature (the true logical arity); tree-sitter's declaration-only reading counts only the clause's explicitly-bound patterns (correct for that one equation, but undercounts true arity). Neither reader is wrong about what it's measuring -- same shape as Claim 1 in docs/why_gitgalaxy_beats_ast_here.md. GitGalaxy's answer is arguably the more useful coupling signal; recommend documenting as a candidate Claim rather than treating as an engine defect to fix toward matching tree-sitter.
@@ -951,7 +916,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `java` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 315 occurrences as of 2026-08-19T20:12:21Z*
+*2-vs-1 -- 315 occurrences as of 2026-08-19T20:27:00Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`java/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -970,7 +935,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `java` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 28 occurrences as of 2026-08-19T20:12:21Z*
+*2-vs-1 -- 28 occurrences as of 2026-08-19T20:27:00Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`java/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -989,7 +954,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `java` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:12:21Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:27:00Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`java/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1003,7 +968,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 528 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 528 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1022,7 +987,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 183 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 183 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1041,7 +1006,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 104 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 104 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1060,7 +1025,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 67 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 67 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1079,7 +1044,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 10 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 10 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1098,7 +1063,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 8 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 8 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1115,7 +1080,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `javascript` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:12:24Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:27:03Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`javascript/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1133,7 +1098,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `kotlin` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 15 occurrences as of 2026-08-19T20:12:27Z*
+*2-vs-1 -- 15 occurrences as of 2026-08-19T20:27:05Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`kotlin/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1152,7 +1117,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `kotlin` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:12:27Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:27:05Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`kotlin/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1164,7 +1129,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `kotlin` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:27Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:05Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`kotlin/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1176,7 +1141,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `m4` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 48 occurrences as of 2026-08-19T20:12:33Z*
+*2-vs-1 -- 48 occurrences as of 2026-08-19T20:27:12Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`m4/function/existence/agree[ctags]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1195,7 +1160,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `m4` class existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:12:33Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:27:12Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`m4/class/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1208,7 +1173,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `m4` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:33Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:12Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`m4/function/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1220,7 +1185,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `makefile` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:34Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:13Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`makefile/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1232,7 +1197,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `matlab` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 1 occurrence as of 2026-08-19T20:12:36Z*
+*3-way split -- 1 occurrence as of 2026-08-19T20:27:15Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`matlab/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1244,7 +1209,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `objective-c` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 120 occurrences as of 2026-08-19T20:12:37Z*
+*2-vs-1 -- 120 occurrences as of 2026-08-19T20:27:16Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`objective-c/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1263,7 +1228,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `objective-c` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 71 occurrences as of 2026-08-19T20:12:37Z*
+*2-vs-1 -- 71 occurrences as of 2026-08-19T20:27:16Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`objective-c/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1282,7 +1247,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `objective-c` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:12:37Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:27:16Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`objective-c/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1293,7 +1258,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `objective-c` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:37Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:16Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`objective-c/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1305,7 +1270,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 122 occurrences as of 2026-08-19T20:12:43Z*
+*2-vs-1 -- 122 occurrences as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1324,7 +1289,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:12:43Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1340,7 +1305,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:12:43Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1356,7 +1321,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:43Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1366,7 +1331,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:43Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1376,7 +1341,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `perl` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 64 occurrences as of 2026-08-19T20:12:43Z*
+*3-way split -- 64 occurrences as of 2026-08-19T20:27:23Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`perl/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1397,7 +1362,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `php` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 68 occurrences as of 2026-08-19T20:12:48Z*
+*2-vs-1 -- 68 occurrences as of 2026-08-19T20:27:27Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`php/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1416,7 +1381,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `php` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:48Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:27Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`php/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1426,7 +1391,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `php` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:48Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:27Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`php/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1438,7 +1403,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `powershell` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 16 occurrences as of 2026-08-19T20:12:50Z*
+*2-vs-1 -- 16 occurrences as of 2026-08-19T20:27:30Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`powershell/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1457,7 +1422,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `powershell` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-19T20:12:50Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-19T20:27:30Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`powershell/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1473,7 +1438,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `powershell` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:50Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:30Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`powershell/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1483,7 +1448,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `powershell` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 5 occurrences as of 2026-08-19T20:12:50Z*
+*3-way split -- 5 occurrences as of 2026-08-19T20:27:30Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`powershell/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1499,7 +1464,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `python` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 68 occurrences as of 2026-08-19T20:12:59Z*
+*2-vs-1 -- 68 occurrences as of 2026-08-19T20:27:39Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`python/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1518,7 +1483,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `python` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 32 occurrences as of 2026-08-19T20:12:59Z*
+*2-vs-1 -- 32 occurrences as of 2026-08-19T20:27:39Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`python/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1537,7 +1502,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `python` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:12:59Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:27:39Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`python/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1550,7 +1515,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `python` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:12:59Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:39Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`python/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1562,7 +1527,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `ruby` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-19T20:13:01Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-19T20:27:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`ruby/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1577,7 +1542,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `ruby` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-19T20:13:01Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-19T20:27:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`ruby/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1592,7 +1557,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `ruby` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:13:01Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:27:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`ruby/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1604,7 +1569,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `ruby` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:13:01Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:27:41Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`ruby/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1617,7 +1582,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 152 occurrences as of 2026-08-19T20:13:05Z*
+*2-vs-1 -- 152 occurrences as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch), 2026-08-19T00:00:00Z):
 > Not a new question -- already-documented, evidence-backed rust behavior (Claim 6, docs/why_gitgalaxy_beats_ast_here.md: 'structure recall inside opaque macro bodies'). Confirmed directly: all 5 sampled names (get_param, init_access, get_components, from_components, apply) are in bevy/bevy_ecs_macros.rs, inside a `quote! { ... }` proc-macro body (confirmed at source lines 444-460 -- `#path`/`#fields_alias` interpolation syntax is the classic quote! token-generation pattern). These are real Rust function definitions being code-generated by a proc macro; GitGalaxy's regex correctly parses real function syntax wherever it textually appears, including inside macro bodies. tree-sitter-rust and ctags' Rust parser both treat macro_rules!/macro-invocation bodies as opaque token trees and structurally cannot emit function nodes for anything inside one -- not a bug in either, a real grammar limitation. This is exactly why rust is one of the 3 languages (with csharp/fortran) already promoted into ground truth via blind-spot-region detection in the OLD bi-comparison tool (tree_sitter_accuracy_audit.py's _find_blind_spot_ranges) -- this tri-comparison ledger entry is that same, already-understood gap surfacing again under the new 3-tool reconciliation. GitGalaxy is correct; no engine defect, no issue needed. Resolved directly from existing documentation, no fresh dispatch required (tri-comparison-ledger-sweep skill step 1.3).
@@ -1637,7 +1602,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` class existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 25 occurrences as of 2026-08-19T20:13:05Z*
+*2-vs-1 -- 25 occurrences as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Same mechanism as the already-resolved rust/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter] shape (Claim 6, docs/why_gitgalaxy_beats_ast_here.md) -- extended from `fn` definitions inside `quote!{}` invocation bodies to `struct` definitions inside `macro_rules!` DEFINITION bodies. All 6 sampled names confirmed, independently re-verified against source (not just the dispatched agent's own read): NonZeroVisitor (line 90), SaturatingVisitor (112), PrimitiveVisitor (136) inside serde/serde_core_de_impls.rs's `impl_deserialize_num!` macro (def starts line 81); SeqVisitor (998), SeqInPlaceVisitor (1036) inside `seq_impl!` (def starts 978); TupleVisitor (1403) inside `tuple_impl_body!` (nested in `tuple_impls!`, def starts 1396). All 6 are real, complete `struct` declarations, each immediately followed by a genuine `impl<'de,...> Visitor<'de> for <Name>` block -- generated once per macro invocation, not fragments or hallucinated matches. tree-sitter and ctags both treat a macro_rules! arm's body as an opaque, unexpanded token tree and structurally cannot emit struct nodes from inside one, for the identical reason they can't see function definitions inside quote!{} bodies. GitGalaxy is correct in all 6 sampled cases; judged (not independently re-confirmed beyond the sample) to generalize to the full 25, all same-shaped serde-crate occurrences. No new tool defect -- Claim 6's doc text already covered this generically (`struct_item` was already named) but had no concrete cited example for this specific shape; added one (docs/why_gitgalaxy_beats_ast_here.md) rather than filing an issue.
@@ -1657,7 +1622,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 21 occurrences as of 2026-08-19T20:13:05Z*
+*2-vs-1 -- 21 occurrences as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Confirmed GitGalaxy engine defect, same root cause as the sibling shape rust/function/args/agree[none]_vs[gitgalaxy,tree_sitter] (#1872): a Rust lifetime tick (`'_`, `'a`, `'static`) never gets recognized as non-string during bracket/quote scanning. This shape surfaces the SECOND manifestation, in a different function than the first: `_matching_paren_end` (gitgalaxy/core/detector.py:3675-3703) has NO lifetime guard at all (unlike _count_top_level_args's broken-but-present one). A lifetime tick makes its self-containment check falsely fail, falling through to the comma/whitespace-split fallback meant for Lisp/Scheme/Shell (~line 4296) -- for single-parameter signatures with a lifetime and no comma this OVER-counts (opposite direction from the sibling shape's under-count), for multi-param signatures it under-counts via the same swallowed-closing-paren mechanism. Extends the how_to_investigate_a_discrepancy.md worked example (bevy_ecs_table.rs::initialize, 5 real params, GitGalaxy reports 3) across the full 8-item sample, independently hand-traced and confirmed exact-match against real source for all 8: bevy_ecs_table.rs:171,194, bevy_ecs_world.rs:2969,3005, serde_internals_ast.rs:62 (under-count, multi-param); bevy_reflect_path.rs:43, serde_core_de_impls.rs:3147, serde_internals_ast.rs:119 (over-count, single-param via the whitespace-split fallback). Dispatched investigation initially produced a fabricated mechanism on its first pass; caught by the dispatching agent's own manual code trace, corrected on a second pass, then independently re-verified byte-for-byte against all 8 real signatures before being accepted here -- treat this as a genuinely double-checked finding, not a single-pass claim. ctags and tree-sitter are both correct in every case. Judged to plausibly explain most/all of the remaining 21 (any rust signature with a lifetime annotation is susceptible) and possibly under-reported beyond this specific ledger shape too, since lifetimes are extremely common idiomatic rust. Added as a follow-up comment on #1872 rather than a duplicate issue, since both bugs should be fixed together.
@@ -1677,7 +1642,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-19T20:13:05Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly via live ctags run, no dispatch), 2026-08-19T00:00:00Z):
 > Confirmed structural ctags limitation, not a bug -- resolved directly (no dispatch needed). All 3 sampled names (XRegUnion, FRegUnion, VRegUnion) are real Rust `union { }` declarations (confirmed at wasmtime/wasmtime_pulley_interp.rs:404,529,604), distinct from `struct` -- Rust's less-common C-style unsafe union construct. Ran `ctags --list-kinds-full=Rust` directly: its Rust parser's kind list is macro/method/implementation/enumerator/function/enum/interface/field/module/struct/typedef/variable -- there is NO union kind at all. Confirmed via direct ctags run against this exact file: it correctly finds the wrapping `struct FRegVal(FRegUnion)`-shaped types right next to each missed union, so this isn't a general miss, specifically a missing Rust-union kind. Same category as the already-documented ctags Haskell class-kind gap (tests/tools/ctags_reader.py) -- worth a similar doc note there, not a GitHub issue (nothing to fix, ctags upstream has no union support for this language).
@@ -1690,7 +1655,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:05Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly via live ctags run, no dispatch), 2026-08-19T00:00:00Z):
 > Confirmed via direct ctags run and sibling comparison, resolved directly (no dispatch needed). `done_decode` (wasmtime/wasmtime_pulley_interp.rs:964) has a destructuring-pattern parameter -- `Done { _priv }: Done`, not a simple `name: Type` binding. Ran ctags directly against the file: its IMMEDIATE SIBLING in the same impl block, `debug_assert_done_reason_none` (line 960, same visibility/receiver shape, ordinary `&mut self`-only signature), IS correctly found as a ctags 'method'. done_decode alone is missing from ctags' output. Isolates the cause precisely to the destructuring-pattern parameter -- ctags' regex-based Rust parser appears to fail/skip the whole function when a parameter is a struct pattern rather than a plain identifier binding. GitGalaxy and tree-sitter both handle this fine (both agree on line 964). N=1 in this corpus, plausibly a real, narrow ctags parser gap (not GitGalaxy's) -- not chasing further given the tiny sample, noting rather than filing an issue since there's nothing in this repo to fix.
@@ -1701,7 +1666,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 21 occurrences as of 2026-08-19T20:13:05Z*
+*3-way split -- 21 occurrences as of 2026-08-19T20:27:45Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Confirmed GitGalaxy engine defect, not a modeling disagreement -- tree-sitter is correct in all 8 sampled cases (and this generalizes to the full 21: every sampled name is a deserialize_*/spawn_*_caller-shaped signature carrying a rust lifetime annotation, the exact trigger). Root cause, independently confirmed via two methods (dispatched agent read the code path; a second grep pass confirmed the attribute is dead): `gitgalaxy/core/detector.py::StructuralExtractor._count_top_level_args` has a guard meant to exempt rust/scala lifetime marks (`'_`, `'static`) from its string-literal scanner -- `getattr(self, 'language', '') in ('rust', 'scala')` around line 3766 -- but the class stores the language as `self.primary_lang_id` (set at line 497), never `self.language`. `self.language` is referenced NOWHERE ELSE in the file, confirmed by grep. The getattr always silently falls back to `''`, so the exemption guard never fires for any language, ever -- every lifetime `'` gets treated as an unterminated string-literal opener, swallowing all subsequent top-level commas until a real closing quote or end-of-string, fusing 2+ parameters into 1. A signature with 3 lifetime marks (odd count) never exits string mode at all and undercounts every remaining parameter. Real signatures confirmed at source: bevy/bevy_ecs_world.rs:1106,1121,1270 (`MovingPtr<'_, B>` swallows the next comma, 3 vs real 4, or 2 vs real 3); serde/serde_core_de_mod.rs:1105,1115 (`&'static str` swallows the next comma, 2 vs real 3); serde_core_de_mod.rs:1136 (two lifetimes, both trailing commas swallowed, 2 vs real 4); serde_core_de_mod.rs:1152,1163 (three lifetime marks, odd count means string mode never exits, 2 vs real 4). ctags has null coverage for these specific occurrences because they're bodyless trait-method declarations (ending in `;` inside a `trait` block) -- unrelated to the args bug, ctags appears to skip signature-only declarations generally. Filed as its own GitHub issue (attribute-name mismatch, one-line fix: `self.language` -> `self.primary_lang_id`, or equivalent), separate from this ledger record.
@@ -1723,7 +1688,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `scala` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 16 occurrences as of 2026-08-19T20:13:07Z*
+*3-way split -- 16 occurrences as of 2026-08-19T20:27:47Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`scala/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1744,7 +1709,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `scheme` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 92 occurrences as of 2026-08-19T20:13:11Z*
+*2-vs-1 -- 92 occurrences as of 2026-08-19T20:27:51Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`scheme/function/existence/agree[ctags]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1765,7 +1730,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `shell` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:13Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:53Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`shell/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1777,7 +1742,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `solidity` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-19T20:13:14Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-19T20:27:54Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`solidity/function/existence/agree[gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1794,7 +1759,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `swift` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:15Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:56Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`swift/function/existence/agree[gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1804,7 +1769,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `swift` function existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:15Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:56Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`swift/function/existence/agree[tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1814,7 +1779,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `swift` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 1 occurrence as of 2026-08-19T20:13:15Z*
+*3-way split -- 1 occurrence as of 2026-08-19T20:27:56Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`swift/function/args/agree[none]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1826,7 +1791,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `tcl` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-19T20:13:17Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-19T20:27:57Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`tcl/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1839,7 +1804,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `tcl` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:13:17Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:27:57Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`tcl/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1850,7 +1815,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `tcl` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:17Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:57Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`tcl/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1860,7 +1825,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `tcl` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:17Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:27:57Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`tcl/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1872,7 +1837,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 2103 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 2103 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1891,7 +1856,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 515 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 515 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`) in `tri_comparison_ledger.json`.
 
@@ -1910,7 +1875,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 175 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 175 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1929,7 +1894,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 61 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 61 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1948,7 +1913,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 8 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 8 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1965,7 +1930,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `typescript` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-19T20:13:38Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-19T20:28:18Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`typescript/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -1978,7 +1943,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `zig` class existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 10 occurrences as of 2026-08-19T20:13:46Z*
+*2-vs-1 -- 10 occurrences as of 2026-08-19T20:28:26Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`zig/class/existence/agree[tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 
@@ -1997,7 +1962,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `zig` class existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:46Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:28:26Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`zig/class/existence/agree[gitgalaxy]_vs[tree_sitter]`) in `tri_comparison_ledger.json`.
 
@@ -2007,7 +1972,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ❓ `zig` function existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-19T20:13:46Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-19T20:28:26Z*
 
 **Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`zig/function/existence/agree[tree_sitter]_vs[gitgalaxy]`) in `tri_comparison_ledger.json`.
 

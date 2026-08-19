@@ -62,6 +62,30 @@ KIND MAPS
         structural ctags limitation, not a GitGalaxy or tree-sitter defect.
       - shell: no class-shaped kind either (alias/function/heredoc/script) -- matches GitGalaxy's
         and tree-sitter's own class_recall/precision being N/A for shell already.
+      - c: ctags' C parser misreads a MACRO INVOCATION (not a definition) as a real function
+        when the macro name is used to generate boilerplate, e.g. cpython/typeobject.c's
+        `RICHCMP_WRAPPER(lt, Py_LT)` and `SLOT1(slot_mp_subscript, __getitem__, PyObject *)` --
+        both real calls to a previously-`#define`d macro, confirmed by reading the source; ctags
+        tags `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/`SLOT1BINFULL` themselves as function names,
+        GitGalaxy and tree-sitter both correctly don't. Deliberately NOT added as a curated
+        name-exclusion list here (unlike the anonymous-struct fix below, this would be a
+        ground-truth judgment call -- "these specific macro names are known bad" -- the same
+        category of decision `tri_comparison_gatherer.py`'s own docstring explains keeping out of
+        the raw readers and in reconciliation instead). Investigated via
+        `c/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]` (7 occurrences) -- a real
+        ctags limitation, not a GitGalaxy or tree-sitter defect.
+        Separately (also c, but function-agnostic -- affects both CTAGS_FUNC_KINDS and
+        CTAGS_CLASS_KINDS the same way, so noted once here): ctags synthesizes a placeholder name
+        (`__anon<hex>`) for an anonymous struct/union/enum
+        (`typedef struct { ... } Foo;`, e.g. cpython/ceval.c's platform pthread-attr shim).
+        Neither GitGalaxy nor tree-sitter report a name for an anonymous type at all -- there
+        genuinely isn't one -- so ctags' own bookkeeping name always surfaced as a false
+        discrepancy. FIXED in `tri_comparison_gatherer.py` (`_is_ctags_synthetic_anon_name`,
+        applied to both func and class ctags readings) rather than just documented, since
+        matching a structural naming pattern (not a curated list of specific names) is the same
+        kind of neutral fact the C struct-body-check fix already established is fair game for the
+        walk itself. Investigated via `c/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`
+        (23 occurrences, cpython + doom).
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start
     definitions before ever widening one of these maps -- do not add a kind because its letter
     looks right.

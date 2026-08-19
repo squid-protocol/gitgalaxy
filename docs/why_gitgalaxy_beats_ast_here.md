@@ -461,7 +461,14 @@ this claim either; they're real GitGalaxy defects to fix, not ground-truth artif
 
 For languages with powerful macro systems, tree-sitter often treats the bodies of macro definitions and invocations as opaque token trees. GitGalaxy's regex-based structural signatures are completely unaffected by the macro wrapper and correctly parse these definitions, resulting in higher recall than tree-sitter.
 
-**The evidence:** The `tree-sitter-rust` parser treats the bodies of `macro_rules!` definitions and function-like macro invocations (e.g., `quote!`, `ast_struct!`) as opaque token trees. It does not emit nested `struct_item`, `enum_item`, or `function_item` nodes. GitGalaxy correctly parses these structural definitions, which the audit script misclassifies as false positive "extra" structures.
+**The evidence:** The `tree-sitter-rust` parser treats the bodies of `macro_rules!` definitions and function-like macro invocations (e.g., `quote!`, `ast_struct!`) as opaque token trees. It does not emit nested `struct_item`, `enum_item`, or `function_item` nodes. GitGalaxy correctly parses these structural definitions, which the audit script misclassifies as false positive "extra" structures. Confirmed concrete instances of both shapes, independently verified (tri-comparison ledger,
+2026-08-19): `bevy/bevy_ecs_macros.rs:456` -- real `fn get_param`/`init_access`/`apply`/etc.
+definitions inside a `quote! { ... }` invocation body; `serde/serde_core_de_impls.rs:90,112,136,
+998,1036,1403` -- real `struct NonZeroVisitor`/`SaturatingVisitor`/`SeqVisitor`/etc. definitions
+inside `macro_rules!` bodies (`impl_deserialize_num!`, `seq_impl!`, `tuple_impl_body!`), each
+immediately followed by a real `impl Visitor for <Name>` block confirming they're genuine,
+complete struct definitions, not fragments. ctags' Rust parser has the identical blind spot for
+both shapes, for the same reason (it reads macro bodies as raw tokens too, not just tree-sitter).
 
 ## Claim 7: function recall in the presence of heavy preprocessor directives (Fortran/C++)
 

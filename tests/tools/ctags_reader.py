@@ -24,6 +24,19 @@ KIND MAPS
         `struct|enum|union|trait` -- explicitly NOT impl blocks. "c" is excluded from
         CTAGS_CLASS_KINDS for rust on purpose; mapping it in would inflate rust's class count
         against a definition GitGalaxy itself doesn't use.
+        Separately: `ctags --list-kinds-full=Rust` has no "union" kind at all (only struct/enum/
+        interface/typedef/etc.) -- a real `union Foo { ... }` declaration (Rust's C-style unsafe
+        union, rare but real, e.g. wasmtime's register-union types) is invisible to ctags no
+        matter what, confirmed via a direct ctags run showing it correctly finds the *wrapping*
+        struct next to a union it misses entirely. Also (function-side): ctags' Rust parser
+        appears to skip a function outright when one of its parameters is a destructuring pattern
+        (`fn f(Done { _priv }: Done)`) rather than a plain `name: Type` binding -- confirmed via a
+        sibling-function comparison (an ordinary-signature method one line away tags fine, the
+        pattern-parameter one doesn't), only ever seen once in this corpus so not chased further.
+        Both investigated via docs/self_scan/tri_comparison_ledger.json's rust
+        `class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` and
+        `function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` entries -- real, structural
+        ctags limitations, not GitGalaxy or tree-sitter defects.
       - cobol: GitGalaxy's class_start covers PROGRAM-ID / CLASS-ID / INTERFACE-ID / FACTORY /
         OBJECT paragraphs. ctags' Cobol parser only has a "program" (P) kind -- no CLASS-ID/
         INTERFACE-ID equivalent exists at all. Permanent, structural gap: ctags can partially

@@ -146,11 +146,31 @@ Never write a Gemini verdict straight into the ledger on trust -- read it the wa
    assumption? A verdict that's honest about "confirmed on the 10 sampled, plausible but unchecked
    beyond that" is fine and should be recorded that way -- don't silently upgrade its confidence
    when you apply it.
-3. If the verdict identifies a real GitGalaxy/tree-sitter-audit-tool/ctags-mapping defect (not a
-   ground-truth-tool limitation), **file it as its own GitHub issue now, before moving on** --
-   same standing rule as `tree-sitter-accuracy-sweep` step 3's note and this repo's
-   `file-incidental-findings-as-issues` practice. A verdict string in a JSON file is not
-   searchable or triageable the way a filed issue is.
+3. **Every verdict lands in exactly one of three buckets below -- decide which one BEFORE moving
+   to the next candidate, not as an afterthought.** A verdict string sitting only in the JSON
+   ledger is not enough on its own for any of these; each bucket has its own home, and skipping
+   the write-through step is a real, confirmed failure mode (2026-08-19: a verdict said "worth a
+   doc note in ctags_reader.py" and the note didn't actually get written until the user caught it
+   missing in review -- don't let intent-in-a-verdict substitute for the actual edit).
+     - **Confirmed GitGalaxy (or audit-tool) engine defect** -- file it as its own GitHub issue
+       now, before moving on, same standing rule as `tree-sitter-accuracy-sweep` step 3's note and
+       this repo's `file-incidental-findings-as-issues` practice. If it shares a root cause with an
+       issue you already filed earlier in the same sweep, add it as a comment on that issue instead
+       of a duplicate -- don't file two issues for one underlying bug just because two different
+       ledger shapes surfaced it.
+     - **Confirmed GitGalaxy correct, tree-sitter/ctags structurally can't** -- this is a
+       `docs/why_gitgalaxy_beats_ast_here.md` finding. Check whether it fits an EXISTING claim
+       first (this session found rust `struct`-inside-`macro_rules!` was the same mechanism as an
+       existing claim's `fn`-inside-`quote!{}` example, one bucket, not two) and add concrete cited
+       evidence to it; only write a new Claim N when the mechanism is genuinely novel. This doc's
+       whole value is being narrow and evidence-backed -- a real finding from this sweep that never
+       gets written here is a missed contribution to it, not a neutral no-op.
+     - **Confirmed tool-side (ctags or tree-sitter) limitation, not a GitGalaxy defect** -- add a
+       note to that tool's own reader module (`tests/tools/ctags_reader.py`'s per-language KIND MAPS
+       bullets, or the equivalent spot in `tree_sitter_accuracy_audit.py`), matching the file's
+       existing style exactly (one bullet per language/mechanism, cite the ledger shape that
+       surfaced it). This is the bucket most likely to get silently skipped since it feels like
+       "nothing to fix" -- it still needs writing down so the next person doesn't re-discover it.
 4. Apply via a small Python script (see the worked example in this skill's own commit history, or
    just: load the ledger, set `status="validated"`, `verdict=<the reviewed text>`,
    `investigated_by="<model>, dispatched via tri-comparison-ledger-sweep"`, `investigated_at=<date>`
@@ -206,17 +226,25 @@ code fix with a green test suite to lean on; get the normal explicit go-ahead be
 
 ## The papertrail, end to end
 
-Three layers, each serving a different reader:
+Five layers, each serving a different reader -- step 4.3's three buckets map directly onto layers
+2-4 below, so "which bucket" and "which papertrail layer" are the same decision, not two separate
+ones:
 1. **The ledger entry itself** (`status`, `verdict`, `investigated_by`, `investigated_at`,
    `last_seen_examples`) -- the permanent, hand-editable record of what was actually found, per
    discrepancy shape. This is the primary source; everything else derives from or points back to
-   it.
-2. **`docs/self_scan/tri_comparison_points_of_interest.md`** -- regenerate with `python
+   it. Every verdict gets one of these, regardless of which bucket it falls into.
+2. **GitHub issues** for confirmed engine defects (step 4.3, bucket 1) -- the actionable,
+   triageable trail for anything that needs an actual code fix.
+3. **`docs/why_gitgalaxy_beats_ast_here.md`** for confirmed GitGalaxy-correct/tree-sitter-or-
+   ctags-structurally-can't findings (step 4.3, bucket 2) -- this repo's standing, evidence-gated
+   record of exactly this claim shape; don't let a real one go unwritten here.
+4. **The relevant tool's reader module** (`ctags_reader.py`, `tree_sitter_accuracy_audit.py`) for
+   confirmed tool-side limitations (step 4.3, bucket 3) -- so the next sweep doesn't re-discover
+   the same ctags/tree-sitter gap from scratch.
+5. **`docs/self_scan/tri_comparison_points_of_interest.md`** -- regenerate with `python
    tests/tools/tri_comparison_report.py --write` after a batch lands, so there's a human-scannable
-   Markdown log ranked by signal strength, not just a JSON blob to query.
-3. **GitHub issues** for confirmed engine defects (step 4.3) -- the actionable, triageable trail
-   for anything that needs an actual code fix, separate from the "what did we learn" record in the
-   ledger.
+   Markdown log ranked by signal strength, not just a JSON blob to query. Cuts across all of the
+   above rather than being its own bucket.
 
 Commit messages should name the shapes validated, not just say "update ledger" -- a future reader
 `git log`-ing this file should be able to tell what changed and why without opening the diff.

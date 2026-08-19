@@ -4,8 +4,8 @@ tri_comparison_ledger.py
 
 Persists tri_comparison_reconcile.py's DiscrepancyGroups across runs, tracks which ones a human
 has actually investigated (and what they found), and answers the one question the chart needs:
-for this (language, symbol_type, metric), is there any unvalidated discrepancy touching
-GitGalaxy's reading right now?
+for this (language, symbol_type, metric), is there any unvalidated discrepancy at all right now
+-- regardless of which tool(s) are on which side of it?
 
 WHY A LEDGER AT ALL, AND WHY PER-SHAPE NOT PER-INSTANCE
     See tri_comparison_reconcile.py's own module docstring for why discrepancies are grouped by
@@ -41,8 +41,8 @@ ENTRY LIFECYCLE
        fixed, or corpus content moved), its entry is kept, not deleted -- `still_reproduces` is
        set to false and `last_reconciled_at` still updates. Keeping a historical record of what
        used to disagree and was resolved is worth more than silently losing it; an entry that
-       stops reproducing is also, trivially, no longer capable of graying out a chart bar (see
-       is_language_metric_clean below), so keeping it costs nothing at read time.
+       stops reproducing is also, trivially, no longer capable of blocking a chart badge (see
+       has_open_question below), so keeping it costs nothing at read time.
 """
 
 from __future__ import annotations
@@ -78,9 +78,7 @@ def save_ledger(ledger: dict, path: Path = LEDGER_PATH) -> None:
     path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n")
 
 
-def merge_and_save(
-    language: str, groups: list[DiscrepancyGroup], path: Path = LEDGER_PATH
-) -> dict:
+def merge_and_save(language: str, groups: list[DiscrepancyGroup], path: Path = LEDGER_PATH) -> dict:
     """Merges a fresh reconcile_symbols() run's discrepancy groups for one language into the
     persistent ledger, preserving any existing validation. Sets `language` on each group first
     (reconcile_symbols itself doesn't know its own language -- the caller does)."""
@@ -93,9 +91,7 @@ def merge_and_save(
         g.language = language
         key = g.shape_key
         seen_keys_this_run.add(key)
-        examples = [
-            {"file_path": ex.file_path, "name": ex.name, "readings": ex.readings} for ex in g.examples
-        ]
+        examples = [{"file_path": ex.file_path, "name": ex.name, "readings": ex.readings} for ex in g.examples]
         if key in entries:
             entry = entries[key]
             entry["last_seen_count"] = g.total_occurrences
@@ -131,41 +127,30 @@ def merge_and_save(
     return ledger
 
 
-def is_language_metric_clean(
-    language: str, symbol_type: str, metric: str, path: Path = LEDGER_PATH, aspect: str = "recall"
-) -> bool:
-    """The one question the chart actually needs answered: does GitGalaxy's value label for this
-    (language, symbol_type, metric) get a `*` (an unaudited loss) or not? True means either no
-    discrepancy currently reproduces here, or every one that does has a validated verdict.
-
-    `aspect` matters because recall and precision fail in OPPOSITE shapes, and checking the wrong
-    one silently misses real cases -- confirmed on rust: GitGalaxy's func precision (92.1%,
-    genuinely beaten by both tree-sitter and ctags at 100%) rendered with no `*` at all under the
-    recall-only check this function used to be, because GitGalaxy was never in `dissenting_tools`
-    for the shape actually causing that gap.
-      - "recall" (default; also correct for the "args" metric, whose discrepancy groups are
-        already majority/minority-shaped, not agree/disagree-shaped): GitGalaxy MISSED something
-        real -- flagged when GitGalaxy is in `dissenting_tools` (recall's actual failure mode).
-      - "precision": GitGalaxy is the LONE, uncorroborated claimant of something -- flagged only
-        when GitGalaxy is in `agreeing_tools` AND is the ONLY tool in that set (present but
-        nobody else backs it up). A shape like csharp's agree[ctags,gitgalaxy]_vs[tree_sitter]
-        does NOT flag precision -- ctags corroborates GitGalaxy there, precision is fine; only
-        agree[gitgalaxy]_vs[...] (GitGalaxy truly alone) does.
+def has_open_question(language: str, symbol_type: str, metric: str, path: Path = LEDGER_PATH) -> bool:
+    """The one question the chart actually needs answered: is there ANY currently-reproducing,
+    unvalidated discrepancy for this (language, symbol_type, metric) triple -- regardless of
+    which tool(s) are on which side? Symmetric across all three tools on purpose (an earlier,
+    GitGalaxy-only version of this check -- `is_language_metric_clean`, only ever asterisked
+    GitGalaxy's own label and only gated GitGalaxy's own recall/precision failure shapes)
+    drives two chart behaviors:
+      - EVERY tool's value label in a disputed cell gets a `*`, not just GitGalaxy's -- the
+        question is "has anyone actually verified this", not "did GitGalaxy specifically lose".
+      - No winner badge is drawn on a disputed cell at all, for any panel. A badge implies "we
+        know who's actually right"; that's only true once a human (or a dispatched agent
+        standing in for one -- see docs/self_scan/how_to_investigate_a_discrepancy.md) has read
+        real source and recorded a verdict. A raw percentage comparison alone isn't enough to
+        earn one -- confirmed necessary by a real case the strictly-highest-rate_pct rule
+        produced on its own: a 2-sample cell at 100% (2/2) outranking an 80-sample cell at
+        98.75% (79/80), an artifact of sample size nobody had verified, not evidence either
+        tool is more correct there.
     """
     ledger = load_ledger(path)
-    for entry in ledger.get("entries", {}).values():
-        if not (
-            entry["language"] == language
-            and entry["symbol_type"] == symbol_type
-            and entry["metric"] == metric
-            and entry["still_reproduces"]
-            and entry["status"] != "validated"
-        ):
-            continue
-        if aspect == "precision":
-            flagged = entry["agreeing_tools"] == ["gitgalaxy"]
-        else:
-            flagged = "gitgalaxy" in entry["dissenting_tools"]
-        if flagged:
-            return False
-    return True
+    return any(
+        entry["language"] == language
+        and entry["symbol_type"] == symbol_type
+        and entry["metric"] == metric
+        and entry["still_reproduces"]
+        and entry["status"] != "validated"
+        for entry in ledger.get("entries", {}).values()
+    )

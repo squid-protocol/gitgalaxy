@@ -77,23 +77,16 @@ BAR GROUPS: VARIABLE, NOT ALWAYS THREE
         (`LanguageChartData.awaiting_note`) since the corpus genuinely isn't missing here, just
         empty of anything comparable in this small a sample.
 
-GITGALAXY'S BAR: ALWAYS BLUE, ASTERISK FOR AN UNAUDITED LOSS
+EVERY TOOL'S BAR IS ALWAYS ITS OWN COLOR; ASTERISK MEANS "NOT YET VERIFIED", NOT "LOST"
     An earlier version of this chart turned GitGalaxy's bar gray when it lost to another
-    available tool and that gap hadn't been investigated. Recoloring an entire bar species read
-    as more alarming than intended and made the chart harder to scan at a glance for a value that
-    hasn't actually changed meaning -- GitGalaxy's bar is now ALWAYS its normal categorical blue.
-    The same "beaten and not yet investigated" signal instead appends `*` to GitGalaxy's OWN
-    value label for that cell (e.g. `126/259*`) -- still visible, far less visually loud. See
+    available tool and that gap hadn't been investigated, then later moved to asterisking only
+    GitGalaxy's own label. Both versions singled GitGalaxy out, which was backwards: the open
+    question in a disputed cell is "has anyone actually read the source and confirmed who's
+    right", and that question applies to EVERY tool shown there, not just GitGalaxy. Every
+    tool's bar is always its normal categorical color; `*` now appends to EVERY tool's value
+    label in a cell with any currently-reproducing, unvalidated ledger entry for that
+    (language, symbol_type, metric) -- see `ledger_mod.has_open_question()` and
     docs/self_scan/how_to_investigate_a_discrepancy.md for what an asterisk is asking for.
-
-    Recall and precision fail in OPPOSITE shapes, and the asterisk check has to know which one
-    it's looking at -- confirmed the hard way: GitGalaxy's rust func PRECISION (92.1%, genuinely
-    beaten by both tree-sitter and ctags at 100%) first shipped with no `*` at all, because the
-    check only looked for GitGalaxy on recall's failure side (`dissenting_tools`, "GitGalaxy
-    missed something real"), and precision's failure side is the opposite one (`agreeing_tools`
-    == just GitGalaxy alone, "GitGalaxy claims something nobody corroborates"). Each panel below
-    passes its own `aspect` ("recall" or "precision") to `is_language_metric_clean()` -- see that
-    function's own docstring in tri_comparison_ledger.py for the full reasoning.
 
 VALUE LABELS: CENTERED ON EACH BAR, NOT STACKED TO THE SIDE
     Each bar carries its own value label (a ranked panel's `matched/total`, or a found-count
@@ -101,12 +94,17 @@ VALUE LABELS: CENTERED ON EACH BAR, NOT STACKED TO THE SIDE
     not the variable-length fill -- so a short bar's label doesn't end up crammed against its own
     left edge), in white for contrast against the saturated fill.
 
-WINNER BADGE
-    The space a stacked column of raw numbers used to occupy (to the right of each panel) now
-    holds ONE badge per (language, panel): a colored letter -- G/T/C -- naming whichever
-    available tool scored strictly highest there, in that tool's own categorical color. No badge
-    at all when there's a tie for the top score (including a 1-bar group, which can't have a
-    "winner" over nothing) -- a badge only ever appears when there's an actual winner to name.
+WINNER BADGE: REQUIRES VERIFICATION, NOT JUST THE HIGHER NUMBER
+    A badge implies "we know who's actually right" -- a raw percentage comparison alone isn't
+    enough to earn that claim. Confirmed necessary by a real case, not a hypothetical: under a
+    pure highest-rate_pct rule, a 2-sample cell at 100% (2/2) outranked an 80-sample cell at
+    98.75% (79/80) with a badge exactly as confident-looking as any other, an artifact of sample
+    size nobody had verified, not evidence that tool was more correct there. A cell only gets a
+    badge now if `has_open_question()` is False for it (no ledger entry currently reproduces
+    unvalidated) AND one available tool scored strictly highest -- a colored letter (G/T/C) in
+    that tool's own categorical color, in the space a stacked column of raw numbers used to
+    occupy. No badge on a disputed cell (regardless of how lopsided the raw numbers look), a
+    tie, or a 1-bar group (which can't have a "winner" over nothing).
 
 COLOR SOURCE
     Categorical slots 1-3 of the validated reference palette (see the `dataviz` skill's
@@ -271,10 +269,8 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
     return out
 
 
-def _gg_needs_asterisk(lang: str, symbol_type: str, ledger_metric: str, aspect: str) -> bool:
-    return not ledger_mod.is_language_metric_clean(
-        lang, symbol_type, ledger_metric, path=ledger_mod.LEDGER_PATH, aspect=aspect
-    )
+def _disputed(lang: str, symbol_type: str, ledger_metric: str) -> bool:
+    return ledger_mod.has_open_question(lang, symbol_type, ledger_metric, path=ledger_mod.LEDGER_PATH)
 
 
 def _winner_or_tie(scores: dict[str, MetricScore], available_tools: tuple[str, ...]) -> str | None:
@@ -340,40 +336,45 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     row_pad = 5
     row_h = row_pad * 2 + 3 * bar_h + 2 * sub_gap  # room for up to 3 stacked bars, always
 
-    # (data attr, symbol_type, ledger metric, panel title, asterisk aspect, ranked, found_field --
-    # see ledger_mod.is_language_metric_clean's own docstring for why recall and precision need
-    # different aspects, not just different data. `ranked` False means "found count, no bar-width
-    # ratio, no winner badge, doesn't enter the summary tally" -- see module docstring's PANELS
-    # section for why the two existence panels AND args dropped their ratio. `found_field` is
-    # which MetricScore attribute IS the found-count on an unranked panel: func/class use
-    # matched_consensus (this tool's own raw claim count, gate-free); args uses total_slots
-    # instead, since args_scores' matched_consensus already means "matched the cross-tool
-    # majority" -- exactly the pre-verification correctness claim this panel is deliberately NOT
-    # making yet, so it can't be reused as a neutral "found" count the way func/class's can.)
+    # (data attr, symbol_type, ledger metric, panel title, ranked, found_field -- see
+    # ledger_mod.has_open_question's own docstring for the asterisk/badge gating this drives,
+    # symmetric across all three tools now regardless of panel. `ranked` False means "found
+    # count, no bar-width ratio, no winner badge, doesn't enter the summary tally" -- see module
+    # docstring's PANELS section for why the two existence panels AND args dropped their ratio.
+    # `found_field` is which MetricScore attribute IS the found-count on an unranked panel:
+    # func/class use matched_consensus (this tool's own raw claim count, gate-free); args uses
+    # total_slots instead, since args_scores' matched_consensus already means "matched the
+    # cross-tool majority" -- exactly the pre-verification correctness claim this panel is
+    # deliberately NOT making yet, so it can't be reused as a neutral "found" count the way
+    # func/class's can.)
     panels = [
-        ("func_recall", "function", "existence", "Functions Found", "recall", False, "matched_consensus"),
-        ("func_precision", "function", "existence", "Func Precision", "precision", True, None),
-        ("class_recall", "class", "existence", "Classes Found", "recall", False, "matched_consensus"),
-        ("class_precision", "class", "existence", "Class Precision", "precision", True, None),
-        ("args", "function", "args", "Args Found", "recall", False, "total_slots"),
+        ("func_recall", "function", "existence", "Functions Found", False, "matched_consensus"),
+        ("func_precision", "function", "existence", "Func Precision", True, None),
+        ("class_recall", "class", "existence", "Classes Found", False, "matched_consensus"),
+        ("class_precision", "class", "existence", "Class Precision", True, None),
+        ("args", "function", "args", "Args Found", False, "total_slots"),
     ]
 
     panels_x_start = left_margin + label_col_w
     width = panels_x_start + len(panels) * panel_w + (len(panels) - 1) * panel_gap + right_margin
 
     # Tally: one vote per (language, panel) cell that's an actual comparison (2+ tools with real
-    # data) -- 5 panels x up to 45 languages, but a 1-bar group or an empty panel (css/html class,
-    # a blank args column) contributes no vote at all, per _winner_or_tie's own docstring on why
-    # "no comparison happened" has to stay distinct from "it was a tie".
+    # data) AND not disputed (see WINNER BADGE module docstring -- a badge/vote requires
+    # has_open_question() to be False, not just a highest score) -- up to 2 ranked panels x 45
+    # languages, but a 1-bar group, an empty panel (css/html class), or a still-disputed cell
+    # contributes no vote at all, per _winner_or_tie's own docstring on why "no comparison
+    # happened" has to stay distinct from "it was a tie".
     tally: Counter[str] = Counter()
-    for data in data_by_lang.values():
+    for lang, data in data_by_lang.items():
         if not data.has_data:
             continue
-        for attr, _, _, _, _, ranked, _ in panels:
+        for attr, symbol_type, ledger_metric, _, ranked, _ in panels:
             if not ranked:
                 continue
             scores = getattr(data, attr)
             if not scores:
+                continue
+            if _disputed(lang, symbol_type, ledger_metric):
                 continue
             result = _winner_or_tie(scores, data.available_tools)
             if result is not None:
@@ -401,10 +402,10 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         f'<text class="scope-note" x="{left_margin}" y="64">Bar groups vary 1-3 by language\'s tool coverage '
         + f"-- order is always GitGalaxy, tree-sitter, ctags. css/html class panels are out of "
         + f"scope by design (selectors, not OOP classes).</text>",
-        f'<text class="scope-note" x="{left_margin}" y="76">GitGalaxy\'s label always carries its raw '
-        + f"count/ratio; `*` marks an unaudited loss to another tool, not a verdict. Badge = the tool "
-        + f"that scored strictly highest on a RANKED panel (blank on a tie; found-count panels never "
-        + f"badge).</text>",
+        f'<text class="scope-note" x="{left_margin}" y="76">`*` marks EVERY tool\'s label in a cell with '
+        + f"any unvalidated disagreement, not just GitGalaxy's -- not a verdict either way. Badge = "
+        + f"the tool that scored strictly highest on a RANKED, UN-disputed panel (blank on a tie, a "
+        + f"disputed cell, or a found-count panel).</text>",
         f'<text class="scope-note" x="{left_margin}" y="88">See docs/self_scan/how_to_investigate_a_discrepancy.md '
         + f"for what `*` is asking for.</text>",
     ]
@@ -415,9 +416,9 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         parts.append(f'<rect x="{lx}" y="{legend_y - 8}" width="14" height="8" rx="2" fill="{_COLOR_TOOL[tool]}"/>')
         parts.append(f'<text class="legend-label" x="{lx + 18}" y="{legend_y}">{_TOOL_LABEL[tool]}</text>')
         lx += 18 + 9 * len(_TOOL_LABEL[tool]) + 20
-    parts.append(f'<text class="legend-label" x="{lx}" y="{legend_y}">* = GitGalaxy, unaudited loss</text>')
+    parts.append(f'<text class="legend-label" x="{lx}" y="{legend_y}">* = unvalidated disagreement here</text>')
 
-    for i, (_, _, _, title, _, _, _) in enumerate(panels):
+    for i, (_, _, _, title, _, _) in enumerate(panels):
         px = panels_x_start + i * (panel_w + panel_gap)
         parts.append(
             f'<text class="panel-title" x="{px + (bar_max_w + inner_gap + badge_col_w) / 2}" '
@@ -439,7 +440,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             )
             continue
 
-        for panel_i, (attr, symbol_type, ledger_metric, _, aspect, ranked, found_field) in enumerate(panels):
+        for panel_i, (attr, symbol_type, ledger_metric, _, ranked, found_field) in enumerate(panels):
             px = panels_x_start + panel_i * (panel_w + panel_gap)
             scores: dict[str, MetricScore] = getattr(data, attr)
             if not scores:
@@ -449,6 +450,11 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             parts.append(
                 f'<rect class="bar-track" x="{px}" y="{bar_y}" width="{bar_max_w}" height="{track_h}" rx="2"/>'
             )
+
+            # Symmetric across all three tools now -- see EVERY TOOL'S BAR / WINNER BADGE module
+            # docstring sections. Computed once per panel, not per tool: it's a property of the
+            # (language, symbol_type, metric) cell, not of any one tool's reading within it.
+            disputed = _disputed(lang, symbol_type, ledger_metric)
 
             # Found-count panels have no privileged denominator to scale against (see module
             # docstring) -- bar width is relative to this ROW's own highest found-count instead,
@@ -478,14 +484,14 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     w = max(2, bar_max_w * found / row_max_found) if row_max_found else 2
                     label = f"{found}"
                 parts.append(f'<rect x="{px}" y="{bar_y}" width="{w:.1f}" height="{bar_h}" rx="2" fill="{color}"/>')
-                if tool == "gitgalaxy" and _gg_needs_asterisk(lang, symbol_type, ledger_metric, aspect):
+                if disputed:
                     label += "*"
                 parts.append(
                     f'<text class="bar-value-label" x="{px + bar_max_w / 2}" y="{bar_y + bar_h - 2}">{label}</text>'
                 )
                 bar_y += bar_h + sub_gap
 
-            if ranked:
+            if ranked and not disputed:
                 winner = _winner(scores, data.available_tools)
                 if winner:
                     bx = px + bar_max_w + inner_gap + badge_col_w / 2

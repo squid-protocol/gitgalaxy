@@ -264,7 +264,13 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
 }
 
 CTAGS_CLASS_KINDS: dict[str, set[str]] = {
-    "c": {"s"},  # struct -- matches GitGalaxy's own C class_start convention
+    "c": {"s", "g", "u"},  # struct, enum, union -- matches GitGalaxy's own C class_start regex
+    # (struct|union|enum, gitgalaxy/standards/language_standards.py). Was struct-only until
+    # c/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags] (9 occurrences, 2026-08-19)
+    # surfaced it: ctags itself parses enum/union declarations fine (confirmed via a direct
+    # `ctags -x` run against sqlite/lemon.c and others), this map was just dropping them before
+    # reconciliation ever saw them -- a bug in this test harness, not in ctags, GitGalaxy, or
+    # tree-sitter.
     "cpp": {"c", "s"},  # class, struct
     "csharp": {"c", "s", "i"},  # class, struct, interface
     "css": {"c"},  # CSS "class" kind is a literal .class selector -- matches GitGalaxy's own
@@ -387,16 +393,32 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
     for line in result.stdout.splitlines():
         if line.startswith("!"):
             continue
-        cols = line.split("\t")
-        if len(cols) < 4:
+        # NOT a blind line.split("\t") -- the address/pattern field (cols[2] in the naive
+        # reading) is `/^<verbatim matched source line>$/;"`, and that source text can itself
+        # contain a literal TAB character when the real code uses tabs for column alignment
+        # (confirmed real, not theoretical: language-crucible/data/c/doom/i_system.c's
+        # `byte*\tI_AllocLow(int length)` -- old-school Doom-era C formatting). A tab-splitting
+        # parser then reads a fragment of the SOURCE LINE as if it were the kind field, fails
+        # the `kind not in wanted_kinds` check below, and silently drops the whole symbol --
+        # confirmed via c/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags] (I_AllocLow,
+        # I_ZoneBase, I_BaseTiccmd, R_CheckBBox, R_AddLine all missing from ctags' reading purely
+        # because of this parsing bug, not because ctags itself failed to tag them -- a raw
+        # ctags run against these files finds every one of them correctly). The tag-file format
+        # guarantees the address field always ends with the literal `;"` marker before the
+        # kind/extension-field trailer begins (ctags' own TAG_FILE_FORMAT spec) -- split on
+        # THAT instead, and only tab-split the trailer (extension fields are simple `key:value`
+        # pairs with no embedded source text, so tab-splitting is safe there).
+        marker_idx = line.find(';"\t')
+        if marker_idx == -1:
             continue
-        name = cols[0]
-        # cols[2] is the /pattern/;" search pattern, cols[3] is the kind, cols[4:] are
-        # extension fields (line:N, signature:(...), class:Foo, etc.)
-        kind = cols[3]
+        name = line.split("\t", 1)[0]
+        if not name:
+            continue
+        trailer_cols = line[marker_idx + len(';"\t') :].split("\t")
+        kind = trailer_cols[0]
         if kind not in wanted_kinds:
             continue
-        fields = _parse_extension_fields("\t".join(cols[4:]))
+        fields = _parse_extension_fields("\t".join(trailer_cols[1:]))
         line_no = int(fields["line"]) if "line" in fields else -1
         signature = fields.get("signature")
         symbols.append(CtagsSymbol(name=name, line=line_no, kind=kind, signature=signature))

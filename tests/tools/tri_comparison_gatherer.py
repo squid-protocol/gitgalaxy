@@ -120,14 +120,24 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     reconciliation step (not this module) is where drop-rule-shaped judgment calls belong, so
     they can be applied uniformly across what GitGalaxy/ctags read too instead of being baked
     into one reader's walk alone.
+
+    One piece of measure()'s walk() IS ported here, verbatim in spirit (#1614): tree-sitter-haskell
+    emits one node PER PATTERN-MATCH CLAUSE, not one per logical function -- `toJSON` written as
+    five equations is five sibling nodes sharing one name. Left unhandled, that's not "a different,
+    prior question" like the drop rules above; it's tree-sitter's tree containing five entries for
+    one thing that exists once, which every consumer of this reader's Occurrence list (reconcile,
+    ledger, chart) would then have to know to special-case itself. Consecutive func-type SIBLINGS
+    (interleaved `comment` nodes don't break the run -- real corpus code routinely comments between
+    clauses) sharing a name collapse into the first occurrence only, the same rule
+    tree_sitter_accuracy_audit.py already proved correct for this exact grammar.
     """
     funcs: list[Occurrence] = []
     classes: list[Occurrence] = []
 
-    def walk(node):
+    def walk(node, is_continuation_clause=False):
         if node.type in func_node_types:
             name = tsaa._get_node_name(node)
-            if name:
+            if name and not (lang == "haskell" and is_continuation_clause):
                 funcs.append(
                     Occurrence(
                         name=name,
@@ -139,8 +149,21 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
             name = tsaa._get_node_name(node)
             if name:
                 classes.append(Occurrence(name=name, line=node.start_point[0] + 1, args=None))
+
+        last_clause_name: Optional[str] = None
         for child in node.children:
-            walk(child)
+            if lang == "haskell" and child.type == "comment":
+                walk(child)
+                continue
+            child_is_continuation = False
+            if lang == "haskell" and child.type in func_node_types:
+                child_name = tsaa._get_node_name(child)
+                if child_name is not None and child_name == last_clause_name:
+                    child_is_continuation = True
+                last_clause_name = child_name
+            else:
+                last_clause_name = None
+            walk(child, is_continuation_clause=child_is_continuation)
 
     walk(root)
     return funcs, classes

@@ -11,36 +11,41 @@ USAGE
     python tests/tools/tri_comparison_chart.py --languages python,rust,csharp --write
     python tests/tools/tri_comparison_chart.py --all --write   # every language with a corpus
 
-PANELS: FIVE, BUT ONLY THREE ARE RANKED
-    Functions Found, Function Precision, Classes Found, Class Precision, Args Exact-Match.
+PANELS: FIVE, BUT ONLY TWO ARE RANKED
+    Functions Found, Function Precision, Classes Found, Class Precision, Args Found.
 
-    RECALL WAS REMOVED AS A RATIO -- ITS DENOMINATOR ISN'T TRUSTWORTHY ENOUGH TO RANK ON
-        An earlier version of this chart rendered "Func/Class Recall" as matched/union, same
-        shape as precision. That denominator (every slot ANY available tool reported) sounded
-        principled but turned out to be exactly as unreliable as any one tool's own noise --
-        confirmed twice on real data, not theoretically: ctags' Haskell parser double/triple-tags
-        multi-clause functions (one tag per pattern-match equation), and tree-sitter's own raw
-        walk had the identical bug for the same language before it was fixed earlier in this
-        effort. Either bug inflates the SHARED union denominator, which silently deflates every
-        OTHER tool's recall percentage too -- a ranking built on a denominator any one tool can
-        corrupt isn't a ranking worth showing. Reporting the bare found-count instead (no ratio,
-        no implied "of how many") sidesteps the bad-denominator problem entirely: it's just what
-        each tool actually claimed, full stop, not scored against anything uncertain.
+    RECALL AND ARGS-MATCH WERE REMOVED AS RATIOS -- THEIR DENOMINATORS AREN'T TRUSTWORTHY
+    ENOUGH TO RANK ON YET
+        An earlier version of this chart rendered "Func/Class Recall" as matched/union (every
+        slot ANY available tool reported) and "Args Match" as matched-the-cross-tool-majority /
+        comparable. Both sounded principled but share the same flaw: BOTH require trusting an
+        unverified cross-tool agreement as if it were correctness, and both are exactly as
+        unreliable as any one tool's own noise -- confirmed twice on real data, not
+        theoretically: ctags' Haskell parser double/triple-tags multi-clause functions (one tag
+        per pattern-match equation), and tree-sitter's own raw walk had the identical bug for the
+        same language before it was fixed earlier in this effort. Either bug inflates a SHARED
+        denominator (recall's union) or corrupts a "majority" (args' 2-vs-1 credit), silently
+        distorting every OTHER tool's score too -- a ranking built on unverified cross-tool
+        agreement isn't a ranking worth showing yet. Reporting the bare found-count instead (no
+        ratio, no implied "of how many" or "how many matched") sidesteps the problem entirely:
+        it's just what each tool actually claimed, full stop, not scored against anything
+        uncertain. Once a language/metric's ledger shapes are validated (see
+        docs/self_scan/how_to_investigate_a_discrepancy.md), a real denominator can come back for
+        that language specifically -- this is a deliberate, temporary state, not a permanent
+        downgrade.
     PRECISION SURVIVES BECAUSE ITS DENOMINATOR IS DIFFERENT IN KIND, NOT DEGREE
         precision_t = (slots tool t reported that at least one OTHER tool corroborated) / (slots
         tool t reported, period) -- the denominator is that SAME tool's own claim count, never a
-        cross-tool union. A tool can't inflate its own precision denominator by being noisy
-        elsewhere the way it can inflate everyone's shared recall denominator. This is exactly
-        the "of what we found, how many are real" framing -- confirmed differentiated on rust:
-        GitGalaxy's ~92% precision there (some GitGalaxy-only claims uncorroborated) is a genuine
-        signal a bare found-count alone wouldn't show.
-    ARGS MATCH keeps its own existing shape (see tri_comparison_reconcile.py) -- unaffected by
-    this change, not a recall-shaped metric to begin with.
+        cross-tool union or majority vote. A tool can't inflate its own precision denominator by
+        being noisy elsewhere the way it can inflate everyone's shared recall denominator or skew
+        an args majority. This is exactly the "of what we found, how many are real" framing --
+        confirmed differentiated on rust: GitGalaxy's ~92% precision there (some GitGalaxy-only
+        claims uncorroborated) is a genuine signal a bare found-count alone wouldn't show.
 
     Found-count panels never render a winner badge and never enter the bottom summary tally --
     "found more" isn't a claim that tool is more correct (more found is what a hallucinating
-    tool does too), so there's no ranking to declare. Only the three genuinely ranked panels
-    (Func/Class Precision, Args Match) produce a badge and count toward the summary.
+    tool does too), so there's no ranking to declare. Only the two genuinely ranked panels
+    (Func/Class Precision) produce a badge and count toward the summary.
 
 CSS/HTML CLASS PANELS: OUT OF SCOPE, NOT JUST LOW-SCORING
     GitGalaxy's own `class_start` for css/html targets selector/tag-shaped entities (`.foo {`),
@@ -335,17 +340,22 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     row_pad = 5
     row_h = row_pad * 2 + 3 * bar_h + 2 * sub_gap  # room for up to 3 stacked bars, always
 
-    # (data attr, symbol_type, ledger metric, panel title, asterisk aspect, ranked -- see
-    # ledger_mod.is_language_metric_clean's own docstring for why recall and precision need
+    # (data attr, symbol_type, ledger metric, panel title, asterisk aspect, ranked, found_field --
+    # see ledger_mod.is_language_metric_clean's own docstring for why recall and precision need
     # different aspects, not just different data. `ranked` False means "found count, no bar-width
     # ratio, no winner badge, doesn't enter the summary tally" -- see module docstring's PANELS
-    # section for why the two existence panels dropped their ratio.)
+    # section for why the two existence panels AND args dropped their ratio. `found_field` is
+    # which MetricScore attribute IS the found-count on an unranked panel: func/class use
+    # matched_consensus (this tool's own raw claim count, gate-free); args uses total_slots
+    # instead, since args_scores' matched_consensus already means "matched the cross-tool
+    # majority" -- exactly the pre-verification correctness claim this panel is deliberately NOT
+    # making yet, so it can't be reused as a neutral "found" count the way func/class's can.)
     panels = [
-        ("func_recall", "function", "existence", "Functions Found", "recall", False),
-        ("func_precision", "function", "existence", "Func Precision", "precision", True),
-        ("class_recall", "class", "existence", "Classes Found", "recall", False),
-        ("class_precision", "class", "existence", "Class Precision", "precision", True),
-        ("args", "function", "args", "Args Match", "recall", True),
+        ("func_recall", "function", "existence", "Functions Found", "recall", False, "matched_consensus"),
+        ("func_precision", "function", "existence", "Func Precision", "precision", True, None),
+        ("class_recall", "class", "existence", "Classes Found", "recall", False, "matched_consensus"),
+        ("class_precision", "class", "existence", "Class Precision", "precision", True, None),
+        ("args", "function", "args", "Args Found", "recall", False, "total_slots"),
     ]
 
     panels_x_start = left_margin + label_col_w
@@ -359,7 +369,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     for data in data_by_lang.values():
         if not data.has_data:
             continue
-        for attr, _, _, _, _, ranked in panels:
+        for attr, _, _, _, _, ranked, _ in panels:
             if not ranked:
                 continue
             scores = getattr(data, attr)
@@ -407,7 +417,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         lx += 18 + 9 * len(_TOOL_LABEL[tool]) + 20
     parts.append(f'<text class="legend-label" x="{lx}" y="{legend_y}">* = GitGalaxy, unaudited loss</text>')
 
-    for i, (_, _, _, title, _, _) in enumerate(panels):
+    for i, (_, _, _, title, _, _, _) in enumerate(panels):
         px = panels_x_start + i * (panel_w + panel_gap)
         parts.append(
             f'<text class="panel-title" x="{px + (bar_max_w + inner_gap + badge_col_w) / 2}" '
@@ -429,7 +439,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             )
             continue
 
-        for panel_i, (attr, symbol_type, ledger_metric, _, aspect, ranked) in enumerate(panels):
+        for panel_i, (attr, symbol_type, ledger_metric, _, aspect, ranked, found_field) in enumerate(panels):
             px = panels_x_start + panel_i * (panel_w + panel_gap)
             scores: dict[str, MetricScore] = getattr(data, attr)
             if not scores:
@@ -443,13 +453,17 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             # Found-count panels have no privileged denominator to scale against (see module
             # docstring) -- bar width is relative to this ROW's own highest found-count instead,
             # purely a visual "who claimed more" cue, never a percentage of anything.
-            row_max_found = max(
-                (
-                    scores[t].matched_consensus
-                    for t in data.available_tools
-                    if t in scores and scores[t].rate_pct is not None
-                ),
-                default=0,
+            row_max_found = (
+                max(
+                    (
+                        getattr(scores[t], found_field)
+                        for t in data.available_tools
+                        if t in scores and scores[t].rate_pct is not None
+                    ),
+                    default=0,
+                )
+                if not ranked
+                else 0
             )
             for tool in data.available_tools:
                 if tool not in scores or scores[tool].rate_pct is None:
@@ -460,8 +474,9 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     w = max(2, bar_max_w * score.rate_pct / 100.0)
                     label = f"{score.matched_consensus}/{score.total_slots}"
                 else:
-                    w = max(2, bar_max_w * score.matched_consensus / row_max_found) if row_max_found else 2
-                    label = f"{score.matched_consensus}"
+                    found = getattr(score, found_field)
+                    w = max(2, bar_max_w * found / row_max_found) if row_max_found else 2
+                    label = f"{found}"
                 parts.append(f'<rect x="{px}" y="{bar_y}" width="{w:.1f}" height="{bar_h}" rx="2" fill="{color}"/>')
                 if tool == "gitgalaxy" and _gg_needs_asterisk(lang, symbol_type, ledger_metric, aspect):
                     label += "*"
@@ -485,7 +500,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     parts.append(
         f'<text class="summary-title" x="{left_margin}" y="{summary_top + 4}">'
         f"Summary -- best tool per (language, metric), ranked panels only "
-        f"(Func/Class Precision, Args Match), {total_votes} real comparisons "
+        f"(Func/Class Precision), {total_votes} real comparisons "
         f"(1-bar groups and empty panels don't count)</text>"
     )
     stat_y = summary_top + 26

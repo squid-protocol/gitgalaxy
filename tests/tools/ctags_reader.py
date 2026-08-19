@@ -38,6 +38,15 @@ KIND MAPS
         low ctags "precision" number for ada isn't misread as a GitGalaxy defect.
       - haskell: ctags' Haskell parser has no class-shaped kind at all (constructor/function/
         module/type only) -- CTAGS_CLASS_KINDS["haskell"] is empty on purpose.
+        Separately (function-side, not this class map, but same parser): ctags' Haskell parser
+        also has no layout-rule/lexical-scope awareness -- it only tags equations anchored at
+        column 1 (true module top level), never `instance ... where` methods, `where`-clause
+        helpers, or `let`-bound names inside a `do` block, even when it correctly handles those
+        same definitions' multiple pattern-match clauses at the top level (confirmed:
+        `expandFilterPath`/`writeFnBinary`/`writerFn` all tag fine). Investigated via
+        docs/self_scan/tri_comparison_ledger.json's
+        `haskell/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` entry -- a real,
+        structural ctags limitation, not a GitGalaxy or tree-sitter defect.
       - shell: no class-shaped kind either (alias/function/heredoc/script) -- matches GitGalaxy's
         and tree-sitter's own class_recall/precision being N/A for shell already.
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start

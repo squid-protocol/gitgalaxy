@@ -411,7 +411,7 @@
 <text class="lang-label" x="20" y="877.5">haskell</text>
 <rect class="bar-track" x="154" y="857" width="88" height="34" rx="2"/>
 <rect x="154" y="857" width="51.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="865">148/251*</text>
+<text class="bar-value-label" x="198.0" y="865">148/251</text>
 <rect x="154" y="869" width="51.2" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="877">146/251</text>
 <rect x="154" y="881" width="63.1" height="10" rx="2" fill="#1baf7a"/>
@@ -420,7 +420,7 @@
 <text class="badge-label" x="258.0" y="877.0">C</text>
 <rect class="bar-track" x="286" y="857" width="88" height="34" rx="2"/>
 <rect x="286" y="857" width="86.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="865">146/148*</text>
+<text class="bar-value-label" x="330.0" y="865">146/148</text>
 <rect x="286" y="869" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="877">146/146</text>
 <rect x="286" y="881" width="37.6" height="10" rx="2" fill="#1baf7a"/>
@@ -441,7 +441,7 @@
 <text class="bar-value-label" x="594.0" y="877">16/16</text>
 <rect class="bar-track" x="682" y="857" width="88" height="34" rx="2"/>
 <rect x="682" y="857" width="77.7" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="865">68/77*</text>
+<text class="bar-value-label" x="726.0" y="865">68/77</text>
 <rect x="682" y="869" width="77.7" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="877">68/77</text>
 <text class="lang-label" x="20" y="921.5">html</text>

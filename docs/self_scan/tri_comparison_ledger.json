@@ -11,7 +11,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "agc_assembly",
-      "last_reconciled_at": "2026-08-19T20:11:37Z",
+      "last_reconciled_at": "2026-08-19T20:26:16Z",
       "last_seen_count": 760,
       "last_seen_examples": [
         {
@@ -112,7 +112,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-08-19T20:11:39Z",
+      "last_reconciled_at": "2026-08-19T20:26:18Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -149,7 +149,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "assembly",
-      "last_reconciled_at": "2026-08-19T20:11:41Z",
+      "last_reconciled_at": "2026-08-19T20:26:20Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -226,7 +226,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "assembly",
-      "last_reconciled_at": "2026-08-19T20:11:41Z",
+      "last_reconciled_at": "2026-08-19T20:26:20Z",
       "last_seen_count": 52,
       "last_seen_examples": [
         {
@@ -328,7 +328,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
@@ -440,7 +440,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -467,7 +467,7 @@
           "readings": {
             "ctags": null,
             "gitgalaxy": null,
-            "tree_sitter": 980
+            "tree_sitter": 981
           }
         },
         {
@@ -540,10 +540,10 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:18Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-19T00:00:00Z",
+      "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 525,
       "last_seen_examples": [
         {
@@ -638,10 +638,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Confirmed tooling defect in tri_comparison_gatherer.py's own raw tree-sitter walk, now fixed -- not a GitGalaxy defect (GitGalaxy and ctags are both correct in every sampled case). Independently verified all 8 sampled cases (7 distinct source lines, one -- compile.c:223 -- has both a declaration and a cast on the same line, explaining the duplicate sample) against real source: every single one is a pointer declaration, function parameter, or cast referencing an ALREADY-DEFINED struct type (`struct compiler_unit *u`, `(struct compiler_unit *)ptr`, etc.), never a `struct X { ... } ` definition. tree-sitter-c's `struct_specifier`/`union_specifier`/`enum_specifier` node type covers both a real definition and a bare type reference, distinguished only by whether the node has a `body` field -- `_walk_tree_sitter` counted every matching node type without checking for a body, so it counted every REFERENCE as a new class. `tests/tools/tree_sitter_accuracy_audit.py`'s own walk() already has this exact fix for C (`lang == 'c' and node.child_by_field_name('body') is None: pass`) -- ported the identical check into `_walk_tree_sitter`, same shape as the earlier haskell clause-splitting fix in this same file (a case where the newer, simpler walk didn't reuse a drop-rule the older tool already had, because it structurally can't apply the SAME reasoning that excludes ground-truth judgment calls -- a node's own `body` field is a neutral structural fact, not a cross-tool ground-truth call). Fix verified: this is the single largest shape in the entire ledger (525 occurrences, all from the same mechanism given how common struct-pointer usage is in idiomatic C), so this one fix plausibly clears most of it. No GitHub issue needed -- fixed directly in this same commit."
     },
     "c/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -655,7 +655,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -683,10 +683,10 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:18Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-19T00:00:00Z",
+      "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -781,10 +781,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Not a GitGalaxy or ctags defect -- a bug in this tool's OWN _count_ctags_signature_params (tri_comparison_gatherer.py), now fixed. Confirmed directly: ran ctags against cpython/ceval.c, PyEval_GetLocals(void)'s raw signature field is literally the text '(void)'. GitGalaxy and tree-sitter both already special-case C's explicit empty-parameter-list idiom (0 real args, matching detector.py's own _count_top_level_args docstring) -- _count_ctags_signature_params did not, splitting '(void)' into one non-empty segment and counting it as 1 real parameter (the same class of bug its own docstring already describes fixing twice for Python's trailing-comma and bare * / marker cases). Added 'void' to the segment-exclusion set alongside the existing '*'/'/'/'**' -- verified fix: _count_ctags_signature_params('(void)') now returns 0. This corpus (cpython) uses the (void) idiom extremely heavily, plausibly explaining most/all of the 104 occurrences; not independently re-verified beyond the sample, but the mechanism is unconditional (any '(void)' signature was miscounted the same way, corpus-wide) so high confidence it generalizes. No GitHub issue needed -- fixed directly in this same commit, not a repo-code defect."
     },
     "c/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -798,7 +798,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -910,7 +910,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -959,7 +959,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -1044,7 +1044,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -1138,7 +1138,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -1193,10 +1193,10 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:18Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-19T00:00:00Z",
+      "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-19T20:11:46Z",
+      "last_reconciled_at": "2026-08-19T20:26:25Z",
       "last_seen_count": 74,
       "last_seen_examples": [
         {
@@ -1291,10 +1291,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed, independently verified all 6 sampled names against real source -- GitGalaxy and ctags both correct, tree-sitter over-recalling from two related but distinct preprocessor-driven mechanisms, both already covered by existing infrastructure: (1) keyword/macro misparse -- 'if' (dictobject.c:522-527, an `#if SIZEOF_VOID_P > 4` / `else if` sequence desyncs the parse) and 'DICT___REVERSED___METHODDEF' (dictobject.c:5102, a PyMethodDef array-initializer macro, not a definition) are both ALREADY in tree_sitter_accuracy_audit.py's `_C_KNOWN_MACRO_HALLUCINATIONS` exclusion set (confirmed by reading it directly) -- this tri-comparison tool's raw walk deliberately doesn't apply that list (it's a curated, ground-truth-shaped judgment call, appropriately left to reconciliation per this module's own stated design, not baked into the walk). (2) dead #if 0 code -- '_PyObject_ManagedDictValidityCheck' (dictobject.c:7396) and 'tos_char'/'print_stack'/'print_stacks' (frameobject.c:1264-1313) are genuinely well-formed function definitions sitting entirely inside `#if 0 ... #endif` guards; tree-sitter has no preprocessor model and parses the dead branch as live code. Both mechanisms are already the exact shape docs/why_gitgalaxy_beats_ast_here.md's Claim 8 names generically ('a dead #if 0 block... macro definitions... that merely look structural') -- added these 4 new concrete citations to Claim 8's evidence section rather than treating this as a new finding. No GitHub issue -- both tools already behave as intended; this is expected, already-documented tree-sitter preprocessor-blindness surfacing under the new tri-comparison reconciliation, not a fresh defect."
     },
     "cobol/class/existence/agree[ctags]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -1307,7 +1307,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cobol",
-      "last_reconciled_at": "2026-08-19T20:11:51Z",
+      "last_reconciled_at": "2026-08-19T20:26:31Z",
       "last_seen_count": 19,
       "last_seen_examples": [
         {
@@ -1408,7 +1408,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cobol",
-      "last_reconciled_at": "2026-08-19T20:11:51Z",
+      "last_reconciled_at": "2026-08-19T20:26:31Z",
       "last_seen_count": 133,
       "last_seen_examples": [
         {
@@ -1509,7 +1509,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cobol",
-      "last_reconciled_at": "2026-08-19T20:11:51Z",
+      "last_reconciled_at": "2026-08-19T20:26:31Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -1611,7 +1611,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1651,7 +1651,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 120,
       "last_seen_examples": [
         {
@@ -1763,7 +1763,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -1875,7 +1875,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -1924,7 +1924,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -2036,7 +2036,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2066,7 +2066,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2097,7 +2097,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2128,7 +2128,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 1061,
       "last_seen_examples": [
         {
@@ -2240,7 +2240,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 1270,
       "last_seen_examples": [
         {
@@ -2352,7 +2352,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 70,
       "last_seen_examples": [
         {
@@ -2464,7 +2464,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-19T20:11:56Z",
+      "last_reconciled_at": "2026-08-19T20:26:35Z",
       "last_seen_count": 98,
       "last_seen_examples": [
         {
@@ -2576,7 +2576,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2625,7 +2625,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -2692,7 +2692,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -2768,7 +2768,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2799,7 +2799,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -2884,7 +2884,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -2941,7 +2941,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2972,7 +2972,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 271,
       "last_seen_examples": [
         {
@@ -3084,7 +3084,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -3142,7 +3142,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3173,7 +3173,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 107,
       "last_seen_examples": [
         {
@@ -3285,7 +3285,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -3397,7 +3397,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-19T20:12:02Z",
+      "last_reconciled_at": "2026-08-19T20:26:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3428,7 +3428,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "css",
-      "last_reconciled_at": "2026-08-19T20:12:03Z",
+      "last_reconciled_at": "2026-08-19T20:26:42Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3475,7 +3475,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-19T20:12:07Z",
+      "last_reconciled_at": "2026-08-19T20:26:46Z",
       "last_seen_count": 216,
       "last_seen_examples": [
         {
@@ -3576,7 +3576,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-19T20:12:07Z",
+      "last_reconciled_at": "2026-08-19T20:26:46Z",
       "last_seen_count": 37,
       "last_seen_examples": [
         {
@@ -3677,7 +3677,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-19T20:12:07Z",
+      "last_reconciled_at": "2026-08-19T20:26:46Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -3779,7 +3779,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-19T20:12:13Z",
+      "last_reconciled_at": "2026-08-19T20:26:52Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -3872,7 +3872,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-19T20:12:13Z",
+      "last_reconciled_at": "2026-08-19T20:26:52Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3903,7 +3903,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-19T20:12:13Z",
+      "last_reconciled_at": "2026-08-19T20:26:52Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -4015,7 +4015,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-19T20:12:13Z",
+      "last_reconciled_at": "2026-08-19T20:26:52Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4055,7 +4055,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-19T20:12:13Z",
+      "last_reconciled_at": "2026-08-19T20:26:52Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4095,7 +4095,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-08-19T20:12:15Z",
+      "last_reconciled_at": "2026-08-19T20:26:55Z",
       "last_seen_count": 75,
       "last_seen_examples": [
         {
@@ -4207,7 +4207,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -4317,7 +4317,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -4420,7 +4420,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 38,
       "last_seen_examples": [
         {
@@ -4532,7 +4532,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 103,
       "last_seen_examples": [
         {
@@ -4644,7 +4644,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 69,
       "last_seen_examples": [
         {
@@ -4756,7 +4756,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4795,7 +4795,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4833,7 +4833,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-19T20:12:18Z",
+      "last_reconciled_at": "2026-08-19T20:26:57Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {
@@ -4945,7 +4945,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-19T20:12:21Z",
+      "last_reconciled_at": "2026-08-19T20:27:00Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -5057,7 +5057,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-19T20:12:21Z",
+      "last_reconciled_at": "2026-08-19T20:27:00Z",
       "last_seen_count": 315,
       "last_seen_examples": [
         {
@@ -5169,7 +5169,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-19T20:12:21Z",
+      "last_reconciled_at": "2026-08-19T20:27:00Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5218,7 +5218,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 67,
       "last_seen_examples": [
         {
@@ -5330,7 +5330,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -5415,7 +5415,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -5527,7 +5527,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -5621,7 +5621,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 528,
       "last_seen_examples": [
         {
@@ -5733,7 +5733,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {
@@ -5845,7 +5845,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-19T20:12:24Z",
+      "last_reconciled_at": "2026-08-19T20:27:03Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -5957,7 +5957,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-19T20:12:27Z",
+      "last_reconciled_at": "2026-08-19T20:27:05Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6006,7 +6006,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-19T20:12:27Z",
+      "last_reconciled_at": "2026-08-19T20:27:05Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -6118,7 +6118,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-19T20:12:27Z",
+      "last_reconciled_at": "2026-08-19T20:27:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6148,7 +6148,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "m4",
-      "last_reconciled_at": "2026-08-19T20:12:33Z",
+      "last_reconciled_at": "2026-08-19T20:27:12Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -6201,7 +6201,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "m4",
-      "last_reconciled_at": "2026-08-19T20:12:33Z",
+      "last_reconciled_at": "2026-08-19T20:27:12Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -6302,7 +6302,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "m4",
-      "last_reconciled_at": "2026-08-19T20:12:33Z",
+      "last_reconciled_at": "2026-08-19T20:27:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6332,7 +6332,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "makefile",
-      "last_reconciled_at": "2026-08-19T20:12:34Z",
+      "last_reconciled_at": "2026-08-19T20:27:13Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6361,7 +6361,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "matlab",
-      "last_reconciled_at": "2026-08-19T20:12:36Z",
+      "last_reconciled_at": "2026-08-19T20:27:15Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6392,7 +6392,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-19T20:12:37Z",
+      "last_reconciled_at": "2026-08-19T20:27:16Z",
       "last_seen_count": 71,
       "last_seen_examples": [
         {
@@ -6504,7 +6504,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-19T20:12:37Z",
+      "last_reconciled_at": "2026-08-19T20:27:16Z",
       "last_seen_count": 120,
       "last_seen_examples": [
         {
@@ -6616,7 +6616,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-19T20:12:37Z",
+      "last_reconciled_at": "2026-08-19T20:27:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6647,7 +6647,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-19T20:12:37Z",
+      "last_reconciled_at": "2026-08-19T20:27:16Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6687,7 +6687,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6718,7 +6718,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6747,7 +6747,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 64,
       "last_seen_examples": [
         {
@@ -6859,7 +6859,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -6944,7 +6944,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7029,7 +7029,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7060,7 +7060,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-19T20:12:43Z",
+      "last_reconciled_at": "2026-08-19T20:27:23Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -7172,7 +7172,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-19T20:12:48Z",
+      "last_reconciled_at": "2026-08-19T20:27:27Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7203,7 +7203,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-19T20:12:48Z",
+      "last_reconciled_at": "2026-08-19T20:27:27Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7234,7 +7234,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-19T20:12:48Z",
+      "last_reconciled_at": "2026-08-19T20:27:27Z",
       "last_seen_count": 68,
       "last_seen_examples": [
         {
@@ -7346,7 +7346,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-19T20:12:50Z",
+      "last_reconciled_at": "2026-08-19T20:27:30Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7429,7 +7429,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-19T20:12:50Z",
+      "last_reconciled_at": "2026-08-19T20:27:30Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -7496,7 +7496,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-19T20:12:50Z",
+      "last_reconciled_at": "2026-08-19T20:27:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7527,7 +7527,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-19T20:12:50Z",
+      "last_reconciled_at": "2026-08-19T20:27:30Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -7639,7 +7639,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-19T20:12:59Z",
+      "last_reconciled_at": "2026-08-19T20:27:39Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -7697,7 +7697,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-19T20:12:59Z",
+      "last_reconciled_at": "2026-08-19T20:27:39Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7728,7 +7728,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-19T20:12:59Z",
+      "last_reconciled_at": "2026-08-19T20:27:39Z",
       "last_seen_count": 32,
       "last_seen_examples": [
         {
@@ -7840,7 +7840,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-19T20:12:59Z",
+      "last_reconciled_at": "2026-08-19T20:27:39Z",
       "last_seen_count": 68,
       "last_seen_examples": [
         {
@@ -7952,7 +7952,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-19T20:13:01Z",
+      "last_reconciled_at": "2026-08-19T20:27:41Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7992,7 +7992,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-19T20:13:01Z",
+      "last_reconciled_at": "2026-08-19T20:27:41Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8068,7 +8068,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-19T20:13:01Z",
+      "last_reconciled_at": "2026-08-19T20:27:41Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8117,7 +8117,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-19T20:13:01Z",
+      "last_reconciled_at": "2026-08-19T20:27:41Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8193,7 +8193,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8242,7 +8242,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -8354,7 +8354,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -8464,7 +8464,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -8576,7 +8576,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8607,7 +8607,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-19T20:13:05Z",
+      "last_reconciled_at": "2026-08-19T20:27:45Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -8717,7 +8717,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-08-19T20:13:07Z",
+      "last_reconciled_at": "2026-08-19T20:27:47Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -8818,7 +8818,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scheme",
-      "last_reconciled_at": "2026-08-19T20:13:11Z",
+      "last_reconciled_at": "2026-08-19T20:27:51Z",
       "last_seen_count": 92,
       "last_seen_examples": [
         {
@@ -8920,7 +8920,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "shell",
-      "last_reconciled_at": "2026-08-19T20:13:13Z",
+      "last_reconciled_at": "2026-08-19T20:27:53Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8950,7 +8950,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-08-19T20:13:14Z",
+      "last_reconciled_at": "2026-08-19T20:27:54Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -9018,7 +9018,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-19T20:13:15Z",
+      "last_reconciled_at": "2026-08-19T20:27:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9047,7 +9047,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-19T20:13:15Z",
+      "last_reconciled_at": "2026-08-19T20:27:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9076,7 +9076,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-19T20:13:15Z",
+      "last_reconciled_at": "2026-08-19T20:27:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9106,7 +9106,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-19T20:13:17Z",
+      "last_reconciled_at": "2026-08-19T20:27:57Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9137,7 +9137,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-19T20:13:17Z",
+      "last_reconciled_at": "2026-08-19T20:27:57Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9177,7 +9177,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-19T20:13:17Z",
+      "last_reconciled_at": "2026-08-19T20:27:57Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -9235,7 +9235,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-19T20:13:17Z",
+      "last_reconciled_at": "2026-08-19T20:27:57Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9266,7 +9266,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 515,
       "last_seen_examples": [
         {
@@ -9378,7 +9378,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -9472,7 +9472,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 61,
       "last_seen_examples": [
         {
@@ -9584,7 +9584,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 2103,
       "last_seen_examples": [
         {
@@ -9696,7 +9696,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9736,7 +9736,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-19T20:13:38Z",
+      "last_reconciled_at": "2026-08-19T20:28:18Z",
       "last_seen_count": 175,
       "last_seen_examples": [
         {
@@ -9847,7 +9847,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-19T20:13:46Z",
+      "last_reconciled_at": "2026-08-19T20:28:26Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9876,7 +9876,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-19T20:13:46Z",
+      "last_reconciled_at": "2026-08-19T20:28:26Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -9977,7 +9977,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-19T20:13:46Z",
+      "last_reconciled_at": "2026-08-19T20:28:26Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

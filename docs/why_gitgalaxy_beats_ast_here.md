@@ -499,6 +499,17 @@ now a live measured number instead of a doc snapshot. The same file's c `class_d
 same shape for bodyless forward-declared structs: `extra_classes` is 0 for GitGalaxy vs.
 `ts_extra_classes` = 27 for tree-sitter's raw reading.
 
+Confirmed again independently via the tri-comparison ledger (`c/function/existence/agree[
+tree_sitter]_vs[ctags,gitgalaxy]`, 74 occurrences, 2026-08-19), with exact citations this time:
+`language-crucible/data/c/cpython/dictobject.c:522-527`'s `#if SIZEOF_VOID_P > 4 / else if (...) /
+#endif` desyncs tree-sitter's parse into misreading the bare `if` keyword as a function name;
+`dictobject.c:5102`'s `DICT___REVERSED___METHODDEF` sits inside a `PyMethodDef` array initializer,
+not a definition; `dictobject.c:7396`'s `_PyObject_ManagedDictValidityCheck` and
+`frameobject.c:1264-1313`'s `tos_char`/`print_stack`/`print_stacks` are all genuinely
+well-formed function definitions living entirely inside an `#if 0 ... #endif` dead-code guard
+("useful for debugging the stack marking code"). GitGalaxy and ctags both correctly exclude all
+six; tree-sitter's raw parse has no preprocessor model and reads the dead branch as live.
+
 ## Claim 9: argument counting across grouped parameter declarations (Go)
 
 Go allows grouping consecutive same-typed parameters under one shared type annotation

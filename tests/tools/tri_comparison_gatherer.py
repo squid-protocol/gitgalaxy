@@ -130,6 +130,21 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     (interleaved `comment` nodes don't break the run -- real corpus code routinely comments between
     clauses) sharing a name collapse into the first occurrence only, the same rule
     tree_sitter_accuracy_audit.py already proved correct for this exact grammar.
+
+    A second piece is ported for the identical reason (found via
+    `c/class/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`, 525 occurrences -- the single
+    largest shape in the whole ledger): tree-sitter-c's `struct_specifier`/`union_specifier`/
+    `enum_specifier` node type covers BOTH a real `struct Foo { ... }` DEFINITION and a bare
+    reference to an already-defined type (`struct Foo *ptr`, a cast, a parameter) -- the same node
+    type either way, distinguished only by whether it has a `body` field. Confirmed via source:
+    every one of compile.c's repeated `compiler_unit` hits and ceval.c's `_py_code_state` hit is a
+    pointer declaration/parameter/cast, never a definition. Counting every REFERENCE as if it were
+    a new DEFINITION isn't "a different, prior question" either -- it's tree-sitter's tree
+    containing a node whose own field data already says "not a definition," which every consumer
+    of this reader's Occurrence list would otherwise have to special-case itself. Same fix
+    `tree_sitter_accuracy_audit.py`'s walk() already applies for C specifically (not a
+    general-purpose rule -- most languages' class-shaped node types don't have this reference/
+    definition ambiguity).
     """
     funcs: list[Occurrence] = []
     classes: list[Occurrence] = []
@@ -145,7 +160,7 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
                         args=tsaa._get_param_count(node, lang),
                     )
                 )
-        if node.type in class_node_types:
+        if node.type in class_node_types and not (lang == "c" and node.child_by_field_name("body") is None):
             name = tsaa._get_node_name(node)
             if name:
                 classes.append(Occurrence(name=name, line=node.start_point[0] + 1, args=None))
@@ -199,9 +214,7 @@ def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileRe
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         try:
-            files = conn.execute(
-                "SELECT id, file_path FROM file_data WHERE language = ?", (lang,)
-            ).fetchall()
+            files = conn.execute("SELECT id, file_path FROM file_data WHERE language = ?", (lang,)).fetchall()
 
             results: list[FileReadings] = []
             for row in files:
@@ -219,9 +232,7 @@ def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileRe
                 ]
                 gg_classes = [
                     Occurrence(name=r["class_name"], line=None, args=None)
-                    for r in conn.execute(
-                        "SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],)
-                    )
+                    for r in conn.execute("SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],))
                     if r["class_name"] not in tsaa._SYNTHETIC_GG_CLASS_NAMES
                 ]
 
@@ -283,14 +294,20 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
     by depth-tracking the split so an internal comma doesn't inflate the count.
 
     Splits into segments first, THEN counts real parameters -- deliberately not "comma count +
-    1", after two real bugs found by spot-checking flagged "disagreements" against the actual
-    ctags output before trusting them (both confirmed via
-    language-crucible/data/python/airflow/dag.py):
+    1", after three real bugs found by spot-checking flagged "disagreements" against the actual
+    ctags output before trusting them:
       1. A trailing comma before the closing paren (`def f(a, b, )` -- real, common Python/black
          formatting) left a phantom empty final segment that "comma count + 1" counted as a
-         param.
+         param. (language-crucible/data/python/airflow/dag.py)
       2. Python's bare `*` / `/` keyword-only / positional-only markers (`def f(self, *, x)`) are
          their own comma-separated segment but represent zero real parameters, not one.
+         (language-crucible/data/python/airflow/dag.py)
+      3. C's explicit empty-parameter-list marker (`int f(void)`) is one segment, "void", but zero
+         real parameters -- confirmed via `c/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]`
+         (104 occurrences, tri_comparison_ledger.json): GitGalaxy and tree-sitter both already
+         special-case this (see `_count_top_level_args`'s own docstring in detector.py), this
+         function didn't. `PyEval_GetLocals(void)` in cpython/ceval.c confirmed both the raw ctags
+         signature text (`(void)`) and the miscount (1, not 0) directly before this was fixed.
     A reconciliation-side counting bug and a genuine cross-tool disagreement produce the
     identical symptom (numbers don't match) -- every flagged args-mismatch is worth a raw-
     signature spot check like this one before it's trusted as real, not just this function.
@@ -328,4 +345,4 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
         else:
             segments[-1] += ch
 
-    return sum(1 for seg in segments if seg.strip() and seg.strip() not in ("*", "/", "**"))
+    return sum(1 for seg in segments if seg.strip() and seg.strip() not in ("*", "/", "**", "void"))

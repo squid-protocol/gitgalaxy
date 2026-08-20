@@ -1,6 +1,6 @@
 ---
 name: tri-comparison-ledger-sweep
-description: Run a Claude-mediated, Gemini-investigated sweep of GitGalaxy's tri-comparison ledger (docs/self_scan/tri_comparison_ledger.json) -- pick unvalidated discrepancy shapes (GitGalaxy vs. tree-sitter vs. ctags disagreements with no privileged ground truth), dispatch each to a read-only Gemini/agy subagent to read real corpus source and determine what's actually true, review and apply the returned verdict to the ledger, file a GitHub issue for any confirmed engine defect found along the way, and keep a pool of dispatches active until the backlog thins out. Use when the user asks to "investigate the ledger", "dispatch gemini for tri-comparison", "run a ledger sweep", "verify tri-comparison discrepancies", "earn some badges back", or similar recurring tri_comparison_ledger.json-driven work. Not for implementing an already-diagnosed engine fix (that's a normal PR, or tree-sitter-accuracy-sweep if it's tree-sitter-accuracy-audit.py-shaped instead), and not for a single hand-picked shape with no candidate-selection step (just dispatch directly).
+description: Run a Claude-mediated, Gemini-investigated sweep of GitGalaxy's tri-comparison ledger (docs/self_scan/tri_comparison_ledger.json) -- pick unvalidated discrepancy shapes (GitGalaxy vs. tree-sitter vs. ctags disagreements with no privileged ground truth), dispatch each to a read-only Gemini/agy subagent to read real corpus source and determine what's actually true, review and apply the returned verdict to the ledger, file a GitHub issue for any confirmed engine defect found along the way, and keep a pool of dispatches active until the backlog thins out. Use when the user asks to "investigate the ledger", "dispatch gemini for tri-comparison", "run a ledger sweep", "verify tri-comparison discrepancies", "earn some badges back", or similar recurring tri_comparison_ledger.json-driven work. Also covers validating a language with NO comparison tool at all (abap, dockerfile, jcl, livecode, yaml -- neither tree-sitter nor ctags) via the dedicated manual-verification fallback section, since that's still this skill's territory even though the ledger itself has nothing to dispatch. Not for implementing an already-diagnosed engine fix (that's a normal PR, or tree-sitter-accuracy-sweep if it's tree-sitter-accuracy-audit.py-shaped instead), and not for a single hand-picked shape with no candidate-selection step (just dispatch directly).
 ---
 
 Source of truth for the underlying tool is `tests/tools/tri_comparison_reconcile.py`'s and
@@ -27,6 +27,68 @@ checkout directly. The one thing this pipeline has that the other doesn't: **eve
 in the SAME shared file** (`docs/self_scan/tri_comparison_ledger.json`), so parallel dispatches
 must never write to it themselves -- they return text, the main session applies it serially. See
 step 4.
+
+## Before starting: confirm this language actually has a comparison tool
+
+This whole pipeline assumes at least one other tool (tree-sitter or ctags) has a reading to
+disagree with GitGalaxy about -- that's what populates a ledger shape in the first place. Five
+languages have neither: **abap, dockerfile, jcl, livecode, yaml** (`ctags_reader.py`'s own
+LANGUAGE COVERAGE docstring section names this exact set, confirmed current 2026-08-19). For these,
+the step 1 query filtered to that language will always come back empty -- that's expected, not a
+sign the sweep hasn't been run yet, and it's not worth spending a dispatch looking for shapes that
+structurally can't exist.
+
+For a language in this set, skip steps 1-7 entirely (there's no ledger shape to pick, no Gemini
+dispatch to brief on a "shape", no `credit_tools`/`debit_tools` decision -- none of that machinery
+has anything to act on) and do a **manual verification** instead:
+
+1. Pick a real, non-trivial corpus for the language under `language-crucible/data/<lang>/` --
+   confirmed workable on abapGit's 7 files / ~4000 lines (2026-08-19). Reserve this approach for a
+   scoped corpus (single-digit files, low thousands of lines); it does not parallelize the way a
+   Gemini dispatch of a pre-identified shape does, because there's no shape to hand off, only "go
+   read the file."
+2. Run GitGalaxy's actual regex rules against every file and record every match (func_start,
+   class_start, or whichever signature you're checking) with its line number and captured text --
+   this is your only "tool said" column, there's no second tool to also query:
+   ```python
+   from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+   rules = LANGUAGE_DEFINITIONS["<lang>"]["rules"]
+   text = open(path, encoding="utf-8", errors="replace").read()
+   for m in rules["func_start"].finditer(text):
+       line_no = text[: m.start()].count("\n") + 1
+       ...
+   ```
+3. Independently establish ground truth by reading the actual source, or a second, blunt,
+   independent grep as a cross-check against the regex's own captures (this session's abap check:
+   `grep -nE "^\s*METHOD\s+[a-zA-Z]"` per file, diffed against the regex output -- matched exactly,
+   124/124). This is where "no tool to compare it to" becomes real, tedious reading rather than a
+   one-line query.
+4. Compare: false positives (matched something that isn't real) and false negatives (missed
+   something real) both need root-causing the same way a ledger verdict does -- file a GitHub issue
+   for a confirmed defect, or note it's a genuine, already-expected engine limitation (e.g. a
+   syntax branch the sampled corpus never exercises isn't a proven gap, just untested by this
+   corpus -- say so rather than implying it was checked).
+5. Before concluding something LOOKS like a bug, check whether it's actually consistent with an
+   existing engine-wide convention established for a DIFFERENT language first -- this is the step
+   most likely to get skipped because a single-language read has nothing to cross-reference. ABAP's
+   `class_start` counting `CLASS ... DEFINITION` and `CLASS ... IMPLEMENTATION` as two separate
+   matches per class looked like double-counting in isolation, until cross-referencing
+   objective-c's own `class_start` (which does the identical thing for
+   `@interface`/`@implementation`) showed it's the engine's established "OO boundary" semantics,
+   not an ABAP-specific defect (2026-08-19). Grep sibling languages' rules for the same
+   signature before filing.
+6. There is no ledger entry to write (no shape key exists for a single-tool language) and no
+   `credit_tools`/`debit_tools` mechanism applies -- the papertrail is just the language_status doc
+   (below) plus any GitHub issues / `why_gitgalaxy_beats_ast_here.md` entries from step 4, same
+   three buckets as step 4.3 above, decided by hand instead of via a reviewed dispatch.
+
+Write the result up the same way step 8 does for a cleared ledger backlog -- a manual-verification
+section in `docs/language_status/<lang>.md` (not the tri-comparison template that assumes a second
+tool exists to compare against), following the same split: sections 1-8 via the `language-status`
+skill (dispatched separately, stopped before its own final section), this section written by hand
+in parallel. Confirmed result of the abap pass (2026-08-19): 100% func_start precision/recall on
+every real example in the sampled corpus, zero engine defects found, one apparent "bug" ruled out
+via the objective-c cross-check in step 5.
 
 ## 0. Housekeeping before starting a new sweep
 

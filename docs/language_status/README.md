@@ -55,7 +55,7 @@ epic #813), not that no cases exist.
 
 | Language | Status | Lexical family | Rules wired/total | Extraction tests | Strict tests | Status doc |
 |---|---|---|---|---|---|---|
-| abap | production | positional_abap | 46/48 | 42 | 87 | not written |
+| **[abap](abap.md)** | production | positional_abap | 46/48 | 42 | 87 | **written** |
 | ada | production | line_exclusive_dash | 49/53 | 48 | 73 | not written |
 | agc_assembly | production | line_exclusive | 39/48 | 155 | 76 | not written |
 | apex | production | standard_block | 43/48 | 4* | 93 | not written |

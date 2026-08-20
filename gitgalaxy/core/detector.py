@@ -383,6 +383,19 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "abap",
         "apex",
         "c",
+        # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
+        # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
+        # independent reading (verified directly, e.g. cics-banking-sample-application-
+        # cbsa/BANKDATA.cbl:35's `PROGRAM-ID. BANKDATA.` -> "BANKDATA", matching ctags'
+        # own tag) -- cobol was simply never added to this allowlist (not decided out
+        # like css/html, just never in scope for epic #1295 since that epic's own
+        # verification method requires a tree-sitter grammar cobol doesn't have; this
+        # one is verified via docs/self_scan/tri_comparison_ledger.json's
+        # cobol/class/existence/agree[ctags]_vs[gitgalaxy] entry against ctags instead).
+        # Without this entry the generic fallback regex (class|struct|interface|trait|
+        # enum) can never match COBOL's PROGRAM-ID syntax, so the named classes list
+        # stayed permanently empty (0/19 real classes) despite cobol's own regex working.
+        "cobol",
         "cpp",
         "csharp",
         "css",

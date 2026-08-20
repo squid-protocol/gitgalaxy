@@ -2440,6 +2440,167 @@ def test_count_top_level_args_shared_helper():
         assert actual == expected, f"_count_top_level_args({args_str!r}) == {actual}, expected {expected}"
 
 
+def test_count_top_level_args_angle_brackets_as_math_operators_1853():
+    """
+    #1853: `<`/`>` double as comparison/shift operators, not just generic-
+    bracket delimiters. A default value using `<` as less-than permanently
+    inflated depth (no matching `>` ever follows), hiding every later
+    top-level comma; one using `>` as greater-than prematurely closed a
+    bracket that was never open, exposing a nested comma as a false
+    top-level separator. Python (no `<...>` generic syntax at all) is the
+    ground-truth repro from the issue -- angle-bracket bracket-tracking is
+    scoped to languages that actually use it, so Python's `<`/`>` here are
+    ordinary operators, never brackets.
+    """
+    detector = StructuralExtractor("python", {"python": {"rules": {}}})
+    assert detector._count_top_level_args("(a = (x < y), b = 2)") == 2, "less-than must not inflate depth"
+    assert detector._count_top_level_args("(a = (x > y, z), b = 2)") == 2, "greater-than must not close early"
+
+
+def test_count_top_level_args_angle_brackets_still_track_generics_for_generic_languages():
+    """
+    #1853's language gate must not regress the generic/template tracking it
+    was carved out of -- a real Rust generic type argument (`Query<(&A, &mut
+    B), Changed<A>>`) still needs its internal comma hidden from the
+    top-level count for languages that legitimately use `<...>` this way.
+    """
+    detector = StructuralExtractor("rust", {"rust": {"rules": {}}})
+    assert detector._count_top_level_args("(mut query: Query<(&A, &mut B), Changed<A>>)") == 1, (
+        "rust generic type argument's internal comma leaked as a top-level separator"
+    )
+
+    cpp_detector = StructuralExtractor("cpp", {"cpp": {"rules": {}}})
+    assert cpp_detector._count_top_level_args("(std::vector<int> a, int b)") == 2, "cpp template arg regressed"
+
+
+def test_count_top_level_args_function_pointer_return_type_1854():
+    """
+    #1854: a C/C++ function returning a function pointer wraps its own name
+    in parens (`void (*foo(int a, int b))(int c)`) -- the first "(" here
+    belongs to that wrapper, not the parameter list, so blindly matching its
+    balanced close truncated the body to "*foo(int a, int b)" and hid every
+    comma inside the real params one depth level too deep.
+    """
+    detector = StructuralExtractor("c", {"c": {"rules": {}}})
+    assert detector._count_top_level_args("void (*foo(int a, int b))(int c)") == 2
+    assert detector._count_top_level_args("void (*noop(void))(int c)") == 0
+
+
+def test_count_top_level_args_function_pointer_edge_cases_1854_review():
+    """
+    Adversarial cases surfaced during independent review of #1854's fix:
+    - A pointer-to-MEMBER-function return type (`Cls::*foo`, not just `*foo`)
+      is the same wrapper shape with a class-qualifier prefix -- the original
+      fix's regex only recognized the unqualified form and silently fell back
+      to the pre-#1854 (wrong) truncated count for this one.
+    - A macro invocation that merely LOOKS like the wrapper shape at a glance
+      (`EXECUTE_TASK(*task_ptr(a, b))`) must NOT be reinterpreted as one --
+      real function-pointer-return-type syntax always has another "(" (the
+      pointer's own parameter list) immediately after the wrapper's close;
+      a macro call's closing paren has nothing of the sort after it.
+    """
+    detector = StructuralExtractor("cpp", {"cpp": {"rules": {}}})
+    assert detector._count_top_level_args("void (ClassName::*foo(int a, int b))(int c)") == 2
+    assert detector._count_top_level_args("EXECUTE_TASK(*task_ptr(a, b))") == 1
+
+
+def test_slice_by_braces_cpp_bounds_args_search_text_1836():
+    """
+    #1836: cpp shared c's Mode-B fallback but was left out of the
+    `args_sig_end` bound, so `args_search_text` fell back to the FULL block
+    (signature + body) for cpp only. An empty-parameter-list signature
+    doesn't satisfy the strict `args` regex, so the unbounded search kept
+    scanning into the body and hallucinated an argument count off the first
+    internal call statement's own parens instead of reporting 0.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = "void save_before_run() {\n    RegisterWindowMessage(a, b);\n}\n"
+    detector = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+    fn = next(f for f in result["functions"] if f["name"] == "save_before_run")
+    assert fn["args"] == 0, f"empty-arg cpp signature borrowed a call statement's args: {fn['args']}"
+
+
+def test_slice_by_braces_c_preprocessor_conditional_signature_1837():
+    """
+    #1837: a c/cpp signature duplicated across an #if/#else preprocessor
+    conditional (micropython/gc.c's real-world `gc_mark_subtree`, gated on
+    MICROPY_GC_SPLIT_HEAP) left `args_search_text` containing BOTH branches'
+    signatures concatenated with preprocessor tokens between them --
+    `.search()` found whichever branch came first textually rather than the
+    branch immediately preceding the shared body.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "#if MICROPY_GC_SPLIT_HEAP\n"
+        "static void gc_mark_subtree(mp_state_mem_area_t *area, size_t block)\n"
+        "#else\n"
+        "static void gc_mark_subtree(size_t block)\n"
+        "#endif\n"
+        "{\n"
+        "    return;\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+    fn = next(f for f in result["functions"] if f["name"] == "gc_mark_subtree")
+    assert fn["args"] == 1, f"expected the #else branch's arity (1), got {fn['args']}"
+
+
+def test_slice_by_braces_c_preprocessor_conditional_edge_cases_1837_review():
+    """
+    Adversarial cases surfaced during independent review of #1837's fix: the
+    re-slice-after-the-last-#else/#elif heuristic must only fire for the
+    "two whole, already-closed duplicate signatures" shape it targets, not
+    for every #else/#elif that happens to appear anywhere before the body's
+    "{". Both shapes below are real code patterns distinct from #1837's own
+    corpus example (preprocessor-conditional PARAMETERS, and an unrelated
+    conditional block sitting between an already-complete signature and its
+    body) -- neither should be affected by the #1837 fix at all, so both
+    must keep whatever count the underlying args-regex already produces
+    without it (asserted here as the correct count for each shape).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+
+    # A single signature's OWN parameter list has a conditional param inside
+    # it -- the #else here is nested INSIDE the still-open "(", not preceded
+    # by a ")", so #1837's re-slice must not touch it.
+    interior_code = (
+        "void foo(int a\n"
+        "#ifdef X\n"
+        "    , int b\n"
+        "#else\n"
+        "    , int c\n"
+        "#endif\n"
+        ") {\n"
+        "    return;\n"
+        "}\n"
+    )
+    interior_result = detector.splice(interior_code, "", raw_content=interior_code)
+    interior_fn = next(f for f in interior_result["functions"] if f["name"] == "foo")
+    assert interior_fn["args"] == 3, f"interior conditional params: expected 3, got {interior_fn['args']}"
+
+    # An unrelated, later #ifdef/#elif block sits between an already-COMPLETE
+    # signature and the opening "{" -- must not be mistaken for a duplicate-
+    # signature branch fork and discard the real (already-resolved) signature.
+    later_code = (
+        "void foo(int a)\n"
+        "#ifdef SOME_FLAG\n"
+        "#elif OTHER_FLAG\n"
+        "#endif\n"
+        "{\n"
+        "    return;\n"
+        "}\n"
+    )
+    later_result = detector.splice(later_code, "", raw_content=later_code)
+    later_fn = next(f for f in later_result["functions"] if f["name"] == "foo")
+    assert later_fn["args"] == 1, f"unrelated later conditional: expected 1, got {later_fn['args']}"
+
+
 # Per-language real-pipeline args-count fixtures for #1209's mechanical tier.
 # Each entry is (code, {function_name: expected_args}). Extend this dict as
 # more languages get the capture-group fix (see issue #1209's checklist) --

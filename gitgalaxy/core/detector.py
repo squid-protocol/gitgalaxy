@@ -403,6 +403,17 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
 
 _CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c"})
 
+# #1853: languages whose signatures genuinely use `<...>` for generics/templates,
+# so `_count_top_level_args` should track `<`/`>` as bracket depth for them. Every
+# other language reaching that counter (Python's `def foo(a = (x < y))` default-
+# value repro, plain C, etc.) has no such syntax, so treating `<`/`>` there as
+# anything but ordinary comparison/shift operators only ever corrupts the depth
+# counter -- gating removes that false-positive class without touching the
+# generic-tracking these languages actually need.
+_ANGLE_BRACKET_GENERIC_LANGUAGES = frozenset(
+    {"cpp", "rust", "csharp", "java", "kotlin", "scala", "typescript", "swift", "go", "dart"}
+)
+
 
 def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
     """Given a `class_start` regex match and its pattern's total capture-group
@@ -2948,7 +2959,15 @@ class StructuralExtractor:
                 if brace_idx == -1:
                     continue
                 end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
-                if lang_id == "c":
+                # #1836: cpp shares c's Mode-B fallback here but was left out of this
+                # bound, so args_sig_end stayed None and args_search_text fell back to
+                # the FULL block (signature + body) for cpp only. An empty-parameter-list
+                # signature (`void foo()`) doesn't satisfy the strict `args` regex, so the
+                # unbounded search kept scanning into the body and hallucinated an argument
+                # count off the first internal call statement's own parens instead
+                # (`godot/editor_node.cpp::EditorNode::save_before_run`: real 0 args,
+                # measured 2, borrowed from an unrelated call inside the body).
+                if lang_id in ("c", "cpp"):
                     args_sig_end = brace_idx
 
             block = code[start_idx:end_idx].strip()
@@ -2956,6 +2975,40 @@ class StructuralExtractor:
                 continue
 
             args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
+
+            # #1837: a c/cpp signature is sometimes duplicated across an
+            # #if/#else preprocessor conditional (e.g. micropython/gc.c's
+            # gc_mark_subtree, gated on MICROPY_GC_SPLIT_HEAP), so
+            # args_search_text ends up containing BOTH branches' signatures
+            # concatenated with preprocessor tokens between them. `.search()`
+            # downstream finds whichever branch comes first textually (the
+            # `#if` branch), but tree-sitter's own ground truth resolves to
+            # the branch immediately preceding the shared body (the
+            # `#else`/`#elif` fallback -- the "guard is undefined" case,
+            # which is also what actually compiles by default). Re-slicing
+            # to start right after the LAST `#else`/`#elif` line isolates
+            # that branch; a signature with no preprocessor split at all
+            # (the overwhelming majority) has no such line and is untouched.
+            # Gated to only fire when the text immediately preceding that
+            # `#else`/`#elif` line (ignoring whitespace) is a `)` -- i.e. a
+            # COMPLETE, already-closed signature sits right before the
+            # branch fork, exactly the "two whole duplicate signatures"
+            # shape this issue is about. Without this guard, the same regex
+            # also (wrongly) fired on an `#ifdef`/`#else` splitting a single
+            # signature's OWN parameter list mid-stream (chopping off the
+            # real leading params) and on an unrelated `#ifdef`/`#elif`
+            # block sitting between an already-complete signature and the
+            # body's `{` (discarding the whole real signature) -- both real,
+            # found during review, neither is the shape this fix targets, so
+            # both now fall through unchanged to pre-#1837 behavior instead
+            # of being newly broken by an overly broad re-slice.
+            if lang_id in ("c", "cpp") and args_search_text is not None:
+                last_branch_end = None
+                for pp_match in re.finditer(r"^[ \t]*#\s*(?:else|elif)\b.*$", args_search_text, re.M):
+                    if args_search_text[: pp_match.start()].rstrip().endswith(")"):
+                        last_branch_end = pp_match.end()
+                if last_branch_end is not None:
+                    args_search_text = args_search_text[last_branch_end:]
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
@@ -3745,7 +3798,33 @@ class StructuralExtractor:
         if not treat_as_body:
             open_idx = args_str.find("(")
             if open_idx != -1:
-                body = args_str[open_idx + 1 : self._matching_paren_end(args_str, open_idx)]
+                wrapper_end = self._matching_paren_end(args_str, open_idx)
+                # #1854: a C/C++ function returning a function pointer wraps its
+                # own name in parens (`void (*foo(int a, int b))(int c)`, or the
+                # pointer-to-member form `void (Cls::*foo(int a, int b))(int c)`)
+                # -- the FIRST "(" here is that wrapper's, not the parameter
+                # list's, so blindly matching it truncates the body to
+                # "*foo(int a, int b)" and hides every comma inside the real
+                # params one depth level too deep. When the text between the
+                # first "(" and the next one is just a pointer/name token
+                # (optionally class-qualified), the wrapper is this shape and
+                # the parameter list is the SECOND "(" instead -- gated on the
+                # wrapper's own close being immediately followed by another "("
+                # (the pointer's own return-type parameter list, always present
+                # in this syntax) so a macro invocation shaped the same way at a
+                # glance (`EXECUTE_TASK(*task_ptr(a, b))`, found during review --
+                # nothing of that shape ever follows a macro call's closing
+                # paren) doesn't false-positive into the same rewrite.
+                inner_open = args_str.find("(", open_idx + 1)
+                if inner_open != -1 and inner_open < wrapper_end:
+                    between = args_str[open_idx + 1 : inner_open]
+                    after_wrapper = args_str[wrapper_end + 1 :].lstrip(" \t\n")
+                    if after_wrapper.startswith("(") and re.fullmatch(
+                        r"[ \t\n]*(?:[a-zA-Z_]\w*[ \t\n]*::[ \t\n]*)*\*[ \t\n]*[a-zA-Z_]\w*[ \t\n]*", between
+                    ):
+                        open_idx = inner_open
+                        wrapper_end = self._matching_paren_end(args_str, open_idx)
+                body = args_str[open_idx + 1 : wrapper_end]
 
         if not body.strip():
             return 0
@@ -3776,9 +3855,28 @@ class StructuralExtractor:
                 else:
                     in_string = True
                     quote_char = ch
-            elif ch in "([{<":
+            elif ch in "([{":
                 depth += 1
-            elif ch in ")]}>":
+            elif ch in ")]}":
+                if depth > 0:
+                    depth -= 1
+            # #1853: `<`/`>` double as math/comparison/shift operators, not just
+            # generic-bracket delimiters -- a default value like `a = (x < y)`
+            # permanently inflated depth (no matching `>` ever follows), silently
+            # hiding every later top-level comma, while `a = (x > y, z)` did the
+            # reverse: `>` prematurely closed a bracket that was never open,
+            # exposing a nested comma as a false top-level separator. Neither
+            # failure mode is possible in a language with no `<...>` generic/
+            # template syntax at all (Python's own repro example), so bracket
+            # treatment is scoped to languages that actually use angle brackets
+            # this way in a signature. This doesn't fully solve the ambiguity
+            # inside a generic-using language's OWN default-value expressions
+            # (a genuinely hard case without a type-aware parser) -- it only
+            # removes the false positives everywhere else, per the languages
+            # this counter is reached from.
+            elif ch == "<" and self.primary_lang_id in _ANGLE_BRACKET_GENERIC_LANGUAGES:
+                depth += 1
+            elif ch == ">" and self.primary_lang_id in _ANGLE_BRACKET_GENERIC_LANGUAGES:
                 # #1645: a bare `>` is treated as a generic-closing bracket (Rust
                 # `Vec<T>`, TS/C++ templates), but zig's `=>` switch/match-arm
                 # arrow is a two-char token whose `>` isn't a bracket at all --
@@ -3792,7 +3890,7 @@ class StructuralExtractor:
                 # `->`/`=>` inside already-truncated text is a different,
                 # pre-existing bug this narrower guard deliberately leaves alone
                 # rather than risk shifting their baselines in a zig-scoped fix.
-                if ch == ">" and i > 0 and body[i - 1] in "=-":
+                if i > 0 and body[i - 1] in "=-":
                     pass
                 elif depth > 0:
                     depth -= 1

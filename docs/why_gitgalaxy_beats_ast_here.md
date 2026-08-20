@@ -584,6 +584,56 @@ still resolves the real parameter list.
 scanner confused by the bound's internal `->`/parens would either miscount or fail to find the
 real parameter list at all.
 
+## Claim 12: recognizing dialect-specific label syntax a generic ctags parser's identifier convention excludes
+
+For a language/dialect whose real identifier syntax is broader than the conventional
+letter-first, no-punctuation identifier shape most parsers assume, GitGalaxy's regex-based
+`func_start` recognizes it correctly (because its character class is written for the actual
+dialect) while a generic ctags language parser — built for the common case, not this specific
+historical dialect — silently declines to tag it at all. This is a *lexical-coverage* claim,
+distinct from every other claim in this doc: it isn't about macro opacity (Claim 6), CPP noise
+(Claims 7/8), node granularity (Claim 4), or a nested wrapper node (Claim 5) — the construct isn't
+hidden inside anything; ctags' parser looks straight at the label and rejects the token shape
+itself.
+
+**The evidence:** AGC (Apollo Guidance Computer) assembly — the real Apollo 11 flight software in
+`language-crucible/data/agc_assembly/apollo-11/` — uses two label conventions no generic assembler
+identifier syntax anticipates: (1) an embedded hyphen naming a point relative to an event, e.g.
+`TIG-35`/`TIG-30`/`CALLT-35` in `BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc:250,292,222` ("35/30
+seconds before Time of Ignition" — a real, common AGC idiom, not a one-off); (2) a label starting
+with a digit or a leading minus sign, e.g. `1CHK`/`2EBANK`/`-1CHK` in
+`AGC_BLOCK_TWO_SELF-CHECK.agc:184` (the real label text is `-1CHK`, one of several numbered
+variants of a `CHK`-suffixed check routine). GitGalaxy's `func_start` regex for this language
+matches on `^([A-Z0-9_-]+)` at line start, deliberately including digits and hyphens because
+that's what real AGC label syntax allows. `ctags_reader.py` maps `agc_assembly` to Universal
+Ctags' generic `Asm` parser (there is no dedicated AGC ctags parser) with kind `l` (labels) as the
+function-analog. Directly confirmed by running `ctags --language-force=Asm --kinds-Asm=l` against
+the real corpus files: it emits **zero** tags for any hyphenated or digit/minus-leading label
+sampled, while emitting tags normally for every plain-alphanumeric sibling in the same file (e.g.
+`CNTRCHK`, `ERASCHK`, `SELFCHK` are all tagged; `-1CHK` is not) — a corpus-wide cross-reference
+found this holds for the full discrepancy set, not just the sample (14/35 hyphenated + 21/35
+digit/minus-leading = 35/35, tri-comparison ledger
+`agc_assembly/function/existence/agree[gitgalaxy]_vs[ctags]`, validated 2026-08-20). Ctags' `Asm`
+parser's tag-name validation requires a leading letter and no internal hyphen — a completely
+reasonable default for the assembly dialects it was actually built against, just not for AGC's.
+
+## Where Claim 12 does NOT apply
+
+- This is specific to a dialect whose real lexical grammar (what counts as a valid identifier)
+  diverges from the generic parser's assumption, not a general claim that GitGalaxy out-recalls
+  ctags on assembly. The *majority* of this same ledger shape's sibling
+  (`agc_assembly/function/existence/agree[ctags]_vs[gitgalaxy]`, 265 occurrences) is the opposite
+  situation: ctags' `Asm` parser tags every line-start label unconditionally (including pure
+  data/constant-definition labels GitGalaxy's `func_start` deliberately excludes because they're
+  never followed by a real instruction), so ctags is the more *recall*-permissive of the two there
+  — a genuine, honest granularity difference, not evidence for this claim. Don't read Claim 12 as
+  "GitGalaxy beats ctags on AGC assembly" in general; it's narrow to the specific label-punctuation
+  shapes ctags' identifier convention structurally cannot admit.
+- A real subset of GitGalaxy's own miss side of that same shape (50/265) is a confirmed GitGalaxy
+  defect in `detector.py`'s `_slice_by_labels`, not something this claim covers — see the filed
+  GitHub issue for the `RELINT`-as-terminator and single-line-block-discard bugs. Two independent
+  root causes, both real bugs, tracked separately from this claim.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to

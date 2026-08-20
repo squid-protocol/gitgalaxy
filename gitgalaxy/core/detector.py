@@ -488,6 +488,26 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "abap": frozenset({"RETURN", "EXIT"}),
 }
 
+# #1949 follow-up: once Mode A stopped discarding single-line bodies (the real fix
+# for Bug 2), a single-line rescued "function" can still be a bare data/constant
+# definition rather than real code -- confirmed against real corpus source: NASM's
+# `equ` directive assigns a constant to a label
+# (`name_segment:    equ 0x1000` in `language-crucible/data/assembly/bootos/counter.asm:16`),
+# which is structurally indistinguishable from a real single-instruction "trampoline"
+# label by line count alone -- only by checking whether the line is actually a
+# data-definition directive, not an instruction. `assembly`'s own `func_start` regex
+# has no visibility into what follows the label's colon on the same line (it only
+# anchors on the label itself), so this can't be excluded there the way COBOL's
+# reserved-word shield excludes SOURCE-COMPUTER/OBJECT-COMPUTER -- checked here
+# instead, against the already-sliced single-line block. Scoped to `assembly` only:
+# agc_assembly's own data pseudo-ops are different (`EQUALS`, `EBANK=`, ...) and its
+# single-line rescues were confirmed all real via #1949's own repro.
+_ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
+    r"^[A-Za-z_?@.][A-Za-z0-9_.$?@]*[ \t]*:[ \t]*"
+    r"(?:equ|db|dw|dd|dq|dt|do|resb|resw|resd|resq|rest|reso|times)\b",
+    re.IGNORECASE,
+)
+
 
 def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
     """Given a `class_start` regex match and its pattern's total capture-group
@@ -2084,6 +2104,9 @@ class StructuralExtractor:
             # real content.
             block = code[start_idx : start_idx + end_offset].strip()
             if not block:
+                continue
+
+            if self.primary_lang_id == "assembly" and "\n" not in block and _ASSEMBLY_DATA_DIRECTIVE_RE.match(block):
                 continue
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)

@@ -8705,6 +8705,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # Prevents rogue commands like "PERFORM." from spawning false positive logic anchors.
                 r"(?!(?:WORKING-STORAGE|DATA|ENVIRONMENT|IDENTIFICATION|ID|LINKAGE|FILE|DECLARATIVES|"
                 r"AUTHOR|DATE-WRITTEN|DATE-COMPILED|INSTALLATION|REMARKS|SECURITY|"
+                # #1949 follow-up: SOURCE-COMPUTER/OBJECT-COMPUTER are CONFIGURATION
+                # SECTION (ENVIRONMENT DIVISION) header paragraphs, never real PROCEDURE
+                # DIVISION logic -- same reserved-header category as INPUT-OUTPUT/
+                # CONFIGURATION two lines below, just missing from this list. Surfaced
+                # once Mode A stopped discarding single-line bodies (real fix for #1949's
+                # own Bug 2): `SOURCE-COMPUTER.  IBM-370.` collapses to one line and was
+                # previously masked by that discard guard, not by this shield --
+                # confirmed false positive against real corpus source
+                # (`cics-banking-sample-application-cbsa/BNKMENU.cbl:23`).
+                r"SOURCE-COMPUTER|OBJECT-COMPUTER|"
                 r"INPUT-OUTPUT|CONFIGURATION|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
                 r"DIVIDE|INITIALIZE|SET|IF|ELSE|GOBACK|EXIT|STOP|EVALUATE|WHEN|READ|WRITE|REWRITE|"
                 r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)\b)"

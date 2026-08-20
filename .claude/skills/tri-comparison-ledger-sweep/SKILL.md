@@ -171,13 +171,31 @@ Never write a Gemini verdict straight into the ledger on trust -- read it the wa
        existing style exactly (one bullet per language/mechanism, cite the ledger shape that
        surfaced it). This is the bucket most likely to get silently skipped since it feels like
        "nothing to fix" -- it still needs writing down so the next person doesn't re-discover it.
-4. Apply via a small Python script (see the worked example in this skill's own commit history, or
+4. **Decide `credit_tools`/`debit_tools` -- a SEPARATE decision from the bucket above, made every
+   time, not just when a code fix or doc note happens to apply.** Validating a shape used to only
+   change how the chart is READ (asterisk/badge suppression); it didn't move the actual precision
+   number even after a verdict fully confirmed the truth -- a real, user-caught gap (2026-08-20):
+   GitGalaxy's C func precision sat at 99.77% for functions the ledger had ALREADY confirmed were
+   real. See `tri_comparison_ledger.py`'s own VERIFIED ADJUSTMENTS docstring section for the full
+   mechanism; the decision at verdict-review time is:
+     - Does the verdict cleanly confirm ONE specific tool's otherwise-uncorroborated claim is
+       real, and the reason nobody else corroborates it is a confirmed limitation in THEM? -->
+       `credit_tools: ["<that tool>"]`.
+     - Does the verdict confirm TWO OR MORE agreeing tools' claim is a SHARED MISTAKE (both
+       independently wrong for the same underlying reason, not real corroboration)? -->
+       `debit_tools: ["<those tools>"]`.
+     - Otherwise (the common case: a structural ambiguity, a genuinely mixed multi-cause shape, an
+       agreement that IS real corroboration) -- leave both empty. Most validated shapes get
+       neither adjustment; that's the correct, expected outcome, not a sign of an incomplete
+       review. Never infer either field from the verdict's prose after the fact -- decide it with
+       the same rigor as the verdict itself, at the same time.
+5. Apply via a small Python script (see the worked example in this skill's own commit history, or
    just: load the ledger, set `status="validated"`, `verdict=<the reviewed text>`,
-   `investigated_by="<model>, dispatched via tri-comparison-ledger-sweep"`, `investigated_at=<date>`
-   on the one entry, write back with `json.dumps(..., indent=2, sort_keys=True) + "\n"` to match
-   the file's existing format exactly) -- never hand-edit the JSON inline, the sort/indent
-   convention matters for a clean diff. Apply serially, one entry at a time, never in parallel with
-   another dispatch's apply.
+   `investigated_by="<model>, dispatched via tri-comparison-ledger-sweep"`, `investigated_at=<date>`,
+   `credit_tools`/`debit_tools` per step 4 above, on the one entry, write back with
+   `json.dumps(..., indent=2, sort_keys=True) + "\n"` to match the file's existing format exactly)
+   -- never hand-edit the JSON inline, the sort/indent convention matters for a clean diff. Apply
+   serially, one entry at a time, never in parallel with another dispatch's apply.
 
 ## 5. Pool mechanics
 
@@ -207,9 +225,16 @@ python tests/mypy_audit.py --ci
 Confirm the languages you just validated show fewer/zero asterisks and a real badge where earned
 (this is the visible proof the sweep is working -- see this skill's own origin session, where
 haskell going from 8 unvalidated shapes to 5 validated ones directly produced a clean Func
-Precision badge with no asterisk). Commit the code/ledger/chart changes together with a message
-that names which shapes were validated and why (the ledger's own verdict text is the detailed
-record; the commit message is the summary a `git log` skim should be able to trust).
+Precision badge with no asterisk). If this batch set any `credit_tools`/`debit_tools`, verify the
+actual number moved by the right amount BEFORE trusting the regenerated chart -- run the pipeline
+for just that language and print `matched_consensus`/`total_slots` per tool, confirm the delta
+matches the shape's occurrence count exactly, and diff the full-chart SVG regeneration to confirm
+ONLY the expected cell(s) changed anywhere in the whole 45-language chart (a credit/debit that
+leaks into an unrelated language or panel is a real bug in the adjustment logic, not something to
+wave through because the target cell looks right). Commit the code/ledger/chart changes together
+with a message that names which shapes were validated and why, and separately names any
+credit/debit applied (the ledger's own verdict text is the detailed record; the commit message is
+the summary a `git log` skim should be able to trust).
 
 ## 7. One accumulating PR, not one per shape
 
@@ -319,3 +344,13 @@ Commit messages should name the shapes validated, not just say "update ledger" -
 - A false merge conflict from a squash-merged predecessor PR is expected on the two generated
   files, not a sign of a real content conflict -- resolve with `--ours` + regenerate, confirmed
   safe (byte-identical SVG regeneration) in this skill's origin session.
+- Validating a shape does NOT automatically move its precision number -- that only happens if you
+  also set `credit_tools`/`debit_tools` (step 4). It's easy to review a verdict thoroughly, apply
+  it, and still leave a confirmed-correct tool sitting at an artificially low score because that
+  separate decision got skipped -- this is exactly the gap the user caught that motivated adding
+  the mechanism at all (2026-08-20), so treat step 4 as mandatory per verdict, not optional polish.
+- Debit an agreeing pair together (not one of the two) when they're independently wrong for the
+  SAME underlying reason, which is the normal shape once you find one (every real case seen so far
+  -- two regex/grammar engines both fooled by the same macro-definition text is a shared mechanism,
+  not a coincidence). Only split them if the verdict specifically distinguishes one as right and
+  the other as coincidentally also wrong for an unrelated reason -- rare.

@@ -210,20 +210,24 @@ regex gaps directly.
   whole-match fallback overcounted every zero/one-arg signature by +1 across 13 languages
   including Apex; fixed by wrapping the parenthesized parameter span in its own capture group.
 
-**Open, unresolved (as of this writing):**
-- [#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963) (OPEN, filed 2026-08-20) —
-  `func_start` false-positives on `new ClassName(...)` object-instantiation expressions inside
-  multi-line constructor-call arguments (e.g. `TestFactory.createSObject(\n  new
-  Account(name = 'X'),\n  true\n)` misparses `new Account(...)` as a method definition named
-  `Account`). Root cause: the method branch's optional return-type/modifier prefix group accepts
-  *any* identifier-shaped token followed by whitespace, and nothing excludes the reserved `new`
-  keyword from that slot — unlike csharp/java/groovy/dart, whose equivalent prefix groups already
-  exclude `new`. Diagnosed via the tri-comparison ledger
-  (`apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]`) and confirmed against the real
-  `language-crucible` apex corpus (6 occurrences across `AuraEnabledRecipes_Tests.cls` and
-  `SOQLRecipes_Tests.cls` in `apex-recipes`). Not yet fixed; suggested fix is a `(?!new\b)`
-  negative lookahead immediately before the optional return-type/modifier prefix group in both
-  `func_start` and (likely) `args`, which shares the identical prefix shape.
+**Real bugs found and fixed the same day, follow-on to the tri-comparison sweep:**
+- [#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963) (CLOSED same day) —
+  `func_start` (and, confirmed separately, `args`) false-positived on `new ClassName(...)`
+  object-instantiation expressions inside multi-line constructor-call arguments (e.g.
+  `TestFactory.createSObject(\n  new Account(name = 'X'),\n  true\n)` misparsed `new Account(...)`
+  as a method definition named `Account`, with a bogus 1-parameter arg count). Root cause: both
+  regexes' optional return-type/modifier prefix group accepted *any* identifier-shaped token
+  followed by whitespace, with nothing excluding the reserved `new` keyword — unlike
+  csharp/java/groovy/dart, whose equivalent prefix groups already exclude it. Diagnosed via the
+  tri-comparison ledger (`apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]`), confirmed
+  against the local `language-crucible` apex corpus (6 occurrences across
+  `AuraEnabledRecipes_Tests.cls` and `SOQLRecipes_Tests.cls`), and fixed with a `(?!new\b)`
+  negative lookahead in both regexes, mirroring csharp's own GHOST ARGS SHIELD precedent.
+  `crucible_check.py`'s ~80-repo differential scan surfaced a third, independent instance of the
+  same bug (`xml/apex/IterationRecipes_Tests.cls`, 3 more `new Account(...)` false positives
+  inside a `List<Account>{...}` initializer) that neither the ledger sample nor the local corpus
+  had shown — also resolved by the same fix, confirming it generalizes correctly. GitGalaxy's
+  function count on the local corpus now matches tree-sitter exactly (38/38, zero name diffs).
 
 Search performed via `gh issue list --search 'in:title "Extraction hardening: apex"'` /
 `'in:title "Strict parsing tests: \`apex\`"'` / `'in:title apex'` (2026-08-20), cross-checked
@@ -260,23 +264,25 @@ produced against each other was investigated by reading real source
 `docs/self_scan/tri_comparison_ledger.json`, filterable to `"language": "apex"`.
 
 **Result: 1 of 1 discrepancy shape (6 individual occurrences corpus-wide) resolved, 1 confirmed
-GitGalaxy engine defect.** Unlike c.md's or cobol.md's §9, this pass did NOT come out clean for
-GitGalaxy — the one shape investigated is a real false-positive bug, filed as
-[#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963) and still open as of this
-writing. Current measured numbers (`tests/tools/tri_comparison_chart.py --languages apex`,
+GitGalaxy engine defect — found, root-caused, and fixed the same day** (see
+[#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963), closed). Current measured
+numbers post-fix (`tests/tools/tri_comparison_chart.py --languages apex`,
 `language-crucible/data/apex/apex-recipes/`):
 
 | Signal | GitGalaxy | tree-sitter | Read as |
 |---|---|---|---|
-| Functions found (of 40 total claimed by either tool) | 40 | 38 | GitGalaxy's higher count includes the 6 (2 sampled, ledger-capped) false positives below |
-| Function precision (of what each tool claimed, how much corroborates) | 95.0% (38/40) | **100%** (38/38) | badged: tree-sitter |
+| Functions found (of 38 total claimed by either tool) | 38 | 38 | exact agreement, zero name diffs post-fix |
+| Function precision (of what each tool claimed, how much corroborates) | **100%** (38/38) | **100%** (38/38) | tied — no badge |
 | Class recall/precision | 4/4 | 4/4 | tied — no badge |
 | Args exact-match | 38 | 38 | unranked found-count panel, no badge |
 
-### Where GitGalaxy has a confirmed gap (not tree-sitter's problem)
+Before the fix, GitGalaxy over-claimed at 40/38 (95.0% precision) while tree-sitter sat at 100%
+(38/38) — see the fix writeup below for what closed that gap.
+
+### The one confirmed bug this pass found (root-caused and fixed)
 
 - **`new ClassName(...)` constructor calls misparsed as function definitions.** The apex
-  `func_start` regex's optional return-type/modifier prefix accepts any identifier-shaped token
+  `func_start` regex's optional return-type/modifier prefix accepted any identifier-shaped token
   followed by whitespace at the start of a line, with no exclusion for Apex's `new` keyword — so a
   multi-line SObject-builder call like:
   ```apex
@@ -285,27 +291,46 @@ writing. Current measured numbers (`tests/tools/tri_comparison_chart.py --langua
       true
   );
   ```
-  gets its `new Account(` line parsed as "return type = `new`, function name = `Account`".
+  had its `new Account(` line parsed as "return type = `new`, function name = `Account`" (with a
+  bogus 1-parameter arg count derived from the constructor's own named-parameter assignment).
   tree-sitter's grammar correctly distinguishes `object_creation_expression` from
-  `method_declaration` and never makes this mistake. Confirmed via direct source read
-  (`apex-recipes/AuraEnabledRecipes_Tests.cls:25,43`, the ledger's sampled pair) and via running
-  the regex standalone against the whole corpus, which surfaces 6 total instances across 2 files
-  (`AuraEnabledRecipes_Tests.cls:6,25,43`, `SOQLRecipes_Tests.cls:226,235,504`) — all the identical
-  shape. Filed as [#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963); not yet fixed.
+  `method_declaration` and never made this mistake. Confirmed via direct source read
+  (`apex-recipes/AuraEnabledRecipes_Tests.cls:25,43`, the ledger's sampled pair), via running the
+  regex standalone against the local corpus (6 total instances across 2 files:
+  `AuraEnabledRecipes_Tests.cls:6,25,43`, `SOQLRecipes_Tests.cls:226,235,504`), and — separately —
+  in the `args` regex itself, which shared the identical unshielded prefix shape (confirmed to
+  false-positive on the same 6 lines standalone, though it never surfaced its own ledger shape
+  since `args_count` is only derived within a scope `func_start` already anchored).
   An incidental-finding pass across sibling C-family/OOP languages (csharp, java, groovy, dart,
   kotlin, scala, php) found none of them reproduce this — csharp/java/groovy/dart already carry an
-  explicit `(?!new[ \t\n]+...)` exclusion for exactly this shape, so the fix is applying an
-  already-proven pattern from a sibling language, not designing a new one.
+  explicit `(?!new[ \t\n]+...)` exclusion for exactly this shape (csharp's own "GHOST ARGS SHIELD"),
+  so the fix applied an already-proven pattern from a sibling language rather than designing a new
+  one: a `(?!new\b)` negative lookahead immediately before the optional prefix-consuming group in
+  both `func_start` and `args`.
+
+  `crucible_check.py`'s ~80-repo differential scan (required for any `language_standards.py`
+  change per this repo's PR protocol) surfaced a **third, independent instance** of the same bug
+  neither the ledger sample nor the local `apex-recipes/` corpus had shown:
+  `xml/apex/IterationRecipes_Tests.cls`, 3 more `new Account(...)` false positives inside a
+  `List<Account>{...}` collection initializer (lines 9–11). Also resolved by the same fix,
+  confirming it generalizes correctly rather than being narrowly tailored to the two files
+  originally found. Both `tests/golden_master_audit.json` and
+  `tests/golden_master_zero_dep_audit.json` were re-blessed to reflect the intentional,
+  correct output change (function/param counts, and their downstream derived metrics —
+  topological coordinates, structural magnitude, testing-exposure percentage — recomputing
+  from the corrected counts).
 
 ### Ties
 
+- **Function existence/precision** — post-fix, both tools agree on all 38 real functions in the
+  sampled corpus, 100%/100%, no badge (a tie).
 - **Class existence/precision** — both tools agree on all 4 real classes in the sampled corpus,
-  100%/100%, no unresolved disagreement and no badge (a tie, per the chart's own badge rule).
+  100%/100%, no badge.
 
 ### Scope caveat
 
 This corpus (`apex-recipes/`) is small (2 `.cls` files with hits, single-digit class count) — the
-1 discrepancy shape and its 6 occurrences are everything this methodology surfaced on the
-currently-available corpus, not a claim that apex's `func_start` regex has no other gaps a larger
-corpus might reveal. See the ledger entry
+1 discrepancy shape and its 6 (plus 3 more found via the wider crucible corpus) occurrences are
+everything this methodology surfaced on the currently-available corpus, not a claim that apex's
+`func_start`/`args` regexes have no other gaps a larger corpus might reveal. See the ledger entry
 `apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]` for the full investigation writeup.

@@ -78,14 +78,16 @@
 <text class="lang-label" x="20" y="319.5">apex</text>
 <rect class="bar-track" x="154" y="299" width="88" height="34" rx="2"/>
 <rect x="154" y="299" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="307">40*</text>
+<text class="bar-value-label" x="198.0" y="307">40</text>
 <rect x="154" y="311" width="83.6" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="319">38*</text>
+<text class="bar-value-label" x="198.0" y="319">38</text>
 <rect class="bar-track" x="286" y="299" width="88" height="34" rx="2"/>
 <rect x="286" y="299" width="83.6" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="307">38/40*</text>
+<text class="bar-value-label" x="330.0" y="307">38/40</text>
 <rect x="286" y="311" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="319">38/38*</text>
+<text class="bar-value-label" x="330.0" y="319">38/38</text>
+<circle cx="390.0" cy="316.0" r="8" fill="#eb6834"/>
+<text class="badge-label" x="390.0" y="319.0">T</text>
 <rect class="bar-track" x="418" y="299" width="88" height="34" rx="2"/>
 <rect x="418" y="299" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="307">4</text>
@@ -228,15 +230,15 @@
 <text class="bar-value-label" x="198.0" y="527">961*</text>
 <rect x="154" y="531" width="59.2" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="539">647*</text>
-<rect x="154" y="543" width="76.8" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="551">839*</text>
+<rect x="154" y="543" width="74.3" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="551">811*</text>
 <rect class="bar-track" x="286" y="519" width="88" height="34" rx="2"/>
 <rect x="286" y="519" width="83.6" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="527">913/961*</text>
-<rect x="286" y="531" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="539">647/647*</text>
-<rect x="286" y="543" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="551">839/839*</text>
+<rect x="286" y="531" width="87.9" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="539">646/647*</text>
+<rect x="286" y="543" width="87.9" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="551">810/811*</text>
 <rect class="bar-track" x="418" y="519" width="88" height="34" rx="2"/>
 <rect x="418" y="519" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="527">33*</text>
@@ -253,11 +255,11 @@
 <text class="bar-value-label" x="594.0" y="551">22/22*</text>
 <rect class="bar-track" x="682" y="519" width="88" height="34" rx="2"/>
 <rect x="682" y="519" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="527">563*</text>
+<text class="bar-value-label" x="726.0" y="527">535*</text>
 <rect x="682" y="531" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="539">563*</text>
+<text class="bar-value-label" x="726.0" y="539">535*</text>
 <rect x="682" y="543" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="551">563*</text>
+<text class="bar-value-label" x="726.0" y="551">535*</text>
 <text class="lang-label" x="20" y="583.5">css</text>
 <rect class="bar-track" x="154" y="563" width="88" height="34" rx="2"/>
 <rect x="154" y="563" width="88.0" height="10" rx="2" fill="#2a78d6"/>
@@ -392,19 +394,19 @@
 <rect class="stripe" x="16" y="866" width="780" height="44"/>
 <text class="lang-label" x="20" y="891.5">haskell</text>
 <rect class="bar-track" x="154" y="871" width="88" height="34" rx="2"/>
-<rect x="154" y="871" width="72.8" height="10" rx="2" fill="#2a78d6"/>
+<rect x="154" y="871" width="72.4" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="879">148</text>
-<rect x="154" y="883" width="71.8" height="10" rx="2" fill="#eb6834"/>
+<rect x="154" y="883" width="71.4" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="891">146</text>
 <rect x="154" y="895" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="903">179</text>
+<text class="bar-value-label" x="198.0" y="903">180</text>
 <rect class="bar-track" x="286" y="871" width="88" height="34" rx="2"/>
 <rect x="286" y="871" width="86.8" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="879">146/148</text>
 <rect x="286" y="883" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="891">146/146</text>
-<rect x="286" y="895" width="37.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="903">77/179</text>
+<rect x="286" y="895" width="37.6" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="903">77/180</text>
 <circle cx="390.0" cy="888.0" r="8" fill="#eb6834"/>
 <text class="badge-label" x="390.0" y="891.0">T</text>
 <rect class="bar-track" x="418" y="871" width="88" height="34" rx="2"/>
@@ -469,36 +471,36 @@
 <text class="bar-value-label" x="198.0" y="1011">793*</text>
 <rect x="154" y="1015" width="78.1" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1023">704*</text>
-<rect x="154" y="1027" width="61.5" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1035">554*</text>
+<rect x="154" y="1027" width="54.9" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="1035">495*</text>
 <rect class="bar-track" x="286" y="1003" width="88" height="34" rx="2"/>
-<rect x="286" y="1003" width="67.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1011">612/793*</text>
+<rect x="286" y="1003" width="67.8" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1011">611/793*</text>
 <rect x="286" y="1015" width="75.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1023">600/704*</text>
-<rect x="286" y="1027" width="66.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1035">421/554*</text>
+<rect x="286" y="1027" width="61.3" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1035">345/495*</text>
 <rect class="bar-track" x="418" y="1003" width="88" height="34" rx="2"/>
-<rect x="418" y="1003" width="67.2" height="10" rx="2" fill="#2a78d6"/>
+<rect x="418" y="1003" width="20.4" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1011">29*</text>
-<rect x="418" y="1015" width="67.2" height="10" rx="2" fill="#eb6834"/>
+<rect x="418" y="1015" width="20.4" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="462.0" y="1023">29*</text>
 <rect x="418" y="1027" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1035">38*</text>
+<text class="bar-value-label" x="462.0" y="1035">125*</text>
 <rect class="bar-track" x="550" y="1003" width="88" height="34" rx="2"/>
 <rect x="550" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="594.0" y="1011">29/29*</text>
 <rect x="550" y="1015" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="1023">29/29*</text>
-<rect x="550" y="1027" width="67.2" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="1035">29/38*</text>
+<rect x="550" y="1027" width="20.4" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="1035">29/125*</text>
 <rect class="bar-track" x="682" y="1003" width="88" height="34" rx="2"/>
 <rect x="682" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1011">409*</text>
+<text class="bar-value-label" x="726.0" y="1011">334*</text>
 <rect x="682" y="1015" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1023">409*</text>
+<text class="bar-value-label" x="726.0" y="1023">334*</text>
 <rect x="682" y="1027" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="1035">409*</text>
+<text class="bar-value-label" x="726.0" y="1035">334*</text>
 <rect class="stripe" x="16" y="1042" width="780" height="44"/>
 <text class="lang-label" x="20" y="1067.5">jcl</text>
 <text class="awaiting" x="154" y="1067.5">no functions/classes found in this corpus by any tool</text>
@@ -547,12 +549,12 @@
 <rect x="154" y="1223" width="2.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="1231">1</text>
 <rect x="154" y="1235" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1243">205</text>
+<text class="bar-value-label" x="198.0" y="1243">79</text>
 <rect class="bar-track" x="286" y="1223" width="88" height="34" rx="2"/>
 <rect x="286" y="1223" width="2.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="1231">0/1</text>
 <rect x="286" y="1235" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1243">0/205</text>
+<text class="bar-value-label" x="330.0" y="1243">0/79</text>
 <rect class="bar-track" x="418" y="1223" width="88" height="34" rx="2"/>
 <rect x="418" y="1223" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1231">4</text>
@@ -658,15 +660,15 @@
 <text class="bar-value-label" x="462.0" y="1407">21*</text>
 <rect x="418" y="1411" width="83.8" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="462.0" y="1419">20*</text>
-<rect x="418" y="1423" width="83.8" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1431">20*</text>
+<rect x="418" y="1423" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="1431">21*</text>
 <rect class="bar-track" x="550" y="1399" width="88" height="34" rx="2"/>
-<rect x="550" y="1399" width="83.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1407">20/21*</text>
+<rect x="550" y="1399" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="1407">21/21*</text>
 <rect x="550" y="1411" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="1419">20/20*</text>
 <rect x="550" y="1423" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="1431">20/20*</text>
+<text class="bar-value-label" x="594.0" y="1431">21/21*</text>
 <rect class="bar-track" x="682" y="1399" width="88" height="34" rx="2"/>
 <rect x="682" y="1399" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="1407">934*</text>
@@ -715,34 +717,32 @@
 <text class="bar-value-label" x="198.0" y="1495">111*</text>
 <rect x="154" y="1499" width="87.2" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1507">110*</text>
-<rect x="154" y="1511" width="84.8" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1519">107*</text>
+<rect x="154" y="1511" width="75.3" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="1519">95*</text>
 <rect class="bar-track" x="286" y="1487" width="88" height="34" rx="2"/>
 <rect x="286" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="1495">111/111*</text>
 <rect x="286" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1507">110/110*</text>
 <rect x="286" y="1511" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1519">107/107*</text>
+<text class="bar-value-label" x="330.0" y="1519">95/95*</text>
 <rect class="bar-track" x="418" y="1487" width="88" height="34" rx="2"/>
 <rect x="418" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1495">7*</text>
 <rect x="418" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="462.0" y="1507">7*</text>
-<rect x="418" y="1511" width="62.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1519">5*</text>
+<rect x="418" y="1511" width="2.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="1519">0*</text>
 <rect class="bar-track" x="550" y="1487" width="88" height="34" rx="2"/>
 <rect x="550" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="594.0" y="1495">7/7*</text>
 <rect x="550" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="1507">7/7*</text>
-<rect x="550" y="1511" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="1519">5/5*</text>
 <rect class="bar-track" x="682" y="1487" width="88" height="34" rx="2"/>
 <rect x="682" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1495">106*</text>
+<text class="bar-value-label" x="726.0" y="1495">94*</text>
 <rect x="682" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1507">106*</text>
+<text class="bar-value-label" x="726.0" y="1507">94*</text>
 <rect x="682" y="1511" width="2.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="726.0" y="1519">2*</text>
 <text class="lang-label" x="20" y="1551.5">python</text>
@@ -821,32 +821,36 @@
 <text class="lang-label" x="20" y="1639.5">rust</text>
 <rect class="bar-track" x="154" y="1619" width="88" height="34" rx="2"/>
 <rect x="154" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1627">1927*</text>
+<text class="bar-value-label" x="198.0" y="1627">1927</text>
 <rect x="154" y="1631" width="81.1" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="1639">1775*</text>
-<rect x="154" y="1643" width="84.8" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1651">1858*</text>
+<text class="bar-value-label" x="198.0" y="1639">1775</text>
+<rect x="154" y="1643" width="81.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="1651">1774</text>
 <rect class="bar-track" x="286" y="1619" width="88" height="34" rx="2"/>
 <rect x="286" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1627">1927/1927*</text>
+<text class="bar-value-label" x="330.0" y="1627">1927/1927</text>
 <rect x="286" y="1631" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1639">1775/1775*</text>
+<text class="bar-value-label" x="330.0" y="1639">1775/1775</text>
 <rect x="286" y="1643" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1651">1857/1858*</text>
+<text class="bar-value-label" x="330.0" y="1651">1774/1774</text>
+<circle cx="390.0" cy="1636.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="1639.0">G</text>
 <rect class="bar-track" x="418" y="1619" width="88" height="34" rx="2"/>
 <rect x="418" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="1627">312*</text>
+<text class="bar-value-label" x="462.0" y="1627">312</text>
 <rect x="418" y="1631" width="80.9" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="462.0" y="1639">287*</text>
-<rect x="418" y="1643" width="84.1" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1651">298*</text>
+<text class="bar-value-label" x="462.0" y="1639">287</text>
+<rect x="418" y="1643" width="80.1" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="1651">284</text>
 <rect class="bar-track" x="550" y="1619" width="88" height="34" rx="2"/>
 <rect x="550" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1627">312/312*</text>
+<text class="bar-value-label" x="594.0" y="1627">312/312</text>
 <rect x="550" y="1631" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="594.0" y="1639">287/287*</text>
+<text class="bar-value-label" x="594.0" y="1639">287/287</text>
 <rect x="550" y="1643" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="1651">298/298*</text>
+<text class="bar-value-label" x="594.0" y="1651">284/284</text>
+<circle cx="654.0" cy="1636.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="654.0" y="1639.0">G</text>
 <rect class="bar-track" x="682" y="1619" width="88" height="34" rx="2"/>
 <rect x="682" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="1627">1774</text>
@@ -883,34 +887,34 @@
 <text class="bar-value-label" x="726.0" y="1683">541*</text>
 <text class="lang-label" x="20" y="1727.5">scheme</text>
 <rect class="bar-track" x="154" y="1707" width="88" height="34" rx="2"/>
-<rect x="154" y="1707" width="68.1" height="10" rx="2" fill="#2a78d6"/>
+<rect x="154" y="1707" width="55.5" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="1715">58*</text>
 <rect x="154" y="1719" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1727">75*</text>
+<text class="bar-value-label" x="198.0" y="1727">92*</text>
 <rect class="bar-track" x="286" y="1707" width="88" height="34" rx="2"/>
 <rect x="286" y="1707" width="12.1" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="1715">8/58*</text>
-<rect x="286" y="1719" width="9.4" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1727">8/75*</text>
+<rect x="286" y="1719" width="7.7" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1727">8/92*</text>
 <rect class="bar-track" x="418" y="1707" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1707" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1707" width="88" height="34" rx="2"/>
 <rect class="stripe" x="16" y="1746" width="780" height="44"/>
 <text class="lang-label" x="20" y="1771.5">shell</text>
 <rect class="bar-track" x="154" y="1751" width="88" height="34" rx="2"/>
-<rect x="154" y="1751" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1759">3</text>
-<rect x="154" y="1763" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="1771">3</text>
+<rect x="154" y="1751" width="66.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1759">3*</text>
+<rect x="154" y="1763" width="66.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1771">3*</text>
 <rect x="154" y="1775" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1783">3</text>
+<text class="bar-value-label" x="198.0" y="1783">4*</text>
 <rect class="bar-track" x="286" y="1751" width="88" height="34" rx="2"/>
 <rect x="286" y="1751" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1759">3/3</text>
+<text class="bar-value-label" x="330.0" y="1759">3/3*</text>
 <rect x="286" y="1763" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1771">3/3</text>
-<rect x="286" y="1775" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1783">3/3</text>
+<text class="bar-value-label" x="330.0" y="1771">3/3*</text>
+<rect x="286" y="1775" width="66.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1783">3/4*</text>
 <rect class="bar-track" x="418" y="1751" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1751" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1751" width="88" height="34" rx="2"/>
@@ -980,56 +984,56 @@
 <text class="bar-value-label" x="198.0" y="1935">144*</text>
 <rect x="154" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1947">144*</text>
-<rect x="154" y="1951" width="66.6" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1959">109*</text>
+<rect x="154" y="1951" width="86.2" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="1959">141*</text>
 <rect class="bar-track" x="286" y="1927" width="88" height="34" rx="2"/>
 <rect x="286" y="1927" width="87.4" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="1935">143/144*</text>
-<rect x="286" y="1939" width="86.8" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1947">142/144*</text>
+<rect x="286" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1947">144/144*</text>
 <rect x="286" y="1951" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1959">109/109*</text>
+<text class="bar-value-label" x="330.0" y="1959">141/141*</text>
 <rect class="bar-track" x="418" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1927" width="88" height="34" rx="2"/>
 <rect x="682" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1935">108</text>
+<text class="bar-value-label" x="726.0" y="1935">138</text>
 <rect x="682" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1947">108</text>
+<text class="bar-value-label" x="726.0" y="1947">138</text>
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
 <rect x="154" y="1971" width="82.5" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="1979">2733*</text>
 <rect x="154" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1991">2914*</text>
-<rect x="154" y="1995" width="39.3" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="2003">1302*</text>
+<rect x="154" y="1995" width="27.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="2003">894*</text>
 <rect class="bar-track" x="286" y="1971" width="88" height="34" rx="2"/>
-<rect x="286" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1979">2732/2733*</text>
+<rect x="286" y="1971" width="87.9" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1979">2731/2733*</text>
 <rect x="286" y="1983" width="82.7" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1991">2740/2914*</text>
-<rect x="286" y="1995" width="83.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="2003">1241/1302*</text>
+<rect x="286" y="1995" width="82.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="2003">833/894*</text>
 <rect class="bar-track" x="418" y="1971" width="88" height="34" rx="2"/>
 <rect x="418" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1979">842*</text>
 <rect x="418" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="462.0" y="1991">842*</text>
-<rect x="418" y="1995" width="34.7" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="2003">332*</text>
+<rect x="418" y="1995" width="35.8" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="2003">343*</text>
 <rect class="bar-track" x="550" y="1971" width="88" height="34" rx="2"/>
 <rect x="550" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="594.0" y="1979">842/842*</text>
 <rect x="550" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="1991">842/842*</text>
-<rect x="550" y="1995" width="87.7" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="2003">331/332*</text>
+<rect x="550" y="1995" width="87.5" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="2003">341/343*</text>
 <rect class="bar-track" x="682" y="1971" width="88" height="34" rx="2"/>
 <rect x="682" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1979">1231*</text>
+<text class="bar-value-label" x="726.0" y="1979">824*</text>
 <rect x="682" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1991">1231*</text>
+<text class="bar-value-label" x="726.0" y="1991">824*</text>
 <rect class="stripe" x="16" y="2010" width="780" height="44"/>
 <text class="lang-label" x="20" y="2035.5">yacc</text>
 <text class="awaiting" x="154" y="2035.5">awaiting language-crucible corpus</text>
@@ -1063,17 +1067,17 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2750</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 24 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 26 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 6 (25%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 8 (31%)</text>
 <circle cx="209.6" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="209.6" y="2187">T</text>
-<text class="legend-label" x="222.6" y="2188">tree-sitter best: 1 (4%)</text>
+<text class="legend-label" x="222.6" y="2188">tree-sitter best: 2 (8%)</text>
 <circle cx="402.4" cy="2184" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="402.4" y="2187">C</text>
 <text class="legend-label" x="415.4" y="2188">ctags best: 0 (0%)</text>
 <circle cx="558.0" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="571.0" y="2188">Ties: 17 (71%)</text>
+<text class="legend-label" x="571.0" y="2188">Ties: 16 (62%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

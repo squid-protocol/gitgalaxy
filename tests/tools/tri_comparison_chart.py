@@ -197,6 +197,56 @@ _GG_ONLY_LANGS = (
 # (epic #1295 precedent), not scored and hidden.
 _CLASS_SCOPE_EXCLUDED_LANGS = frozenset({"css", "html"})
 
+# ARGS GRANULARITY: "args" doesn't mean the same unit across every language, even when a real
+# comparison tool exists for existence. See .claude/skills/tri-comparison-ledger-sweep/SKILL.md's
+# "Args granularity" section for the full methodology this was built from (2026-08-20) -- summary
+# here, don't duplicate the reasoning. Three non-default categories, each rendered with its own
+# superscript-style marker appended to the Args Found bar label (same convention as `*`/`**`
+# already use), plus its own legend line:
+#   - "program_level": exactly ONE real signature per compilation unit, not one per callable --
+#     a per-function args count reading ~0 is CORRECT, not a recall gap. cobol: PROCEDURE
+#     DIVISION USING/RETURNING is a whole-program header; paragraphs don't take individual
+#     arguments at all (confirmed: 124/126 real cobol paragraphs genuinely take zero
+#     paragraph-scoped arguments).
+#   - "none": func_start matches a document-structural marker as a pseudo-callable (same "one
+#     comparable schema across every language" reason non-function-shaped languages get a
+#     func_start rule at all) -- there is no parameter-list concept to measure, ever. Confirmed
+#     via direct regex inspection: dockerfile's func_start matches RUN/CMD/ENTRYPOINT/
+#     HEALTHCHECK instruction keywords; yaml's matches CI run:/script: step keys; jcl's matches
+#     EXEC job steps.
+#   - "proxy": a real, non-trivial per-function measurement exists, just derived from something
+#     other than a parenthesized parameter list -- same spirit as the bash/Perl $1/$2/$3
+#     precedent in docs/why_gitgalaxy_beats_ast_here.md. assembly/agc_assembly: args counts
+#     calling-convention register mentions (rdi/rsi/rdx/xmm0-7/etc.) inside the function body as
+#     an argument-count proxy -- real data (67%/42% zero, not 100%), but structurally
+#     unverifiable against ctags either way, since ctags emits no signature: field for these
+#     languages at all.
+# Default (absent from this dict): "per_function", the ordinary per-callable parameter-list
+# count -- no marker needed. Before adding a language here, rule out a real recall bug first
+# (check the ledger for an unvalidated existence shape on that language) -- a near-zero args
+# count is a question, never an assumed answer; scheme and m4 both looked like granularity
+# candidates at first glance and turned out to be ordinary recall bugs instead.
+ARGS_GRANULARITY: dict[str, str] = {
+    "cobol": "program_level",
+    "dockerfile": "none",
+    "yaml": "none",
+    "jcl": "none",
+    "assembly": "proxy",
+    "agc_assembly": "proxy",
+}
+
+_ARGS_GRANULARITY_MARKER: dict[str, str] = {
+    "program_level": "†",  # †
+    "none": "‡",  # ‡
+    "proxy": "§",  # §
+}
+
+_ARGS_GRANULARITY_LEGEND: dict[str, str] = {
+    "program_level": "program-level signature, not per-function",
+    "none": "no parameter-list concept exists for this language",
+    "proxy": "derived from a non-parenthetical proxy, not a parameter list",
+}
+
 _TOOL_LABEL = {"gitgalaxy": "GitGalaxy", "tree_sitter": "tree-sitter", "ctags": "ctags"}
 _TOOL_BADGE_LETTER = {"gitgalaxy": "G", "tree_sitter": "T", "ctags": "C"}
 
@@ -434,7 +484,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     panel_w = bar_max_w + inner_gap + badge_col_w
     panel_gap = 18
     left_margin, right_margin = 16, 16
-    top_margin = 128
+    top_margin = 142  # +14 vs. the old 128 -- room for the args-granularity legend line below
     header_h = 20
     bottom_margin = 44
     bar_h = 10
@@ -536,6 +586,11 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         f'<text class="legend-label" x="{left_margin}" y="{legend_y + 14}">** = validated by human/LLM '
         + "inspection in lieu of another function-finding tool</text>"
     )
+    parts.append(
+        f'<text class="legend-label" x="{left_margin}" y="{legend_y + 28}">Args Found markers -- '
+        + " &#183; ".join(f"{_ARGS_GRANULARITY_MARKER[k]} = {v}" for k, v in _ARGS_GRANULARITY_LEGEND.items())
+        + "</text>"
+    )
 
     for i, (_, _, _, title, _, _) in enumerate(panels):
         px = panels_x_start + i * (panel_w + panel_gap)
@@ -599,12 +654,28 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     # count regardless of tool count. That's why this panel alone needs its
                     # OWN staleness anchor (data.gg_args_found, a live raw sum independent of
                     # any cross-tool comparison) instead of reusing score.total_slots the way
-                    # the ranked precision panels' override does below.
-                    if attr == "args" and tool == "gitgalaxy" and len(data.available_tools) == 1:
-                        mv = _manual_verification_entry(manual_verification, lang, "args")
-                        if mv is not None and mv["total"] == data.gg_args_found:
-                            color = _COLOR_TOOL[tool]
-                            label = f"{mv['verified']}/{mv['total']}**"
+                    # the ranked precision panels' override does below. The SAME structural-0
+                    # shape also happens for a 2-tool language whose second tool just can't
+                    # report args at all (cobol/assembly/agc_assembly: ctags has no signature
+                    # field for these) -- ARGS_GRANULARITY's marker path below therefore checks
+                    # `lang in ARGS_GRANULARITY` directly, not tool count, unlike the plain
+                    # manual-verification fallback further down which really is gg-only-specific.
+                    if attr == "args" and tool == "gitgalaxy":
+                        color = _COLOR_TOOL[tool]
+                        label = None
+                        granularity = ARGS_GRANULARITY.get(lang)
+                        if granularity == "none":
+                            # No parameter-list concept exists at all -- the true count is 0 BY
+                            # CONSTRUCTION, not an unverified claim, so no manual_verification.json
+                            # entry is needed the way the generic mv path below requires.
+                            label = f"{data.gg_args_found}{_ARGS_GRANULARITY_MARKER['none']}"
+                        elif granularity in ("program_level", "proxy"):
+                            label = f"{data.gg_args_found}{_ARGS_GRANULARITY_MARKER[granularity]}"
+                        elif len(data.available_tools) == 1:
+                            mv = _manual_verification_entry(manual_verification, lang, "args")
+                            if mv is not None and mv["total"] == data.gg_args_found:
+                                label = f"{mv['verified']}/{mv['total']}**"
+                        if label is not None:
                             if disputed:
                                 label += "*"
                             parts.append(
@@ -635,6 +706,8 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     found = getattr(score, found_field)
                     w = max(2, bar_max_w * found / row_max_found) if row_max_found else 2
                     label = f"{found}"
+                    if attr == "args" and lang in ARGS_GRANULARITY:
+                        label += _ARGS_GRANULARITY_MARKER[ARGS_GRANULARITY[lang]]
                 parts.append(f'<rect x="{px}" y="{bar_y}" width="{w:.1f}" height="{bar_h}" rx="2" fill="{color}"/>')
                 if disputed:
                     label += "*"

@@ -184,6 +184,69 @@ The raw `func_start` regex itself really was 100% correct in isolation from the 
 one. Every other signature needed at least one more layer of "fix it, then re-verify the fix
 itself" before the chart could honestly show `**`/a badge.
 
+## Args granularity: "args" doesn't mean the same unit across every language
+
+Distinct from the manual-verification fallback above (which is about a whole LANGUAGE having no
+comparison tool at all) -- this is about the `args` METRIC specifically being structurally
+different in kind for a language that otherwise has a perfectly normal ctags/tree-sitter
+comparison for existence. First surfaced 2026-08-20 investigating whether cobol's near-zero
+per-paragraph args counts were a bug: they weren't, but three OTHER languages checked in the same
+pass turned out to hide a real bug behind what looked like the same shape, which is the actual
+lesson here -- **a near-zero args count is a question, never an assumed answer.** Confirmed
+categories so far:
+
+- **`per_function`** (the default, no marker needed) -- a real per-callable parameter list exists
+  and GitGalaxy counts it the conventional way (Python `def foo(a, b)`, C, Rust, ABAP's
+  `METHODS name IMPORTING ...`, etc.).
+- **`program_level`** -- the language has exactly ONE real signature per compilation unit, not one
+  per callable. COBOL: `PROCEDURE DIVISION USING ... RETURNING ...` is a whole-program header, not
+  a per-paragraph one -- paragraphs don't take individual arguments at all, so a per-paragraph args
+  count reading ~0 is CORRECT, not a recall gap (confirmed: 124/126 real cobol paragraphs
+  genuinely take zero paragraph-scoped arguments).
+- **`none`** -- `func_start` is deliberately matching a document-structural marker as a
+  pseudo-callable (same "one comparable schema across every language" reason non-function-shaped
+  languages get a func_start rule at all), and there is no parameter-list concept to measure,
+  ever. Confirmed via direct regex inspection, not guessing: dockerfile's func_start matches
+  `RUN`/`CMD`/`ENTRYPOINT`/`HEALTHCHECK` instruction keywords themselves; yaml's matches CI
+  `run:`/`script:` step keys; jcl's matches `EXEC` job steps. None of these have anything
+  resembling a formal parameter list in the underlying language, at any granularity.
+- **`proxy`** -- a real, non-trivial per-function measurement exists, it's just derived from
+  something other than a parenthesized parameter list, the same spirit as the already-documented
+  bash/Perl `$1`/`$2`/`$3` positional-parameter precedent in `docs/why_gitgalaxy_beats_ast_here.md`.
+  Confirmed for assembly/agc_assembly: `args` there counts calling-convention register mentions
+  (`rdi`/`rsi`/`rdx`/`xmm0-7`/etc.) inside the function body as an argument-count proxy -- real
+  data (67%/42% zero, not 100%), but structurally unverifiable against ctags either way, since
+  ctags emits no `signature:` field for these languages at all (confirmed via
+  `ctags --fields=+S`).
+
+**Before classifying a language into any of the above, rule out a real recall bug first** -- this
+is the part that actually bit the 2026-08-20 pass. scheme and m4 both showed the same
+near-all-zero / near-empty gg_funcs signature that made them LOOK like `none`-or-`program_level`
+candidates at first glance, but both turned out to be ordinary, already-flagged, unvalidated ledger
+shapes instead (`scheme/function/existence/agree[ctags]_vs[gitgalaxy]`, 92 occurrences;
+`m4/function/existence/agree[ctags]_vs[gitgalaxy]`, 79 occurrences) -- a live pipeline recall gap,
+confirmed by the fact that GitGalaxy's own `func_start` regex matched fine when run standalone
+against the same corpus file outside the pipeline (31/31 hits on one scheme file). The check,
+every time, before writing down a granularity classification:
+```python
+import json
+d = json.load(open("docs/self_scan/tri_comparison_ledger.json"))["entries"]
+for k, e in d.items():
+    if k.startswith(f"{lang}/function/existence/") and e["still_reproduces"]:
+        print(k, e["status"], e["last_seen_count"])  # a real, unaddressed shape here means
+                                                        # investigate THAT first, not args
+```
+A language with a real unvalidated existence-recall gap can't tell you anything meaningful about
+its args granularity -- there aren't enough correctly-found functions to judge the shape of their
+args from. Fix or at least route the recall bug through the normal sweep (steps 1-7 above) before
+drawing an args-granularity conclusion for that language.
+
+Also distinguish a granularity finding from a routing/corpus problem, which is a THIRD, unrelated
+failure mode: yacc showed 0 `gg_funcs` in the 2026-08-20 pass too, but its cause was
+`tri_comparison_chart.py` reporting "corpus has no real yacc files" -- a file-language-routing
+question, with no discrepancy shape and no args data to classify at all until that's resolved
+separately.
+
 ## 0. Housekeeping before starting a new sweep
 
 - `git fetch origin main && git checkout main && git pull --ff-only` (or rebase/merge an existing

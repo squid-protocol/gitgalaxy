@@ -454,6 +454,13 @@ _ABAP_PARAM_LINE_RE = re.compile(r"^[ \t]*!?[a-zA-Z_][a-zA-Z0-9_]*", re.M)
 # IMPORTING/EXPORTING/CHANGING/RECEIVING/EXCEPTIONS parameters are.
 _ABAP_RETURNING_VALUE_RE = re.compile(r"VALUE[ \t]*\([ \t]*[a-zA-Z_][a-zA-Z0-9_]*[ \t]*\)", re.I)
 
+# Canonicalizes one assembly `args` register match to the physical register it names, so
+# different-width references to the SAME argument-passing slot (edi/rdi, w3/x3, al/ah/ax)
+# collapse to one distinct count instead of being counted as separate arguments. Order matters
+# -- earlier alternatives must be tried first since some patterns are prefixes of others (e.g.
+# an [er]-prefixed di/si/dx/cx must be checked before the bare si/di fallback).
+_ASSEMBLY_ARG_REG_CANON_RE = re.compile(r"^(?:[er](di|si|dx|cx)|(r[89])[dwb]?|w([0-7])|([abcd])[xhl])$", re.IGNORECASE)
+
 # #1853: languages whose signatures genuinely use `<...>` for generics/templates,
 # so `_count_top_level_args` should track `<`/`>` as bracket depth for them. Every
 # other language reaching that counter (Python's `def foo(a = (x < y))` default-
@@ -1947,6 +1954,33 @@ class StructuralExtractor:
                 registers.add(parts[-1].upper())
         return len(registers) + (1 if saw_bank else 0)
 
+    def _count_assembly_register_args(self, matches: list[str]) -> int:
+        """Generic assembly (x86/ARM, unlike agc_assembly's own fixed A/Q/L/Z set) has no
+        formal parameter list either -- args's regex matches calling-convention registers
+        (SysV x86-64 rdi/rsi/rdx/rcx/r8/r9/xmm0-7, ARM AAPCS x0-7/w0-7/v0-7, legacy 16-bit
+        ax/bx/cx/dx/si/di), the same body-idiom shape as `_count_agc_register_args`. Counts
+        the number of DISTINCT argument-passing registers the body demonstrably touches
+        (`.findall`, not the generic single-`.search()`-then-split derivation this overrides,
+        which capped every function at a bare 0/1 regardless of how many registers it actually
+        used -- the regex has exactly one capturing group, so a single match's text never has
+        a comma or internal whitespace to split on). Different-width references to the SAME
+        physical register (edi/rdi, w3/x3, al/ah/ax) canonicalize to one slot via
+        `_ASSEMBLY_ARG_REG_CANON_RE` rather than counting as separate arguments."""
+        registers: set[str] = set()
+        for text in matches:
+            m = _ASSEMBLY_ARG_REG_CANON_RE.match(text)
+            if m is None:
+                registers.add(text.lower())
+            elif m.group(1):
+                registers.add(m.group(1).lower())
+            elif m.group(2):
+                registers.add(m.group(2).lower())
+            elif m.group(3):
+                registers.add("x" + m.group(3))
+            elif m.group(4):
+                registers.add(m.group(4).lower() + "x")
+        return len(registers)
+
     # galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
@@ -2027,6 +2061,12 @@ class StructuralExtractor:
                     agc_matches = agc_args_pattern.findall(block)
                     if agc_matches:
                         args_count_override = self._count_agc_register_args(agc_matches)
+            elif self.primary_lang_id == "assembly":
+                asm_args_pattern = rules.get("args")
+                if asm_args_pattern is not None:
+                    asm_matches = asm_args_pattern.findall(block)
+                    if asm_matches:
+                        args_count_override = self._count_assembly_register_args(asm_matches)
 
             sat, mag = self._calculate_block_metrics(
                 name,

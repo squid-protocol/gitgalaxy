@@ -116,6 +116,7 @@ COLOR SOURCE
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -126,6 +127,36 @@ import tri_comparison_ledger as ledger_mod  # noqa: E402
 from tri_comparison_reconcile import ALL_TOOLS, MetricScore, reconcile_symbols  # noqa: E402
 
 CHART_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "self_scan" / "tri_comparison_chart.svg"
+
+# For a language with only ONE available tool (no tree-sitter, no ctags -- e.g. abap), precision
+# is structurally always 0/N: reconcile_symbols' matched_consensus requires a SECOND tool to
+# corroborate a slot, and there isn't one to ask. That's an honest number, not a wrong one -- but
+# it silently discards real evidence when a slower, manual pass (direct source cross-check, an
+# independent grep, an LLM read of the actual corpus) has already confirmed some or all of a
+# tool's claims by a different method than tool-vs-tool agreement. This file is that record,
+# reviewed and committed by hand -- never machine-generated, never auto-updated by a gather run --
+# so precision can show `verified/total**` instead of a bare `0/N` where a human (or an LLM,
+# reviewed by a human) has actually done the checking. `**` is deliberately distinct from `*`
+# (ledger_mod's "unvalidated cross-tool disagreement") -- this is a different evidentiary category
+# (single-source manual review, not multi-tool corroboration), not a stronger or weaker version of
+# the same claim, and the chart must never blur the two together.
+MANUAL_VERIFICATION_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "self_scan" / "manual_verification.json"
+
+
+def _load_manual_verification() -> dict:
+    if not MANUAL_VERIFICATION_PATH.exists():
+        return {}
+    return json.loads(MANUAL_VERIFICATION_PATH.read_text()).get("languages", {})
+
+
+def _manual_verification_entry(manual_verification: dict, lang: str, symbol_type: str) -> dict | None:
+    """Returns the (verified, total) record for (lang, symbol_type) only if it's still current --
+    `total` must equal the tool's OWN present found-count, not just exist. A stale record (the
+    engine's count moved since the record was written, e.g. a later fix or regression) must fall
+    back to the plain, honest `0/N` rather than silently keep claiming a verification that no
+    longer matches what the tool actually reports today. Never inferred/auto-refreshed here --
+    staleness is a signal to go re-verify and update the file by hand, not to guess."""
+    return manual_verification.get(lang, {}).get(symbol_type)
 
 # The 45 languages with real structural signatures (see docs/language_status/README.md) --
 # NODE_MAPS's 31 tree-sitter-baselined languages plus the 14 GitGalaxy extracts from but
@@ -327,6 +358,8 @@ _CHART_STYLE = """<style>
 def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     from datetime import datetime, timezone
 
+    manual_verification = _load_manual_verification()
+
     langs = sorted(data_by_lang.keys())
     n = len(langs)
 
@@ -426,6 +459,10 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         parts.append(f'<text class="legend-label" x="{lx + 18}" y="{legend_y}">{_TOOL_LABEL[tool]}</text>')
         lx += 18 + 9 * len(_TOOL_LABEL[tool]) + 20
     parts.append(f'<text class="legend-label" x="{lx}" y="{legend_y}">* = unvalidated disagreement here</text>')
+    parts.append(
+        f'<text class="legend-label" x="{left_margin}" y="{legend_y + 14}">** = validated by human/LLM '
+        + "inspection in lieu of another function-finding tool</text>"
+    )
 
     for i, (_, _, _, title, _, _) in enumerate(panels):
         px = panels_x_start + i * (panel_w + panel_gap)
@@ -488,6 +525,16 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                 if ranked:
                     w = max(2, bar_max_w * score.rate_pct / 100.0)
                     label = f"{score.matched_consensus}/{score.total_slots}"
+                    # A manual-verification override only makes sense for a genuine 1-tool
+                    # group -- GitGalaxy alone, nothing to corroborate against at all. A 2-3
+                    # tool language's 0/N is a REAL precision problem worth seeing plainly;
+                    # papering over that with a manual record would hide the exact signal this
+                    # chart exists to surface. See MANUAL_VERIFICATION_PATH's own comment.
+                    if len(data.available_tools) == 1:
+                        mv = _manual_verification_entry(manual_verification, lang, symbol_type)
+                        if mv is not None and mv["total"] == score.total_slots:
+                            w = bar_max_w
+                            label = f"{mv['verified']}/{mv['total']}**"
                 else:
                     found = getattr(score, found_field)
                     w = max(2, bar_max_w * found / row_max_found) if row_max_found else 2

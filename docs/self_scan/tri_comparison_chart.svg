@@ -28,6 +28,7 @@
 <rect x="272" y="100" width="14" height="8" rx="2" fill="#1baf7a"/>
 <text class="legend-label" x="290" y="108">ctags</text>
 <text class="legend-label" x="355" y="108">* = unvalidated disagreement here</text>
+<text class="legend-label" x="16" y="122">** = validated by human/LLM inspection in lieu of another function-finding tool</text>
 <text class="panel-title" x="211.0" y="144">Functions Found</text>
 <text class="panel-title" x="343.0" y="144">Func Precision</text>
 <text class="panel-title" x="475.0" y="144">Classes Found</text>
@@ -39,14 +40,14 @@
 <rect x="154" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="161">124</text>
 <rect class="bar-track" x="286" y="153" width="88" height="34" rx="2"/>
-<rect x="286" y="153" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="161">0/124</text>
+<rect x="286" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="161">124/124**</text>
 <rect class="bar-track" x="418" y="153" width="88" height="34" rx="2"/>
 <rect x="418" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="161">12</text>
 <rect class="bar-track" x="550" y="153" width="88" height="34" rx="2"/>
-<rect x="550" y="153" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="161">0/12</text>
+<rect x="550" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="161">12/12**</text>
 <rect class="bar-track" x="682" y="153" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="217.5">ada</text>
 <text class="awaiting" x="154" y="217.5">awaiting language-crucible corpus</text>

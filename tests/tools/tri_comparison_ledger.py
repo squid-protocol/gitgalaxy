@@ -31,53 +31,62 @@ ENTRY LIFECYCLE
        reads the source at a handful of the recorded examples, determines what's actually true,
        and hand-edits the entry: status="validated", verdict=<free text explaining what was
        found and which tool(s) were right>, investigated_by, investigated_at, and (2026-08-20,
-       see CREDIT_TOOLS below) credit_tools if the verdict cleanly confirms one or more tools
-       correct on an otherwise-uncorroborated claim.
+       see VERIFIED ADJUSTMENTS below) credit_tools/debit_tools if the verdict cleanly resolves
+       to one or more tools confirmed correct or confirmed wrong on this shape.
     3. Every later merge_and_save() call updates last_seen_count/last_seen_examples/
        last_seen_at for that shape (the raw numbers can drift as the corpus or engines change)
-       but NEVER touches status/verdict/investigated_by/investigated_at/credit_tools once a human
-       has set them -- re-running the tri-comparison tool must never silently revert a validated
-       entry back to looking unvalidated, and must never let fresh examples quietly overwrite the
-       ones a human actually read.
+       but NEVER touches status/verdict/investigated_by/investigated_at/credit_tools/debit_tools
+       once a human has set them -- re-running the tri-comparison tool must never silently revert
+       a validated entry back to looking unvalidated, and must never let fresh examples quietly
+       overwrite the ones a human actually read.
     4. If a previously-seen shape doesn't reproduce on a fresh run (the underlying cause got
        fixed, or corpus content moved), its entry is kept, not deleted -- `still_reproduces` is
        set to false and `last_reconciled_at` still updates. Keeping a historical record of what
        used to disagree and was resolved is worth more than silently losing it; an entry that
        stops reproducing is also, trivially, no longer capable of blocking a chart badge (see
-       has_open_question below) or being credited (see apply_verified_credit below), so keeping
-       it costs nothing at read time.
+       has_open_question below) or being credited/debited (see apply_verified_adjustments below),
+       so keeping it costs nothing at read time.
 
-CREDIT_TOOLS -- LETTING A VERIFIED VERDICT ACTUALLY MOVE THE NUMBER, NOT JUST ANNOTATE IT
+VERIFIED ADJUSTMENTS (credit_tools / debit_tools) -- LETTING A VERDICT MOVE THE NUMBER, NOT JUST ANNOTATE IT
     Validating an entry (step 2 above) used to change only how the chart is READ (the `*`/badge
     gating `has_open_question()` drives) -- the raw precision percentage itself stayed defined
     purely by tool agreement, forever, even after a human read the source and confirmed a specific
-    tool's "uncorroborated" claim was actually real. Confirmed as a genuine gap, not a deliberate
-    design choice (2026-08-20): GitGalaxy's C func precision sat at 99.77% (1726/1730) with the
-    remaining 4 being the exact functions a ledger entry had already validated as real (both other
-    tools locally lose the one function right after a bare SLOT-macro invocation line, Claim 3 in
+    tool's "uncorroborated" claim was actually real, or confirmed a "corroborated" claim was
+    actually a shared mistake. Confirmed as a genuine gap, not a deliberate design choice
+    (2026-08-20): GitGalaxy's C func precision sat at 99.77% (1726/1730) with the remaining 4
+    being the exact functions a ledger entry had already validated as real (both other tools
+    locally lose the one function right after a bare SLOT-macro invocation line, Claim 3 in
     docs/why_gitgalaxy_beats_ast_here.md) -- confirmed-correct, manually-verified, and the score
     never reflected it.
-    `credit_tools` (a list of tool names, empty by default) is the fix, set deliberately alongside
-    `verdict` when validating -- NEVER inferred from the verdict's prose, since a verdict can
-    validate a shape without concluding any single tool is simply "right" (a structural ambiguity,
-    a genuinely mixed multi-cause shape, an already-known-wrong tool whose agreement with another
-    already-wrong tool shouldn't be rewarded either -- see the note on the symmetric "debit" case
-    below). Set it ONLY when the verdict cleanly confirms: this specific tool's claim, on this
-    specific shape, is real, and the reason the other tool(s) don't corroborate it is a confirmed
-    limitation in THEM, not an open question about the credited tool. `apply_verified_credit()`
-    (below) adds that shape's occurrence count directly into the credited tool's
-    `matched_consensus` for precision -- not `total_slots` (the credited tool already claimed
-    these occurrences; crediting doesn't add new claims, it converts already-claimed-but-
-    unconfirmed into claimed-and-confirmed).
-    Deliberately NOT implemented yet: the symmetric "debit" case, where two tools agree with each
-    other on a claim a validated verdict confirms is WRONG (real example: C's
-    `agree[ctags,tree_sitter]_vs[gitgalaxy]` shape -- `EXPORT_FUN`/`MICROPY_WRAP_MP_EXECUTE_BYTECODE`
-    are both already-known macro hallucinations that ctags AND tree-sitter both mis-tag, so their
-    mutual agreement currently inflates both tools' precision undeservedly). Credit and debit are
-    two sides of the same idea (a verified verdict should move the score, not just annotate it),
-    but debit wasn't part of the concrete case that motivated this change -- scoped out
-    deliberately rather than silently expanded into, same discipline as everywhere else in this
-    module. Revisit together if/when a debit case actually needs fixing.
+    Both fields are lists of tool names, empty by default, set DELIBERATELY alongside `verdict`
+    when validating -- NEVER inferred from the verdict's prose, since most validated shapes don't
+    resolve to "one tool is simply right/wrong" at all (a structural ambiguity, a genuinely mixed
+    multi-cause shape) and leaving either field empty is the correct, common case, not an
+    oversight to fix later.
+      - `credit_tools`: set when the verdict cleanly confirms THIS tool's claim, on this shape, is
+        real, and the reason the other tool(s) don't corroborate it is a confirmed limitation in
+        THEM, not an open question about the credited tool. `apply_verified_adjustments()` (below)
+        ADDS the shape's occurrence count into the credited tool's `matched_consensus` for
+        precision -- the credited tool already claimed these occurrences (that's why it's in
+        `agreeing_tools` for this shape to begin with); crediting converts already-claimed-but-
+        unconfirmed into claimed-and-confirmed, `total_slots` is untouched.
+      - `debit_tools`: the symmetric case -- set when the verdict confirms this tool's agreement
+        with another tool on this shape is a SHARED MISTAKE, not real corroboration. Real example:
+        C's `agree[ctags,tree_sitter]_vs[gitgalaxy]` shape -- `EXPORT_FUN`/
+        `MICROPY_WRAP_MP_EXECUTE_BYTECODE` are both already-known macro hallucinations that ctags
+        AND tree-sitter independently mis-tag the same way, so their mutual "agreement" was never
+        real corroboration, just two different regex/grammar engines getting fooled by the same
+        macro-definition text. `apply_verified_adjustments()` SUBTRACTS the shape's occurrence
+        count from each debited tool's `matched_consensus` -- again `total_slots` is untouched
+        (both tools genuinely did claim these occurrences; that fact doesn't change, only whether
+        the claim should count as corroborated). Debiting BOTH agreeing tools on a shape is normal
+        and expected when they're independently wrong for the same underlying reason (the C
+        example above); debit only one of two agreeing tools when the verdict specifically
+        distinguishes them (rare -- most 2-tool-agree shapes that turn out wrong are wrong for a
+        shared reason, per every case actually seen so far).
+    Scope discipline carries over from every other part of this module: set these two fields with
+    the same rigor as `verdict` itself -- a rubber-stamped credit/debit is worse than leaving both
+    empty, since it moves a number based on a conclusion nobody actually checked.
 """
 
 from __future__ import annotations
@@ -192,21 +201,21 @@ def has_open_question(language: str, symbol_type: str, metric: str, path: Path =
     )
 
 
-def apply_verified_credit(
+def apply_verified_adjustments(
     precision_scores: dict[str, MetricScore], groups: list[DiscrepancyGroup], path: Path = LEDGER_PATH
 ) -> None:
-    """Mutates `precision_scores` in place -- see this module's own CREDIT_TOOLS docstring section
-    for the full reasoning. For every group whose ledger entry is `status == "validated"` and
-    lists one or more `credit_tools`, adds that group's CURRENT `total_occurrences` (not the
-    ledger's possibly-stale `last_seen_count` -- `groups` is this run's fresh reconciliation, the
-    ledger only supplies the human's credit decision) to each credited tool's
-    `matched_consensus`. A no-op for any group with no ledger entry, an unvalidated one, or an
-    empty/absent `credit_tools` -- the overwhelmingly common case, since most validated shapes
-    don't cleanly resolve to "credit this one tool" (see the module docstring's debit-case note
-    for why this isn't symmetric yet). Only ever touches precision -- `total_slots` (what a tool
-    itself claimed) is untouched, and recall/found-count panels don't call this at all since
-    "found more" was never a ranked claim to begin with (see tri_comparison_chart.py's own PANELS
-    docstring)."""
+    """Mutates `precision_scores` in place -- see this module's own VERIFIED ADJUSTMENTS docstring
+    section for the full reasoning. For every group whose ledger entry is `status == "validated"`,
+    adds that group's CURRENT `total_occurrences` (not the ledger's possibly-stale
+    `last_seen_count` -- `groups` is this run's fresh reconciliation, the ledger only supplies the
+    human's credit/debit decision) to each `credit_tools` entry's `matched_consensus`, and
+    SUBTRACTS the same amount from each `debit_tools` entry's `matched_consensus`. A no-op for any
+    group with no ledger entry, an unvalidated one, or both fields empty/absent -- the
+    overwhelmingly common case, since most validated shapes don't resolve to "one or more specific
+    tools are simply right/wrong" at all. Only ever touches precision -- `total_slots` (what a
+    tool itself claimed) is untouched either direction, and recall/found-count panels don't call
+    this at all since "found more" was never a ranked claim to begin with (see
+    tri_comparison_chart.py's own PANELS docstring)."""
     ledger = load_ledger(path)
     entries = ledger.get("entries", {})
     for g in groups:
@@ -222,3 +231,6 @@ def apply_verified_credit(
         for tool in entry.get("credit_tools", []):
             if tool in precision_scores:
                 precision_scores[tool].matched_consensus += g.total_occurrences
+        for tool in entry.get("debit_tools", []):
+            if tool in precision_scores:
+                precision_scores[tool].matched_consensus -= g.total_occurrences

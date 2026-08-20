@@ -113,10 +113,10 @@
 <rect class="bar-track" x="286" y="373" width="88" height="34" rx="2"/>
 <rect x="286" y="373" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="330.0" y="381">1730/1730</text>
-<rect x="286" y="385" width="84.4" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="393">1716/1790</text>
-<rect x="286" y="397" width="87.6" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="405">1726/1733</text>
+<rect x="286" y="385" width="84.2" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="393">1713/1790</text>
+<rect x="286" y="397" width="87.5" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="405">1723/1733</text>
 <circle cx="390.0" cy="390.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="393.0">G</text>
 <rect class="bar-track" x="418" y="373" width="88" height="34" rx="2"/>

@@ -364,8 +364,8 @@ def _winner(scores: dict[str, MetricScore], available_tools: tuple[str, ...]) ->
 def _manual_verification_winner(
     manual_verification: dict,
     lang: str,
-    symbol_type: str,
-    scores: dict[str, MetricScore],
+    mv_key: str,
+    live_total: int | None,
     available_tools: tuple[str, ...],
 ) -> str | None:
     """A badge for a genuine cross-tool win means "we know who's actually right" -- but for a
@@ -378,19 +378,24 @@ def _manual_verification_winner(
     method (see MANUAL_VERIFICATION_PATH's own comment) -- it shouldn't be structurally locked
     out of the badge just because it's on the frontier. Returns "gitgalaxy" (the only tool that
     can ever hold this position) only when: exactly one tool is available, a manual-verification
-    record exists for (lang, symbol_type), that record's `total` still matches the tool's own
-    current found-count (the same staleness guard the `**` label uses), AND the record is a FULL
-    verification (`verified == total`) -- a partial one (some slots checked, some not) earns the
-    `**` label's honest partial credit but not the full confidence claim a badge makes. Never
-    called when _winner already found a real 2+-tool winner -- this is a fallback for the
-    "structurally couldn't have one" case only, not a replacement for real corroboration."""
+    record exists at manual_verification[lang][mv_key] (`mv_key` is "function"/"class" for the
+    precision panels, "args" for Args Found -- args uses a DIFFERENT key than symbol_type would
+    give, since symbol_type is "function" for both func precision AND args and the two must not
+    collide), that record's `total` still matches `live_total` -- the same staleness guard the
+    `**` label uses, and deliberately a CALLER-SUPPLIED value rather than always reading
+    score.total_slots here, since args_scores' own total_slots is structurally always 0 for a
+    1-tool language (see gg_args_found's own comment) and needs a different live anchor than the
+    precision panels do -- AND the record is a FULL verification (`verified == total`) -- a
+    partial one (some slots checked, some not) earns the `**` label's honest partial credit but
+    not the full confidence claim a badge makes. Never called when _winner already found a real
+    2+-tool winner -- this is a fallback for the "structurally couldn't have one" case only, not
+    a replacement for real corroboration."""
     if len(available_tools) != 1 or available_tools[0] != "gitgalaxy":
         return None
-    score = scores.get("gitgalaxy")
-    if score is None:
+    if live_total is None:
         return None
-    mv = _manual_verification_entry(manual_verification, lang, symbol_type)
-    if mv is None or mv["total"] != score.total_slots:
+    mv = _manual_verification_entry(manual_verification, lang, mv_key)
+    if mv is None or mv["total"] != live_total:
         return None
     if mv["verified"] != mv["total"]:
         return None
@@ -479,7 +484,14 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                 continue
             result = _winner_or_tie(scores, data.available_tools)
             if result is None:
-                result = _manual_verification_winner(manual_verification, lang, symbol_type, scores, data.available_tools)
+                gg_score = scores.get("gitgalaxy")
+                result = _manual_verification_winner(
+                    manual_verification,
+                    lang,
+                    symbol_type,
+                    gg_score.total_slots if gg_score is not None else None,
+                    data.available_tools,
+                )
             if result is not None:
                 tally[result] += 1
     total_votes = sum(tally.values())
@@ -631,12 +643,19 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                 )
                 bar_y += bar_h + sub_gap
 
-            if ranked and not disputed:
-                winner = _winner(scores, data.available_tools)
+            # Args Found is unranked (see module docstring's PANELS section -- found-count
+            # panels have no cross-tool "winner" concept, more-found isn't more-correct), so
+            # it's included here ONLY for the manual-verification fallback path, never for a
+            # real _winner() cross-tool comparison -- there's no such thing to compute for it.
+            if (ranked or attr == "args") and not disputed:
+                winner = _winner(scores, data.available_tools) if ranked else None
                 if winner is None:
-                    winner = _manual_verification_winner(
-                        manual_verification, lang, symbol_type, scores, data.available_tools
+                    gg_score = scores.get("gitgalaxy")
+                    mv_key = symbol_type if ranked else "args"
+                    live_total = (
+                        (gg_score.total_slots if gg_score is not None else None) if ranked else data.gg_args_found
                     )
+                    winner = _manual_verification_winner(manual_verification, lang, mv_key, live_total, data.available_tools)
                 if winner:
                     bx = px + bar_max_w + inner_gap + badge_col_w / 2
                     by = y + row_h / 2

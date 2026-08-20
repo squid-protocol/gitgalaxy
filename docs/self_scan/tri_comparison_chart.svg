@@ -55,6 +55,8 @@
 <rect class="bar-track" x="682" y="153" width="88" height="34" rx="2"/>
 <rect x="682" y="153" width="88" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="161">265/265**</text>
+<circle cx="786.0" cy="170.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="786.0" y="173.0">G</text>
 <text class="lang-label" x="20" y="217.5">ada</text>
 <text class="awaiting" x="154" y="217.5">awaiting language-crucible corpus</text>
 <rect class="stripe" x="16" y="236" width="780" height="44"/>

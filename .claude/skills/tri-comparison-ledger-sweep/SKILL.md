@@ -105,21 +105,84 @@ has anything to act on) and do a **manual verification** instead:
    `credit_tools`/`debit_tools` mechanism applies -- the papertrail is just the language_status doc
    (below) plus any GitHub issues / `why_gitgalaxy_beats_ast_here.md` entries from step 4, same
    three buckets as step 4.3 above, decided by hand instead of via a reviewed dispatch.
+7. **Once a signature is genuinely verified (not just checked once -- re-checked per step 2b/5's
+   discipline, ideally after any bugs found along the way are actually fixed), feed the real numbers
+   into `docs/self_scan/manual_verification.json` and regenerate the chart** so the work shows up
+   where a reader actually looks, not just in a doc nobody opens. This is a SEPARATE artifact from
+   the ledger (`docs/self_scan/tri_comparison_ledger.json`) -- gg-only languages never get ledger
+   entries at all (no second tool means no discrepancy shape to log), so this file is their entire
+   parallel papertrail, keyed `{"languages": {"<lang>": {"function": {...}, "class": {...},
+   "args": {...}}}}`. Each entry needs `total`, `verified`, `verified_at`, `verified_by`, and a
+   `note` describing HOW it was checked (the actual method -- direct source read, an independent
+   grep, hand-checking N functions across M files -- not just "verified", which isn't evidence).
+   Never machine-generated or auto-updated by a gather run -- hand-write and hand-review it exactly
+   like the ledger.
+     - **The chart shows `verified/total**`** instead of the honest-but-uninformative `0/N` a
+       1-tool language's precision panel would otherwise show. `**` is deliberately distinct from
+       `*` (ledger_mod's "unvalidated cross-tool disagreement") -- a different evidentiary category
+       (single-source manual/LLM review, not multi-tool corroboration), never blurred together in
+       the chart or its legend.
+     - **Staleness guard is mandatory, and its anchor is DIFFERENT per panel** -- a manual record
+       must stop applying the instant the engine's live count no longer matches what was verified,
+       rather than silently keep claiming a verification that's gone stale. Func/Class Found use
+       `matched_consensus` (a real per-tool raw count even for 1 tool); Func/Class Precision use
+       `total_slots` (ditto); but **Args Found's own `total_slots` is structurally always 0 for a
+       1-tool language** (`reconcile_symbols` only increments it when 2+ tools are comparable at a
+       slot -- there's no per-tool raw args count anywhere in `MetricScore` at all), so it needed
+       its OWN live anchor (`LanguageChartData.gg_args_found`, populated straight from
+       `Occurrence.args` in `run_pipeline`, independent of any cross-tool comparison machinery) --
+       don't assume every panel's staleness check can reuse the same field just because two of them
+       happen to.
+     - **A fully-verified 1-tool language can now earn a real badge**, not just the `**` label --
+       `_manual_verification_winner()` (a fallback used only when `_winner`/`_winner_or_tie` found
+       no real 2+-tool comparison at all) awards GitGalaxy's own badge when `verified == total`
+       EXACTLY, never for a partial verification (some slots checked, some not) -- partial credit
+       earns the `**` label's honesty but not a badge's full confidence claim. This exists on
+       purpose so GitGalaxy going after more tree-sitter/ctags-blind "frontier" languages doesn't
+       mean permanent badge-lessness for them -- a real, rigorous manual verification earns the
+       same "we know who's actually right" claim a cross-tool win earns, just via a different,
+       equally rigorous method, not a lesser one.
+     - Regenerate with the normal `--all --write` (step 6 below, same "never a partial
+       `--languages` list" rule) and confirm the diff is scoped to the language you just verified
+       plus expected ripple, same rigor as any other chart regeneration.
 
 Write the result up the same way step 8 does for a cleared ledger backlog -- a manual-verification
 section in `docs/language_status/<lang>.md` (not the tri-comparison template that assumes a second
 tool exists to compare against), following the same split: sections 1-8 via the `language-status`
 skill (dispatched separately, stopped before its own final section), this section written by hand
-in parallel. **Real result of the abap pass, after step 2b caught what step 2 alone missed
-(2026-08-19):** two confirmed engine defects, not zero -- `prism.py`'s positional-comment stripper
-reuses Fortran/COBOL's column-1 anchor set for ABAP, erasing every flush-left `CLASS ...
-DEFINITION`/`IMPLEMENTATION` line as a bogus comment before the (otherwise-correct) `class_start`
-regex ever runs ([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898)); and ABAP has no
-`ScopeParsingRegistry` entry in `detector.py`, so it silently falls through to brace-based function
-slicing despite having no braces, dropping ~87% of real named functions from `function_data`
-([#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)). The raw `func_start` regex
-itself really was 100% correct in isolation (124/124) -- that part of the first draft wasn't wrong,
-it was just an incomplete claim mistaken for a complete one.
+in parallel. **Real result of the full abap pass (2026-08-19/20), after step 2b/5's discipline
+caught what a single pass would have missed:** SEVEN confirmed engine defects, not zero -- found in
+three waves, each surfaced by re-verifying the previous fix rather than trusting it:
+- Wave 1 (raw pipeline vs. regex-in-isolation): `prism.py`'s positional-comment stripper reused
+  Fortran/COBOL's column-1 anchor set for ABAP, erasing every flush-left `CLASS ...
+  DEFINITION`/`IMPLEMENTATION` line as a bogus comment before `class_start` ever ran
+  ([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898)); ABAP had no
+  `ScopeParsingRegistry` entry in `detector.py`, silently falling through to brace-based function
+  slicing despite having no braces, dropping ~87% of real named functions
+  ([#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)).
+- Wave 2 (regenerating the chart after wave 1 merged, then verifying THAT fix): ABAP was missing
+  from `_CLASS_START_NAMED_EXTRACTION_LANGS`, so the named class list stayed empty even after
+  #1898's fix restored the raw signal
+  ([#1904](https://github.com/squid-protocol/gitgalaxy/issues/1904)); the class-boundary resolver's
+  brace search mistook ABAP's own string-template syntax (`|text { expr }|`) for a real body
+  opener, truncating class scope and breaking method-to-class linkage
+  ([#1907](https://github.com/squid-protocol/gitgalaxy/issues/1907)).
+- Wave 3 (going back to close out an "open question, not yet root-caused" note instead of leaving
+  it): the SAME `prism.py` stripper as #1898, a different unqualified character (`!`, ABAP's
+  parameter-name escape prefix, mistaken for Fortran's inline-comment marker)
+  ([#1911](https://github.com/squid-protocol/gitgalaxy/issues/1911)); the `args` regex itself had
+  two independent correctness bugs (the `!` prefix broke matching entirely; `VALUE(...)` mis-
+  captured the literal word `TYPE` as a second parameter)
+  ([#1917](https://github.com/squid-protocol/gitgalaxy/issues/1917)); and even with the regex
+  fixed, the per-function args COUNT searched the wrong section of the file (the sliced
+  IMPLEMENTATION body instead of the DEFINITION section's real declaration) with a derivation
+  mechanism that structurally couldn't produce a count from this regex's per-clause-existence
+  shape at all ([#1918](https://github.com/squid-protocol/gitgalaxy/issues/1918)).
+
+The raw `func_start` regex itself really was 100% correct in isolation from the very first pass
+(124/124) -- that part was never wrong, it was just an incomplete claim mistaken for a complete
+one. Every other signature needed at least one more layer of "fix it, then re-verify the fix
+itself" before the chart could honestly show `**`/a badge.
 
 ## 0. Housekeeping before starting a new sweep
 
@@ -396,7 +459,7 @@ that language, same PR is fine.
 
 ## The papertrail, end to end
 
-Six layers, each serving a different reader -- step 4.3's three buckets map directly onto layers
+Seven layers, each serving a different reader -- step 4.3's three buckets map directly onto layers
 2-4 below, so "which bucket" and "which papertrail layer" are the same decision, not two separate
 ones:
 1. **The ledger entry itself** (`status`, `verdict`, `investigated_by`, `investigated_at`,
@@ -418,6 +481,11 @@ ones:
 6. **`docs/language_status/<lang>.md`**'s tri-comparison section (step 8, once a language's
    backlog fully clears) -- the synthesized, human-readable "what did we learn about this
    language" capstone, distinct from the per-shape ledger entries it's built from.
+7. **`docs/self_scan/manual_verification.json`** (step 7 of the gg-only fallback procedure above)
+   -- the layer-1 equivalent for a language that can never get a ledger entry at all (no second
+   tool means no discrepancy shape to log). Same discipline as the ledger: hand-written, hand-
+   reviewed, never machine-generated, and read directly by `tri_comparison_chart.py` to render the
+   `**` label / earn a badge for a genuinely verified 1-tool language.
 
 Commit messages should name the shapes validated, not just say "update ledger" -- a future reader
 `git log`-ing this file should be able to tell what changed and why without opening the diff.
@@ -449,19 +517,29 @@ Commit messages should name the shapes validated, not just say "update ledger" -
   the other as coincidentally also wrong for an unrelated reason -- rare.
 - Fixing one confirmed engine bug is not proof the surrounding extraction path is now fully
   correct -- re-verify the fix against the REAL pipeline/DB output (step 2b) before moving on,
-  every time, not just once per language. ABAP's manual-verification pass (2026-08-19/20) found 5
-  separate, independent bugs this way, not 1: fixing #1898 (a `prism.py` comment-stripping bug)
-  and re-checking its actual DB output surfaced #1899 (a completely different `detector.py`
-  slicing-mode bug) sitting right next to it; fixing #1899 and regenerating the tri-comparison
-  chart surfaced #1904 (a THIRD, independent bug -- a named-class-extraction allowlist gap);
-  verifying #1904's own fix surfaced #1907 (a fourth -- a class-boundary detector confused by
-  ABAP's own string-template syntax); and going back to close out step 4's "noted as a known open
-  question, not evidence-backed enough to file" item on `args` (rather than leaving it open
-  indefinitely) found a FIFTH, #1911 -- the exact same `prism.py` comment-stripper as #1898, but a
-  different unqualified character (`!`, not `C`/`c`/`/`). An "open question, not yet root-caused"
-  note in step 4 is a lead to come back to, not a permanent resting state -- don't let a sweep
-  close out with unresolved "probably related" questions still sitting in the doc if there's more
-  budget to chase them down. Each bug was invisible until the previous one was fixed and
-  re-checked against real output -- stopping at the first green result after fix #1 would have
-  left 4 more silently in place. See `docs/language_status/abap.md` §9 for the full evidence
-  trail.
+  every time, not just once per language. ABAP's manual-verification pass (2026-08-19/20) found 7
+  separate, independent bugs this way, not 1, across three waves: fixing #1898 (a `prism.py`
+  comment-stripping bug) and re-checking its actual DB output surfaced #1899 (a completely
+  different `detector.py` slicing-mode bug) sitting right next to it; fixing #1899 and regenerating
+  the tri-comparison chart surfaced #1904 (a THIRD, independent bug -- a named-class-extraction
+  allowlist gap); verifying #1904's own fix surfaced #1907 (a fourth -- a class-boundary detector
+  confused by ABAP's own string-template syntax); going back to close out step 4's "noted as a
+  known open question, not evidence-backed enough to file" item on `args` (rather than leaving it
+  open indefinitely) found a fifth, #1911 (the exact same `prism.py` comment-stripper as #1898, a
+  different unqualified character -- `!`, not `C`/`c`/`/`); and building the args `**` chart display
+  on top of THAT fix (rather than assuming a green regex meant a green per-function count) found
+  two more, #1917 (two more regex-correctness bugs in the same `args` pattern) and #1918 (the
+  per-function count searched the wrong section of the file entirely, with a derivation mechanism
+  that couldn't have produced a real count even in the right span). An "open question, not yet
+  root-caused" note in step 4 is a lead to come back to, not a permanent resting state -- don't let
+  a sweep close out with unresolved "probably related" questions still sitting in the doc if
+  there's more budget to chase them down. Each bug was invisible until the previous one was fixed
+  and re-checked against real output -- stopping at the first green result after fix #1 would have
+  left 6 more silently in place. See `docs/language_status/abap.md` §9 for the full evidence trail.
+- A manual-verification badge (step 7's `_manual_verification_winner()`) requires
+  `verified == total` EXACTLY -- resist the temptation to award one for "verified most of it" or
+  "spot-checked a representative sample and it all matched." A partial verification is real,
+  useful evidence and belongs in the `**` label same as always, but a badge is a stronger claim
+  ("we know who's actually right," matching what a real cross-tool win asserts) than "probably
+  fine based on a sample" earns -- don't blur the two the way this skill's own `*`/`**` distinction
+  already refuses to blur unvalidated-disagreement from manual-review.

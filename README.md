@@ -231,6 +231,22 @@ languages have a full written audit one level deeper than this chart —
 [#1193](https://github.com/squid-protocol/gitgalaxy/issues/1193) (still open) got found in
 the first place; the rest of the 31 are baseline-only so far, not yet manually audited.
 
+5. **[Cross-checked against Tree-sitter AND ctags](tests/tools/tri_comparison_chart.py), not just one.** [`tests/tools/tri_comparison_chart.py`](tests/tools/tri_comparison_chart.py) runs all three independently against the same `language-crucible` corpus with no reader treated as privileged ground truth — every disagreement is logged to a reviewed ledger ([`docs/self_scan/tri_comparison_ledger.json`](docs/self_scan/tri_comparison_ledger.json)) and investigated by hand rather than assumed:
+
+<p align="center">
+  <img src="docs/self_scan/tri_comparison_chart.svg" alt="GitGalaxy structural extraction tri-comparison vs. Tree-sitter and ctags, function/class found-counts and precision by language" width="700">
+</p>
+
+24 of the 45 languages get all three tools compared; 16 more get two (Tree-sitter or ctags,
+whichever has coverage); the remaining 5 (`abap`, `dockerfile`, `jcl`, `livecode`, `yaml`) have
+no comparison tool at all, so their precision panel is marked `**` and backed by a committed,
+hand-reviewed record ([`docs/self_scan/manual_verification.json`](docs/self_scan/manual_verification.json))
+instead of cross-tool agreement — a real but different evidentiary category, never conflated
+with the `*` marker used elsewhere in the chart for genuine unresolved tool disagreements. See
+[`docs/self_scan/how_to_investigate_a_discrepancy.md`](docs/self_scan/how_to_investigate_a_discrepancy.md)
+for the investigation methodology, and [ABAP's own writeup](docs/language_status/abap.md) for a
+worked example of a zero-comparison-tool language, including five real engine bugs this process
+found and fixed.
 
 </div>
 

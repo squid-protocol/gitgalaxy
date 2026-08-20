@@ -1,0 +1,20 @@
+{
+  "languages": {
+    "abap": {
+      "class": {
+        "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md §9.",
+        "total": 12,
+        "verified": 12,
+        "verified_at": "2026-08-19",
+        "verified_by": "Claude Sonnet 5"
+      },
+      "function": {
+        "note": "func_start regex applied directly to source text, cross-checked against an independent grep (grep -nE \"^\\s*METHOD\\s+[a-zA-Z]\") that shares no implementation with the primary regex -- see docs/language_status/abap.md §9.",
+        "total": 124,
+        "verified": 124,
+        "verified_at": "2026-08-19",
+        "verified_by": "Claude Sonnet 5"
+      }
+    }
+  }
+}

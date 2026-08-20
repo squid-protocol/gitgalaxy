@@ -101,6 +101,10 @@ museum_2/
 # tri_comparison_ledger.py's own docstring) -- committed and hand-edited like the baselines
 # above, not disposable scan output.
 !docs/self_scan/tri_comparison_ledger.json
+# ...and the manual-verification record for zero-comparison-tool languages (no tree-sitter,
+# no ctags -- e.g. abap): hand-reviewed and committed like the ledger above, read by
+# tests/tools/tri_comparison_chart.py but never written by it.
+!docs/self_scan/manual_verification.json
 *_llm.md
 venvs/
 

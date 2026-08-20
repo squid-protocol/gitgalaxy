@@ -310,3 +310,81 @@ across three real small assembly projects — `cosmopolitan/` (`ape.S`, `start.S
 `notice.inc`, `BUILD.mk`, `loader.c`), `bootos/` (`os.asm`, `counter.asm`, plus `Makefile`/
 `LICENSE`), and `hellosilicon/` (`matrixmultneon.s`, `mainpie.s`, `fileio.S`, plus `makefile`/
 `LICENSE`).
+
+## 9. Measured tri-comparison: GitGalaxy vs. ctags (no tree-sitter grammar)
+
+assembly has no tree-sitter grammar, so `tree_sitter_accuracy_audit.py`'s single-ground-truth
+methodology doesn't apply here. `ctags_reader.py` maps it to Universal Ctags' generic `Asm` parser
+(kind `l`, labels — same parser agc_assembly shares, there is no per-dialect ctags parser either)
+as the only other signal to compare against. Unlike agc_assembly, `class` DOES have real coverage
+here (`struc`/`STRUCT`/`.struct`, §3/§4) — the local corpus's 15 real files simply never use this
+syntax, so both tools correctly report zero and no ledger shape exists for it; not an unmeasured
+gap, just a corpus that doesn't exercise the construct.
+
+Two `function/existence` shapes existed in `docs/self_scan/tri_comparison_ledger.json`, both
+investigated and validated 2026-08-20 by cross-referencing GitGalaxy's raw regex, its real
+pipeline/DB output, and ctags' actual tagged output directly against the real corpus source
+(not by trusting either tool's self-report). Unlike agc_assembly's fairly clean split, this
+language's shapes mix real wins and real gaps in BOTH directions — a more nuanced result the
+sweep reports honestly rather than smoothing over:
+
+**GitGalaxy solo-correct shape.** Three confirmed mechanisms:
+- A dot-prefix naming-convention split, NOT a real detection gap: NASM/GAS local labels scoped to
+  the preceding global label are written with a leading `.` (`.load_vec:`/`.loop:` in
+  `bootos/os.asm:197,306`). GitGalaxy's `func_start` captures the name verbatim; ctags' Asm parser
+  strips the leading dot before emitting the tag. Confirmed both tools found the SAME real label —
+  they just serialize the name differently, which the ledger's exact-string grouping surfaces as
+  two separate one-sided shapes rather than one agreement.
+- A genuine ctags gap: purely numeric local labels (`.1:`/`.2:` in `bootos/counter.asm:52,67`) are
+  tagged by ctags under no name at all (confirmed: neither `1`/`2` nor `.1`/`.2` appear in its
+  output). GitGalaxy correctly finds these.
+- A genuine GitGalaxy precision gap, the mirror image of agc_assembly's own win (§3's note on
+  `func_start`'s permissive design): because assembly's `func_start` has no following-instruction
+  requirement, it also matches pure data/constant declaration labels — `max_entries:` (an `equ`
+  constant, `bootos/os.asm:166`) and several string/metadata labels in `cosmopolitan/ape.S`
+  (`ape.ident`, `freebsd.ident`, `netbsd.ident`, `openbsd.ident`, `str.error`, `str.crlf`,
+  `str.e820`, `str.oldcpu`) followed only by `.asciz`/data directives. Not filed as a bug — a
+  narrower per-opcode whitelist like agc_assembly's isn't practical across this language's
+  intentionally wide dialect coverage — but a real, honestly-reported cost of that design choice.
+
+**ctags solo-correct shape.** Three confirmed mechanisms:
+- The SAME `detector.py` `_slice_by_labels` defect filed for agc_assembly as
+  [#1949](https://github.com/squid-protocol/gitgalaxy/issues/1949), independently confirmed live
+  here: `del_command:` (`bootos/os.asm:269`) sits immediately before the next label with nothing
+  between, collapsing to a one-line block and getting discarded; `C:`/`prtstr:`
+  (`hellosilicon/matrixmultneon.s:90,92`) collapse the same way once a trailing blank line strips
+  away. A follow-up read while chasing this also surfaced a `// @return` doc-comment inside
+  `ape.S` false-matching the same terminator-keyword mechanism (also tracked under #1949).
+- A correct-by-design GitGalaxy exclusion: `.Lenv0:`/`.Largv0:` (`cosmopolitan/ape.S:1784-1785`)
+  start with the `.L` prefix `func_start`'s own negative lookahead deliberately excludes (GCC's
+  convention for compiler-generated local/temporary labels) — both are genuinely data labels
+  (`.asciz` string constants) here. ctags has no such convention-awareness and tags them anyway.
+- ctags itself over-tags some non-callable constructs GitGalaxy correctly excludes:
+  C-preprocessor `#define` macro constants (`GRUB_MAGIC`/`GRUB_EAX`/`GRUB_AOUT`/`GRUB_CHECKSUM`/
+  `USE_SYMBOL_HACK`, `cosmopolitan/ape.S:49,1679-1682`) are not real assembly labels at all (no
+  trailing `:`), but ctags' Asm parser tags them regardless.
+
+No `credit_tools`/`debit_tools` adjustment on either shape — each mixes a real, uncorrected
+GitGalaxy defect (#1949) with cases where ctags is the one over-tagging, not a clean corroboration
+story in either direction. Net effect after validation: ctags legitimately earned its first real
+chart badge on this language's Func Precision panel (92.6%, 112/121, vs. GitGalaxy's 85%,
+112/132) — an honest result driven directly by the `func_start` permissiveness tradeoff above, not
+a forced or manufactured outcome.
+
+**A separate, more serious bug found during the same investigation, not part of either ledger
+shape:** cross-referencing GitGalaxy's own reported `function_data.start_line` values against
+ctags' (correct) line numbers for `cosmopolitan/ape.S` turned up a systematic, monotonically
+growing line-number drift (+1 early in the file, growing to +9 by the end) — not a func/class
+existence problem, but every function's reported LINE gets progressively wronger the deeper it
+sits in the file. Root-caused to `prism.py`'s `_strip_single_line_comments` (shared by every
+`line_exclusive`-family language, assembly included) using Python's `str.splitlines()`, which
+splits on Form Feed/vertical tab/other Unicode line-boundary characters beyond `\n`/`\r\n` — real
+source (`ape.S` uses `\f` as a deliberate page-break idiom in its comments) gets a phantom `\n`
+silently inserted for every such character once the stream is rejoined. Confirmed exactly: `ape.S`
+has 9 real Form Feed characters, and the observed drift at each function matches the cumulative
+Form Feed count up to that point precisely. Filed as
+[#1954](https://github.com/squid-protocol/gitgalaxy/issues/1954) — potentially affecting all 20
+`line_exclusive` languages, not just assembly, though only confirmed live here so far.
+
+Full verdicts with complete citations live in `docs/self_scan/tri_comparison_ledger.json` (search
+for `"language": "assembly"`, distinguishing it from the `agc_assembly`-prefixed keys).

@@ -266,6 +266,15 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
             data.awaiting_note = "no functions/classes found in this corpus by any tool"
 
         ledger_mod.merge_and_save(lang, func_groups + class_groups, path=ledger_mod.LEDGER_PATH)
+
+        # A validated verdict that cleanly confirms one tool correct on an otherwise-
+        # uncorroborated claim should actually move that tool's precision number, not just
+        # suppress its asterisk -- see tri_comparison_ledger.py's own CREDIT_TOOLS docstring
+        # section for the full reasoning and why this is precision-only (never recall/found-count,
+        # which was never a ranked claim to begin with).
+        ledger_mod.apply_verified_credit(data.func_precision, func_groups, path=ledger_mod.LEDGER_PATH)
+        if class_groups:
+            ledger_mod.apply_verified_credit(data.class_precision, class_groups, path=ledger_mod.LEDGER_PATH)
     return out
 
 

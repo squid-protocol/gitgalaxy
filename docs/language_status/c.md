@@ -289,9 +289,23 @@ cpython, doom, sqlite, micropython, and more):
 | Signal | GitGalaxy | tree-sitter | ctags | Read as |
 |---|---|---|---|---|
 | Functions found (of 1,814 total claimed by any tool) | 1,730 | 1,790 | 1,733 | tree-sitter's higher count is mostly noise, not real recall — see precision row |
-| Function precision (of what each tool claimed, how much corroborates) | **99.8%** (1726/1730) | 95.9% (1716/1790) | 99.6% (1726/1733) | GitGalaxy has the highest precision of the three |
+| Function precision (of what each tool claimed, how much corroborates) | **100%** (1730/1730)\* | 95.9% (1716/1790) | 99.6% (1726/1733) | GitGalaxy's number includes verified credit — see note below |
 | Class recall/precision | **100%** (61/61) | 100% (61/61) | 100% (61/61) | fully reconciled after this pass's fixes — see below |
 | Args exact-match | **100%** (1710/1710) | 99.9% (1709/1710) | 100% (1710/1710) | tied for best |
+
+\* GitGalaxy's raw agreement-based precision was 99.77% (1726/1730) — the remaining 4 are the
+`slot_tp_hash`/`slot_mp_ass_subscript`/`slot_tp_repr`/`slot_nb_inplace_power` functions described
+below, confirmed real by directly reading the source, not just uncorroborated. Once a ledger
+verdict cleanly confirms a tool correct on an otherwise-uncorroborated claim,
+`tri_comparison_ledger.py`'s `credit_tools` mechanism (added 2026-08-20, motivated by this exact
+case) moves the actual score instead of just suppressing the asterisk — a raw agreement percentage
+alone can't distinguish "uncorroborated because wrong" from "uncorroborated because more correct
+than the other two tools," and 99.77% was the latter, not the former. This is deliberately narrow:
+it only applies where a validated verdict names one specific tool correct, never inferred from
+prose, and the symmetric "debit" case (two tools falsely corroborating a confirmed-wrong shared
+claim — see `c/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]` below, where ctags and
+tree-sitter's mutual agreement on two already-known macro hallucinations currently still inflates
+both of their precision undeservedly) isn't implemented yet.
 
 ### Where GitGalaxy wins outright
 

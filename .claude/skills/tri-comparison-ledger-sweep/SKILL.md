@@ -224,9 +224,61 @@ sweep; resolve it the same way each time (`--ours` + regenerate), not by hand-me
 carve-out) -- a ledger verdict is a judgment call about what's TRUE, not a mechanically-verified
 code fix with a green test suite to lean on; get the normal explicit go-ahead before merging.
 
+## 8. Capstone: when a language's backlog clears, write it up before moving on
+
+**Trigger:** every currently-reproducing shape for a language is `status: "validated"` (check with
+the same query step 1 uses, filtered to that language, confirming zero results). Do this BEFORE
+starting the next language, not as a someday follow-up -- the whole reason it's cheap right now is
+that every file:line citation, every confirmed mechanism, and every "is this GitGalaxy's fault"
+verdict is still loaded in this session's context. Reconstructing that same picture from a cold
+read of the ledger later costs real tokens and real judgment a fresh session doesn't have for
+free; this is a real, confirmed miss, not a hypothetical (2026-08-19: the `c` sweep's own capstone
+pass surfaced a doc-note that was promised in a verdict but never actually written, AND a second,
+unfiled instance of the same tooling bug pattern in a sibling language's ctags kind-map that
+nobody would have thought to check without the language's full picture still fresh).
+
+Two things to produce, both while the context is cheap:
+
+1. **One more incidental-finding pass across sibling data structures.** If a fix this language's
+   sweep made was a bug in a per-language MAP or TABLE (a ctags kind map, a node-type set, an
+   exclusion list -- anything keyed by language), check whether the SAME bug shape exists for
+   OTHER languages' entries in that same structure, not just the one you were investigating. This
+   is exactly how the `cpp` `CTAGS_CLASS_KINDS` gap
+   ([#1877](https://github.com/squid-protocol/gitgalaxy/issues/1877)) got found -- it would not
+   have been found by a fresh session opening `ctags_reader.py` cold, only by someone who'd just
+   spent an hour reasoning about C's identical map. File whatever turns up per step 4.3's buckets,
+   same as any other finding -- this is still bucket-sorting, not a new category of work.
+2. **A tri-comparison write-up in `docs/language_status/<lang>.md`.** This repo already has a
+   `language-status` skill for a *different* kind of per-language doc (sections 1-8: what
+   GitGalaxy detects, test depth, closed issues, real-world evidence -- built from
+   `language_standards.py`/test counts/`gh issue list`, none of which this sweep's session context
+   is specially positioned to write). The tri-comparison findings are a genuinely different,
+   complementary section: a 3-way comparison with no privileged ground truth, which doesn't fit
+   that skill's own "§9 measured accuracy vs. one ground-truth parser" template -- write it as its
+   own numbered section (see `docs/language_status/c.md`'s §9 for the shape once it exists) rather
+   than force-fitting the tri-comparison shape into that template. Content that belongs in it,
+   all of which only this session actually has on hand:
+   - Summary stats: shapes investigated, occurrences covered, confirmed GitGalaxy engine defects
+     found (compare across languages -- `rust` found 2 real ones, `c` found zero, and that
+     contrast IS the finding, not a gap in one or the other).
+   - "Where GitGalaxy wins outright" -- the confirmed cases, with real file:line citations, not
+     hand-wavy summaries.
+   - "Where the other tools have real, documented gaps" -- same standard.
+   - Any bugs found and fixed in the comparison tooling itself, separate from either.
+   - A link to the ledger file (filtered to that language) and the rendered points-of-interest doc
+     as the full record.
+   If `docs/language_status/<lang>.md` doesn't exist yet for this language, dispatch the
+   `language-status` skill (as its own background task, sections 1-8 only, explicitly told to stop
+   before writing its own §9 and to leave the file ready for this section to be appended) while
+   writing this section yourself in parallel -- don't wait for it serially when the two pieces
+   don't depend on each other. If the doc already exists, just add/refresh this section in place.
+
+Commit the language_status doc alongside (or right after) the final validated-verdict batch for
+that language, same PR is fine.
+
 ## The papertrail, end to end
 
-Five layers, each serving a different reader -- step 4.3's three buckets map directly onto layers
+Six layers, each serving a different reader -- step 4.3's three buckets map directly onto layers
 2-4 below, so "which bucket" and "which papertrail layer" are the same decision, not two separate
 ones:
 1. **The ledger entry itself** (`status`, `verdict`, `investigated_by`, `investigated_at`,
@@ -245,6 +297,9 @@ ones:
    tests/tools/tri_comparison_report.py --write` after a batch lands, so there's a human-scannable
    Markdown log ranked by signal strength, not just a JSON blob to query. Cuts across all of the
    above rather than being its own bucket.
+6. **`docs/language_status/<lang>.md`**'s tri-comparison section (step 8, once a language's
+   backlog fully clears) -- the synthesized, human-readable "what did we learn about this
+   language" capstone, distinct from the per-shape ledger entries it's built from.
 
 Commit messages should name the shapes validated, not just say "update ledger" -- a future reader
 `git log`-ing this file should be able to tell what changed and why without opening the diff.

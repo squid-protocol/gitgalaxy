@@ -871,11 +871,21 @@ class Prism:
         """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran/ABAP)."""
         code, lits = [], []
 
+        # #1898: ABAP is free-form except for its OWN column-1 `*` full-line-comment
+        # rule -- it has no column-7 indicator area and no `C`/`c`/`/`/`!` column-1
+        # markers at all, unlike Fortran (`C` in column 1) and COBOL (fixed-form
+        # column-7 markers), which the shared POSITIONAL_ANCHORS set was built for.
+        # Real ABAP class headers are conventionally written flush-left (`CLASS foo
+        # DEFINITION`), so column 1 is a literal "C" -- sharing Fortran/COBOL's
+        # anchor set silently erased every real class declaration as a bogus
+        # comment before class_start ever ran. ABAP gets its own anchor set (just
+        # `*`) and skips the column-7 check entirely.
+        anchors = {"*"} if abap_mode else self.POSITIONAL_ANCHORS
+
         for line in text.split("\n"):
-            # 1. Legacy Column-1 or Column-7 anchors (Fixed Form)
-            if (len(line) >= 1 and line[0] in self.POSITIONAL_ANCHORS) or (
-                len(line) >= 7 and line[6] in self.POSITIONAL_ANCHORS
-            ):
+            # 1. Legacy Column-1 or Column-7 anchors (Fixed Form) -- column 7 is a
+            # COBOL/Fortran fixed-form concept, not applicable to free-form ABAP.
+            if (len(line) >= 1 and line[0] in anchors) or (not abap_mode and len(line) >= 7 and line[6] in anchors):
                 code.append("")
                 lits.append(line)
                 continue

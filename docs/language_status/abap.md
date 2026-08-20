@@ -205,20 +205,19 @@ deeper inspection is needed.
 
 ## 9. Manual verification: GitGalaxy alone (no tree-sitter or ctags for ABAP)
 
-**Revised 2026-08-19, same day as first written — the original version of this section was wrong
-in a way worth explaining, not just silently fixing, because the mistake is a real methodology
-lesson.** The first pass here ran ABAP's `func_start`/`class_start` regexes directly against raw
-file text and concluded "100% precision, zero engine defects." That's true of the regexes *in
-isolation*, but it is not the same claim as "GitGalaxy correctly extracts ABAP" — the actual
-production pipeline runs those regexes against text that has already passed through `prism.py`'s
-comment/code splitter and `detector.py`'s segment-routing logic, and checking the raw regex alone
-skips both. Re-verifying against the actual `galaxyscope` scan output (not just the regex) found
-**two real, confirmed engine defects**, filed as
-[#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898) and
-[#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899). The lesson generalizes: for a
-zero-comparison-tool language, "run the regex against text" is necessary but not sufficient —
-always also run the real scan and inspect its actual DB output before concluding a signature is
-correct.
+**Revised again 2026-08-20 — both engine bugs found in the previous revision are now FIXED,
+merged, and re-verified.** Recapping the timeline for anyone reading this cold: the first pass
+(2026-08-19) ran ABAP's `func_start`/`class_start` regexes directly against raw file text and
+concluded "100% precision, zero engine defects" — true of the regexes *in isolation*, but not the
+same claim as "GitGalaxy correctly extracts ABAP," since the real pipeline also runs `prism.py`'s
+comment/code splitter and `detector.py`'s segment-routing logic first. A same-day revision caught
+this and filed two real, confirmed engine defects
+([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898),
+[#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)). Both are now fixed (see each
+subsection below for the specific commit/mechanism) and verified against the real `galaxyscope`
+pipeline output, not just the regex. The lesson still generalizes: for a zero-comparison-tool
+language, "run the regex against text" is necessary but not sufficient — always also run the real
+scan and inspect its actual DB output before concluding a signature is correct.
 
 ABAP is one of only 5 languages in the whole registry with **neither** a tree-sitter grammar nor a
 ctags parser (the others: `dockerfile`, `jcl`, `livecode`, `yaml` — confirmed against
@@ -240,7 +239,7 @@ assumed "N/A." ABAP also has a real, detectable `args` construct (`IMPORTING`/`E
 zero-comparison-tool language has every construct (bash has no formal parameter list at all, for
 example), so check what a language actually has before treating an empty measurement as expected.
 
-### `func_start`: the raw regex signal is correct; the *named function list* is not (#1899)
+### `func_start`: the raw regex signal is correct; the *named function list* was not — FIXED (#1899)
 
 **Method:** ran ABAP's actual `func_start` regex from `language_standards.py` against every file's
 raw text, recorded every match, then independently re-derived ground truth by reading the source
@@ -290,11 +289,21 @@ through to `Mode_B_Braces` — brace-delimited slicing — even though ABAP has 
 | **Total** | **124** | **16 (13%)** |
 
 Only functions that happen to sit near a stray `{`/`}`-like character survive Mode B's brace search
-by coincidence — the other 87% are silently dropped from `function_data`, `function_count`, and
-therefore from the tri-comparison chart's "Functions Found" number too. **Filed as
+by coincidence — the other 87% were silently dropped from `function_data`, `function_count`, and
+therefore from the tri-comparison chart's "Functions Found" number too.
+
+**Fix (2026-08-20):** added `abap` to the language list routed through Mode A
+(`_slice_by_labels`) in `detector.py`'s `_function_slice()` instead of falling through to Mode B.
+Mode A already existed for COBOL's own label-only paragraphs (no closing keyword at all) — it
+bounds each function's body by taking everything from one `func_start` match up to the START of
+the next one, which is a correct heuristic for ABAP too, since ABAP methods are never nested
+inside each other. No new slicing mode was needed. Re-verified against the real pipeline after the
+fix: `function_count` now equals `struct_func_start` exactly for every file (124/124 total, 0
+false positives/negatives), and every real name — including tilde-qualified interface methods like
+`zif_abapgit_ajson~get_string` — comes through the named list intact. **Fixed via
 [#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899).**
 
-### `class_start`: not a double-count question — the class lines never reach the regex at all (#1898)
+### `class_start`: not a double-count question — the class lines never reached the regex at all — FIXED (#1898)
 
 The first version of this section asked "does `class_start` double-count `DEFINITION` +
 `IMPLEMENTATION` the way objective-c's `@interface`/`@implementation` intentionally does?" — a
@@ -321,23 +330,41 @@ print(result["code_stream"])     # '\n  PUBLIC\n  CREATE PUBLIC .\nENDCLASS.\n' 
 print(result["comment_stream"])  # 'CLASS zcl_foo DEFINITION' -- misclassified as a comment
 ```
 
-This also blocks `detector.py`'s class→method linkage (`parent_class_name`/`class_methods_by_id`)
-for every ABAP file, since there are never any `classes` entries to link methods into. **Filed as
+This also blocked `detector.py`'s class→method linkage (`parent_class_name`/`class_methods_by_id`)
+for every ABAP file, since there were never any `classes` entries to link methods into.
+
+**Fix (2026-08-20):** `_strip_positional_comments()` now takes an ABAP-specific anchor set (just
+`*`, the language's own real column-1 comment marker) instead of the shared Fortran/COBOL
+`POSITIONAL_ANCHORS`, and skips the column-7 check entirely (a fixed-form COBOL/Fortran concept
+that doesn't apply to free-form ABAP). COBOL and Fortran are unaffected — they still use the full
+shared anchor set, verified via their own test suites (321 tests) plus an isolated repro showing a
+literal `C This is a classic fortran comment` line still strips correctly. Re-verified against the
+real pipeline after the fix: `struct_class_start`/`class_count` now show 2 per real class file
+(the `DEFINITION` + `IMPLEMENTATION` pair, matching the engine-wide "OO boundary" convention
+already established for objective-c) and 0 for the one file with no class — exactly matching the
+12 real matches found by applying the regex directly to unprocessed text. **Fixed via
 [#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898).**
 
-### `args`: smaller, inconsistent discrepancies — not yet root-caused
+### `args`: smaller, inconsistent discrepancies — not yet root-caused, still open
 
-`file_data.struct_args` vs. a raw-regex count on unprocessed text disagree in both directions
-(e.g. `zcl_abapgit_objects.clas.abap`: 47 in the DB vs. 37 raw; `zcl_abapgit_persistence_db.
-clas.abap`: 16 vs. 10) rather than the DB consistently undercounting the way func/class do. Likely
-a secondary symptom of the same `prism.py` stripping touching some `IMPORTING`/`EXPORTING` lines
-depending on indentation, but this wasn't traced to a specific line/mechanism the way #1898/#1899
-were — noted here as a known open question rather than a third filed issue, since "probably
-related, not yet confirmed" isn't evidence-backed enough to file on its own.
+`file_data.struct_args` vs. a raw-regex count on unprocessed text still disagree in both
+directions after the two fixes above (e.g. `zcl_abapgit_objects.clas.abap`: 49 in the DB vs. 37
+raw; `zcl_abapgit_persistence_db.clas.abap`: 16 vs. 10) rather than the DB consistently
+undercounting the way func/class did. The #1898 fix did shift two files' counts slightly (ajson
+22→24, objects 47→49 — presumably a couple of `IMPORTING`/`EXPORTING` lines that were previously
+inside an erroneously-stripped span), which confirms `args` is at least partly downstream of the
+same `prism.py` mechanism, but doesn't fully explain the remaining gap. Not traced to a specific
+line/mechanism the way #1898/#1899 were — noted here as a known open question rather than a third
+filed issue, since "probably related, not fully explained" isn't evidence-backed enough to file on
+its own yet.
 
-**Summary:** two confirmed engine defects found and filed (#1898, #1899), plus one open
-args-counting discrepancy not yet root-caused. No `credit_tools`/`debit_tools` adjustment applies
-(there's no second tool to credit or debit against, and these are GitGalaxy-side bugs, not a
-cross-tool disagreement). Corpus is small (7 files) — a wider manual pass (or, if ABAP ever gets
-ctags/tree-sitter support upstream, the normal ledger pipeline) would surface more; the finding
-here is real for the *sampled* corpus, not a guarantee no other issue exists.
+**Summary:** two confirmed engine defects found, fixed, and re-verified against the real pipeline
+(#1898, #1899 — both closed), plus one open args-counting discrepancy not yet root-caused. No
+`credit_tools`/`debit_tools` adjustment applies (there's no second tool to credit or debit
+against, and these were GitGalaxy-side bugs, not a cross-tool disagreement). Corpus is small (7
+files) — a wider manual pass (or, if ABAP ever gets ctags/tree-sitter support upstream, the normal
+ledger pipeline) would surface more; the finding here is real for the *sampled* corpus, not a
+guarantee no other issue exists. Both fixes went through the full Differential Scan protocol
+(`crucible_check.py` against the ~80-repo language-crucible corpus, both full-precision and
+zero-dependency modes) before merging — see the golden master fixtures' commit history for the
+complete before/after diff.

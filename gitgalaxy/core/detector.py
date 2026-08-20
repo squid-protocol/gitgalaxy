@@ -1750,6 +1750,19 @@ class StructuralExtractor:
                         "agc_assembly",
                         "cobol",
                         "fortran",
+                        # #1899: ABAP has no ScopeParsingRegistry entry and no
+                        # braces at all (`METHOD name. ... ENDMETHOD.`, never
+                        # `{`/`}`), so it was silently falling through to
+                        # Mode_B_Braces below, which can only bound a body when
+                        # a stray brace-like character happens to appear nearby
+                        # by coincidence -- dropping ~87% of real methods.
+                        # Mode A's "greedy to the next func_start match" body
+                        # heuristic (already used for COBOL's own label-only
+                        # paragraphs, no closing keyword at all) is a correct
+                        # fit here too: ABAP methods are never nested inside
+                        # each other, so each one's real body always ends
+                        # before the next METHOD/FORM/FUNCTION/MODULE starts.
+                        "abap",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

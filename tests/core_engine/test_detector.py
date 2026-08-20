@@ -1182,9 +1182,18 @@ def test_detector_regex_execution_catch_block():
 # TEST 20: MODE B LISP-FAMILY PARSING (Parenthesis Scoping)
 # ==============================================================================
 def test_detector_mode_b_lisp_family():
-    """Proves Mode B correctly swaps from {} to () for Lisp/Scheme/Clojure languages."""
+    """Proves Mode B correctly swaps from {} to () for Lisp/Scheme/Clojure languages.
+
+    BUG FIX (2026-08-20): this used to key off a hardcoded `lang_id == "lisp"` string match,
+    but "lisp" was never a real key in LANGUAGE_DEFINITIONS (only "scheme" is) -- that branch
+    was unreachable dead code in production, and this mock's own `lexical_family` value
+    ("lisp_style") was never actually consulted by the old check, so the test was passing for
+    the wrong reason. `_slice_by_braces` now keys off `lexical_family` instead; the mock below
+    uses "recursive_block_lisp", scheme's real value, so this test validates the actual
+    production mechanism.
+    """
     MOCK_LANG_DEFS["lisp"] = {
-        "lexical_family": "lisp_style",
+        "lexical_family": "recursive_block_lisp",
         "rules": {"func_start": re.compile(r"^\s*\(\s*defun\s+([a-zA-Z0-9_.-]+)", re.M)},
     }
     opt_detector = StructuralExtractor("lisp", MOCK_LANG_DEFS)

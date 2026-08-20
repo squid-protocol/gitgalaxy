@@ -383,6 +383,19 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "abap",
         "apex",
         "c",
+        # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
+        # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
+        # independent reading (verified directly, e.g. cics-banking-sample-application-
+        # cbsa/BANKDATA.cbl:35's `PROGRAM-ID. BANKDATA.` -> "BANKDATA", matching ctags'
+        # own tag) -- cobol was simply never added to this allowlist (not decided out
+        # like css/html, just never in scope for epic #1295 since that epic's own
+        # verification method requires a tree-sitter grammar cobol doesn't have; this
+        # one is verified via docs/self_scan/tri_comparison_ledger.json's
+        # cobol/class/existence/agree[ctags]_vs[gitgalaxy] entry against ctags instead).
+        # Without this entry the generic fallback regex (class|struct|interface|trait|
+        # enum) can never match COBOL's PROGRAM-ID syntax, so the named classes list
+        # stayed permanently empty (0/19 real classes) despite cobol's own regex working.
+        "cobol",
         "cpp",
         "csharp",
         "css",
@@ -2355,8 +2368,19 @@ class StructuralExtractor:
 
         # Dynamically set scope bounds based on lexical family
         # We now consistently use curly braces for standard block-style languages.
+        # BUG FIX (2026-08-20, tri-comparison ledger sweep): this used to check
+        # `lang_id == "lisp"` -- but "lisp" has never been a real key in
+        # LANGUAGE_DEFINITIONS, only "scheme" is (dead code, unreachable true-
+        # branch). Every real scheme file fell through to the curly-brace default,
+        # which never finds a "{" in parenthesis-delimited scheme source, so
+        # `_find_balanced_end`'s downstream brace search always failed and every
+        # func_start match was silently discarded -- a 100% recall drop for the
+        # whole language, confirmed via scheme/function/existence/
+        # agree[ctags]_vs[gitgalaxy] (92 occurrences). Keyed off `lexical_family`
+        # instead of a hardcoded lang_id string so any future lisp-family language
+        # sharing this integration mode is covered automatically.
         opener, closer = "{", "}"
-        if lang_id == "lisp":
+        if self.languages.get(lang_id, {}).get("lexical_family") == "recursive_block_lisp":
             opener, closer = "(", ")"
 
         safe_code = self._build_brace_safe_stream(code, lang_id)

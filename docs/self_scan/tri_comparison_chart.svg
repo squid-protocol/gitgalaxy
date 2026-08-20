@@ -173,13 +173,15 @@
 <circle cx="390.0" cy="448.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="451.0">G</text>
 <rect class="bar-track" x="418" y="431" width="88" height="34" rx="2"/>
-<rect x="418" y="431" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="439">0</text>
+<rect x="418" y="431" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="462.0" y="439">19</text>
 <rect x="418" y="443" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="462.0" y="451">19</text>
 <rect class="bar-track" x="550" y="431" width="88" height="34" rx="2"/>
-<rect x="550" y="431" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<rect x="550" y="431" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="594.0" y="439">19/19</text>
+<rect x="550" y="443" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="451">19/19</text>
 <rect class="bar-track" x="682" y="431" width="88" height="34" rx="2"/>
 <rect x="682" y="431" width="88" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="439">14†</text>
@@ -543,22 +545,22 @@
 <text class="lang-label" x="20" y="1243.5">m4</text>
 <rect class="bar-track" x="154" y="1223" width="88" height="34" rx="2"/>
 <rect x="154" y="1223" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1231">1*</text>
+<text class="bar-value-label" x="198.0" y="1231">1</text>
 <rect x="154" y="1235" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1243">79*</text>
+<text class="bar-value-label" x="198.0" y="1243">79</text>
 <rect class="bar-track" x="286" y="1223" width="88" height="34" rx="2"/>
 <rect x="286" y="1223" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1231">0/1*</text>
+<text class="bar-value-label" x="330.0" y="1231">0/1</text>
 <rect x="286" y="1235" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1243">0/79*</text>
+<text class="bar-value-label" x="330.0" y="1243">0/79</text>
 <rect class="bar-track" x="418" y="1223" width="88" height="34" rx="2"/>
 <rect x="418" y="1223" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="1231">4*</text>
+<text class="bar-value-label" x="462.0" y="1231">4</text>
 <rect x="418" y="1235" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1243">0*</text>
+<text class="bar-value-label" x="462.0" y="1243">0</text>
 <rect class="bar-track" x="550" y="1223" width="88" height="34" rx="2"/>
 <rect x="550" y="1223" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1231">0/4*</text>
+<text class="bar-value-label" x="594.0" y="1231">0/4</text>
 <rect class="bar-track" x="682" y="1223" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="1287.5">makefile</text>
 <rect class="bar-track" x="154" y="1267" width="88" height="34" rx="2"/>
@@ -879,13 +881,15 @@
 <text class="bar-value-label" x="726.0" y="1683">541*</text>
 <text class="lang-label" x="20" y="1727.5">scheme</text>
 <rect class="bar-track" x="154" y="1707" width="88" height="34" rx="2"/>
-<rect x="154" y="1707" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1715">0*</text>
+<rect x="154" y="1707" width="55.5" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1715">58*</text>
 <rect x="154" y="1719" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1727">92*</text>
 <rect class="bar-track" x="286" y="1707" width="88" height="34" rx="2"/>
-<rect x="286" y="1707" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1715">0/92*</text>
+<rect x="286" y="1707" width="12.1" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1715">8/58*</text>
+<rect x="286" y="1719" width="7.7" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1727">8/92*</text>
 <rect class="bar-track" x="418" y="1707" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1707" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1707" width="88" height="34" rx="2"/>
@@ -1057,17 +1061,17 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2750</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 21 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 23 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 4 (19%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 4 (17%)</text>
 <circle cx="209.6" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="209.6" y="2187">T</text>
-<text class="legend-label" x="222.6" y="2188">tree-sitter best: 1 (5%)</text>
+<text class="legend-label" x="222.6" y="2188">tree-sitter best: 1 (4%)</text>
 <circle cx="402.4" cy="2184" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="402.4" y="2187">C</text>
 <text class="legend-label" x="415.4" y="2188">ctags best: 0 (0%)</text>
 <circle cx="558.0" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="571.0" y="2188">Ties: 16 (76%)</text>
+<text class="legend-label" x="571.0" y="2188">Ties: 18 (78%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

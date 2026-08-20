@@ -12398,8 +12398,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             "structural_boundaries": re.compile(r"\b(?:divert|undivert|m4_divert|m4_undivert|m4_require|AC_REQUIRE)\b"),
             # 4. func_start (Executable Logic Anchors)
             # Defining a macro establishes an executable logic block in M4.
+            # BUG FIX (2026-08-20, tri-comparison ledger sweep): the old pattern captured
+            # the DEFUN KEYWORD itself as group 1 (e.g. "AC_DEFUN"), not the macro actually
+            # being defined -- structurally identical to matching "def" as a function's name
+            # instead of what follows it. Now captures the real first-argument macro name,
+            # tolerating all three real m4 quoting conventions seen in production autoconf
+            # code: classic backtick/apostrophe (`name'), bracket (`[name]`, or the more
+            # defensive double-bracket `[[name]]`), and unquoted.
             "func_start": re.compile(
-                r"^[ \t]*(m4_define|define|AC_DEFUN|AC_DEFUN_ONCE|AU_DEFUN|m4_defun)(?=\s*\()",
+                r"^[ \t]*(?:m4_define|define|AC_DEFUN|AC_DEFUN_ONCE|AU_DEFUN|m4_defun)\s*\("
+                r"\s*(?:`([A-Za-z_][A-Za-z0-9_]*)'|\[{1,2}([A-Za-z_][A-Za-z0-9_]*)\]{0,2}|([A-Za-z_][A-Za-z0-9_]*))",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

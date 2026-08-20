@@ -160,8 +160,8 @@
 <rect x="418" y="429" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="462.0" y="437">19</text>
 <rect class="bar-track" x="550" y="417" width="88" height="34" rx="2"/>
-<rect x="550" y="417" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="425">0/19</text>
+<rect x="550" y="417" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="425">19/19</text>
 <rect class="bar-track" x="682" y="417" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="481.5">cpp</text>
 <rect class="bar-track" x="154" y="461" width="88" height="34" rx="2"/>

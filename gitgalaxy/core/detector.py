@@ -1925,6 +1925,28 @@ class StructuralExtractor:
                 total += len(_ABAP_PARAM_LINE_RE.findall(span_text))
         return total
 
+    def _count_agc_register_args(self, matches: list[str]) -> int:
+        """AGC subroutines have no formal parameter list -- inputs arrive via a small, fixed
+        set of accumulator-style registers (A, Q, L, Z) referenced anywhere in the body via a
+        real math/memory opcode, the same "no formal signature, read the body idiom" shape as
+        bash's $1/$2/... (why_gitgalaxy_beats_ast_here.md Claim 1). Counts the number of
+        DISTINCT registers among A/Q/L/Z the body demonstrably reads, plus one more if an
+        EBANK=/FBANK=/BBANK= bank-context assignment is present (a real, separate kind of input
+        the subroutine depends on, not a register touch). Takes every match found in the body
+        (the caller uses `.findall`, not `.search`) so a function that touches 3 different
+        registers scores 3, not the single-match-derived 0/1/2 the generic whole-block
+        `.search()`-then-split derivation this overrides produced before #1949's follow-up."""
+        registers: set[str] = set()
+        saw_bank = False
+        for text in matches:
+            if text.endswith("="):
+                saw_bank = True
+                continue
+            parts = text.split()
+            if parts:
+                registers.add(parts[-1].upper())
+        return len(registers) + (1 if saw_bank else 0)
+
     # galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
@@ -1999,6 +2021,12 @@ class StructuralExtractor:
                 # interface-implemented method, whose real signature lives in the
                 # interface's own definition, typically a different file) -- leave None
                 # rather than guess, same as every other language's default behavior.
+            elif self.primary_lang_id == "agc_assembly":
+                agc_args_pattern = rules.get("args")
+                if agc_args_pattern is not None:
+                    agc_matches = agc_args_pattern.findall(block)
+                    if agc_matches:
+                        args_count_override = self._count_agc_register_args(agc_matches)
 
             sat, mag = self._calculate_block_metrics(
                 name,

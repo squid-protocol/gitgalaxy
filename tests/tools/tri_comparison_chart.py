@@ -464,8 +464,24 @@ def _manual_verification_winner(
     partial one (some slots checked, some not) earns the `**` label's honest partial credit but
     not the full confidence claim a badge makes. Never called when _winner already found a real
     2+-tool winner -- this is a fallback for the "structurally couldn't have one" case only, not
-    a replacement for real corroboration."""
-    if len(available_tools) != 1 or available_tools[0] != "gitgalaxy":
+    a replacement for real corroboration.
+
+    A second, narrower qualifying path exists ONLY for `mv_key == "args"`: a language can have a
+    real second tool for func/class (agc_assembly has ctags) while that same tool is structurally
+    incapable of reporting args at all (ctags emits no `signature:` field for Asm-parsed files --
+    see ARGS_GRANULARITY's own comment). That's not "we didn't get around to comparing," it's "no
+    comparison could ever exist here," the identical justification the whole-language 1-tool case
+    already rests on, just scoped to one metric instead of the whole language. Gated on
+    `ARGS_GRANULARITY.get(lang) in ("proxy", "program_level")` specifically -- NOT "none", since a
+    `none`-granularity language's true args count is 0 by construction (nothing to verify, no
+    manual_verification.json entry ever needed for it), and NOT the default `per_function` case,
+    where a second tool's absence really would just mean "not yet compared." func/class precision
+    (`mv_key in ("function", "class")`) never gets this path -- see the `len(available_tools) == 1`
+    comment at this function's ranked-panel call site for why a 2-3 tool language's real 0/N must
+    stay visible, not be quietly replaced by a manual record."""
+    is_whole_language_gg_only = len(available_tools) == 1 and available_tools[0] == "gitgalaxy"
+    is_args_structurally_uncomparable = mv_key == "args" and ARGS_GRANULARITY.get(lang) in ("proxy", "program_level")
+    if not is_whole_language_gg_only and not is_args_structurally_uncomparable:
         return None
     if live_total is None:
         return None
@@ -695,7 +711,18 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                             # entry is needed the way the generic mv path below requires.
                             label = f"{data.gg_args_found}{_ARGS_GRANULARITY_MARKER['none']}"
                         elif granularity in ("program_level", "proxy"):
-                            label = f"{data.gg_args_found}{_ARGS_GRANULARITY_MARKER[granularity]}"
+                            # A verified proxy/program-level metric earns the SAME "**"-style
+                            # verified/total upgrade the whole-language 1-tool path gets below,
+                            # combined with (not replacing) its granularity marker -- "**" and
+                            # a granularity superscript are deliberately distinct evidentiary
+                            # claims (multi-source corroboration vs. a real-but-differently-
+                            # measured signal) and both stay visible together once verified,
+                            # never blurred into one marker.
+                            mv = _manual_verification_entry(manual_verification, lang, "args")
+                            if mv is not None and mv["total"] == data.gg_args_found and mv["verified"] == mv["total"]:
+                                label = f"{mv['verified']}/{mv['total']}{_ARGS_GRANULARITY_MARKER[granularity]}"
+                            else:
+                                label = f"{data.gg_args_found}{_ARGS_GRANULARITY_MARKER[granularity]}"
                         elif len(data.available_tools) == 1:
                             mv = _manual_verification_entry(manual_verification, lang, "args")
                             if mv is not None and mv["total"] == data.gg_args_found:

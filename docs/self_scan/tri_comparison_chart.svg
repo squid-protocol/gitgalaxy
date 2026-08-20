@@ -78,7 +78,9 @@
 <rect class="bar-track" x="550" y="255" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="255" width="88" height="34" rx="2"/>
 <rect x="682" y="255" width="88" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="263">469§</text>
+<text class="bar-value-label" x="726.0" y="263">296/296§</text>
+<circle cx="786.0" cy="272.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="786.0" y="275.0">G</text>
 <text class="lang-label" x="20" y="319.5">apex</text>
 <rect class="bar-track" x="154" y="299" width="88" height="34" rx="2"/>
 <rect x="154" y="299" width="88.0" height="10" rx="2" fill="#2a78d6"/>

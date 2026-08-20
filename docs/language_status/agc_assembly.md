@@ -229,8 +229,21 @@ parser (kind `l`, labels — there is no dedicated AGC parser) as the only other
 against. `class` has no tri-comparison entries at all: both sides agree there's nothing to find
 (`class_start` is `None` per §4, and `ctags_reader.py`'s own kind-map for agc_assembly is an empty
 set for the same reason) — a clean agreement, not an unmeasured gap. `args` is out of scope for
-this tri-comparison methodology entirely: ctags emits no `signature:` field for Asm-parsed files,
-so there's no second reading to compare GitGalaxy's register-mention proxy metric against.
+this tri-comparison METHODOLOGY entirely: ctags emits no `signature:` field for Asm-parsed files,
+so there's no second reading to compare GitGalaxy's register-count proxy metric against — but that
+doesn't mean unmeasurable. `docs/self_scan/manual_verification.json` (a separate, single-source
+verification mechanism from the ledger) carries a fully hand-verified `args` entry: 296/296
+distinct-registers-plus-bank-flag, confirmed 2026-08-20 against 5 functions across 4 files, earning
+GitGalaxy its own "we know this is right" badge on the chart's Args Found panel even without a
+second tool to corroborate against. The number itself changed as part of this same investigation:
+the original per-function derivation only ever inspected the FIRST args-pattern match in a
+function's body, so every function's real value was capped at a near-meaningless 0/1/2 regardless
+of how many registers it actually touched (469 total, corpus-wide). Fixed in `detector.py`'s new
+`_count_agc_register_args` (wired via `_slice_by_labels`'s `args_count_override` mechanism, the
+same pattern ABAP's own dedicated counter uses) to scan every match in the body and count distinct
+registers — 296 total, a real number that varies meaningfully per function instead of a coin flip
+between three fixed values. See `docs/self_scan/manual_verification.json`'s `agc_assembly.args`
+entry for the full hand-verification note.
 
 Two `function/existence` shapes existed in `docs/self_scan/tri_comparison_ledger.json`, both
 investigated and validated 2026-08-20 by reading the real corpus source and cross-referencing

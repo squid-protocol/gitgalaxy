@@ -7,12 +7,9 @@ Snapshot generated 2026-08-19 against `main`. Source: `LANGUAGE_DEFINITIONS["cob
 `language-status` skill's data-gathering commands before trusting these numbers if this doc looks
 old relative to `last_updated` below.
 
-**Scope note:** this doc covers sections 1-8 only (what the engine detects, test depth, issue
-history, real-world evidence). COBOL has no tree-sitter grammar available to this repo's
-comparison tooling (one of 9 "tree-sitter-blind" languages), so there is no measured-accuracy
-section here — see `docs/self_scan/tri_comparison_ledger.json` for a separate, in-progress
-GitGalaxy/ctags 3-way comparison pass for `cobol` (a related but distinct effort from what this doc
-covers) once that work lands its own section.
+**Scope note:** COBOL has no tree-sitter grammar available to this repo's comparison tooling (one
+of 9 "tree-sitter-blind" languages), so §9 below is a 2-way GitGalaxy/ctags comparison rather than
+the usual 3-way tree-sitter-baselined shape used elsewhere in this doc set.
 
 ## 1. At a glance
 
@@ -297,3 +294,85 @@ deeper inspection is needed.
 Note: `awesome-cobol` (a curated links-list repo, 0 LOC scanned, dominant language Markdown) and
 `COBOL-Guide` (0 LOC scanned) were checked and excluded — neither contains real COBOL source, just
 Markdown link lists, despite the repo name.
+## 9. Tri-comparison: GitGalaxy vs. ctags (no privileged ground truth)
+
+COBOL is one of 9 languages with no tree-sitter grammar in GitGalaxy's comparison tooling, so
+this is a 2-way comparison against universal-ctags, not the usual 3-way GitGalaxy/tree-sitter/
+ctags split. See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the methodology and
+`docs/self_scan/tri_comparison_ledger.json` (filter to `cobol/`) for the full record.
+
+**Summary.** All 3 discrepancy shapes the tri-comparison tool ever flagged for cobol have been
+investigated and validated (2026-08-19, via the `tri-comparison-ledger-sweep` skill). 170 total
+occurrences covered. 3 confirmed GitGalaxy/audit-tool defects found and filed
+([#1890](https://github.com/squid-protocol/gitgalaxy/issues/1890),
+[#1891](https://github.com/squid-protocol/gitgalaxy/issues/1891),
+[#1892](https://github.com/squid-protocol/gitgalaxy/issues/1892)), plus one existing issue
+([#1858](https://github.com/squid-protocol/gitgalaxy/issues/1858)) had its root-cause diagnosis
+corrected. Notably, every one of the 3 shapes turned out to be **mixed-cause** — a real defect
+hiding underneath a larger, unrelated pattern in the same shape — which is why the sweep read
+every sampled case individually rather than trusting the majority pattern to explain the whole
+count.
+
+### Where the disagreement was ctags/harness noise, not a GitGalaxy problem
+
+- **`function/existence`, ctags-alone, 133 occurrences** (shape
+  `cobol/function/existence/agree[ctags]_vs[gitgalaxy]`): the majority is Universal Ctags' own
+  COBOL parser tagging *any* period-terminated word as a "paragraph," including scope terminators
+  like `END-IF.`/`END-PERFORM.` that are not paragraph definitions — confirmed via a live `ctags
+  -x` run on `cics-banking-sample-application-cbsa/BANKDATA.cbl` showing dozens of plain
+  `END-IF.` lines tagged as paragraphs. GitGalaxy correctly excludes these via its own
+  `END-[A-Za-z0-9_-]+` reserved-word shield. Permanent, structural ctags limitation, documented in
+  `tests/tools/ctags_reader.py`'s cobol kind-map comment.
+- **`function/existence`, GitGalaxy-alone, 18 occurrences** (shape
+  `cobol/function/existence/agree[gitgalaxy]_vs[ctags]`): the `MAINLINE`/`TIMESTAMP`-style
+  majority is real COBOL `SECTION` headers that both GitGalaxy and ctags correctly identify —
+  ctags tags them as kind `section` (`s`), not `paragraph` (`p`), and `ctags_reader.py`'s
+  `CTAGS_FUNC_KINDS["cobol"]` only read `{"p"}`, silently dropping ctags' own correct reading
+  before comparison. This was a test-harness bug, not a real disagreement — filed as
+  [#1891](https://github.com/squid-protocol/gitgalaxy/issues/1891).
+
+### Where GitGalaxy has a real, confirmed defect
+
+- **`func_start`'s `LOCAL-STORAGE` false positive** (part of the 18-occurrence shape above): the
+  `func_start` regex's reserved-word negative lookahead bans `WORKING-STORAGE` and `LINKAGE` as
+  Data Division section headers but omits `LOCAL-STORAGE` — so `LOCAL-STORAGE SECTION.` (a pure
+  data-item header, no executable logic, confirmed at
+  `cics-banking-sample-application-cbsa/XFRFUN.cbl:107`) gets miscounted as a paragraph. Filed as
+  [#1890](https://github.com/squid-protocol/gitgalaxy/issues/1890).
+- **`func_start`'s hyphen/word-boundary false negatives** (~20 of the 133-occurrence shape above):
+  the reserved-word negative lookahead ends in a bare `\b`, and since `-` is a non-word character
+  in Python `re`, any real paragraph name that *starts with* a banned keyword followed by a hyphen
+  — a common COBOL verb-prefixed naming convention (`WRITE-*`, `READ-*`, `SET-*`, `DELETE-*`, ...)
+  — is wrongly excluded. Verified directly against the compiled regex: `DELETE-POLICY-DB2-INFO.`
+  (a real, `PERFORM`'d paragraph at `cics-genapp/lgdpol01.cbl:139`) and `WRITE-ERROR-MESSAGE.`
+  (`cics-genapp/lgapol01.cbl:137`) both fail to match. A corpus-wide grep found ~20 real paragraphs
+  affected. Filed as [#1892](https://github.com/squid-protocol/gitgalaxy/issues/1892).
+- **`class_start` named-extraction gap, 19/19 occurrences** (shape
+  `cobol/class/existence/agree[ctags]_vs[gitgalaxy]`): GitGalaxy's own cobol `class_start` regex
+  already matches `PROGRAM-ID` correctly and identically to ctags (verified directly:
+  `PROGRAM-ID. BANKDATA.` at `cics-banking-sample-application-cbsa/BANKDATA.cbl:35` matches,
+  capturing `BANKDATA`) — but the match never reaches named-entity output because
+  `gitgalaxy/core/detector.py`'s `_CLASS_START_NAMED_EXTRACTION_LANGS` allowlist (built by epic
+  [#1295](https://github.com/squid-protocol/gitgalaxy/issues/1295), closed 2026-08-12, 11/13
+  languages) never included cobol — not decided out like css/html, simply never in scope, since
+  that epic's own verification method requires a tree-sitter grammar cobol doesn't have. Every
+  language missing from the allowlist falls through to a hardcoded
+  `class|struct|interface|trait|enum` fallback regex that cannot match COBOL syntax at all. This
+  corrects issue [#1858](https://github.com/squid-protocol/gitgalaxy/issues/1858)'s original
+  diagnosis (which claimed the regex itself never matches — it does; the gap is one step
+  downstream). A quick sibling check found cobol is the only one of the 9 tree-sitter-blind
+  languages missing from that same allowlist with *live, ctags-corroborated* evidence of the bug —
+  `assembly`/`scheme` have no comparable ctags class-kind mapping to expose it (or the corpus
+  simply has no real matches either way), and `ada`/`sqlite`/`embedded_python` have no
+  `language-crucible` corpus at all; `dockerfile`/`abap`/`jcl`/`livecode`/`yaml` have corpora but
+  zero real functions/classes found by any tool regardless of the allowlist gap.
+
+### Audit-tool bugs found and fixed along the way
+
+Both confirmed test-harness gaps (`ctags_reader.py`'s missing `s` kind, and the pre-existing wrong
+diagnosis in #1858) were corrected as part of this sweep rather than left as silent noise — see
+[#1891](https://github.com/squid-protocol/gitgalaxy/issues/1891) and the corrective comment on
+[#1858](https://github.com/squid-protocol/gitgalaxy/issues/1858).
+
+Full record: `docs/self_scan/tri_comparison_ledger.json` (filter keys starting `cobol/`),
+rendered summary in `docs/self_scan/tri_comparison_points_of_interest.md`.

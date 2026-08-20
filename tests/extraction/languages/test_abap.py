@@ -80,6 +80,12 @@ ARGS_VALID = [
     ("EXCEPTIONS ex_not_found = 1", "EXCEPTIONS"),
     ("IMPORTING \n  VALUE( p_name ) \n TYPE string", "IMPORTING"),
     ("METHODS get_data IMPORTING p1 TYPE i.", "IMPORTING"),
+    # BUG FIX regression: ABAP's classic `!`-prefixed parameter-name escape
+    # (avoids a keyword collision, extremely common in real code -- e.g.
+    # abapGit's `IMPORTING !ii_custom_mapping TYPE ...`) wasn't in the
+    # trailing identifier's character class, so a clause whose FIRST
+    # parameter used it failed to match at all.
+    ("IMPORTING !iv_url TYPE string", "IMPORTING"),
 ]
 
 ARGS_INVALID = [
@@ -101,6 +107,19 @@ def test_abap_args_invalid(payload):
 @pytest.mark.parametrize("payload,expected_args", ARGS_PATHOLOGICAL)
 def test_abap_args_pathological(payload, expected_args):
     assert_pathological_match(ABAP_RULES["args"], payload, expected_args, "abap.args")
+
+def test_abap_args_value_clause_does_not_swallow_trailing_type_keyword():
+    """BUG FIX regression: `VALUE(...)` used to be an optional PREFIX before a still-
+    mandatory trailing identifier, not a complete alternative on its own -- so
+    `RETURNING VALUE(ro_instance) TYPE ...` matched all the way through to the literal
+    word "TYPE", mis-capturing it as if it were a second parameter reference. The full
+    match must end at the closing `)`, never reach into the following TYPE clause."""
+    payload = "RETURNING VALUE(ro_instance) TYPE REF TO zcl_abapgit_ajson."
+    match = ABAP_RULES["args"].search(payload)
+    assert match is not None, f"[abap.args] Iron Wall Blocked Valid Case: {payload!r}"
+    assert match.group(0) == "RETURNING VALUE(ro_instance)", (
+        f"[abap.args] Match swallowed past the VALUE(...) clause: {match.group(0)!r}"
+    )
 
 
 # ==============================================================================

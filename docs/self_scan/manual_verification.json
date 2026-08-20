@@ -1,6 +1,13 @@
 {
   "languages": {
     "abap": {
+      "args": {
+        "note": "Per-function declared-parameter count, spot-checked against direct source reading for 9 functions across 4 different corpus files (constructor, create_empty, create_from, build_asx_node, parse, push, serialize, deserialize, deserialize_checks) after fixing #1917 (args regex correctness) and #1918 (DEFINITION-section span lookup + dedicated counter, gitgalaxy/core/detector.py's _count_abap_declared_params) -- zero discrepancies found. Total is the sum of every real function's own args count across the corpus, not a per-clause or per-file signal count (distinct from the file-level struct_args structural signature).",
+        "total": 265,
+        "verified": 265,
+        "verified_at": "2026-08-20",
+        "verified_by": "Claude Sonnet 5"
+      },
       "class": {
         "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md §9.",
         "total": 12,

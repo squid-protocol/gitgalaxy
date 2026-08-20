@@ -416,6 +416,31 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
 
 _CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c"})
 
+# #1918: ABAP's real parameter declarations live in the DEFINITION section
+# (`METHODS name IMPORTING ... .` / `CLASS-METHODS name IMPORTING ... .`), never inside the
+# IMPLEMENTATION section's `METHOD name. ... ENDMETHOD.` body that _slice_by_labels (Mode A)
+# slices per function -- so a per-function args count needs its own DEFINITION-section lookup,
+# built once per file (not re-scanned per function) and indexed by method name.
+_ABAP_METHOD_DECL_RE = re.compile(r"^[ \t]*(?:METHODS|CLASS-METHODS)[ \t]+([a-zA-Z_][a-zA-Z0-9_~]*)", re.I | re.M)
+
+# Within one method's DEFINITION-section signature span, real parameter-binding clauses
+# (IMPORTING/EXPORTING/CHANGING/RETURNING/RECEIVING/EXCEPTIONS) are found the same way the
+# `args` structural signature finds them elsewhere -- this constant intentionally mirrors that
+# regex's own keyword list (not the compiled `args` rule itself, which is a per-clause
+# EXISTENCE detector -- see its own comment in language_standards.py -- not usable here, where
+# the whole point is counting every declared parameter NAME within a clause, not just detecting
+# that the clause exists).
+_ABAP_PARAM_CLAUSE_KEYWORDS = ("IMPORTING", "EXPORTING", "CHANGING", "RETURNING", "RECEIVING", "EXCEPTIONS")
+_ABAP_PARAM_CLAUSE_RE = re.compile(r"\b(" + "|".join(_ABAP_PARAM_CLAUSE_KEYWORDS) + r")\b", re.I)
+# A parameter declaration line always starts with its (optionally `!`-escaped) name -- real
+# ABAP formatting in this corpus keeps each parameter's full declaration (name, TYPE clause,
+# DEFAULT/OPTIONAL modifiers) on one line, so a per-line anchor is sufficient without needing
+# to also parse the TYPE clause itself.
+_ABAP_PARAM_LINE_RE = re.compile(r"^[ \t]*!?[a-zA-Z_][a-zA-Z0-9_]*", re.M)
+# RETURNING's parameter is always exactly one `VALUE(name)` -- never a bare name line the way
+# IMPORTING/EXPORTING/CHANGING/RECEIVING/EXCEPTIONS parameters are.
+_ABAP_RETURNING_VALUE_RE = re.compile(r"VALUE[ \t]*\([ \t]*[a-zA-Z_][a-zA-Z0-9_]*[ \t]*\)", re.I)
+
 # #1853: languages whose signatures genuinely use `<...>` for generics/templates,
 # so `_count_top_level_args` should track `<`/`>` as bracket depth for them. Every
 # other language reaching that counter (Python's `def foo(a = (x < y))` default-
@@ -1845,6 +1870,48 @@ class StructuralExtractor:
     # INTEGRATION MODES (Slicers)
     # ==============================================================================
 
+    def _index_abap_definition_signatures(self, code: str) -> dict[str, str]:
+        """Maps each `METHODS`/`CLASS-METHODS` DEFINITION-section declaration's lowercased
+        name to its own signature text (from right after the name to its terminating `.`,
+        bounded to 2000 chars to stay ReDoS-safe against adversarial input) -- built once per
+        file (#1918), not re-scanned per function, since a file can declare many methods.
+        Chained `METHODS: foo ..., bar ... .` declarations aren't indexed (the regex requires
+        whitespace, not a colon, right after the keyword) -- a real but narrow gap, not
+        pretending to handle every ABAP declaration idiom in one pass. Interface-implemented
+        methods (`METHOD zif_x~foo.` in the IMPLEMENTATION section) also never appear here by
+        construction -- their real parameter list lives in the interface's own definition,
+        typically a different file entirely, out of scope for a single-file index."""
+        index: dict[str, str] = {}
+        for m in _ABAP_METHOD_DECL_RE.finditer(code):
+            name = m.group(1)
+            sig_start = m.end()
+            search_limit = min(sig_start + 2000, len(code))
+            term = code.find(".", sig_start, search_limit)
+            sig_end = term if term != -1 else search_limit
+            index[name.lower()] = code[sig_start:sig_end]
+        return index
+
+    def _count_abap_declared_params(self, sig_text: str) -> int:
+        """Counts real declared parameter names across every parameter-binding clause
+        (IMPORTING/EXPORTING/CHANGING/RETURNING/RECEIVING/EXCEPTIONS) within one method's
+        DEFINITION-section signature text (#1918). Splits the signature into clause spans
+        first (from each keyword to the next keyword or end of signature), then counts
+        parameter-shaped lines within each span -- RETURNING's own `VALUE(name)` shape
+        needs its own pattern since it's never a bare name line the way the other five
+        clauses' parameters are."""
+        clause_matches = list(_ABAP_PARAM_CLAUSE_RE.finditer(sig_text))
+        total = 0
+        for i, clause_match in enumerate(clause_matches):
+            keyword = clause_match.group(1).upper()
+            span_start = clause_match.end()
+            span_end = clause_matches[i + 1].start() if i + 1 < len(clause_matches) else len(sig_text)
+            span_text = sig_text[span_start:span_end]
+            if keyword == "RETURNING":
+                total += len(_ABAP_RETURNING_VALUE_RE.findall(span_text))
+            else:
+                total += len(_ABAP_PARAM_LINE_RE.findall(span_text))
+        return total
+
     # galaxyscope:ignore sec_high_risk_execution
 
     def _slice_by_labels(
@@ -1854,7 +1921,7 @@ class StructuralExtractor:
         offset: int,
         spatial_map: dict[str, list[int]],
     ) -> tuple[list[FunctionNode], float]:
-        """[INTEGRATION MODE A] - Greedy Label-Based Scan (Assembly, COBOL)."""
+        """[INTEGRATION MODE A] - Greedy Label-Based Scan (Assembly, COBOL, ABAP)."""
         satellites: list[FunctionNode] = []
         sum_fxn_impact = 0.0
         func_start = rules.get("func_start")
@@ -1866,6 +1933,12 @@ class StructuralExtractor:
             matches = list(func_start.finditer(code))  # type: ignore[union-attr]
         except Exception:
             return [], 0.0
+
+        # #1918: built once per file, not per function -- ABAP's real parameter
+        # declarations live in the DEFINITION section, never in the IMPLEMENTATION body
+        # this mode slices per function, so a per-function args count needs its own
+        # name-indexed lookup into the DEFINITION section instead of searching `block`.
+        abap_definition_index = self._index_abap_definition_signatures(code) if self.primary_lang_id == "abap" else None
 
         # --- FAST O(N) LINE TRACKER ---
         current_line_count = offset + 1
@@ -1904,6 +1977,16 @@ class StructuralExtractor:
             loc = block.count("\n") + 1
             end_line = start_line + loc - 1
 
+            args_count_override = None
+            if abap_definition_index is not None:
+                def_sig = abap_definition_index.get(name.lower())
+                if def_sig is not None:
+                    args_count_override = self._count_abap_declared_params(def_sig)
+                # else: no DEFINITION-section declaration found under this name (e.g. an
+                # interface-implemented method, whose real signature lives in the
+                # interface's own definition, typically a different file) -- leave None
+                # rather than guess, same as every other language's default behavior.
+
             sat, mag = self._calculate_block_metrics(
                 name,
                 block,
@@ -1914,6 +1997,7 @@ class StructuralExtractor:
                 start_idx,
                 start_idx + end_offset,
                 spatial_map,
+                args_count_override=args_count_override,
             )
 
             satellites.append(sat)
@@ -4164,6 +4248,7 @@ class StructuralExtractor:
         end_idx: int = 0,
         spatial_map: Optional[dict[str, list[int]]] = None,
         args_search_text: Optional[str] = None,
+        args_count_override: Optional[int] = None,
     ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
@@ -4185,6 +4270,15 @@ class StructuralExtractor:
         wrongly "borrowed" as the args). Only objc's `_slice_by_braces` branch passes
         this today; every other caller leaves it None and keeps the original
         whole-`block` search.
+
+        #1918: `args_count_override`, when given (an int, not None), is used AS the final
+        `args_count` directly, skipping the generic single-`.search()`-match derivation
+        below entirely. That derivation assumes a matched arg-pattern's own captured text
+        is either a self-contained parameter list or a splittable body -- true for most
+        languages, structurally false for ABAP's `args` regex (an intentional per-clause
+        existence detector, see language_standards.py's own comment), which can never
+        represent "how many parameters" from one match. Only ABAP's `_slice_by_labels`
+        caller passes this today, via its own dedicated counter.
         """
         args_pattern = rules.get("args")
 
@@ -4439,6 +4533,18 @@ class StructuralExtractor:
                             args_count = len(args_str.strip().split())
             except Exception as e:
                 self.logger.debug(f"Argument-count regex extraction failed, leaving args_count 0: {e}")
+
+        # #1918: overrides whatever the generic single-match derivation above computed.
+        # ABAP's `args` regex (see language_standards.py's own comment) is intentionally a
+        # per-CLAUSE existence detector -- `.search()` finds one match, once, and that
+        # match's captured text is just the bare keyword (IMPORTING/EXPORTING/...), which
+        # none of the generic derivation strategies above can turn into a real parameter
+        # COUNT (a 4-parameter IMPORTING clause and a 0-parameter one produce the identical
+        # single match). Callers that already know the real count via a dedicated,
+        # language-specific counter (currently only ABAP's caller in _slice_by_labels) pass
+        # it here instead of trying to force this generic path to produce it.
+        if args_count_override is not None:
+            args_count = args_count_override
 
         texture_str = self._classify_function(name, block, rules)
 

@@ -11778,8 +11778,24 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I | re.M,
             ),
             # 2. args: Parameters / Coupling. Captures explicit parameter binding keywords.
+            # BUG FIX (#1917, args regex correctness): two independent issues found while
+            # investigating the tri-comparison chart's per-function args count.
+            #   1. The trailing identifier had no `!?` -- ABAP's classic parameter-name
+            #      escape prefix (`!iv_url TYPE string`, used to avoid a keyword collision,
+            #      extremely common in real code) isn't in `[a-zA-Z_]`, so a clause whose
+            #      FIRST declared parameter uses it failed to match AT ALL, silently making
+            #      the whole clause invisible to this signal (confirmed: `IMPORTING
+            #      !ii_custom_mapping TYPE ...` in abapGit's zcl_abapgit_ajson.clas.abap).
+            #   2. `(?:VALUE\s*\([^)]*\)\s+)?[a-zA-Z_][a-zA-Z0-9_-]*` treated VALUE(...) as
+            #      an OPTIONAL PREFIX before a still-mandatory trailing identifier, instead
+            #      of as its own complete alternative -- so `RETURNING VALUE(ro_instance)
+            #      TYPE ...` matched through to the literal word "TYPE", mis-capturing it as
+            #      if it were a second parameter name. Restructured as a real alternation
+            #      (VALUE(...) OR a bare identifier, never both in sequence) so the match
+            #      ends where the real parameter reference ends.
             "args": re.compile(
-                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?!TYPE\b)(?:VALUE\s*\([^)]*\)\s+)?[a-zA-Z_][a-zA-Z0-9_-]*",
+                r"\b(IMPORTING|EXPORTING|CHANGING|RETURNING|RECEIVING|EXCEPTIONS)\s+(?!TYPE\b)"
+                r"(?:VALUE\s*\([^)]*\)|!?[a-zA-Z_][a-zA-Z0-9_-]*)",
                 re.I,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.

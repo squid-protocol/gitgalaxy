@@ -103,8 +103,22 @@ WINNER BADGE: REQUIRES VERIFICATION, NOT JUST THE HIGHER NUMBER
     badge now if `has_open_question()` is False for it (no ledger entry currently reproduces
     unvalidated) AND one available tool scored strictly highest -- a colored letter (G/T/C) in
     that tool's own categorical color, in the space a stacked column of raw numbers used to
-    occupy. No badge on a disputed cell (regardless of how lopsided the raw numbers look), a
-    tie, or a 1-bar group (which can't have a "winner" over nothing).
+    occupy. No badge on a disputed cell (regardless of how lopsided the raw numbers look) or a
+    tie.
+
+    A 1-bar group (GitGalaxy alone -- no tree-sitter, no ctags) CAN earn a badge, via a
+    different path than a cross-tool win: `_manual_verification_winner()` awards GitGalaxy's own
+    badge when a fully-current manual-verification record (`MANUAL_VERIFICATION_PATH`) confirms
+    100% of that tool's own claims by hand. This isn't a weaker substitute for the real
+    verification bar above -- the whole point of gating it on `verified == total` (not partial
+    credit) is that it clears the SAME "we know who's actually right" confidence a cross-tool
+    win clears, just established by a different, equally rigorous method. Deliberately NOT
+    restricted to languages that already have tree-sitter/ctags coverage: GitGalaxy is going
+    after tree-sitter-blind, ctags-blind "frontier" languages on purpose, and a language
+    shouldn't be structurally locked out of a badge forever just because no comparison tool
+    exists for it yet -- that would make the badge a proxy for "how mainstream is this
+    language's tooling ecosystem," not "how correct is GitGalaxy here," which was never the
+    intent. See `_manual_verification_winner()`'s own docstring for the exact gating.
 
 COLOR SOURCE
     Categorical slots 1-3 of the validated reference palette (see the `dataviz` skill's
@@ -234,6 +248,14 @@ class LanguageChartData:
         self.class_recall: dict[str, MetricScore] = {}
         self.class_precision: dict[str, MetricScore] = {}
         self.args: dict[str, MetricScore] = {}
+        # #1918: args_scores' own total_slots is structurally always 0 for a 1-tool
+        # language (reconcile_symbols only increments it when 2+ tools are comparable at a
+        # slot) -- so unlike func/class Found (whose found_field, matched_consensus, IS a
+        # real per-tool raw count regardless of tool count), there's no live ground-truth
+        # signal already on this object to check a manual-verification record's staleness
+        # against for the args panel. Populated in run_pipeline from GitGalaxy's own raw
+        # Occurrence.args values, independent of any cross-tool comparison.
+        self.gg_args_found: int = 0
 
 
 def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, LanguageChartData]:
@@ -272,6 +294,7 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
         data.func_recall = func_recall
         data.func_precision = func_precision
         data.args = args_scores
+        data.gg_args_found = sum(o.args for r in results for o in r.gg_funcs if o.args is not None)
 
         class_groups: list = []
         if lang not in _CLASS_SCOPE_EXCLUDED_LANGS:
@@ -336,6 +359,42 @@ def _winner(scores: dict[str, MetricScore], available_tools: tuple[str, ...]) ->
     the coarser two-way split the badge renderer actually needs (draw a badge, or don't)."""
     result = _winner_or_tie(scores, available_tools)
     return result if result != "tie" else None
+
+
+def _manual_verification_winner(
+    manual_verification: dict,
+    lang: str,
+    symbol_type: str,
+    scores: dict[str, MetricScore],
+    available_tools: tuple[str, ...],
+) -> str | None:
+    """A badge for a genuine cross-tool win means "we know who's actually right" -- but for a
+    language with only ONE available tool at all (no tree-sitter, no ctags), that's structurally
+    never possible via _winner/_winner_or_tie (they need 2+ tools to even have a comparison), so
+    every such language was permanently badge-less no matter how solid its own numbers were. That
+    stopped being the right call once GitGalaxy started deliberately going after more
+    tree-sitter/ctags-blind "frontier" languages: a manually-verified 1-tool language has earned
+    the SAME confidence claim a real cross-tool win makes, just via a different verification
+    method (see MANUAL_VERIFICATION_PATH's own comment) -- it shouldn't be structurally locked
+    out of the badge just because it's on the frontier. Returns "gitgalaxy" (the only tool that
+    can ever hold this position) only when: exactly one tool is available, a manual-verification
+    record exists for (lang, symbol_type), that record's `total` still matches the tool's own
+    current found-count (the same staleness guard the `**` label uses), AND the record is a FULL
+    verification (`verified == total`) -- a partial one (some slots checked, some not) earns the
+    `**` label's honest partial credit but not the full confidence claim a badge makes. Never
+    called when _winner already found a real 2+-tool winner -- this is a fallback for the
+    "structurally couldn't have one" case only, not a replacement for real corroboration."""
+    if len(available_tools) != 1 or available_tools[0] != "gitgalaxy":
+        return None
+    score = scores.get("gitgalaxy")
+    if score is None:
+        return None
+    mv = _manual_verification_entry(manual_verification, lang, symbol_type)
+    if mv is None or mv["total"] != score.total_slots:
+        return None
+    if mv["verified"] != mv["total"]:
+        return None
+    return "gitgalaxy"
 
 
 _CHART_STYLE = """<style>
@@ -419,6 +478,8 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             if _disputed(lang, symbol_type, ledger_metric):
                 continue
             result = _winner_or_tie(scores, data.available_tools)
+            if result is None:
+                result = _manual_verification_winner(manual_verification, lang, symbol_type, scores, data.available_tools)
             if result is not None:
                 tally[result] += 1
     total_votes = sum(tally.values())
@@ -519,6 +580,29 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
             )
             for tool in data.available_tools:
                 if tool not in scores or scores[tool].rate_pct is None:
+                    # Args Found's own found_field (total_slots) is structurally always 0
+                    # for a 1-tool language -- reconcile_symbols only increments args'
+                    # total_slots when 2+ tools are comparable at a slot, unlike func/class
+                    # Found's found_field (matched_consensus), which IS a real per-tool raw
+                    # count regardless of tool count. That's why this panel alone needs its
+                    # OWN staleness anchor (data.gg_args_found, a live raw sum independent of
+                    # any cross-tool comparison) instead of reusing score.total_slots the way
+                    # the ranked precision panels' override does below.
+                    if attr == "args" and tool == "gitgalaxy" and len(data.available_tools) == 1:
+                        mv = _manual_verification_entry(manual_verification, lang, "args")
+                        if mv is not None and mv["total"] == data.gg_args_found:
+                            color = _COLOR_TOOL[tool]
+                            label = f"{mv['verified']}/{mv['total']}**"
+                            if disputed:
+                                label += "*"
+                            parts.append(
+                                f'<rect x="{px}" y="{bar_y}" width="{bar_max_w}" height="{bar_h}" rx="2" fill="{color}"/>'
+                            )
+                            parts.append(
+                                f'<text class="bar-value-label" x="{px + bar_max_w / 2}" '
+                                f'y="{bar_y + bar_h - 2}">{label}</text>'
+                            )
+                            bar_y += bar_h + sub_gap
                     continue
                 score = scores[tool]
                 color = _COLOR_TOOL[tool]
@@ -549,6 +633,10 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
 
             if ranked and not disputed:
                 winner = _winner(scores, data.available_tools)
+                if winner is None:
+                    winner = _manual_verification_winner(
+                        manual_verification, lang, symbol_type, scores, data.available_tools
+                    )
                 if winner:
                     bx = px + bar_max_w + inner_gap + badge_col_w / 2
                     by = y + row_h / 2

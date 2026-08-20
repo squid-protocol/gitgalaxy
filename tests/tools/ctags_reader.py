@@ -41,6 +41,17 @@ KIND MAPS
         OBJECT paragraphs. ctags' Cobol parser only has a "program" (P) kind -- no CLASS-ID/
         INTERFACE-ID equivalent exists at all. Permanent, structural gap: ctags can partially
         check GitGalaxy's Cobol class detection (PROGRAM-ID only), never fully.
+        Separately (function-side): ctags' Cobol parser tags ANY period-terminated word as a
+        "paragraph" (kind "p"), including scope terminators like `END-IF.`/`END-PERFORM.` that
+        are not paragraph definitions at all -- confirmed via a direct ctags run on
+        cics-banking-sample-application-cbsa/BANKDATA.cbl, which tags dozens of `END-IF.` lines
+        as paragraphs. GitGalaxy correctly excludes these via its own reserved-word shield.
+        Permanent, structural ctags limitation, not filterable by kind (both real paragraphs and
+        false-positive terminators share kind "p") -- this is the majority cause of
+        `cobol/function/existence/agree[ctags]_vs[gitgalaxy]`'s 133 occurrences. A smaller,
+        genuine GitGalaxy defect (a `\b`-vs-hyphen word-boundary bug excluding real verb-prefixed
+        paragraph names like `DELETE-POLICY-DB2-INFO`) hides underneath this noise in the same
+        ledger shape -- see issue #1892.
       - scheme: GitGalaxy's class-analog is SRFI-9 `define-record-type`. ctags' Scheme parser
         exposes no kind for it (only function/set/unknown) -- CTAGS_CLASS_KINDS["scheme"] is
         deliberately empty, so class metrics render as ctags_available=False for scheme, not a

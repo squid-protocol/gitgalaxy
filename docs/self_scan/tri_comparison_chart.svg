@@ -144,22 +144,24 @@
 <text class="lang-label" x="20" y="437.5">cobol</text>
 <rect class="bar-track" x="154" y="417" width="88" height="34" rx="2"/>
 <rect x="154" y="417" width="46.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="425">126*</text>
+<text class="bar-value-label" x="198.0" y="425">126</text>
 <rect x="154" y="429" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="437">241*</text>
+<text class="bar-value-label" x="198.0" y="437">241</text>
 <rect class="bar-track" x="286" y="417" width="88" height="34" rx="2"/>
 <rect x="286" y="417" width="75.4" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="425">108/126*</text>
+<text class="bar-value-label" x="330.0" y="425">108/126</text>
 <rect x="286" y="429" width="39.4" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="437">108/241*</text>
+<text class="bar-value-label" x="330.0" y="437">108/241</text>
+<circle cx="390.0" cy="434.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="437.0">G</text>
 <rect class="bar-track" x="418" y="417" width="88" height="34" rx="2"/>
 <rect x="418" y="417" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="425">0*</text>
+<text class="bar-value-label" x="462.0" y="425">0</text>
 <rect x="418" y="429" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="437">19*</text>
+<text class="bar-value-label" x="462.0" y="437">19</text>
 <rect class="bar-track" x="550" y="417" width="88" height="34" rx="2"/>
 <rect x="550" y="417" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="425">0/19*</text>
+<text class="bar-value-label" x="594.0" y="425">0/19</text>
 <rect class="bar-track" x="682" y="417" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="481.5">cpp</text>
 <rect class="bar-track" x="154" y="461" width="88" height="34" rx="2"/>
@@ -1033,17 +1035,17 @@
 <rect x="682" y="2101" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2109">2750</text>
 <line x1="16" y1="2138" x2="796" y2="2138" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2152">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 18 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2152">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 19 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2170" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2173">G</text>
-<text class="legend-label" x="36" y="2174">GitGalaxy best: 1 (6%)</text>
-<circle cx="203.4" cy="2170" r="7" fill="#eb6834"/>
-<text class="badge-label" x="203.4" y="2173">T</text>
-<text class="legend-label" x="216.4" y="2174">tree-sitter best: 1 (6%)</text>
-<circle cx="396.20000000000005" cy="2170" r="7" fill="#1baf7a"/>
-<text class="badge-label" x="396.20000000000005" y="2173">C</text>
-<text class="legend-label" x="409.20000000000005" y="2174">ctags best: 0 (0%)</text>
-<circle cx="551.8000000000001" cy="2170" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="564.8000000000001" y="2174">Ties: 16 (89%)</text>
+<text class="legend-label" x="36" y="2174">GitGalaxy best: 2 (11%)</text>
+<circle cx="209.6" cy="2170" r="7" fill="#eb6834"/>
+<text class="badge-label" x="209.6" y="2173">T</text>
+<text class="legend-label" x="222.6" y="2174">tree-sitter best: 1 (5%)</text>
+<circle cx="402.4" cy="2170" r="7" fill="#1baf7a"/>
+<text class="badge-label" x="402.4" y="2173">C</text>
+<text class="legend-label" x="415.4" y="2174">ctags best: 0 (0%)</text>
+<circle cx="558.0" cy="2170" r="7" fill="#9a9a95"/>
+<text class="legend-label" x="571.0" y="2174">Ties: 16 (84%)</text>
 <text class="scope-note" x="16" y="2194">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

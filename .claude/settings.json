@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/pytest_quiet.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/pytest_quiet.py\""
           }
         ]
       }

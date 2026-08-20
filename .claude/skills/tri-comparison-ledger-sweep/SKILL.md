@@ -47,9 +47,10 @@ has anything to act on) and do a **manual verification** instead:
    scoped corpus (single-digit files, low thousands of lines); it does not parallelize the way a
    Gemini dispatch of a pre-identified shape does, because there's no shape to hand off, only "go
    read the file."
-2. Run GitGalaxy's actual regex rules against every file and record every match (func_start,
-   class_start, or whichever signature you're checking) with its line number and captured text --
-   this is your only "tool said" column, there's no second tool to also query:
+2. Run GitGalaxy's actual regex rules against every file's raw text and record every match
+   (func_start, class_start, or whichever signature you're checking) with its line number and
+   captured text -- this is your first data point, but **it is NOT the same claim as "GitGalaxy
+   correctly extracts this," and step 2b below is not optional:**
    ```python
    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
    rules = LANGUAGE_DEFINITIONS["<lang>"]["rules"]
@@ -58,25 +59,48 @@ has anything to act on) and do a **manual verification** instead:
        line_no = text[: m.start()].count("\n") + 1
        ...
    ```
+2b. **Also run the real pipeline and check its actual DB output -- do not skip this step.** The raw
+    regex in step 2 runs against unprocessed file text; the production pipeline runs the identical
+    regex against text that has already gone through `prism.py`'s comment/code splitter and
+    `detector.py`'s segment-routing/integration-mode logic first, and either stage can silently
+    corrupt or drop real matches before the regex ever sees them (confirmed real, not hypothetical,
+    2026-08-19: the abap pass's first draft skipped this step, reported "100% precision, zero
+    defects" from step 2 alone, and was wrong -- see below). Run:
+    ```bash
+    galaxyscope language-crucible/data/<lang> --config .galaxyscope.yaml --db-only --output <tmp>/scan.json
+    ```
+    then query the resulting sqlite DB directly -- both the raw signal count (`file_data.
+    struct_func_start`/`struct_class_start`/etc., computed independently of body-slicing) and the
+    NAMED list that actually reaches consumers (`file_data.function_count`/`class_count`, backed by
+    `function_data`/`class_data`). If the raw regex count (step 2) and the DB's raw signal count
+    disagree, `prism.py` is corrupting the text before extraction. If the raw signal count and the
+    named-list count disagree, `detector.py`'s segment-routing/integration-mode logic (not the
+    regex) is dropping real matches during body-slicing -- an entirely different bug class from a
+    regex miss, and the two need separate root-causing and separate issues.
 3. Independently establish ground truth by reading the actual source, or a second, blunt,
    independent grep as a cross-check against the regex's own captures (this session's abap check:
    `grep -nE "^\s*METHOD\s+[a-zA-Z]"` per file, diffed against the regex output -- matched exactly,
    124/124). This is where "no tool to compare it to" becomes real, tedious reading rather than a
-   one-line query.
+   one-line query. Also verify the language actually HAS the construct you're checking before
+   treating a zero as expected -- ABAP has real classes (every `.clas.abap` file has a
+   `CLASS ... DEFINITION`/`CLASS ... IMPLEMENTATION` pair) and a real `args` construct
+   (`IMPORTING`/`EXPORTING`/etc.), so a flat 0 for either is a signal to investigate, not an
+   assumed "this language doesn't have that." Not every language has every construct though (bash
+   has no formal parameter list at all) -- check the language's own syntax, don't assume either way.
 4. Compare: false positives (matched something that isn't real) and false negatives (missed
    something real) both need root-causing the same way a ledger verdict does -- file a GitHub issue
    for a confirmed defect, or note it's a genuine, already-expected engine limitation (e.g. a
    syntax branch the sampled corpus never exercises isn't a proven gap, just untested by this
-   corpus -- say so rather than implying it was checked).
+   corpus -- say so rather than implying it was checked). A false negative found only at the step-2b
+   pipeline level (not visible in the raw regex) still gets a real GitHub issue with an isolated
+   repro -- don't undersell it just because "the regex itself was fine."
 5. Before concluding something LOOKS like a bug, check whether it's actually consistent with an
    existing engine-wide convention established for a DIFFERENT language first -- this is the step
-   most likely to get skipped because a single-language read has nothing to cross-reference. ABAP's
-   `class_start` counting `CLASS ... DEFINITION` and `CLASS ... IMPLEMENTATION` as two separate
-   matches per class looked like double-counting in isolation, until cross-referencing
-   objective-c's own `class_start` (which does the identical thing for
-   `@interface`/`@implementation`) showed it's the engine's established "OO boundary" semantics,
-   not an ABAP-specific defect (2026-08-19). Grep sibling languages' rules for the same
-   signature before filing.
+   most likely to get skipped because a single-language read has nothing to cross-reference. This
+   genuinely resolved one apparent abap issue (a `class_start` double-count that turned out to match
+   objective-c's own intentional `@interface`/`@implementation` convention) -- but don't let a
+   correct application of this step earn unearned trust in the rest of the pipeline; it answers one
+   specific question ("is this pattern intentional elsewhere too"), not "is everything else fine."
 6. There is no ledger entry to write (no shape key exists for a single-tool language) and no
    `credit_tools`/`debit_tools` mechanism applies -- the papertrail is just the language_status doc
    (below) plus any GitHub issues / `why_gitgalaxy_beats_ast_here.md` entries from step 4, same
@@ -86,9 +110,16 @@ Write the result up the same way step 8 does for a cleared ledger backlog -- a m
 section in `docs/language_status/<lang>.md` (not the tri-comparison template that assumes a second
 tool exists to compare against), following the same split: sections 1-8 via the `language-status`
 skill (dispatched separately, stopped before its own final section), this section written by hand
-in parallel. Confirmed result of the abap pass (2026-08-19): 100% func_start precision/recall on
-every real example in the sampled corpus, zero engine defects found, one apparent "bug" ruled out
-via the objective-c cross-check in step 5.
+in parallel. **Real result of the abap pass, after step 2b caught what step 2 alone missed
+(2026-08-19):** two confirmed engine defects, not zero -- `prism.py`'s positional-comment stripper
+reuses Fortran/COBOL's column-1 anchor set for ABAP, erasing every flush-left `CLASS ...
+DEFINITION`/`IMPLEMENTATION` line as a bogus comment before the (otherwise-correct) `class_start`
+regex ever runs ([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898)); and ABAP has no
+`ScopeParsingRegistry` entry in `detector.py`, so it silently falls through to brace-based function
+slicing despite having no braces, dropping ~87% of real named functions from `function_data`
+([#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)). The raw `func_start` regex
+itself really was 100% correct in isolation (124/124) -- that part of the first draft wasn't wrong,
+it was just an incomplete claim mistaken for a complete one.
 
 ## 0. Housekeeping before starting a new sweep
 

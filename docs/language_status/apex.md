@@ -7,10 +7,6 @@ Snapshot generated 2026-08-20 against `main`. Source: `LANGUAGE_DEFINITIONS["ape
 `language-status` skill's data-gathering commands before trusting these numbers if this doc looks
 old relative to `last_updated` below.
 
-**Scope note:** this doc covers sections 1-8 only (identification, detection surface, test depth,
-closed work, real-world evidence). A tri-comparison §9 is out of scope here and will be appended
-separately once that pass runs.
-
 ## 1. At a glance
 
 | Field | Value |
@@ -252,3 +248,64 @@ real-world Apex lives inside private Salesforce orgs, not public GitHub):
 Each `_galaxy_llm.md` is the human-readable architectural brief; `_galaxy_audit.json.gz` and
 `_galaxy_sbom.json.gz` in the same directory carry the raw per-file signature counts and SBOM if
 deeper inspection is needed.
+
+## 9. Tri-comparison: GitGalaxy vs. tree-sitter (no ctags coverage)
+
+Apex is one of 7 tree-sitter-baselined languages with no `universal-ctags` parser at all (see
+`tests/tools/ctags_reader.py`'s own LANGUAGE COVERAGE docstring — Apex, Dart, Groovy, Scala, and
+three others), so this is a 2-tool comparison (`gitgalaxy` vs. `tree_sitter`), not the 3-way shape
+python.md/c.md's §9 use. Neither tool is treated as ground truth — every discrepancy the two
+produced against each other was investigated by reading real source
+(`docs/self_scan/how_to_investigate_a_discrepancy.md`'s process), not assumed. The full record is
+`docs/self_scan/tri_comparison_ledger.json`, filterable to `"language": "apex"`.
+
+**Result: 1 of 1 discrepancy shape (6 individual occurrences corpus-wide) resolved, 1 confirmed
+GitGalaxy engine defect.** Unlike c.md's or cobol.md's §9, this pass did NOT come out clean for
+GitGalaxy — the one shape investigated is a real false-positive bug, filed as
+[#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963) and still open as of this
+writing. Current measured numbers (`tests/tools/tri_comparison_chart.py --languages apex`,
+`language-crucible/data/apex/apex-recipes/`):
+
+| Signal | GitGalaxy | tree-sitter | Read as |
+|---|---|---|---|
+| Functions found (of 40 total claimed by either tool) | 40 | 38 | GitGalaxy's higher count includes the 6 (2 sampled, ledger-capped) false positives below |
+| Function precision (of what each tool claimed, how much corroborates) | 95.0% (38/40) | **100%** (38/38) | badged: tree-sitter |
+| Class recall/precision | 4/4 | 4/4 | tied — no badge |
+| Args exact-match | 38 | 38 | unranked found-count panel, no badge |
+
+### Where GitGalaxy has a confirmed gap (not tree-sitter's problem)
+
+- **`new ClassName(...)` constructor calls misparsed as function definitions.** The apex
+  `func_start` regex's optional return-type/modifier prefix accepts any identifier-shaped token
+  followed by whitespace at the start of a line, with no exclusion for Apex's `new` keyword — so a
+  multi-line SObject-builder call like:
+  ```apex
+  Account acct = (Account) TestFactory.createSObject(
+      new Account(name = 'Original Name'),
+      true
+  );
+  ```
+  gets its `new Account(` line parsed as "return type = `new`, function name = `Account`".
+  tree-sitter's grammar correctly distinguishes `object_creation_expression` from
+  `method_declaration` and never makes this mistake. Confirmed via direct source read
+  (`apex-recipes/AuraEnabledRecipes_Tests.cls:25,43`, the ledger's sampled pair) and via running
+  the regex standalone against the whole corpus, which surfaces 6 total instances across 2 files
+  (`AuraEnabledRecipes_Tests.cls:6,25,43`, `SOQLRecipes_Tests.cls:226,235,504`) — all the identical
+  shape. Filed as [#1963](https://github.com/squid-protocol/gitgalaxy/issues/1963); not yet fixed.
+  An incidental-finding pass across sibling C-family/OOP languages (csharp, java, groovy, dart,
+  kotlin, scala, php) found none of them reproduce this — csharp/java/groovy/dart already carry an
+  explicit `(?!new[ \t\n]+...)` exclusion for exactly this shape, so the fix is applying an
+  already-proven pattern from a sibling language, not designing a new one.
+
+### Ties
+
+- **Class existence/precision** — both tools agree on all 4 real classes in the sampled corpus,
+  100%/100%, no unresolved disagreement and no badge (a tie, per the chart's own badge rule).
+
+### Scope caveat
+
+This corpus (`apex-recipes/`) is small (2 `.cls` files with hits, single-digit class count) — the
+1 discrepancy shape and its 6 occurrences are everything this methodology surfaced on the
+currently-available corpus, not a claim that apex's `func_start` regex has no other gaps a larger
+corpus might reveal. See the ledger entry
+`apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]` for the full investigation writeup.

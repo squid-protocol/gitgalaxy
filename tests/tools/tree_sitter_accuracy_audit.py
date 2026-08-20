@@ -407,7 +407,26 @@ NODE_MAPS = {
         # but was invisible to real_classes here. Confirmed via wasmtime_pulley_interp.rs
         # (FRegUnion/VRegUnion/XRegUnion, all plain top-level `union` declarations with no
         # macro involvement) -- same ground-truth measurement-gap shape as go/kotlin/objc/zig.
-        "class_node_types": {"struct_item", "trait_item", "impl_item", "enum_item", "union_item"},
+        #
+        # `impl_item` deliberately excluded (was present here since this NODE_MAPS's original
+        # commit, predating #1295, and never revisited): tree-sitter-rust's `impl_item` has no
+        # "name" field at all -- the implemented type/trait sit behind separate "type"/"trait"
+        # fields -- so `_get_node_name` returned None for every impl block and `if name:
+        # real_classes.add(name)` silently dropped all of them, making rust's class recall/
+        # precision read a misleading 100%/100% across this tool's entire history (confirmed by
+        # temporarily adding real name extraction and re-running against language-crucible:
+        # real_classes 270->451, found_classes stayed at 270 since GitGalaxy's own class_start
+        # regex only ever matches struct/enum/union/trait -- never impl -- so true recall would
+        # read ~59.9%, not a bug fix but a brand new ~40% gap). This is NOT the same shape as
+        # #1265's C fix (GitGalaxy's C func_start regex already worked, the audit just couldn't
+        # see it) -- GitGalaxy's rust class_start was deliberately authored to track only new-
+        # entity declarations ("Object / Entity Declarations"), and an impl block doesn't declare
+        # a new entity, it adds methods to one already declared. Same scope-mismatch category as
+        # css/html being permanently excluded from class measurement in #1295 (Class 5, mirrored)
+        # -- documented and excluded here rather than force-counted. Removing it changes nothing
+        # about today's numbers (it was already contributing zero); this just makes the NODE_MAPS
+        # config honestly reflect what's measured instead of silently dead-ending on every scan.
+        "class_node_types": {"struct_item", "trait_item", "enum_item", "union_item"},
     },
     "scala": {
         "ts_lang": "scala",

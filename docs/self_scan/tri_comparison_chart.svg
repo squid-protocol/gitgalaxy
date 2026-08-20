@@ -825,8 +825,8 @@
 <rect x="154" y="1643" width="81.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1651">1774</text>
 <rect class="bar-track" x="286" y="1619" width="88" height="34" rx="2"/>
-<rect x="286" y="1619" width="81.1" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1627">1775/1927</text>
+<rect x="286" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1627">1927/1927</text>
 <rect x="286" y="1631" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1639">1775/1775</text>
 <rect x="286" y="1643" width="88.0" height="10" rx="2" fill="#1baf7a"/>
@@ -839,8 +839,8 @@
 <rect x="418" y="1643" width="80.1" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="462.0" y="1651">284</text>
 <rect class="bar-track" x="550" y="1619" width="88" height="34" rx="2"/>
-<rect x="550" y="1619" width="80.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1627">287/312</text>
+<rect x="550" y="1619" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="1627">312/312</text>
 <rect x="550" y="1631" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="1639">287/287</text>
 <rect x="550" y="1643" width="88.0" height="10" rx="2" fill="#1baf7a"/>

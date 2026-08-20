@@ -61,7 +61,7 @@ epic #813), not that no cases exist.
 | apex | production | standard_block | 43/48 | 4* | 93 | not written |
 | assembly | production | line_exclusive | 42/52 | 148 | 83 | not written |
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
-| cobol | production | positional_anchored | 48/52 | 62 | 82 | not written |
+| **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | cpp | production | standard_block | 52/52 | 42 | 76 | not written |
 | csharp | production | standard_block | 51/52 | 44 | 106 | not written |
 | css | production | standard_block | 30/48 | 18 | 74 | not written |

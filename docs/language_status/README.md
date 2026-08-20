@@ -57,7 +57,7 @@ epic #813), not that no cases exist.
 |---|---|---|---|---|---|---|
 | **[abap](abap.md)** | production | positional_abap | 46/48 | 42 | 87 | **written** |
 | ada | production | line_exclusive_dash | 49/53 | 48 | 73 | not written |
-| agc_assembly | production | line_exclusive | 39/48 | 155 | 76 | not written |
+| **[agc_assembly](agc_assembly.md)** | production | line_exclusive | 39/48 | 155 | 76 | **written** |
 | apex | production | standard_block | 43/48 | 4* | 93 | not written |
 | assembly | production | line_exclusive | 42/52 | 148 | 83 | not written |
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |

@@ -488,23 +488,41 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "abap": frozenset({"RETURN", "EXIT"}),
 }
 
-# #1949 follow-up: once Mode A stopped discarding single-line bodies (the real fix
-# for Bug 2), a single-line rescued "function" can still be a bare data/constant
-# definition rather than real code -- confirmed against real corpus source: NASM's
-# `equ` directive assigns a constant to a label
-# (`name_segment:    equ 0x1000` in `language-crucible/data/assembly/bootos/counter.asm:16`),
-# which is structurally indistinguishable from a real single-instruction "trampoline"
-# label by line count alone -- only by checking whether the line is actually a
-# data-definition directive, not an instruction. `assembly`'s own `func_start` regex
-# has no visibility into what follows the label's colon on the same line (it only
-# anchors on the label itself), so this can't be excluded there the way COBOL's
-# reserved-word shield excludes SOURCE-COMPUTER/OBJECT-COMPUTER -- checked here
-# instead, against the already-sliced single-line block. Scoped to `assembly` only:
-# agc_assembly's own data pseudo-ops are different (`EQUALS`, `EBANK=`, ...) and its
-# single-line rescues were confirmed all real via #1949's own repro.
+# #1949 follow-up: a Mode A "function" can be a bare data/constant definition
+# rather than real code -- confirmed against real corpus source. NASM's `equ`
+# directive assigns a constant to a label
+# (`max_entries:    equ sector_size/entry_size` in
+# `language-crucible/data/assembly/bootos/os.asm:166`), and GAS's dot-directives
+# define static data the same way (`ape.ident:` immediately followed by
+# `.long 2f-1f` -- an ELF note record, not a subroutine -- in
+# `language-crucible/data/assembly/cosmopolitan/ape.S:781`; `str.error:` followed
+# by `.asciz "error: "` at `ape.S:1226`). Checked against just the FIRST physical
+# line of the already-sliced block (not requiring the whole block collapse to one
+# line the way the original #1949 single-line-rescue check did) -- a data label's
+# swallowed span can run many lines past the directive itself (trailing comments,
+# blank lines, or a multi-field record like `ape.ident`'s), so gating on total
+# block length under-caught this same shape. Deliberately excludes alignment/
+# metadata directives (`.balign`, `.align`, `.p2align`, `.section`, `.size`,
+# `.type`) that a REAL function can legitimately open with (entry-point alignment
+# is a common, real optimization) -- only directives that unambiguously define a
+# VALUE are treated as proof this is data, not code. The gap between the label's
+# colon and the directive is `[ \t\n]{0,80}`, not same-line-only whitespace,
+# since GAS style commonly puts the label alone on its own line with the
+# directive on the next (`ape.ident:` / `\t.long\t2f-1f` on separate lines) --
+# bounded to 80 chars, same conservative cap this module's other single-char-class
+# gap regexes use, so it stays a fixed-cost lookahead, not an unbounded scan.
+# `assembly`'s own `func_start` regex has no visibility into what follows the
+# label's colon (it only anchors on the label itself), so this can't be excluded
+# there the way COBOL's reserved-word shield excludes SOURCE-COMPUTER/
+# OBJECT-COMPUTER -- checked here instead, against the sliced block. Scoped to
+# `assembly` only: agc_assembly's own data pseudo-ops are different (`EQUALS`,
+# `EBANK=`, ...) and its single-line rescues were confirmed all real via #1949's
+# own repro.
 _ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
-    r"^[A-Za-z_?@.][A-Za-z0-9_.$?@]*[ \t]*:[ \t]*"
-    r"(?:equ|db|dw|dd|dq|dt|do|resb|resw|resd|resq|rest|reso|times)\b",
+    r"^[A-Za-z_?@.][A-Za-z0-9_.$?@]*[ \t]*:[ \t\n]{0,80}"
+    r"(?:equ|db|dw|dd|dq|dt|do|resb|resw|resd|resq|rest|reso|times"
+    r"|\.byte|\.asciz|\.ascii|\.string|\.word|\.short|\.long|\.quad|\.octa"
+    r"|\.double|\.float|\.space|\.skip|\.zero|\.fill|\.set|\.equ)\b",
     re.IGNORECASE,
 )
 
@@ -2106,7 +2124,7 @@ class StructuralExtractor:
             if not block:
                 continue
 
-            if self.primary_lang_id == "assembly" and "\n" not in block and _ASSEMBLY_DATA_DIRECTIVE_RE.match(block):
+            if self.primary_lang_id == "assembly" and _ASSEMBLY_DATA_DIRECTIVE_RE.match(block):
                 continue
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)

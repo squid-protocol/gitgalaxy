@@ -447,3 +447,15 @@ Commit messages should name the shapes validated, not just say "update ledger" -
   -- two regex/grammar engines both fooled by the same macro-definition text is a shared mechanism,
   not a coincidence). Only split them if the verdict specifically distinguishes one as right and
   the other as coincidentally also wrong for an unrelated reason -- rare.
+- Fixing one confirmed engine bug is not proof the surrounding extraction path is now fully
+  correct -- re-verify the fix against the REAL pipeline/DB output (step 2b) before moving on,
+  every time, not just once per language. ABAP's manual-verification pass (2026-08-19/20) found 4
+  separate, independent bugs this way, not 1: fixing #1898 (a `prism.py` comment-stripping bug)
+  and re-checking its actual DB output surfaced #1899 (a completely different `detector.py`
+  slicing-mode bug) sitting right next to it; fixing #1899 and regenerating the tri-comparison
+  chart surfaced #1904 (a THIRD, independent bug -- a named-class-extraction allowlist gap); and
+  verifying #1904's own fix surfaced #1907 (a fourth -- a class-boundary detector confused by
+  ABAP's own string-template syntax). Each bug was invisible until the previous one was fixed and
+  re-checked against real output -- stopping at the first green result after fix #1 would have
+  left 3 more silently in place. See `docs/language_status/abap.md` §9 for the full evidence
+  trail.

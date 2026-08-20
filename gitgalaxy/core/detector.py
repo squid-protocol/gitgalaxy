@@ -368,6 +368,19 @@ class ScopeParsingRegistry:
 # gauntlets -- tracked as a follow-up (#1295), not attempted wholesale here.
 _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
     {
+        # #1904: ABAP can't go through this epic's own documented
+        # verification method (tree_sitter_accuracy_audit.py against
+        # tree-sitter ground truth) -- it has no tree-sitter grammar at
+        # all, one of only 5 gg_only languages with neither tree-sitter
+        # nor ctags. Verified instead via direct source cross-check
+        # (docs/language_status/abap.md §9): 100% precision on all 12 real
+        # DEFINITION/IMPLEMENTATION matches across abapGit's 6 real
+        # classes, zero false positives. Without this entry the generic
+        # fallback regex (lowercase-only `class|struct|interface|trait|
+        # enum`, no re.I) can never match ABAP's always-uppercase `CLASS
+        # <name> DEFINITION` syntax, so the named classes list stays
+        # permanently empty regardless of #1898's prism.py fix.
+        "abap",
         "apex",
         "c",
         "cpp",
@@ -783,9 +796,23 @@ class StructuralExtractor:
                 # Old flat boundary, now used only as a fallback for brace-less
                 # forward declarations where no real body can be located.
                 fallback_end_idx = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(code_stream)
-                end_idx = self._resolve_class_scope_end(
-                    class_safe_stream, start_idx, fallback_end_idx, use_indentation_scoping
-                )
+                if self.primary_lang_id == "abap":
+                    # #1907: ABAP has no brace-delimited class bodies at all
+                    # (IMPLEMENTATION. ... ENDCLASS.), but DOES have string-
+                    # template interpolation syntax (`|Object { name }|`)
+                    # containing real `{`/`}` that _build_brace_safe_stream
+                    # doesn't know to shield (it only understands `"`/`'`/
+                    # backtick-style quoting). The brace search below would
+                    # mistake that interpolation brace for the class's real
+                    # body opener and truncate the scope after the first
+                    # couple of methods. ABAP classes are never nested, so
+                    # the flat "next class match, or EOF" fallback is always
+                    # correct here -- skip the brace search entirely.
+                    end_idx = fallback_end_idx
+                else:
+                    end_idx = self._resolve_class_scope_end(
+                        class_safe_stream, start_idx, fallback_end_idx, use_indentation_scoping
+                    )
 
                 # Convert raw string indices to line numbers for spatial bounding
                 start_line = code_stream.count("\n", 0, start_idx) + 1

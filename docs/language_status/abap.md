@@ -205,19 +205,25 @@ deeper inspection is needed.
 
 ## 9. Manual verification: GitGalaxy alone (no tree-sitter or ctags for ABAP)
 
-**Revised again 2026-08-20 — both engine bugs found in the previous revision are now FIXED,
-merged, and re-verified.** Recapping the timeline for anyone reading this cold: the first pass
-(2026-08-19) ran ABAP's `func_start`/`class_start` regexes directly against raw file text and
-concluded "100% precision, zero engine defects" — true of the regexes *in isolation*, but not the
-same claim as "GitGalaxy correctly extracts ABAP," since the real pipeline also runs `prism.py`'s
-comment/code splitter and `detector.py`'s segment-routing logic first. A same-day revision caught
-this and filed two real, confirmed engine defects
-([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898),
-[#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)). Both are now fixed (see each
-subsection below for the specific commit/mechanism) and verified against the real `galaxyscope`
-pipeline output, not just the regex. The lesson still generalizes: for a zero-comparison-tool
-language, "run the regex against text" is necessary but not sufficient — always also run the real
-scan and inspect its actual DB output before concluding a signature is correct.
+**Revised a third time, 2026-08-20 — four engine bugs found across this investigation are now
+FIXED, and each fix was re-verified rather than assumed complete.** Recapping the timeline for
+anyone reading this cold: the first pass (2026-08-19) ran ABAP's `func_start`/`class_start`
+regexes directly against raw file text and concluded "100% precision, zero engine defects" — true
+of the regexes *in isolation*, but not the same claim as "GitGalaxy correctly extracts ABAP,"
+since the real pipeline also runs `prism.py`'s comment/code splitter and `detector.py`'s
+segment-routing logic first. A same-day revision caught this and filed two real, confirmed engine
+defects ([#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898),
+[#1899](https://github.com/squid-protocol/gitgalaxy/issues/1899)). Fixing and re-verifying those
+two (rather than trusting the fix and moving on) surfaced two MORE, independent bugs one layer
+deeper — [#1904](https://github.com/squid-protocol/gitgalaxy/issues/1904) (a separate named-
+class-extraction allowlist gap) and [#1907](https://github.com/squid-protocol/gitgalaxy/issues/1907)
+(a class-boundary detector confused by ABAP's own string-template syntax). All four are now fixed
+(see each subsection below for the specific mechanism) and verified against the real `galaxyscope`
+pipeline output, not just the regex. The lesson still generalizes, and generalizes further than
+the first revision realized: for a zero-comparison-tool language, "run the regex against text" is
+necessary but not sufficient, AND fixing one confirmed bug is not proof the surrounding extraction
+path is now fully correct — re-verify after every fix instead of stopping at the first green
+result.
 
 ABAP is one of only 5 languages in the whole registry with **neither** a tree-sitter grammar nor a
 ctags parser (the others: `dockerfile`, `jcl`, `livecode`, `yaml` — confirmed against
@@ -345,6 +351,63 @@ already established for objective-c) and 0 for the one file with no class — ex
 12 real matches found by applying the regex directly to unprocessed text. **Fixed via
 [#1898](https://github.com/squid-protocol/gitgalaxy/issues/1898).**
 
+### Named class list still empty after #1898 — a third, separate bug — FIXED (#1904)
+
+Fixing #1898 correctly restored `struct_class_start`/`class_count` to 2 per real class file, but
+regenerating `docs/self_scan/tri_comparison_chart.svg` afterward showed abap's "Classes Found"/
+"Class Precision" panels still completely blank, and `tri_comparison_gatherer.gather_language
+("abap")` still returned `gg_classes: []` for every file. `struct_class_start` (the raw regex
+signal) and the actual *named* `classes` list (what feeds `class_data`/the chart) turned out to be
+two independent code paths, and only the first one was fixed by #1898.
+
+Root cause: `detector.py`'s named-class extraction in `splice()` only reuses a language's own
+`class_start` rule when that language is listed in `_CLASS_START_NAMED_EXTRACTION_LANGS` (epic
+#1295) — every other language falls through to a generic legacy regex, `(?:class|struct|interface
+|trait|enum)`, compiled **without** `re.I`. ABAP was never added to that set — likely because the
+epic's own documented verification method (`tree_sitter_accuracy_audit.py --lang <x>` against
+tree-sitter ground truth) structurally cannot run for a language with no tree-sitter grammar at
+all. Real ABAP classes are always uppercase (`CLASS <name> DEFINITION`), so the case-sensitive
+fallback regex could never match ABAP source regardless of #1898's fix — the named list was
+guaranteed empty by construction.
+
+**Fix (2026-08-20):** added `"abap"` to `_CLASS_START_NAMED_EXTRACTION_LANGS`, using the
+verification already done in this doc (100% precision on all 12 real matches, direct source
+cross-check) in place of the epic's tree-sitter-based method, which doesn't apply here. Re-verified
+via `tri_comparison_gatherer.gather_language("abap")`: every real class file now returns 2 named
+class entries with correct names (e.g. `['zcl_abapgit_ajson', 'zcl_abapgit_ajson']` for the
+`DEFINITION`+`IMPLEMENTATION` pair — one file's two entries even preserve genuinely different
+source casing, `zcl_abapgit_xml_output` vs. `ZCL_ABAPGIT_XML_OUTPUT`, extracted faithfully rather
+than normalized away). **Fixed via
+[#1904](https://github.com/squid-protocol/gitgalaxy/issues/1904).**
+
+### Class→method linkage truncated by ABAP's own string-template syntax — a fourth bug — FIXED (#1907)
+
+Found while verifying #1904's fix: `zcl_abapgit_objects.clas.abap` has 30 real methods
+(`struct_func_start`/`function_count` both correctly show 30), but its class entry's
+`method_count` came back as **2**. `splice()`'s class-boundary resolver tries a brace-delimited
+body search first and only falls back to a flat "next class match" boundary if no `{` is found
+within 2000 chars. ABAP has no brace-delimited bodies at all, but it DOES have string-template
+interpolation syntax that legitimately contains braces:
+
+```abap
+ii_log->add_success( iv_msg = |Object { is_item-obj_name } ...| ).
+```
+
+`_build_brace_safe_stream()` shields `"`/`'`/backtick-style string literals before the brace
+search runs, but has no knowledge of ABAP's `|...|` pipe-delimited templates, so this `{` reached
+the search unshielded, got mistaken for the class's real body opener, and truncated the scope
+right after the first couple of methods — every subsequent method in the file never got linked to
+its class.
+
+**Fix (2026-08-20):** since ABAP classes are never nested, the flat "next class match, or EOF"
+fallback (already computed unconditionally at the call site) is always correct for ABAP — the
+brace-search path is now skipped entirely for `abap` rather than teaching the shared brace-safe
+stream builder about pipe-delimited string templates (a bigger, riskier change touching other
+regex signals too). Re-verified: `zcl_abapgit_objects`' class entry now shows `method_count: 30`,
+matching its real function count exactly, and every other file's linkage still matches its real
+method count too. **Fixed via
+[#1907](https://github.com/squid-protocol/gitgalaxy/issues/1907).**
+
 ### `args`: smaller, inconsistent discrepancies — not yet root-caused, still open
 
 `file_data.struct_args` vs. a raw-regex count on unprocessed text still disagree in both
@@ -358,13 +421,19 @@ line/mechanism the way #1898/#1899 were — noted here as a known open question 
 filed issue, since "probably related, not fully explained" isn't evidence-backed enough to file on
 its own yet.
 
-**Summary:** two confirmed engine defects found, fixed, and re-verified against the real pipeline
-(#1898, #1899 — both closed), plus one open args-counting discrepancy not yet root-caused. No
-`credit_tools`/`debit_tools` adjustment applies (there's no second tool to credit or debit
-against, and these were GitGalaxy-side bugs, not a cross-tool disagreement). Corpus is small (7
-files) — a wider manual pass (or, if ABAP ever gets ctags/tree-sitter support upstream, the normal
-ledger pipeline) would surface more; the finding here is real for the *sampled* corpus, not a
-guarantee no other issue exists. Both fixes went through the full Differential Scan protocol
-(`crucible_check.py` against the ~80-repo language-crucible corpus, both full-precision and
-zero-dependency modes) before merging — see the golden master fixtures' commit history for the
-complete before/after diff.
+**Summary:** four confirmed engine defects found, fixed, and re-verified against the real pipeline
+(#1898, #1899, #1904, #1907 — all closed), plus one open args-counting discrepancy not yet
+root-caused. Each fix was found by re-verifying the PREVIOUS fix against the real pipeline rather
+than assuming one fix meant the whole extraction path was now correct — #1899 surfaced while
+checking #1898's numbers against actual DB output, #1904 surfaced while regenerating the
+tri-comparison chart after #1898/#1899 merged, and #1907 surfaced while verifying #1904's fix
+itself. No `credit_tools`/`debit_tools` adjustment applies to any of the four (there's no second
+tool to credit or debit against, and these were GitGalaxy-side bugs, not a cross-tool
+disagreement). Corpus is small (7 files) — a wider manual pass (or, if ABAP ever gets ctags/
+tree-sitter support upstream, the normal ledger pipeline) would surface more; the finding here is
+real for the *sampled* corpus, not a guarantee no other issue exists. #1898/#1899 went through the
+full Differential Scan protocol (`crucible_check.py` against the ~80-repo language-crucible
+corpus, both full-precision and zero-dependency modes) and required regenerating both golden
+master fixtures; #1904/#1907 live entirely in the SQLite recorder's named-class-list path, which
+those fixtures don't exercise at all — `crucible_check.py` passed with zero drift both before and
+after, confirmed via the tri-comparison gatherer and a direct `--db-only` scan instead.

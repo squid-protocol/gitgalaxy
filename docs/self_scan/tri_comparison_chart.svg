@@ -37,12 +37,16 @@
 <text class="lang-label" x="20" y="173.5">abap</text>
 <rect class="bar-track" x="154" y="153" width="88" height="34" rx="2"/>
 <rect x="154" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="161">16</text>
+<text class="bar-value-label" x="198.0" y="161">124</text>
 <rect class="bar-track" x="286" y="153" width="88" height="34" rx="2"/>
 <rect x="286" y="153" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="161">0/16</text>
+<text class="bar-value-label" x="330.0" y="161">0/124</text>
 <rect class="bar-track" x="418" y="153" width="88" height="34" rx="2"/>
+<rect x="418" y="153" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="462.0" y="161">12</text>
 <rect class="bar-track" x="550" y="153" width="88" height="34" rx="2"/>
+<rect x="550" y="153" width="2.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="161">0/12</text>
 <rect class="bar-track" x="682" y="153" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="217.5">ada</text>
 <text class="awaiting" x="154" y="217.5">awaiting language-crucible corpus</text>

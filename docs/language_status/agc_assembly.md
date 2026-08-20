@@ -277,8 +277,12 @@ residual:
      at `SOPTION1`–`SOPTION7`/`SOPTON10`, `AGC_BLOCK_TWO_SELF-CHECK.agc:210-219`, seven consecutive
      one-instruction labels, all discarded).
 
-  Filed as a GitHub issue (see §7 once merged) rather than credited/debited in the ledger — this
-  is GitGalaxy's own unresolved bug, not something ctags corroborates or contradicts.
+  Filed as [#1949](https://github.com/squid-protocol/gitgalaxy/issues/1949) rather than
+  credited/debited in the ledger — this is GitGalaxy's own unresolved bug, not something ctags
+  corroborates or contradicts. A follow-up read-only investigation confirmed both root causes
+  generalize beyond agc_assembly to the shared `_slice_by_labels` mechanism used by every
+  label-based language (`assembly`, `cobol`, `fortran`, `abap` all independently exhibit bug 1;
+  `assembly`/`cobol` also exhibit bug 2) — #1949 will move to §7 once closed.
 
 Net effect after validation: agc_assembly's Func Precision panel moved from an unvalidated
 725/760\* to a clean **760/760**, GitGalaxy's first outright badge on this language's chart row.

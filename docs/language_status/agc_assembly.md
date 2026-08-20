@@ -7,9 +7,9 @@ Snapshot generated 2026-08-20 against `main`. Source: `LANGUAGE_DEFINITIONS["agc
 `language-status` skill's data-gathering commands before trusting these numbers if this doc looks
 old relative to `last_updated` below.
 
-Section 9 (measured accuracy) is intentionally not included here — a separate tri-comparison
-investigation (GitGalaxy vs. ctags, since agc_assembly has no tree-sitter grammar) is producing
-that section directly and will append it once complete.
+Section 9 (measured accuracy) below is a tri-comparison writeup, not a single-ground-truth
+comparison — agc_assembly has no tree-sitter grammar, so the only other tool in the picture is
+ctags, and unlike Python-vs-`ast` neither side gets to be assumed correct by default.
 
 ## 1. At a glance
 
@@ -220,3 +220,67 @@ same Luminary/Comanche source tree (`AGC_BLOCK_TWO_SELF-CHECK.agc`, `ALARM_AND_A
 `RCS_FAILURE_MONITOR.agc`, `THE_LUNAR_LANDING.agc`, `WAITLIST.agc`). This is the corpus
 `crucible_check.py` and the §7 hardening passes used for empirical before/after validation
 (e.g. the 609→812 `func_start` match-count measurement).
+
+## 9. Measured tri-comparison: GitGalaxy vs. ctags (no tree-sitter grammar)
+
+agc_assembly has no tree-sitter grammar, so `tree_sitter_accuracy_audit.py`'s single-ground-truth
+methodology doesn't apply here. `ctags_reader.py` maps it to Universal Ctags' generic `Asm`
+parser (kind `l`, labels — there is no dedicated AGC parser) as the only other signal to compare
+against. `class` has no tri-comparison entries at all: both sides agree there's nothing to find
+(`class_start` is `None` per §4, and `ctags_reader.py`'s own kind-map for agc_assembly is an empty
+set for the same reason) — a clean agreement, not an unmeasured gap. `args` is out of scope for
+this tri-comparison methodology entirely: ctags emits no `signature:` field for Asm-parsed files,
+so there's no second reading to compare GitGalaxy's register-mention proxy metric against.
+
+Two `function/existence` shapes existed in `docs/self_scan/tri_comparison_ledger.json`, both
+investigated and validated 2026-08-20 by reading the real corpus source and cross-referencing
+GitGalaxy's raw regex, GitGalaxy's actual pipeline/DB output, and ctags' actual tagged output
+directly (not by trusting either tool's self-report):
+
+**GitGalaxy solo-correct (35 occurrences, `agree[gitgalaxy]_vs[ctags]`), credited to GitGalaxy.**
+All 35 are real AGC labels using naming conventions ctags' generic `Asm` parser structurally
+can't tag: 14/35 have an embedded hyphen (AGC's own "offset from an event" idiom — `TIG-35`,
+`TIG-30`, `CALLT-35` in `BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc:250,292,222`, meaning "35/30
+seconds before Time of Ignition"); 21/35 start with a digit or a leading minus sign (`1CHK`,
+`2EBANK`, `-1CHK` in `AGC_BLOCK_TWO_SELF-CHECK.agc:184`). Confirmed directly: running
+`ctags --language-force=Asm --kinds-Asm=l` against the real corpus files emits **zero** tags for
+any of these 35 names, while tagging every plain-alphanumeric sibling normally in the same files
+(`CNTRCHK`, `ERASCHK`, `SELFCHK` are all tagged; `-1CHK` is not) — ctags' `Asm` identifier
+validation requires a leading letter and no internal hyphen, neither of which is a real
+constraint in AGC's own label syntax. Logged as Claim 12 in
+[`docs/why_gitgalaxy_beats_ast_here.md`](../why_gitgalaxy_beats_ast_here.md).
+
+**ctags solo-correct (265 occurrences, `agree[ctags]_vs[gitgalaxy]`), mixed cause, no
+credit/debit.** A full corpus-wide cross-reference (ctags' actual tagged output vs. GitGalaxy's
+raw `func_start` regex matches vs. GitGalaxy's real DB output) accounts for all 265 with no
+residual:
+- **215/265 — a genuine, intentional precision distinction, not a bug.** ctags' `Asm` `l` kind
+  tags every line-start label unconditionally, including pure data/constant-definition labels
+  (`ERASCON1 OCTAL 00061`, `S10BITS`, `LSTBNKCH` — `AGC_BLOCK_TWO_SELF-CHECK.agc:133` and nearby).
+  GitGalaxy's `func_start` deliberately requires the label be followed by a real instruction
+  mnemonic (§3 above), so it correctly excludes these as data labels, not subroutine entries.
+  ctags' generic parser has no way to draw that distinction at all.
+- **50/265 — a real, confirmed GitGalaxy defect in `detector.py`'s `_slice_by_labels` (Mode A),
+  two independent root causes**, found by comparing `struct_func_start` (raw regex signal) against
+  `function_count` (named functions actually reaching output) in the real pipeline DB — an 11.6%
+  gap across the 10-file corpus (52 total, 50 of which trace to labels ctags also independently
+  confirms are real):
+  1. `RELINT` is listed in `detector.py`'s `assembly_returns` early-termination keyword set
+     (line 572), on the assumption it's a return/exit instruction. In real AGC assembly it means
+     "release interrupt inhibit" and commonly *opens* a long interrupt-handler routine rather than
+     closing one — confirmed at `ELOOPFIN`, `AGC_BLOCK_TWO_SELF-CHECK.agc:303`, a 20+-line real
+     routine truncated to just its own label line. A label literally named `EXIT` (itself one of
+     the keywords) at `INTERPRETER.agc:762` self-truncates the same way.
+  2. The `len(block.splitlines()) < 2` guard (`detector.py:1973`) discards any function whose
+     sliced body reduces to a single non-blank line after stripping — a real, common pattern in
+     AGC assembly, where single-instruction "trampoline" labels are completely normal (confirmed
+     at `SOPTION1`–`SOPTION7`/`SOPTON10`, `AGC_BLOCK_TWO_SELF-CHECK.agc:210-219`, seven consecutive
+     one-instruction labels, all discarded).
+
+  Filed as a GitHub issue (see §7 once merged) rather than credited/debited in the ledger — this
+  is GitGalaxy's own unresolved bug, not something ctags corroborates or contradicts.
+
+Net effect after validation: agc_assembly's Func Precision panel moved from an unvalidated
+725/760\* to a clean **760/760**, GitGalaxy's first outright badge on this language's chart row.
+Full verdicts with complete citations live in
+`docs/self_scan/tri_comparison_ledger.json` (search for `"language": "agc_assembly"`).

@@ -59,7 +59,7 @@ epic #813), not that no cases exist.
 | ada | production | line_exclusive_dash | 49/53 | 48 | 73 | not written |
 | **[agc_assembly](agc_assembly.md)** | production | line_exclusive | 39/48 | 155 | 76 | **written** |
 | apex | production | standard_block | 43/48 | 4* | 93 | not written |
-| assembly | production | line_exclusive | 42/52 | 148 | 83 | not written |
+| **[assembly](assembly.md)** | production | line_exclusive | 42/52 | 148 | 83 | **written** |
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | cpp | production | standard_block | 52/52 | 42 | 76 | not written |

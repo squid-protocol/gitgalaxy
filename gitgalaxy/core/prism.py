@@ -899,7 +899,14 @@ class Prism:
                 parts = line.split('"', 1)
                 code.append(parts[0])
                 lits.append('"' + parts[1])
-            elif "!" in line:
+            elif not abap_mode and "!" in line:
+                # #1911: `!` has no comment meaning in ABAP at all (its only
+                # real markers are `*` in column 1 and `"` inline) -- it's
+                # the classic ABAP formal-parameter-name escape prefix
+                # (`!iv_url TYPE string`), extremely common in every method
+                # signature's IMPORTING/EXPORTING/CHANGING clause. Without
+                # this gate every `!param` line was truncated at the `!`,
+                # erasing the parameter name and its TYPE clause.
                 parts = line.split("!", 1)
                 code.append(parts[0])
                 lits.append("!" + parts[1])

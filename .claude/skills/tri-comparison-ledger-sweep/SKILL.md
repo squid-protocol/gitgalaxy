@@ -449,13 +449,19 @@ Commit messages should name the shapes validated, not just say "update ledger" -
   the other as coincidentally also wrong for an unrelated reason -- rare.
 - Fixing one confirmed engine bug is not proof the surrounding extraction path is now fully
   correct -- re-verify the fix against the REAL pipeline/DB output (step 2b) before moving on,
-  every time, not just once per language. ABAP's manual-verification pass (2026-08-19/20) found 4
+  every time, not just once per language. ABAP's manual-verification pass (2026-08-19/20) found 5
   separate, independent bugs this way, not 1: fixing #1898 (a `prism.py` comment-stripping bug)
   and re-checking its actual DB output surfaced #1899 (a completely different `detector.py`
   slicing-mode bug) sitting right next to it; fixing #1899 and regenerating the tri-comparison
-  chart surfaced #1904 (a THIRD, independent bug -- a named-class-extraction allowlist gap); and
+  chart surfaced #1904 (a THIRD, independent bug -- a named-class-extraction allowlist gap);
   verifying #1904's own fix surfaced #1907 (a fourth -- a class-boundary detector confused by
-  ABAP's own string-template syntax). Each bug was invisible until the previous one was fixed and
+  ABAP's own string-template syntax); and going back to close out step 4's "noted as a known open
+  question, not evidence-backed enough to file" item on `args` (rather than leaving it open
+  indefinitely) found a FIFTH, #1911 -- the exact same `prism.py` comment-stripper as #1898, but a
+  different unqualified character (`!`, not `C`/`c`/`/`). An "open question, not yet root-caused"
+  note in step 4 is a lead to come back to, not a permanent resting state -- don't let a sweep
+  close out with unresolved "probably related" questions still sitting in the doc if there's more
+  budget to chase them down. Each bug was invisible until the previous one was fixed and
   re-checked against real output -- stopping at the first green result after fix #1 would have
-  left 3 more silently in place. See `docs/language_status/abap.md` §9 for the full evidence
+  left 4 more silently in place. See `docs/language_status/abap.md` §9 for the full evidence
   trail.

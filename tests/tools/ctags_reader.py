@@ -97,6 +97,19 @@ KIND MAPS
         kind of neutral fact the C struct-body-check fix already established is fair game for the
         walk itself. Investigated via `c/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`
         (23 occurrences, cpython + doom).
+      - m4: same macro-invocation-vs-definition confusion as C's RICHCMP_WRAPPER note above, just
+        via autoconf's `AC_DEFINE`/`AC_DEFINE_UNQUOTED` helpers instead of a raw C macro call --
+        ctags' M4 parser heuristically tags any `AC_DEFINE(NAME, ...)`/`AC_DEFINE_UNQUOTED([NAME],
+        ...)` call as a macro DEFINITION by extracting its first argument as the "defined" name,
+        e.g. curl/configure.ac:2112's `AC_DEFINE_UNQUOTED([CURL_DEFAULT_SSL_BACKEND], [...], [...])`
+        -- but `AC_DEFINE*` only ever emits a C preprocessor `#define` into the generated
+        `config.h` at build time; it never defines a new callable M4 macro the way
+        `AC_DEFUN`/`m4_define`/`define` do. GitGalaxy's own `func_start` for m4 deliberately
+        excludes `AC_DEFINE*` from its keyword set, so its silence on these lines is correct, not
+        a miss. Confirmed on all 10 sampled cases (all `curl/configure.ac`, all real
+        `AC_DEFINE`/`AC_DEFINE_UNQUOTED` calls, zero genuine `AC_DEFUN`/`m4_define` misses) via
+        `m4/function/existence/agree[ctags]_vs[gitgalaxy]` (79 occurrences total) -- a real ctags
+        limitation, not a GitGalaxy defect.
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start
     definitions before ever widening one of these maps -- do not add a kind because its letter
     looks right.

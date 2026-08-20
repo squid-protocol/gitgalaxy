@@ -770,7 +770,7 @@
       ],
       "first_seen_at": "2026-08-18T22:44:18Z",
       "investigated_at": "2026-08-19T00:00:00Z",
-      "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed)",
+      "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed) -- corrected after cross-referencing #1837",
       "language": "c",
       "last_reconciled_at": "2026-08-19T23:28:29Z",
       "last_seen_count": 1,
@@ -789,7 +789,7 @@
       "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": "Not a tool defect on either side -- an inherent CPP-conditional-compilation ambiguity. gc_mark_subtree is declared AND defined twice in micropython/gc.c, once under `#if MICROPY_GC_SPLIT_HEAP` (2 args: area, block -- lines 137/501) and once under the matching `#else` (1 arg: block -- lines 139/503). Neither signature is more 'real' than the other -- which one actually compiles depends on a macro none of these three tools evaluates (no real preprocessor run in any of them). GG and ctags happened to align on the 2-arg branch, tree-sitter on the 1-arg branch; this is a coin-flip of which #if branch a tool's occurrence-matching happens to pick up, not a real disagreement about ground truth. N=1 in this corpus -- not chased further given the tiny sample and the ambiguity being structural rather than a bug."
+      "verdict": "CORRECTED 2026-08-19: this entry's original verdict ('inherent CPP-conditional-compilation ambiguity, not a defect, not chased further') was too quick to dismiss -- caught in a later issue-triage pass that #1837 (filed 2026-08-18, BEFORE this ledger shape was even investigated) already reports this exact function (gc_mark_subtree, language-crucible/data/c/micropython/gc.c) as a real, fixable gap: GitGalaxy's args extraction has no preprocessor model and its behavior across an #if/#else-duplicated signature is architecturally undefined, not a deliberate policy choice. The underlying fact from the original investigation still stands -- gc_mark_subtree IS declared/defined twice, once under `#if MICROPY_GC_SPLIT_HEAP` (2 args, lines 137/501) and once under the matching `#else` (1 arg, lines 139/503), and no real preprocessor evaluation happens in any of the three comparison tools, so there IS a genuine underlying ambiguity about which branch is 'real' -- but 'GitGalaxy currently happens to land on the #if branch here' is an accident of this one case, not a guaranteed, designed policy, and #1837 is right that this deserves a real fix (deterministic branch selection or a preprocessor-stripping pass) rather than being waved off. Tracked at #1837, not re-filed here. Lesson for this skill: 'structurally ambiguous, not a bug' is not the same claim as 'not worth fixing' -- check for an existing issue before concluding either."
     },
     "c/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [

@@ -276,10 +276,14 @@ tools produced against each other was investigated by reading real source
 `docs/self_scan/tri_comparison_ledger.json`, filterable to `"language": "c"`.
 
 **Result: 11 of 11 discrepancy shapes (766 individual occurrences) resolved, zero confirmed
-GitGalaxy engine defects.** Every disagreement either resolved in GitGalaxy's favor, or turned out
-to be a bug in this repo's own comparison tooling (found and fixed as part of the same pass) or a
-known tree-sitter-c/ctags limitation — never GitGalaxy's regex engine itself. Current measured
-numbers (`tests/tools/tri_comparison_chart.py --languages c`, `language-crucible/data/c/` —
+GitGalaxy engine defects *among the discrepancies this methodology actually surfaced*** (see the
+scope caveat near the end of this section — a handful of real, independently-filed C/C++
+args-counting bugs exist and predate this sweep; this methodology can only catch what the three
+tools disagree about, not a shared blind spot). Every disagreement that DID surface either
+resolved in GitGalaxy's favor, or turned out to be a bug in this repo's own comparison tooling
+(found and fixed as part of the same pass) or a known tree-sitter-c/ctags limitation — never
+GitGalaxy's regex engine itself. Current measured numbers
+(`tests/tools/tri_comparison_chart.py --languages c`, `language-crucible/data/c/` —
 cpython, doom, sqlite, micropython, and more):
 
 | Signal | GitGalaxy | tree-sitter | ctags | Read as |
@@ -348,15 +352,36 @@ fine:
    scoped-vs-unscoped `enum class` distinction needs its own verification before assuming the same
    fix shape applies).
 
-### Confirmed GitGalaxy engine bugs found for C: zero
+### Confirmed GitGalaxy engine bugs found *via this sweep's ledger discrepancies*: zero
 
 Contrast with `rust`, where the same sweep methodology found and filed two real GitGalaxy
 `detector.py` bugs
 ([#1872](https://github.com/squid-protocol/gitgalaxy/issues/1872) — a lifetime-tick handling
 defect in argument counting). For C, every one of the 766 investigated occurrences resolved
-without implicating GitGalaxy's own regex engine — the closest thing to a caveat is the tab-
-splitting and ctags-kind-mapping bugs above, both in this repo's *test tooling*, not the shipped
-`gitgalaxy` package.
+without implicating GitGalaxy's own regex engine — the closest thing to a caveat *from this
+methodology* is the tab-splitting and ctags-kind-mapping bugs above, both in this repo's *test
+tooling*, not the shipped `gitgalaxy` package.
+
+**Important scope caveat, not a contradiction of the above:** "zero defects found via 3-way ledger
+discrepancies" is not the same claim as "zero known C/C++ args-counting defects exist." A 3-way
+disagreement can only surface a bug if the three tools happen to land on genuinely different
+answers on a file that's actually in the pinned `language-crucible` corpus sample — it can't catch
+a bug all three tools independently fail to disagree about, or one outside this specific corpus.
+Four real, independently-filed C/C++ `_count_top_level_args`/`_slice_by_braces` issues exist and
+predate this sweep, none surfaced by it:
+[#1836](https://github.com/squid-protocol/gitgalaxy/issues/1836) (unbounded C++ signature search
+hallucinates args from function-body calls),
+[#1837](https://github.com/squid-protocol/gitgalaxy/issues/1837) (no preprocessor model —
+`#if`/`#else`-duplicated signatures behave undefined, not deterministic; this is the SAME
+`gc_mark_subtree` function the tri-comparison ledger's own 1-occurrence
+`c/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]` entry investigated, whose verdict was
+corrected after cross-referencing this issue — see that entry's `investigated_by` note),
+[#1853](https://github.com/squid-protocol/gitgalaxy/issues/1853) (angle brackets as math/shift
+operators corrupt generic-bracket depth tracking),
+[#1854](https://github.com/squid-protocol/gitgalaxy/issues/1854) (C-family function-pointer
+return types misalign the parameter block). All four are real, all four are already filed and
+labeled — read them before citing this section's headline number as "GitGalaxy's C args-counting
+has no known bugs."
 
 **Full investigation record:** `docs/self_scan/tri_comparison_ledger.json` (filter to
 `"language": "c"`), rendered human-readable at

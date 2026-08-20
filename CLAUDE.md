@@ -230,6 +230,39 @@ before/after, not "heuristics are sometimes better") — this doc's whole value 
 overstate the exception into "GitGalaxy is more accurate than tree-sitter" in general, which isn't
 true.
 
+## Comparative-correctness claims require verification, not just the higher number
+
+This generalizes a rule first proven necessary on the tri-comparison chart (`tests/tools/
+tri_comparison_chart.py`, `tri_comparison_ledger.py`) but applicable anywhere in this repo a claim
+gets made that one measurement is "more correct" than another — a badge, a README claim, a PR
+description, a chart, a doc. **Never treat a raw number comparison alone as settling who's right.**
+A strictly-highest-percentage rule doesn't know or care about sample size or whether anyone has
+actually checked the disagreement against real source: a 2-sample cell at 100% (2/2) can outrank an
+80-sample cell at 98.75% (79/80) with equal visual confidence, which is an artifact of an unverified
+comparison, not evidence either side is more correct. The fix isn't "always trust the bigger sample"
+either — it's requiring that a claim of correctness be backed by someone (human or a dispatched
+agent standing in for one) actually reading the real disputed source and recording *why*, before it
+drives a badge, a chart, or a claim in prose.
+
+**The concrete mechanism this models on:** `tri_comparison_ledger.py`'s `has_open_question()` — a
+cell only earns a badge/claim once every ledger entry touching it is `status == "validated"` (a
+human or agent read real source and recorded a verdict), regardless of how lopsided the raw numbers
+look before that. See the tri-comparison-ledger-sweep skill for the full investigate-and-verify
+workflow this drives.
+
+**Once verified, a rate-only TIE needs its own tie-break — don't leave it badge-less by default
+either.** Found via a real case: GitGalaxy, tree-sitter, and ctags can each land on 100% precision
+for the same language/metric (each is simply never wrong about what it itself claims, at very
+different claim counts) once GitGalaxy's extra claims are ledger-validated — a rate-only comparison
+ties 3 ways and awards nobody, even though GitGalaxy demonstrably found more of the validated-real
+total (`_winner_or_tie()` in `tri_comparison_chart.py`: a rate tie is broken by each tied party's
+*absolute count of validated-correct occurrences*, not the raw claim count). This is the same
+"more evidence should count for something" principle as the sample-size fix above, pointing the
+opposite direction — a smaller sample's identical rate shouldn't get an unearned edge, but neither
+should a much larger *validated* sample lose one just for tying instead of leading outright. Only
+apply a count-based tie-break to values that already cleared the verification bar above; breaking
+a tie with unverified counts is exactly the anti-pattern this rule exists to prevent.
+
 ## Issue generation and pipeline/CI triage
 
 Two subagents with pinned models are set up for this so routine triage doesn't burn main-context

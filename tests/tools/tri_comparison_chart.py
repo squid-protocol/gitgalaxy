@@ -101,10 +101,14 @@ WINNER BADGE: REQUIRES VERIFICATION, NOT JUST THE HIGHER NUMBER
     98.75% (79/80) with a badge exactly as confident-looking as any other, an artifact of sample
     size nobody had verified, not evidence that tool was more correct there. A cell only gets a
     badge now if `has_open_question()` is False for it (no ledger entry currently reproduces
-    unvalidated) AND one available tool scored strictly highest -- a colored letter (G/T/C) in
-    that tool's own categorical color, in the space a stacked column of raw numbers used to
-    occupy. No badge on a disputed cell (regardless of how lopsided the raw numbers look) or a
-    tie.
+    unvalidated) AND one available tool scored strictly highest, OR won a tie-break among tools
+    sharing the top rate (see `_winner_or_tie`'s own docstring -- a rate-only tie is broken by
+    each tied tool's absolute count of validated-correct occurrences, so a tool that's simply
+    never wrong but narrower in scope doesn't erase the badge a tool with a larger validated
+    claim count has earned) -- a colored letter (G/T/C) in that tool's own categorical color, in
+    the space a stacked column of raw numbers used to occupy. No badge on a disputed cell
+    (regardless of how lopsided the raw numbers look), or a tie the count tie-break also can't
+    resolve.
 
     A 1-bar group (GitGalaxy alone -- no tree-sitter, no ctags) CAN earn a badge, via a
     different path than a cross-tool win: `_manual_verification_winner()` awards GitGalaxy's own
@@ -388,20 +392,41 @@ def _disputed(lang: str, symbol_type: str, ledger_metric: str) -> bool:
 
 def _winner_or_tie(scores: dict[str, MetricScore], available_tools: tuple[str, ...]) -> str | None:
     """Tool name with the strictly-highest score among available tools with real data; the
-    literal string "tie" if 2+ tools share the top score; None if fewer than 2 tools have real
-    data at all (a 1-bar group, or an empty panel) -- that last case isn't a comparison, so it's
-    kept distinct from a real tie rather than folded into it. The badge renderer only cares about
-    the winner case (see _winner below); the bottom-of-chart tally (render_chart's summary
-    block) needs all three states to count "how many of the 5x45 possible comparisons actually
-    happened, and how did each one resolve" without silently inflating the tie count with cells
-    that were never a real comparison to begin with."""
+    literal string "tie" if 2+ tools share the top score AND the tie can't be broken (see below);
+    None if fewer than 2 tools have real data at all (a 1-bar group, or an empty panel) -- that
+    last case isn't a comparison, so it's kept distinct from a real tie rather than folded into
+    it. The badge renderer only cares about the winner case (see _winner below); the
+    bottom-of-chart tally (render_chart's summary block) needs all three states to count "how
+    many of the 5x45 possible comparisons actually happened, and how did each one resolve"
+    without silently inflating the tie count with cells that were never a real comparison to
+    begin with.
+
+    A tie at the top rate_pct is broken by each tied tool's own matched_consensus (its absolute
+    count of validated-correct occurrences) -- confirmed necessary by rust's func/class existence
+    panels: GitGalaxy, tree-sitter, and ctags all land on 100% precision once GitGalaxy's
+    macro-body-only claims are ledger-validated (each tool is simply never WRONG about what it
+    claims, at very different claim counts -- 1927 vs. 1775 vs. 1774), so a rate-only comparison
+    ties 3 ways and nobody gets a badge despite GitGalaxy having demonstrably found MORE of the
+    validated-real total. This is the inverse of the sample-size bug the rate-only rule was
+    already fixed for (see this module's WINNER BADGE docstring): there, a smaller sample's
+    identical rate got an unearned edge; here, a larger validated sample at an identical rate was
+    getting NO edge at all. Both are the same principle -- more evidence should count for
+    something -- pointing opposite directions. Only ever reached once the caller has already
+    confirmed the cell isn't disputed (`_disputed`/`has_open_question` is checked before this is
+    called), so every matched_consensus value used here is already either unquestioned or
+    ledger-validated -- this breaks ties with verified evidence, not a bare unverified count."""
     vals = [(t, scores[t].rate_pct) for t in available_tools if t in scores and scores[t].rate_pct is not None]
     if len(vals) < 2:
         return None
     vals.sort(key=lambda tv: -tv[1])
-    if vals[0][1] == vals[1][1]:
+    top_rate = vals[0][1]
+    tied = [t for t, rate in vals if rate == top_rate]
+    if len(tied) < 2:
+        return tied[0]
+    counts = sorted(((t, scores[t].matched_consensus) for t in tied), key=lambda tc: -tc[1])
+    if counts[0][1] == counts[1][1]:
         return "tie"
-    return vals[0][0]
+    return counts[0][0]
 
 
 def _winner(scores: dict[str, MetricScore], available_tools: tuple[str, ...]) -> str | None:

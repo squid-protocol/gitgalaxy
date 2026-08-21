@@ -413,12 +413,20 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # unbounded quantifier. A bare `cdef`-prefixed variable/attribute declaration (no
             # trailing `(` on the same line, e.g. `cdef bint broadcasting`) never matches either
             # branch since both require the literal `(` to close the match.
+            # tri-comparison-ledger-sweep follow-up (2026-08-21): a return-type token can also be
+            # a Cython Tempita codegen placeholder (`cdef {{memviewslice_name}} *get_slice_from_
+            # memview(...)`, cython/MemoryView.pyx -- Cython's own source templates specialized
+            # copies of this file per element type). The plain-identifier alternative can't start
+            # with `{`, so this was the one remaining real function this rule missed on the
+            # crucible corpus. Added as a second, bounded alternative in the same repeated
+            # return-type group (`\{\{...\}\}`, one identifier only -- no nested unbounded
+            # quantifier, same ReDoS discipline as everything else in this rule).
             "func_start": re.compile(
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\("
                 r"|"
                 r"^[ \t]*cp?def[ \t]+(?!(?:class|struct|enum|union|extern|packed|fused)\b)"
                 r"(?:(?:inline|public|readonly|api)[ \t]+){0,3}"
-                r"(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*[ \t]+){0,2}"
+                r"(?:(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|\{\{[ \t]*[A-Za-z_]\w*[ \t]*\}\})[ \t]+){0,2}"
                 r"\*{0,2}[ \t]*\w+[ \t]*\(",
                 re.M,
             ),

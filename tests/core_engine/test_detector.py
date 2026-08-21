@@ -805,6 +805,16 @@ def test_detector_cpp_objc_name_extraction():
     assert hs_detector._extract_name("convertWithOpts'") == "convertWithOpts'"
     assert hs_detector._extract_name("  isWarning") == "isWarning"
 
+    # BUG FIX (2026-08-21, tri-comparison-ledger-sweep follow-up): a Cython Tempita
+    # codegen placeholder in a cdef return type (`cdef {{memviewslice_name}}
+    # *get_slice_from_memview(...)`, cython/MemoryView.pyx) isn't a real body-opening
+    # brace, but the split("{") truncation this function uses couldn't tell the
+    # difference -- it cut the match down to just "cdef ", recording the bogus
+    # function name "cdef" instead of the real "get_slice_from_memview".
+    py_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    assert py_detector._extract_name("cdef {{memviewslice_name}} *get_slice_from_memview(") == "get_slice_from_memview"
+    assert py_detector._extract_name("cdef {{el_type}} TargetFunc(") == "TargetFunc"
+
 
 # ==============================================================================
 # TEST 11: ADVANCED APPSEC SENSORS (PHASE 4)

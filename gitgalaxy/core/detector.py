@@ -5125,6 +5125,15 @@ class StructuralExtractor:
             # a high-speed O(N) string replacement to temporarily mask the namespace operator.
             clean = clean.replace("::", "__NAMESPACE_SCOPE__")
 
+            # BUG FIX (2026-08-21, tri-comparison-ledger-sweep follow-up): a Cython Tempita
+            # codegen placeholder in a cdef return type (`cdef {{memviewslice_name}}
+            # *get_slice_from_memview(...)`, cython/MemoryView.pyx) isn't a real body-opening
+            # brace, but the split("{") truncation below can't tell the difference -- it cut
+            # the match down to just "cdef ", discarding the real name entirely (recorded as
+            # the bogus function "cdef"). Strip the placeholder first so its own `{{`/`}}`
+            # never reaches the brace-truncation step.
+            clean = re.sub(r"\{\{[ \t]*[A-Za-z_]\w*[ \t]*\}\}", "", clean)
+
             # Truncate at parameter lists, body openings, or return type hints
             clean = clean.split("(")[0].split("{")[0].split(":")[0].strip()
 

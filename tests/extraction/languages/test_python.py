@@ -76,6 +76,12 @@ FUNCTION_CASES: dict[str, Any] = {
         ("cdef inline bint TargetFunc(int x):", "TargetFunc"),  # cdef w/ inline modifier + return type
         ("cdef char *TargetFunc(Py_buffer *view):", "TargetFunc"),  # pointer return type
         ("    cdef TargetFunc(self):", "TargetFunc"),  # indented, inside a cdef class body
+        # tri-comparison-ledger-sweep follow-up (2026-08-21): Cython Tempita codegen
+        # placeholder as the return type (cython/MemoryView.pyx's own
+        # get_slice_from_memview -- Cython's source templates specialized copies of
+        # this file per element type). Was the one remaining real function this rule
+        # missed on the crucible corpus once the plain cdef/cpdef branch above shipped.
+        ("cdef {{memviewslice_name}} *TargetFunc(memoryview memview):", "TargetFunc"),
     ],
     "invalid": [
         "class TargetFunc:",  # class decl lookalike
@@ -151,6 +157,14 @@ def test_python_func_start_cdef_redos_immunity():
     assert_redos_immune(func_start, "cdef " + "a " * 100000, timeout_sec=3.0)
     assert_redos_immune(func_start, "cpdef inline " + "b " * 100000 + "(", timeout_sec=3.0)
     assert func_start.search("cdef int TargetFunc(array self) except -1:")
+
+
+def test_python_func_start_cdef_tempita_placeholder_redos_immunity():
+    """ReDoS sweep for the Tempita-placeholder return-type alternative (2026-08-21 follow-up)."""
+    func_start = PYTHON_RULES["func_start"]
+    assert_redos_immune(func_start, "cdef {{" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "cdef {{name}} " * 5000 + "foo(", timeout_sec=3.0)
+    assert func_start.search("cdef {{memviewslice_name}} *TargetFunc(memoryview memview):")
 
 
 def test_python_func_start_known_limitation_no_whitespace_tolerance_between_name_and_generic_bracket():

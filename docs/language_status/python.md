@@ -312,10 +312,10 @@ Section 9 above measures GitGalaxy against one privileged ground truth (`ast`). 
 different: it's a 3-way comparison where *no* tool is privileged (`tests/tools/
 tri_comparison_gatherer.py`/`tri_comparison_reconcile.py`), logged per-discrepancy-shape in
 `docs/self_scan/tri_comparison_ledger.json` and worked through via the
-`tri-comparison-ledger-sweep` skill. As of 2026-08-20, **every currently-reproducing python shape
-is `status: "validated"`** (4 shapes, all investigated directly rather than dispatched — the
-corpus evidence was conclusive enough on first read that a Gemini dispatch wasn't needed for any
-of them).
+`tri-comparison-ledger-sweep` skill. As of 2026-08-21, **every currently-reproducing python shape
+is `status: "validated"`, and GitGalaxy has zero remaining function-recall gaps on this corpus**
+(4 shapes, all investigated directly rather than dispatched — the corpus evidence was conclusive
+enough on first read that a Gemini dispatch wasn't needed for any of them).
 
 **Summary:** 4 shapes investigated, covering ~172 raw occurrences at time of investigation. Two
 confirmed real, fixed engine/tooling defects; two confirmed non-defects (one GitGalaxy correct/
@@ -332,10 +332,25 @@ routed under the `python` extension set) and `numpy/crackfortran.py`.
   `cython/MemoryView.pyx` (52) and `.pxd` (16) were a complete recall gap, ctags-corroborated, 0
   found by GitGalaxy. Fixed with a second `func_start` alternative matching `cdef`/`cpdef`
   signatures (excluding `cdef class`/`struct`/`enum`/`union`/`extern`/`packed`/`fused`, which are
-  declarations, not functions). One narrow residual gap remains, documented not fixed:
-  `get_slice_from_memview`'s return type uses a Cython/Tempita code-generation template
+  declarations, not functions).
+
+  **Follow-up (2026-08-21) — the one function this first fix still missed is now closed too.**
+  `get_slice_from_memview`'s return type uses a Cython Tempita code-generation template
   placeholder (`cdef {{memviewslice_name}} *get_slice_from_memview(...)`), not standard Cython
-  syntax — 1 occurrence, a codegen-template artifact rather than real end-user Cython source.
+  syntax. Closing it took *two* fixes, not one — the first alone wasn't enough:
+  1. Widened `func_start`'s return-type token to also accept a bounded `{{identifier}}`
+     placeholder form.
+  2. That surfaced a **second, independent bug** in the shared `_extract_name` name-normalizer
+     (`detector.py`, used by every language, not just python): its generic `split("{")`
+     truncation (meant to cut a C-style body-opening brace off the raw match) mistook the
+     placeholder's own `{{`/`}}` for that brace, truncating the match down to the bogus name
+     `"cdef"` instead of the real name. This was invisible from the isolated regex alone — it only
+     showed up when checked against the real scan pipeline's actual DB output (the DB was recording
+     a phantom function literally named `cdef` at that line), the same "fix one layer, re-verify
+     against real output before trusting it" discipline this skill's own abap pass established.
+
+  GitGalaxy now finds all 84 real functions in this file — **100% recall vs. ctags, no residual
+  gap.** `python/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]` no longer reproduces.
 
 **Where the comparison tooling itself had a bug (not GitGalaxy, not ctags):**
 - **[#2000](https://github.com/squid-protocol/gitgalaxy/issues/2000) — `tri_comparison_gatherer.py`'s

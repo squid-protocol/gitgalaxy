@@ -101,7 +101,7 @@ None found — `test_dockerfile.py`/`test_dockerfile_strict.py` carry no tests n
 - **#842 — "Extraction hardening: dockerfile"** (epic #813 sub-issue), closed via **PR #959**.
 - **#579 — "Strict parsing tests: `dockerfile` structural signatures"**, closed via **PR #723**.
 - Several dated inline comments in `language_standards.py` (Rule 9's shared-`\b`-boundary fix on `high_risk_execution`/`concurrency`/`ui_framework`; the `immutability_locks` bare-digest-vs-`@sha256:` fix; the hybrid-sensor `re.M` fix so `ipc_rpc_bridges`/etc. could fire on real files at all) reflect bug fixes folded into the same hardening passes rather than separate tracked issues.
-- **This session (2026-08-20), via the `tri-comparison-ledger-sweep` skill's manual-verification fallback** (dockerfile has no tree-sitter/ctags comparison tool): found and fixed a real function-existence recall bug (dockerfile was silently routed to brace-based body slicing despite having no braces — see §9), and filed two follow-on issues (#1972, #1973) plus a scope-gap issue (#1974) found along the way. No PR number yet at doc-write time — see §9 for the fix detail.
+- **2026-08-20/21, via the `tri-comparison-ledger-sweep` skill's manual-verification fallback** (dockerfile has no tree-sitter/ctags comparison tool): found and fixed a real function-existence recall bug (dockerfile was silently routed to brace-based body slicing despite having no braces — PR #1976), then found and fixed three follow-on issues surfaced while re-verifying that fix: **#1972** (`file_data.class_count` sourced from the raw signal instead of the real named list — general, cross-language bug, PR #1980), **#1973** (Mode A's per-function args search unbounded, misattributing unrelated later text as a function's own parameter count — PR #1985), and **#1974** (dockerfile had no named class/build-stage extraction at all — PR #1988). All four are merged; see §9 for the full evidence trail.
 
 ## 8. Real-world evidence (`gitgalaxy-raw-output`)
 
@@ -127,21 +127,18 @@ caught a real bug the first one couldn't see.
 | Signal | Raw regex vs. independent grep | Raw signal vs. pipeline DB (`struct_*` vs. named list) | Feeds a chart badge? |
 |---|---|---|---|
 | `func_start` (RUN/CMD/ENTRYPOINT/HEALTHCHECK) | **71/71 exact match**, zero discrepancies | Pre-fix: **15/71** (79% recall loss). Post-fix: **71/71**. | Yes — `manual_verification.json`'s `function` entry, earns the `**`/badge on **Functions Found** |
-| `class_start` (FROM) | **77/77 exact match**, zero discrepancies | Raw signal matches exactly (77/77) — but **not** the named list (see caveat below) | **No** — see caveat |
-| `args` (ARG, file-scoped) | **73/73 exact match**, zero discrepancies | matches raw signal; no per-function args concept exists for this language (see granularity note) | N/A — `none` granularity, `‡`-marked not badged |
+| `class_start` (FROM) | **77/77 exact match**, zero discrepancies | Pre-#1974: raw signal matched (77/77) but `class_data` was always empty. Post-#1974: `class_data` row counts match exactly too (77/77), with real stage names, not the literal string `FROM`. | Yes (as of #1974) — `manual_verification.json`'s `class` entry, earns the `**`/badge on **Classes Found** |
+| `args` (ARG, file-scoped) | **73/73 exact match**, zero discrepancies | Pre-#1973: several `RUN`/etc. instructions spuriously showed nonzero per-function args (an unrelated later `ARG` line swept into the greedy body span). Post-#1973: every function correctly shows 0 args. | N/A — `none` granularity, `‡`-marked not badged |
 
 **On the "feeds a chart badge?" column:** `docs/self_scan/tri_comparison_chart.svg`'s "Classes
 Found"/"Class Precision" panels read `class_data` (the real named build-stage list) directly via
-`tri_comparison_gatherer.gather_language()`, not the raw `struct_class_start` signal this
-section's regex/grep check verified — so despite the regex itself being 100% accurate, those two
-panels correctly render **empty** for dockerfile today (0 real named classes exist yet, see the
-caveat below), and no `manual_verification.json` `"class"` entry was added for it (an earlier
-draft of this doc's supporting JSON briefly had one claiming 77/77 "verified" — that was wrong:
-it verified the signal, not what those two panels actually measure, and was corrected before
-merge). The regex/signal check is still real, useful evidence (it's what backs `structural_mass`,
-risk scoring, and the "Classes Found" *signal*-level count elsewhere in the pipeline) — it just
-isn't the same claim as "named build-stage extraction is verified correct," which doesn't exist
-yet (#1974).
+`tri_comparison_gatherer.gather_language()`, not the raw `struct_class_start` signal. Before #1974,
+those two panels correctly rendered **empty** for dockerfile (0 real named classes existed at all,
+regardless of the regex's own 100% accuracy) — this doc's own first draft briefly had a `"class"`
+manual-verification entry claiming 77/77 "verified" at that point, which was wrong (it verified the
+signal, not what those panels actually measure) and was corrected before merge. #1974 closed that
+gap for real: `class_data` now genuinely exists and matches, so the `manual_verification.json`
+`"class"` entry added afterward is a real, earned claim, not the earlier mistaken one.
 
 ### The func_start bug (found, fixed, and re-verified this session)
 
@@ -174,20 +171,31 @@ re-blessed.
 
 ### The class_start caveat (not a bug in the regex — a missing feature, filed separately)
 
-`class_start`'s raw signal (`FROM`) is 100% accurate and always matches the pipeline's own
-`struct_class_start` count exactly. But dockerfile is **not** in `detector.py`'s
-`_CLASS_START_NAMED_EXTRACTION_LANGS`, so it never gets a real *named* class (build-stage) list —
-`class_data` stays completely empty for every Dockerfile scanned despite `file_data.class_count`
-reporting a nonzero number. Two distinct issues came out of chasing this down:
-- **#1974** — dockerfile has no named build-stage extraction at all (a missing feature: the
-  current `class_start` regex's only capture group is the literal keyword `FROM`, not the
-  `AS <stage-alias>` name, so implementing this needs a regex change, not just an allowlist
-  addition).
-- **#1972** — separately, `file_data.class_count` was found to be sourced from the raw signal
-  count (`hv[class_idx]`) rather than `len(classes)` (the real named list) in
+`class_start`'s raw signal (`FROM`) was always 100% accurate and matched the pipeline's own
+`struct_class_start` count exactly. But dockerfile was **not** in `detector.py`'s
+`_CLASS_START_NAMED_EXTRACTION_LANGS`, so it never got a real *named* class (build-stage) list —
+`class_data` stayed completely empty for every Dockerfile scanned despite `file_data.class_count`
+reporting a nonzero number. Two distinct issues came out of chasing this down, **both since fixed**:
+- **#1974 (fixed, PR #1988)** — dockerfile had no named build-stage extraction at all. The
+  `class_start` regex's only capture group used to be the literal keyword `FROM` itself, not the
+  `AS <stage-alias>` name; extended it to an alternation shape (group 1 = alias when `AS` is
+  present, group 2 = the bare base-image reference for an unaliased stage — mirroring the existing
+  Fortran/Lua/ABAP convention), added `dockerfile` to `_CLASS_START_NAMED_EXTRACTION_LANGS`, and
+  added it to the flat (never-nested) boundary-resolution skip alongside `abap`. `class_data` now
+  matches `struct_class_start` exactly (77/77) with real stage names, independently re-verified
+  against direct source reading — see the Results table above.
+- **#1972 (fixed, PR #1980)** — separately, `file_data.class_count` was found to be sourced from
+  the raw signal count (`hv[class_idx]`) rather than `len(classes)` (the real named list) in
   `record_keeper.py` — a general bug affecting `class_count`'s accuracy for *every* language, not
-  dockerfile-specific, so it's tracked and will be fixed as its own scoped PR rather than bundled
-  here.
+  dockerfile-specific, fixed as its own scoped PR.
+
+One known, accepted side effect of #1974's alternation-shaped regex: THE LINEAGE EXTRACTOR (a
+different, generic mechanism in `detector.py` that treats any `class_start` match's group 2 as an
+inheritance parent) doesn't know groups 1/2 here are alternation-exclusive, not name-then-parent —
+a bare `FROM <image>` (no alias) sweeps the image reference into that file's `parent_entity`
+metadata. Confirmed pre-existing (fortran's own `class_start` has the identical shape and already
+triggers this for bare `TYPE` declarations in production) — tracked separately as #1983, not
+blocking.
 
 ### Args granularity
 
@@ -199,21 +207,22 @@ anything resembling a formal parameter list. `ARG` is a real, separate, file-sco
 argument, unrelated to any specific instruction's own "signature." A **secondary** finding came
 out of re-verifying the func_start fix: because Mode A's per-function body now legitimately spans
 wider (to the next real instruction), the generic per-function args-count derivation in
-`_calculate_block_metrics` can spuriously attribute an unrelated `ARG` line that happens to fall
-inside that span to the preceding instruction's "parameter count" — filed as **#1973**, a
-pre-existing, generic Mode A characteristic (shared by cobol/fortran/assembly too) that was simply
-far less visible under dockerfile's old, badly-broken routing. It doesn't affect this section's
-function/class *existence* verification, which is unaffected by args attribution.
+`_calculate_block_metrics` was spuriously attributing an unrelated `ARG` line that happened to fall
+inside that span to the preceding instruction's "parameter count" — filed and **fixed as #1973**
+(PR #1985), a pre-existing, generic Mode A characteristic (shared by cobol/fortran, both also
+verified clean afterward) that was simply far less visible under dockerfile's old, badly-broken
+routing. Fixed via `_mode_a_args_window_end`, which bounds the args search to the matched
+instruction's own statement span (following real Dockerfile `\`-continuation and heredoc syntax)
+instead of the whole unbounded greedy block.
 
-The regenerated chart's own "Args Found" panel corroborates this independently: a `none`-
-granularity language's true args count is 0 by construction (nothing a `RUN`/`CMD`/`ENTRYPOINT`/
-`HEALTHCHECK` instruction could legitimately claim as "its own" parameters), yet dockerfile's
-post-fix live reading (`LanguageChartData.gg_args_found`, the sum of every named function's own
-`args` field) shows **52**, not 0 — visible, independent confirmation that #1973's spurious
-ARG-attribution is real and currently live in the pipeline's output, not just a theoretical
-concern found by reading code. Expect this number to drop to 0 once #1973 is fixed.
+The chart's own "Args Found" panel corroborates the fix: pre-#1973 it showed **52** for
+dockerfile (a `none`-granularity language whose true args count is 0 by construction, since no
+`RUN`/`CMD`/`ENTRYPOINT`/`HEALTHCHECK` instruction can legitimately claim "its own" parameters) —
+post-fix it correctly reads **0**, independently confirming the fix in the pipeline's own live
+output, re-verified directly against the real corpus (`SELECT COUNT(*) FROM function_data WHERE
+args > 0` returns 0 across all 4 files).
 
-See `docs/self_scan/manual_verification.json`'s `"dockerfile"` entry (`function` only — see the
-class caveat above for why there's no `class` entry) for the full evidence trail in the same
-format used by abap/agc_assembly, and `docs/self_scan/tri_comparison_chart.svg` for the rendered
-`71/71**` **G** badge this verification earns on the **Functions Found** panel.
+See `docs/self_scan/manual_verification.json`'s `"dockerfile"` entry (`function` and, as of
+#1974, `class` too) for the full evidence trail in the same format used by abap/agc_assembly, and
+`docs/self_scan/tri_comparison_chart.svg` for the rendered `71/71**`/`77/77**` **G** badges this
+verification earns on both the **Functions Found** and **Classes Found** panels.

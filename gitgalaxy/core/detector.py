@@ -1903,6 +1903,29 @@ class StructuralExtractor:
                         # each other, so each one's real body always ends
                         # before the next METHOD/FORM/FUNCTION/MODULE starts.
                         "abap",
+                        # dockerfile/tri-comparison-ledger-sweep manual-verification
+                        # pass: Dockerfile has no ScopeParsingRegistry entry and no
+                        # brace-delimited bodies at all (`RUN`/`CMD`/`ENTRYPOINT`/
+                        # `HEALTHCHECK` instructions end at the next instruction,
+                        # never at a `{`/`}` pair), so it was silently falling
+                        # through to Mode_B_Braces below -- which only "succeeds"
+                        # when a `{` happens to appear by coincidence within the
+                        # bounded search window (most often a LATER, unrelated
+                        # instruction's `${VAR}` template-substitution syntax, or
+                        # occasionally a `RUN`'s own shell `{ ...; }` brace-group
+                        # command). Confirmed via docs/self_scan/moby's daemon.
+                        # Dockerfile (58 raw RUN/ENTRYPOINT matches, only 15 ever
+                        # reached the named function_data list, and even those had
+                        # bogus body boundaries borrowed from an unrelated later
+                        # FROM line's `${VAR}` brace -- e.g. the RUN at line 57 was
+                        # "sliced" using the `{`/`}` from line 62's
+                        # `${GOLANG_IMAGE}`, five lines and one FROM boundary
+                        # later). Mode A's "greedy to the next func_start match"
+                        # body heuristic is a correct, direct fit: each instruction
+                        # (including a `RUN <<EOT ... EOT` heredoc body) really does
+                        # span exactly from its own keyword to the next
+                        # RUN/CMD/ENTRYPOINT/HEALTHCHECK match, or EOF.
+                        "dockerfile",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

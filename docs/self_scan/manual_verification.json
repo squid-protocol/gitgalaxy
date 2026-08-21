@@ -31,6 +31,15 @@
         "verified_at": "2026-08-19",
         "verified_by": "Claude Sonnet 5"
       }
+    },
+    "dockerfile": {
+      "function": {
+        "note": "func_start (RUN/CMD/ENTRYPOINT/HEALTHCHECK) verified two ways across the 4 real Dockerfiles in language-crucible/data/dockerfile/moby/test_targets/ (syscall/generate-files/windows/daemon, 1030 total lines): (1) raw regex applied directly to source text, cross-checked against an independent grep -icE '^[ \\t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)([ \\t\\[]|\\\\)' -- exact match on all 4 files (3/6/4/58). (2) real pipeline DB output (galaxyscope --db-only, file_data.struct_func_start vs. function_count) -- pre-fix, function_count catastrophically undercounted the raw signal (15/1/0/1 vs. the correct 58/6/3/4) because dockerfile had no ScopeParsingRegistry entry and fell through to Mode_B_Braces, which only 'succeeded' when a `{` happened to appear by coincidence within the search window (almost always an unrelated LATER instruction's `${VAR}` template-substitution brace, e.g. RUN at daemon.Dockerfile:57 was 'sliced' using the `{`/`}` from an unrelated FROM line's ${GOLANG_IMAGE} five lines and one build-stage boundary later). Fixed by routing dockerfile to Mode A (_slice_by_labels, the same greedy-to-next-match heuristic already used for abap/cobol/fortran/assembly -- correct here too since Dockerfile instructions have no brace-delimited bodies at all, they simply end at the next instruction). Re-verified post-fix: function_count == struct_func_start exactly on all 4 files (58/6/3/4). Full differential scan against the ~80-repo crucible corpus confirmed the fix generalizes (a 5th real occurrence, shell/brew/Dockerfile, also corrected) with zero unrelated-language diffs. See docs/language_status/dockerfile.md §9 and GitHub issue #1973 for a distinct, narrower follow-on (Mode A's per-function args count can spuriously attribute an unrelated ARG line swept into the greedy body span -- doesn't affect this function-existence verification).",
+        "total": 71,
+        "verified": 71,
+        "verified_at": "2026-08-20",
+        "verified_by": "Claude Sonnet 5"
+      }
     }
   }
 }

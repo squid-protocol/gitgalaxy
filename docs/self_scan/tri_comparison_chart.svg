@@ -16,7 +16,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="812" height="2262"/>
 <text class="title" x="16" y="20">GitGalaxy Structural Extraction: Tri-Comparison vs. Tree-sitter and ctags</text>
-<text class="subtitle" x="16" y="36">2026-08-20 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
+<text class="subtitle" x="16" y="36">2026-08-21 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
 <text class="scope-note" x="16" y="52">No tool is ground truth. Found-count panels are unranked raw counts (no badge) -- a shared "how many are real" denominator turned out as corruptible as any one tool's own noise. Precision is each tool's own claims vs. what another tool corroborated.</text>
 <text class="scope-note" x="16" y="64">Bar groups vary 1-3 by language's tool coverage -- order is always GitGalaxy, tree-sitter, ctags. css/html class panels are out of scope by design (selectors, not OOP classes).</text>
 <text class="scope-note" x="16" y="76">`*` marks EVERY tool's label in a cell with any unvalidated disagreement, not just GitGalaxy's -- not a verdict either way. Badge = the tool that scored strictly highest on a RANKED, UN-disputed panel (blank on a tie, a disputed cell, or a found-count panel).</text>
@@ -304,15 +304,17 @@
 <text class="lang-label" x="20" y="671.5">dockerfile</text>
 <rect class="bar-track" x="154" y="651" width="88" height="34" rx="2"/>
 <rect x="154" y="651" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="659">17</text>
+<text class="bar-value-label" x="198.0" y="659">71</text>
 <rect class="bar-track" x="286" y="651" width="88" height="34" rx="2"/>
-<rect x="286" y="651" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="659">0/17</text>
+<rect x="286" y="651" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="659">71/71**</text>
+<circle cx="390.0" cy="668.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="671.0">G</text>
 <rect class="bar-track" x="418" y="651" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="651" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="651" width="88" height="34" rx="2"/>
 <rect x="682" y="651" width="88" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="659">0‡</text>
+<text class="bar-value-label" x="726.0" y="659">52‡</text>
 <rect class="stripe" x="16" y="690" width="780" height="44"/>
 <text class="lang-label" x="20" y="715.5">embedded_python</text>
 <text class="awaiting" x="154" y="715.5">awaiting language-crucible corpus</text>
@@ -1067,17 +1069,17 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2750</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 26 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 27 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 8 (31%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 9 (33%)</text>
 <circle cx="209.6" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="209.6" y="2187">T</text>
-<text class="legend-label" x="222.6" y="2188">tree-sitter best: 2 (8%)</text>
+<text class="legend-label" x="222.6" y="2188">tree-sitter best: 2 (7%)</text>
 <circle cx="402.4" cy="2184" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="402.4" y="2187">C</text>
 <text class="legend-label" x="415.4" y="2188">ctags best: 0 (0%)</text>
 <circle cx="558.0" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="571.0" y="2188">Ties: 16 (62%)</text>
+<text class="legend-label" x="571.0" y="2188">Ties: 16 (59%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

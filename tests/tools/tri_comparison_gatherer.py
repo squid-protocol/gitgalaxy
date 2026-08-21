@@ -312,7 +312,7 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
     by depth-tracking the split so an internal comma doesn't inflate the count.
 
     Splits into segments first, THEN counts real parameters -- deliberately not "comma count +
-    1", after three real bugs found by spot-checking flagged "disagreements" against the actual
+    1", after four real bugs found by spot-checking flagged "disagreements" against the actual
     ctags output before trusting them:
       1. A trailing comma before the closing paren (`def f(a, b, )` -- real, common Python/black
          formatting) left a phantom empty final segment that "comma count + 1" counted as a
@@ -326,18 +326,97 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
          special-case this (see `_count_top_level_args`'s own docstring in detector.py), this
          function didn't. `PyEval_GetLocals(void)` in cpython/ceval.c confirmed both the raw ctags
          signature text (`(void)`) and the miscount (1, not 0) directly before this was fixed.
+      4. A quoted string-literal default value containing its own comma (`def markoutercomma(line,
+         comma=','):`, numpy/crackfortran.py) was being split like any other top-level comma --
+         the depth tracker only understood bracket nesting, not string-literal boundaries, so the
+         literal `','` character inside the quotes produced a phantom 3rd segment (real param
+         count is 2). Confirmed via `python/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]`
+         (1 occurrence, tri_comparison_ledger.json) -- GitGalaxy and tree-sitter both already
+         correctly report 2; only this counting function's split was wrong. Double-quote tracking
+         (unbounded, backslash-escape aware -- a real string can be arbitrarily long) suppresses
+         comma-splitting and bracket-depth changes alike while inside one, mirroring how
+         `detector.py`'s own real engine shields string literals before running a structural regex
+         over source text.
+
+         A single-quote `'` is deliberately NOT treated the same unbounded way: Rust's lifetime
+         syntax (`&'a str`, `Context<'_>`, bare `'static`) is also a single apostrophe, but one
+         with NO closing quote at all -- scanning "until the next `'`" swallowed everything up to
+         some LATER, unrelated lifetime's own apostrophe as one giant fake "string", silently
+         eating the real comma between them. This regressed `rust/function/args/
+         agree[ctags,gitgalaxy]_vs[tree_sitter]` the first time this fix shipped (`poll_read(self:
+         Pin<&mut Self>, cx: &mut Context<'_>, buf: &mut ReadBuf<'_>)`, tokio/tokio_named_pipe.rs
+         -- 3 real params undercounted to 2 once the first `'_` was treated as opening a string
+         that only "closed" 23 characters later at the second `'_`; a first attempt at widening
+         the lookahead to 24 chars (generous enough for an escaped-Unicode char literal like
+         `'\\u{1F600}'`) still wasn't tight enough -- both this case (distance 23) and a second
+         synthetic lifetime case (distance 12) needed excluding, so the bound is deliberately just
+         `_CHAR_LITERAL_LOOKAHEAD = 3`: enough for an unescaped single character (`','`, distance
+         2) or a short 2-char escape (`'\\n'`, `'\\''`), but nowhere near enough for even the
+         shortest realistic lifetime-to-next-apostrophe gap seen in real corpus code. A longer
+         escape (Unicode, e.g. `'\\u{1F600}'`) would fall outside this bound and simply not be
+         treated as a string -- an acceptable, narrower trade-off given no ledger shape has ever
+         actually flagged one, versus the confirmed, real lifetime regression a looser bound
+         reintroduces every time). Otherwise the apostrophe is left alone as ordinary text, same
+         as any other non-quote character.
     A reconciliation-side counting bug and a genuine cross-tool disagreement produce the
     identical symptom (numbers don't match) -- every flagged args-mismatch is worth a raw-
-    signature spot check like this one before it's trusted as real, not just this function.
+    signature spot check like this one before it's trusted as real, not just this function, and a
+    fix to shared logic like this one is worth re-checking against every OTHER language that
+    shares it, not just the one language that originally flagged it.
     """
     if signature is None:
         return None
     text = signature.strip()
     if not text.startswith("("):
         return None
+
+    _CHAR_LITERAL_LOOKAHEAD = 3
+
+    def _scan(s: str) -> list[tuple[str, bool]]:
+        """Returns (char, in_string) for every char in `s`, tracking double-quoted string literals
+        (unbounded, backslash-escape aware) and single-quoted char literals (bounded lookahead --
+        see the docstring's bug #4 note on why an unbounded scan is wrong for `'`, e.g. Rust
+        lifetimes) so callers can skip bracket/comma handling while inside one."""
+        out = []
+        quote_char: Optional[str] = None
+        escape = False
+        i = 0
+        n = len(s)
+        while i < n:
+            ch = s[i]
+            in_string = quote_char is not None
+            if in_string:
+                out.append((ch, True))
+                if escape:
+                    escape = False
+                elif ch == "\\":
+                    escape = True
+                elif ch == quote_char:
+                    quote_char = None
+                i += 1
+                continue
+            if ch == '"':
+                quote_char = ch
+                out.append((ch, False))
+                i += 1
+                continue
+            if ch == "'":
+                closer = s.find("'", i + 1, i + 1 + _CHAR_LITERAL_LOOKAHEAD)
+                if closer != -1:
+                    quote_char = ch
+                out.append((ch, False))
+                i += 1
+                continue
+            out.append((ch, False))
+            i += 1
+        return out
+
+    scanned = _scan(text)
     depth = 0
     close_idx = None
-    for i, ch in enumerate(text):
+    for i, (ch, in_string) in enumerate(scanned):
+        if in_string:
+            continue
         if ch in "([{<":
             depth += 1
         elif ch in ")]}>":
@@ -353,7 +432,10 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
 
     depth = 0
     segments = [""]
-    for ch in inner:
+    for ch, in_string in _scan(inner):
+        if in_string:
+            segments[-1] += ch
+            continue
         if ch in "([{<":
             depth += 1
         elif ch in ")]}>":

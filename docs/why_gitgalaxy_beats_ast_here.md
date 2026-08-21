@@ -119,6 +119,15 @@ per-occurrence line-based pairing (previously, collapsing same-named occurrences
 slot per file masked this almost entirely) — every one of the resulting "extra" (GitGalaxy found,
 tree-sitter didn't) occurrences on this corpus traces to this one file and this one cause.
 
+**The same mechanism, one level up (2026-08-20, tri-comparison-ledger-sweep):** tree-sitter-python
+doesn't just lose track of scope *inside* a `cdef class` block, it fails to recognize the `cdef
+class` declaration itself as a class at all — `tree_sitter_accuracy_audit`'s own walk over
+`MemoryView.pyx` reports 0 class nodes for the file, missing all 4 (`array`, `Enum`, `memoryview`,
+`_memoryviewslice`), while both GitGalaxy's `class_start` regex and ctags correctly identify all 4
+by name (`python/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`,
+`tri_comparison_ledger.json`). Same underlying cause as the function-recall case above (the base
+grammar has no concept of the `cdef class` construct at all), just one syntactic level higher.
+
 ## Claim 3: function recall when a grammar's own parse error cascades into unrelated real code
 
 For a file where the grammar hits a genuine parse error on some in-scope, valid construct it

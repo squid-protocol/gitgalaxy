@@ -398,8 +398,28 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Anchors executable logic. Steps safely over decorators.
             # RULE 11 FIX (epic #813/#818): see args' comment above -- same PEP 695 nested-bracket
             # gap, same fix (widened generic-parameter step-over).
+            # tri-comparison-ledger-sweep (2026-08-20): second alternative adds Cython's
+            # `cdef`/`cpdef` module-level function definitions (`.pyx`/`.pxd`/`.pxi` are
+            # deliberately routed to "python" -- see `extensions` above -- for exactly this
+            # comprehensive-Cython-surface reason). These have no `def` keyword at all
+            # (`cdef int _allocate_buffer(array self) except -1:`), so the first alternative
+            # never saw them -- confirmed as a real, complete recall gap (68 real functions
+            # across `cython/MemoryView.pyx`/`.pxd` in the crucible corpus, ctags-corroborated,
+            # 0 found by GitGalaxy). Excludes `cdef class`/`struct`/`enum`/`union`/`extern`/
+            # `packed`/`fused` up front (declarations, not functions -- `class_start` above
+            # already owns `cdef class`) and tolerates up to 2 return-type words plus an
+            # optional pointer star before the name (`cdef char *pybuffer_index(...)`), mirroring
+            # the same bounded-repetition discipline as the decorator step-over rather than an
+            # unbounded quantifier. A bare `cdef`-prefixed variable/attribute declaration (no
+            # trailing `(` on the same line, e.g. `cdef bint broadcasting`) never matches either
+            # branch since both require the literal `(` to close the match.
             "func_start": re.compile(
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\(",
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\("
+                r"|"
+                r"^[ \t]*cp?def[ \t]+(?!(?:class|struct|enum|union|extern|packed|fused)\b)"
+                r"(?:(?:inline|public|readonly|api)[ \t]+){0,3}"
+                r"(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*[ \t]+){0,2}"
+                r"\*{0,2}[ \t]*\w+[ \t]*\(",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

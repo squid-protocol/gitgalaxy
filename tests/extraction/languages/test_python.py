@@ -63,11 +63,28 @@ FUNCTION_CASES: dict[str, Any] = {
             "@pytest.mark.parametrize('x', [1, 2, 3])\ndef test_TargetFunc(x):",
             "test_TargetFunc",
         ),  # pytest parametrize decorator
+        # tri-comparison-ledger-sweep (2026-08-20): Cython `cdef`/`cpdef` module-level
+        # function definitions -- `.pyx`/`.pxd`/`.pxi` are routed to "python" (see
+        # LANGUAGE_DEFINITIONS["python"]["extensions"]), and these have no `def`
+        # keyword at all, so they were a complete recall gap (68 real occurrences
+        # across cython/MemoryView.pyx + .pxd in the crucible corpus, confirmed
+        # against ctags -- see docs/self_scan/tri_comparison_ledger.json).
+        ("cdef TargetFunc(self):", "TargetFunc"),  # bare cdef, no return type
+        ("cdef int TargetFunc(array self) except -1:", "TargetFunc"),  # cdef w/ return type + except clause
+        ("cpdef TargetFunc(int x):", "TargetFunc"),  # bare cpdef
+        ("cpdef bint TargetFunc(int x):", "TargetFunc"),  # cpdef w/ return type
+        ("cdef inline bint TargetFunc(int x):", "TargetFunc"),  # cdef w/ inline modifier + return type
+        ("cdef char *TargetFunc(Py_buffer *view):", "TargetFunc"),  # pointer return type
+        ("    cdef TargetFunc(self):", "TargetFunc"),  # indented, inside a cdef class body
     ],
     "invalid": [
         "class TargetFunc:",  # class decl lookalike
         "TargetFunc = 5",  # assignment lookalike
         "if TargetFunc():",  # call inside condition
+        "cdef class TargetFunc:",  # Cython class decl, not a function -- class_start's job
+        "cdef extern from \"header.h\":",  # Cython extern block, not a function
+        "cdef bint TargetFunc",  # Cython variable/attribute decl, no trailing "(" on this line
+        "cdef int TargetFunc[128]",  # Cython array decl, "[" not "("
     ],
     "pathological": [
         (
@@ -126,6 +143,14 @@ def test_python_func_start_redos_immunity():
     func_start = PYTHON_RULES["func_start"]
     assert_redos_immune(func_start, "def Foo[" + "a" * 100000, timeout_sec=3.0)
     assert func_start.search("def Foo[T: Sequence[int]](x: T) -> T:")
+
+
+def test_python_func_start_cdef_redos_immunity():
+    """ReDoS sweep for the cdef/cpdef branch's bounded return-type/modifier repetition."""
+    func_start = PYTHON_RULES["func_start"]
+    assert_redos_immune(func_start, "cdef " + "a " * 100000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "cpdef inline " + "b " * 100000 + "(", timeout_sec=3.0)
+    assert func_start.search("cdef int TargetFunc(array self) except -1:")
 
 
 def test_python_func_start_known_limitation_no_whitespace_tolerance_between_name_and_generic_bracket():

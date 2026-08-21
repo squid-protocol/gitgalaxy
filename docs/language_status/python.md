@@ -305,3 +305,69 @@ the same style of ground-truth diff across most of GitGalaxy's other 45 signatur
 languages. Genuinely no practical AST ground truth exists for the legacy/esoteric languages
 (COBOL, JCL, Fortran, Assembly, ABAP, MATLAB, LiveCode, Apex) — the same reason GitGalaxy exists
 for them in the first place.
+
+## 10. Tri-comparison findings (GitGalaxy vs. tree-sitter vs. ctags)
+
+Section 9 above measures GitGalaxy against one privileged ground truth (`ast`). This section is
+different: it's a 3-way comparison where *no* tool is privileged (`tests/tools/
+tri_comparison_gatherer.py`/`tri_comparison_reconcile.py`), logged per-discrepancy-shape in
+`docs/self_scan/tri_comparison_ledger.json` and worked through via the
+`tri-comparison-ledger-sweep` skill. As of 2026-08-20, **every currently-reproducing python shape
+is `status: "validated"`** (4 shapes, all investigated directly rather than dispatched — the
+corpus evidence was conclusive enough on first read that a Gemini dispatch wasn't needed for any
+of them).
+
+**Summary:** 4 shapes investigated, covering ~172 raw occurrences at time of investigation. Two
+confirmed real, fixed engine/tooling defects; two confirmed non-defects (one GitGalaxy correct/
+tree-sitter structurally can't, one GitGalaxy+tree-sitter correct/verification-tooling bug, not a
+ctags defect). All four traced to just two files: `cython/MemoryView.pyx`/`.pxd` (Cython, deliberately
+routed under the `python` extension set) and `numpy/crackfortran.py`.
+
+**Where GitGalaxy had a real, fixed gap:**
+- **[#1999](https://github.com/squid-protocol/gitgalaxy/issues/1999) — Cython `cdef`/`cpdef`
+  module-level functions were invisible to `func_start`.** `.pyx`/`.pxd`/`.pxi` are deliberately
+  routed under `python`'s extension set for comprehensive Cython coverage, but `func_start` only
+  ever matched the literal `def` keyword — Cython's `cdef int _allocate_buffer(array self) except
+  -1:` style function definitions have no `def` at all. 68 real functions across
+  `cython/MemoryView.pyx` (52) and `.pxd` (16) were a complete recall gap, ctags-corroborated, 0
+  found by GitGalaxy. Fixed with a second `func_start` alternative matching `cdef`/`cpdef`
+  signatures (excluding `cdef class`/`struct`/`enum`/`union`/`extern`/`packed`/`fused`, which are
+  declarations, not functions). One narrow residual gap remains, documented not fixed:
+  `get_slice_from_memview`'s return type uses a Cython/Tempita code-generation template
+  placeholder (`cdef {{memviewslice_name}} *get_slice_from_memview(...)`), not standard Cython
+  syntax — 1 occurrence, a codegen-template artifact rather than real end-user Cython source.
+
+**Where the comparison tooling itself had a bug (not GitGalaxy, not ctags):**
+- **[#2000](https://github.com/squid-protocol/gitgalaxy/issues/2000) — `tri_comparison_gatherer.py`'s
+  ctags args counter miscounted a comma inside a quoted string-literal default value.**
+  `markoutercomma(line, comma=','):` in `numpy/crackfortran.py` has 2 real parameters; GitGalaxy
+  and tree-sitter both already correctly reported 2, and ctags' own raw `signature:` text was also
+  correct verbatim — only this repo's own verification tooling mis-split it into 3 by treating the
+  literal comma inside `','` as a second top-level separator. Fixed with bounded quote-tracking
+  (unbounded for `"`, a short 3-character lookahead for `'` specifically because Rust's lifetime
+  syntax — `&'a str`, `Context<'_>` — is also a bare apostrophe but with *no* closing quote at all;
+  a first attempt at unbounded/generous single-quote tracking silently regressed a real,
+  previously-clean rust shape by treating two unrelated lifetimes many characters apart as one
+  giant fake string, swallowing a real comma between them — caught by re-running the full
+  reconciliation across every language after the fix, not just python, before trusting it).
+
+**Where GitGalaxy wins outright, tree-sitter structurally can't (already documented in
+`docs/why_gitgalaxy_beats_ast_here.md`, Claim 2):**
+- tree-sitter-python has no concept of Cython's `cdef class` syntax at all — it fails to recognize
+  the `cdef class` declaration as a class (0/4 real classes found in `MemoryView.pyx`:  `array`,
+  `Enum`, `memoryview`, `_memoryviewslice`), and separately loses track of scope at each `cdef
+  class` boundary, undercounting real `def`-based methods inside them (`__cinit__`, `__dealloc__`,
+  `__getbuffer__`, etc. — 0 found vs. GitGalaxy+ctags' full recall). Both are the identical root
+  cause (the grammar has no concept of the dialect at all) at two different syntactic levels — no
+  GitGalaxy fix applicable, this is tree-sitter-python's own structural limitation.
+
+**A schema-asymmetry gotcha surfaced along the way, not a defect:** GitGalaxy's own `class_data`
+table has no `start_line` column (`tri_comparison_gatherer.py`'s own module docstring already
+documents this), so class-name matching against GitGalaxy is name-only, never line-disambiguated.
+This is why a ledger example can show a `None` "reading" for GitGalaxy on a class shape even when
+GitGalaxy correctly found that class by name — the `None` is the (structurally absent) line
+number field, not a miss indicator. Worth knowing before treating a `None` reading as evidence of
+anything on its own.
+
+Full record: `docs/self_scan/tri_comparison_ledger.json` (filter keys starting `python/`) and
+`docs/self_scan/tri_comparison_points_of_interest.md`.

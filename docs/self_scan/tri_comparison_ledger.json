@@ -13,7 +13,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "agc_assembly",
-      "last_reconciled_at": "2026-08-21T02:38:30Z",
+      "last_reconciled_at": "2026-08-21T03:35:31Z",
       "last_seen_count": 215,
       "last_seen_examples": [
         {
@@ -118,7 +118,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "agc_assembly",
-      "last_reconciled_at": "2026-08-21T02:38:30Z",
+      "last_reconciled_at": "2026-08-21T03:35:31Z",
       "last_seen_count": 37,
       "last_seen_examples": [
         {
@@ -221,7 +221,7 @@
       "investigated_at": "2026-08-20T22:17:39Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch needed -- root cause was immediately clear from source)",
       "language": "apex",
-      "last_reconciled_at": "2026-08-21T02:38:32Z",
+      "last_reconciled_at": "2026-08-21T03:35:32Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -260,7 +260,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "assembly",
-      "last_reconciled_at": "2026-08-21T02:38:35Z",
+      "last_reconciled_at": "2026-08-21T03:35:34Z",
       "last_seen_count": 26,
       "last_seen_examples": [
         {
@@ -363,7 +363,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "assembly",
-      "last_reconciled_at": "2026-08-21T02:38:35Z",
+      "last_reconciled_at": "2026-08-21T03:35:34Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -443,7 +443,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
@@ -557,7 +557,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -662,7 +662,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 525,
       "last_seen_examples": [
         {
@@ -776,7 +776,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed) -- corrected after cross-referencing #1837",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -809,7 +809,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -842,7 +842,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -959,7 +959,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -1010,7 +1010,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -1097,7 +1097,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -1150,7 +1150,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -1210,7 +1210,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-21T02:38:40Z",
+      "last_reconciled_at": "2026-08-21T03:35:39Z",
       "last_seen_count": 74,
       "last_seen_examples": [
         {
@@ -1325,7 +1325,7 @@
       "investigated_at": "2026-08-19",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, self-corrected and reviewed by claude-sonnet-5",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-21T02:38:45Z",
+      "last_reconciled_at": "2026-08-21T03:35:44Z",
       "last_seen_count": 19,
       "last_seen_examples": [
         {
@@ -1428,7 +1428,7 @@
       "investigated_at": "2026-08-19",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed by claude-sonnet-5",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-21T02:38:45Z",
+      "last_reconciled_at": "2026-08-21T03:35:44Z",
       "last_seen_count": 136,
       "last_seen_examples": [
         {
@@ -1531,7 +1531,7 @@
       "investigated_at": "2026-08-19",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed by claude-sonnet-5",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-21T02:38:45Z",
+      "last_reconciled_at": "2026-08-21T03:35:44Z",
       "last_seen_count": 43,
       "last_seen_examples": [
         {
@@ -1635,7 +1635,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1677,7 +1677,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 95,
       "last_seen_examples": [
         {
@@ -1791,7 +1791,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -1905,7 +1905,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -2019,7 +2019,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -2133,7 +2133,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2165,7 +2165,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2198,7 +2198,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -2294,7 +2294,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2327,7 +2327,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 1074,
       "last_seen_examples": [
         {
@@ -2441,7 +2441,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 1097,
       "last_seen_examples": [
         {
@@ -2555,7 +2555,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 62,
       "last_seen_examples": [
         {
@@ -2669,7 +2669,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T02:38:49Z",
+      "last_reconciled_at": "2026-08-21T03:35:49Z",
       "last_seen_count": 98,
       "last_seen_examples": [
         {
@@ -2783,7 +2783,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2834,7 +2834,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -2903,7 +2903,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -2981,7 +2981,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3014,7 +3014,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -3101,7 +3101,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -3160,7 +3160,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3193,7 +3193,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 271,
       "last_seen_examples": [
         {
@@ -3307,7 +3307,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -3367,7 +3367,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3400,7 +3400,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 107,
       "last_seen_examples": [
         {
@@ -3514,7 +3514,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -3628,7 +3628,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-08-21T02:38:55Z",
+      "last_reconciled_at": "2026-08-21T03:35:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3661,7 +3661,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "css",
-      "last_reconciled_at": "2026-08-21T02:38:57Z",
+      "last_reconciled_at": "2026-08-21T03:35:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3710,7 +3710,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T02:39:01Z",
+      "last_reconciled_at": "2026-08-21T03:36:01Z",
       "last_seen_count": 216,
       "last_seen_examples": [
         {
@@ -3813,7 +3813,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T02:39:01Z",
+      "last_reconciled_at": "2026-08-21T03:36:01Z",
       "last_seen_count": 37,
       "last_seen_examples": [
         {
@@ -3916,7 +3916,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T02:39:01Z",
+      "last_reconciled_at": "2026-08-21T03:36:01Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -4020,7 +4020,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -4115,7 +4115,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, direct investigation (surfaced while re-blessing the tri-comparison chart after #1973/#1985)",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4147,7 +4147,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4180,7 +4180,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -4294,7 +4294,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4336,7 +4336,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-08-21T02:39:06Z",
+      "last_reconciled_at": "2026-08-21T03:36:06Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4378,7 +4378,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-08-21T02:39:09Z",
+      "last_reconciled_at": "2026-08-21T03:36:09Z",
       "last_seen_count": 75,
       "last_seen_examples": [
         {
@@ -4492,7 +4492,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -4604,7 +4604,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -4709,7 +4709,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 38,
       "last_seen_examples": [
         {
@@ -4823,7 +4823,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 103,
       "last_seen_examples": [
         {
@@ -4937,7 +4937,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 69,
       "last_seen_examples": [
         {
@@ -5051,7 +5051,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5092,7 +5092,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5132,7 +5132,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T02:39:12Z",
+      "last_reconciled_at": "2026-08-21T03:36:12Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {
@@ -5246,7 +5246,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -5360,7 +5360,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -5474,7 +5474,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -5587,7 +5587,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5620,7 +5620,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5671,7 +5671,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 315,
       "last_seen_examples": [
         {
@@ -5785,7 +5785,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-21T02:39:15Z",
+      "last_reconciled_at": "2026-08-21T03:36:15Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5836,7 +5836,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 96,
       "last_seen_examples": [
         {
@@ -5950,7 +5950,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -6037,7 +6037,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6079,7 +6079,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
@@ -6193,7 +6193,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 150,
       "last_seen_examples": [
         {
@@ -6307,7 +6307,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 266,
       "last_seen_examples": [
         {
@@ -6421,7 +6421,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 182,
       "last_seen_examples": [
         {
@@ -6535,7 +6535,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-21T02:39:18Z",
+      "last_reconciled_at": "2026-08-21T03:36:17Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -6649,7 +6649,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-21T02:39:20Z",
+      "last_reconciled_at": "2026-08-21T03:36:20Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6700,7 +6700,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-21T02:39:20Z",
+      "last_reconciled_at": "2026-08-21T03:36:20Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -6814,7 +6814,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-21T02:39:20Z",
+      "last_reconciled_at": "2026-08-21T03:36:20Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6846,7 +6846,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "claude-sonnet-5 (direct source read, no dispatch needed)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-21T02:39:26Z",
+      "last_reconciled_at": "2026-08-21T03:36:26Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -6901,7 +6901,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed by claude-sonnet-5",
       "language": "m4",
-      "last_reconciled_at": "2026-08-21T02:39:26Z",
+      "last_reconciled_at": "2026-08-21T03:36:26Z",
       "last_seen_count": 76,
       "last_seen_examples": [
         {
@@ -7004,7 +7004,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "claude-sonnet-5 (direct source read, no dispatch needed)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-21T02:39:26Z",
+      "last_reconciled_at": "2026-08-21T03:36:26Z",
       "last_seen_count": 36,
       "last_seen_examples": [
         {
@@ -7108,7 +7108,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "makefile",
-      "last_reconciled_at": "2026-08-21T02:39:28Z",
+      "last_reconciled_at": "2026-08-21T03:36:27Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7139,7 +7139,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "matlab",
-      "last_reconciled_at": "2026-08-21T02:39:29Z",
+      "last_reconciled_at": "2026-08-21T03:36:29Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7172,7 +7172,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-21T02:39:31Z",
+      "last_reconciled_at": "2026-08-21T03:36:31Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {
@@ -7286,7 +7286,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-21T02:39:31Z",
+      "last_reconciled_at": "2026-08-21T03:36:31Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -7400,7 +7400,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-21T02:39:31Z",
+      "last_reconciled_at": "2026-08-21T03:36:31Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7433,7 +7433,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-21T02:39:31Z",
+      "last_reconciled_at": "2026-08-21T03:36:31Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7475,7 +7475,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7508,7 +7508,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7539,7 +7539,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 64,
       "last_seen_examples": [
         {
@@ -7653,7 +7653,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7740,7 +7740,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7827,7 +7827,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7860,7 +7860,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-21T02:39:37Z",
+      "last_reconciled_at": "2026-08-21T03:36:37Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -7974,7 +7974,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-21T02:39:41Z",
+      "last_reconciled_at": "2026-08-21T03:36:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8007,7 +8007,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-21T02:39:41Z",
+      "last_reconciled_at": "2026-08-21T03:36:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8040,7 +8040,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-21T02:39:41Z",
+      "last_reconciled_at": "2026-08-21T03:36:41Z",
       "last_seen_count": 68,
       "last_seen_examples": [
         {
@@ -8154,7 +8154,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-21T02:39:44Z",
+      "last_reconciled_at": "2026-08-21T03:36:44Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -8239,7 +8239,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-21T02:39:44Z",
+      "last_reconciled_at": "2026-08-21T03:36:44Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -8308,7 +8308,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-21T02:39:44Z",
+      "last_reconciled_at": "2026-08-21T03:36:44Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8341,7 +8341,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-21T02:39:44Z",
+      "last_reconciled_at": "2026-08-21T03:36:44Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -8452,10 +8452,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:45Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T03:23:52Z",
+      "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-21T02:39:53Z",
+      "last_reconciled_at": "2026-08-21T03:36:53Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -8496,10 +8496,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Extends Claim 2 (docs/why_gitgalaxy_beats_ast_here.md) one syntactic level up: tree-sitter-python doesn't just lose track of scope inside a cdef class block, it fails to recognize the 'cdef class' declaration itself as a class at all -- 0 class nodes reported for cython/MemoryView.pyx, missing all 4 real classes (array, Enum, memoryview, _memoryviewslice). GitGalaxy's class_start regex and ctags both correctly identify all 4 by name, confirmed via direct gather_language() check. Note: GitGalaxy's own class_data schema has no start_line column (documented in tri_comparison_gatherer.py's own module docstring), so the ledger's stored example shows a None 'reading' for GitGalaxy on this shape -- that's the (structurally absent) line number field, not an indication GitGalaxy missed the class; by NAME it matches ctags exactly. No GitGalaxy fix needed -- tree-sitter-python grammar limitation. docs/why_gitgalaxy_beats_ast_here.md's Claim 2 updated with this class-level evidence in the same PR."
     },
     "python/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -8512,10 +8512,10 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:45Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T03:23:52Z",
+      "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-21T02:39:53Z",
+      "last_reconciled_at": "2026-08-21T03:36:53Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8529,10 +8529,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "markoutercomma(line, comma=','): in numpy/crackfortran.py has exactly 2 real parameters; GitGalaxy and tree-sitter both correctly report 2. ctags' own raw signature text is ALSO correct verbatim ('(line, comma=\\',\\')', confirmed via `ctags --fields=+S -x`) -- the '3' was never a ctags defect. The bug was in this repo's own verification tooling: tri_comparison_gatherer.py's _count_ctags_signature_params split on top-level commas tracking bracket depth but not string-literal boundaries, so the literal comma inside the ','  default-value string was miscounted as a second separator. FIXED in the same pass (issue #2000): added quote-tracking (with backslash-escape awareness) to both depth-scan loops. Verified via direct spot-checks against this exact case plus several synthetic quoted-comma cases. No golden-master reblessing needed -- gatherer.py isn't part of the shipped engine. This shape should no longer reproduce on the next reconciliation run (ctags will now correctly read 2, matching GitGalaxy/tree-sitter)."
     },
     "python/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -8545,204 +8545,18 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:45Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T03:23:52Z",
+      "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-21T02:39:53Z",
-      "last_seen_count": 32,
-      "last_seen_examples": [
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__cinit__",
-          "readings": {
-            "ctags": 147,
-            "gitgalaxy": 147,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__cinit__",
-          "readings": {
-            "ctags": 361,
-            "gitgalaxy": 361,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__getbuffer__",
-          "readings": {
-            "ctags": 199,
-            "gitgalaxy": 199,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__getbuffer__",
-          "readings": {
-            "ctags": 552,
-            "gitgalaxy": 552,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__setitem__",
-          "readings": {
-            "ctags": 253,
-            "gitgalaxy": 253,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__setitem__",
-          "readings": {
-            "ctags": 440,
-            "gitgalaxy": 440,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__dealloc__",
-          "readings": {
-            "ctags": 226,
-            "gitgalaxy": 226,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__dealloc__",
-          "readings": {
-            "ctags": 390,
-            "gitgalaxy": 390,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__dealloc__",
-          "readings": {
-            "ctags": 947,
-            "gitgalaxy": 947,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pyx",
-          "name": "__getitem__",
-          "readings": {
-            "ctags": 250,
-            "gitgalaxy": 250,
-            "tree_sitter": null
-          }
-        }
-      ],
-      "metric": "existence",
-      "status": "unvalidated",
-      "still_reproduces": true,
-      "symbol_type": "function",
-      "verdict": null
-    },
-    "python/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
-      "agreeing_tools": [
-        "ctags"
-      ],
-      "credit_tools": [],
-      "debit_tools": [],
-      "dissenting_tools": [
-        "gitgalaxy",
-        "tree_sitter"
-      ],
-      "first_seen_at": "2026-08-18T22:44:45Z",
-      "investigated_at": null,
-      "investigated_by": null,
-      "language": "python",
-      "last_reconciled_at": "2026-08-21T02:39:53Z",
-      "last_seen_count": 68,
+      "last_reconciled_at": "2026-08-21T03:36:53Z",
+      "last_seen_count": 99,
       "last_seen_examples": [
         {
           "file_path": "cython/MemoryView.pxd",
-          "name": "_get_base",
+          "name": "memoryview_fromslice",
           "readings": {
-            "ctags": 85,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "array_cwrapper",
-          "readings": {
-            "ctags": 53,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "assign_item_from_object",
-          "readings": {
-            "ctags": 84,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "convert_item_to_object",
-          "readings": {
-            "ctags": 83,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "get_item_pointer",
-          "readings": {
-            "ctags": 77,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "get_memview",
-          "readings": {
-            "ctags": 50,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "is_slice",
-          "readings": {
-            "ctags": 78,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "memoryview_check",
-          "readings": {
-            "ctags": 91,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "cython/MemoryView.pxd",
-          "name": "memoryview_copy_contents",
-          "readings": {
-            "ctags": 105,
-            "gitgalaxy": null,
+            "ctags": 98,
+            "gitgalaxy": 98,
             "tree_sitter": null
           }
         },
@@ -8751,16 +8565,123 @@
           "name": "memoryview_cwrapper",
           "readings": {
             "ctags": 88,
+            "gitgalaxy": 88,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "setitem_slice_assignment",
+          "readings": {
+            "ctags": 79,
+            "gitgalaxy": 79,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "setitem_slice_assign_scalar",
+          "readings": {
+            "ctags": 80,
+            "gitgalaxy": 80,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "setitem_indexed",
+          "readings": {
+            "ctags": 81,
+            "gitgalaxy": 81,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "setitem_indexed1",
+          "readings": {
+            "ctags": 82,
+            "gitgalaxy": 82,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "assign_item_from_object",
+          "readings": {
+            "ctags": 84,
+            "gitgalaxy": 84,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "is_slice",
+          "readings": {
+            "ctags": 78,
+            "gitgalaxy": 78,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "convert_item_to_object",
+          "readings": {
+            "ctags": 83,
+            "gitgalaxy": 83,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cython/MemoryView.pxd",
+          "name": "get_memview",
+          "readings": {
+            "ctags": 50,
+            "gitgalaxy": 50,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "existence",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "function",
+      "verdict": "Already documented as Claim 2 in docs/why_gitgalaxy_beats_ast_here.md: tree-sitter-python has no concept of Cython's cdef class/cdef/cpdef syntax at all and loses track of scope at each cdef class boundary, so it finds 0 functions in cython/MemoryView.pyx and cython/MemoryView.pxd (0/0 vs GitGalaxy+ctags' 71/16). This shape's count grew from 32 to 99 within this same PR: it originally covered only the 32 'def'-based methods inside cdef class blocks (__cinit__, __dealloc__, __getbuffer__, etc.); fixing the sibling agree[ctags]_vs[gitgalaxy,tree_sitter] shape's func_start gap (issue #1999 -- GitGalaxy now also finds cdef/cpdef module-level functions) moved those newly-recognized occurrences into THIS shape too, since they still disagree with tree-sitter for the identical underlying reason. Confirmed via direct gather_language() check: (gg_funcs & ctags_funcs) - ts_funcs covers 16/16 real names in MemoryView.pxd and 71/72 in MemoryView.pyx (the one remaining name, get_slice_from_memview, is the documented Tempita-template residual gap tracked on the sibling shape). No GitGalaxy fix needed for tree-sitter's own recall here -- grammar limitation, not an engine defect."
+    },
+    "python/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
+      "agreeing_tools": [
+        "ctags"
+      ],
+      "credit_tools": [
+        "ctags"
+      ],
+      "debit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy",
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-08-18T22:44:45Z",
+      "investigated_at": "2026-08-21T03:23:52Z",
+      "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
+      "language": "python",
+      "last_reconciled_at": "2026-08-21T03:36:53Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "cython/MemoryView.pyx",
+          "name": "get_slice_from_memview",
+          "readings": {
+            "ctags": 1037,
             "gitgalaxy": null,
             "tree_sitter": null
           }
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed real GitGalaxy engine defect, fixed in the same pass (issue #1999). ctags alone correctly found real Cython cdef/cpdef module-level function definitions in cython/MemoryView.pyx (52) and cython/MemoryView.pxd (16) -- 68/68 occurrences, confirmed via a direct gather_language() name-diff across the whole corpus, not just the ledger's capped 10-example sample. GitGalaxy's func_start regex only recognized the literal 'def' keyword, so every cdef/cpdef-prefixed function (no 'def' at all) was invisible. tree-sitter-python structurally can't recognize cdef-prefixed functions either (no grammar concept of Cython dialect syntax -- same mechanism as Claim 2 in docs/why_gitgalaxy_beats_ast_here.md). FIXED: language_standards.py's python func_start regex gained a second alternative matching cdef/cpdef signatures (excluding cdef class/struct/enum/union/extern/packed/fused, which are declarations not functions). Verified: new extraction-gauntlet cases in test_python.py (valid/invalid/pathological + ReDoS sweep), crucible_check.py against the full ~80-repo corpus (31 diffs, all scoped to python/cython, both golden masters re-blessed), ruff/mypy audits clean. One residual gap, documented not fixed: get_slice_from_memview's return type is a Cython/Tempita '{{template}}' codegen placeholder, not standard Cython syntax (1 occurrence, narrow scope)."
     },
     "ruby/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -8776,7 +8697,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-21T02:39:55Z",
+      "last_reconciled_at": "2026-08-21T03:36:55Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8818,7 +8739,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-21T02:39:55Z",
+      "last_reconciled_at": "2026-08-21T03:36:55Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8896,7 +8817,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-21T02:39:55Z",
+      "last_reconciled_at": "2026-08-21T03:36:55Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8947,7 +8868,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-21T02:39:55Z",
+      "last_reconciled_at": "2026-08-21T03:36:55Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -9024,7 +8945,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -9138,7 +9059,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -9191,7 +9112,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -9291,6 +9212,56 @@
       "symbol_type": "class",
       "verdict": "Same mechanism as the already-resolved rust/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter] shape (Claim 6, docs/why_gitgalaxy_beats_ast_here.md) -- extended from `fn` definitions inside `quote!{}` invocation bodies to `struct` definitions inside `macro_rules!` DEFINITION bodies. All 6 sampled names confirmed, independently re-verified against source (not just the dispatched agent's own read): NonZeroVisitor (line 90), SaturatingVisitor (112), PrimitiveVisitor (136) inside serde/serde_core_de_impls.rs's `impl_deserialize_num!` macro (def starts line 81); SeqVisitor (998), SeqInPlaceVisitor (1036) inside `seq_impl!` (def starts 978); TupleVisitor (1403) inside `tuple_impl_body!` (nested in `tuple_impls!`, def starts 1396). All 6 are real, complete `struct` declarations, each immediately followed by a genuine `impl<'de,...> Visitor<'de> for <Name>` block -- generated once per macro invocation, not fragments or hallucinated matches. tree-sitter and ctags both treat a macro_rules! arm's body as an opaque, unexpanded token tree and structurally cannot emit struct nodes from inside one, for the identical reason they can't see function definitions inside quote!{} bodies. GitGalaxy is correct in all 6 sampled cases; judged (not independently re-confirmed beyond the sample) to generalize to the full 25, all same-shaped serde-crate occurrences. No new tool defect -- Claim 6's doc text already covered this generically (`struct_item` was already named) but had no concrete cited example for this specific shape; added one (docs/why_gitgalaxy_beats_ast_here.md) rather than filing an issue."
     },
+    "rust/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "ctags",
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-08-21T03:25:32Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "rust",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "tokio/tokio_named_pipe.rs",
+          "name": "poll_read",
+          "readings": {
+            "ctags": 2,
+            "gitgalaxy": 2,
+            "tree_sitter": 3
+          }
+        },
+        {
+          "file_path": "tokio/tokio_named_pipe.rs",
+          "name": "poll_read",
+          "readings": {
+            "ctags": 2,
+            "gitgalaxy": 2,
+            "tree_sitter": 3
+          }
+        },
+        {
+          "file_path": "wasmtime/wasmtime_instance.rs",
+          "name": "new",
+          "readings": {
+            "ctags": 1,
+            "gitgalaxy": 1,
+            "tree_sitter": 3
+          }
+        }
+      ],
+      "metric": "args",
+      "status": "unvalidated",
+      "still_reproduces": false,
+      "symbol_type": "function",
+      "verdict": null
+    },
     "rust/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "ctags",
@@ -9305,7 +9276,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -9417,7 +9388,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -9530,7 +9501,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 83,
       "last_seen_examples": [
         {
@@ -9643,7 +9614,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9676,7 +9647,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9711,7 +9682,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-21T02:39:59Z",
+      "last_reconciled_at": "2026-08-21T03:36:59Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -9823,7 +9794,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-08-21T02:40:01Z",
+      "last_reconciled_at": "2026-08-21T03:37:01Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -9926,7 +9897,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed and fixed by claude-sonnet-5",
       "language": "scheme",
-      "last_reconciled_at": "2026-08-21T02:40:05Z",
+      "last_reconciled_at": "2026-08-21T03:37:05Z",
       "last_seen_count": 84,
       "last_seen_examples": [
         {
@@ -10028,7 +9999,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scheme",
-      "last_reconciled_at": "2026-08-21T02:40:05Z",
+      "last_reconciled_at": "2026-08-21T03:37:05Z",
       "last_seen_count": 50,
       "last_seen_examples": [
         {
@@ -10132,7 +10103,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "shell",
-      "last_reconciled_at": "2026-08-21T02:40:07Z",
+      "last_reconciled_at": "2026-08-21T03:37:07Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10164,7 +10135,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-08-21T02:40:08Z",
+      "last_reconciled_at": "2026-08-21T03:37:08Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -10234,7 +10205,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-21T02:40:10Z",
+      "last_reconciled_at": "2026-08-21T03:37:10Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10265,7 +10236,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-21T02:40:10Z",
+      "last_reconciled_at": "2026-08-21T03:37:10Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10296,7 +10267,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-21T02:40:10Z",
+      "last_reconciled_at": "2026-08-21T03:37:10Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10328,7 +10299,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-21T02:40:11Z",
+      "last_reconciled_at": "2026-08-21T03:37:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10361,7 +10332,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-21T02:40:11Z",
+      "last_reconciled_at": "2026-08-21T03:37:11Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10403,7 +10374,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-21T02:40:11Z",
+      "last_reconciled_at": "2026-08-21T03:37:11Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10463,7 +10434,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-21T02:40:11Z",
+      "last_reconciled_at": "2026-08-21T03:37:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10495,7 +10466,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-21T02:40:11Z",
+      "last_reconciled_at": "2026-08-21T03:37:11Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10537,7 +10508,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10579,7 +10550,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -10691,7 +10662,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10750,7 +10721,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10783,7 +10754,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -10888,7 +10859,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 61,
       "last_seen_examples": [
         {
@@ -11002,7 +10973,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 1907,
       "last_seen_examples": [
         {
@@ -11116,7 +11087,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -11158,7 +11129,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-21T02:40:32Z",
+      "last_reconciled_at": "2026-08-21T03:37:32Z",
       "last_seen_count": 174,
       "last_seen_examples": [
         {
@@ -11271,7 +11242,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-21T02:40:40Z",
+      "last_reconciled_at": "2026-08-21T03:37:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11302,7 +11273,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-21T02:40:40Z",
+      "last_reconciled_at": "2026-08-21T03:37:40Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -11405,7 +11376,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "zig",
-      "last_reconciled_at": "2026-08-21T02:40:40Z",
+      "last_reconciled_at": "2026-08-21T03:37:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

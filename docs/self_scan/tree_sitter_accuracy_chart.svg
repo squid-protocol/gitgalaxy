@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1514"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-21T21:45:13+00:00 &#183; commit 1237fac &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-21T22:50:12+00:00 &#183; commit 9b6b8d2 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -179,8 +179,8 @@
 <rect class="diff-outline" x="128.8" y="478.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="135.5" cy="492.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="135.5" y="494.5">T</text>
-<rect x="143" y="483.0" width="91.1" height="8" rx="2.5" fill="#2930d6"/>
-<text class="value-label" x="239.1" y="490.5">1730/1748</text>
+<rect x="143" y="483.0" width="91.2" height="8" rx="2.5" fill="#292fd6"/>
+<text class="value-label" x="239.2" y="490.5">1732/1748</text>
 <rect x="143" y="493.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="500.5">1748/1748</text>
 <rect x="143" y="511.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
@@ -367,8 +367,8 @@
 <rect class="diff-outline" x="329.8" y="478.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="492.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="494.5">T</text>
-<rect x="344" y="483.0" width="90.1" height="8" rx="2.5" fill="#2937d6"/>
-<text class="value-label" x="439.1" y="490.5">1730/1767</text>
+<rect x="344" y="483.0" width="91.5" height="8" rx="2.5" fill="#292cd6"/>
+<text class="value-label" x="440.5" y="490.5">1732/1741</text>
 <rect x="344" y="493.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="500.5">1748/1748</text>
 <text class="na-dash" x="350" y="518.5">n/a</text>
@@ -859,10 +859,10 @@
 <rect class="diff-outline" x="932.8" y="478.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="492.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="494.5">T</text>
-<rect x="947" y="483.0" width="80.6" height="8" rx="2.5" fill="#297fd6"/>
-<text class="value-label" x="1032.6" y="490.5">1516/1730</text>
+<rect x="947" y="483.0" width="80.5" height="8" rx="2.5" fill="#297fd6"/>
+<text class="value-label" x="1032.5" y="490.5">1516/1732</text>
 <rect x="947" y="493.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="500.5">1730/1730</text>
+<text class="value-label" x="1044.0" y="500.5">1732/1732</text>
 <text class="na-dash" x="953" y="518.5">n/a</text>
 <text class="na-dash" x="953" y="528.5">n/a</text>
 <text class="na-dash" x="953" y="546.5">n/a</text>

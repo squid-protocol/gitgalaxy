@@ -526,6 +526,15 @@ _ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# #1973: matches a Dockerfile heredoc opener (`RUN <<EOF`, `RUN --mount=... <<-EOT`)
+# at the end of a line, capturing the terminator word so
+# _mode_a_args_window_end can recognize the matching closing line and skip
+# the whole heredoc body as part of one instruction's own statement span
+# (never counted as unrelated later content). The terminator capture is
+# bounded to 61 chars and the whole match is applied to one already-sliced
+# physical line (never unbounded input), so this stays a fixed-cost check.
+_DOCKERFILE_HEREDOC_OPENER_RE = re.compile(r"<<-?[ \t]*(?:['\"]?)([A-Za-z_][A-Za-z0-9_]{0,60})(?:['\"]?)[ \t]*$")
+
 
 def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
     """Given a `class_start` regex match and its pattern's total capture-group
@@ -2074,6 +2083,92 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
+    # #1973: per-language line-continuation marker used to extend a Mode A
+    # label's args-search window past its own first physical line, keyed by
+    # primary_lang_id. Deliberately NOT a generic "any trailing symbol"
+    # rule -- cobol's fixed-format continuation is a column-7 indicator on
+    # the CONTINUING line, not a trailing marker on the line before, so
+    # cobol legitimately gets no entry here and stays single-line-only.
+    _MODE_A_ARGS_CONTINUATION_MARKER: ClassVar[dict[str, str]] = {
+        "dockerfile": "\\",
+        "fortran": "&",
+    }
+
+    def _mode_a_args_window_end(self, code: str, start_idx: int, hard_limit_idx: int) -> int:
+        """Bounds a Mode A label's args-search window to its own statement span
+        instead of a blind character count, which a verbose real-world
+        Dockerfile RUN's `--mount=` continuation lines can easily exceed
+        (#1973). Walks forward line by line from `start_idx`, extending the
+        window while the current line ends in this language's own
+        continuation marker (see _MODE_A_ARGS_CONTINUATION_MARKER) or sits
+        inside a still-open Dockerfile heredoc body (`<<EOF ... EOF`) --
+        stopping at the first line that's neither, which is the real end of
+        the label's own signature/statement. A language with no
+        continuation marker (cobol) never extends past its own first line.
+        For fortran specifically, a blank line, a full `!...` comment line,
+        or a C-preprocessor line (`#ifdef`/`#endif`/etc. -- real-world `.F`
+        files like WRF's are cpp-preprocessed) carries no continuation
+        marker of its own but doesn't end an in-progress continuation
+        either; these are treated as transparent and skipped rather than
+        mistaken for the label's real terminator line.
+        Capped at 300 physical lines -- confirmed necessary, not just
+        theoretical caution: real-world WRF Fortran subroutines
+        (module_sf_noahdrv.F's `lsm`) legitimately span 90+ continuation
+        lines for a single formal-parameter list (200+ real dummy
+        arguments) interleaved with exactly these transparent-line shapes,
+        and an earlier, tighter 40-line cap (before the transparent-line
+        handling existed) silently truncated that signature before its
+        closing `)`, dropping a real args count from 247 to 0 -- a
+        regression caught by this fix's own before/after corpus
+        verification, not a hypothetical. This is a cheap line scan (no
+        regex backtracking), so a generous cap costs nothing at the common
+        (short) case and only matters for genuinely pathological input.
+        """
+        marker = self._MODE_A_ARGS_CONTINUATION_MARKER.get(self.primary_lang_id)
+        is_fortran = self.primary_lang_id == "fortran"
+        pos = start_idx
+        heredoc_terminator: Optional[str] = None
+        for _ in range(300):
+            line_end = code.find("\n", pos)
+            if line_end == -1 or line_end >= hard_limit_idx:
+                return hard_limit_idx
+            line = code[pos:line_end].rstrip()
+            if heredoc_terminator is not None:
+                if line.strip() == heredoc_terminator:
+                    heredoc_terminator = None
+                pos = line_end + 1
+                continue
+            if self.primary_lang_id == "dockerfile":
+                heredoc_match = _DOCKERFILE_HEREDOC_OPENER_RE.search(line)
+                if heredoc_match:
+                    heredoc_terminator = heredoc_match.group(1)
+                    pos = line_end + 1
+                    continue
+            if is_fortran:
+                stripped_lead = line.lstrip()
+                # Transparent lines: blank, a full-line `!` comment, or a
+                # cpp directive -- none of these end (or need to extend)
+                # a continuation; skip straight past them.
+                if not stripped_lead or stripped_lead.startswith("!") or stripped_lead.startswith("#"):
+                    pos = line_end + 1
+                    continue
+                # Fortran routinely tags a continued parameter with an
+                # inline `!` comment AFTER the `&` (e.g. WRF's own
+                # `CHS,CHS2,...,qz0,   & !H` grouping-by-category style) --
+                # strip a trailing `!...` comment before checking for the
+                # marker; real Fortran dummy-argument names can't
+                # themselves contain `!`, so this can't misidentify a real
+                # terminator line as a continuation.
+                code_part = line.split("!", 1)[0].rstrip()
+                if code_part.endswith(marker):  # type: ignore[arg-type]
+                    pos = line_end + 1
+                    continue
+            elif marker is not None and line.endswith(marker):
+                pos = line_end + 1
+                continue
+            return min(line_end + 1, hard_limit_idx)
+        return min(pos, hard_limit_idx)
+
     def _slice_by_labels(
         self,
         code: str,
@@ -2189,6 +2284,49 @@ class StructuralExtractor:
                     if asm_matches:
                         args_count_override = self._count_assembly_register_args(asm_matches)
 
+            # #1973: for the 3 Mode A languages that never get a dedicated
+            # args_count_override at all (cobol, fortran, dockerfile), the
+            # generic args-count derivation in _calculate_block_metrics
+            # defaults to searching the WHOLE greedy `block` -- which can span
+            # many unrelated statements past the matched label's own
+            # signature (Mode A's body legitimately runs to the next
+            # func_start match, not to a brace-bounded end). For a language
+            # whose args pattern only ever appears ON the matched
+            # declaration itself (fortran's `SUBROUTINE/FUNCTION name(...)`),
+            # an unbounded whole-block search happens to land on the right
+            # match only because it's textually first -- fragile, not a
+            # guarantee. For a language whose args construct is a genuinely
+            # separate, unrelated statement (dockerfile's `ARG`, cobol's
+            # program-level `PROCEDURE DIVISION USING/RETURNING`), an
+            # unbounded search can walk past the (correctly absent) match on
+            # the label's own line and pick up an unrelated later
+            # occurrence instead, misattributing it as this label's own
+            # parameter count. Bound the search to just the label's own
+            # statement span (via _mode_a_args_window_end -- follows real
+            # line-continuation syntax rather than a blind character count,
+            # since a Dockerfile RUN's own `--mount=` continuation lines
+            # routinely run past any fixed char budget) instead of leaving
+            # Mode A as the one integration mode with no bound at all.
+            #
+            # Deliberately gated to primary_lang_id, NOT "args_count_override
+            # is None" -- abap/agc_assembly/assembly can ALSO legitimately
+            # leave args_count_override as None on a specific match (e.g. an
+            # ABAP interface-implemented method with no DEFINITION-section
+            # entry, see abap_definition_index's own comment above) without
+            # that meaning "fall through to this bound." Confirmed via this
+            # fix's own crucible_check verification: gating on the override
+            # alone silently applied an untuned single-line window (no
+            # continuation marker configured for abap) to real ABAP methods,
+            # dropping their correct args count (e.g.
+            # zcl_abapgit_http_client.clas.abap's `check_http_200`,
+            # `send_receive`: real args 1, regressed to 0). Those 3
+            # languages' own body-idiom scans are intentionally left on the
+            # original unbounded path -- this issue never covered them.
+            args_search_text = None
+            if self.primary_lang_id in ("cobol", "fortran", "dockerfile"):
+                args_window_end = self._mode_a_args_window_end(code, start_idx, start_idx + end_offset)
+                args_search_text = code[start_idx:args_window_end]
+
             sat, mag = self._calculate_block_metrics(
                 name,
                 block,
@@ -2199,6 +2337,7 @@ class StructuralExtractor:
                 start_idx,
                 start_idx + end_offset,
                 spatial_map,
+                args_search_text=args_search_text,
                 args_count_override=args_count_override,
             )
 

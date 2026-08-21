@@ -1,0 +1,238 @@
+# Tri-comparison: GitGalaxy vs. tree-sitter vs. ctags
+
+This is the system `docs/self_scan/README.md` promised and never delivered — that file's
+"tree-sitter as a baseline, not as infallible ground truth" section has said, since before this
+system existed, "a universal-ctags-based comparison is in progress... this section will link to
+it once it exists rather than describe it ahead of time." It exists now. This is that link.
+
+## Why a third tool, and why no privileged ground truth
+
+The 2-tool system (`tree_sitter_accuracy_audit.py`, documented in the main
+[`README.md`](README.md)) treats tree-sitter's parse as ground truth and scores GitGalaxy against
+it. That's a reasonable default — tree-sitter has real per-language grammars — but it has a
+structural blind spot: whenever tree-sitter's own reading is wrong (a grammar gap, an
+error-recovery artifact, a node-name-construction quirk), GitGalaxy gets scored as wrong too, even
+when it's actually right. `docs/why_gitgalaxy_beats_ast_here.md` exists specifically because this
+happens more than a "grammar = truth" framing would suggest.
+
+Adding ctags as a third, independently-implemented reader turns disagreement from "GitGalaxy vs.
+an assumed oracle" into "which of three differently-biased tools is actually correct here" — a
+question with a real, checkable answer (read the source), not an assumed one. See
+[`tests/tools/tri_comparison_reconcile.py`](../../tests/tools/tri_comparison_reconcile.py)'s own
+module docstring (section `WHY THERE IS NO "GROUND TRUTH" HERE`) for the full reasoning; the short
+version is: for every occurrence, if every available tool agrees it exists, that's consensus; each
+matching tool gets credit. Where tools disagree, that occurrence contributes to a **discrepancy**,
+not to any tool's score in either direction, until a human (or an agent standing in for one)
+actually reads the source and the ledger records a verdict.
+
+## How matching works
+
+- **Primary match key is NAME**, not line position. `tri_comparison_reconcile.py`'s own
+  `MATCHING METHODOLOGY` section documents the confirming probe: 153 matched-by-name Python
+  functions in a real file showed zero line-offset drift once two tools agreed on a name — no
+  positional-correction mechanism was needed or added.
+- Where one name occurs more than once in a file (property getter/setter pairs, an overload set,
+  a repeated macro expansion), each tool's occurrences of that name are sorted by line and paired
+  by **rank** (1st with 1st, 2nd with 2nd) — the same instinct the 2-tool system's
+  `_align_occurrences_by_line` already used, generalized to however many of the three tools are
+  available for a given language.
+- **Existence and args are reconciled separately.** A function's existence (does a symbol named X
+  exist at roughly this position) and its parameter count are two different questions, scored
+  independently — an args disagreement on an existence-agreed function only ever affects that
+  language's args metric, never its func recall/precision. Confirmed empirically, not just
+  asserted: a Python signature-parsing bug fix moved args agreement from 91.3% to 99.9% while
+  existence agreement (97.3%) never moved at all.
+- **ctags and tree-sitter are each independently optional per language.** ctags covers a subset of
+  tree-sitter's baselined languages, plus 9 more tree-sitter has no grammar for at all (ada,
+  agc_assembly, assembly, cobol, embedded_python, m4, scheme, sqlite, yacc). A language with
+  neither reads as GitGalaxy-only, not scored against anything.
+
+## The ledger: how a raw discrepancy becomes a validated finding
+
+`docs/self_scan/tri_comparison_ledger.json` is the persistent record — one entry per
+**discrepancy shape** (language / symbol type / metric / which tools agreed vs. dissented), not
+per individual occurrence. A csharp shape with 271 raw occurrences behind it is very likely one
+systematic cause (a real tree-sitter grammar recall gap), not 271 separate findings — see
+`tri_comparison_ledger.py`'s own `ENTRY LIFECYCLE` docstring section for the full mechanics.
+Every entry starts `status: "unvalidated"`; a human (or an agent following
+[`how_to_investigate_a_discrepancy.md`](how_to_investigate_a_discrepancy.md)) reads the source at
+a handful of recorded examples, determines what's actually true, and sets `status: "validated"`
+plus a free-text `verdict` explaining what was found. Re-running the tool later refreshes
+`last_seen_count`/`last_seen_examples` for a validated entry but never reverts its status or
+overwrites the verdict — a fix landing that makes a shape stop reproducing sets
+`still_reproduces: false` and keeps the historical record rather than deleting it.
+
+A validated verdict can also move the actual score, not just suppress the chart's `*` marker —
+see `tri_comparison_ledger.py`'s `VERIFIED ADJUSTMENTS` section for the `credit_tools`/
+`debit_tools` mechanism and exactly when each applies (short version, learned the hard way in this
+same repo: `credit_tools` only makes sense for a shape where ONE tool's claim was uncorroborated —
+crediting a tool that's already in a 2-of-3 agreeing pair double-counts, since that pair already
+gets precision credit from the base reconciliation).
+
+## The catalog: confirmed, evidenced differences between the three tools
+
+This is the part `docs/self_scan/README.md` was missing — not a live list of open questions (that's
+what the ledger and `tri_comparison_points_of_interest.md` are for), but a durable catalog of
+**confirmed mechanisms**, each backed by a real file:line citation, not a guess. Every category
+below has already been investigated to the point of a ledger `verdict` or a fixed bug; treat this
+section as a summary with pointers, not the full evidence trail — the ledger entries and the
+per-file docstrings cited below carry the complete citations.
+
+### Where ctags is wrong
+
+- **Parses inside macro DEFINITION bodies as if they were real, already-expanded code.** A
+  `#define`'d macro's body can contain text that looks exactly like a complete function or class
+  declarator — ctags tags it as real regardless of whether the macro is ever actually invoked as
+  written. Confirmed for cpp (`godot/object.h`'s `GDCLASS`/`_FORCE_INLINE_`-based macros) and
+  documented per-language in
+  [`ctags_reader.py`](../../tests/tools/ctags_reader.py)'s own module docstring (search `KIND
+  MAPS`).
+- **Mistags a macro INVOCATION as the function/class itself**, losing the real name that follows.
+  Two shapes confirmed: a macro used as a return-type prefix (`IFACEMETHODIMP_(void)
+  FancyZones::Run()`, cpp), and a macro used as a dispatch/case label
+  (`OPCODE(OPCODE_OPERATOR) { ... }`, cpp — this one fools GitGalaxy and tree-sitter too, a genuine
+  shared mistake, not corroboration). The identical class of bug is documented for `c`
+  (`RICHCMP_WRAPPER`/`SLOT1` macro calls in cpython) and `m4` (`AC_DEFINE`/`AC_DEFINE_UNQUOTED`
+  autoconf helpers).
+- **Strips template arguments from a class name.** `HashMapComparatorDefault<Variant>` (as
+  GitGalaxy and tree-sitter both read it, straight from source) becomes bare
+  `HashMapComparatorDefault` in ctags' own tag — a naming-format difference, not a real existence
+  disagreement about whether the class exists.
+- **No formal distinction between a scoped and unscoped enum.** ctags' `"g"` (enum) kind tags
+  `enum class Foo {}` and plain `enum Foo {}` identically — telling them apart (where a language
+  like C++11 actually distinguishes the two) requires reading the tag's own verbatim source line,
+  not anything in ctags' own tag data.
+- **A macro-permissive kind can produce a placeholder name for an anonymous type**
+  (`__anon2570bd640108` for `typedef struct { ... } Foo;`) — bookkeeping ctags needs internally,
+  not a real name either GitGalaxy or tree-sitter would ever report.
+- **Structural, permanent per-language gaps**, not bugs: no CLASS-ID/INTERFACE-ID-equivalent kind
+  for cobol's OOP syntax, no scope/layout-rule awareness in the Haskell parser (misses `where`-
+  clause helpers, `instance ... where` methods, `let`-bound names), no kind at all for scheme's
+  SRFI-9 `define-record-type`. These are ceiling effects, not fixable bugs — `ctags_reader.py`'s
+  `LANGUAGE COVERAGE` section has the current list.
+
+### Where tree-sitter is wrong
+
+- **A node type can cover both a real definition and a bare reference/declaration**, with no way
+  to tell them apart except checking the grammar's own `body` field. Confirmed for C/C++
+  (`struct_specifier`/`class_specifier` matches both `struct Foo { ... }` and a bare
+  `struct Foo *ptr;` reference or `class Foo;` forward declaration) — this was, until fixed, the
+  single largest shape in the whole ledger (525 occurrences for `c` alone).
+- **Doesn't distinguish a scoped from an unscoped enum either**, for the same structural reason as
+  ctags above but checkable a different way (a `class`/`struct` child token on the
+  `enum_specifier` node) — fixed in this repo's own walker
+  (`tri_comparison_gatherer.py`/`tree_sitter_accuracy_audit.py`'s `_is_cpp_unscoped_enum`).
+- **Node-name construction can include tool-specific formatting GitGalaxy and ctags both omit.**
+  cpp conversion operators are the confirmed case: tree-sitter's own name-building appends a
+  trailing return-type/const suffix (`operator Variant() const`) where GitGalaxy and ctags both
+  report the bare form (`operator Variant`) — a real naming-convention difference in
+  `tsaa._get_node_name`, not an existence disagreement.
+- **Grammar doesn't support every real-world extension.** GNU "labels as values" computed-goto
+  syntax (`&&label`) inside a bytecode-interpreter dispatch loop (`godot/gdscript_vm.cpp`'s
+  `GDScriptFunction::call`) is confirmed to make tree-sitter-cpp lose the entire enclosing
+  function — ctags and GitGalaxy both still find it correctly, since neither needs to fully parse
+  the body to recognize the signature.
+- **Shared parameter-counting helper undercounts by exactly one for a defaulted parameter**
+  (`int p_step = -1`) — confirmed 6/6 sampled cpp cases, ctags and GitGalaxy both counting
+  correctly; not yet root-caused to the exact node-type gap
+  ([#2014](https://github.com/squid-protocol/gitgalaxy/issues/2014)).
+- **Error-recovery on malformed or macro-obscured input can hallucinate a function-shaped node
+  from unrelated text** — a bare control-flow keyword (`for`, `if`) or bare `void` reported as a
+  function NAME. The exact trigger wasn't fully traced for cpp (would need deeper grammar-level
+  investigation), but the same general failure class is already confirmed and documented for other
+  languages (javascript's Flow-typed-file misparse, `#1633`).
+- **Occurrence pairing, Cython scope loss, synthetic placeholder names** — see
+  `tree_sitter_accuracy_audit.py`'s own `SCOPE & LIMITATIONS` section (the 2-tool system's
+  authoritative list, still accurate for the 3-tool system too since both share this reader).
+
+### Where GitGalaxy is (or was) wrong
+
+Unlike the two sections above, this list changes as bugs get fixed — check
+`docs/language_status/<lang>.md`'s own "known limitations" section (once a language has one) or
+search closed issues for the current, language-specific state rather than trusting this list to
+stay current. As of this writing, confirmed and fixed for cpp: a `class_start` forward-declaration
+false positive (`_CLASS_START_REQUIRES_BODY_ANCHOR` extended from C to cpp with a depth-aware
+scanner, since C++ multiple inheritance breaks a naive copy of C's own flat lookahead — see
+`_cpp_class_has_body` in `detector.py`), and a `func_start` false positive on a lambda passed as a
+constructor argument or initializer-list entry (a bare `[` opening a "parameter list" is never
+valid C++ syntax for a real parameter — only a lambda capture-list or, doubled, an attribute —
+see the `LAMBDA-ARGUMENT SHIELD` comment on cpp's `func_start` rule). Confirmed and still open for
+cpp: a member-initializer-list length cap causing a real recall gap
+([#2009](https://github.com/squid-protocol/gitgalaxy/issues/2009)), no support for a
+template/generic conversion-operator return type
+([#2010](https://github.com/squid-protocol/gitgalaxy/issues/2010)), and args-counting bugs on
+out-of-class methods and constructors with initializer-lists
+([#2012](https://github.com/squid-protocol/gitgalaxy/issues/2012)).
+
+### Naming/formatting differences that aren't existence disagreements at all
+
+Worth its own bucket since it's a real, recurring pattern, not a one-off: the three tools don't
+always agree on the exact STRING for something they all correctly agree exists. Confirmed cases:
+ctags reporting a bare, unqualified method name where GitGalaxy/tree-sitter report the fully
+`Class::method`-qualified form read straight from an out-of-class definition's own source text
+(ctags splits this into a separate `class:`/`namespace:` scope field instead); ctags stripping
+template arguments from a class name; tree-sitter appending a trailing return-type/const suffix to
+a conversion operator's name. None of these are existence bugs in any tool — they're
+name-construction CONVENTION differences the reconciler's name-based matching can be fooled by if
+not accounted for (see `ctags_reader.py`'s `_QUALIFY_NAME_WITH_SCOPE` mechanism for how the cpp
+case is handled: re-join name+scope from ctags' own tag data, gated on the qualified text actually
+appearing in the tag's own verbatim source line).
+
+## Files
+
+- **`tri_comparison_ledger.json`** — the persistent, hand-editable record described above.
+  Committed, reviewed like any other source file.
+- **`tri_comparison_chart.svg`** — small-multiples bar chart, same visual language as the 2-tool
+  system's chart: one row per language, five metric panels (func found/precision, class
+  found/precision, args found), a bar per available tool. A `*` marks an unvalidated disagreement
+  still open for that (language, metric); `**` marks a manually-verified single-tool language (no
+  second comparison tool exists at all — see the fallback procedure in the
+  `tri-comparison-ledger-sweep` skill). A colored badge marks the winning tool for a ranked panel;
+  a rate-only tie is broken by each tied party's absolute count of validated-correct occurrences,
+  not the raw claim count (`_winner_or_tie()` in `tri_comparison_chart.py`). Regenerate with
+  `python tests/tools/tri_comparison_chart.py --all --write` — never with a partial `--languages`
+  list, which overwrites the WHOLE file with only those languages.
+- **`tri_comparison_points_of_interest.md`** — a rendered, ranked-by-signal-strength Markdown
+  summary of the ledger, regenerated with `python tests/tools/tri_comparison_report.py --write`.
+  For a quick "what's the biggest open question right now" read; the ledger JSON is still the
+  primary source.
+- **`docs/self_scan/manual_verification.json`** — the parallel papertrail for a language with NO
+  second comparison tool at all (abap, dockerfile, jcl, livecode, yaml) — a ledger entry requires a
+  discrepancy shape, which requires at least one other tool to disagree with; these languages have
+  nothing to disagree with GitGalaxy at all, so they get a hand-written, hand-reviewed manual
+  verification record instead, keyed the same way.
+
+## Reproducing or updating this locally
+
+```bash
+# from the gitgalaxy repo root -- same corpus checkout the 2-tool system uses
+git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git ../language-crucible
+pip install tree-sitter-language-pack
+
+# universal-ctags must be on PATH and be the REAL thing -- Ubuntu's `arduino-ctags` shadows the
+# `ctags` binary name but isn't universal-ctags at all; `ctags --version` must print
+# "Universal Ctags", not error or print an Arduino banner
+ctags --version
+
+python tests/tools/tri_comparison_chart.py --languages cpp        # spot-check one language, no writes
+python tests/tools/tri_comparison_chart.py --all --write          # full regen, all languages
+python tests/tools/tri_comparison_report.py --write               # regen the points-of-interest doc
+```
+
+A missing `ctags` binary degrades every language gracefully to a 2-tool (GitGalaxy + tree-sitter)
+comparison rather than erroring — the same shape a language with no tree-sitter grammar at all
+already degrades to.
+
+## Related reading
+
+- [`docs/self_scan/README.md`](README.md) — the 2-tool (GitGalaxy vs. tree-sitter) system this one
+  extends; read that one first for the baseline methodology this system inherits (recall vs.
+  precision definitions, the `--history`/`--regenerate` workflow for that system specifically).
+- [`docs/self_scan/how_to_investigate_a_discrepancy.md`](how_to_investigate_a_discrepancy.md) —
+  the actual step-by-step process for turning an unvalidated ledger shape into a validated verdict.
+- [`docs/why_gitgalaxy_beats_ast_here.md`](../why_gitgalaxy_beats_ast_here.md) — the standing,
+  evidence-gated record of confirmed cases where GitGalaxy is more accurate than an AST-based
+  reader, not just different.
+- [`docs/language_status/README.md`](../language_status/README.md) — per-language coverage docs;
+  some carry their own tri-comparison capstone section (search for "Tri-comparison findings")
+  built from this same ledger, synthesized for that one language.

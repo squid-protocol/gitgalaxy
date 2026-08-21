@@ -63,9 +63,12 @@ The longer-term direction is away from treating any single tool as ground truth 
 comparing GitGalaxy against multiple independently-biased extraction tools and reconciling
 where they disagree by actually reading the source at the point of disagreement — the same
 manual-verification instinct behind the confirmed cases above, made systematic instead of
-ad hoc. A `universal-ctags`-based comparison is in progress toward that end (a separate,
-standalone tool — `tests/tools/tree_sitter_accuracy_audit.py` itself is not being modified to
-add it). This section will link to it once it exists rather than describe it ahead of time.
+ad hoc. **That system now exists**: a `universal-ctags`-based three-way comparison (GitGalaxy vs.
+tree-sitter vs. ctags), a separate, standalone tool suite —
+`tests/tools/tree_sitter_accuracy_audit.py` itself was not modified to add it. See
+[`tri_comparison_README.md`](tri_comparison_README.md) for the full methodology, the ledger/chart
+files it produces, and — the part this section used to promise and not deliver — a durable,
+evidence-backed catalog of the confirmed differences between all three tools.
 
 ## Files
 
@@ -98,6 +101,8 @@ twice with no engine change in between won't manufacture a duplicate row.
 
 ## Related reading
 
+- [`tri_comparison_README.md`](tri_comparison_README.md) — the 3-way (GitGalaxy vs. tree-sitter
+  vs. ctags) comparison system, including the differences-between-the-tools catalog.
 - [`docs/why_gitgalaxy_beats_ast_here.md`](../why_gitgalaxy_beats_ast_here.md) — the one
   documented case where GitGalaxy's `args` recall structurally beats a declaration-only AST read
   (bash, traditional-style Perl: functions with no formal parameter list at all for an AST to

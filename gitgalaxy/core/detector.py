@@ -1926,6 +1926,24 @@ class StructuralExtractor:
                         # span exactly from its own keyword to the next
                         # RUN/CMD/ENTRYPOINT/HEALTHCHECK match, or EOF.
                         "dockerfile",
+                        # #1975: jcl has no ScopeParsingRegistry entry and no
+                        # brace-delimited bodies at all (JCL is fixed-column
+                        # mainframe syntax), so it was silently falling through to
+                        # Mode_B_Braces below -- which only "succeeds" when a `{`
+                        # happens to appear by coincidence. This dropped 100% of
+                        # real matches (0 of 3 raw matches reached the named list).
+                        # Mode A's "greedy to the next func_start match" body
+                        # heuristic is a correct, direct fit.
+                        "jcl",
+                        # #1975: m4 has no ScopeParsingRegistry entry and no
+                        # brace-delimited bodies at all (macro definitions are
+                        # parenthesis-delimited with backtick/bracket quoting), so
+                        # it was silently falling through to Mode_B_Braces below --
+                        # which only "succeeds" when a `{` happens to appear by
+                        # coincidence. This dropped ~97.4% of real matches (1 of 39
+                        # raw matches reached the named list). Mode A's "greedy to
+                        # the next func_start match" body heuristic is a correct fit.
+                        "m4",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

@@ -554,8 +554,7 @@ class RecordKeeper:
                 producer_ratio = net_mets.get("producer_ratio", 0.0)
                 ecosystem_role = net_mets.get("ecosystem_role", "Unknown")
 
-            class_idx = self.SIGNAL_SCHEMA.index("class_start") if "class_start" in self.SIGNAL_SCHEMA else -1
-            class_count = hv[class_idx] if class_idx >= 0 and class_idx < len(hv) else 0
+            class_count = len(file_data.get("classes", []))
 
             repo_macro = tel.get("repo_macro_species", "Unknown")
             repo_z = tel.get("repo_z_score", 0.0)

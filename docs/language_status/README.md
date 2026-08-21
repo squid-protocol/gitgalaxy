@@ -58,7 +58,7 @@ epic #813), not that no cases exist.
 | **[abap](abap.md)** | production | positional_abap | 46/48 | 42 | 87 | **written** |
 | ada | production | line_exclusive_dash | 49/53 | 48 | 73 | not written |
 | **[agc_assembly](agc_assembly.md)** | production | line_exclusive | 39/48 | 155 | 76 | **written** |
-| apex | production | standard_block | 43/48 | 4* | 93 | not written |
+| **[apex](apex.md)** | production | standard_block | 43/48 | 4 | 93 | **written** |
 | **[assembly](assembly.md)** | production | line_exclusive | 42/52 | 148 | 83 | **written** |
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
@@ -102,10 +102,12 @@ epic #813), not that no cases exist.
 | yaml | production | line_exclusive | 31/49 | 45 | 65 | not written |
 | zig | production | line_exclusive | 46/52 | 49 | 61 | not written |
 
-\* `apex`, `livecode`, `php`, `ruby` show only 4 migrated extraction tests each — their real
+\* `livecode`, `php`, `ruby` show only 4 migrated extraction tests each — their real
 extraction-gauntlet coverage is still in the old monolithic `test_function_extraction.py` /
 `test_args_extraction.py` / `test_class_extraction.py` / `test_dependency_extraction.py` files,
-not yet split out to a per-language file. Check those before assuming thin coverage.
+not yet split out to a per-language file. Check those before assuming thin coverage. (`apex` also
+shows 4, but is confirmed fully migrated — its 4 test functions each cover multiple inline
+valid/invalid/pathological cases rather than being thin; see `apex.md` §6.)
 
 ## Data formats (13, out of scope for a full doc)
 

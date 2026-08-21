@@ -9194,9 +9194,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # way Python's did (#1199). Name groups added too, purely so
             # existing extraction tests keep passing.
             "args": re.compile(
+                # #1963: `new` is a reserved instantiation keyword, never a real return
+                # type/modifier -- excluded from the optional prefix-consuming group so a
+                # line-leading `new ClassName(...)` constructor-call argument (common in
+                # multi-line SObject-builder calls) can't be parsed as "return type = new,
+                # name = ClassName". Mirrors csharp's own GHOST ARGS SHIELD, which already
+                # excludes `new` from its equivalent prefix group.
                 r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)\s*(\([^)]*\))|"
+                r"(?:(?!new\b)[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)\s*(\([^)]*\))|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)\s+on\s+[a-zA-Z_]\w*\s*(\([^)]*\))",
                 re.M | re.I,
             ),
@@ -9227,10 +9233,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # regex's own `args` sibling ("GHOST ARGS SHIELD") pattern
                 # of demanding structural proof before treating text as a
                 # definition rather than an invocation.
-                r"^[ \t]*(?=@|(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\b|[a-zA-Z_][\w.]*[ \t\n]+)"
+                #
+                # #1963: `new` is a reserved instantiation keyword, never a real return
+                # type/modifier -- excluded from both the initial gating lookahead's
+                # bare-identifier alternative and the optional prefix-consuming group so a
+                # line-leading `new ClassName(...)` constructor-call argument (common in
+                # multi-line SObject-builder calls) can't satisfy the #1221 gate as
+                # "return type = new, name = ClassName". Mirrors csharp's own GHOST ARGS
+                # SHIELD, which already excludes `new` from its equivalent prefix group.
+                r"^[ \t]*(?=@|(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\b|(?!new\b)[a-zA-Z_][\w.]*[ \t\n]+)"
                 r"(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
                 r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-                r"(?:[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
+                r"(?:(?!new\b)[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)(?=\s*\()|"
                 r"^[ \t]*trigger\s+([a-zA-Z_]\w*)(?=\s+on\b)",
                 re.M,
             ),

@@ -261,6 +261,30 @@ SCOPE & LIMITATIONS
     re-diagnosing and re-hand-listing names every time the pinned corpus file changes. This is
     Claim 3: a grammar parse-error cascade corrupting ground truth for syntactically-unrelated
     real code, distinct from Claim 2's "grammar has no concept of this dialect at all".
+
+    cpp's found_functions dropped 1392 -> 1296 (and c's 1713 -> 1702) on 2026-08-21 for the
+    opposite reason most entries in this section exist: not a new GitGalaxy defect, but
+    GitGalaxy correctly FIXING a false-positive class it used to share with tree-sitter's own
+    parse. A macro invocation shaped like a function call immediately followed by a real `{`
+    body (`OPCODE(OPCODE_OPERATOR) { ... }`, a bytecode-dispatch macro in
+    godot/gdscript_vm.cpp -- `#define OPCODE(m_op) case m_op:`; cpython/typeobject.c's
+    `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/`SLOT1BINFULL` boilerplate generators) is syntactically
+    indistinguishable from a real function definition to BOTH a regex with no macro-table
+    memory and tree-sitter's own C/C++ grammar -- confirmed via a direct universal-ctags probe
+    that ctags itself is not fooled, because it already tracks which identifiers were
+    `#define`'d and never re-tags an invocation of a known macro. `detector.py`'s
+    `_slice_by_braces` now does the same (scans each file for `#define NAME(...)` and excludes
+    any match on a known macro name), which is a real correctness improvement -- but
+    tree-sitter's own grammar was never fixed to match (out of scope for this repo), so
+    `real_functions` (built from tree-sitter's parse) still wrongly counts every one of these
+    macro invocations as "real". GitGalaxy no longer agrees with that wrong ground truth, which
+    reads as a recall regression in THIS tool's narrow methodology even though it's a genuine
+    improvement in absolute correctness -- confirmed via the separate, no-privileged-ground-truth
+    3-way comparison against ctags too (see `docs/self_scan/tri_comparison_README.md` and
+    `docs/language_status/cpp.md`/`c.md`'s own §9, where this is the finding that moved both
+    languages' Func Precision badge from ctags to GitGalaxy). Baseline regenerated and reviewed
+    rather than treated as a real regression, same "ground truth can be wrong" precedent as
+    every other entry in this section.
 """
 
 import argparse

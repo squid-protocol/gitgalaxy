@@ -431,7 +431,61 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
     }
 )
 
-_CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c"})
+_CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c", "cpp"})
+
+# #2011: cpp needs its own body-anchor check, not C's flat "stop at the first {/;/,/)/="
+# lookahead -- C++'s inheritance-list syntax (`class Foo : public A, public B { ... }`,
+# `class Foo : public Base<X, Y> { ... }`) legitimately contains top-level commas and
+# angle-bracket template args between the class name and its real body, which the C-only
+# regex would misread as an early terminator, falsely excluding a real multi-inheritance
+# or templated-base class definition (confirmed via direct regex testing before this
+# function was written specifically to avoid that regression). Depth-aware scan, the same
+# style as `_dart_scan_terminator`/`_count_top_level_args` elsewhere in this file:
+_CPP_BODY_ANCHOR_SEARCH_WINDOW = 500
+
+
+def _cpp_class_has_body(code_stream: str, scan_start: int) -> bool:
+    """True if a real `{` body opens before any of `;`, a top-level `=`, or (before an
+    inheritance-list `:` has been seen) a top-level `,` -- the same three non-definition
+    signals C's own lookahead already guards against (a bare forward declaration, a
+    default-template-arg/other declarator context, and a type-USE inside a larger
+    declarator list, e.g. `struct Foo *a, *b;` or a function parameter default
+    `void f(struct Foo* p = nullptr)`), but with real paren/bracket/angle depth tracking
+    so a real inheritance list's own top-level commas and template args don't trigger a
+    false negative. A `)` closing a paren this scan never opened means the scan has
+    walked out of an enclosing, already-open context (e.g. a parameter list the class
+    match started inside) without finding a real body -- treated the same as any other
+    non-definition signal, matching C's own inclusion of `)` in its stop-char set."""
+    depth_paren = depth_bracket = depth_angle = 0
+    seen_colon = False
+    limit = min(scan_start + _CPP_BODY_ANCHOR_SEARCH_WINDOW, len(code_stream))
+    pos = scan_start
+    while pos < limit:
+        ch = code_stream[pos]
+        if ch == "(":
+            depth_paren += 1
+        elif ch == ")":
+            if depth_paren == 0:
+                return False
+            depth_paren -= 1
+        elif ch == "[":
+            depth_bracket += 1
+        elif ch == "]":
+            depth_bracket = max(0, depth_bracket - 1)
+        elif ch == "<":
+            depth_angle += 1
+        elif ch == ">":
+            depth_angle = max(0, depth_angle - 1)
+        elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
+            if ch == "{":
+                return True
+            if ch == ":":
+                seen_colon = True
+            elif ch in ";=" or (ch == "," and not seen_colon):
+                return False
+        pos += 1
+    return False
+
 
 # #1918: ABAP's real parameter declarations live in the DEFINITION section
 # (`METHODS name IMPORTING ... .` / `CLASS-METHODS name IMPORTING ... .`), never inside the
@@ -900,7 +954,10 @@ class StructuralExtractor:
             )
 
             for i, match in enumerate(class_matches):
-                if self.primary_lang_id in _CLASS_START_REQUIRES_BODY_ANCHOR:
+                if self.primary_lang_id == "cpp":
+                    if not _cpp_class_has_body(code_stream, match.end()):
+                        continue
+                elif self.primary_lang_id in _CLASS_START_REQUIRES_BODY_ANCHOR:
                     lookahead = code_stream[match.end() : match.end() + 200]
                     anchor_match = re.search(r"^[^\{;,)=]{0,200}?([\{;,)=])", lookahead)
                     if not anchor_match or anchor_match.group(1) != "{":

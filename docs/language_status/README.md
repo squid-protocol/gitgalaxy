@@ -63,7 +63,7 @@ epic #813), not that no cases exist.
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | **[cpp](cpp.md)** | production | standard_block | 52/52 | 46 | 76 | **written** |
-| csharp | production | standard_block | 51/52 | 44 | 106 | not written |
+| **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
 | css | production | standard_block | 30/48 | 18 | 74 | not written |
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
 | dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |

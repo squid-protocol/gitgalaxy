@@ -233,14 +233,14 @@
 <rect x="154" y="543" width="74.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="551">811</text>
 <rect class="bar-track" x="286" y="519" width="88" height="34" rx="2"/>
-<rect x="286" y="519" width="118.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="527">1297/965</text>
-<rect x="286" y="531" width="102.7" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="539">755/647</text>
-<rect x="286" y="543" width="117.3" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="551">1081/811</text>
-<circle cx="390.0" cy="536.0" r="8" fill="#2a78d6"/>
-<text class="badge-label" x="390.0" y="539.0">G</text>
+<rect x="286" y="519" width="83.7" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="527">918/965</text>
+<rect x="286" y="531" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="539">647/647</text>
+<rect x="286" y="543" width="87.9" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="551">810/811</text>
+<circle cx="390.0" cy="536.0" r="8" fill="#eb6834"/>
+<text class="badge-label" x="390.0" y="539.0">T</text>
 <rect class="bar-track" x="418" y="519" width="88" height="34" rx="2"/>
 <rect x="418" y="519" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="527">33</text>
@@ -249,12 +249,12 @@
 <rect x="418" y="543" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="462.0" y="551">33</text>
 <rect class="bar-track" x="550" y="519" width="88" height="34" rx="2"/>
-<rect x="550" y="519" width="112.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="527">42/33</text>
+<rect x="550" y="519" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="527">33/33</text>
 <rect x="550" y="531" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="594.0" y="539">24/24</text>
-<rect x="550" y="543" width="112.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="551">42/33</text>
+<rect x="550" y="543" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="551">33/33</text>
 <rect class="bar-track" x="682" y="519" width="88" height="34" rx="2"/>
 <rect x="682" y="519" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="527">539</text>
@@ -1092,10 +1092,10 @@
 <text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 34 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 13 (38%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 12 (35%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
-<text class="legend-label" x="228.8" y="2188">tree-sitter best: 1 (3%)</text>
+<text class="legend-label" x="228.8" y="2188">tree-sitter best: 2 (6%)</text>
 <circle cx="408.6" cy="2184" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="408.6" y="2187">C</text>
 <text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>

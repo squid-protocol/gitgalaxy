@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1514"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-21T18:33:26+00:00 &#183; commit 529d3de &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-21T18:39:29+00:00 &#183; commit b483d16 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -168,8 +168,8 @@
 <rect class="diff-outline" x="128.8" y="422.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="135.5" cy="436.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="135.5" y="438.5">G</text>
-<rect x="143" y="427.0" width="91.5" height="8" rx="2.5" fill="#292cd6"/>
-<text class="value-label" x="239.5" y="434.5">959/964</text>
+<rect x="143" y="427.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="240.0" y="434.5">964/964</text>
 <rect x="143" y="437.0" width="61.7" height="8" rx="2.5" fill="#29d69f"/>
 <text class="value-label" x="209.7" y="444.5">647/964</text>
 <rect x="143" y="455.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -356,8 +356,11 @@
 <text class="value-label" x="437.0" y="406.5">1296/1356</text>
 <rect x="344" y="409.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="416.5">1491/1491</text>
-<rect x="344" y="427.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="434.5">959/959</text>
+<rect class="diff-outline" x="329.8" y="422.8" width="171.5" height="26.5" rx="3"/>
+<circle cx="336.5" cy="436.0" r="6" class="badge-ts"/>
+<text class="badge-text" x="336.5" y="438.5">T</text>
+<rect x="344" y="427.0" width="91.9" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="440.9" y="434.5">964/965</text>
 <rect x="344" y="437.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="444.5">647/647</text>
 <rect x="344" y="455.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -849,9 +852,9 @@
 <circle cx="939.5" cy="436.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="939.5" y="438.5">G</text>
 <rect x="947" y="427.0" width="89.5" height="8" rx="2.5" fill="#293cd6"/>
-<text class="value-label" x="1041.5" y="434.5">933/959</text>
-<rect x="947" y="437.0" width="61.5" height="8" rx="2.5" fill="#29d69e"/>
-<text class="value-label" x="1013.5" y="444.5">642/959</text>
+<text class="value-label" x="1041.5" y="434.5">938/964</text>
+<rect x="947" y="437.0" width="61.7" height="8" rx="2.5" fill="#29d69f"/>
+<text class="value-label" x="1013.7" y="444.5">647/964</text>
 <rect x="947" y="455.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="1044.0" y="462.5">3/3</text>
 <rect x="947" y="465.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>

@@ -128,6 +128,21 @@ by name (`python/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`,
 `tri_comparison_ledger.json`). Same underlying cause as the function-recall case above (the base
 grammar has no concept of the `cdef class` construct at all), just one syntactic level higher.
 
+**A third instance, same file family (2026-08-21, tree-sitter-accuracy-audit `--all` sweep):**
+`language-crucible/data/python/cython/MemoryView.pxd` (a Cython header/declaration file, not the
+`.pyx` implementation file the two cases above are drawn from) has 16 bare, top-level `cdef`
+function declarations with no enclosing `cdef class` at all — `array_cwrapper`, `memoryview_check`,
+`get_memview`, `transpose_memslice`, etc. (e.g. line 91: `cdef inline bint
+memoryview_check(object o) noexcept:`). tree-sitter-python doesn't parse a `cdef`-prefixed
+declaration as a `function_definition` node under any circumstance, inside a class or not — it has
+no concept of the keyword at all, confirmed via a direct walk showing zero tree-sitter nodes for
+any of the 16. GitGalaxy's regex-based `func_start` doesn't care about the `cdef`/`cpdef`/`def`
+prefix distinction and correctly finds all 16. Surfaced as a `tree_sitter_accuracy_baseline_
+python.json` "regression" (`extra_functions: 0 -> 16`) purely because the baseline metric treats
+tree-sitter as ground truth — reviewed and re-blessed rather than treated as a real defect, same
+"ground truth can be wrong" precedent as csharp/cpp/c's own baseline entries in this file's SCOPE
+& LIMITATIONS section.
+
 ## Claim 3: function recall when a grammar's own parse error cascades into unrelated real code
 
 For a file where the grammar hits a genuine parse error on some in-scope, valid construct it

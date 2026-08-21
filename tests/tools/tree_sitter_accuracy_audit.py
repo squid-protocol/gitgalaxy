@@ -146,6 +146,15 @@ SCOPE & LIMITATIONS
     Same "ground-truth parser gap, not a GitGalaxy precision defect" shape as the Flow-typed JS
     note above.
 
+    Same cause, a different Cython file kind (2026-08-21): `language-crucible/data/python/
+    cython/MemoryView.pxd` (a `.pxd` declaration file, not `.pyx`) has 16 bare top-level `cdef`
+    function declarations with no enclosing `cdef class` at all (`array_cwrapper`,
+    `memoryview_check`, `get_memview`, etc.) -- tree-sitter-python doesn't recognize a
+    `cdef`-prefixed declaration as a `function_definition` under any circumstance, so all 16 are
+    invisible to `real_functions` while GitGalaxy's regex correctly finds every one. Surfaces as
+    `extra_functions: 0 -> 16` in the baseline check; reviewed and re-blessed, not a real
+    regression -- see `docs/why_gitgalaxy_beats_ast_here.md` Claim 2's third instance.
+
     matlab and shell make heavy use of GitGalaxy's own synthetic `Anonymous_Block`/
     `__global_context__` placeholder function-like records -- `detector.py`'s fallback names for
     top-level control-flow blocks (`if`/`for`/`while`/...) in script-style files that have no

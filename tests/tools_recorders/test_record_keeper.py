@@ -195,6 +195,9 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     assert file_row["ecosystem_role"] == "Core Hub"
     assert file_row["state_danger"] == 2  # The hit_vector value for danger
 
+    assert file_row["class_count"] == 1
+    assert file_row["function_count"] == 1
+
     file_id = file_row["id"]
 
     # 3. Verify Class & Function Relationships (Foreign Keys)

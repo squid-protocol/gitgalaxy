@@ -291,16 +291,38 @@ built entirely from that investigation's evidence trail, not from memory of it.
 
 | | Occurrences investigated | Confirmed GitGalaxy defects | Confirmed comparison-tooling defects | Confirmed ctags-structural limitations |
 |---|---|---|---|---|
-| cpp | ~590 (raw ledger counts across 14 shapes) | 6 (5 filed and open, 1 filed and fixed) | 3 (fixed same session) | 2 (documented, not fixable here) |
+| cpp | ~780 (raw ledger counts, updated after the macro-shield fix) | 6 (4 filed and open, 2 filed and fixed) | 4 (fixed across two follow-up rounds) | 3 (documented, not fixable here) |
 
 Six real GitGalaxy engine defects were confirmed and filed in this sweep — more than any other
 language this sweep methodology has been run against so far, though that reflects C++'s syntactic
 complexity (templates, operator overloading, out-of-class definitions, GNU extensions in real
-corpus code) at least as much as it reflects anything specific to this scanner's cpp rules. One
-of the six (#2011) was fixed in a follow-up commit in the same PR rather than staying open — see
-below for why.
+corpus code) at least as much as it reflects anything specific to this scanner's cpp rules. Two of
+the six were fixed in follow-up commits rather than staying open: #2011 (forward declarations) the
+same day, and a macro-invocation false-positive class (never filed as its own numbered issue —
+diagnosed and fixed directly by comparing against ctags' own working behavior) the day after,
+which is what moved cpp's Func Precision badge from ctags to GitGalaxy — see "Where GitGalaxy wins
+outright" below for the full story.
 
 ### Where GitGalaxy wins outright
+
+**Update (2026-08-21): GitGalaxy now holds the Func Precision badge for cpp outright** — 99.7%
+(1356/1360) vs. ctags' 97.8% (1348/1378) and tree-sitter's 87.0% (1297/1491). This flipped from
+ctags leading (97.8% vs. GitGalaxy's ~92%) earlier the same day, via a real fix: `detector.py`'s
+`_slice_by_braces` (the cpp/c integration mode) now scans each file for `#define NAME(...)`
+function-like macro definitions and excludes any `func_start` match whose captured name is a
+known macro — the exact fact universal-ctags itself already relies on (confirmed via a direct
+`ctags -f -` run: ctags tags a macro name once, at its own `#define` line, and never re-tags an
+invocation of it as a function; it isn't smarter about the invocation's shape, it just already
+knows the name is a macro). This eliminated a 105-occurrence false-positive class GitGalaxy shared
+with tree-sitter (`OPCODE(OPCODE_OPERATOR) { ... }`, a bytecode-dispatch macro in
+`godot/gdscript_vm.cpp` — `#define OPCODE(m_op) case m_op:`) that had been the single largest
+factor dragging GitGalaxy's precision below ctags'. The same fix (shared code path, `lang_id in
+("c", "cpp")`) also resolved the already-documented C `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/
+`SLOT1BINFULL`/`DICT___REVERSED___METHODDEF` false positives for free — see `c.md`'s own §9 for
+that side. Verified via 11 hand-built regression cases were not needed here (no new capture-group
+edge cases, purely a post-match name-exclusion filter); instead verified via 3 repeated
+full-corpus scans producing byte-identical function-name lists, the full extraction gauntlet, and
+both golden masters re-blessed.
 
 - **Macro-invocation false positives ARE caught correctly in most cases** — GitGalaxy's own
   func_start regex does not get fooled by ordinary macro calls the way ctags' parser sometimes is
@@ -310,6 +332,12 @@ below for why.
   correctly (see below), show GitGalaxy in essentially full agreement with tree-sitter's own
   parse across NVDA/storage.cpp, godot/*, and mlir/flatbuffer_export.cc — thousands of real
   qualified methods, zero disagreement once compared correctly.
+- **A genuine, not-yet-root-caused ctags gap on ordinary methods with no macro involvement at
+  all** surfaced once the macro-family false positives were cleared out of the way: ctags produces
+  zero tags anywhere near `virtual RID mesh_create_from_surfaces(const Vector<RenderingServerTypes::
+  SurfaceData> &p_surfaces, int p_blend_shape_count = 0) override { ... }`
+  (`godot/rendering_server_default.h`) and 4 sibling methods in the same class — a real,
+  independently-confirmed ctags limitation, not a macro-parsing issue at all.
 
 ### Confirmed real GitGalaxy defects
 
@@ -396,11 +424,19 @@ GitGalaxy, not in tree-sitter or ctags themselves:
 - ctags mistags a **macro used as a return-type prefix or dispatch label** as the function itself
   — Windows COM's `IFACEMETHODIMP_(void) FancyZones::Run() noexcept {...}` tags `IFACEMETHODIMP_`
   as a complete function and loses the real `FancyZones::Run` name entirely; the same shape hits
-  `godot/rendering_server_default.h`'s `FUNC2`/`FUNC3`/`FUNCRIDTEX1` macros and
-  `godot/gdscript_vm.cpp`'s `OPCODE`/`OPCODE_WHILE`/`OPCODE_SWITCH` bytecode-dispatch macros — the
-  latter is shared with GitGalaxy and tree-sitter, which independently misparse the *same* macro
-  invocations as function definitions (a genuine shared mistake between GitGalaxy and tree-sitter,
-  not real corroboration — see the ledger's own `agree[gitgalaxy,tree_sitter]_vs[ctags]` verdict).
+  `godot/rendering_server_default.h`'s `FUNC2`/`FUNC3`/`FUNCRIDTEX1` macros. **Update
+  (2026-08-21):** `godot/gdscript_vm.cpp`'s `OPCODE`/`OPCODE_WHILE`/`OPCODE_SWITCH`
+  bytecode-dispatch macros used to be in this same bullet as a case GitGalaxy and tree-sitter also
+  got fooled by (a genuine shared mistake, not real corroboration) — GitGalaxy no longer does,
+  fixed by teaching it the same fact ctags already relies on (see "Where GitGalaxy wins outright"
+  above); tree-sitter's own copy of this mistake is unchanged and now cleanly isolated in the
+  ledger's `agree[tree_sitter]_vs[ctags,gitgalaxy]` shape instead.
+- ctags **misses an ordinary method with no macro involvement at all** — confirmed once the
+  macro-family false positives above stopped crowding out everything else in the same shape:
+  `godot/rendering_server_default.h`'s `mesh_create_from_surfaces` and 4 sibling methods (real
+  `virtual ... override` declarations, templated parameter types, default parameter values, no
+  macros anywhere nearby) get zero ctags tags at all. Confirmed real, not yet root-caused to a
+  specific parser trigger.
 
 ### Full record
 

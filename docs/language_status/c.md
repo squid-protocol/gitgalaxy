@@ -293,6 +293,24 @@ cpython, doom, sqlite, micropython, and more):
 | Class recall/precision | **100%** (61/61) | 100% (61/61) | 100% (61/61) | fully reconciled after this pass's fixes — see below |
 | Args exact-match | **100%** (1710/1710) | 99.9% (1709/1710) | 100% (1710/1710) | tied for best |
 
+**Update (2026-08-21):** the credit_tools adjustment this table's own GitGalaxy 100% row relied on
+(see the note directly below) is no longer needed at all — GitGalaxy now finds `slot_mp_ass_subscript`/
+`slot_nb_inplace_power`/`slot_tp_repr`/`slot_tp_hash` (and every other real function) WITHOUT ALSO
+producing the `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/`SLOT1BINFULL`/`DICT___REVERSED___METHODDEF` false
+positives that used to sit alongside them, since `_slice_by_braces` in `detector.py` now scans
+each file for `#define NAME(...)` function-like macro definitions and excludes any match whose
+name is a known macro (the same fact universal-ctags itself already uses — confirmed via a direct
+`ctags -f -` run that ctags tags a macro name once, at its own `#define` line, and never re-tags an
+invocation of it). This was originally built to fix an analogous cpp false positive
+(`OPCODE(m_op) { ... }`, a bytecode-dispatch macro in godot/gdscript_vm.cpp) and turned out to fix
+this C shape too, for free, since both languages share the same C preprocessor and the same
+`_slice_by_braces` code path. Fresh numbers post-fix: GitGalaxy 1719/1719 = **100%** raw (no credit
+adjustment needed), ctags 1712/1733 = 98.8%, tree-sitter 1702/1790 = 95.1% — GitGalaxy now wins
+this panel outright with cleaner ground truth, not a ledger override. See
+`docs/self_scan/tri_comparison_ledger.json`'s `c/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`
+entry for the current verdict and the small (3-occurrence) residual finding this surfaced
+(`slot_nb_power`/`slot_nb_bool`/`wrap_next`, not yet individually root-caused).
+
 \* All three function-precision numbers now reflect `tri_comparison_ledger.py`'s verified
 credit/debit mechanism (added 2026-08-20 for GitGalaxy's credit, extended the same day for
 ctags/tree-sitter's debit) rather than raw tool agreement alone — a raw agreement percentage can't

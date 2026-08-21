@@ -2795,6 +2795,40 @@ class StructuralExtractor:
 
         safe_code = self._build_brace_safe_stream(code, lang_id)
 
+        # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
+        # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
+        # dispatch loop -- `#define OPCODE(m_op) case m_op:`) is syntactically
+        # indistinguishable from a real function definition using this regex's own
+        # signature shape alone: after the invocation's balanced `(...)`, the very next
+        # real token legitimately IS `{` either way (a real function body, or here, the
+        # macro-expanded case's own body). No lexical difference exists at the regex
+        # level -- but universal-ctags (also a lexical/regex-based tool, not a full
+        # parser) never has this problem, and empirically it's NOT because ctags is
+        # smarter about the invocation's shape: confirmed via a direct `ctags -f -` run
+        # against this exact file that ctags tags `OPCODE` only ONCE, at its own
+        # `#define` line (kind `d`, macro), and produces ZERO tags at any of the
+        # invocation sites -- it simply already knows "OPCODE" is a previously-defined
+        # macro name and never re-tags an invocation of a KNOWN macro as a function,
+        # full stop. That's a copyable, file-scoped fact this regex can extract too: a
+        # function-like macro definition's own name can never legitimately be reused as
+        # a real function's name in the same translation unit (the preprocessor would
+        # substitute every such invocation before a compiler ever saw a call), so any
+        # captured name matching a `#define NAME(...)` seen earlier in this same file is
+        # excluded below. Gated to c/cpp only (the only languages in this integration
+        # mode with a real C preprocessor); intentionally ignores `#undef` (a macro
+        # legitimately redefined-as-a-real-function after being undef'd) as a rare
+        # enough edge case not worth the added complexity -- ctags' own behavior above
+        # doesn't special-case it either, confirmed via the same probe.
+        # Scanned against the RAW `code`, not `safe_code`: `_build_brace_safe_stream`
+        # blanks out `#define` lines entirely (they're a common source of unbalanced/
+        # stray braces inside a macro body that would otherwise corrupt the brace-depth
+        # counter downstream), so `safe_code` has nothing left here to match against.
+        known_macro_names: frozenset[str] = frozenset()
+        if lang_id in ("c", "cpp"):
+            known_macro_names = frozenset(
+                m.group(1) for m in re.finditer(r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(", code, re.M)
+            )
+
         # BUG FIX (epic #813, extraction hardening, #814/#815): func_start
         # used to be matched against the raw, unshielded `code` -- computed
         # above, BEFORE `safe_code` existed. That let a single-line string
@@ -3575,6 +3609,9 @@ class StructuralExtractor:
             name = self._extract_name(raw_name)
             current_line_count += code.count("\n", last_counted_idx, start_idx)
             last_counted_idx = start_idx
+
+            if name in known_macro_names:
+                continue
 
             sat, mag = self._calculate_block_metrics(
                 name,

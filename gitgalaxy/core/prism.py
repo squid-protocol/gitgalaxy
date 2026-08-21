@@ -337,7 +337,9 @@ class Prism:
             return code, "\n".join(lits)
 
         if family in ("positional_anchored", "positional_abap"):
-            code, pos_lits = self._strip_positional_comments(text, abap_mode=(family == "positional_abap"))
+            code, pos_lits = self._strip_positional_comments(
+                text, abap_mode=(family == "positional_abap"), cobol_mode=(lang_id == "cobol")
+            )
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)
@@ -867,7 +869,9 @@ class Prism:
         # 3. Final Logic Unmasking
         return unmask(protected_code), lits
 
-    def _strip_positional_comments(self, text: str, abap_mode: bool = False) -> tuple[str, str]:
+    def _strip_positional_comments(
+        self, text: str, abap_mode: bool = False, cobol_mode: bool = False
+    ) -> tuple[str, str]:
         """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran/ABAP)."""
         code, lits = [], []
 
@@ -883,9 +887,18 @@ class Prism:
         anchors = {"*"} if abap_mode else self.POSITIONAL_ANCHORS
 
         for line in text.split("\n"):
-            # 1. Legacy Column-1 or Column-7 anchors (Fixed Form) -- column 7 is a
-            # COBOL/Fortran fixed-form concept, not applicable to free-form ABAP.
-            if (len(line) >= 1 and line[0] in anchors) or (not abap_mode and len(line) >= 7 and line[6] in anchors):
+            # 1. Legacy Column-1 (Fortran/COBOL) or Column-7 (COBOL only) anchors
+            # (Fixed Form). Column 7 is COBOL's indicator area ('*' = comment) --
+            # real fixed-form Fortran 77 has no such convention (its only comment
+            # marker is column 1; column 6 is a continuation flag, not a comment
+            # one). Confirmed real (tri-comparison-ledger-sweep, fortran, 2026-08-21):
+            # applying the column-7 check to Fortran too silently erased any real
+            # statement whose 7th character happened to coincide with an anchor
+            # char -- e.g. a 3-space-indented `   FUNCTION foo(...)` puts the 'C'
+            # of FUNCTION at column 7, wiping the whole declaration line as a
+            # bogus comment before func_start ever saw it (wrf/module_configure.F:353
+            # `in_use_for_config`, wrf/module_domain.F:1693 `first_loc_integer`).
+            if (len(line) >= 1 and line[0] in anchors) or (cobol_mode and len(line) >= 7 and line[6] in anchors):
                 code.append("")
                 lits.append(line)
                 continue

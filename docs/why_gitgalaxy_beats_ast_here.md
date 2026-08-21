@@ -531,6 +531,21 @@ invocations (`_Py_COMP_DIAG_PUSH`/`_Py_COMP_DIAG_IGNORE_DEPR_DECLS`/`_Py_COMP_DI
 `cpython/object.c:1269-1271`) whose lack of a trailing `;` the grammar can't cleanly recover from,
 losing the next real function (`_PyObject_SetAttributeErrorContext`).
 
+**Fortran tri-comparison ledger confirmation (2026-08-21, tri-comparison ledger
+`fortran/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`, 14 occurrences):** this
+session's `tri-comparison-ledger-sweep` pass independently re-confirmed the original accuracy-audit
+finding above via the ledger's own, differently-sourced comparison path (a raw per-file name diff
+against `tests/tools/tri_comparison_gatherer.py`'s output, not the accuracy-audit's promotion
+logic) -- 11 subroutines in `wrf/module_physics_init.F` (`bl_init`, `ra_init`, `landuse_init`,
+`mp_init`, `cu_init`, `shcu_init`, `CAM_INIT`, `z2sigma`, `fdob_init`, `fg_init`,
+`ALLOCATE_CAM_ARRAYS`) and 3 in `wrf/wrf_timeseries.F` (`calc_p8w`, `calc_ts`, `write_ts`), all
+correctly found by both ctags and GitGalaxy, all invisible to tree-sitter. Directly verified
+against `_find_blind_spot_ranges()`'s own `ERROR`/`preproc_*` node walk (not just inferred from the
+miss): every one of the 14 occurrences' start lines falls inside a tree-sitter-fortran blind-spot
+range in that file's real parse tree -- e.g. `bl_init`/`mp_init`/`cu_init`/`shcu_init` all sit
+inside one continuous `(2203, 4393)` blind-spot span in `module_physics_init.F`, and all 3
+`wrf_timeseries.F` occurrences fall inside a `(1, 1200)` span covering nearly the whole file.
+
 ## Claim 8: precision under C preprocessor noise — dead-code shielding and macro hallucinations
 
 For C, the preprocessor adds a meta-layer of syntax (conditional compilation, macro definitions)

@@ -68,7 +68,7 @@ epic #813), not that no cases exist.
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
 | dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | not written |
-| fortran | production | positional_anchored | 45/52 | 33 | 101 | not written |
+| **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
 | groovy | production | standard_block | 44/48 | 53 | 91 | not written |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |

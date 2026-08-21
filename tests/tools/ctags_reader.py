@@ -306,7 +306,12 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     "cpp": {"f"},
     "csharp": {"m"},  # methods; C# has no free functions
     "css": set(),  # no function-equivalent
-    "fortran": {"f", "s"},  # functions, subroutines
+    "fortran": {"f", "s", "p", "e"},  # functions, subroutines, programs, entry points -- matches
+    # GitGalaxy's own fortran func_start regex, which treats FUNCTION|SUBROUTINE|PROGRAM|ENTRY as
+    # equally function-shaped. "p"/"e" were simply absent from this map (found via tri-comparison-
+    # ledger-sweep, fortran/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter], 2026-08-21):
+    # wrf/module_initialize_real.F:7519's `program foo` is a real ctags "program" tag ctags itself
+    # emits correctly, just invisible to this comparison because "p" wasn't in the set.
     "go": {"f"},
     "haskell": {"f"},
     "html": set(),
@@ -373,7 +378,15 @@ CTAGS_CLASS_KINDS: dict[str, set[str]] = {
     # addition -- no source-text gate needed the way cpp's `_is_cpp_unscoped_enum` requires.
     "css": {"c"},  # CSS "class" kind is a literal .class selector -- matches GitGalaxy's own
     # css class_start intent (it also targets selector-like entities)
-    "fortran": {"t"},  # derived types and structures
+    "fortran": {"t", "m", "i", "S", "b"},  # derived types/structures, modules, interfaces,
+    # submodules, block data -- matches GitGalaxy's own fortran class_start regex
+    # (MODULE|BLOCK DATA|INTERFACE|SUBMODULE|TYPE, gitgalaxy/standards/language_standards.py).
+    # "m"/"i"/"S"/"b" were simply absent from this map, same shape as the cpp/csharp gaps above
+    # (found via tri-comparison-ledger-sweep, fortran/class/existence/
+    # agree[gitgalaxy,tree_sitter]_vs[ctags], 2026-08-21): ctags correctly tags every WRF
+    # `MODULE ...`/`INTERFACE ...` with its own "m"/"i" kind (confirmed directly, e.g.
+    # wrf/module_configure.F's module_configure/module_irr_diag/module_scalar_tables and
+    # module_domain.F's `INTERFACE get_ijk_from_grid`), just invisible to this comparison.
     "go": {"s", "i"},  # struct, interface -- matches GitGalaxy's own `type X struct|interface`
     "haskell": set(),  # no class-shaped kind in ctags' Haskell parser at all
     "html": set(),

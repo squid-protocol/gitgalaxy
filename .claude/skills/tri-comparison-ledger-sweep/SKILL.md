@@ -1,6 +1,6 @@
 ---
 name: tri-comparison-ledger-sweep
-description: Run a Claude-mediated, Gemini-investigated sweep of GitGalaxy's tri-comparison ledger (docs/self_scan/tri_comparison_ledger.json) -- pick unvalidated discrepancy shapes (GitGalaxy vs. tree-sitter vs. ctags disagreements with no privileged ground truth), dispatch each to a read-only Gemini/agy subagent to read real corpus source and determine what's actually true, review and apply the returned verdict to the ledger, file a GitHub issue for any confirmed engine defect found along the way, and keep a pool of dispatches active until the backlog thins out. Use when the user asks to "investigate the ledger", "dispatch gemini for tri-comparison", "run a ledger sweep", "verify tri-comparison discrepancies", "earn some badges back", or similar recurring tri_comparison_ledger.json-driven work. Also covers validating a language with NO comparison tool at all (abap, dockerfile, jcl, livecode, yaml -- neither tree-sitter nor ctags) via the dedicated manual-verification fallback section, since that's still this skill's territory even though the ledger itself has nothing to dispatch. Not for implementing an already-diagnosed engine fix (that's a normal PR, or tree-sitter-accuracy-sweep if it's tree-sitter-accuracy-audit.py-shaped instead), and not for a single hand-picked shape with no candidate-selection step (just dispatch directly).
+description: Run a Claude-mediated, Gemini-investigated sweep of GitGalaxy's tri-comparison ledger (docs/self_scan/tri_comparison_ledger.json) -- pick unvalidated discrepancy shapes (GitGalaxy vs. tree-sitter vs. ctags disagreements with no privileged ground truth), pull the full raw per-tool comparison directly (not just the ledger's capped sample) to scope the shape precisely, dispatch each to a read-only Gemini/agy subagent (or investigate directly when the answer is already obvious from source) to determine what's actually true, review and apply the returned verdict to the ledger, file a GitHub issue for any confirmed engine defect found along the way -- and, when the defect is small and well-scoped, fix and ship it in the same pass with the full verification chain -- and keep a pool of dispatches active until the backlog thins out. Use when the user asks to "investigate the ledger", "dispatch gemini for tri-comparison", "run a ledger sweep", "verify tri-comparison discrepancies", "earn some badges back", "what is GitGalaxy missing for X", "assess X for a badge", or similar recurring tri_comparison_ledger.json-driven work. Also covers validating a language with NO comparison tool at all (abap, dockerfile, jcl, livecode, yaml -- neither tree-sitter nor ctags) via the dedicated manual-verification fallback section, since that's still this skill's territory even though the ledger itself has nothing to dispatch. Not for picking up a fix that was ALREADY fully diagnosed somewhere else with no investigation of your own to do (that's a normal PR, or tree-sitter-accuracy-sweep if it's tree-sitter-accuracy-audit.py-shaped instead), and not for a single hand-picked shape with no candidate-selection step (just dispatch directly).
 ---
 
 Source of truth for the underlying tool is `tests/tools/tri_comparison_reconcile.py`'s and
@@ -13,20 +13,31 @@ committed, auditable ledger entry.
 
 **Candidate selection and verdict review stay in the main conversation.** Only the investigation
 itself -- reading corpus source at flagged locations and forming a hypothesis -- goes to a
-dispatched agent. Applying the result to the ledger, deciding whether a verdict is well-evidenced
-enough to mark `validated`, and filing issues for confirmed engine defects are judgment calls that
-stay here, same principle as `tree-sitter-accuracy-sweep`'s "root-cause in the main session."
+dispatched agent, and only when dispatching is the right call at all (step 1's "skip a shape
+whose answer is already obvious" note, informed by step 2.5's full raw comparison; plenty of
+shapes are cheaper and just as rigorous to investigate directly). Applying the result to the ledger, deciding whether a verdict is
+well-evidenced enough to mark `validated`, filing issues for confirmed engine defects, and
+deciding whether a confirmed defect is worth fixing and shipping in the same pass (step 4.3's
+bucket 1) are judgment calls that stay here, same principle as `tree-sitter-accuracy-sweep`'s
+"root-cause in the main session."
 
-## Why this is a lighter pipeline than tree-sitter-accuracy-sweep
+## Why this is a lighter pipeline than tree-sitter-accuracy-sweep -- for the DISPATCH step
 
 That skill dispatches Gemini to *write a code fix* in an isolated worktree, so it needs a prebuilt
 venv, `agy` permission grants per worktree, and one PR per language. This skill dispatches Gemini
 to *read* real source and existing tool output and report back a verdict -- no code changes, no
-worktree, no venv, no permission-grant step. Every dispatch operates read-only against the main
-checkout directly. The one thing this pipeline has that the other doesn't: **every verdict lands
-in the SAME shared file** (`docs/self_scan/tri_comparison_ledger.json`), so parallel dispatches
-must never write to it themselves -- they return text, the main session applies it serially. See
-step 4.
+worktree, no venv, no permission-grant step, for the dispatch itself. Every dispatch operates
+read-only against the main checkout directly. The one thing this pipeline has that the other
+doesn't: **every verdict lands in the SAME shared file** (`docs/self_scan/tri_comparison_ledger.json`),
+so parallel dispatches must never write to it themselves -- they return text, the main session
+applies it serially. See step 4.
+
+This "no code changes" framing describes the DISPATCH only, not the whole skill end-to-end -- when
+a dispatched (or self-investigated) shape turns up a confirmed, small, well-scoped engine defect,
+fixing and shipping it in the main session is now an explicit, encouraged part of this skill (step
+4.3's bucket 1 extension), with its own full verification chain (extraction tests, audits,
+`crucible_check.py` against the full corpus, both golden masters re-blessed). That work still
+happens in the main conversation, never delegated to the read-only dispatch.
 
 ## Before starting: confirm this language actually has a comparison tool
 
@@ -302,6 +313,63 @@ Every dispatch prompt (step 3) restates the essentials inline since a fresh agen
 this conversation, but you should have the full doc loaded in your own context before writing
 prompts, since you're the one reviewing what comes back against it (step 4).
 
+## 2.5. Pull the full raw comparison directly -- don't rely on the ledger's capped sample alone
+
+(Numbered `2.5` rather than `2b` deliberately -- `2b` is already taken by the unrelated numbered
+step inside the manual-verification fallback procedure above, "Also run the real pipeline and
+check its actual DB output.")
+
+**Do this for every shape, whether you're about to dispatch it (fold the findings into the step 3
+prompt) or investigate it yourself.** The ledger's `last_seen_examples` is capped
+(`_EXAMPLE_CAP`, currently 10) and built from the reconciler's RANK-based pairing (occurrences
+matched by sorted line-number position within each tool's own list, not matched by name) -- it's
+a real signal but not the full picture, and it only covers the ONE metric the shape names even
+though a real bug in one rule key very often has a sibling in another (see the next note). Pull
+the full raw reading directly and diff by NAME across every file in the corpus, for every metric
+that could plausibly be affected -- functions, classes, and per-name args counts -- not just the
+one the ledger flagged:
+
+```python
+import sys; sys.path.insert(0, "tests/tools")
+from tri_comparison_gatherer import gather_language
+
+readings = gather_language("<lang>")  # resolves the corpus the SAME way crucible_check.py does
+for fr in readings:
+    gg_names = {o.name for o in fr.gg_funcs}
+    ts_names = {o.name for o in fr.ts_funcs}
+    missing = ts_names - gg_names   # tree-sitter found, GitGalaxy MISSED -- a real recall gap
+    extra = gg_names - ts_names     # GitGalaxy found, tree-sitter didn't -- over-detection
+    if missing or extra:
+        print(fr.file_path, "missing_from_gg=", missing, "extra_in_gg=", extra)
+    # repeat the same set-diff for fr.gg_classes/fr.ts_classes, and diff .args per matched name
+```
+
+This gives the TRUE, uncapped occurrence count and exact file:line list to work from (real
+example, apex, 2026-08-20: the ledger's `apex/function/existence/agree[gitgalaxy]_vs[tree_sitter]`
+shape showed a 2-example capped sample from one file; a direct `gather_language("apex")` name-diff
+across the whole corpus was needed to confirm the true scope and, just as importantly, that
+classes and args had ZERO diffs anywhere else -- info the capped sample alone couldn't give, and
+which was needed to correctly scope both the GitHub issue and the fix).
+
+**This is also the direct, complete answer to a "what is GitGalaxy missing for X" question** --
+don't answer that from the ledger's framing alone. If `missing_from_gg` comes back empty
+everywhere, the honest, useful answer is "nothing -- GitGalaxy has zero recall gaps here; the real
+issue (if any) is over-detection, not under-detection," and that IS the finding, not a non-answer.
+Conflating "GitGalaxy's count differs from tree-sitter's" with "GitGalaxy is missing something"
+without doing this diff first will misdiagnose an over-detection shape as a recall gap.
+
+**Check the SAME language's sibling rule keys for the identical shape.** When a `func_start`
+defect is confirmed, test `args` (and `class_start` if relevant) standalone against the exact same
+false-positive/false-negative lines -- these keys frequently share the identical prefix/gating
+regex shape (annotation* + modifier* + optional-return-type-prefix + name), but a historical
+gating fix applied to one doesn't automatically apply to the other, and an in-code comment
+claiming they're already symmetric can be wrong (real example, apex #1963, 2026-08-20: a comment
+on `func_start`'s own #1221 fix said it "mirrors this same regex's own `args` sibling ('GHOST ARGS
+SHIELD') pattern" -- but `args` had no such shield at all; testing it standalone against the same
+lines that broke `func_start` confirmed the identical false-positive, requiring its own fix in the
+same PR). A shared root cause fixed in only one of two structurally-identical rule keys is a
+half-fixed bug, not a complete one.
+
 ## 3. Dispatch to Gemini -- read-only, no worktree, self-contained prompt
 
 Use `Agent` with `subagent_type: gemini-analyzer`, `run_in_background: true`. One dispatch per
@@ -377,6 +445,49 @@ Never write a Gemini verdict straight into the ledger on trust -- read it the wa
        issue you already filed earlier in the same sweep, add it as a comment on that issue instead
        of a duplicate -- don't file two issues for one underlying bug just because two different
        ledger shapes surfaced it.
+       **When the fix is small, well-scoped, and (especially) mirrors an already-proven pattern in
+       a sibling language or rule key, fix and ship it in the same pass instead of stopping at the
+       filed issue** -- this skill isn't limited to diagnosis when the diagnosis already IS the
+       fix (real example: apex #1963, 2026-08-20 -- a one-line `(?!new\b)` exclusion matching
+       csharp's own existing shield). This is judgment, not a mandate: a fix that needs real design
+       work, touches many languages, or has an unclear blast radius still belongs in its own
+       follow-up PR, filed and left for later. When you do ship it, the full chain is required
+       before calling it done -- this is the SAME rigor CLAUDE.md's Differential Scan protocol
+       demands of any `language_standards.py`/`detector.py`/`prism.py` change, not a lighter bar
+       just because it started as a ledger investigation:
+         1. Standalone regex re-test: false positives/negatives gone, real matches unaffected.
+         2. The language's extraction gauntlet + strict tests
+            (`tests/extraction/languages/test_<lang>.py`/`test_<lang>_strict.py`).
+         3. `python tests/ruff_audit.py --ci` / `python tests/mypy_audit.py --ci`.
+         4. **`python tests/tools/crucible_check.py` against the FULL ~80-repo corpus -- not
+            optional, and not redundant with your local corpus check even when you're confident.**
+            It resolves the corpus independently (see the gotcha below) and can surface additional,
+            independent instances of the exact same bug your local sample never touched (real
+            example: apex's fix, verified clean locally at 38/38 with zero diffs, still surfaced a
+            THIRD independent occurrence of the identical `new ClassName(` shape in
+            `xml/apex/IterationRecipes_Tests.cls` once run against the full corpus -- confirming
+            the fix generalizes rather than being narrowly tailored to the files you happened to
+            find it in).
+         5. Re-bless BOTH golden master fixtures via `python tests/tools/update_golden_master.py
+            --yes` -- it auto-detects full-precision vs. zero-dependency mode from whichever
+            venv's packages are currently importable, so it only ever blesses ONE fixture per
+            invocation. To bless the other, re-run explicitly through that mode's own venv:
+            ```bash
+            export PATH="$PWD/.crucible_venvs/zero_dependency/bin:$PATH"
+            LANGUAGE_CRUCIBLE_PATH=<sibling-path> \
+              .crucible_venvs/zero_dependency/bin/python tests/tools/update_golden_master.py --yes
+            ```
+            (swap `zero_dependency` for `full_precision` for the other direction). Read every
+            mismatch line it prints before confirming -- they should all trace back to your fix's
+            direct effect (function/param counts) or its obvious downstream ripple (topological
+            coordinates, risk percentages, structural magnitude recomputing from the corrected
+            counts), never an unrelated language or file.
+         6. **Go back and correct anything you already wrote down as "diagnosed, not yet fixed"**
+            -- the ledger verdict text, the chart (regenerate), and any capstone doc content from
+            step 8 if it already shipped in an earlier commit/PR of the SAME session. A capstone
+            doc is not fire-and-forget: if a later fix changes a fact you already wrote and merged,
+            go correct it in a follow-up commit rather than leaving stale "still open" language
+            sitting in main.
      - **Confirmed GitGalaxy correct, tree-sitter/ctags structurally can't** -- this is a
        `docs/why_gitgalaxy_beats_ast_here.md` finding. Check whether it fits an EXISTING claim
        first (this session found rust `struct`-inside-`macro_rules!` was the same mechanism as an
@@ -614,3 +725,38 @@ Commit messages should name the shapes validated, not just say "update ledger" -
   ("we know who's actually right," matching what a real cross-tool win asserts) than "probably
   fine based on a sample" earns -- don't blur the two the way this skill's own `*`/`**` distinction
   already refuses to blur unvalidated-disagreement from manual-review.
+- **Two different `language-crucible` checkouts can silently coexist and diverge.** A stray,
+  untracked `language-crucible/` directory can exist INSIDE the gitgalaxy repo checkout itself
+  (shows as `?? language-crucible/` in `git status`, typically leftover from an earlier ad hoc
+  clone) -- this is a DIFFERENT snapshot from the canonical corpus every real tool
+  (`tri_comparison_gatherer.gather_language()`, `crucible_check.py`, `update_golden_master.py`)
+  actually resolves via `tree_sitter_accuracy_audit.py`'s `ensure_corpus()`/`CRUCIBLE_PATH` (the
+  `LANGUAGE_CRUCIBLE_PATH` env var, defaulting to a SIBLING directory `../language-crucible` --
+  OUTSIDE the repo checkout entirely). A relative-path glob like
+  `language-crucible/data/<lang>/**/*.ext` run from repo root silently resolves to the wrong
+  (in-repo, possibly stale) one if it exists, producing occurrence counts that look plausible but
+  don't match what `gather_language()`/`crucible_check.py` will actually report -- confirmed to
+  cause real, time-costing confusion (2026-08-20, apex: an in-repo stray directory's copy of a
+  corpus file had different content than the canonical sibling corpus's copy, briefly looking like
+  the pipeline was suppressing false positives it wasn't). Before reading corpus files directly by
+  a hand-typed relative path, resolve it the same way the tooling does -- either call
+  `gather_language()` and use its own resolved paths (step 2.5), or:
+  `python3 -c "import sys; sys.path.insert(0,'tests/tools'); import tree_sitter_accuracy_audit as
+  tsaa; print(tsaa.ensure_corpus('<lang>'))"`.
+- **When mid-investigation work takes you back to `main`** (to check clean state, re-fetch,
+  diff against a prior commit), create/checkout a work branch IMMEDIATELY, before making any file
+  edits -- even ones that start as "just checking something." A deep investigation that turns into
+  an actual fix (step 4.3's bucket 1 extension above) can drift into editing files on `main` by
+  accident if the branch switch isn't the very next action after landing back there (confirmed
+  near-miss, 2026-08-20: real engine edits briefly existed uncommitted on `main` mid-session,
+  caught before any commit landed only because working-tree state was checked before committing --
+  don't rely on catching it that late).
+- **A verdict/commit-message string containing backticks, written via `python3 -c "..."` with
+  Bash double-quotes around the whole `-c` argument, gets silently corrupted.** Bash performs
+  command substitution on backticks inside a double-quoted argument BEFORE Python ever sees the
+  string -- since ledger verdicts routinely quote code/regex snippets Markdown-style (`` `new` ``,
+  `` `func_start` ``), this is a real, recurring trap, not a one-off. Confirmed this session
+  (2026-08-20): a verdict lost the word `new` this way, requiring a follow-up `Edit` to repair
+  after noticing the JSON already looked wrong. Avoid entirely -- write the verdict to a scratch
+  `.py` file with `Write` and run `python3 scratchfile.py`, or use a heredoc, instead of an inline
+  double-quoted `-c` string whenever the text contains backticks.

@@ -2980,11 +2980,13 @@ class StructuralExtractor:
                     pos += 1
 
                 if term_kind == "semi":
-                    continue  # a bare statement -- `;` arrived before any real terminator
-                if not term_kind:
+                    if match.lastindex == 1:
+                        end_idx = term_idx + 1
+                    else:
+                        continue  # a bare statement -- `;` arrived before any real terminator
+                elif not term_kind:
                     continue  # neither a brace nor an arrow ever showed up in the window
-
-                if term_kind == "brace":
+                elif term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 else:
                     semi_after_arrow = safe_code.find(";", term_idx, search_limit)

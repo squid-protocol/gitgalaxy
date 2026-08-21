@@ -1635,7 +1635,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1677,7 +1677,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1719,7 +1719,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 84,
       "last_seen_examples": [
         {
@@ -1833,7 +1833,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -1947,7 +1947,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -2061,7 +2061,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 60,
       "last_seen_examples": [
         {
@@ -2175,7 +2175,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2207,7 +2207,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2240,7 +2240,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 60,
       "last_seen_examples": [
         {
@@ -2354,7 +2354,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2387,7 +2387,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 30,
       "last_seen_examples": [
         {
@@ -2504,7 +2504,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 105,
       "last_seen_examples": [
         {
@@ -2618,8 +2618,8 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
-      "last_seen_count": 10,
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
+      "last_seen_count": 8,
       "last_seen_examples": [
         {
           "file_path": "godot/gdscript_vm.cpp",
@@ -2692,24 +2692,6 @@
             "gitgalaxy": 679,
             "tree_sitter": null
           }
-        },
-        {
-          "file_path": "powertoys/FancyZones.cpp",
-          "name": "m_draggingState",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 75,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "powertoys/main.cpp",
-          "name": "std::thread",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 88,
-            "tree_sitter": null
-          }
         }
       ],
       "metric": "existence",
@@ -2732,7 +2714,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-21T13:54:20Z",
+      "last_reconciled_at": "2026-08-21T15:58:30Z",
       "last_seen_count": 98,
       "last_seen_examples": [
         {

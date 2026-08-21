@@ -3176,7 +3176,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
-                r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?:[^)(]|\([^)]*\))*\)|NOARGS)"
+                # [LAMBDA-ARGUMENT SHIELD] (#2013): a lambda passed as a constructor argument or
+                # member-initializer-list entry (`m_draggingState([this]() { ... }),`,
+                # `std::thread([...]() { ... }).detach();`) balances its own parens just fine, but
+                # nothing AFTER the closing `)` distinguishes "this was a real function's own
+                # parameter list" from "this was a call passing a lambda" -- the very next
+                # non-whitespace token legitimately IS `{` either way (a real function body, or,
+                # for the initializer-list case, the ENCLOSING constructor's own body), so stage 10
+                # can't tell them apart. The one reliable, local signal: a real C++ parameter list
+                # can never syntactically START with a bare `[` -- only a lambda's capture-list
+                # does that (`[this]`, `[=]`, `[&x]`, `[]`); the sole exception is a parameter-level
+                # `[[attribute]]`, which always has a literal DOUBLE bracket. Confirmed via direct
+                # testing: FancyZones.cpp's `m_draggingState`/`std::thread` false positives are both
+                # this exact shape, and every `[[attribute]] Type param` case in the existing
+                # extraction gauntlet still matches (the lookahead only excludes a single `[` NOT
+                # immediately followed by a second one).
+                r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(]|\([^)]*\))*\)|NOARGS)"
                 # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
                 # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
                 r"(?:[ \t\n]+(?:const|volatile|noexcept|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])){0,10}"

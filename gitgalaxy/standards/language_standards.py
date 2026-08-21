@@ -37,7 +37,7 @@ for the same metrics tracked over time across pushes to main.
 | Apex | 100.0% | 95.0% | 100.0% | 100.0% |
 | C | 99.0% | 99.5% | 100.0% | 100.0% |
 | Cpp | 86.9% | 95.6% | 100.0% | 100.0% |
-| Csharp | 100.0% | 99.9% | 100.0% | 100.0% |
+| Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.0% | 97.9% | 100.0% | 100.0% |
 | Fortran | 95.8% | 100.0% | 100.0% | 100.0% |
@@ -2104,7 +2104,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # (2) `(?!\?)` at each token's start rejects a token beginning with `?` -- closes a
                 # ternary operator (`\n ? expr`) being consumed as if it were a nullable-type marker
                 # (`string?`, where the `?` never STARTS a token, it ends the preceding one).
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^>]{0,100}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){0,10}"
+                # The `<...>` alternative itself tolerates ONE level of nesting inside the outer
+                # angle brackets (mirrors the pre-existing groovy pattern at this file's Java/Groovy
+                # rule) -- needed for real multi-generic return types like `ImmutableSegmentedDictionary
+                # <ReadOnlyMemory<byte>, OneOrMany<SyntaxTree>>` (roslyn/CSharpCompilation.cs), which a
+                # flat `<[^>]{0,100}>` can't span since it stops at the FIRST inner `>`. Bounded to 5
+                # nested pairs per outer token -- 3+ levels of nesting (`List<Foo<Bar<Baz>>>`) is a
+                # real, accepted gap, not attempted, since it wasn't found in the corpus.
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){0,10}"
                 # 4. THE "NOT A FUNCTION" SHIELD
                 # Negative lookahead ensuring we don't accidentally capture control flow,
                 # primitive type keywords, or object instantiations as function names.
@@ -2131,7 +2138,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # #2054: same fix as Branch A's identical token loop above -- see its comment for
                 # full rationale (bare comma let call-argument lists be absorbed as return-type
                 # tokens; `(?!\?)` closes a ternary `?` being consumed as a nullable-type marker).
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^>]{0,100}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
                 r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
                 r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
                 r"|"

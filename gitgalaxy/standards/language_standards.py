@@ -10172,7 +10172,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # 5. class_start (Object / Entity Declarations)
             # Defines object-oriented and structural boundaries. Drives API Surface Area math.
             # `FROM` instantiates a discrete build stage/image boundary, acting as a class wrapper.
-            "class_start": re.compile(r"^[ \t]*(FROM)(?=[ \t]|\\[ \t]*(?:\r?\n|$))", re.M | re.I),
+            # Real Dockerfile syntax: `FROM <image>[:<tag>|@<digest>] [AS <stage-name>]`
+            # Extending the regex to capture the stage alias (group 1) if `AS` is present, or fallback
+            # to the base image reference (group 2) for bare forms (`FROM x`).
+            # Flags like `--platform=$VAR` are skipped over (between FROM and image reference).
+            # CRITICAL GUARDRAIL: Restricts character lengths for tokens using char-count bounds
+            # like `[^\s\\]{1,300}` (Rule 5) to prevent catastrophic backtracking on long inputs without delimiters.
+            "class_start": re.compile(
+                r"^[ \t]*FROM(?:(?:[ \t]|\\[ \t]*(?:\r?\n))+--[^\s\\]{1,100}){0,5}(?:(?:[ \t]|\\[ \t]*(?:\r?\n))+)(?:[^\s\\]{1,300}(?:(?:[ \t]|\\[ \t]*(?:\r?\n))+)AS(?:(?:[ \t]|\\[ \t]*(?:\r?\n))+)([a-zA-Z0-9_-]{1,100})|([^\s\\]{1,300}))(?=[ \t]*(?:#|\\[ \t]*(?:\r?\n|$)|\r?\n|$))",
+                re.M | re.I,
+            ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
             # 6. safety (Defensive Programming)
             # Hardening the container. Dropping root privileges (`USER nonroot`), explicit `HEALTHCHECK`,

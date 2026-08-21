@@ -383,6 +383,10 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "abap",
         "apex",
         "c",
+        # #1974: Dockerfile has no `class` keyword and thus fails the generic
+        # fallback regex. Its own class_start safely extracts build stage
+        # boundaries (either the explicit `AS <alias>` name or the base image).
+        "dockerfile",
         # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
         # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
         # independent reading (verified directly, e.g. cics-banking-sample-application-
@@ -909,7 +913,7 @@ class StructuralExtractor:
                 # Old flat boundary, now used only as a fallback for brace-less
                 # forward declarations where no real body can be located.
                 fallback_end_idx = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(code_stream)
-                if self.primary_lang_id == "abap":
+                if self.primary_lang_id in ("abap", "dockerfile"):
                     # #1907: ABAP has no brace-delimited class bodies at all
                     # (IMPLEMENTATION. ... ENDCLASS.), but DOES have string-
                     # template interpolation syntax (`|Object { name }|`)
@@ -921,6 +925,9 @@ class StructuralExtractor:
                     # couple of methods. ABAP classes are never nested, so
                     # the flat "next class match, or EOF" fallback is always
                     # correct here -- skip the brace search entirely.
+                    # #1974: Dockerfile shares this exact problem with its own
+                    # `${VAR}` template-substitution braces. Build stages are
+                    # never nested, so skip the brace search entirely here too.
                     end_idx = fallback_end_idx
                 else:
                     end_idx = self._resolve_class_scope_end(

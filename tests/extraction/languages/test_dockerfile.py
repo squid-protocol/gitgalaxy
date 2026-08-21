@@ -70,10 +70,15 @@ def test_func_start_redos():
 # CLASS_START (class_start)
 # ==============================================================================
 CLASS_START_VALID = [
-    ("FROM ubuntu:20.04", "FROM"),
-    ("FROM ubuntu AS builder", "FROM"),
-    ("fRoM   --platform=linux/amd64 ubuntu", "fRoM"),
-    ("FROM scratch", "FROM"),
+    ("FROM ubuntu:20.04", "ubuntu:20.04"),
+    ("FROM ubuntu AS builder", "builder"),
+    ("fRoM   --platform=linux/amd64 ubuntu", "ubuntu"),
+    ("FROM scratch", "scratch"),
+    ("FROM golang:${GO_VERSION}-${BASE_DEBIAN_DISTRO} AS base", "base"),
+    ("FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx", "xx"),
+    ("FROM scratch AS binary-dummy", "binary-dummy"),
+    ("FROM base AS criu", "criu"),
+    ("FROM debian:${BASE_DEBIAN_DISTRO}", "debian:${BASE_DEBIAN_DISTRO}"),
 ]
 
 CLASS_START_INVALID = [

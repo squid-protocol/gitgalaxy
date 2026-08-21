@@ -2089,7 +2089,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # parenthesized non-function construct (`var (a, b) = ...`, `... in expr(...)`)
                 # mid-walk, not just at position zero. Confirmed via language-crucible/data/
                 # csharp/roslyn/{CSharpCompilation,Workspace}.cs (real, mainstream Roslyn source).
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?:[a-zA-Z0-9_<>\[\]?.*,]|\([^()]{0,80}\))+[ \t\n]{1,200}){0,10}"
+                # #2054: (1) a bare comma in this token class let the walk absorb comma-separated
+                # CALL ARGUMENTS (`ref mdName,`/`SpecialType.None,` inside a multi-line call) as if
+                # they were return-type tokens, landing on the call's own target identifier as a
+                # phantom function name. A real return type never has a bare top-level comma outside
+                # a tuple's own parens, a generic's own angle brackets, or an array's own brackets --
+                # moved comma-tolerance into explicit `<...>`/`[...]` single-token alternatives
+                # (tuple commas already had `\([^()]{0,80}\)`) instead of allowing it bare. Confirmed
+                # via a full corpus diff this also retroactively closes ~190 previously-unknown
+                # phantom occurrences of the identical shape (`this.EatToken`, `this.ParseXxx`,
+                # `_syntaxFactory.Xxx`, etc. -- every one confirmed to have zero real declaration
+                # anywhere in the file, only call sites) that were never in scope for #1314/#2035's
+                # own fixes but shared this exact root cause.
+                # (2) `(?!\?)` at each token's start rejects a token beginning with `?` -- closes a
+                # ternary operator (`\n ? expr`) being consumed as if it were a nullable-type marker
+                # (`string?`, where the `?` never STARTS a token, it ends the preceding one).
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^>]{0,100}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){0,10}"
                 # 4. THE "NOT A FUNCTION" SHIELD
                 # Negative lookahead ensuring we don't accidentally capture control flow,
                 # primitive type keywords, or object instantiations as function names.
@@ -2113,7 +2128,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"|"
                 # Branch B: Has return type (no modifier)
                 r"(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)[ \t\n]+){0,5}"
-                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?:[a-zA-Z0-9_<>\[\]?.*,]|\([^()]{0,80}\))+[ \t\n]{1,200}){1,10}"
+                # #2054: same fix as Branch A's identical token loop above -- see its comment for
+                # full rationale (bare comma let call-argument lists be absorbed as return-type
+                # tokens; `(?!\?)` closes a ternary `?` being consumed as a nullable-type marker).
+                r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^>]{0,100}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
                 r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
                 r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
                 r"|"

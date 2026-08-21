@@ -1638,6 +1638,23 @@ _JS_KNOWN_FLOW_HALLUCINATIONS = frozenset(
     }
 )
 
+def _is_cpp_unscoped_enum(node: Any) -> bool:
+    """tree-sitter-cpp's `enum_specifier` node covers BOTH a C++11 scoped enum (`enum class Foo
+    {...}`/`enum struct Foo {...}`) and a plain, unscoped C-style enum (`enum Foo {...}`) --
+    distinguished only by whether a `class`/`struct` keyword TOKEN is one of its direct children.
+    GitGalaxy's own cpp `class_start` regex only counts the SCOPED form as a class-analog; a plain
+    enum is just a set of named integer constants, not a type with its own scope. Confirmed via
+    `cpp/class/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]` (22 occurrences, 2026-08-21) --
+    same mechanism, same fix, as `tri_comparison_gatherer.py`'s own copy of this helper (this
+    module owns its own separate walk, see that module's docstring for why). Deliberately NOT
+    applied to C: C has no scoped-enum syntax at all, so GitGalaxy's own C `class_start` counts
+    every enum unconditionally already -- gating C the same way would newly create false
+    negatives, not fix anything."""
+    if node.type != "enum_specifier":
+        return False
+    return not any(c.type in ("class", "struct") for c in node.children)
+
+
 _C_KNOWN_MACRO_HALLUCINATIONS = frozenset(
     {
         "if",
@@ -2017,7 +2034,16 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         raw_class_name = _get_node_name(node)
                         if raw_class_name:
                             raw_ts_classes.add(raw_class_name)
-                        if lang == "c" and node.child_by_field_name("body") is None:
+                        # cpp shares tree-sitter-c's class-shaped node types (struct_specifier/
+                        # union_specifier/enum_specifier, plus its own class_specifier), so a bare
+                        # forward declaration (`class Foo;`) is just as bodyless and just as much
+                        # a non-definition here as it is for C -- confirmed via
+                        # cpp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags] (95
+                        # occurrences, e.g. godot/editor_node.h:68's `class
+                        # AudioStreamPreviewGenerator;`).
+                        if (lang in ("c", "cpp") and node.child_by_field_name("body") is None) or (
+                            lang == "cpp" and _is_cpp_unscoped_enum(node)
+                        ):
                             pass
                         else:
                             name = _get_node_name(node)

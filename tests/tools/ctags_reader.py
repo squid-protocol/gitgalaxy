@@ -110,6 +110,42 @@ KIND MAPS
         `AC_DEFINE`/`AC_DEFINE_UNQUOTED` calls, zero genuine `AC_DEFUN`/`m4_define` misses) via
         `m4/function/existence/agree[ctags]_vs[gitgalaxy]` (79 occurrences total) -- a real ctags
         limitation, not a GitGalaxy defect.
+      - cpp: same macro-invocation-vs-definition confusion as C's RICHCMP_WRAPPER note above, in
+        two distinct shapes, both real ctags limitations, neither a GitGalaxy or tree-sitter
+        defect. (1) A macro used as a RETURN-TYPE PREFIX before the real function name: Windows
+        COM's `IFACEMETHODIMP_(void) FancyZones::Run() noexcept {...}`
+        (powertoys/FancyZones.cpp:213) -- ctags tags the macro invocation `IFACEMETHODIMP_(void)`
+        itself as a complete function (name `IFACEMETHODIMP_`, signature `(void)`) and then reads
+        the REAL name `FancyZones::Run` that follows as body content, missing it entirely. Same
+        shape for godot/rendering_server_default.h's `FUNC2`/`FUNC3`/`FUNCRIDTEX1` macros (each
+        expands to a full method declaration at its call site, but ctags tags the macro call
+        itself) and powertoys/ImageResizerExt.cpp's `__control_entrypoint`. (2) A macro DEFINITION
+        BODY containing what looks like a complete function declarator, tagged as if it were real,
+        already-expanded code: godot/object.h's `GDCLASS`/`_FORCE_INLINE_`-based macros
+        (`#define GDCLASS(m_class, m_inherits) ... _FORCE_INLINE_ bool (Object::*_get_get() const)
+        (...) {...} ...`) never actually run as written -- they only produce real code once
+        expanded at a `GDCLASS(SomeClass, Base)` call site elsewhere -- but ctags parses inside the
+        `#define` body itself and tags `_get_get`/`_get_set`/`_get_bind_methods`/etc. as if they
+        were ordinary member functions. Investigated via
+        `cpp/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` (1097 occurrences,
+        2026-08-21) -- the overwhelming majority of that shape was actually a
+        qualification/pattern-truncation gap in THIS reader (see `_QUALIFY_NAME_WITH_SCOPE`/
+        `--pattern-length-limit=0` below), fixed directly; these two macro-parsing shapes are the
+        genuine remainder.
+        Separately (class-side, not function): ctags' "g" (enum) kind was entirely absent from
+        `CTAGS_CLASS_KINDS["cpp"]` (unlike C's, which already had it) -- `enum class`/`enum struct`
+        (C++11 scoped enums) are real GitGalaxy class_start matches with no ctags counterpart at
+        all until this map included "g" too (gated on the source line itself distinguishing scoped
+        from unscoped enums, since ctags' own "g" kind doesn't -- see `_is_cpp_unscoped_enum`).
+        Investigated via `cpp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` (95
+        occurrences, 2026-08-21) -- a bug in this test harness (mirroring C's own pre-2026-08-19
+        gap above), not in ctags, GitGalaxy, or tree-sitter. A separate, smaller finding from the
+        same investigation is a real GitGalaxy defect, not a ctags one: `class Foo;` forward
+        declarations are counted as real classes by both GitGalaxy's `class_start` regex and this
+        module's own tree-sitter walker (fixed here -- see `_walk_tree_sitter`'s docstring) but
+        NOT by ctags, which correctly excludes them -- filed separately since the production
+        engine's fix needs care around C++ multiple inheritance, see the GitHub issue referenced in
+        tri_comparison_ledger.json's corresponding entry.
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start
     definitions before ever widening one of these maps -- do not add a kind because its letter
     looks right.
@@ -163,6 +199,7 @@ REQUIRES (only if you're actually running the tri-comparison tooling)
 from __future__ import annotations
 
 import functools
+import re
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -295,8 +332,23 @@ CTAGS_CLASS_KINDS: dict[str, set[str]] = {
     # `ctags -x` run against sqlite/lemon.c and others), this map was just dropping them before
     # reconciliation ever saw them -- a bug in this test harness, not in ctags, GitGalaxy, or
     # tree-sitter.
-    "cpp": {"c", "s"},  # class, struct
-    "csharp": {"c", "s", "i"},  # class, struct, interface
+    "cpp": {"c", "s", "u", "g"},  # class, struct, union, enum (enum gated below -- see
+    # _is_cpp_unscoped_enum: ctags' "g" kind covers BOTH `enum class Foo` and plain, unscoped
+    # `enum Foo`, but GitGalaxy's own cpp class_start regex only counts the SCOPED form
+    # (enum[ \t\n]+class|enum[ \t\n]+struct, gitgalaxy/standards/language_standards.py) --
+    # unlike C, where GitGalaxy counts every enum unconditionally (see the "c" entry above) since
+    # C has no scoped-enum concept to distinguish from. Confirmed via
+    # cpp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]: union (MTFlag/MTNumeric,
+    # godot/node.h) and enum class (AncestralClass/EditorExitKind/HotkeyId/OpType/SpecialMode/
+    # toast_notification_handler_result) were both simply absent from this map, matching C's
+    # same pre-2026-08-19 gap (9 occurrences) before it was fixed there.
+    "csharp": {"c", "s", "i", "g"},  # class, struct, interface, enum -- matches GitGalaxy's own
+    # csharp class_start regex (class|interface|struct|record(?:\s+(?:struct|class))?|enum,
+    # gitgalaxy/standards/language_standards.py). Found via the same incidental-finding pass that
+    # fixed cpp's identical gap (2026-08-21, cpp/class/existence sweep) -- "g" (enum) was simply
+    # absent from this map too. Unlike C++'s enum, C# has no scoped-vs-unscoped distinction to
+    # gate on (every `enum Foo {...}` is equally a real type), so this is a plain, unconditional
+    # addition -- no source-text gate needed the way cpp's `_is_cpp_unscoped_enum` requires.
     "css": {"c"},  # CSS "class" kind is a literal .class selector -- matches GitGalaxy's own
     # css class_start intent (it also targets selector-like entities)
     "fortran": {"t"},  # derived types and structures
@@ -370,6 +422,80 @@ def ctags_available_for_functions(lang: str) -> bool:
     return bool(CTAGS_FUNC_KINDS.get(lang))
 
 
+# ctags' "g" (enum) kind tags both `enum class Foo {...}` and plain `enum Foo {...}` identically
+# (confirmed: neither the tag's kind letter nor any extension field distinguishes them -- checked
+# with --fields=+z too), so telling them apart requires reading the tag's own verbatim matched
+# source line, the same trick _QUALIFY_NAME_WITH_SCOPE already uses below.
+_CPP_SCOPED_ENUM_RE = re.compile(r"\benum[ \t]+(?:class|struct)\b")
+
+
+def _is_cpp_unscoped_enum(kind: str, source_text: str) -> bool:
+    return kind == "g" and not _CPP_SCOPED_ENUM_RE.search(source_text)
+
+
+# ctags' scope field ("s", on by default) emits `<scopekind>:<scopename>` in the extension-fields
+# trailer -- e.g. `class:Object::Connection` for a method nested in namespace Object, class
+# Connection. Only one of these keys is ever present per tag (whichever kind actually encloses
+# it); checked in this order for no particular reason beyond determinism.
+_CTAGS_SCOPE_KIND_KEYS = ("class", "struct", "namespace", "union", "enum", "interface", "function")
+
+# Languages where GitGalaxy's and tree-sitter's own function/class name already bakes the
+# enclosing scope into the name for an OUT-OF-CLASS definition, because that source syntax spells
+# it out explicitly (C++'s `ReturnType ClassName::method(...)` convention -- both tools just read
+# the qualified identifier straight out of the source text). ctags instead splits this into a bare
+# `name` field plus a separate scope field -- and, critically, emits that SAME scope field for an
+# ordinary IN-CLASS-BODY method too (`class Foo { void bar() {...} }`), where GitGalaxy/tree-sitter
+# read the bare, unqualified name because that's genuinely all the source says. ctags' own tag data
+# can't tell these two cases apart (confirmed: both `class Foo { void bar() }` and
+# `void Foo::bar()` produce the identical `name:bar / class:Foo` tag shape) -- so qualification
+# below is gated on actually finding the literal `Scope::name` text in the tag's own verbatim
+# matched source line, not applied unconditionally. Confirmed via
+# cpp/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags] (1097 occurrences) --
+# NVDA/storage.cpp alone has 62 methods, all out-of-class definitions, where all three tools found
+# the exact same definition at the exact same line; re-joining name+scope this way (with the
+# source-line guard) resolves 969/1015 (95%) of the qualified-name occurrences corpus-wide without
+# regressing any in-class-body method.
+# Deliberately NOT applied to every ctags language: most (python, java, csharp, ...) never write
+# an out-of-class qualified definition at all, so this path is simply inert for them. If a similar
+# convention turns up for another language's ledger shapes later, add it here rather than assuming
+# this set is complete.
+_QUALIFY_NAME_WITH_SCOPE = {"cpp"}
+
+# ctags' scope VALUE for a member of a class nested inside an outer namespace includes that
+# outer namespace as its own leading segment (`tensorflow::MlirOptimizationPassRegistry`,
+# `__anon50f1088d0111::Translator` for an ANONYMOUS namespace) -- a real, structurally correct
+# enclosing scope as far as ctags' own tree is concerned. But an out-of-class DEFINITION written
+# INSIDE that same outer namespace's braces never needs to repeat it
+# (`namespace tensorflow { ... MlirOptimizationPassRegistry::Global() {...} }` writes
+# `MlirOptimizationPassRegistry::Global`, never `tensorflow::MlirOptimizationPassRegistry::Global`;
+# an anonymous namespace can't be written at all), so GitGalaxy/tree-sitter's own qualified name
+# never includes it either. Confirmed via mlir/mlir_graph_optimization_pass.cc's `tensorflow`
+# namespace and mlir/flatbuffer_export.cc's anonymous-namespace-wrapped `Translator` class -- both
+# failed the single full-chain containment check this replaced. Tries the FULL chain first, then
+# progressively drops the outermost segment, so a genuinely multi-level qualifier that IS written
+# out in full (`Object::Connection::operator<`, NVDA/storage.cpp) still matches at its own,
+# longer candidate before any shorter one is tried.
+def _cpp_qualified_name_candidates(scope_value: str, name: str):
+    segments = scope_value.split("::")
+    for i in range(len(segments)):
+        yield "::".join(segments[i:]) + "::" + name
+
+# universal-ctags' own C++ parser always renders an operator-overload tag name as `operator X`
+# (a literal space between the keyword and the symbol), regardless of whether the source itself
+# has a space there -- a fixed ctags naming convention, not a reading of the source text. GitGalaxy
+# and tree-sitter both read the identifier as written in source, which for every sampled operator
+# overload in this corpus has no space (`operator<`, `operator==`, `operator Variant`'s own
+# genuine space before a type name is the one legitimate exception, left untouched). Confirmed via
+# the same cpp/function/existence shapes above: stripping this one space resolves the remaining
+# `operator <`/`operator ==`/`operator !=`/`operator =` mismatches once scope-qualification (above)
+# is also applied.
+_CTAGS_OPERATOR_SPACE_RE = re.compile(r"^operator (?=[^A-Za-z_])")
+
+
+def _normalize_cpp_operator_name(name: str) -> str:
+    return _CTAGS_OPERATOR_SPACE_RE.sub("operator", name)
+
+
 def _parse_extension_fields(raw: str) -> dict[str, str]:
     """Parses `key:value` extension fields from a ctags tag line's tail, tab-separated. The
     `signature:(...)` field itself can legitimately contain further colons (e.g. Rust's
@@ -404,6 +530,16 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
             "-",
             "--fields=+n",
             "--fields=+S",
+            # ctags truncates its own "verbatim matched source line" pattern field by default
+            # (confirmed ~100 chars) -- harmless for most tags, but this reader leans on that
+            # exact text to decide cpp name-qualification (_QUALIFY_NAME_WITH_SCOPE) and
+            # scoped-vs-unscoped enum detection (_is_cpp_unscoped_enum), both of which need the
+            # FULL line, not a prefix. Confirmed real, not theoretical: a truncated pattern
+            # silently broke qualification for godot/editor_node.cpp's
+            # `Vector<Ref<EditorResourceConversionPlugin>> EditorNode::
+            # find_resource_conversion_plugin_for_resource(...)` -- the truncated pattern cut off
+            # mid-identifier before the closing name even appeared.
+            "--pattern-length-limit=0",
             f"--language-force={LANG_MAP[lang]}",
             str(filepath),
         ],
@@ -442,8 +578,20 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
         kind = trailer_cols[0]
         if kind not in wanted_kinds:
             continue
+        if lang == "cpp" and _is_cpp_unscoped_enum(kind, line[:marker_idx]):
+            continue
         fields = _parse_extension_fields("\t".join(trailer_cols[1:]))
         line_no = int(fields["line"]) if "line" in fields else -1
         signature = fields.get("signature")
+        if lang in _QUALIFY_NAME_WITH_SCOPE:
+            name = _normalize_cpp_operator_name(name)
+            source_text = line[:marker_idx]
+            for scope_key in _CTAGS_SCOPE_KIND_KEYS:
+                if scope_key in fields:
+                    for candidate in _cpp_qualified_name_candidates(fields[scope_key], name):
+                        if candidate in source_text:
+                            name = candidate
+                            break
+                    break
         symbols.append(CtagsSymbol(name=name, line=line_no, kind=kind, signature=signature))
     return symbols

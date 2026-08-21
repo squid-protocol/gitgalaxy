@@ -111,6 +111,28 @@ class FileReadings:
     ctags_classes: list[Occurrence]
 
 
+def _is_cpp_unscoped_enum(node) -> bool:
+    """tree-sitter-cpp's `enum_specifier` node covers BOTH a C++11 scoped enum (`enum class Foo
+    {...}`/`enum struct Foo {...}`) and a plain, unscoped C-style enum (`enum Foo {...}`) --
+    distinguished only by whether a `class`/`struct` keyword TOKEN is one of its direct children
+    (confirmed via direct parse: `enum class Foo {...}` has a `class` child between `enum` and the
+    name, `enum Bar {...}` doesn't). GitGalaxy's own cpp `class_start` regex only counts the
+    SCOPED form (`enum[ \\t\\n]+class|enum[ \\t\\n]+struct` --
+    gitgalaxy/standards/language_standards.py) as a class-analog; a plain enum is just a set of
+    named integer constants, not a type with its own scope. Confirmed via
+    `cpp/class/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]` (22 occurrences, 2026-08-21):
+    every sampled case (`godot/editor_node.h`'s `SceneNameCasing`/`ActionOnPlay`/`ActionOnStop`/
+    `MenuOptions`/`MenuType`, `godot/main.h`'s `CLIOptionAvailability`) is a plain `enum Foo {...}`
+    that GitGalaxy and ctags both correctly agree isn't a class -- only this walker's
+    unconditional `enum_specifier` counting disagreed. C is deliberately NOT included here: C has
+    no scoped-enum syntax at all, so GitGalaxy's own C `class_start` counts every enum
+    unconditionally already (see ctags_reader.py's matching `CTAGS_CLASS_KINDS["c"]` comment) --
+    gating C the same way would newly create false negatives, not fix anything."""
+    if node.type != "enum_specifier":
+        return False
+    return not any(c.type in ("class", "struct") for c in node.children)
+
+
 def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str], lang: str):
     """This module's OWN tree-sitter walk -- deliberately simpler than
     tree_sitter_accuracy_audit.py's measure()/walk(): list every func/class node's (name, line,
@@ -146,6 +168,19 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     `tree_sitter_accuracy_audit.py`'s walk() already applies for C specifically (not a
     general-purpose rule -- most languages' class-shaped node types don't have this reference/
     definition ambiguity).
+
+    Extended to cpp for the identical reason (found via
+    `cpp/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`, 95 occurrences): tree-sitter-cpp
+    inherits the same `class_specifier`/`struct_specifier`/`union_specifier`/`enum_specifier`
+    grammar from tree-sitter-c, so a bare forward declaration (`class AudioStreamPreviewGenerator;`,
+    godot/editor_node.h:68) produces the identical bodyless node tree-sitter-c's own reference/cast
+    case does -- confirmed directly (`node.child_by_field_name("body") is None` for the forward
+    declaration, not-None for a real `class Foo { ... }` definition). ctags correctly excludes
+    these; GitGalaxy's own `class_start` regex does NOT (a separate, real GitGalaxy production
+    defect -- see the GitHub issue filed alongside this fix -- deliberately NOT patched here since
+    C++ multiple inheritance (`class Foo : public A, public B {`) makes the production engine's
+    generic comma/paren/equals lookahead unsafe to reuse as-is for cpp without further design work;
+    this walker instead uses the grammar's own `body` field, which has no such ambiguity).
     """
     funcs: list[Occurrence] = []
     classes: list[Occurrence] = []
@@ -161,7 +196,9 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
                         args=tsaa._get_param_count(node, lang),
                     )
                 )
-        if node.type in class_node_types and not (lang == "c" and node.child_by_field_name("body") is None):
+        if node.type in class_node_types and not (
+            lang in ("c", "cpp") and node.child_by_field_name("body") is None
+        ) and not (lang == "cpp" and _is_cpp_unscoped_enum(node)):
             name = tsaa._get_node_name(node)
             if name:
                 classes.append(Occurrence(name=name, line=node.start_point[0] + 1, args=None))

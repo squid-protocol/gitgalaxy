@@ -146,6 +146,28 @@ KIND MAPS
         NOT by ctags, which correctly excludes them -- filed separately since the production
         engine's fix needs care around C++ multiple inheritance, see the GitHub issue referenced in
         tri_comparison_ledger.json's corresponding entry.
+      - csharp: ctags' C# parser silently drops a tag for a subset of real method declarations
+        with a complex signature, both isolated single misses and, separately, an overload-name
+        collision. (1) Complex signature: `CSharpCompilation.cs`'s `FindEntryPoint` (nullable
+        return type `MethodSymbol?`, nullable param `MethodSymbol?`, and an `out` param of a
+        generic type `out ReadOnlyBindingDiagnostic<AssemblySymbol> sealedDiagnostics`) gets no
+        tag at all, confirmed via a direct `ctags -x` run showing tags immediately before and
+        after it in the file but none at its own line -- an isolated miss, not part of a wider
+        blind region. `GetSourceDeclarationDiagnostics` (5 params including two with default
+        values and a `Func<...>` generic delegate parameter) is missed the same way. (2) Overload
+        collision: `ReportUnusedImports` has two overloads at different line numbers in the same
+        file; ctags tags only the first, silently dropping the second. Also a genuine ctags FALSE
+        POSITIVE from the same file: a `public bool Equals((ImmutableArray<byte> ContentHash, int
+        Position) x, (ImmutableArray<byte> ContentHash, int Position) y)` overload (tuple-typed
+        parameters) gets tagged under the name `bool` instead of `Equals` -- ctags' lightweight
+        parser appears to misread the return-type/tuple-parameter boundary. All confirmed via
+        `csharp/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` (107 occurrences) and
+        `csharp/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]` (1 occurrence,
+        2026-08-21) -- real, structural ctags parser limitations, not GitGalaxy or tree-sitter
+        defects. (Separately, and NOT a ctags defect: most of that 107-shape is local/nested
+        function declarations, e.g. `validateSignature`/`isSupportedType` -- ctags has no concept
+        of a local function the same way it has no concept of a local variable; GitGalaxy and
+        tree-sitter both correctly count these, ctags correctly doesn't try to.)
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start
     definitions before ever widening one of these maps -- do not add a kind because its letter
     looks right.

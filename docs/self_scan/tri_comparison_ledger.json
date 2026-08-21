@@ -3829,11 +3829,11 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:26Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T22:00:44Z",
-      "last_seen_count": 216,
+      "last_reconciled_at": "2026-08-21T22:41:42Z",
+      "last_seen_count": 218,
       "last_seen_examples": [
         {
           "file_path": "flutter/editable_text.dart",
@@ -3917,10 +3917,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed real GitGalaxy defect on args counts for class/constructor names, root cause distinct from (but likely overlapping with) the func_start existence bugs fixed in gitgalaxy#2071. Spot-checked via language-crucible/data/dart, e.g. flutter/editable_text.dart's `_DeleteTextAction` class (`class _DeleteTextAction<T extends DirectionalTextEditingIntent> extends ContextAction<T> {` at line 6352, real constructor `_DeleteTextAction(this.state, this.getTextBoundary, this._applyTextBoundary);` at line 6353 taking 3 args) -- tree-sitter correctly reports args=3 for the constructor, GitGalaxy reports args=0, most likely because GitGalaxy's func_start is matching the class declaration header itself under the same name (no explicit `(...)` immediately after the class name, since it's followed by `<T extends ...>` then `extends ContextAction<T> {`) rather than the real constructor line. This looks like the same underlying class-header-vs-function-signature ambiguity as gitgalaxy#2072 item 1 (multi-line class headers with generic type-parameter bounds), not yet isolated or fixed -- a full re-diff after this ledger sweep's existence fix still shows 302 name-matched args disagreements, most following this same class/constructor-name shape. Deliberately not fixed in this pass: root-causing exactly which of the func_start branches is misattributing these needs its own investigation with the same regression discipline the existence fix required (a naive class-header exclusion already proved unsafe once in this same investigation). Tracked as a named follow-up under gitgalaxy#2072's scope."
     },
     "dart/function/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3932,11 +3932,11 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:26Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T22:00:44Z",
-      "last_seen_count": 37,
+      "last_reconciled_at": "2026-08-21T22:41:42Z",
+      "last_seen_count": 9,
       "last_seen_examples": [
         {
           "file_path": "flutter/editable_text.dart",
@@ -3956,14 +3956,6 @@
         },
         {
           "file_path": "flutter/editable_text.dart",
-          "name": "EditableText.getEditableButtonItems",
-          "readings": {
-            "gitgalaxy": 3167,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "flutter/editable_text.dart",
           "name": "TextStyle",
           "readings": {
             "gitgalaxy": 316,
@@ -3971,59 +3963,59 @@
           }
         },
         {
-          "file_path": "flutter/editable_text.dart",
-          "name": "TargetPlatform.windows",
+          "file_path": "flutter/navigator.dart",
+          "name": "_RestorationInformation.anonymous",
           "readings": {
-            "gitgalaxy": 2117,
+            "gitgalaxy": 5970,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "flutter/editable_text.dart",
-          "name": "TargetPlatform.windows",
+          "file_path": "flutter/navigator.dart",
+          "name": "_RestorationInformation.named",
           "readings": {
-            "gitgalaxy": 4126,
+            "gitgalaxy": 5965,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "keyStringCount.update",
+          "file_path": "flutter/object.dart",
+          "name": "RenderObject",
           "readings": {
-            "gitgalaxy": 3363,
+            "gitgalaxy": 4366,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "elementStringCount.update",
+          "file_path": "flutter/object.dart",
+          "name": "_intersectRects",
           "readings": {
-            "gitgalaxy": 3383,
+            "gitgalaxy": 6741,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "_children.where",
+          "file_path": "flutter/object.dart",
+          "name": "targetFrameMatch.group",
           "readings": {
-            "gitgalaxy": 7181,
+            "gitgalaxy": 2813,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "Unknown_Block",
+          "file_path": "flutter/object.dart",
+          "name": "nodeToEnsureGeometry.toList",
           "readings": {
-            "gitgalaxy": 194,
+            "gitgalaxy": 1586,
             "tree_sitter": null
           }
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed real GitGalaxy engine defect, not a tree-sitter limitation. Root-caused two distinct false-positive bugs in dart's func_start regex's zero-prefix branch, both in gitgalaxy/standards/language_standards.py: (1) Dart 3 switch-expression arms (`Pattern => result,` including bare `_ => result,`) matched as getter definitions, because the branch's bare-`=>` lookahead alternative was unconditional (no `get` keyword required) even though Dart's real grammar has no parameterless `=> expr` construct without `get`. (2) Call statements with a lambda argument (`obj.method((x) => ...)`, `setState(() {...})`, bare self-calls like `visitChildren((Element child) {...})`) matched as function definitions, because the paren-lookahead used a naive non-balanced-paren check (`\\([^)]*\\)`) that stopped at the lambda's own closing paren instead of the outer call's. A full corpus-wide before/after diff (language-crucible/data/dart, 7 Flutter framework files) confirmed 126 false-positive matches removed and only 1 new match gained (a genuine recall fix for EditableText's own multi-line constructor) -- every one of the 126 manually spot-checked as a real false positive (dotted call receiver, or a statement ending `);`, or a switch-expression arm), none a lost real definition. Fixed in gitgalaxy#2071 (merged via this ledger-sweep PR) by gating the bare-arrow alternative behind the existing `get`-group conditional and switching to the same balanced-paren pattern already used elsewhere in this regex. A smaller, related false positive (multi-line class headers with with/implements clauses absorbed as a phantom function's return-type prefix, e.g. `implements AutofillClient {` matching as a function named AutofillClient) was found in the same investigation but is NOT fixed -- the straightforward fix (excluding implements/with/extends from the return-type-prefix vocabulary) was tested and confirmed to break a much more common legitimate pattern, generic method type-parameter bounds (`static Future<T?> pushNamed<T extends Object?>(...)`), which also uses `extends`. Tracked in gitgalaxy#2072 along with several other confirmed-but-deferred recall gaps found in the same pass."
     },
     "dart/function/existence/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -4035,11 +4027,11 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:26Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-21T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-21T22:00:44Z",
-      "last_seen_count": 18,
+      "last_reconciled_at": "2026-08-21T22:41:42Z",
+      "last_seen_count": 16,
       "last_seen_examples": [
         {
           "file_path": "flutter/editable_text.dart",
@@ -4106,27 +4098,27 @@
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "currentState",
+          "file_path": "flutter/object.dart",
+          "name": "recorder",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 192
+            "tree_sitter": 337
           }
         },
         {
-          "file_path": "flutter/framework.dart",
-          "name": "children",
+          "file_path": "flutter/semantics.dart",
+          "name": "hitTestBehavior",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 7180
+            "tree_sitter": 6575
           }
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed real GitGalaxy recall gaps (tree-sitter is correct), several distinct causes found via direct source investigation against language-crucible/data/dart. Some entries in this shape's original capped example list were incidentally resolved as a side effect of the func_start fix in gitgalaxy#2071 (e.g. EditableText's own multi-line constructor, generic-return-type getters like `Iterable<Element> get children =>`, and dotted-name getters like `T? get currentState => switch (...) {...}` all now regex-match correctly and reach the final pipeline output). A post-fix full-corpus name-diff still shows 12 residual missing_from_gg cases across 5 distinct confirmed root causes, none yet fixed: (1) EditableText's constructor and a private named constructor (_DiscreteKeyFrameSimulation._(...)) regex-match (confirmed via direct probe) but don't reach the final pipeline output -- a detector.py-level extraction bug downstream of the regex, not yet traced; (2) static getters with a dotted/prefixed-import return type (`static ui.BoxHeightStyle get defaultSelectionHeightStyle {`) never regex-match at all, because the return-type-prefix character class excludes `.`; (3) bodyless default constructors (`_EditableTextTapOutsideAction();`) don't regex-match; (4-5) several more names (recorder, ChildSemanticsConfigurationsResultBuilder, OrdinalSortKey, SemanticsData, SemanticsProperties, extension) not yet individually root-caused. All tracked as a consolidated follow-up in gitgalaxy#2072 -- deliberately not rushed, since the sibling existence shape's investigation already found one naive fix (broadening the return-type charclass or the keyword-exclusion list) can silently break a much more common legitimate pattern elsewhere, so each of these needs its own regression check before shipping."
     },
     "fortran/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [

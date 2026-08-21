@@ -136,9 +136,16 @@ FUNC_START_CASES = {
         "assert(\n  someCondition,\n  'message',\n);",
         "    try {",
         "    finally {",
+        # Issue #<TBD>: previously xfail'd as a known string/comment-lookalike gap
+        # ("String/comment lookalikes lack AST block shielding") -- fixing func_start's
+        # zero-prefix branch to use the same balanced-paren tracking the `args` rule
+        # already uses (instead of a naive, non-nesting-aware `\([^)]*\)`) means the
+        # embedded `main()` inside the string literal is now correctly tracked as a
+        # nested pair rather than mistaken for the call's own closing paren, so the
+        # `{` that follows inside the string is never reached as a false body-open.
+        "print('void main() {');",
     ],
     "xfail_invalid": [
-        "print('void main() {');",
         "/* \n void main() { \n */",
     ],
 }

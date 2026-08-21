@@ -9601,10 +9601,26 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
                 r"|"
+                # #2071: this zero-prefix branch's lookahead used to accept a bare
+                # `=>` unconditionally (no `get` required) and validated a preceding
+                # "parameter list" with a naive, non-balanced-paren `\([^)]*\)` --
+                # together these made Dart 3 switch-expression arms (`Pattern =>
+                # result,`, including bare `_ => result,`) and ordinary call
+                # statements with a lambda argument (`obj.method((x) => ...)`, whose
+                # nested `)` satisfied the naive paren check) false-positive-match as
+                # function/getter definitions. Dart's real grammar has no
+                # parameterless `=> expr` construct without an explicit `get`, so the
+                # bare-arrow alternative is now gated the same way the bare `;`
+                # alternative already is via `(?(getC)...)`. The paren alternative now
+                # reuses the SAME balanced-paren pattern the `args` rule and this
+                # regex's own return-type-prefix groups already use elsewhere, and
+                # rejects a parameter list that opens with `:` (only valid in Dart's
+                # object-destructuring patterns, e.g. `StatefulElement(:final T
+                # state) => state,` -- never a real parameter list).
                 r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
-                r"(?:(?:get|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
-                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\([^)]*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|=>|\{))"
+                r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
                 r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"

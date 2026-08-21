@@ -161,22 +161,29 @@ Two gaps are deliberately documented rather than fixed, via `known_limitation`-n
    second capture group for the base list already exists. Not treated as a gap: `class_start`'s
    contract here is anchoring the START position, and the base-list was never part of it.
 
-**Six additional real, currently open engine defects** were found in a companion tri-comparison-
-ledger sweep on 2026-08-21 and filed the same day — not yet fixed as of this doc's snapshot:
+**Six additional real engine defects** were found in a companion tri-comparison-ledger sweep on
+2026-08-21 and filed the same day. Five are still open as of this doc's snapshot; one
+(**#2011**) was fixed in a follow-up commit in the same PR, once its downstream effect surfaced
+as a CI regression (see §9 for the full story) rather than being left filed-but-unfixed:
 
 - **[#2009](https://github.com/squid-protocol/gitgalaxy/issues/2009)** — `func_start` recall gap
-  on functions whose constructor-initializer-list span exceeds the rule's bounded length cap.
+  on functions whose constructor-initializer-list span exceeds the rule's bounded length cap. Open.
 - **[#2010](https://github.com/squid-protocol/gitgalaxy/issues/2010)** — `func_start` recall gap
-  on template-return-type conversion operators.
+  on template-return-type conversion operators. Open.
 - **[#2011](https://github.com/squid-protocol/gitgalaxy/issues/2011)** — `class_start` false
   positive on forward declarations (`class Foo;`) that never actually define the class body.
+  **Fixed** — `_cpp_class_has_body` in `detector.py` now does a depth-aware scan past an optional
+  inheritance-list clause (so C++ multiple inheritance and templated base classes aren't falsely
+  excluded the way a naive copy of C's own flat lookahead would be) before checking for a real
+  `{`. Verified via 11 hand-built regression cases, the full extraction gauntlet, and
+  `crucible_check.py` against the full corpus.
 - **[#2012](https://github.com/squid-protocol/gitgalaxy/issues/2012)** — `args` counting bugs
-  (parameter-count miscounts on specific real-world signature shapes).
+  (parameter-count miscounts on specific real-world signature shapes). Open.
 - **[#2013](https://github.com/squid-protocol/gitgalaxy/issues/2013)** — `func_start` false
-  positive on a lambda defined inside a constructor's initializer list.
+  positive on a lambda defined inside a constructor's initializer list. Open.
 - **[#2014](https://github.com/squid-protocol/gitgalaxy/issues/2014)** — a tree-sitter tooling
   defect (not a GitGalaxy engine defect), noted here for completeness since it surfaced in the same
-  cpp-focused sweep.
+  cpp-focused sweep. Open (tooling-only, no production blast radius).
 
 ## 6. Test depth
 
@@ -284,12 +291,14 @@ built entirely from that investigation's evidence trail, not from memory of it.
 
 | | Occurrences investigated | Confirmed GitGalaxy defects | Confirmed comparison-tooling defects | Confirmed ctags-structural limitations |
 |---|---|---|---|---|
-| cpp | ~590 (raw ledger counts across 14 shapes) | 6 (filed as issues) | 3 (fixed same session) | 2 (documented, not fixable here) |
+| cpp | ~590 (raw ledger counts across 14 shapes) | 6 (5 filed and open, 1 filed and fixed) | 3 (fixed same session) | 2 (documented, not fixable here) |
 
 Six real GitGalaxy engine defects were confirmed and filed in this sweep — more than any other
 language this sweep methodology has been run against so far, though that reflects C++'s syntactic
 complexity (templates, operator overloading, out-of-class definitions, GNU extensions in real
-corpus code) at least as much as it reflects anything specific to this scanner's cpp rules.
+corpus code) at least as much as it reflects anything specific to this scanner's cpp rules. One
+of the six (#2011) was fixed in a follow-up commit in the same PR rather than staying open — see
+below for why.
 
 ### Where GitGalaxy wins outright
 
@@ -302,24 +311,34 @@ corpus code) at least as much as it reflects anything specific to this scanner's
   parse across NVDA/storage.cpp, godot/*, and mlir/flatbuffer_export.cc — thousands of real
   qualified methods, zero disagreement once compared correctly.
 
-### Confirmed real GitGalaxy defects (filed, not yet fixed)
+### Confirmed real GitGalaxy defects
 
-All six need the full Differential Scan verification chain (extraction gauntlet tests,
-`crucible_check.py` against the full ~80-repo corpus, both golden masters re-blessed) before
-shipping — none were patched inline in this sweep, since each has real blast radius and/or design
-questions the sweep's own investigation flagged explicitly:
+Five of six needed (and still need) the full Differential Scan verification chain before shipping
+— real blast radius and/or open design questions the sweep's own investigation flagged
+explicitly, so they were filed rather than patched inline:
 
 - **[#2009](https://github.com/squid-protocol/gitgalaxy/issues/2009)** — func_start misses
   constructors whose member-initializer-list exceeds the regex's 500-character cap for that
-  clause (confirmed: a real 906-character initializer list in `mlir/flatbuffer_export.cc`).
+  clause (confirmed: a real 906-character initializer list in `mlir/flatbuffer_export.cc`). Open.
 - **[#2010](https://github.com/squid-protocol/gitgalaxy/issues/2010)** — func_start misses
   conversion operators with a template/generic return type (`operator Vector<T>()`) — the
-  operator-name regex branch has no support for angle-bracket generics.
-- **[#2011](https://github.com/squid-protocol/gitgalaxy/issues/2011)** — class_start counts a
+  operator-name regex branch has no support for angle-bracket generics. Open.
+- **[#2011](https://github.com/squid-protocol/gitgalaxy/issues/2011)** — class_start counted a
   bare forward declaration (`class Foo;`) as a real class definition — the same
   `_CLASS_START_REQUIRES_BODY_ANCHOR` guard that already protects C was never extended to cpp.
-  Not a trivial copy-paste fix: C++ multiple inheritance (`class Foo : public A, public B {`)
-  breaks the existing C-only lookahead regex, confirmed via direct testing.
+  **Fixed in a follow-up commit in this same PR**, once the fix's own downstream effect (the
+  tree-sitter walker fix above no longer agreeing with GitGalaxy's false positives) surfaced as a
+  `tests/tree_sitter_accuracy_baseline_cpp.json` CI regression, making the gap impossible to
+  ignore rather than leaving it filed-but-unfixed. A naive copy of C's flat lookahead regex was
+  confirmed unsafe first (C++ multiple inheritance, `class Foo : public A, public B {`, hits its
+  comma stop-char before the real `{`) -- fixed instead with a depth-aware scanner
+  (`_cpp_class_has_body`) that correctly walks through an inheritance clause's own top-level
+  commas and template args. Verified via 11 hand-built regression cases (including multi-
+  inheritance and templated bases), the full 122-test extraction gauntlet, and `crucible_check.py`
+  against the full ~80-repo corpus (zero golden-master diff, confirmed to be because the golden
+  master's audit report only exposes the raw class_start signal count, not the named-class list
+  this fix touches -- verified directly by querying a fresh scan's DB instead of trusting the
+  zero-diff result blind).
 - **[#2012](https://github.com/squid-protocol/gitgalaxy/issues/2012)** — args-counting reads 0
   for out-of-class methods and `operator()` overloads with real parameters, and off-by-one
   overcounts a constructor with an initializer list but zero real parameters. Two sub-patterns,

@@ -76,6 +76,17 @@ suppressions:
     tool: poutine
     rule-id: untrusted-checkout
     reason: >
-      Repository architecture requires automated documentation and state 
+      Repository architecture requires automated documentation and state
       rehydration. Workflows intentionally utilize elevated checkout credentials.
+    expires: ""
+  - id: docs/language_status/dockerfile.md
+    tool: checkov
+    reason: >
+      checkov's Dockerfile checks (CKV_DOCKER_2/3/7 -- missing HEALTHCHECK,
+      no non-root USER, base image uses :latest) match this file purely
+      because its name contains "dockerfile", then parse plain English
+      documentation prose (describing what GitGalaxy's regex detects,
+      e.g. "HEALTHCHECK", "USER") as if it were literal Dockerfile
+      instructions. It is a Markdown coverage doc with no fenced code
+      blocks at all, not a real Dockerfile.
     expires: ""

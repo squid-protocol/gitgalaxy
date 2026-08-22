@@ -47,7 +47,7 @@ for the same metrics tracked over time across pushes to main.
 | Html | N/A | N/A | N/A | N/A |
 | Java | 99.1% | 100.0% | 100.0% | 100.0% |
 | Javascript | 99.8% | 98.4% | 100.0% | 100.0% |
-| Kotlin | 100.0% | 96.4% | 100.0% | 100.0% |
+| Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
 | Lua | N/A | N/A | N/A | N/A |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |

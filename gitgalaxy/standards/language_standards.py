@@ -2022,11 +2022,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # extraction tests keep passing.
                 r"(?:"
                 # 1. Standard Methods
-                r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)[\w<>\[\]?,.*]+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)\w+)[ \t\n]*(\([^)]*\))|"
+                r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)(?:[\w<>\[\]?,.*]|\([^()]{0,100}\))+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)\w+)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))|"
                 # 2. Constructors
-                r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?([A-Z]\w*)[ \t\n]*(\([^)]*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
+                r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?([A-Z]\w*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
                 # 3. Lambdas
-                r"(\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
+                r"(\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
                 r")",
                 re.M,
             ),

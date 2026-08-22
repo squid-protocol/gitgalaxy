@@ -606,3 +606,29 @@ def test_csharp_redos_immunity_sweep():
     assert CSHARP_RULES["func_start"].search("public int Foo() {")
     assert CSHARP_RULES["class_start"].search("class Foo {")
     assert CSHARP_RULES["args"].search("x => x + 1")
+
+def test_csharp_args_issue_2051_mechanisms():
+    """
+    Ensures C# args regex handles tuples and generic method signatures.
+    References Issue #2051.
+    """
+    args_regex = CSHARP_RULES["args"]
+    
+    # Mechanism 1: tuple return types
+    m1 = args_regex.search("internal (bool IsCandidate, bool IsTaskLike) HasEntryPointSignature(MethodSymbol method, BindingDiagnosticBag bag)\n{\n")
+    assert m1 is not None, "Failed to match tuple return type"
+    assert m1.group(2) == "(MethodSymbol method, BindingDiagnosticBag bag)"
+    
+    m1_generic = args_regex.search("public ValueTask<(bool updated, Solution newSolution)> SetCurrentSolutionAsync(Solution oldSolution)\n{\n")
+    assert m1_generic is not None, "Failed to match generic-wrapped tuple return type"
+    assert m1_generic.group(2) == "(Solution oldSolution)"
+    
+    # Mechanism 2: tuple-typed parameters
+    m2 = args_regex.search("public bool Equals((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)\n{\n")
+    assert m2 is not None, "Failed to match tuple-typed parameters"
+    assert m2.group(2) == "((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)"
+    
+    # Mechanism 3: generic type parameters on methods
+    m3 = args_regex.search("private void OnAnyDocumentTextChanged<TArg>(\n    DocumentId documentId,\n    int something\n)\n{\n")
+    assert m3 is not None, "Failed to match generic method definition"
+    assert m3.group(2) == "(\n    DocumentId documentId,\n    int something\n)"

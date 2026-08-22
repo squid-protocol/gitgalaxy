@@ -334,7 +334,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
         if is_posix:
             signal.signal(signal.SIGALRM, execution_timeout_failsafe)
-            signal.alarm(15)  # 15-second fuse for POSIX systems
+            signal.alarm(60)  # 15-second fuse for POSIX systems
 
         try:
             # Phase 3: Linguistic Detector

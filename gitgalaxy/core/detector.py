@@ -2408,6 +2408,12 @@ class StructuralExtractor:
             if self.primary_lang_id in ("cobol", "fortran", "dockerfile"):
                 args_window_end = self._mode_a_args_window_end(code, start_idx, start_idx + end_offset)
                 args_search_text = code[start_idx:args_window_end]
+                if self.primary_lang_id == "fortran":
+                    open_idx = args_search_text.find("(")
+                    if open_idx == -1:
+                        args_count_override = 0
+                    else:
+                        args_count_override = self._count_top_level_args(args_search_text, treat_as_body=False)
 
             sat, mag = self._calculate_block_metrics(
                 name,

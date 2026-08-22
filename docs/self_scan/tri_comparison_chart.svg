@@ -361,11 +361,11 @@
 <text class="bar-value-label" x="594.0" y="771">11/11</text>
 <rect class="bar-track" x="682" y="739" width="88" height="34" rx="2"/>
 <rect x="682" y="739" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="747">123</text>
+<text class="bar-value-label" x="726.0" y="747">123*</text>
 <rect x="682" y="751" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="759">123</text>
+<text class="bar-value-label" x="726.0" y="759">123*</text>
 <rect x="682" y="763" width="68.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="771">95</text>
+<text class="bar-value-label" x="726.0" y="771">95*</text>
 <rect class="stripe" x="16" y="778" width="780" height="44"/>
 <text class="lang-label" x="20" y="803.5">go</text>
 <rect class="bar-track" x="154" y="783" width="88" height="34" rx="2"/>

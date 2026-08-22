@@ -3548,6 +3548,53 @@ class StructuralExtractor:
                 if term_kind != "brace":
                     continue  # bodyless forward declaration (or neither terminator in the window)
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+            # #2089: java's func_start regex (like csharp/rust above -- #789/#1319 --
+            # also stops right at the parameter list's opening `(` via a lookahead,
+            # without consuming it) matches a bodyless abstract/interface method
+            # declaration fine (its own lookahead explicitly allows a `;` terminator,
+            # `(?:throws...)?[{;]`), but the generic brace-only fallback below silently
+            # discards every one of them: the search window is bounded by the *next*
+            # func_start match, and since a bodyless declaration has no `{` anywhere in
+            # its own window, `brace_idx` never gets set and the match is dropped.
+            # Abstract methods and interface method signatures are one of the most
+            # common shapes in idiomatic Java, not a rare edge case -- unlike perl's
+            # #1609 bodyless *forward declarations* (deliberately discarded, since
+            # those aren't real callable members), a java `;`-terminated method IS a
+            # real, callable member (mirrors rust's #1319 trait-method fix). Track
+            # `<...>` depth (a `throws` clause can carry a generic bound,
+            # `throws Foo<Bar>`) and `[...]` depth (legacy `int foo()[]`-style
+            # array-return-type suffixes) so neither position is mistaken for the
+            # real top-level terminator.
+            elif lang_id == "java":
+                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                depth_angle = 0
+                depth_bracket = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif depth_angle == 0 and depth_bracket == 0:
+                        if ch == opener:
+                            term_idx, term_kind = pos, "brace"
+                            break
+                        elif ch == ";":
+                            term_idx, term_kind = pos, "semi"
+                            break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "semi":
+                    end_idx = term_idx + 1
+                else:
+                    continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

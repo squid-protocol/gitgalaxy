@@ -1661,7 +1661,24 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # parameter list to capture at all.
                 r"(?:"
                 # 1. Standard Methods
-                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<(?:[^<>]|<[^<>]*>)*>)[ \t\n]+){0,5}(?:[\w<>\[\]?.,]+[ \t\n]+)(\w+)[ \t\n]*(\([^)]*\))|"
+                # #2091 (sibling gap to #1486/#1489): the modifier-repeat group
+                # only allowed annotations at the very start (before any
+                # modifier), not interleaved between a generic type parameter
+                # and the return type -- but JSpecify/Checker Framework
+                # return-type annotations (`private <T> @Nullable T foo(...)`,
+                # common in modern Spring code) sit exactly there. func_start's
+                # own equivalent modifier group already got this exact fix in
+                # #1486/#1489 (`@[\w.]+(?:\(...\))?` as one of its repeated
+                # alternatives); args' Branch 1 never got the matching fix, so
+                # a signature
+                # with an interleaved annotation failed this whole branch and
+                # fell through to Branch 3, incidentally matching an unrelated
+                # lambda inside the function's own BODY and misattributing its
+                # tiny arg count as the function's real parameter count
+                # (confirmed: `Binder.java`'s `handleBindResult`, 6 real params,
+                # measured 1 -- borrowed from a `(dataObjectBinder) ->` lambda
+                # three lines into the body).
+                r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<(?:[^<>]|<[^<>]*>)*>|@[\w.]+(?:\([^)]*\))?)[ \t\n]+){0,5}(?:[\w<>\[\]?.,]+[ \t\n]+)(\w+)[ \t\n]*(\([^)]*\))|"
                 # 2. Constructors
                 r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static)[ \t\n]+)?([A-Z]\w*)[ \t\n]*(\([^)]*\))[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
                 # 3. Lambdas & Method Refs

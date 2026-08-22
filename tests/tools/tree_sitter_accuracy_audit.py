@@ -1401,6 +1401,11 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         #     not parameters, and GitGalaxy's own `_count_top_level_args` doesn't count them
         #     either, so leaving them out of this whitelist keeps both counts on the same
         #     convention.
+        #   - "spread_parameter": java's `formal_parameters` wraps a varargs parameter
+        #     (`Type... name`) in this distinct node type, not the plain "formal_parameter"
+        #     already covered above (#2090 -- confirmed via
+        #     `SpringApplication(Class<?>... primarySources)` measuring real=0 against
+        #     GitGalaxy's/ctags' correct got=1).
         counted_types = (
             "identifier",
             "assignment_pattern",
@@ -1425,6 +1430,7 @@ def _get_param_count(node: Any, lang: str = "") -> int:
             "typed_default_parameter",
             "list_splat_pattern",
             "dictionary_splat_pattern",
+            "spread_parameter",
         )
         # #1319: rust's `function_item`/`function_signature_item` parameter list ALSO uses
         # "parameter" (now covered by the base set above) plus "self_parameter" (the receiver

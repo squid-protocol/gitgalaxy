@@ -378,7 +378,7 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     "agc_assembly": {"l"},  # labels are AGC's only function-analog; GitGalaxy's own func_start
     # for assembly-family languages matches labels too
     "assembly": {"l"},
-    "cobol": {"p"},  # paragraph -- GitGalaxy's own func_start for cobol targets paragraphs
+    "cobol": {"p", "s"},  # paragraph and section -- GitGalaxy's func_start for cobol targets both
     "embedded_python": {"f", "m"},  # same method-vs-function split as python above
     "m4": {"d"},  # macro -- M4's def-like construct
     "scheme": {"f"},

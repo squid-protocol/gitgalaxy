@@ -161,15 +161,15 @@
 <rect class="stripe" x="16" y="426" width="780" height="44"/>
 <text class="lang-label" x="20" y="451.5">cobol</text>
 <rect class="bar-track" x="154" y="431" width="88" height="34" rx="2"/>
-<rect x="154" y="431" width="61.0" height="10" rx="2" fill="#2a78d6"/>
+<rect x="154" y="431" width="42.2" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="439">167</text>
 <rect x="154" y="443" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="451">241</text>
+<text class="bar-value-label" x="198.0" y="451">348</text>
 <rect class="bar-track" x="286" y="431" width="88" height="34" rx="2"/>
-<rect x="286" y="431" width="64.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="439">122/167</text>
-<rect x="286" y="443" width="44.5" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="451">122/241</text>
+<rect x="286" y="431" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="439">167/167</text>
+<rect x="286" y="443" width="42.2" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="451">167/348</text>
 <circle cx="390.0" cy="448.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="451.0">G</text>
 <rect class="bar-track" x="418" y="431" width="88" height="34" rx="2"/>

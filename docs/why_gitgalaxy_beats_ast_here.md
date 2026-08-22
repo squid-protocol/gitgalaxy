@@ -304,6 +304,86 @@ Fixed in `tests/tools/tree_sitter_accuracy_audit.py`'s `measure()` (`walk()` clo
 GitGalaxy's engine — this is purely a measurement-tool correction; GitGalaxy's own detected
 function set for this corpus is byte-for-byte identical before and after.
 
+### The other half of the javascript instance: real functions genuinely lost, and a second, independent tool hitting the same wall (2026-08-21, tri-comparison-ledger-sweep)
+
+The "Second instance" above fixes the *hallucination* half of `#1633` (garbage phantom names
+inflating the miss count); this is the *recall* half the earlier text gestured at without ever
+pinning down — real, ordinary named functions that tree-sitter's cascade genuinely loses, not
+phantom entries to filter. Confirmed directly across all four Flow-typed react corpus files
+(`react/ReactFiberBeginWork.js`, `ReactFiberWorkLoop.js`, `ReactFlightServer.js`, all carrying the
+`@flow` pragma): `tree.root_node.has_error` is `True` for every one, and two of the four
+(`ReactFiberWorkLoop.js`, `ReactFlightServer.js`) produce a single `ERROR` node spanning the
+*entire file*, line 1 to EOF — not a partial cascade, total. `ReactFiberBeginWork.js`'s own cascade
+spans lines 3221–4448 (1,227 of 4,448 lines) and swallows ordinary, unremarkable functions like
+`beginWork` (line 4164), `attemptEarlyBailoutIfNoScheduledUpdate`, `mountLazyComponent`, and
+eighteen others sampled directly from the ledger (`javascript/function/existence/
+agree[gitgalaxy]_vs[ctags,tree_sitter]`, 182 occurrences) — GitGalaxy's regex finds every one
+correctly; tree-sitter's tree has no node for them at all, not even a mangled one, because they
+sit inside the flattened `ERROR` region.
+
+**A second, independent tool hits an equivalent wall for a different reason.** ctags is not a
+tree-sitter grammar — it's Universal Ctags' own hand-written JavaScript scanner — so there was no
+a priori reason to expect it shares tree-sitter's blind spot. It does, via a different trigger.
+Isolated with a minimal standalone reproduction (not just observed in the large corpus file):
+```javascript
+function typedParam(a: Fiber | null, b: Fiber) {   // parses fine -- ctags tags "typedParam"
+  return a;
+}
+function retType(a): Fiber | null {                 // ctags tags NOTHING from here on
+  return a;
+}
+function afterCast() { ... }                        // permanently invisible to ctags too
+```
+A Flow parameter-type annotation alone (`a: Fiber | null`) doesn't trip ctags' scanner; a Flow
+*return-type* annotation after the closing paren (`): Fiber | null {`) does, and — same "one bad
+construct corrupts recovery for the rest of the file" shape as csharp's Claim 3 mechanism — ctags
+never resynchronizes afterward: `retType` itself and every function textually after it in the test
+file are silently dropped, no placeholder, no partial tag, nothing. This is confirmed as the real,
+generalizing cause (not a one-off) against the corpus itself: `react/ReactFiberBeginWork.js:4164`'s
+`beginWork` — an ordinary `function beginWork(current: Fiber | null, workInProgress: Fiber,
+renderLanes: Lanes): Fiber | null {` with exactly this return-type shape — produces zero ctags
+output of any kind, matching the isolated repro exactly.
+
+Because the two tools' cascades trigger on *different* Flow constructs (tree-sitter: a
+parenthesized type-cast expression, `(expr: Type)`; ctags: a function's own return-type
+annotation) and start at different lines, they don't lose the *same* set of functions — some names
+are recoverable from ctags but not tree-sitter and vice versa, which is why the ledger shows this
+as several distinct shapes (`agree[gitgalaxy]_vs[ctags,tree_sitter]`,
+`agree[ctags,gitgalaxy]_vs[tree_sitter]`) rather than one clean "ctags and tree-sitter agree on what
+they both missed" shape. The unifying fact across all of them: GitGalaxy's regex has no dependency
+on either tool's parse state and is never affected by where either cascade starts.
+
+**A third facet of the same root cause: correct functions, wrong argument counts.** Even where
+tree-sitter's grammar *does* still produce a real `function_declaration` node for a Flow-annotated
+function (i.e., outside any `ERROR`-swallowed region), a Flow parameter type with a union
+(`current: Fiber | null`) can corrupt that one node's own `formal_parameters` child list. Confirmed
+directly via `react/ReactFiberBeginWork.js:405`'s `updateForwardRef(current: Fiber | null,
+workInProgress: Fiber, Component: any, nextProps: any, renderLanes: Lanes)` (5 real parameters,
+confirmed by both GitGalaxy and ctags, `javascript/function/args/
+agree[ctags,gitgalaxy]_vs[tree_sitter]`): tree-sitter's `formal_parameters` node for this
+declaration contains a single `ERROR` child that swallows `current: Fiber | null,\n  workInProgress:`
+whole (merging what should be two separate parameters into one unstructured blob), followed by a
+bare `identifier` node reading `Fiber` — the *type name* of the second parameter, left behind by
+the same `ERROR` recovery and miscounted as if it were itself a third parameter. The two real
+losses and one bogus gain net out to an off-by-one undercount (4 instead of 5), not a total loss —
+a quieter, easier-to-miss failure mode than the existence-side cascades above, since the function
+is still "found," just measured with the wrong shape internally.
+
+**Fixed where this module's own walker (not `tree_sitter_accuracy_audit.py`) inherited the gap:**
+`tests/tools/tri_comparison_gatherer.py`'s `_walk_tree_sitter` is a deliberately simpler, separate
+walk from `tree_sitter_accuracy_audit.py`'s `measure()` (see that function's own docstring) — it
+had never been given the reserved-keyword/known-hallucination `method_definition` filter the
+"Second instance" fix above already proved necessary, so every hallucinated phantom name
+(`if`/`for`/`markSkippedUpdateLanes`/etc.) was still polluting the tri-comparison ledger's own
+javascript readings even after that fix landed in the accuracy-audit tool. Ported directly (reusing
+`tsaa._JS_RESERVED_STATEMENT_KEYWORDS`/`tsaa._JS_KNOWN_FLOW_HALLUCINATIONS` rather than a second
+copy) plus one new confirmed hallucination name (`markSkippedUpdateLanes`, a call-expression
+callee misparsed as a `method_definition`, added to `tsaa._JS_KNOWN_FLOW_HALLUCINATIONS` so both
+tools benefit). The recall losses documented above (real functions/correct-arg-counts tree-sitter
+and ctags can't produce at all) are the underlying grammar/scanner limitation itself, not a
+measurement-tool bug, and aren't "fixed" by anything in this repo — they're the evidence this
+section exists to record.
+
 ## A third confirmed instance: C, local single-function recovery (2026-08-19)
 
 A narrower version of this same mechanism, found via the tri-comparison ledger

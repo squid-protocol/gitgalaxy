@@ -1666,6 +1666,15 @@ _JS_KNOWN_FLOW_HALLUCINATIONS = frozenset(
         "let",
         "logRenderPhase",
         "logStartViewTransitionYieldPhase",
+        # #1633 recurrence, found via tri-comparison-ledger-sweep on javascript (2026-08-21,
+        # `agree[tree_sitter]_vs[ctags,gitgalaxy]`, ReactFiberBeginWork.js:3780): a plain call
+        # expression (`markSkippedUpdateLanes(workInProgress.lanes);`, invoking an imported
+        # function, not defining one) inside the same ERROR-cascade region hallucinates into a
+        # `method_definition` node whose "name" resolves to the callee identifier -- confirmed
+        # directly (node.type == "method_definition" at that exact line). Same mechanism as the
+        # other entries here, just a call-expression shape instead of a reserved keyword or
+        # object property.
+        "markSkippedUpdateLanes",
         "markNestedUpdateScheduled",
         "onCommitRootTestSelector",
         "recordCommitTime",

@@ -181,6 +181,22 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     C++ multiple inheritance (`class Foo : public A, public B {`) makes the production engine's
     generic comma/paren/equals lookahead unsafe to reuse as-is for cpp without further design work;
     this walker instead uses the grammar's own `body` field, which has no such ambiguity).
+
+    A third piece is ported for the identical reason (found via the tri-comparison-ledger-sweep on
+    javascript, 2026-08-21 -- the `javascript/function/existence/*` shapes involving `tree_sitter`
+    on the react corpus, e.g. `agree[gitgalaxy]_vs[ctags,tree_sitter]`/
+    `agree[tree_sitter]_vs[ctags,gitgalaxy]`): this is the exact same `#1633`/Claim 3 mechanism
+    already fixed in `tree_sitter_accuracy_audit.py`'s own walk() -- Flow-typed react source
+    (`@flow` pragma, `(expr: Type)` casts, `import {x, type Y}` specifiers) produces grammar
+    `ERROR` nodes tree-sitter-javascript can't parse around, and recovery hallucinates plain
+    control-flow keywords (`if`/`for`/`while`/...) and specific known names as `method_definition`
+    nodes. Confirmed directly against this module's own parse of `react/ReactFiberBeginWork.js`,
+    `ReactFiberWorkLoop.js`, and `ReactFlightServer.js`: each has `tree.root_node.has_error is
+    True`, with `ReactFiberWorkLoop.js`/`ReactFlightServer.js` each producing ONE `ERROR` node
+    spanning the entire file (line 1 to EOF) -- confirming this module's simpler walker was never
+    given the reserved-keyword/hallucination filter `tree_sitter_accuracy_audit.py` already proved
+    necessary, not a new bug in the underlying grammar. Reuses `tsaa`'s own frozensets directly
+    (not a re-derived copy) so there's exactly one place either list is maintained.
     """
     funcs: list[Occurrence] = []
     classes: list[Occurrence] = []
@@ -188,7 +204,18 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     def walk(node, is_continuation_clause=False):
         if node.type in func_node_types:
             name = tsaa._get_node_name(node)
-            if name and not (lang == "haskell" and is_continuation_clause):
+            if (
+                name
+                and not (lang == "haskell" and is_continuation_clause)
+                and not (
+                    lang == "javascript"
+                    and node.type == "method_definition"
+                    and (
+                        name in tsaa._JS_RESERVED_STATEMENT_KEYWORDS
+                        or name in tsaa._JS_KNOWN_FLOW_HALLUCINATIONS
+                    )
+                )
+            ):
                 funcs.append(
                     Occurrence(
                         name=name,
@@ -224,8 +251,30 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
 
 _CTAGS_ANON_NAME_RE = re.compile(r"^__anon[0-9a-f]+$")
 
+# universal-ctags' JavaScript parser uses a DIFFERENT synthetic-placeholder scheme than the C
+# parser's "__anon<hex>" above -- "AnonymousFunction<hex><seq>"/"AnonymousClass<hex><seq>" (e.g.
+# "AnonymousFunctionff8c17c30100"), emitted for every anonymous function EXPRESSION (a bare inline
+# callback with no attributable name, `jQuery.ajaxPrefilter(function(s) {...})`) and, separately,
+# for anonymous object-literal/constructor-style assignments its "class" heuristic can't otherwise
+# key on. Found via tri-comparison-ledger-sweep on javascript (2026-08-21,
+# javascript/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter], 150 occurrences): neither
+# GitGalaxy nor tree-sitter report a name for a genuinely-anonymous callback either (there isn't
+# one), so this is the exact same false-discrepancy shape as the C `__anon` case above, just a
+# differently-shaped placeholder from a different per-language ctags parser.
+#
+# Deliberately checked ONLY for lang == "javascript", NOT applied blindly to every language the
+# way the "__anon" regex above is -- confirmed directly (2026-08-21) that PHP's ctags parser
+# reuses this exact same "AnonymousClass<hex>" text for a GENUINE PHP language construct (`$obj =
+# new class { ... };`, PHP 7+ anonymous classes), which is real, valid PHP source ctags is
+# correctly tagging, not a placeholder to discard. An earlier version of this filter checked the
+# name pattern alone with no per-language gate and silently dropped a real php ctags class tag
+# (corpus-wide class found-count regression 30->29), caught before commit by re-running the full
+# `--all --write` chart and diffing every changed panel, not assumed safe from the javascript
+# corpus check alone.
+_CTAGS_JS_ANON_NAME_RE = re.compile(r"^Anonymous(?:Function|Class)[0-9a-f]+$")
 
-def _is_ctags_synthetic_anon_name(name: str) -> bool:
+
+def _is_ctags_synthetic_anon_name(name: str, lang: str) -> bool:
     """universal-ctags synthesizes a placeholder name (`__anon<hex hash>`, e.g.
     `__anon2570bd640108`) for an anonymous struct/union/enum (`typedef struct { ... } Foo;` --
     real, common C, e.g. cpython/ceval.c's platform-specific pthread attr shim) so it has
@@ -235,8 +284,13 @@ def _is_ctags_synthetic_anon_name(name: str) -> bool:
     confirmed via c/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter] (23 occurrences,
     every single sample this exact shape, spanning cpython/doom). The same exclusion GitGalaxy's
     own synthetic placeholder names already get (_SYNTHETIC_GG_FUNC_NAMES/
-    _SYNTHETIC_GG_CLASS_NAMES) applied to ctags' equivalent."""
-    return bool(_CTAGS_ANON_NAME_RE.match(name))
+    _SYNTHETIC_GG_CLASS_NAMES) applied to ctags' equivalent. Also covers javascript's own
+    "AnonymousFunction"/"AnonymousClass" placeholder scheme (_CTAGS_JS_ANON_NAME_RE above), gated
+    to `lang == "javascript"` only -- see that regex's own comment for why this one CAN'T be
+    applied language-agnostically like the "__anon" check above."""
+    if _CTAGS_ANON_NAME_RE.match(name):
+        return True
+    return lang == "javascript" and bool(_CTAGS_JS_ANON_NAME_RE.match(name))
 
 
 def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileReadings]:
@@ -312,12 +366,12 @@ def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileRe
                             args=_count_ctags_signature_params(s.signature),
                         )
                         for s in ct_syms
-                        if s.kind in ctags_func_kinds and not _is_ctags_synthetic_anon_name(s.name)
+                        if s.kind in ctags_func_kinds and not _is_ctags_synthetic_anon_name(s.name, lang)
                     ]
                     ctags_classes = [
                         Occurrence(name=s.name, line=s.line if s.line >= 0 else None, args=None)
                         for s in ct_syms
-                        if s.kind in ctags_class_kinds and not _is_ctags_synthetic_anon_name(s.name)
+                        if s.kind in ctags_class_kinds and not _is_ctags_synthetic_anon_name(s.name, lang)
                     ]
                 else:
                     ctags_funcs, ctags_classes = [], []

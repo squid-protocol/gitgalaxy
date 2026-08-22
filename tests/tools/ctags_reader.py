@@ -316,7 +316,23 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     "haskell": {"f"},
     "html": set(),
     "java": {"m"},
-    "javascript": {"f", "m"},  # functions + methods
+    "javascript": {"f", "m"},  # functions + methods -- but see two confirmed parser-level gaps
+    # (found via tri-comparison-ledger-sweep, 2026-08-21, jquery/react corpus), neither fixable by
+    # adjusting this kind set: (1) a function-valued object-literal property loses its real
+    # property-key name and falls back to a synthetic "AnonymousFunction<hex>" tag (filtered by
+    # `_is_ctags_synthetic_anon_name` in tri_comparison_gatherer.py) specifically when that literal
+    # is a CALL ARGUMENT rather than a direct assignment -- confirmed via jquery/ajax.js's
+    # `jQuery.extend(jQuery, {ajaxSetup: function(){...}, ajax: function(){...}})`: ctags' own
+    # scope-tracking loses the `ajaxSetup`/`ajax` key names entirely inside the call, while the
+    # exact same `key: function(){}` shape assigned directly (`X.prototype = {abort: function(){}}`
+    # style) tags correctly as a "method". jquery/core.js is the extreme case -- one single
+    # `jQuery.extend(jQuery, {...})` call holding 20+ real utility methods (`each`, `extend`,
+    # `grep`, ...) reduces ctags' whole-file function count to 1. (2) Flow-typed javascript (react's
+    # `@flow` source) can trip ctags' own return-type-annotation handling (`): Type {|`) and
+    # silently drop every function textually after the trigger for the rest of the file, no
+    # placeholder emitted at all -- see docs/why_gitgalaxy_beats_ast_here.md's Claim 3 for the full
+    # writeup and a minimal repro; this is ctags' own scanner hitting an equivalent, independently-
+    # triggered version of the same cascade tree-sitter-javascript already hits there.
     # kotlin: ctags has no separate free-function kind -- top-level functions tag "m" too
     # (verified via probe file: a file-scope `fun` with no enclosing class still tags "m",
     # just without a `class:` field), so "m" alone already covers both cases.
@@ -391,7 +407,18 @@ CTAGS_CLASS_KINDS: dict[str, set[str]] = {
     "haskell": set(),  # no class-shaped kind in ctags' Haskell parser at all
     "html": set(),
     "java": {"c", "i", "g"},  # class, interface, enum
-    "javascript": {"c"},
+    "javascript": {"c"},  # real `class Foo {}` -- but ctags' JS parser also tags this SAME "c"
+    # kind on any bare object-literal assignment (`var X = {...}`) or function-expression
+    # assignment (`var X = function(){}`, `obj.prop = function(){}`), a blanket heuristic for
+    # "might be used as a pre-ES6 constructor" that fires whether or not the value is ever
+    # actually invoked with `new` (found via tri-comparison-ledger-sweep,
+    # javascript/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter], 96 occurrences,
+    # 2026-08-21 -- confirmed both on the jquery/threejs corpus, e.g. jquery/css.js's plain config
+    # object `cssHooks`/`cssShow`, and via a minimal isolated repro). GitGalaxy's own class_start
+    # regex and tree-sitter's `class_declaration` node both correctly require the literal `class`
+    # keyword, so every one of these is a real ctags-side over-count, not a GitGalaxy gap -- no
+    # kind-set change fixes it since ctags gives no separate kind for "object literal" vs.
+    # "class-shaped assignment" in the first place.
     "kotlin": {"c", "i"},  # class, interface
     "lua": set(),
     "makefile": set(),

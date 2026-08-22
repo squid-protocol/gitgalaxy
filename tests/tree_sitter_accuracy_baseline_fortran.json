@@ -1,12 +1,12 @@
 {
-  "args_comparable": 137,
-  "args_exact_match": 136,
+  "args_comparable": 139,
+  "args_exact_match": 138,
   "corpus_path": "language-crucible/data/fortran",
   "extra_classes": 0,
   "extra_functions": 0,
   "files_scanned": 6,
   "found_classes": 11,
-  "found_functions": 137,
+  "found_functions": 139,
   "real_classes": 11,
-  "real_functions": 143
+  "real_functions": 141
 }

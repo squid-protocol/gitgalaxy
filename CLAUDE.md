@@ -250,6 +250,22 @@ human or agent read real source and recorded a verdict), regardless of how lopsi
 look before that. See the tri-comparison-ledger-sweep skill for the full investigate-and-verify
 workflow this drives.
 
+**Regenerating the chart/ledger itself is a separate, operational concern from the verification
+rule above — read `docs/self_scan/tri_comparison_README.md` before running
+`tri_comparison_chart.py` or hand-editing `tri_comparison_ledger.json`.** It's the canonical
+regen doc both agents point to (this file for Claude, `ANTIGRAVITY.md` for Gemini/Antigravity), not
+something to re-derive or duplicate. A real incident (PR #2111, 2026-08-22) shows why it matters:
+that regen ran with no genuine `universal-ctags` binary on PATH — Ubuntu's `arduino-ctags` package
+shadows the `ctags` binary name and silently degrades every language to a 2-tool comparison instead
+of erroring — which reverted cobol's already-validated full-precision badge, degraded fortran's,
+and dropped ctags data repo-wide, all without a single error message. Before trusting any regen's
+output: confirm `ctags --version` in your own terminal prints "Universal Ctags", not an Arduino
+banner or a not-found error; always regenerate with `--all --write`, never a partial `--languages`
+list with `--write` (it overwrites the whole file with only those languages); and never hand-set
+`status`/`verdict`/`still_reproduces` on a ledger entry — those come from a live gather or a human
+(or agent-standing-in-for-one) reading real source, never a guess about whether a shape "should"
+still reproduce.
+
 **Once verified, a rate-only TIE needs its own tie-break — don't leave it badge-less by default
 either.** Found via a real case: GitGalaxy, tree-sitter, and ctags can each land on 100% precision
 for the same language/metric (each is simply never wrong about what it itself claims, at very

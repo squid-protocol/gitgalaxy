@@ -70,7 +70,48 @@ GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture
   - Fastest path in an active session: `python tests/tools/self_scan.py` regenerates it in place.
   - If you'd rather not run a local scan, the `gitgalaxy.yml` workflow's "Full Report" job now publishes a fresh copy as a `gitgalaxy-self-scan-db` build artifact on every merge to main -- pull the latest one from that workflow's most recent run instead.
 
-## 7. Extraction Hardening & Adversarial Testing
+## 7. Tri-Comparison Chart & Ledger (GitGalaxy vs. tree-sitter vs. ctags)
+
+Full protocol lives in `docs/self_scan/tri_comparison_README.md` -- **read it before touching**
+`docs/self_scan/tri_comparison_chart.svg`, `tri_comparison_ledger.json`, or
+`tri_comparison_points_of_interest.md`. It's the canonical regen doc for both agents (Claude reads
+it via `CLAUDE.md`); this section exists because skipping it caused a real incident (PR #2111,
+2026-08-22): a regen ran with no genuine `universal-ctags` binary on PATH, and every language
+silently degraded to a 2-tool (GitGalaxy + tree-sitter) comparison instead of erroring -- reverting
+cobol's already-validated full-precision badge, degrading fortran's, and dropping ctags data across
+every ctags-covered language in the chart, with no error message at all.
+
+- **Confirm ctags before you regenerate, every time:** `ctags --version` MUST print
+  "Universal Ctags", not error and not print an Arduino banner. Ubuntu's `arduino-ctags` package
+  installs a binary under the same name and lacks most kinds this system needs -- a silently
+  degraded regen still runs and still writes a file, so a clean exit code proves nothing here.
+  If there's no root/sudo available, build a local one without it:
+  ```bash
+  mkdir -p /tmp/gitgalaxy-scratch/ctags-local && cd /tmp/gitgalaxy-scratch/ctags-local
+  apt-get download universal-ctags && dpkg -x universal-ctags*.deb extracted/
+  mkdir -p bin && ln -sf "$PWD/extracted/usr/bin/ctags-universal" bin/ctags
+  export PATH="/tmp/gitgalaxy-scratch/ctags-local/bin:$PATH"
+  ```
+- **Always regenerate with `--all --write`, never a partial `--languages` list with `--write`** --
+  a partial write overwrites the WHOLE file with only those languages, silently deleting every
+  other language's row.
+  ```bash
+  python tests/tools/tri_comparison_chart.py --all --write
+  python tests/tools/tri_comparison_report.py --write   # regen the points-of-interest doc too
+  ```
+- **Never hand-edit `tri_comparison_ledger.json`'s `status`/`verdict`/`still_reproduces`.** Those
+  are set by a human (or an agent standing in for one) reading real source per
+  `docs/self_scan/how_to_investigate_a_discrepancy.md`, then left alone by every later regen.
+  `still_reproduces` in particular is recomputed from a live gather, not something to hand-set to
+  `false` just because part of a shape's root cause got fixed in the same PR -- a shape can have a
+  permanent, structural cause (e.g. ctags mistagging COBOL scope terminators as paragraphs) that
+  keeps reproducing even after a real GitGalaxy bug contributing to the same shape is fixed. This is
+  exactly the second, smaller bug PR #2111 introduced alongside the missing-ctags one.
+- After regenerating, diff the languages you actually touched and confirm ctags/tree-sitter bars
+  and badges are still present, not just that the file changed -- a plausible-looking diff is not
+  the same as a correct one when the failure mode is silent by design.
+
+## 8. Extraction Hardening & Adversarial Testing
 
 When tasked with "hardening extraction coverage" or similar testing epics, avoid **Self-Consistency Bias** (writing tests that merely pass against the *current implementation* instead of the *actual ground truth*). Do not cement implementation flaws by writing invalid tests just because the current regex fails. 
 
@@ -84,7 +125,7 @@ To ensure rigorous, adversarial testing, structure your work into a strict **5-s
 
 *(Tip: You can use the `/teamwork-preview` slash command to help automate and visualize complex multi-agent teams for large projects).*
 
-## 8. Submitting Pull Requests
+## 9. Submitting Pull Requests
 
 When working in this repository, **you MUST ALWAYS work on a side branch and submit a PR to `main`. NEVER merge or push your changes directly to `main` without a PR.** This strict workflow ensures that tests and multi-agent pipelines are run in isolation.
 
@@ -101,7 +142,7 @@ When generating or submitting a Pull Request for this repository, it is critical
   - **Do not leave the PR body blank, sparse, or lame.** A poor description will cause the PR to be rejected.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.
 
-## 9. Scratch Files & Working Directory
+## 10. Scratch Files & Working Directory
 
 Throwaway scripts, reproduction cases, one-off debug output, and generated test artifacts that
 aren't meant to become part of the repo do **not** belong in the repo tree, not even temporarily.

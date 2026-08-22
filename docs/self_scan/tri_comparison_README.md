@@ -236,3 +236,11 @@ already degrades to.
 - [`docs/language_status/README.md`](../language_status/README.md) — per-language coverage docs;
   some carry their own tri-comparison capstone section (search for "Tri-comparison findings")
   built from this same ledger, synthesized for that one language.
+- This file is the canonical regen/operational doc for **both** coding agents working in this
+  repo — `CLAUDE.md`'s "Comparative-correctness claims require verification" section and
+  `ANTIGRAVITY.md`'s "Tri-Comparison Chart & Ledger" section both point here rather than
+  duplicating the procedure. A regen skipping the "Reproducing or updating this locally" steps
+  above (real `ctags` on PATH, `--all --write` only) caused a real incident, PR #2111
+  (2026-08-22) — every language silently lost its ctags bars/badges, including cobol's already-
+  validated full-precision badge, with no error at any point in the run. Check
+  `ctags --version` before you trust any regen's output.

@@ -22,3 +22,4 @@ When given a new issue or task, you **MUST NOT** begin modifying source code, up
 ## 3. Execution Phase
 * **STOP** and wait for the user to approve the strategy.
 * Only *after* explicit approval may you proceed to checkout a branch, edit files, bypass sandboxes for CI runs, and create pull requests.
+* **CRITICAL**: Once the user approves the plan (e.g., "approve and proceed"), you MUST execute the entire approved plan **autonomously**. Do not pause to ask for permission for individual steps (like modifying code, running tests, or committing). Only pause and ask the user if you encounter an unexpected failure or if the plan requires a major deviation.

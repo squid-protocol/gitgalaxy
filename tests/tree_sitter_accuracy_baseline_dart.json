@@ -1,12 +1,12 @@
 {
-  "args_comparable": 1730,
-  "args_exact_match": 1516,
+  "args_comparable": 1738,
+  "args_exact_match": 1519,
   "corpus_path": "language-crucible/data/dart",
   "extra_classes": 0,
-  "extra_functions": 37,
+  "extra_functions": 13,
   "files_scanned": 7,
   "found_classes": 200,
-  "found_functions": 1730,
+  "found_functions": 1738,
   "real_classes": 200,
   "real_functions": 1748
 }

@@ -3,7 +3,7 @@
   "args_exact_match": 136,
   "corpus_path": "language-crucible/data/haskell",
   "extra_classes": 0,
-  "extra_functions": 2,
+  "extra_functions": 1,
   "files_scanned": 7,
   "found_classes": 16,
   "found_functions": 146,

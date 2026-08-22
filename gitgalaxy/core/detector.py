@@ -4555,7 +4555,15 @@ class StructuralExtractor:
             # removes the false positives everywhere else, per the languages
             # this counter is reached from.
             elif ch == "<" and self.primary_lang_id in _ANGLE_BRACKET_GENERIC_LANGUAGES:
-                depth += 1
+                if (i > 0 and body[i - 1] == "<") or (i + 1 < len(body) and body[i + 1] in "=<"):
+                    pass
+                elif (i > 0 and body[i - 1].isspace()) and (i + 1 < len(body) and body[i + 1].isspace()):
+                    if i > 1 and body[i - 2] == "<":
+                        depth += 1
+                    else:
+                        pass
+                else:
+                    depth += 1
             elif ch == ">" and self.primary_lang_id in _ANGLE_BRACKET_GENERIC_LANGUAGES:
                 # #1645: a bare `>` is treated as a generic-closing bracket (Rust
                 # `Vec<T>`, TS/C++ templates), but zig's `=>` switch/match-arm
@@ -4570,7 +4578,25 @@ class StructuralExtractor:
                 # `->`/`=>` inside already-truncated text is a different,
                 # pre-existing bug this narrower guard deliberately leaves alone
                 # rather than risk shifting their baselines in a zig-scoped fix.
-                if i > 0 and body[i - 1] in "=-":
+                # NOTE: We do not check for `>>` here because nested generics like
+                # `List<List<int>>` use `>>` to close the generic. The `isspace()`
+                # check below catches bitshift `>>` if written with spaces.
+                if (i > 0 and body[i - 1] in "=-") or (i + 1 < len(body) and body[i + 1] == "="):
+                    pass
+                elif (i > 0 and body[i - 1].isspace()) and (i + 1 < len(body) and body[i + 1].isspace()):
+                    if i > 1 and body[i - 2] == ">" and depth > 0:
+                        depth -= 1
+                    else:
+                        pass
+                elif (
+                    (i > 0 and body[i - 1].isspace())
+                    and (i + 1 < len(body) and body[i + 1] == ">")
+                    and (i + 2 < len(body) and body[i + 2].isspace())
+                ) or (
+                    (i > 1 and body[i - 2].isspace())
+                    and (i > 0 and body[i - 1] == ">")
+                    and (i + 1 < len(body) and body[i + 1].isspace())
+                ):
                     pass
                 elif depth > 0:
                     depth -= 1

@@ -2475,6 +2475,14 @@ def test_count_top_level_args_angle_brackets_as_math_operators_1853():
     assert detector._count_top_level_args("(a = (x < y), b = 2)") == 2, "less-than must not inflate depth"
     assert detector._count_top_level_args("(a = (x > y, z), b = 2)") == 2, "greater-than must not close early"
 
+    # Even in generic-enabled languages like C++, math operators must not inflate or decrement depth
+    # when surrounded by spaces or used in compound operators like <<, <=.
+    cpp_detector = StructuralExtractor("cpp", {"cpp": {"rules": {}}})
+    assert cpp_detector._count_top_level_args("(int a = (x < y), int b = 2)") == 2, "C++ less-than must not inflate depth"
+    assert cpp_detector._count_top_level_args("(int a = (x > y, z), int b = 2)") == 2, "C++ greater-than must not close early"
+    assert cpp_detector._count_top_level_args("(int a = x <= y, int b = 2)") == 2, "C++ less-than-or-equal must not inflate depth"
+    assert cpp_detector._count_top_level_args("(int a = x << y, int b = 2)") == 2, "C++ bitshift must not inflate depth"
+
 
 def test_count_top_level_args_angle_brackets_still_track_generics_for_generic_languages():
     """

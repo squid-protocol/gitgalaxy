@@ -17,6 +17,7 @@ When shipping a code fix or addressing a discrepancy in GitGalaxy, the following
 * **Run the Crucible Check (Mandatory):** Execute `python tests/tools/crucible_check.py` against the full ~80-repo corpus.
 * **Re-Bless Golden Masters:** If `crucible_check.py` shows expected, accurately traced diffs resulting from your fix, bless the new state:
   `python tests/tools/crucible_check.py --update --yes`
+  * **CRITICAL CORPUS WARNING:** NEVER clone a fresh, temporary copy of `language-crucible` inside the `gitgalaxy` workspace just to bypass sandbox or path restrictions. A fresh internal clone alters absolute path metadata and Git footprints, which shifts the entire graph topology and generates massive, invalid diffs that fail in CI. Always point `LANGUAGE_CRUCIBLE_PATH` to the existing pristine sibling directory (e.g., `../language-crucible`) and run with bypass sandbox privileges if needed.
 
 ## 4. Discrepancy Ledgers & Tri-Comparison
 If your fix resolves an open shape from the Tri-Comparison Ledger (`docs/self_scan/tri_comparison_ledger.json`):
@@ -42,3 +43,9 @@ If `main` advances and causes merge conflicts in `tri_comparison_ledger.json`, `
 1. Check out the upstream version of the files to clear the conflict markers:
    `git checkout origin/main -- docs/self_scan/tri_comparison_chart.svg docs/self_scan/tri_comparison_ledger.json`
 2. Re-run the relevant regen scripts (`crucible_check.py --update --yes`, `tri_comparison_chart.py --all --write`, etc.). The scripts will cleanly recalculate and overwrite the files using your latest code and the upstream's latest ledger baseline.
+
+## 7. Continuous Integration Monitoring (Agentic)
+After pushing your branch and/or opening the PR, you MUST monitor the CI pipeline to ensure it passes.
+1. Run `gh run watch` in the background (e.g., using your `run_command` tool with `WaitMsBeforeAsync` set so it detaches to the background). 
+2. Do not wait in a polling loop. Once the background task finishes, the system will automatically wake you up with the results.
+3. If the CI fails, read the logs, fix the issue, and push the update.

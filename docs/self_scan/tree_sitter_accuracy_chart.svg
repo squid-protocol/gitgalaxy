@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1514"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-21T23:44:18+00:00 &#183; commit 3c19f55 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-22T00:17:03+00:00 &#183; commit 5a8a3a1 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -388,8 +388,8 @@
 <rect class="diff-outline" x="329.8" y="646.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="660.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="662.5">T</text>
-<rect x="344" y="651.0" width="90.7" height="8" rx="2.5" fill="#2933d6"/>
-<text class="value-label" x="439.7" y="658.5">146/148</text>
+<rect x="344" y="651.0" width="91.4" height="8" rx="2.5" fill="#292ed6"/>
+<text class="value-label" x="440.4" y="658.5">146/147</text>
 <rect x="344" y="661.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="668.5">146/146</text>
 <text class="na-dash" x="350" y="686.5">n/a</text>

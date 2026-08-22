@@ -20,11 +20,26 @@ When shipping a code fix or addressing a discrepancy in GitGalaxy, the following
   * **CRITICAL CORPUS WARNING:** NEVER clone a fresh, temporary copy of `language-crucible` inside the `gitgalaxy` workspace just to bypass sandbox or path restrictions. A fresh internal clone alters absolute path metadata and Git footprints, which shifts the entire graph topology and generates massive, invalid diffs that fail in CI. Always point `LANGUAGE_CRUCIBLE_PATH` to the existing pristine sibling directory (e.g., `../language-crucible`) and run with bypass sandbox privileges if needed.
 
 ## 4. Discrepancy Ledgers & Tri-Comparison
-If your fix resolves an open shape from the Tri-Comparison Ledger (`docs/self_scan/tri_comparison_ledger.json`):
-* **NEVER hand-edit `still_reproduces`:** `still_reproduces` is automatically recomputed by the regen script. A shape might have multiple contributing causes, so a single fix doesn't guarantee it stops reproducing. Instead, if you've added a human verdict to an unvalidated shape, only update `"status": "validated"`, `"verdict"`, `"investigated_by"`, and `"investigated_at"`.
-* **Regenerate the Chart & Report:** Re-run the tri-comparison to automatically update the SVG, recompute `still_reproduces`, and refresh the point of interest report:
+* **CI now gates this automatically if you touched `detector.py`/`prism.py`/`language_standards.py`:**
+  `tri-comparison-audit.yml` fails your PR if GitGalaxy's own *validated* precision
+  (`func_precision`/`class_precision`, read after ledger verdicts are applied — never a raw
+  disagreement count) regresses against the committed `tests/tri_comparison_baseline_<lang>.json`.
+  Run it yourself before pushing to catch this early: `python tests/tools/tri_comparison_chart.py
+  --all --ci` (needs real `ctags` on PATH and the language-crucible corpus — see the README's
+  "Reproducing or updating this locally" section). If your fix intentionally improves a language's
+  precision, lock it in with `python tests/tools/tri_comparison_chart.py --regenerate --languages
+  <lang>` and commit the updated baseline file.
+* **You no longer need to manually regenerate the chart/ledger/report before pushing.** A
+  push-to-main companion workflow (`tri-comparison-history.yml`) does that automatically once your
+  PR merges, opening its own auto-merged PR only if the numbers actually moved. Feel free to still
+  run it locally for a sanity check, but it's no longer a required pre-push step the way it used
+  to be:
   `python tests/tools/tri_comparison_chart.py --all --write`
   `python tests/tools/tri_comparison_report.py --write`
+* **NEVER hand-edit `still_reproduces`:** it's automatically recomputed by the regen script (a
+  shape might have multiple contributing causes, so a single fix doesn't guarantee it stops
+  reproducing). If you've added a human verdict to an unvalidated shape, only update
+  `"status": "validated"`, `"verdict"`, `"investigated_by"`, and `"investigated_at"` by hand.
 
 ## 5. Tree-Sitter AST & Accuracy Baseline
 * **Audit AST Accuracy:** Run `python tests/tools/tree_sitter_accuracy_audit.py --ci --all`.

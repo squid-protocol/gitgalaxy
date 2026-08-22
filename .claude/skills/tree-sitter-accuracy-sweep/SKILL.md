@@ -101,6 +101,12 @@ them and the Gemini subagent had to improvise (copying `pytest` over from the ma
 build the venv complete the first time, since agy's sandbox cannot `pip install` anything itself
 (no outbound network at all).
 
+**Verify real `ctags` is on PATH before dispatch, not just at done-bar time:** `ctags --version`
+must print `Universal Ctags`, not error or print an Arduino banner (Ubuntu's `arduino-ctags`
+package shadows the binary name -- see `docs/self_scan/tri_comparison_README.md`'s PR #2111
+writeup). Step 8's `tri_comparison_chart.py --all --ci` needs this and fails loud without it; check
+it once here rather than discovering it's missing after a full sweep of dispatches is already done.
+
 ## 5. Grant Gemini/agy access to the new worktree(s)
 
 `~/.gemini/antigravity-cli/settings.json` needs, per worktree:
@@ -200,11 +206,28 @@ export PATH="$PWD/venv/bin:$PATH"
 export LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible
 python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # bless the baseline + summary table together
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci                # see below -- not optional
+python tests/tools/tri_comparison_chart.py --all --ci                      # validated-precision gate -- also not optional, same reason
 python tests/tools/crucible_check.py --mode both              # see the drift first
 python tests/tools/crucible_check.py --mode both --update --yes   # bless if drift is expected
 python tests/tools/crucible_check.py --mode both              # re-run, confirm now PASS/PASS
 python tests/tools/audit_check.py --ci                         # ruff+mypy+dead-key+ast-accuracy
 ```
+
+**`tri_comparison_chart.py --all --ci`** is CI-enforced now (`tri-comparison-audit.yml`) whenever a
+fix touches `detector.py`/`prism.py`/`language_standards.py` -- it fails the PR if GitGalaxy's own
+*validated* precision (read after any ledger verdict is applied, never a raw disagreement count --
+see `docs/self_scan/tri_comparison_README.md`) regresses against a committed
+`tests/tri_comparison_baseline_<lang>.json`. It only has a baseline to check for languages someone
+has already run `--regenerate` on -- if `<lang>` doesn't have one yet, `--all --ci` simply skips it
+(nothing to bless), same as `tree_sitter_accuracy_audit.py`'s baselines. If `<lang>` DOES already
+have one and this fix legitimately moved its precision, don't blind-`--regenerate` the way you
+would for the tree-sitter baseline: a validated-precision shift can also mean a ledger entry got
+(in)validated by something unrelated to your fix, so read the printed diff first, confirm it's
+actually attributable to your change, then
+`python tests/tools/tri_comparison_chart.py --regenerate --languages <lang>` and commit the
+updated baseline file. Never touches `tri_comparison_chart.svg` / `tri_comparison_ledger.json` /
+`tri_comparison_points_of_interest.md` -- those regenerate automatically post-merge via
+`tri-comparison-history.yml`, not something this skill's PRs need to do themselves.
 `crucible_check.py` handles the two-venv (`.crucible_venvs/{full_precision,zero_dependency}`)
 dance itself now -- don't hand-build those venvs. Expect real cascading drift in the golden
 masters beyond just the target language's own directory (global PageRank/spatial-coordinate
@@ -231,7 +254,8 @@ green target-language result and a green general test suite are both necessary b
 sufficient on its own to rule out cross-language ripple from a shared-function change.
 
 Commit everything the regenerate/update steps touched (the regex file, the test file, the
-per-language baseline JSON, both golden master JSONs), push, `gh pr create`.
+per-language tree-sitter baseline JSON, both golden master JSONs, and the per-language
+`tri_comparison_baseline_<lang>.json` if you regenerated one), push, `gh pr create`.
 
 **Auto-merge is pre-authorized specifically for this skill's PRs** (user, 2026-08-13): once a fix
 has been through the full independent-verification + done-bar checklist above (steps 7-8) and its
@@ -300,11 +324,16 @@ the whole time.
 - `LANGUAGE_CRUCIBLE_PATH` must be passed explicitly from a worktree -- sibling-directory
   resolution only works from the main checkout.
 - Parallel-PR merge conflicts on the machine-generated files (`golden_master*.json`,
-  `ruff_audit_baseline.json`, `tree_sitter_accuracy_baseline_*.json`) are a real, expected,
-  survivable cost of running a pool of 5 -- when one lands, `git merge origin/main` on the others,
-  take origin/main's version of the conflicting generated files wholesale
-  (`git checkout --theirs -- <path>`), then regenerate everything fresh on the merged code and
-  re-run the full step-8 checklist again rather than hand-resolving JSON conflicts.
+  `ruff_audit_baseline.json`, `tree_sitter_accuracy_baseline_*.json`,
+  `tri_comparison_baseline_*.json`) are a real, expected, survivable cost of running a pool of 5 --
+  when one lands, `git merge origin/main` on the others, take origin/main's version of the
+  conflicting generated files wholesale (`git checkout --theirs -- <path>`), then regenerate
+  everything fresh on the merged code and re-run the full step-8 checklist again rather than
+  hand-resolving JSON conflicts.
+- `ctags --version` must print `Universal Ctags` before `--all --ci` runs, in every venv/worktree
+  you check it from -- Ubuntu's `arduino-ctags` shadows the binary name and silently degrades every
+  language to a 2-tool comparison with no error at all (PR #2111). Check it once per worktree
+  (step 4), not only when step 8 already fails.
 - Editing `~/.gemini/antigravity-cli/settings.json` needs a specific, in-the-moment
   `AskUserQuestion` approval each time new worktree paths are added -- a general earlier "go
   ahead" doesn't carry forward.

@@ -1,0 +1,85 @@
+name: Tri-Comparison Audit
+
+# Baseline-gated regression check on GitGalaxy's own VALIDATED precision (GitGalaxy vs.
+# tree-sitter vs. ctags), same shape as tree-sitter-accuracy-audit.yml's 2-tool equivalent --
+# see tests/tools/tri_comparison_chart.py's own "--ci / --regenerate" section for why this
+# gates precision only, never recall (recall's shared cross-tool denominator is exactly what
+# that module's PANELS docstring section already explains is untrustworthy to rank on).
+#
+# Scoped to the same core-engine paths tree-sitter-accuracy-audit.yml already uses -- both
+# audits exist to catch the same class of change, kept in sync deliberately.
+#
+# This job only ever MEASURES, never writes. It never requires a contributor to regenerate and
+# commit docs/self_scan/tri_comparison_chart.svg / tri_comparison_ledger.json /
+# tri_comparison_points_of_interest.md themselves -- that's the separate push-to-main companion,
+# tri-comparison-history.yml, same split tree-sitter-accuracy-audit.yml/-history.yml already use
+# and for the same reason: requiring every PR author to run a full language-crucible corpus scan
+# + a real `ctags` binary locally just to unblock their own merge would reintroduce exactly the
+# fragility PR #2111 (2026-08-22) already burned this repo on.
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/standards/language_standards.py"
+      - "tests/tools/tri_comparison_chart.py"
+      - "tests/tools/tri_comparison_gatherer.py"
+      - "tests/tools/tri_comparison_reconcile.py"
+      - "tests/tools/tri_comparison_ledger.py"
+      - "tests/tri_comparison_baseline_*.json"
+      - ".github/workflows/tri-comparison-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tri-comparison-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitGalaxy PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy + tree-sitter-language-pack
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install tree-sitter-language-pack
+
+      # Hard preflight, not optional: PR #2111 (2026-08-22, see
+      # docs/self_scan/tri_comparison_README.md) is a real incident where Ubuntu's
+      # arduino-ctags package shadowed the `ctags` binary name and silently degraded every
+      # language to a 2-tool comparison with no error anywhere in that run. A CI gate that
+      # could suffer the same silent degradation would be worse than no gate at all, since it
+      # would report false confidence instead of an honest failure.
+      - name: Install universal-ctags and verify it's the real thing
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y universal-ctags
+          if ! ctags --version | grep -q "Universal Ctags"; then
+            echo "::error::ctags on PATH is not Universal Ctags -- refusing to run a silently-degraded audit."
+            ctags --version || true
+            exit 1
+          fi
+
+      # Same pin golden-crucible.yml / tree-sitter-accuracy-audit.yml use -- this tool reuses
+      # that corpus rather than a fresh clone.
+      - name: Fetch Language Crucible corpus (pinned v1.0)
+        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Run baseline-gated precision regression check across every baselined language
+        run: |
+          cd gitgalaxy
+          python tests/tools/tri_comparison_chart.py --all --ci

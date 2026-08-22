@@ -201,6 +201,13 @@ a bug, or an intentional improvement that needs the baseline re-blessed. **Never
 fixtures.** Regenerate with `python tests/tools/update_golden_master.py` (shows the diff, asks
 for confirmation) and explain *why* in the PR description — CI flags any PR touching these files.
 
+The same PR paths also run `tri-comparison-audit.yml`, a baseline-gated regression check on
+GitGalaxy's own **validated** precision against tree-sitter+ctags (see `docs/self_scan/
+tri_comparison_README.md`'s "CI enforcement" section) — a distinct, blocking check from the
+golden-master diff above, alongside `tree-sitter-accuracy-audit.yml`'s 2-tool equivalent. None of
+the three requires you to regenerate and commit chart/history artifacts yourself; that's handled
+by separate push-to-main companion workflows after merge.
+
 **Verifying locally before pushing:** use `python tests/tools/crucible_check.py` (add `--update`
 to regenerate) instead of hand-building venvs. It builds/reuses two venvs at
 `.crucible_venvs/{full_precision,zero_dependency}` *inside the current checkout* and — critically

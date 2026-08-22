@@ -178,6 +178,38 @@ not accounted for (see `ctags_reader.py`'s `_QUALIFY_NAME_WITH_SCOPE` mechanism 
 case is handled: re-join name+scope from ctags' own tag data, gated on the qualified text actually
 appearing in the tag's own verbatim source line).
 
+## CI enforcement
+
+This system was skill/human-driven only until it wasn't: any PR touching `detector.py` /
+`prism.py` / `language_standards.py` (or this system's own tool files) now runs
+`.github/workflows/tri-comparison-audit.yml`, a blocking PR-time check that fails if GitGalaxy's
+own **validated** precision (`func_precision`/`class_precision`, read *after*
+`apply_verified_adjustments()` has applied any ledger verdict — never a raw, unvalidated
+disagreement) regresses against a committed baseline
+(`tests/tri_comparison_baseline_<lang>.json`, one file per language, same convention as
+`tests/tree_sitter_accuracy_baseline_<lang>.json`). Recall is deliberately not gated — see the
+"RECALL AND ARGS-MATCH WERE REMOVED AS RATIOS" section of `tri_comparison_chart.py`'s own module
+docstring for why that ratio's cross-tool denominator isn't trustworthy enough to regression-gate
+on, the same reason it isn't rendered as a ranked bar on the chart itself.
+
+That PR-time gate only measures — it never requires a contributor to regenerate and commit the
+chart/ledger/report themselves. A separate push-to-main companion,
+`.github/workflows/tri-comparison-history.yml`, does that automatically after a relevant change
+lands on `main`: re-render `tri_comparison_chart.svg`, refresh `tri_comparison_ledger.json`
+(`last_seen_count`/`last_seen_examples`/`still_reproduces` only — never a validated entry's
+`status`/`verdict`), and regenerate `tri_comparison_points_of_interest.md`, opening an auto-merged
+PR only when something actually changed. This is the same split
+`tree-sitter-accuracy-audit.yml`/`tree-sitter-accuracy-history.yml` already use for the 2-tool
+system, adopted here rather than requiring every PR author to run a full corpus scan + a real
+`ctags` locally just to unblock their own merge.
+
+Both workflows hard-fail if `ctags --version` doesn't print `Universal Ctags` before running
+anything else — see PR #2111 above; a CI gate that could suffer the same silent degradation would
+report false confidence instead of an honest failure. `tests/tri_comparison_baseline_<lang>.json`
+baselines are populated incrementally, per language, via `tri_comparison_chart.py --regenerate
+--languages <lang>` — a language with no committed baseline yet is skipped by `--all --ci`, not
+failed.
+
 ## Files
 
 - **`tri_comparison_ledger.json`** — the persistent, hand-editable record described above.

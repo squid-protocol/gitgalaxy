@@ -1,0 +1,133 @@
+name: Tri-Comparison History
+
+# Push-to-main companion to tri-comparison-audit.yml's PR-time gate, same split
+# tree-sitter-accuracy-audit.yml/-history.yml already use for the sibling 2-tool system. That
+# gate only proves GitGalaxy's own validated precision (tests/tri_comparison_baseline_<lang>.json)
+# didn't get worse; those baselines stay human-reviewed and only change via
+# `tri_comparison_chart.py --regenerate`, same discipline as the golden master fixtures and the
+# tree-sitter baselines. This workflow never touches them.
+#
+# What it DOES do, once a relevant change actually lands on main: regenerate
+# docs/self_scan/tri_comparison_chart.svg, docs/self_scan/tri_comparison_ledger.json (which also
+# refreshes last_seen_count/last_seen_examples on every existing ledger entry, and recomputes
+# still_reproduces -- see tri_comparison_ledger.py's ENTRY LIFECYCLE docstring; a validated
+# entry's status/verdict are never touched by this), and
+# docs/self_scan/tri_comparison_points_of_interest.md, then opens an auto-merged PR with
+# whatever actually changed -- same mechanism gitgalaxy.yml uses for the LLM architecture brief.
+#
+# Adaptive by design, not just by trigger path: the trigger below fires on any push touching
+# detector.py/prism.py/language_standards.py, but not every such push moves a language's measured
+# numbers or an existing ledger entry's counts. Unlike the tree-sitter history CSV (an
+# append-only file that needs its own _batch_matches_measured dedup check to stay a no-op), the
+# three files here are overwritten in place -- "no diff" already IS the adaptivity, so
+# create-pull-request finds nothing to diff and opens no PR on a push that didn't actually move
+# anything, no separate skip-detection needed.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/standards/language_standards.py"
+      - "tests/tools/tri_comparison_chart.py"
+      - "tests/tools/tri_comparison_gatherer.py"
+      - "tests/tools/tri_comparison_reconcile.py"
+      - "tests/tools/tri_comparison_ledger.py"
+      - "tests/tri_comparison_baseline_*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  tri-comparison-history:
+    # Guards against the same infinite-loop shape tree-sitter-accuracy-history.yml already
+    # documents: this workflow's own bot commit touches tri_comparison_ledger.json, which is in
+    # the trigger's `paths` filter by way of docs/self_scan/ not being excluded -- without this
+    # it would re-trigger itself on every merge of its own PR.
+    if: |
+      !startsWith(github.event.head_commit.message, 'docs: auto-update tri-comparison data')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy + tree-sitter-language-pack
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install tree-sitter-language-pack
+
+      # Same hard preflight as tri-comparison-audit.yml, for the same PR #2111 reason -- this
+      # job WRITES the chart/ledger, so a silently-degraded ctags here would commit bad data to
+      # main instead of just failing a single PR check.
+      - name: Install universal-ctags and verify it's the real thing
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y universal-ctags
+          if ! ctags --version | grep -q "Universal Ctags"; then
+            echo "::error::ctags on PATH is not Universal Ctags -- refusing to write a silently-degraded chart/ledger."
+            ctags --version || true
+            exit 1
+          fi
+
+      - name: Fetch Language Crucible corpus (pinned v1.0)
+        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Regenerate chart + ledger + points-of-interest report
+        run: |
+          cd gitgalaxy
+          python tests/tools/tri_comparison_chart.py --all --write
+          python tests/tools/tri_comparison_report.py --write
+
+      - name: Open PR with updated chart + ledger + points-of-interest report
+        id: tri-comparison-history-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update tri-comparison data"
+          title: "docs: auto-update tri-comparison data"
+          body: |
+            Automated update from the latest tri-comparison measurement on `main`.
+
+            - Re-renders `docs/self_scan/tri_comparison_chart.svg`.
+            - Refreshes `docs/self_scan/tri_comparison_ledger.json` (last_seen_count/
+              last_seen_examples/still_reproduces on existing entries; new unvalidated entries
+              for any newly-observed discrepancy shape). Never touches a validated entry's
+              `status`/`verdict`.
+            - Regenerates `docs/self_scan/tri_comparison_points_of_interest.md`.
+
+            Never touches `tests/tri_comparison_baseline_*.json` -- those stay human-reviewed via
+            `tri_comparison_chart.py --regenerate`.
+          branch: auto/tri-comparison-history
+          delete-branch: true
+          add-paths: |
+            docs/self_scan/tri_comparison_chart.svg
+            docs/self_scan/tri_comparison_ledger.json
+            docs/self_scan/tri_comparison_points_of_interest.md
+
+      # Same rationale as tree-sitter-accuracy-history.yml's own merge step -- nothing else
+      # gates this PR, so without an explicit merge it just sits mergeable-but-unmerged.
+      - name: Merge the tri-comparison history PR
+        if: steps.tri-comparison-history-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.tri-comparison-history-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

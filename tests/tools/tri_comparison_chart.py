@@ -822,6 +822,137 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
     return "\n".join(parts)
 
 
+# ----------------------------------------------------------------------------
+# --ci / --regenerate: baseline-gated regression check on GitGalaxy's own
+# precision, same shape as tree_sitter_accuracy_audit.py's load_baseline/
+# _regressions/run_ci_check, kept intentionally separate (not a shared helper)
+# rather than retrofitting that file's internals -- it's large, heavily tested,
+# and not otherwise part of this change.
+#
+# PRECISION ONLY, DELIBERATELY -- not recall/found-count. This module's own
+# docstring (PANELS section) already explains why recall was dropped as a
+# RANKED ratio on this chart: its denominator is a cross-tool union, which one
+# tool's own bug can corrupt without GitGalaxy doing anything wrong (confirmed
+# case: ctags and tree-sitter both independently double-tagged Haskell
+# multi-clause functions before that was fixed). Precision's denominator is a
+# tool's own claim count -- self-referential, not corruptible the same way --
+# which is exactly why the chart still ranks/badges precision but not recall.
+# Gating CI on recall would reintroduce the same untrusted-denominator problem
+# the chart already designed around.
+#
+# Gated numbers are read AFTER run_pipeline() calls
+# ledger_mod.apply_verified_adjustments() -- i.e. this is GitGalaxy's
+# ledger-VALIDATED precision, never a raw unvalidated disagreement count, per
+# CLAUDE.md's "Comparative-correctness claims require verification" rule.
+# ----------------------------------------------------------------------------
+
+_GATED_METRICS = ("func_precision", "class_precision")
+
+
+def _get_baseline_path(lang: str) -> Path:
+    return Path(__file__).resolve().parent.parent.parent / "tests" / f"tri_comparison_baseline_{lang}.json"
+
+
+def _extract_precision(data: LanguageChartData) -> dict[str, float]:
+    """GitGalaxy's own rate_pct for each ranked precision panel. A metric is omitted (not stored
+    as null) when there's no GitGalaxy score or its rate is undefined (0 slots) -- an absent key
+    means _regressions has nothing to compare for that language/metric on this run, same
+    convention tree_sitter_accuracy_audit.py's baseline-key-presence check uses."""
+    out: dict[str, float] = {}
+    gg_func = data.func_precision.get("gitgalaxy")
+    if gg_func is not None and gg_func.rate_pct is not None:
+        out["func_precision"] = gg_func.rate_pct
+    gg_class = data.class_precision.get("gitgalaxy")
+    if gg_class is not None and gg_class.rate_pct is not None:
+        out["class_precision"] = gg_class.rate_pct
+    return out
+
+
+def load_baseline(lang: str) -> dict:
+    path = _get_baseline_path(lang)
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _regressions(current: dict, baseline: dict) -> list[str]:
+    regressions = []
+    for key in _GATED_METRICS:
+        if key not in baseline or key not in current:
+            continue
+        cur, base = current[key], baseline[key]
+        if cur < base:
+            regressions.append(f"{key}: {base:.2f}% -> {cur:.2f}% (validated precision got worse)")
+    return regressions
+
+
+def run_ci_check(lang: str, verbose: bool = True) -> int:
+    data = run_pipeline([lang], verbose=verbose)[lang]
+    if not data.has_data:
+        print(f"tri_comparison_chart: {lang} -- no corpus data available, skipping.")
+        return 0
+
+    current = _extract_precision(data)
+    baseline = load_baseline(lang)
+    if not baseline:
+        print(f"tri_comparison_chart: no baseline committed for {lang} -- run with --regenerate to create one, failing closed.")
+        return 1
+
+    regressions = _regressions(current, baseline)
+    if regressions:
+        print(f"tri_comparison_chart: {lang} -- {len(regressions)} regression(s) against the committed baseline:")
+        for line in regressions:
+            print(f"  {line}")
+        return 1
+
+    improved = [k for k in _GATED_METRICS if k in current and k in baseline and current[k] > baseline[k]]
+    if improved:
+        print(f"tri_comparison_chart: {lang} -- OK, improved on {', '.join(improved)} (consider --regenerate to lock it in).")
+    else:
+        print(f"tri_comparison_chart: {lang} -- OK, matches committed baseline, no regressions.")
+    return 0
+
+
+def run_regenerate(lang: str, verbose: bool = True) -> int:
+    data = run_pipeline([lang], verbose=verbose)[lang]
+    if not data.has_data:
+        print(f"tri_comparison_chart: {lang} -- no corpus data available, cannot regenerate baseline.")
+        return 1
+
+    current = _extract_precision(data)
+    if not current:
+        print(f"tri_comparison_chart: {lang} -- no gated precision metric available (no GitGalaxy score), nothing to write.")
+        return 1
+
+    path = _get_baseline_path(lang)
+    path.write_text(json.dumps(current, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"tri_comparison_chart: wrote {path}")
+    return 0
+
+
+def _all_baseline_langs() -> list[str]:
+    """Every language with a committed tests/tri_comparison_baseline_<lang>.json, sorted."""
+    prefix = "tri_comparison_baseline_"
+    root = Path(__file__).resolve().parent.parent.parent / "tests"
+    return sorted(p.stem[len(prefix) :] for p in root.glob(f"{prefix}*.json"))
+
+
+def run_all_baseline_mode(languages: list[str], mode_fn, verbose: bool = True) -> int:
+    failed = []
+    for lang in languages:
+        print(f"\n=== {lang} ===")
+        if mode_fn(lang, verbose=verbose) != 0:
+            failed.append(lang)
+
+    print(f"\ntri_comparison_chart --ci: {len(languages)} language(s) checked.")
+    if failed:
+        print(f"tri_comparison_chart --ci: {len(failed)} FAILED: {', '.join(failed)}")
+        return 1
+    print("tri_comparison_chart --ci: all OK.")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
@@ -829,7 +960,28 @@ def main() -> int:
     group.add_argument("--all", action="store_true", help="Every language with a corpus available.")
     parser.add_argument("--write", action="store_true", help=f"Write SVG to {CHART_PATH}.")
     parser.add_argument("--quiet", action="store_true")
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--ci",
+        action="store_true",
+        help="Baseline-gated regression check on GitGalaxy's own validated precision, instead of rendering the chart.",
+    )
+    mode_group.add_argument(
+        "--regenerate",
+        action="store_true",
+        help="Accept current GitGalaxy precision as the new committed baseline, instead of rendering the chart.",
+    )
     args = parser.parse_args()
+
+    if args.ci or args.regenerate:
+        # --all in baseline mode means "every language with a committed baseline" (glob-based),
+        # not "every language with a corpus" (all_languages()) -- a language nobody has
+        # baselined yet is skipped rather than failing the whole --all run closed. An explicit
+        # --languages request for an un-baselined language still fails closed inside
+        # run_ci_check itself, since that's a real ask for an answer that doesn't exist yet.
+        languages = _all_baseline_langs() if args.all else [s.strip() for s in args.languages.split(",")]
+        mode_fn = run_regenerate if args.regenerate else run_ci_check
+        return run_all_baseline_mode(languages, mode_fn, verbose=not args.quiet)
 
     languages = all_languages() if args.all else [s.strip() for s in args.languages.split(",")]
     data = run_pipeline(languages, verbose=not args.quiet)

@@ -4421,7 +4421,13 @@ class StructuralExtractor:
                     continue
                 if ch == quote_char:
                     in_string = False
-            elif ch in ("'", '"', "`"):
+            elif ch == "'":
+                if self.primary_lang_id in ("rust", "scala") and re.match(r"[a-zA-Z_]\w*\b(?!')", text[i + 1 :]):
+                    pass
+                else:
+                    in_string = True
+                    quote_char = ch
+            elif ch in ('"', "`"):
                 in_string = True
                 quote_char = ch
             elif ch == "(":
@@ -4523,9 +4529,7 @@ class StructuralExtractor:
                 in_string = True
                 quote_char = ch
             elif ch == "'":
-                if getattr(self, "language", "") in ("rust", "scala") and re.match(
-                    r"[a-zA-Z_]\w*\b(?!')", body[i + 1 :]
-                ):
+                if self.primary_lang_id in ("rust", "scala") and re.match(r"[a-zA-Z_]\w*\b(?!')", body[i + 1 :]):
                     # It's a Rust lifetime or Scala symbol (e.g. `'a>`, `'_ `), not a string literal
                     pass
                 else:

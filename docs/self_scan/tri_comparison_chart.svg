@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 812 326" width="812" height="326" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 812 370" width="812" height="370" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>
   .surface { fill: #fcfcfb; }
   .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
@@ -14,7 +14,7 @@
   .bar-track { fill: #eeede9; }
   .badge-label { font-size: 8.5px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
 </style>
-<rect class="surface" x="0" y="0" width="812" height="326"/>
+<rect class="surface" x="0" y="0" width="812" height="370"/>
 <text class="title" x="16" y="20">GitGalaxy Structural Extraction: Tri-Comparison vs. Tree-sitter and ctags</text>
 <text class="subtitle" x="16" y="36">2026-08-22 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
 <text class="scope-note" x="16" y="52">No tool is ground truth. Found-count panels are unranked raw counts (no badge) -- a shared "how many are real" denominator turned out as corruptible as any one tool's own noise. Precision is each tool's own claims vs. what another tool corroborated.</text>
@@ -36,46 +36,84 @@
 <text class="panel-title" x="607.0" y="158">Class Precision</text>
 <text class="panel-title" x="739.0" y="158">Args Found</text>
 <rect class="stripe" x="16" y="162" width="780" height="44"/>
-<text class="lang-label" x="20" y="187.5">dart</text>
+<text class="lang-label" x="20" y="187.5">rust</text>
 <rect class="bar-track" x="154" y="167" width="88" height="34" rx="2"/>
 <rect x="154" y="167" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="175">1751</text>
-<rect x="154" y="179" width="87.8" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="187">1748</text>
+<text class="bar-value-label" x="198.0" y="175">1927</text>
+<rect x="154" y="179" width="81.1" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="187">1775</text>
+<rect x="154" y="191" width="81.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="199">1774</text>
 <rect class="bar-track" x="286" y="167" width="88" height="34" rx="2"/>
-<rect x="286" y="167" width="87.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="175">1738/1751</text>
-<rect x="286" y="179" width="87.5" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="187">1738/1748</text>
-<circle cx="390.0" cy="184.0" r="8" fill="#eb6834"/>
-<text class="badge-label" x="390.0" y="187.0">T</text>
+<rect x="286" y="167" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="175">1927/1927</text>
+<rect x="286" y="179" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="187">1775/1775</text>
+<rect x="286" y="191" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="199">1774/1774</text>
+<circle cx="390.0" cy="184.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="187.0">G</text>
 <rect class="bar-track" x="418" y="167" width="88" height="34" rx="2"/>
 <rect x="418" y="167" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="175">200</text>
-<rect x="418" y="179" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="462.0" y="187">200</text>
+<text class="bar-value-label" x="462.0" y="175">312</text>
+<rect x="418" y="179" width="80.9" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="462.0" y="187">287</text>
+<rect x="418" y="191" width="80.1" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="199">284</text>
 <rect class="bar-track" x="550" y="167" width="88" height="34" rx="2"/>
 <rect x="550" y="167" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="175">200/200</text>
+<text class="bar-value-label" x="594.0" y="175">312/312</text>
 <rect x="550" y="179" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="594.0" y="187">200/200</text>
+<text class="bar-value-label" x="594.0" y="187">287/287</text>
+<rect x="550" y="191" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="199">284/284</text>
+<circle cx="654.0" cy="184.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="654.0" y="187.0">G</text>
 <rect class="bar-track" x="682" y="167" width="88" height="34" rx="2"/>
 <rect x="682" y="167" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="175">1738</text>
+<text class="bar-value-label" x="726.0" y="175">1774</text>
 <rect x="682" y="179" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="187">1738</text>
-<line x1="16" y1="216" x2="796" y2="216" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="230">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 2 real comparisons (1-bar groups and empty panels don't count)</text>
-<circle cx="23" cy="248" r="7" fill="#2a78d6"/>
-<text class="badge-label" x="23" y="251">G</text>
-<text class="legend-label" x="36" y="252">GitGalaxy best: 0 (0%)</text>
-<circle cx="203.4" cy="248" r="7" fill="#eb6834"/>
-<text class="badge-label" x="203.4" y="251">T</text>
-<text class="legend-label" x="216.4" y="252">tree-sitter best: 1 (50%)</text>
-<circle cx="402.4" cy="248" r="7" fill="#1baf7a"/>
-<text class="badge-label" x="402.4" y="251">C</text>
-<text class="legend-label" x="415.4" y="252">ctags best: 0 (0%)</text>
-<circle cx="558.0" cy="248" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="571.0" y="252">Ties: 1 (50%)</text>
-<text class="scope-note" x="16" y="272">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
+<text class="bar-value-label" x="726.0" y="187">1774</text>
+<rect x="682" y="191" width="70.1" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="726.0" y="199">1413</text>
+<text class="lang-label" x="20" y="231.5">scala</text>
+<rect class="bar-track" x="154" y="211" width="88" height="34" rx="2"/>
+<rect x="154" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="219">541</text>
+<rect x="154" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="231">541</text>
+<rect class="bar-track" x="286" y="211" width="88" height="34" rx="2"/>
+<rect x="286" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="219">541/541</text>
+<rect x="286" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="231">541/541</text>
+<rect class="bar-track" x="418" y="211" width="88" height="34" rx="2"/>
+<rect x="418" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="462.0" y="219">24</text>
+<rect x="418" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="462.0" y="231">24</text>
+<rect class="bar-track" x="550" y="211" width="88" height="34" rx="2"/>
+<rect x="550" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="219">24/24</text>
+<rect x="550" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="594.0" y="231">24/24</text>
+<rect class="bar-track" x="682" y="211" width="88" height="34" rx="2"/>
+<rect x="682" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="726.0" y="219">541*</text>
+<rect x="682" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="726.0" y="231">541*</text>
+<line x1="16" y1="260" x2="796" y2="260" stroke="#dedcd6" stroke-width="1"/>
+<text class="summary-title" x="16" y="274">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 4 real comparisons (1-bar groups and empty panels don't count)</text>
+<circle cx="23" cy="292" r="7" fill="#2a78d6"/>
+<text class="badge-label" x="23" y="295">G</text>
+<text class="legend-label" x="36" y="296">GitGalaxy best: 2 (50%)</text>
+<circle cx="209.6" cy="292" r="7" fill="#eb6834"/>
+<text class="badge-label" x="209.6" y="295">T</text>
+<text class="legend-label" x="222.6" y="296">tree-sitter best: 0 (0%)</text>
+<circle cx="402.4" cy="292" r="7" fill="#1baf7a"/>
+<text class="badge-label" x="402.4" y="295">C</text>
+<text class="legend-label" x="415.4" y="296">ctags best: 0 (0%)</text>
+<circle cx="558.0" cy="292" r="7" fill="#9a9a95"/>
+<text class="legend-label" x="571.0" y="296">Ties: 2 (50%)</text>
+<text class="scope-note" x="16" y="316">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

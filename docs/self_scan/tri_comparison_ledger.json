@@ -10689,7 +10689,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -10803,7 +10803,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -10856,7 +10856,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -10968,7 +10968,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -11071,7 +11071,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11122,7 +11122,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -11218,7 +11218,7 @@
       ],
       "metric": "args",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "function",
       "verdict": "Confirmed GitGalaxy engine defect, same root cause as the sibling shape rust/function/args/agree[none]_vs[gitgalaxy,tree_sitter] (#1872): a Rust lifetime tick (`'_`, `'a`, `'static`) never gets recognized as non-string during bracket/quote scanning. This shape surfaces the SECOND manifestation, in a different function than the first: `_matching_paren_end` (gitgalaxy/core/detector.py:3675-3703) has NO lifetime guard at all (unlike _count_top_level_args's broken-but-present one). A lifetime tick makes its self-containment check falsely fail, falling through to the comma/whitespace-split fallback meant for Lisp/Scheme/Shell (~line 4296) -- for single-parameter signatures with a lifetime and no comma this OVER-counts (opposite direction from the sibling shape's under-count), for multi-param signatures it under-counts via the same swallowed-closing-paren mechanism. Extends the how_to_investigate_a_discrepancy.md worked example (bevy_ecs_table.rs::initialize, 5 real params, GitGalaxy reports 3) across the full 8-item sample, independently hand-traced and confirmed exact-match against real source for all 8: bevy_ecs_table.rs:171,194, bevy_ecs_world.rs:2969,3005, serde_internals_ast.rs:62 (under-count, multi-param); bevy_reflect_path.rs:43, serde_core_de_impls.rs:3147, serde_internals_ast.rs:119 (over-count, single-param via the whitespace-split fallback). Dispatched investigation initially produced a fabricated mechanism on its first pass; caught by the dispatching agent's own manual code trace, corrected on a second pass, then independently re-verified byte-for-byte against all 8 real signatures before being accepted here -- treat this as a genuinely double-checked finding, not a single-pass claim. ctags and tree-sitter are both correct in every case. Judged to plausibly explain most/all of the remaining 21 (any rust signature with a lifetime annotation is susceptible) and possibly under-reported beyond this specific ledger shape too, since lifetimes are extremely common idiomatic rust. Added as a follow-up comment on #1872 rather than a duplicate issue, since both bugs should be fixed together."
     },
@@ -11234,7 +11234,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -11330,7 +11330,7 @@
       ],
       "metric": "args",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "function",
       "verdict": "Confirmed GitGalaxy engine defect, not a modeling disagreement -- tree-sitter is correct in all 8 sampled cases (and this generalizes to the full 21: every sampled name is a deserialize_*/spawn_*_caller-shaped signature carrying a rust lifetime annotation, the exact trigger). Root cause, independently confirmed via two methods (dispatched agent read the code path; a second grep pass confirmed the attribute is dead): `gitgalaxy/core/detector.py::StructuralExtractor._count_top_level_args` has a guard meant to exempt rust/scala lifetime marks (`'_`, `'static`) from its string-literal scanner -- `getattr(self, 'language', '') in ('rust', 'scala')` around line 3766 -- but the class stores the language as `self.primary_lang_id` (set at line 497), never `self.language`. `self.language` is referenced NOWHERE ELSE in the file, confirmed by grep. The getattr always silently falls back to `''`, so the exemption guard never fires for any language, ever -- every lifetime `'` gets treated as an unterminated string-literal opener, swallowing all subsequent top-level commas until a real closing quote or end-of-string, fusing 2+ parameters into 1. A signature with 3 lifetime marks (odd count) never exits string mode at all and undercounts every remaining parameter. Real signatures confirmed at source: bevy/bevy_ecs_world.rs:1106,1121,1270 (`MovingPtr<'_, B>` swallows the next comma, 3 vs real 4, or 2 vs real 3); serde/serde_core_de_mod.rs:1105,1115 (`&'static str` swallows the next comma, 2 vs real 3); serde_core_de_mod.rs:1136 (two lifetimes, both trailing commas swallowed, 2 vs real 4); serde_core_de_mod.rs:1152,1163 (three lifetime marks, odd count means string mode never exits, 2 vs real 4). ctags has null coverage for these specific occurrences because they're bodyless trait-method declarations (ending in `;` inside a `trait` block) -- unrelated to the args bug, ctags appears to skip signature-only declarations generally. Filed as its own GitHub issue (attribute-name mismatch, one-line fix: `self.language` -> `self.primary_lang_id`, or equivalent), separate from this ledger record."
     },
@@ -11347,7 +11347,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 83,
       "last_seen_examples": [
         {
@@ -11460,7 +11460,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11493,7 +11493,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11528,7 +11528,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -11537,15 +11537,6 @@
           "readings": {
             "ctags": null,
             "gitgalaxy": 456,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "bevy/bevy_ecs_macros.rs",
-          "name": "init_access",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 444,
             "tree_sitter": null
           }
         },
@@ -11560,10 +11551,28 @@
         },
         {
           "file_path": "bevy/bevy_ecs_macros.rs",
+          "name": "init_access",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 444,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "bevy/bevy_ecs_macros.rs",
           "name": "from_components",
           "readings": {
             "ctags": null,
             "gitgalaxy": 191,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "bevy/bevy_ecs_macros.rs",
+          "name": "apply_effect",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 177,
             "tree_sitter": null
           }
         },
@@ -11605,15 +11614,6 @@
         },
         {
           "file_path": "bevy/bevy_ecs_macros.rs",
-          "name": "apply_effect",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 177,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "bevy/bevy_ecs_macros.rs",
           "name": "component_ids",
           "readings": {
             "ctags": null,
@@ -11640,7 +11640,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-22T17:17:48Z",
+      "last_reconciled_at": "2026-08-22T18:05:47Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -11742,7 +11742,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-08-22T17:17:51Z",
+      "last_reconciled_at": "2026-08-22T18:05:50Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {

@@ -8788,7 +8788,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 3. THE RESERVED VERB & SCOPE TERMINATOR SHIELD
                 # Explicitly bans standard COBOL execution verbs, divisions, and scope terminators (`END-*`).
                 # Prevents rogue commands like "PERFORM." from spawning false positive logic anchors.
-                r"(?!(?:WORKING-STORAGE|DATA|ENVIRONMENT|IDENTIFICATION|ID|LINKAGE|FILE|DECLARATIVES|"
+                r"(?!(?:WORKING-STORAGE|LOCAL-STORAGE|DATA|ENVIRONMENT|IDENTIFICATION|ID|LINKAGE|FILE|DECLARATIVES|"
                 r"AUTHOR|DATE-WRITTEN|DATE-COMPILED|INSTALLATION|REMARKS|SECURITY|"
                 # #1949 follow-up: SOURCE-COMPUTER/OBJECT-COMPUTER are CONFIGURATION
                 # SECTION (ENVIRONMENT DIVISION) header paragraphs, never real PROCEDURE

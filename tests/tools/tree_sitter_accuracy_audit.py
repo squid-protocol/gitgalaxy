@@ -1435,6 +1435,7 @@ def _get_param_count(node: Any, lang: str = "") -> int:
             "object_pattern",
             "rest_pattern",
             "parameter_declaration",
+            "optional_parameter_declaration",
             "parameter",
             "formal_parameter",
             "required_parameter",

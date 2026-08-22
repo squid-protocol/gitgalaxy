@@ -20,9 +20,10 @@ When shipping a code fix or addressing a discrepancy in GitGalaxy, the following
 
 ## 4. Discrepancy Ledgers & Tri-Comparison
 If your fix resolves an open shape from the Tri-Comparison Ledger (`docs/self_scan/tri_comparison_ledger.json`):
-* **Update the Ledger JSON:** Locate the shape key, set `"status": "validated"`, update the `"verdict"`, set `"investigated_by"`/`"investigated_at"`, and set `"still_reproduces": false` if it no longer occurs.
-* **Regenerate the Chart:** Re-run the tri-comparison to update the SVG:
+* **NEVER hand-edit `still_reproduces`:** `still_reproduces` is automatically recomputed by the regen script. A shape might have multiple contributing causes, so a single fix doesn't guarantee it stops reproducing. Instead, if you've added a human verdict to an unvalidated shape, only update `"status": "validated"`, `"verdict"`, `"investigated_by"`, and `"investigated_at"`.
+* **Regenerate the Chart & Report:** Re-run the tri-comparison to automatically update the SVG, recompute `still_reproduces`, and refresh the point of interest report:
   `python tests/tools/tri_comparison_chart.py --all --write`
+  `python tests/tools/tri_comparison_report.py --write`
 
 ## 5. Tree-Sitter AST & Accuracy Baseline
 * **Audit AST Accuracy:** Run `python tests/tools/tree_sitter_accuracy_audit.py --ci --all`.
@@ -35,3 +36,9 @@ If your fix resolves an open shape from the Tri-Comparison Ledger (`docs/self_sc
   *(Commit the resulting CSV, SVG, baseline JSON, and `language_standards.py` changes.)*
 
 **Note:** Tools that scan the `language-crucible` corpus (such as `crucible_check.py`, `tri_comparison_chart.py`, and `tree_sitter_accuracy_audit.py`) require reading a sibling repository and should be executed using `BypassSandbox=true` or run with proper path resolution.
+
+## 6. Resolving Merge Conflicts on Auto-Generated Files
+If `main` advances and causes merge conflicts in `tri_comparison_ledger.json`, `tri_comparison_chart.svg`, or any golden master JSONs, **never attempt to manually resolve the conflict markers**.
+1. Check out the upstream version of the files to clear the conflict markers:
+   `git checkout origin/main -- docs/self_scan/tri_comparison_chart.svg docs/self_scan/tri_comparison_ledger.json`
+2. Re-run the relevant regen scripts (`crucible_check.py --update --yes`, `tri_comparison_chart.py --all --write`, etc.). The scripts will cleanly recalculate and overwrite the files using your latest code and the upstream's latest ledger baseline.

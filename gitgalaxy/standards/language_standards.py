@@ -8802,7 +8802,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"SOURCE-COMPUTER|OBJECT-COMPUTER|"
                 r"INPUT-OUTPUT|CONFIGURATION|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
                 r"DIVIDE|INITIALIZE|SET|IF|ELSE|GOBACK|EXIT|STOP|EVALUATE|WHEN|READ|WRITE|REWRITE|"
-                r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)\b)"
+                r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
                 # 4. THE DIVISION/SECTION HEADER SHIELD
                 # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
                 # Upgraded to `[ \t\n]+` to prevent vertical ghosting.

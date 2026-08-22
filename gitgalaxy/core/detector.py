@@ -3786,6 +3786,36 @@ class StructuralExtractor:
                 if any(fname == name and start_idx < fend for fname, fend in haskell_group_stack):
                     continue
 
+            # #2082: the equation-form alternative has no notion of Haskell's
+            # layout rule, so a multi-line guard whose boolean condition
+            # continues onto a following line looks identical to a fresh
+            # `name pattern... = expr` equation once that continuation line
+            # happens to itself end (elsewhere on the same physical line) in
+            # an unambiguous `=`. Confirmed on the real language-crucible
+            # pandoc corpus (Shared.hs:472-476):
+            #   unEmojify
+            #     | extensionEnabled Ext_gfm_auto_identifiers exts ||
+            #       extensionEnabled Ext_ascii_identifiers exts = walk unEmoji
+            # The 2nd line's `extensionEnabled` is a CALL inside the ongoing
+            # `||` expression, not a definition -- but the same-name dedup
+            # above only catches a REPEATED clause of the group already open
+            # (#1442/#1564/#1616), not an unrelated identifier that merely
+            # looks like an equation inside another function's guard body.
+            # Bounded, conservative fix: if the immediately preceding line
+            # (trimmed of trailing whitespace) ends in `||` or `&&` -- the
+            # two operators Haskell guards chain multi-line conditions with
+            # -- this line is a continuation, not an equation head; skip it.
+            # Doesn't walk further back for a 3rd+ chained continuation line,
+            # and doesn't cover other mid-expression operators (`$`, `.`,
+            # etc.) -- narrower shapes left for a follow-up if real-world
+            # scans turn one up.
+            if lang_id == "haskell" and match.group(3) is not None and line_start_idx > 0:
+                prev_line_end = line_start_idx - 1
+                prev_line_start = safe_code.rfind("\n", 0, prev_line_end) + 1
+                prev_line = safe_code[prev_line_start:prev_line_end].rstrip()
+                if prev_line.endswith("||") or prev_line.endswith("&&"):
+                    continue
+
             end_idx = len(safe_code)
 
             # #1199: func_start's regex ends right at the signature's opening

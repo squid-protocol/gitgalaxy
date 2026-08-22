@@ -3221,6 +3221,47 @@ def test_detector_haskell_multiclause_let_binding_dedups_to_one_node():
     assert matches[0]["args"] == 1
 
 
+def test_detector_haskell_guard_continuation_not_misread_as_equation():
+    """
+    Regression test for #2082: a guard's boolean condition spanning two
+    physical lines, joined by `||`, must not have its continuation line
+    misread as a fresh `name pattern... = expr` equation just because that
+    continuation line independently looks like one.
+
+    Confirmed on the real language-crucible pandoc corpus (Shared.hs:472-476):
+
+        unEmojify :: [Inline] -> [Inline]
+        unEmojify
+          | extensionEnabled Ext_gfm_auto_identifiers exts ||
+            extensionEnabled Ext_ascii_identifiers exts = walk unEmoji
+          | otherwise = id
+
+    `unEmojify` is the real function (correctly captured via its `::`
+    signature). `extensionEnabled` on the continuation line is a CALL inside
+    the ongoing `||` expression, not a definition -- before the fix, it
+    independently satisfied the equation-form `func_start` alternative and
+    was reported as a spurious second function.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "inlineListToIdentifier exts =\n"
+        "  textToIdentifier exts . stringify . unEmojify\n"
+        "  where\n"
+        "    unEmojify :: [Inline] -> [Inline]\n"
+        "    unEmojify\n"
+        "      | extensionEnabled Ext_gfm_auto_identifiers exts ||\n"
+        "        extensionEnabled Ext_ascii_identifiers exts = walk unEmoji\n"
+        "      | otherwise = id\n"
+    )
+    detector = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+
+    names = [fn["name"] for fn in result.get("functions", [])]
+    assert "extensionEnabled" not in names, f"guard continuation misread as a function: {names}"
+    assert "unEmojify" in names
+
+
 def test_count_haskell_type_arrows_helper():
     """
     Direct unit coverage for `_count_haskell_type_arrows`, the Haskell

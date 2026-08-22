@@ -4599,7 +4599,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -4711,7 +4711,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -4816,7 +4816,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 38,
       "last_seen_examples": [
         {
@@ -4930,7 +4930,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 103,
       "last_seen_examples": [
         {
@@ -5044,7 +5044,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 69,
       "last_seen_examples": [
         {
@@ -5148,7 +5148,9 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "debit_tools": [],
       "dissenting_tools": [
         "ctags",
@@ -5158,8 +5160,8 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
-      "last_seen_count": 2,
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
+      "last_seen_count": 1,
       "last_seen_examples": [
         {
           "file_path": "pandoc/Options.hs",
@@ -5169,22 +5171,13 @@
             "gitgalaxy": 438,
             "tree_sitter": null
           }
-        },
-        {
-          "file_path": "pandoc/Shared.hs",
-          "name": "extensionEnabled",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 475,
-            "tree_sitter": null
-          }
         }
       ],
       "metric": "existence",
       "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": "Mixed shape, resolved by reading both of the 2 occurrences directly (no larger sample needed). (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- NOT a real function. Imported from Text.Pandoc.Extensions (Shared.hs:114), only ever appears as a guard-clause call (`| extensionEnabled Ext_gfm_auto_identifiers exts = ...`). GitGalaxy's regex misreads a guard-clause invocation as a definition -- genuine GitGalaxy false positive, worth its own engine bug against language_standards.py's haskell func_start rule."
+      "verdict": "Mixed shape as originally investigated (2 occurrences): (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- was NOT a real function (imported from Text.Pandoc.Extensions, only ever appears as a guard-clause call inside a multi-line `||` condition) -- a genuine GitGalaxy false positive, filed as #2082 and fixed in PR #2083 (2026-08-22): `_slice_by_indentation` now skips an equation-form func_start match whose immediately preceding line ends in `||`/`&&`. Reconciled post-fix: only the getExtensions occurrence remains, so this shape is now a clean, unambiguous GitGalaxy win -- credited accordingly."
     },
     "haskell/function/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5199,7 +5192,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5239,7 +5232,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-08-21T23:37:11Z",
+      "last_reconciled_at": "2026-08-22T00:33:53Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {

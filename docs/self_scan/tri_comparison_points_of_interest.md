@@ -726,7 +726,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 103 occurrences as of 2026-08-21T23:37:11Z*
+*2-vs-1 -- 103 occurrences as of 2026-08-22T00:33:53Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > All 10 sampled cases are ctags-side artifacts, not real GitGalaxy/tree-sitter misses -- confirmed via direct `ctags -x` output against the corpus. Three distinct ctags Haskell-parser weaknesses cover the sample: (1) multi-clause double/triple-tagging -- ctags tags every pattern-matched equation line as its own occurrence of the name (writerFn/writeFnBinary/expandFilterPath: confirmed 2-3 raw ctags tags per function, one per clause; a file-wide count found 45 such extra same-name tags across the 7-file corpus, e.g. blockToInlines alone has 14). GitGalaxy/tree-sitter both correctly anchor to the FIRST clause only, leaving ctags' later-clause tags as the ones unpaired. (2) keyword-as-identifier misparsing -- `class`/`where`/`pattern` (from PatternSynonyms) get tagged as function names when ctags fails to parse past the keyword; confirmed at Options.hs:62 (`class HasSyntaxExtensions`), Parsing.hs:184 (module-header `where`), and 3 PatternSynonyms declarations in Options.hs. (3) CAF/value-vs-function kind collapse -- defaultAbbrevs/defaultKaTeXURL/defaultMathJaxURL/defaultWebTeXURL are zero-arg top-level VALUES (non-arrow type signatures), not functions; ctags has no value/variable kind at all (`ctags --list-kinds-full=Haskell` shows only constructor/function/module/type) so it lumps every `name = expr` binding into "function". GitGalaxy (language_standards.py haskell rules, #1312) and tree-sitter's own audit tooling (_find_haskell_signature_for_bind, #1566) both independently make the same value-vs-function distinction correctly -- real cross-tool corroboration, not coincidence. (4) TH-splice call sites misread as definitions -- deriveJSON at Options.hs:454/458 is a Template Haskell splice INVOKING an imported function, not defining one; ctags misparses the call as a definition. No GitGalaxy/tree-sitter defect anywhere in this shape; purely a ctags parser limitation, same category as the already-documented empty CTAGS_CLASS_KINDS['haskell'].
@@ -746,7 +746,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 69 occurrences as of 2026-08-21T23:37:11Z*
+*2-vs-1 -- 69 occurrences as of 2026-08-22T00:33:53Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > Confirmed: all 10 sampled misses (and, by cross-check against additional non-sampled instances in Options.hs/Shared.hs, plausibly all 69) are locally-scoped function definitions -- `instance ... where` methods, `where`-clause helpers, or `let`-bound names inside `do` blocks -- never top-level module definitions. ctags' Haskell parser has no layout-rule/scope awareness and only tags equations anchored at column 1; it correctly handles multi-clause TOP-LEVEL definitions (verified via expandFilterPath, writeFnBinary, writerFn -- all tag fine, clauses and all), so this is a pure scope blind spot, not a clause-counting bug (distinct from the tree-sitter clause-splitting bug fixed earlier in this same effort, which shares 2 of the 10 sample names by coincidence of subject matter, not root cause). GitGalaxy and tree-sitter are both correct; ctags is not wrong so much as structurally incapable of seeing these. Known, expected limitation of ctags' Haskell parser, now documented alongside its existing Haskell notes in tests/tools/ctags_reader.py -- not a GitHub issue, nothing in this repo to fix.
@@ -766,7 +766,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 16 occurrences as of 2026-08-21T23:37:11Z*
+*2-vs-1 -- 16 occurrences as of 2026-08-22T00:33:53Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > Not a real discrepancy -- structural tooling gap, already documented in the codebase. tests/tools/ctags_reader.py:39-40,228 sets CTAGS_CLASS_KINDS['haskell'] = set() on purpose: "ctags' Haskell parser has no class-shaped kind at all (constructor/function/module/type only)". Every example in this shape (data/newtype/class declarations -- ReaderOptions, CiteMethod, HasSyntaxExtensions, etc.) is real; ctags structurally cannot report any of them for this language, not a sample-specific miss. No action needed beyond this note.
@@ -786,19 +786,18 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-21T23:37:11Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-22T00:33:53Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
-> Mixed shape, resolved by reading both of the 2 occurrences directly (no larger sample needed). (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- NOT a real function. Imported from Text.Pandoc.Extensions (Shared.hs:114), only ever appears as a guard-clause call (`| extensionEnabled Ext_gfm_auto_identifiers exts = ...`). GitGalaxy's regex misreads a guard-clause invocation as a definition -- genuine GitGalaxy false positive, worth its own engine bug against language_standards.py's haskell func_start rule.
+> Mixed shape as originally investigated (2 occurrences): (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- was NOT a real function (imported from Text.Pandoc.Extensions, only ever appears as a guard-clause call inside a multi-line `||` condition) -- a genuine GitGalaxy false positive, filed as #2082 and fixed in PR #2083 (2026-08-22): `_slice_by_indentation` now skips an equation-form func_start match whose immediately preceding line ends in `||`/`&&`. Reconciled post-fix: only the getExtensions occurrence remains, so this shape is now a clean, unambiguous GitGalaxy win -- credited accordingly.
 
 | file | name | GitGalaxy | tree-sitter | ctags |
 |---|---|---|---|---|
 | pandoc/Options.hs | `getExtensions` | 438 | *(n/a)* | *(n/a)* |
-| pandoc/Shared.hs | `extensionEnabled` | 475 | *(n/a)* | *(n/a)* |
 
 ### ✅ `haskell` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 9 occurrences as of 2026-08-21T23:37:11Z*
+*3-way split -- 9 occurrences as of 2026-08-22T00:33:53Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > One systematic cause, confirmed by reading source for 3 of the 9 (getMetadataFromFiles App.hs:395-397, splitTextByIndices Shared.hs:142-143, tabFilter Shared.hs:256-259) and consistent with the shape of the remaining 6. Every case is a point-free/eta-reduced Haskell equation: the type signature declares N params, but the specific clause GitGalaxy and tree-sitter both align to only explicitly binds N-1 of them, handling the trailing argument via composition (`.`) or `\case`. GitGalaxy counts arity from the full type signature (the true logical arity); tree-sitter's declaration-only reading counts only the clause's explicitly-bound patterns (correct for that one equation, but undercounts true arity). Neither reader is wrong about what it's measuring -- same shape as Claim 1 in docs/why_gitgalaxy_beats_ast_here.md. GitGalaxy's answer is arguably the more useful coupling signal; recommend documenting as a candidate Claim rather than treating as an engine defect to fix toward matching tree-sitter.

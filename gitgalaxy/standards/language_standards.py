@@ -9597,7 +9597,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # function's own parameter-list close and body-open `) {` and land on an
             # unrelated identifier deep inside the body (e.g. `Navigator.of`),
             # misreporting it as a phantom function definition.
-            # FIX: Tightened the character class to `(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))`
+            # FIX: Tightened the character class to `(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))`
             # to reject `{`/`}` entirely and only permit `(`/`)` if they are balanced.
             # This prevents the regex from crossing structural boundaries like `) {`.
             # =====================================================================
@@ -9605,15 +9605,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
@@ -9634,12 +9634,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # rejects a parameter list that opens with `:` (only valid in Dart's
                 # object-destructuring patterns, e.g. `StatefulElement(:final T
                 # state) => state,` -- never a real parameter list).
-                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
-                r"(?!(?:(?:(?:[\w<>\[\],?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?\([^)]*(?:this\.|super\.)[^)]*\)[ \t\n]*;)"

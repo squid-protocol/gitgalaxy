@@ -3396,7 +3396,7 @@ class StructuralExtractor:
                     # scanning past the whole list (excluding "," from stop_chars, so
                     # they're skipped rather than mistaken for Bug 4's terminator) for
                     # the real terminator: either a bodyless `;` or a body-bearing `{`.
-                    colon_term_idx, colon_term_kind = _dart_scan_terminator(term_idx + 1, opener + ";")
+                    colon_term_idx, colon_term_kind = _dart_scan_terminator(term_idx + 1, opener + ";", search_limit=len(safe_code))
                     if colon_term_kind == "brace":
                         end_idx = self._find_balanced_end(safe_code, colon_term_idx, opener, closer)
                     elif colon_term_kind == "semi":

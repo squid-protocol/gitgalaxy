@@ -6724,7 +6724,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # (0.01s here vs. ~13s with the lookahead) on a payload of thousands of repeated
                 # type-declaration lines with one distant END, a real ReDoS regression on a
                 # non-pathological, plausible shape. A numeric bound has none of that risk.
-                r"[A-Za-z0-9_ \t\n&*,()=:]{0,40}?"
+                r"(?:[A-Za-z0-9_ \t&*,()=:]|&\s*\n){0,40}?"
                 r")?"
                 # 4. THE EXECUTION BLOCK KEYWORD
                 # Supports multi-line continuation `&` inside the spaces

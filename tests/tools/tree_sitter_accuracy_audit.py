@@ -499,7 +499,21 @@ NODE_MAPS = {
         # this grammar -- the identifier is a plainly-typed `simple_identifier`/`type_identifier`
         # child instead, so every match silently resolved to None pre-fix. See _get_node_name's
         # kotlin branch.
-        "func_node_types": {"function_declaration", "anonymous_function"},
+        # (found via tri-comparison-ledger-sweep, kotlin/function/existence/agree[gitgalaxy]_vs
+        # [ctags,tree_sitter], 2026-08-22): a secondary constructor (`constructor(...) : this()
+        # { ... }`) gets its own `secondary_constructor` node type, distinct from
+        # `function_declaration` -- confirmed via okhttp/Dispatcher.kt's `constructor
+        # (executorService: ExecutorService?)`, which GitGalaxy's own func_start regex already
+        # correctly matches (its `(constructor)` alternative), invisible to real_functions here
+        # pre-fix. `anonymous_initializer` (an `init { ... }` block, the regex's sibling `(init)`
+        # alternative) has the identical no-name-field shape and is added alongside it even though
+        # this corpus has no live example -- same underlying gap, not worth a second round-trip.
+        "func_node_types": {
+            "function_declaration",
+            "anonymous_function",
+            "secondary_constructor",
+            "anonymous_initializer",
+        },
         # #1295: kotlin's `object` declarations (including `actual`/`expect` multiplatform
         # variants) get their own `object_declaration` node type, distinct from
         # `class_declaration` -- a real, named class-like entity GitGalaxy's own class_start
@@ -1081,6 +1095,14 @@ def _get_node_name(node: Any) -> Optional[str]:
             if child.type == "type_identifier":
                 return child.text.decode("utf8")
         return None
+    # kotlin secondary constructors/init blocks have no user-chosen name at all -- the literal
+    # keyword IS the name, matching GitGalaxy's own func_start regex, which captures the bare
+    # "constructor"/"init" keyword text for these two alternatives (there is nothing else to
+    # capture: a `constructor(...)`/`init { ... }` is never given a distinct identifier in Kotlin).
+    if node.type == "secondary_constructor":
+        return "constructor"
+    if node.type == "anonymous_initializer":
+        return "init"
 
     # #1313: powershell's function_statement/class_statement/class_method_definition have no
     # "name" field -- the identifier is a plainly-typed "function_name"/"simple_name" child.
@@ -1492,8 +1514,11 @@ def _get_param_count(node: Any, lang: str = "") -> int:
                     if wrapper.type == "optional_formal_parameters":
                         count += sum(1 for p in wrapper.children if p.type == "formal_parameter")
                 return count
-    elif node.type == "function_declaration":
-        # kotlin: params live inside a "function_value_parameters" wrapper.
+    elif node.type in ("function_declaration", "secondary_constructor"):
+        # kotlin: params live inside a "function_value_parameters" wrapper. `secondary_constructor`
+        # shares the identical wrapper shape (confirmed via okhttp/Dispatcher.kt's `constructor
+        # (executorService: ExecutorService?)`) -- added alongside function_declaration rather
+        # than as its own elif since the extraction is identical.
         for child in node.children:
             if child.type == "function_value_parameters":
                 return sum(1 for p in child.children if p.type == "parameter")

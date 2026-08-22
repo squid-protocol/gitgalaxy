@@ -76,7 +76,7 @@ epic #813), not that no cases exist.
 | **[java](java.md)** | production | standard_block | 50/52 | 70 | 91 | **written** |
 | **[javascript](javascript.md)** | production | standard_block | 61/64 | 53 | 73 | **written** |
 | jcl | production | line_exclusive | 11/24 | 41 | 51 | not written |
-| kotlin | production | standard_block | 51/52 | 42 | 90 | not written |
+| **[kotlin](kotlin.md)** | production | standard_block | 51/52 | 43 | 90 | **written** |
 | livecode | production | multi_style_live | 47/52 | 4* | 108 | not written |
 | lua | production | multi_style_dash | 50/52 | 41 | 78 | not written |
 | m4 | production | line_exclusive | 31/47 | 21 | 73 | not written |

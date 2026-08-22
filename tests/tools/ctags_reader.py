@@ -336,6 +336,26 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     # kotlin: ctags has no separate free-function kind -- top-level functions tag "m" too
     # (verified via probe file: a file-scope `fun` with no enclosing class still tags "m",
     # just without a `class:` field), so "m" alone already covers both cases.
+    # Also NOT fixable by adjusting this kind set: ctags' Kotlin parser tags two shapes that
+    # aren't real function declarations with the SAME "m" kind as genuine ones (found via
+    # tri-comparison-ledger-sweep, kotlin/function/existence/agree[ctags]_vs[gitgalaxy,
+    # tree_sitter], 15 occurrences, 2026-08-22, okhttp/Dispatcher.kt): (1) any trailing-lambda
+    # block passed as a call argument (`require(x >= 1) { "..." }`, `synchronized(this) { ... }`,
+    # `.also { ... }`, `.map { it.call }`) tags as a synthetic `<lambda>` symbol -- confirmed via
+    # `ctags -x --languages=Kotlin`, 10 of the 15 occurrences; (2) a `for (x in collection)` loop's
+    # iteration variable tags as a method literally named after the variable (`call`, `existingCall`)
+    # -- the remaining 5. GitGalaxy's own func_start regex and tree-sitter's grammar both correctly
+    # require a real `fun`/constructor declaration, so every one of these is a ctags-side
+    # over-count, not a GitGalaxy gap -- same shape as the javascript object-literal note above:
+    # ctags gives no separate kind for "anonymous lambda literal" or "for-loop binding" vs. a real
+    # named function/method in the first place.
+    # Separately, the opposite direction: ctags' Kotlin parser doesn't recognize a secondary
+    # constructor (`constructor(...) : this() { ... }`) as a symbol at all -- confirmed via
+    # `ctags -x --languages=Kotlin` on the same Dispatcher.kt emitting no entry whatsoever for
+    # its line-119 constructor, under any kind. Not a kind-map gap (nothing to remap; ctags never
+    # tags it in the first place) -- a genuine parser recall gap, kept as a real, permanent
+    # disagreement (kotlin/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]) rather than
+    # something this reader can work around.
     "kotlin": {"m"},
     "lua": {"f"},
     "makefile": {"t"},  # targets are the closest func-analog
@@ -419,7 +439,15 @@ CTAGS_CLASS_KINDS: dict[str, set[str]] = {
     # keyword, so every one of these is a real ctags-side over-count, not a GitGalaxy gap -- no
     # kind-set change fixes it since ctags gives no separate kind for "object literal" vs.
     # "class-shaped assignment" in the first place.
-    "kotlin": {"c", "i"},  # class, interface
+    "kotlin": {"c", "i", "o"},  # class, interface, object -- "o" was simply absent from this
+    # map, same shape as the cpp/fortran gaps above (found via tri-comparison-ledger-sweep,
+    # kotlin/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags], 2026-08-22): ctags tags a
+    # Kotlin `object Foo { ... }` singleton declaration with its own distinct "o" (objects) kind,
+    # separate from "c" (classes) -- confirmed directly via `ctags -x --languages=Kotlin` on
+    # okhttp/OkHttp.kt, which tags `expect object OkHttp` as kind "object", not "class". GitGalaxy's
+    # own class_start regex and tree-sitter's grammar both already treat `object` as class-shaped
+    # (gitgalaxy/standards/language_standards.py's kotlin class_start includes the literal `object`
+    # keyword), just invisible to this ctags-side comparison until now.
     "lua": set(),
     "makefile": set(),
     "matlab": {"c"},

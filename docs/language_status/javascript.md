@@ -253,3 +253,80 @@ new issue was fixed here, matching this skill's own scope discipline (measure an
 inline) — both need the fuller `harden-language-extraction` treatment (ReDoS sweep, golden-master
 diff, per-language verification) given they touch `func_start`/`detector.py`'s shared slicing logic
 rather than being isolated one-file config bugs.
+
+## 10. Tri-comparison sweep (GitGalaxy vs. tree-sitter vs. ctags, no privileged ground truth)
+
+§9 above compares GitGalaxy against tree-sitter alone, treated as ground truth. This section is a
+different exercise, run via the `tri-comparison-ledger-sweep` skill (2026-08-21): a genuine 3-way
+comparison across an 18-file jquery/react/threejs corpus
+(`language-crucible/data/javascript/`), where no single tool is assumed correct — every
+disagreement is root-caused by reading real source before it's recorded either way. All 8 shapes
+the tri-comparison ledger had accumulated for javascript were investigated and validated in this
+pass; none remain open (`docs/self_scan/tri_comparison_ledger.json`, keys prefixed
+`javascript/`).
+
+**Summary: 8 shapes investigated, 0 confirmed GitGalaxy engine defects, 2 confirmed bugs in this
+repo's own comparison tooling (fixed), 1 methodology-only artifact (no fix possible or needed).**
+Every real discrepancy traced back to the *other* two tools, not to GitGalaxy — a cleaner outcome
+than `c`'s own tri-comparison pass (0 defects either way) and a starker one than `rust`'s (2 real
+GitGalaxy bugs found) — see those languages' own docs for contrast.
+
+**Where GitGalaxy wins outright:**
+
+- **Flow-typed react source breaks both other tools, independently, for different reasons.** All
+  four affected corpus files (`react/ReactFiberBeginWork.js`, `ReactFiberWorkLoop.js`,
+  `ReactFlightServer.js`, `ReactSymbols.js`) carry the `@flow` pragma. tree-sitter-javascript can't
+  parse Flow's parenthesized type-cast syntax (`(expr: Type)`) — confirmed directly:
+  `ReactFiberWorkLoop.js`/`ReactFlightServer.js` each produce a SINGLE `ERROR` node spanning the
+  *entire file*, and real functions inside it (`beginWork`, `attemptEarlyBailoutIfNoScheduledUpdate`,
+  18 others sampled) have no tree-sitter node at all. ctags' independent hand-written JS scanner
+  hits its own cascade on a *different* trigger — a Flow return-type annotation (`): Type {`) —
+  confirmed via a minimal isolated repro, not just the corpus observation. A Flow parameter type
+  with a union (`current: Fiber | null`) can also corrupt a surviving tree-sitter node's own
+  argument count without losing the function entirely (`updateForwardRef`: 5 real params,
+  GitGalaxy=5, ctags=5, tree-sitter=4). GitGalaxy's regex depends on neither tool's parse state and
+  is unaffected by any of this. Full write-up: `docs/why_gitgalaxy_beats_ast_here.md`'s Claim 3
+  extension.
+- **ctags' "class" kind is a blanket pre-ES6-constructor heuristic, not a real class check.** ctags
+  tags its `c` kind on any bare object-literal assignment (`var cssHooks = {...}`) or
+  function-expression assignment (`jQuery.Event = function(){}`), whether or not `new` is ever used
+  on it — 93 occurrences across the corpus (`jqXHR`, `cssHooks`/`cssShow`, `promise`,
+  `Event`/`event`/`special`, threejs's `ALPHA_MODES`/`WEBGL_CONSTANTS`/etc.). GitGalaxy's
+  `class_start` regex and tree-sitter's `class_declaration` node both correctly require the literal
+  `class` keyword.
+- **ctags loses real function names inside call-argument object literals.** A function-valued
+  object-literal property (`ajaxSetup: function(...) {...}`) keeps its real name when directly
+  assigned, but loses it (falling back to a synthetic placeholder) specifically when the literal is
+  a call argument — e.g. jquery's own `jQuery.extend(jQuery, {ajaxSetup: ..., ajax: ..., ...})`
+  idiom, which drops `jquery/core.js`'s entire 26-function utility-belt down to a single real ctags
+  tag. 265 occurrences, the single largest shape in the corpus.
+
+**Bugs found and fixed in the comparison tooling itself, separate from either tool's grammar/scanner
+limitations above:**
+
+1. `tests/tools/tri_comparison_gatherer.py`'s own tree-sitter walker (deliberately simpler than
+   `tree_sitter_accuracy_audit.py`'s) had never been given the reserved-keyword/known-hallucination
+   `method_definition` filter the latter already proved necessary for this exact Flow-cascade
+   mechanism (`#1633`) — every phantom `if`/`for`/`let`-named node was still polluting the ledger's
+   own javascript readings. Fixed by reusing the existing `tsaa` frozensets directly (one source of
+   truth) plus adding one newly-confirmed hallucination name.
+2. ctags' javascript-specific `AnonymousFunction<hex>`/`AnonymousClass<hex>` synthetic-placeholder
+   scheme (distinct from the C parser's `__anon<hex>` scheme this module already filtered) was
+   unfiltered, inflating ctags' apparent function/class counts with unnamed-callback noise. Fixed —
+   but an early, ungated version of this fix was caught regressing an *unrelated* language before
+   it shipped: PHP's ctags parser reuses the identical `AnonymousClass<hex>` text for its own real
+   `new class {...}` anonymous-class language feature, so the filter had to be gated to
+   `lang == "javascript"` specifically, not applied to every language the way the C-side `__anon`
+   check already safely is. Caught by re-running the full 45-language chart regeneration and
+   diffing every changed panel before committing, not assumed safe from the javascript corpus
+   check alone.
+
+**Methodology-only artifact (no defect, no fix):** `jquery/event.js` defines two structurally
+unrelated pairs of object-literal properties both named `setup`/`trigger` (one pair takes 1 param,
+a later, different pair takes 0). Ledger reconciliation pairs occurrences by name across the whole
+file with no scope disambiguation, so this same-name collision produces a spurious 2-occurrence
+args mismatch that isn't a real counting defect in any tool — just a limitation of comparing by
+name alone.
+
+Full record: `docs/self_scan/tri_comparison_ledger.json` (grep for `"javascript/`), and
+`docs/self_scan/tri_comparison_points_of_interest.md` for the ranked human-readable log.

@@ -1061,7 +1061,7 @@ class Orchestrator:
                 if isinstance(ts, dict) and isinstance(eqs, dict):
                     keys_to_delete_ts = [
                         k
-                        for k in ts.keys()
+                        for k in ts
                         if k in mitigs
                         or f"sec_{k}" in mitigs
                         or k.replace("sec_", "") in mitigs
@@ -1072,7 +1072,7 @@ class Orchestrator:
                     ]
                     keys_to_delete_eqs = [
                         k
-                        for k in eqs.keys()
+                        for k in eqs
                         if k in mitigs
                         or k.replace("sec_", "") in mitigs
                         or k in ignored_rules
@@ -1089,12 +1089,10 @@ class Orchestrator:
                         if k in eqs:
                             del eqs[k]
 
-                if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:
-                    if "ai_appsec" in file_data.get("telemetry", {}):
+                if ("GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs) and "ai_appsec" in file_data.get("telemetry", {}):
                         del file_data["telemetry"]["ai_appsec"]
 
-                if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:
-                    if "ai_guardrails" in file_data.get("telemetry", {}):
+                if ("GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs) and "ai_guardrails" in file_data.get("telemetry", {}):
                         del file_data["telemetry"]["ai_guardrails"]
 
                 if file_data.get("is_ml_threat"):
@@ -1146,8 +1144,7 @@ class Orchestrator:
 
                             # THE FIX: Bulletproof Truthiness Check
                             ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                            if isinstance(ts, dict):
-                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
+                            if isinstance(ts, dict) and (ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets")):
                                     has_secrets = True
 
                             # Check Domain Context
@@ -2575,7 +2572,7 @@ class Orchestrator:
             self.ext_tally = {}
             self.stem_map = {}
 
-            for rel_path in self.ram_cache.keys():
+            for rel_path in self.ram_cache:
                 stem = Path(rel_path).stem.lower()
                 ext = Path(rel_path).suffix.lower()
                 name = Path(rel_path).name.lower()
@@ -2598,7 +2595,7 @@ class Orchestrator:
             self._extract_features_parallel()
 
             # 5. The Ripple Effect (Recalculate Downstream Exposure for ALL files)
-            self.stem_map = {f: f for f in self.ram_cache.keys()}
+            self.stem_map = {f: f for f in self.ram_cache}
             self._resolve_dependency_graph()
             self._calculate_risk_exposures()
 

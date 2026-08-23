@@ -621,8 +621,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
-            "raw_imports": list(raw_imports),
-            "named_tokens": list(named_tokens),
+            "raw_imports": sorted(list(raw_imports)),
+            "named_tokens": sorted(list(named_tokens)),
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -1679,6 +1679,9 @@ class Orchestrator:
         # the pipeline sees a deterministic sequence regardless of thread
         # scheduling.
         self.ram_cache = dict(sorted(self.ram_cache.items()))
+        self.file_speed_telemetry["phase_totals"] = dict(sorted(self.file_speed_telemetry["phase_totals"].items()))
+        self.splicing_telemetry["regex_totals"] = dict(sorted(self.splicing_telemetry["regex_totals"].items()))
+        self.splicing_telemetry["top_slowest"].sort(key=lambda x: (x["time"], x["path"]), reverse=True)
 
         # unparsable_files is appended to from the same as_completed() loop
         # (the "parser_bypass" branch above) as well as from the earlier
@@ -1704,8 +1707,8 @@ class Orchestrator:
         """
         logger.info("PASS_1.5: Resolving import graphs via O(1) Pre-computed Suffix Hash Maps...")
 
-        self.popularity_scores = dict.fromkeys(self.stem_map.values(), 0)
-        repo_file_paths = set(self.stem_map.values())
+        self.popularity_scores = dict.fromkeys(sorted(self.stem_map.values()), 0)
+        repo_file_paths = sorted(set(self.stem_map.values()))
 
         # --- O(1) SUFFIX MAP ---
         suffix_map = {}
@@ -1798,7 +1801,7 @@ class Orchestrator:
         external_imports_tally = {}  # <--- NEW: Track external dependencies
 
         for rel_path, meta in self.ram_cache.items():
-            raw_imports = meta.get("raw_imports", set())
+            raw_imports = sorted(list(meta.get("raw_imports", set())))
             for raw_import in raw_imports:
                 clean_path = import_cleaner.sub("", raw_import.strip())
                 if "from" in clean_path:

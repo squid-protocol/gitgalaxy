@@ -59,17 +59,26 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 
 ---
 
-## 🔒 Updating the Golden Crucible Baseline
+## 🔒 CI Pipeline & Baselines
 
-`tests/golden_master_audit.json` and `tests/golden_master_zero_dep_audit.json` are the accepted-good snapshots that every PR's output is diffed against (see the `crucible-audit` check). A failing diff means GitGalaxy's output changed -- that's either a bug you should fix, or an intentional improvement whose new baseline needs to be deliberately re-blessed.
+When you modify GitGalaxy's core engine, several CI workflows will rigorously test your changes against established baselines. If your changes intentionally improve parsing precision, you must regenerate the corresponding baselines.
 
-**Never** hand-copy fresh output over these files. Always use:
+1. **Golden Crucible Baselines (`tests/golden_master_audit.json`)**
+   This validates exact extraction output.
+   - Run `python tests/tools/crucible_check.py` to view structural drift.
+   - To re-bless the new state: `python tests/tools/crucible_check.py --update --yes`
 
-```
-python tests/tools/update_golden_master.py
-```
+2. **Tri-Comparison Ledger (`docs/self_scan/tri_comparison_ledger.json`)**
+   This compares GitGalaxy precision against ctags and tree-sitter.
+   - Run `python tests/tools/tri_comparison_chart.py --all --ci` to test.
+   - If you improved precision, lock it in: `python tests/tools/tri_comparison_chart.py --regenerate --languages <lang>`
 
-It shows you exactly what's about to change before writing anything, and requires explicit confirmation. If your PR touches either fixture, **explain why in the PR description** (e.g. "improved the Rust parser, now correctly detects async trait bounds") -- a CI check flags any PR that modifies these files so it's never invisible in a large diff.
+3. **Tree-Sitter Accuracy (`docs/self_scan/tree_sitter_accuracy_history.csv`)**
+   This audits AST accuracy against tree-sitter ground truth. 
+   - Run `python tests/tools/tree_sitter_accuracy_audit.py --ci --all`.
+   - If your regex fix legitimately drops false positives causing ground truth drift, regenerate the baseline: `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`
+
+If your PR touches any baseline fixtures, **explain why in the PR description** (e.g. "improved the Rust parser, now correctly detects async trait bounds"). A CI check flags any PR that modifies these files so it's never invisible in a large diff.
 
 ---
 

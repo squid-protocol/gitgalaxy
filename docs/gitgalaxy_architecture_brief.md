@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-23T22:56:48.198266+00:00` |
-| **Scan Duration** | `7.15s` |
+| **Timestamp** | `2026-08-23T22:59:13.396973+00:00` |
+| **Scan Duration** | `7.4s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `caf8133a2439da1c6c06dece61bb8c4f27f51f40` |
+| **Git Commit** | `f31015f2081ba607c0d97ac5a98781dd2ce1d95d` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -229,7 +229,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)
 > Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.
 
-### 1. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **546.45**
+### 1. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **546.44**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1564.86 | **LOC:** 1407 | **CtrlFlow:** 85.9% | **Authorship Centralization:** 87.5%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (95.9289%), Verification (80.0%)

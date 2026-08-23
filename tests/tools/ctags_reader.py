@@ -168,6 +168,17 @@ KIND MAPS
         function declarations, e.g. `validateSignature`/`isSupportedType` -- ctags has no concept
         of a local function the same way it has no concept of a local variable; GitGalaxy and
         tree-sitter both correctly count these, ctags correctly doesn't try to.)
+      - javascript: ctags' JavaScript scanner has two structural limitations. (1) Class-side: it
+        heuristically tags ANY bare object-literal assignment (`var X = {...}`) or function-expression
+        assignment (`var X = function(){}`) as a class, assuming it might be used as a pre-ES6
+        constructor. GitGalaxy and tree-sitter both correctly require the literal `class` keyword.
+        (2) Function-side: it loses the real property-key name for a function-valued object-literal
+        property when passed as a CALL ARGUMENT (e.g. `jQuery.extend(..., {ajaxSetup: function(){}})`),
+        instead emitting a synthetic 'AnonymousFunction<hex>' tag (now filtered by the gatherer).
+        It also incorrectly tags the BASE OBJECT name instead of the property for dynamic property
+        assignments (`jQuery[ method ] = function()`), tags method calls as method DEFINITIONS
+        (`X.prototype.Y.call()`), and emits literal bracket strings for computed property names
+        (`[ASYNC_ITERATOR]`). GitGalaxy and tree-sitter correctly avoid all these traps.
     Cross-reference gitgalaxy/standards/language_standards.py's own class_start/func_start
     definitions before ever widening one of these maps -- do not add a kind because its letter
     looks right.

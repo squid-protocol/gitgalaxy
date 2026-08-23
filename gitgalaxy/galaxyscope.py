@@ -691,6 +691,10 @@ class Orchestrator:
         self.version = version
         self.temp_dir: Optional[str] = None
         self.root = self._prepare_target(target_input)
+        self.single_file_target = None
+        if self.root.is_file():
+            self.single_file_target = self.root.name
+            self.root = self.root.parent
 
         lang_defs = config.get("LANGUAGE_DEFINITIONS", {})
         aperture_cfg = config.get("APERTURE_CONFIG", {})
@@ -1416,11 +1420,15 @@ class Orchestrator:
     def _build_file_census(self):
         """Phase 0: Building the Census via Git Authority with Fallback."""
         try:
-            raw_output = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, args are fixed strings
-                [_GIT_BIN, "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
-            )
-            git_paths = raw_output.splitlines()
-            self.git_tracked_files = set(git_paths)
+            if getattr(self, "single_file_target", None):
+                git_paths = [self.single_file_target]
+                self.git_tracked_files = set(git_paths)
+            else:
+                raw_output = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, args are fixed strings
+                    [_GIT_BIN, "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
+                )
+                git_paths = raw_output.splitlines()
+                self.git_tracked_files = set(git_paths)
 
             # --- FAST I/O: ThreadPool for os.stat operations ---
             def _inspect_path(rel_path):

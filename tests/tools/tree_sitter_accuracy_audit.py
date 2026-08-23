@@ -844,6 +844,18 @@ def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
     hops = 0
     while current is not None and hops < max_hops:
         if current.type == "VarDecl":
+            # #2168: Ignore anonymous inline enums/structs used as local variable TYPE annotations
+            # (e.g. `const name: enum { ... } = value`). GitGalaxy's regex ignores these because it
+            # requires the `enum` to be on the right side of the `=`.
+            eq_node = None
+            for child in current.children:
+                if child.type == "=":
+                    eq_node = child
+                    break
+            
+            if eq_node and node.start_byte < eq_node.start_byte:
+                return None
+                
             for child in current.children:
                 if child.type == "IDENTIFIER":
                     return child.text.decode("utf8")
@@ -1856,6 +1868,8 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     def walk(node: Any) -> None:
         if (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation")) or (
             ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_"))
+        ) or (
+            ts_lang == "zig" and node.type == "ERROR"
         ):
             ranges.append((node.start_point[0] + 1, node.end_point[0] + 1))
 

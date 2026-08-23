@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-23T20:22:19.324564+00:00` |
-| **Scan Duration** | `9.64s` |
+| **Timestamp** | `2026-08-23T20:25:32.564701+00:00` |
+| **Scan Duration** | `7.15s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `fabaa8f399e620ded55b599633c9fa1bdb29cc24` |
+| **Git Commit** | `15d34f7ae449004d971bfa40951082be7fd90a68` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -62,12 +62,12 @@
 ## 3. MACRO STATE
 | Metric | Value |
 |---|---|
-| Total Artifacts | 842 |
+| Total Artifacts | 843 |
 | Analyzed Artifacts (Scanned) | 281 |
-| Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 561 |
+| Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 562 |
 | Total LOC | 60567 |
 | Volatility Index | 0.007 |
-| % Scanned of codebase = | 33.4% |
+| % Scanned of codebase = | 33.3% |
 | Dominant Lang | PYTHON |
 
 ## 3.5 MACRO-NETWORK TOPOLOGY (Resilience & Coupling)
@@ -105,12 +105,12 @@
 | Static: Literature & Documentation | 31 | 11.0% |
 
 ## 5. EXCLUDED ARTIFACTS (Unparsable or Shielded Files)
-*Total Excluded Artifacts: 561*
+*Total Excluded Artifacts: 562*
 
 **Composition by Extension & Reason:**
 - `.md`: 378x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 1x Excluded (Machine-Generated Source Code Signature: 58 LOC), 1x Excluded (Machine-Generated Source Code Signature: 41 LOC)
 - `.png`: 59x Excluded (Explicitly Denied Extension: '.png')
-- `.json`: 41x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
+- `.json`: 42x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
 - `.yml`: 24x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
 - `.gif`: 17x Excluded (Explicitly Denied Extension: '.gif')
 - `.js`: 11x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
@@ -277,7 +277,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (96.9481%), Verification (80.0%), Safety Score (74.9749%)
 - **Heaviest Functions:** `generate_report` (Impact: 73.2), `_audit_with_cache` (Impact: 45.6), `_audit_capped_sample` (Impact: 17.2)
 
-### 9. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **411.08**
+### 9. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **411.07**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1098.92 | **LOC:** 2043 | **CtrlFlow:** 74.4% | **Authorship Centralization:** 81.8%
 - **Primary Risk Drivers:** Spec Match (100.0%), Verification (80.0%), Safety Score (56.4193%), State Flux (54.3735%)

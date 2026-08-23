@@ -387,6 +387,7 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # fallback regex. Its own class_start safely extracts build stage
         # boundaries (either the explicit `AS <alias>` name or the base image).
         "dockerfile",
+        "jcl",
         # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
         # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
         # independent reading (verified directly, e.g. cics-banking-sample-application-
@@ -2002,6 +2003,7 @@ class StructuralExtractor:
                         # span exactly from its own keyword to the next
                         # RUN/CMD/ENTRYPOINT/HEALTHCHECK match, or EOF.
                         "dockerfile",
+        "jcl",
                         # #1975: jcl has no ScopeParsingRegistry entry and no
                         # brace-delimited bodies at all (JCL is fixed-column
                         # mainframe syntax), so it was silently falling through to

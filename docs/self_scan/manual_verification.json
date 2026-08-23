@@ -1,14 +1,5 @@
 {
   "languages": {
-    "agc_assembly": {
-      "args": {
-        "note": "AGC subroutines have no formal parameter list (why_gitgalaxy_beats_ast_here.md Claim 1's shape) -- args is a real body-idiom proxy: the number of DISTINCT accumulator-style registers (A/Q/L/Z) a function's body demonstrably reads via a real math/memory opcode, plus one more if an EBANK=/FBANK=/BBANK= bank-context assignment is present. Fixed in gitgalaxy/core/detector.py's new _count_agc_register_args (#1949 follow-up) to scan every match in the body (findall) instead of deriving from only the first regex match (search-then-split), which previously produced a near-meaningless 0/1/2 categorical value regardless of how many registers a function actually touched. Spot-checked by hand against direct source reading for 5 functions across 4 different corpus files (P40AUTO=1 register A, TESTBIT=1 register A via CCS A before a TC Q early-return truncates the rest, SMODECHK=0 no coupled-register opcode present, KILLTASK=3 registers A+Q plus an EBANK= bank assignment, CGCALC=3 registers A+L plus an EBANK= bank assignment) -- zero discrepancies found. Total is the sum of every real function's own distinct-register-plus-bank-flag count across the corpus, computed via the same struct_func_start/function_data pipeline path abap's own args entry uses. ctags emits no signature: field for Asm-parsed files, so no second tool can ever corroborate this metric -- confirmed via `ctags --fields=+S`, same structural limitation as the whole-language 1-tool case, scoped here to just the args metric (agc_assembly has real ctags coverage for func/class existence).",
-        "total": 296,
-        "verified": 296,
-        "verified_at": "2026-08-20",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
     "abap": {
       "args": {
         "note": "Per-function declared-parameter count, spot-checked against direct source reading for 9 functions across 4 different corpus files (constructor, create_empty, create_from, build_asx_node, parse, push, serialize, deserialize, deserialize_checks) after fixing #1917 (args regex correctness) and #1918 (DEFINITION-section span lookup + dedicated counter, gitgalaxy/core/detector.py's _count_abap_declared_params) -- zero discrepancies found. Total is the sum of every real function's own args count across the corpus, not a per-clause or per-file signal count (distinct from the file-level struct_args structural signature).",
@@ -18,34 +9,66 @@
         "verified_by": "Claude Sonnet 5"
       },
       "class": {
-        "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md §9.",
+        "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md \u00a79.",
         "total": 12,
         "verified": 12,
         "verified_at": "2026-08-19",
         "verified_by": "Claude Sonnet 5"
       },
       "function": {
-        "note": "func_start regex applied directly to source text, cross-checked against an independent grep (grep -nE \"^\\s*METHOD\\s+[a-zA-Z]\") that shares no implementation with the primary regex -- see docs/language_status/abap.md §9.",
+        "note": "func_start regex applied directly to source text, cross-checked against an independent grep (grep -nE \"^\\s*METHOD\\s+[a-zA-Z]\") that shares no implementation with the primary regex -- see docs/language_status/abap.md \u00a79.",
         "total": 124,
         "verified": 124,
         "verified_at": "2026-08-19",
         "verified_by": "Claude Sonnet 5"
       }
     },
+    "agc_assembly": {
+      "args": {
+        "note": "AGC subroutines have no formal parameter list (why_gitgalaxy_beats_ast_here.md Claim 1's shape) -- args is a real body-idiom proxy: the number of DISTINCT accumulator-style registers (A/Q/L/Z) a function's body demonstrably reads via a real math/memory opcode, plus one more if an EBANK=/FBANK=/BBANK= bank-context assignment is present. Fixed in gitgalaxy/core/detector.py's new _count_agc_register_args (#1949 follow-up) to scan every match in the body (findall) instead of deriving from only the first regex match (search-then-split), which previously produced a near-meaningless 0/1/2 categorical value regardless of how many registers a function actually touched. Spot-checked by hand against direct source reading for 5 functions across 4 different corpus files (P40AUTO=1 register A, TESTBIT=1 register A via CCS A before a TC Q early-return truncates the rest, SMODECHK=0 no coupled-register opcode present, KILLTASK=3 registers A+Q plus an EBANK= bank assignment, CGCALC=3 registers A+L plus an EBANK= bank assignment) -- zero discrepancies found. Total is the sum of every real function's own distinct-register-plus-bank-flag count across the corpus, computed via the same struct_func_start/function_data pipeline path abap's own args entry uses. ctags emits no signature: field for Asm-parsed files, so no second tool can ever corroborate this metric -- confirmed via `ctags --fields=+S`, same structural limitation as the whole-language 1-tool case, scoped here to just the args metric (agc_assembly has real ctags coverage for func/class existence).",
+        "total": 296,
+        "verified": 296,
+        "verified_at": "2026-08-20",
+        "verified_by": "Claude Sonnet 5"
+      }
+    },
     "dockerfile": {
       "class": {
-        "note": "class_start (FROM, one per build stage) named-extraction verified two ways across the same 4-file corpus after #1974 (which added dockerfile to _CLASS_START_NAMED_EXTRACTION_LANGS and extended the regex to capture the real AS <alias> stage name, or fall back to the bare base-image reference for an unaliased stage): (1) class_data row counts match struct_class_start exactly (69/6/1/1). (2) independent grep -icE '^[ \\t]*FROM([ \\t]|\\\\)' cross-check (not the naive '^[ \\t]*FROM' alone, which false-positive-matches an unrelated ENV var named FROM_DOCKERFILE in windows.Dockerfile:185 -- confirmed a real regex-boundary requirement, not a bug) also matches 1/6/1/69 exactly. Extracted stage NAMES independently spot-checked against direct source reading: generate-files.Dockerfile's all 6 aliased stages (base/src/tools/generated/update/validate) match exactly; syscall.Dockerfile's one unaliased stage correctly falls back to its base-image reference (debian:${BASE_DEBIAN_DISTRO}-slim); daemon.Dockerfile's first 5 and last 5 of 69 stages (including two --platform=$VAR-prefixed ones, xx and build-dummy) all match exactly. Prior to #1974, dockerfile had no named class extraction at all (class_data was always empty regardless of struct_class_start's own accurate count) -- see docs/language_status/dockerfile.md §9 for the earlier, narrower raw-signal-only verification this entry supersedes for the 'Classes Found'/'Class Precision' chart panels specifically.",
+        "note": "class_start (FROM, one per build stage) named-extraction verified two ways across the same 4-file corpus after #1974 (which added dockerfile to _CLASS_START_NAMED_EXTRACTION_LANGS and extended the regex to capture the real AS <alias> stage name, or fall back to the bare base-image reference for an unaliased stage): (1) class_data row counts match struct_class_start exactly (69/6/1/1). (2) independent grep -icE '^[ \\t]*FROM([ \\t]|\\\\)' cross-check (not the naive '^[ \\t]*FROM' alone, which false-positive-matches an unrelated ENV var named FROM_DOCKERFILE in windows.Dockerfile:185 -- confirmed a real regex-boundary requirement, not a bug) also matches 1/6/1/69 exactly. Extracted stage NAMES independently spot-checked against direct source reading: generate-files.Dockerfile's all 6 aliased stages (base/src/tools/generated/update/validate) match exactly; syscall.Dockerfile's one unaliased stage correctly falls back to its base-image reference (debian:${BASE_DEBIAN_DISTRO}-slim); daemon.Dockerfile's first 5 and last 5 of 69 stages (including two --platform=$VAR-prefixed ones, xx and build-dummy) all match exactly. Prior to #1974, dockerfile had no named class extraction at all (class_data was always empty regardless of struct_class_start's own accurate count) -- see docs/language_status/dockerfile.md \u00a79 for the earlier, narrower raw-signal-only verification this entry supersedes for the 'Classes Found'/'Class Precision' chart panels specifically.",
         "total": 77,
         "verified": 77,
         "verified_at": "2026-08-21",
         "verified_by": "Claude Sonnet 5"
       },
       "function": {
-        "note": "func_start (RUN/CMD/ENTRYPOINT/HEALTHCHECK) verified two ways across the 4 real Dockerfiles in language-crucible/data/dockerfile/moby/test_targets/ (syscall/generate-files/windows/daemon, 1030 total lines): (1) raw regex applied directly to source text, cross-checked against an independent grep -icE '^[ \\t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)([ \\t\\[]|\\\\)' -- exact match on all 4 files (3/6/4/58). (2) real pipeline DB output (galaxyscope --db-only, file_data.struct_func_start vs. function_count) -- pre-fix, function_count catastrophically undercounted the raw signal (15/1/0/1 vs. the correct 58/6/3/4) because dockerfile had no ScopeParsingRegistry entry and fell through to Mode_B_Braces, which only 'succeeded' when a `{` happened to appear by coincidence within the search window (almost always an unrelated LATER instruction's `${VAR}` template-substitution brace, e.g. RUN at daemon.Dockerfile:57 was 'sliced' using the `{`/`}` from an unrelated FROM line's ${GOLANG_IMAGE} five lines and one build-stage boundary later). Fixed by routing dockerfile to Mode A (_slice_by_labels, the same greedy-to-next-match heuristic already used for abap/cobol/fortran/assembly -- correct here too since Dockerfile instructions have no brace-delimited bodies at all, they simply end at the next instruction). Re-verified post-fix: function_count == struct_func_start exactly on all 4 files (58/6/3/4). Full differential scan against the ~80-repo crucible corpus confirmed the fix generalizes (a 5th real occurrence, shell/brew/Dockerfile, also corrected) with zero unrelated-language diffs. See docs/language_status/dockerfile.md §9 and GitHub issue #1973 for a distinct, narrower follow-on (Mode A's per-function args count can spuriously attribute an unrelated ARG line swept into the greedy body span -- doesn't affect this function-existence verification).",
+        "note": "func_start (RUN/CMD/ENTRYPOINT/HEALTHCHECK) verified two ways across the 4 real Dockerfiles in language-crucible/data/dockerfile/moby/test_targets/ (syscall/generate-files/windows/daemon, 1030 total lines): (1) raw regex applied directly to source text, cross-checked against an independent grep -icE '^[ \\t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)([ \\t\\[]|\\\\)' -- exact match on all 4 files (3/6/4/58). (2) real pipeline DB output (galaxyscope --db-only, file_data.struct_func_start vs. function_count) -- pre-fix, function_count catastrophically undercounted the raw signal (15/1/0/1 vs. the correct 58/6/3/4) because dockerfile had no ScopeParsingRegistry entry and fell through to Mode_B_Braces, which only 'succeeded' when a `{` happened to appear by coincidence within the search window (almost always an unrelated LATER instruction's `${VAR}` template-substitution brace, e.g. RUN at daemon.Dockerfile:57 was 'sliced' using the `{`/`}` from an unrelated FROM line's ${GOLANG_IMAGE} five lines and one build-stage boundary later). Fixed by routing dockerfile to Mode A (_slice_by_labels, the same greedy-to-next-match heuristic already used for abap/cobol/fortran/assembly -- correct here too since Dockerfile instructions have no brace-delimited bodies at all, they simply end at the next instruction). Re-verified post-fix: function_count == struct_func_start exactly on all 4 files (58/6/3/4). Full differential scan against the ~80-repo crucible corpus confirmed the fix generalizes (a 5th real occurrence, shell/brew/Dockerfile, also corrected) with zero unrelated-language diffs. See docs/language_status/dockerfile.md \u00a79 and GitHub issue #1973 for a distinct, narrower follow-on (Mode A's per-function args count can spuriously attribute an unrelated ARG line swept into the greedy body span -- doesn't affect this function-existence verification).",
         "total": 71,
         "verified": 71,
         "verified_at": "2026-08-20",
         "verified_by": "Claude Sonnet 5"
+      }
+    },
+    "jcl": {
+      "args": {
+        "note": "args (PARM= or PROC definition args) verified manually across the 3 JCL corpus files. Found exactly 1 parameter string ('NTWRK=GENAPP') on the EXEC step in itpentr.jcl. The DB matches this extraction exactly.",
+        "total": 1,
+        "verified": 1,
+        "verified_at": "2026-08-23",
+        "verified_by": "Antigravity"
+      },
+      "class": {
+        "note": "class_start (JOB cards) verified manually across the 3 JCL corpus files. Found exactly 3 JOB statements (one per file). Fixed issue where JCL was missing from _CLASS_START_NAMED_EXTRACTION_LANGS, causing fallback to brace-slicing. The DB now matches the raw regex count exactly (3).",
+        "total": 3,
+        "verified": 3,
+        "verified_at": "2026-08-23",
+        "verified_by": "Antigravity"
+      },
+      "function": {
+        "note": "func_start (EXEC steps) verified manually across the 3 JCL corpus files. Found exactly 3 EXEC statements (one per file). Mode A slicing handles the boundary correctly. The DB output matches the raw regex count exactly (3).",
+        "total": 3,
+        "verified": 3,
+        "verified_at": "2026-08-23",
+        "verified_by": "Antigravity"
       }
     }
   }

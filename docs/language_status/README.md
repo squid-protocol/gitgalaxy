@@ -74,6 +74,7 @@ epic #813), not that no cases exist.
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |
 | html | production | block_exclusive | 39/48 | 91 | 123 | not written |
 | **[java](java.md)** | production | standard_block | 50/52 | 70 | 91 | **written** |
+| **[jcl](jcl.md)** | production | line_exclusive | 11/24 | 41 | 51 | **written** |
 | **[javascript](javascript.md)** | production | standard_block | 61/64 | 53 | 73 | **written** |
 | jcl | production | line_exclusive | 11/24 | 41 | 51 | not written |
 | **[kotlin](kotlin.md)** | production | standard_block | 51/52 | 43 | 90 | **written** |

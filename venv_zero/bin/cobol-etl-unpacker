@@ -1,0 +1,6 @@
+#!/home/joe/nyx_projects/gitgalaxy/venv_zero/bin/python3
+import sys
+from gitgalaxy.tools.cobol_to_cobol.cobol_etl_unpacker import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())

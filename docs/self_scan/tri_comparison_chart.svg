@@ -492,8 +492,8 @@
 <text class="bar-value-label" x="330.0" y="1011">610/793</text>
 <rect x="286" y="1015" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1023">599/599</text>
-<rect x="286" y="1027" width="86.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1035">345/353</text>
+<rect x="286" y="1027" width="84.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1035">337/353</text>
 <circle cx="390.0" cy="1020.0" r="8" fill="#eb6834"/>
 <text class="badge-label" x="390.0" y="1023.0">T</text>
 <rect class="bar-track" x="418" y="1003" width="88" height="34" rx="2"/>

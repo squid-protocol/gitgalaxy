@@ -904,32 +904,35 @@ class StructuralExtractor:
             # with sharing", C#'s "internal sealed partial"). Everyone else
             # stays on the legacy fallback until their own class_start is
             # hardened for this use (see the frozenset's comment).
-            class_start_pattern = (
-                self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("class_start")
-                if self.primary_lang_id in _CLASS_START_NAMED_EXTRACTION_LANGS
-                else None
-            )
-            if class_start_pattern is not None:
-                class_matches = list(class_start_pattern.finditer(code_stream))
-                # class_start regexes vary in capture-group shape across
-                # these languages -- most have a mandatory group 1 (the
-                # name) and an optional group 2 (a single inheritance
-                # parent), but Fortran uses alternation where the name lands
-                # in EITHER group 1 or group 2 depending on which branch
-                # fired. Resolved per-match below rather than assumed here.
-                class_start_groups = class_start_pattern.groups
+            rules = self.languages.get(self.primary_lang_id, {}).get("rules", {})
+            if "class_start" in rules and rules["class_start"] is None:
+                class_matches = []
+                class_start_groups = 0
             else:
-                # Legacy fallback: one hardcoded regex catching the common
-                # `[modifier] (class|struct|interface|trait|enum) Name`
-                # shape, for every language not yet verified safe to extract
-                # named classes from its own class_start rule.
-                class_start_pattern = re.compile(
-                    r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)"
-                    r"(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
-                    re.MULTILINE,
+                class_start_pattern = (
+                    rules.get("class_start") if self.primary_lang_id in _CLASS_START_NAMED_EXTRACTION_LANGS else None
                 )
-                class_matches = list(class_start_pattern.finditer(code_stream))
-                class_start_groups = 2
+                if class_start_pattern is not None:
+                    class_matches = list(class_start_pattern.finditer(code_stream))
+                    # class_start regexes vary in capture-group shape across
+                    # these languages -- most have a mandatory group 1 (the
+                    # name) and an optional group 2 (a single inheritance
+                    # parent), but Fortran uses alternation where the name lands
+                    # in EITHER group 1 or group 2 depending on which branch
+                    # fired. Resolved per-match below rather than assumed here.
+                    class_start_groups = class_start_pattern.groups
+                else:
+                    # Legacy fallback: one hardcoded regex catching the common
+                    # `[modifier] (class|struct|interface|trait|enum) Name`
+                    # shape, for every language not yet verified safe to extract
+                    # named classes from its own class_start rule.
+                    class_start_pattern = re.compile(
+                        r"^\s*(?:export\s+|public\s+|abstract\s+)?(?:class|struct|interface|trait|enum)\s+([a-zA-Z0-9_]+)"
+                        r"(?:\s*(?:\(|extends\s+|implements\s+|:\s*)([a-zA-Z0-9_]+))?",
+                        re.MULTILINE,
+                    )
+                    class_matches = list(class_start_pattern.finditer(code_stream))
+                    class_start_groups = 2
 
             # #1040: a flat "ends at the next class match" boundary truncates
             # an outer class's scope the instant it contains a nested class,

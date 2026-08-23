@@ -5334,6 +5334,13 @@ class StructuralExtractor:
             # Restore the namespace operator
             clean = clean.replace("__NAMESPACE_SCOPE__", "::")
 
+        # Preserve quotes and spaces inside bracket notation (like JS dynamic properties)
+        # to prevent findall from shattering the string literal inside the brackets.
+        def _preserve_brackets(match):
+            return match.group(0).replace(" ", "__SPACE__").replace('"', "__DQUOTE__").replace("'", "__SQUOTE__")
+
+        clean = re.sub(r"\[[^\]]+\]", _preserve_brackets, clean)
+
         # Allow standard characters, plus Makefiles ($/%), and Scopes (:)
         # BUG FIX (#1263): `~` (C++/destructor marker) was missing from this
         # charset, so it acted as an unintended word-boundary -- a qualified
@@ -5354,7 +5361,11 @@ class StructuralExtractor:
         # with AST engines.
         words = [w for w in re.findall(r"[a-zA-Z0-9_./%$():~'\-\[\]]+", clean) if w.strip("_-:")]
 
-        return words[-1] if words else "Unknown_Block"
+        if not words:
+            return "Unknown_Block"
+
+        name = words[-1].replace("__SPACE__", " ").replace("__DQUOTE__", '"').replace("__SQUOTE__", "'")
+        return name
 
     def _classify_function(self, name: str, block: str, rules: dict[str, Any]) -> str:
         tag_match = re.search(r"[\@](?:type|gal_type)[:\s]+(\w+)", block, re.IGNORECASE)

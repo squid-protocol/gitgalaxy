@@ -47,6 +47,10 @@ FUNCTION_CASES: dict[str, Any] = {
     "valid": [
         # Modern idiom (carried forward)
         ("function TargetFunc() {", "TargetFunc"),
+        ("[Symbol.iterator]: function() {", "[Symbol.iterator]"),
+        ("[ASYNC_ITERATOR]: function() {", "[ASYNC_ITERATOR]"),
+        ('jQuery[method] = function() {', 'jQuery[method]'),
+        ('s.converters["text script"] = function() {', 'converters["text script"]'),
         ("async function TargetFunc (req, res)", "TargetFunc"),
         ("export const TargetFunc = async () =>", "TargetFunc"),
         ("TargetFunc: function() {", "TargetFunc"),

@@ -752,8 +752,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # This allows the lookahead to safely cross vertical line breaks without
                 # resorting to an unbounded `\s*` which causes ReDoS.
                 # =====================================================================
-                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-                r"^[ \t]*[a-zA-Z_$][\w$]*(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?:\[[^\]\n]+\])?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+                r"^[ \t]*(?:\[[^\]\n]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
                 # GENERATOR METHOD FIX (epic #813/#814): class/object-literal generator
                 # methods (`*foo() {}`, `async *foo() {}`, `static *foo() {}`) were
                 # completely invisible -- this branch had no allowance for the leading

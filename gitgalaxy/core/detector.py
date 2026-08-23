@@ -2959,6 +2959,7 @@ class StructuralExtractor:
             # exact original brace-only behavior.
             if lang_id == "csharp":
                 params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
                 depth_paren = 0
                 depth_bracket = 0
                 pos = params_end_idx
@@ -3050,6 +3051,7 @@ class StructuralExtractor:
             # depth 0.
             elif lang_id in ("rust", "zig", "solidity"):
                 params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
                 depth = 0
                 pos = params_end_idx
                 term_idx, term_kind = -1, None
@@ -3102,6 +3104,7 @@ class StructuralExtractor:
             # scanning.
             elif lang_id == "go":
                 params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
                 # Go has no angle-bracket grouping: generics use square brackets
                 # ([T any]), so < and > only ever appear as operators -- most
                 # notably the channel-direction operator (chan<- / <-chan),
@@ -3161,6 +3164,7 @@ class StructuralExtractor:
                     if paren_idx == -1:
                         continue
                     params_end_idx = self._find_balanced_end(safe_code, paren_idx, "(", ")")
+                    search_limit = min(next_match_start, params_end_idx + 2000)
                     depth_angle = 0
                     depth_paren = 0
                     pos = params_end_idx
@@ -3277,6 +3281,7 @@ class StructuralExtractor:
 
                 if has_parens:
                     params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                    search_limit = min(next_match_start, params_end_idx + 2000)
                 else:
                     params_end_idx = match.end()
 
@@ -3575,6 +3580,7 @@ class StructuralExtractor:
             # real top-level terminator.
             elif lang_id == "java":
                 params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
                 depth_angle = 0
                 depth_bracket = 0
                 pos = params_end_idx

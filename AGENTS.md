@@ -12,3 +12,11 @@ Whenever you are writing, modifying, or reviewing Regular Expressions (Regex) in
 When you are preparing to push a fix or open a PR that touches GitGalaxy's core parsing logic (`language_standards.py`, `detector.py`, `prism.py`), you **MUST** ensure the CI validation gauntlet is handled.
 
 1. **Invoke the ci-push-checklist skill**: You must activate and follow the `.agents/skills/ci-push-checklist/SKILL.md` before pushing to ensure all Golden Masters, Tri-Comparison, and Tree-Sitter baselines are accurately regenerated and validated.
+
+# GitHub Issue and Pull Request Management
+
+Whenever you file issues or create pull requests, you **MUST** adhere to the following documentation and linking standards:
+
+1. **Detailed PR Bodies**: When using `gh pr create`, always provide a detailed, well-formatted PR body describing the problem, the root cause, and the fix. Do not leave the body brief or empty.
+2. **Auto-closing Issues**: Always include issue-closing keywords (e.g., `Resolves #123`, `Fixes #456`) in the **initial** PR body during creation. Do not rely on `gh pr edit` to add them later, as the PR may auto-merge before you do so, leaving the issues open.
+3. **Issue Labels**: When using `gh issue create`, always apply appropriate labels using the `--label` flag (e.g., `--label "bug"`, `--label "upstream"`).

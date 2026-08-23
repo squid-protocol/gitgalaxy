@@ -1048,10 +1048,10 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # same way Python's did (#1199). Name groups added to branches
             # 1/4 too, purely so existing extraction tests keep passing.
             "args": re.compile(
-                r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))|"
-                r"(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|"
+                r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
+                r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|"
                 r"([a-zA-Z_$][\w$]{0,100})[ \t]*=>|"
-                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\([^()]*\)|\((?:[^()]|\([^()]*\))*\))*\))",
+                r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

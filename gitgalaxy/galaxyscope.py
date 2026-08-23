@@ -621,8 +621,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "coding_loc": refraction["coding_loc"],
             "doc_loc": refraction["doc_loc"],
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
-            "raw_imports": sorted(list(raw_imports)),
-            "named_tokens": sorted(list(named_tokens)),
+            "raw_imports": sorted(raw_imports),
+            "named_tokens": sorted(named_tokens),
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -1801,7 +1801,7 @@ class Orchestrator:
         external_imports_tally = {}  # <--- NEW: Track external dependencies
 
         for rel_path, meta in self.ram_cache.items():
-            raw_imports = sorted(list(meta.get("raw_imports", set())))
+            raw_imports = sorted(meta.get("raw_imports", set()))
             for raw_import in raw_imports:
                 clean_path = import_cleaner.sub("", raw_import.strip())
                 if "from" in clean_path:

@@ -482,18 +482,18 @@
 <text class="lang-label" x="20" y="1023.5">javascript</text>
 <rect class="bar-track" x="154" y="1003" width="88" height="34" rx="2"/>
 <rect x="154" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1011">793</text>
-<rect x="154" y="1015" width="66.5" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1011">797</text>
+<rect x="154" y="1015" width="66.1" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1023">599</text>
-<rect x="154" y="1027" width="39.2" height="10" rx="2" fill="#1baf7a"/>
+<rect x="154" y="1027" width="39.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1035">353</text>
 <rect class="bar-track" x="286" y="1003" width="88" height="34" rx="2"/>
 <rect x="286" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1011">793/793</text>
+<text class="bar-value-label" x="330.0" y="1011">797/797</text>
 <rect x="286" y="1015" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1023">599/599</text>
-<rect x="286" y="1027" width="86.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1035">345/353</text>
+<rect x="286" y="1027" width="86.5" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1035">347/353</text>
 <circle cx="390.0" cy="1020.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="1023.0">G</text>
 <rect class="bar-track" x="418" y="1003" width="88" height="34" rx="2"/>

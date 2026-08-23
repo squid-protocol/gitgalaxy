@@ -8085,7 +8085,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "claude-sonnet-5 (direct source read, no dispatch needed)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-23T22:11:26Z",
+      "last_reconciled_at": "2026-08-23T22:39:37Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -8140,7 +8140,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed by claude-sonnet-5",
       "language": "m4",
-      "last_reconciled_at": "2026-08-23T22:11:26Z",
+      "last_reconciled_at": "2026-08-23T22:39:37Z",
       "last_seen_count": 76,
       "last_seen_examples": [
         {
@@ -8243,7 +8243,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "claude-sonnet-5 (direct source read, no dispatch needed)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-23T22:11:26Z",
+      "last_reconciled_at": "2026-08-23T22:39:37Z",
       "last_seen_count": 36,
       "last_seen_examples": [
         {
@@ -8347,7 +8347,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "makefile",
-      "last_reconciled_at": "2026-08-23T22:11:26Z",
+      "last_reconciled_at": "2026-08-23T22:39:38Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8378,7 +8378,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "matlab",
-      "last_reconciled_at": "2026-08-23T22:11:28Z",
+      "last_reconciled_at": "2026-08-23T22:39:41Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8411,7 +8411,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {
@@ -8525,7 +8525,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -8639,7 +8639,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8670,7 +8670,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8702,7 +8702,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8742,7 +8742,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-23T22:11:29Z",
+      "last_reconciled_at": "2026-08-23T22:39:42Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8782,7 +8782,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8815,7 +8815,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8846,7 +8846,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8876,7 +8876,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 64,
       "last_seen_examples": [
         {
@@ -8990,7 +8990,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -9077,7 +9077,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -9164,7 +9164,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9195,7 +9195,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9227,7 +9227,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -9339,7 +9339,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-08-23T22:11:36Z",
+      "last_reconciled_at": "2026-08-23T22:39:48Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -9443,12 +9443,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-23T22:11:41Z",
+      "last_reconciled_at": "2026-08-23T22:39:53Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
           "file_path": "laravel_core/BladeCompiler.php",
-          "name": "AnonymousClassa08aab890100",
+          "name": "AnonymousClassea70ff800100",
           "readings": {
             "ctags": 342,
             "gitgalaxy": null,
@@ -9476,7 +9476,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-23T22:11:41Z",
+      "last_reconciled_at": "2026-08-23T22:39:53Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9509,7 +9509,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-23T22:11:41Z",
+      "last_reconciled_at": "2026-08-23T22:39:53Z",
       "last_seen_count": 68,
       "last_seen_examples": [
         {
@@ -9621,7 +9621,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-08-23T22:11:41Z",
+      "last_reconciled_at": "2026-08-23T22:39:53Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9653,7 +9653,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-23T22:11:44Z",
+      "last_reconciled_at": "2026-08-23T22:39:55Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -9738,7 +9738,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-23T22:11:44Z",
+      "last_reconciled_at": "2026-08-23T22:39:55Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -9807,7 +9807,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-23T22:11:44Z",
+      "last_reconciled_at": "2026-08-23T22:39:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9840,7 +9840,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-23T22:11:44Z",
+      "last_reconciled_at": "2026-08-23T22:39:55Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -9952,7 +9952,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-08-23T22:11:44Z",
+      "last_reconciled_at": "2026-08-23T22:39:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9984,7 +9984,7 @@
       "investigated_at": "2026-08-21T03:23:52Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10042,7 +10042,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10098,7 +10098,7 @@
       "investigated_at": "2026-08-21T03:23:52Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10131,7 +10131,7 @@
       "investigated_at": "2026-08-21T12:03:03Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 100,
       "last_seen_examples": [
         {
@@ -10247,7 +10247,7 @@
       "investigated_at": "2026-08-21T12:03:03Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10278,7 +10278,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-08-23T22:11:56Z",
+      "last_reconciled_at": "2026-08-23T22:40:05Z",
       "last_seen_count": 100,
       "last_seen_examples": [
         {
@@ -10382,7 +10382,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-23T22:11:57Z",
+      "last_reconciled_at": "2026-08-23T22:40:06Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10424,7 +10424,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-23T22:11:57Z",
+      "last_reconciled_at": "2026-08-23T22:40:06Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -10502,7 +10502,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-23T22:11:57Z",
+      "last_reconciled_at": "2026-08-23T22:40:06Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -10553,7 +10553,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-23T22:11:57Z",
+      "last_reconciled_at": "2026-08-23T22:40:06Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -10628,7 +10628,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-08-23T22:11:57Z",
+      "last_reconciled_at": "2026-08-23T22:40:06Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -10723,7 +10723,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -10837,7 +10837,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -10890,7 +10890,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -11002,7 +11002,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -11105,7 +11105,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11156,7 +11156,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -11268,7 +11268,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -11381,7 +11381,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 83,
       "last_seen_examples": [
         {
@@ -11494,7 +11494,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11527,7 +11527,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11562,7 +11562,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -11674,7 +11674,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-08-23T22:12:02Z",
+      "last_reconciled_at": "2026-08-23T22:40:10Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -11776,7 +11776,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-08-23T22:12:04Z",
+      "last_reconciled_at": "2026-08-23T22:40:12Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -11879,7 +11879,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed and fixed by claude-sonnet-5",
       "language": "scheme",
-      "last_reconciled_at": "2026-08-23T22:12:09Z",
+      "last_reconciled_at": "2026-08-23T22:40:16Z",
       "last_seen_count": 84,
       "last_seen_examples": [
         {
@@ -11981,7 +11981,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scheme",
-      "last_reconciled_at": "2026-08-23T22:12:09Z",
+      "last_reconciled_at": "2026-08-23T22:40:16Z",
       "last_seen_count": 50,
       "last_seen_examples": [
         {
@@ -12085,7 +12085,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "shell",
-      "last_reconciled_at": "2026-08-23T22:12:10Z",
+      "last_reconciled_at": "2026-08-23T22:40:18Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12117,7 +12117,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-08-23T22:12:11Z",
+      "last_reconciled_at": "2026-08-23T22:40:19Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -12187,7 +12187,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-23T22:12:12Z",
+      "last_reconciled_at": "2026-08-23T22:40:21Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12218,7 +12218,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-23T22:12:12Z",
+      "last_reconciled_at": "2026-08-23T22:40:21Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12249,7 +12249,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-08-23T22:12:12Z",
+      "last_reconciled_at": "2026-08-23T22:40:21Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12281,7 +12281,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12314,7 +12314,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12356,7 +12356,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -12416,7 +12416,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12447,7 +12447,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12486,7 +12486,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12526,7 +12526,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-08-23T22:12:13Z",
+      "last_reconciled_at": "2026-08-23T22:40:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12566,7 +12566,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12608,7 +12608,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -12720,7 +12720,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -12779,7 +12779,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12812,7 +12812,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -12917,7 +12917,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 61,
       "last_seen_examples": [
         {
@@ -13031,7 +13031,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 1907,
       "last_seen_examples": [
         {
@@ -13145,7 +13145,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13185,7 +13185,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13225,7 +13225,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 174,
       "last_seen_examples": [
         {
@@ -13337,7 +13337,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-23T22:12:21Z",
+      "last_reconciled_at": "2026-08-23T22:40:29Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {
@@ -13444,7 +13444,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-23T22:12:32Z",
+      "last_reconciled_at": "2026-08-23T22:40:37Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13479,7 +13479,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-23T22:12:32Z",
+      "last_reconciled_at": "2026-08-23T22:40:37Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13522,7 +13522,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-23T22:12:32Z",
+      "last_reconciled_at": "2026-08-23T22:40:37Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

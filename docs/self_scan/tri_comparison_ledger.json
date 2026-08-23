@@ -6362,7 +6362,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -6476,7 +6476,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -6590,7 +6590,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -6703,7 +6703,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6736,7 +6736,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6787,7 +6787,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 315,
       "last_seen_examples": [
         {
@@ -6901,7 +6901,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "java",
-      "last_reconciled_at": "2026-08-23T22:11:16Z",
+      "last_reconciled_at": "2026-08-23T22:39:24Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6952,7 +6952,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 93,
       "last_seen_examples": [
         {
@@ -7066,7 +7066,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7153,7 +7153,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7192,7 +7192,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 45,
       "last_seen_examples": [
         {
@@ -7296,8 +7296,8 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
-      "last_seen_count": 11,
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
+      "last_seen_count": 13,
       "last_seen_examples": [
         {
           "file_path": "react/ReactFiberBeginWork.js",
@@ -7355,6 +7355,24 @@
         },
         {
           "file_path": "react/ReactFlightServer.js",
+          "name": "[Symbol.iterator]",
+          "readings": {
+            "ctags": 1576,
+            "gitgalaxy": 1576,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "react/ReactFlightServer.js",
+          "name": "[ASYNC_ITERATOR]",
+          "readings": {
+            "ctags": 1616,
+            "gitgalaxy": 1616,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "react/ReactFlightServer.js",
           "name": "abortIterable",
           "readings": {
             "ctags": 1367,
@@ -7368,24 +7386,6 @@
           "readings": {
             "ctags": 1233,
             "gitgalaxy": 1233,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "react/ReactFlightServer.js",
-          "name": "error",
-          "readings": {
-            "ctags": 1222,
-            "gitgalaxy": 1222,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "react/ReactFlightServer.js",
-          "name": "throwTaintViolation",
-          "readings": {
-            "ctags": 618,
-            "gitgalaxy": 618,
             "tree_sitter": null
           }
         }
@@ -7410,8 +7410,8 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
-      "last_seen_count": 8,
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
+      "last_seen_count": 6,
       "last_seen_examples": [
         {
           "file_path": "jquery/ajax.js",
@@ -7436,24 +7436,6 @@
           "name": "deferred",
           "readings": {
             "ctags": 319,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "react/ReactFlightServer.js",
-          "name": "[ASYNC_ITERATOR]",
-          "readings": {
-            "ctags": 1616,
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "react/ReactFlightServer.js",
-          "name": "[Symbol.iterator]",
-          "readings": {
-            "ctags": 1576,
             "gitgalaxy": null,
             "tree_sitter": null
           }
@@ -7506,7 +7488,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 265,
       "last_seen_examples": [
         {
@@ -7622,9 +7604,27 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
-      "last_seen_count": 183,
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
+      "last_seen_count": 185,
       "last_seen_examples": [
+        {
+          "file_path": "jquery/ajax.js",
+          "name": "jQuery[ method ]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 857,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "jquery/ajax.js",
+          "name": "converters[               ]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 764,
+            "tree_sitter": null
+          }
+        },
         {
           "file_path": "react/ReactFiberBeginWork.js",
           "name": "beginWork",
@@ -7696,24 +7696,6 @@
             "gitgalaxy": 1933,
             "tree_sitter": null
           }
-        },
-        {
-          "file_path": "react/ReactFiberBeginWork.js",
-          "name": "replayFunctionComponent",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 1533,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "react/ReactFiberBeginWork.js",
-          "name": "bailoutOnAlreadyFinishedWork",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 3765,
-            "tree_sitter": null
-          }
         }
       ],
       "metric": "existence",
@@ -7734,7 +7716,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 194,
       "last_seen_examples": [
         {
@@ -7838,7 +7820,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-23T22:11:19Z",
+      "last_reconciled_at": "2026-08-23T22:39:27Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7871,7 +7853,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-23T22:11:21Z",
+      "last_reconciled_at": "2026-08-23T22:39:30Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7924,7 +7906,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-23T22:11:21Z",
+      "last_reconciled_at": "2026-08-23T22:39:30Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -8038,7 +8020,7 @@
       "investigated_at": "2026-08-22T11:45:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-23T22:11:21Z",
+      "last_reconciled_at": "2026-08-23T22:39:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8071,7 +8053,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-23T22:11:21Z",
+      "last_reconciled_at": "2026-08-23T22:39:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

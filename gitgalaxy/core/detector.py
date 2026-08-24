@@ -5448,7 +5448,7 @@ class StructuralExtractor:
         # BUG FIX: `[` and `]` (TypeScript's computed properties like `[Symbol.asyncIterator]`)
         # were missing, causing them to be extracted as `Symbol.asyncIterator`, misaligning
         # with AST engines.
-        is_swift = self.primary_lang_id == "swift" or "swift" in self.languages.get(self.primary_lang_id, {}).get("aliases", [])
+        is_swift = self.primary_lang_id == "swift"
         if is_swift:
             pattern = r"[a-zA-Z0-9_./%$():~'\-\[\]=<>+!*&|^?]+"
         else:

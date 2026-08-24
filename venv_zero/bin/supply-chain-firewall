@@ -1,6 +1,0 @@
-#!/home/joe/nyx_projects/gitgalaxy/venv_zero/bin/python3
-import sys
-from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import main
-if __name__ == '__main__':
-    sys.argv[0] = sys.argv[0].removesuffix('.exe')
-    sys.exit(main())

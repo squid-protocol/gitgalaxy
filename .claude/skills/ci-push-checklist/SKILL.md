@@ -5,6 +5,10 @@ description: The required CI validation gauntlet for shipping a code fix to GitG
 
 When shipping a code fix or addressing a discrepancy in GitGalaxy, the following full validation chain MUST be executed before opening the PR. This ensures parsing accuracy is preserved and data-driven artifacts are synchronized.
 
+## 0. Clean Working Directory
+* **Untracked Files:** Before committing, ALWAYS run `git status` and review untracked files. Do not use `git add .` blindly. Accidentally committing local virtual environments (e.g. `venv/`, `venv_zero/`) or temporary Python scratch scripts will immediately trigger pipeline failures from the X-Ray Inspector (flagging checked-in binaries) or CodeQL (flagging dirty script code).
+* **Explicit Adds:** Prefer `git add <file>` for specific files.
+
 ## 1. Local & Unit Validation
 * **Standalone Regex Re-test:** Isolate the target regex (e.g., `func_start`) against the failing corpus file manually to ensure false positives and negatives are resolved without affecting real matches.
 * **Extraction Gauntlet & Strict Tests:** Run `pytest tests/extraction/languages/test_<lang>.py` and `test_<lang>_strict.py` for the language you modified.
@@ -57,6 +61,7 @@ When shipping a code fix or addressing a discrepancy in GitGalaxy, the following
 If `main` advances and causes merge conflicts in `tri_comparison_ledger.json`, `tri_comparison_chart.svg`, or any golden master JSONs, **never attempt to manually resolve the conflict markers**.
 1. Check out the upstream version of the files to clear the conflict markers:
    `git checkout origin/main -- docs/self_scan/tri_comparison_chart.svg docs/self_scan/tri_comparison_ledger.json`
+   * **CRITICAL LEDGER WARNING**: `tri_comparison_ledger.json` contains *manual annotations* (`status`, `verdict`, `credit_tools`). If you manually validated shapes on your branch, checking out `origin/main` will erase your validations! You MUST back up your manual changes (e.g. write a short Python script to re-apply them), check out `origin/main`, run your script to re-apply your verdicts, and *then* regenerate.
 2. Re-run the relevant regen scripts (`crucible_check.py --update --yes`, `tri_comparison_chart.py --all --write`, etc.). The scripts will cleanly recalculate and overwrite the files using your latest code and the upstream's latest ledger baseline.
 
 ## 7. Continuous Integration Monitoring (Agentic)

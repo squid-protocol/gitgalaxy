@@ -3,7 +3,7 @@
   "args_exact_match": 151,
   "corpus_path": "language-crucible/data/objective-c",
   "extra_classes": 0,
-  "extra_functions": 1,
+  "extra_functions": 3,
   "files_scanned": 5,
   "found_classes": 5,
   "found_functions": 151,

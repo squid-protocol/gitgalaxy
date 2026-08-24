@@ -31,6 +31,10 @@ OBJC_RULES = LANGUAGE_DEFINITIONS["objective-c"]["rules"]
 OBJECTIVEC_ADVERSARIAL_TESTS = {
     "func_start": {
         "valid": [
+
+            # #2214: untyped return types without parentheses
+            ("- unsigned char next_input_block\n{", "next_input_block"),
+            ("- void appendEndBlock\n{", "appendEndBlock"),
             ("- (void)standardMethod;", "standardMethod"),
             ("+ (instancetype)sharedInstance;", "sharedInstance"),
             ("-(id<MyProtocol>)methodWithProtocol:(id)arg;", "methodWithProtocol"),

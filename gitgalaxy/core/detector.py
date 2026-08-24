@@ -3510,8 +3510,20 @@ class StructuralExtractor:
                                                 break
                                             d_bracket -= 1
                                         elif c_ch == ">":
+                                            if p_idx + 1 < len(safe_code) and safe_code[p_idx + 1] == "=":
+                                                p_idx -= 1
+                                                continue
+                                            if p_idx > 0 and safe_code[p_idx - 1] in ("=", "-"):
+                                                p_idx -= 1
+                                                continue
                                             d_angle += 1
                                         elif c_ch == "<":
+                                            if p_idx + 1 < len(safe_code) and safe_code[p_idx + 1] == "=":
+                                                p_idx -= 1
+                                                continue
+                                            if p_idx > 0 and safe_code[p_idx - 1] == "<":
+                                                p_idx -= 2
+                                                continue
                                             if d_angle == 0:
                                                 outer_container = "<"
                                                 break

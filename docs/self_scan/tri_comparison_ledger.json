@@ -12771,7 +12771,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12813,7 +12813,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -12925,7 +12925,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -12984,7 +12984,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13017,8 +13017,8 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
-      "last_seen_count": 9,
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
+      "last_seen_count": 8,
       "last_seen_examples": [
         {
           "file_path": "fp-ts/pipeable.ts",
@@ -13084,15 +13084,6 @@
           }
         },
         {
-          "file_path": "typescript_compiler/binder.ts",
-          "name": "createBinder",
-          "readings": {
-            "ctags": 509,
-            "gitgalaxy": null,
-            "tree_sitter": 509
-          }
-        },
-        {
           "file_path": "vscode/ipc.ts",
           "name": "drain",
           "readings": {
@@ -13122,7 +13113,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 61,
       "last_seen_examples": [
         {
@@ -13236,7 +13227,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 1921,
       "last_seen_examples": [
         {
@@ -13352,7 +13343,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13392,7 +13383,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13434,7 +13425,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 160,
       "last_seen_examples": [
         {
@@ -13546,7 +13537,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-08-24T21:14:20Z",
+      "last_reconciled_at": "2026-08-24T23:33:02Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {

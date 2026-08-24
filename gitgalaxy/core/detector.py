@@ -2018,11 +2018,12 @@ class StructuralExtractor:
                         # which only "succeeds" when a `{` happens to appear by
                         # coincidence. This dropped ~97.4% of real matches (1 of 39
                         # raw matches reached the named list). Mode A's "greedy to
-                        # the next func_start match" body heuristic is a correct fit.
-                        "m4",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
+                    elif lang_id == "m4":
+                        mode_name = "Mode_F_M4_Brackets"
+                        sats, impact = self._slice_by_m4_brackets(code, rules, offset, spatial_map)
                     elif family in ("single_line_only", "multi_style_dash") or lang_id in (
                         "python",
                         "yaml",
@@ -4413,6 +4414,93 @@ class StructuralExtractor:
     # galaxyscope:ignore sec_high_risk_execution
     # SHARED FUNCTIONAL METRICS ENGINE
     # ==============================================================================
+
+    def _slice_by_m4_brackets(
+        self,
+        code: str,
+        rules: dict[str, Any],
+        offset: int,
+        spatial_map: dict[str, list[int]],
+    ) -> tuple[list[FunctionNode], float]:
+        """[INTEGRATION MODE F] - M4 Bracket-Aware Slicing"""
+        satellites: list[FunctionNode] = []
+        sum_fxn_impact = 0.0
+        func_start = rules.get("func_start")
+
+        if not func_start:
+            return [], 0.0
+
+        matches = list(func_start.finditer(code))
+        if not matches:
+            return [], 0.0
+
+        for match in matches:
+            start_idx = match.start()
+
+            # Find the opening parenthesis for this macro invocation
+            paren_start = code.find("(", start_idx)
+            if paren_start == -1:
+                continue
+
+            depth_paren = 0
+            depth_bracket = 0
+            pos = paren_start
+
+            while pos < len(code):
+                ch = code[pos]
+                if ch == "[":
+                    depth_bracket += 1
+                elif ch == "]":
+                    depth_bracket = max(0, depth_bracket - 1)
+                elif ch == "(":
+                    # In M4, brackets quote everything inside them, including parens
+                    if depth_bracket == 0:
+                        depth_paren += 1
+                elif ch == ")" and depth_bracket == 0:
+                    depth_paren -= 1
+                    if depth_paren == 0:
+                        break
+                pos += 1
+
+            end_idx = min(pos + 1, len(code))
+
+            block = code[start_idx:end_idx].strip()
+            if not block:
+                continue
+
+            name = "unknown"
+            if match.group(1) is not None:
+                name = match.group(1).strip()
+            elif match.lastindex and match.group(match.lastindex) is not None:
+                name = match.group(match.lastindex).strip()
+            else:
+                # Fallback extraction if regex group failed
+                # The first argument in parentheses
+                args_text = code[paren_start + 1 : end_idx - 1]
+                # Regex will typically capture the name, but just in case:
+                m_name = re.search(r"^\s*(?:`([^']+)'|\[{1,2}([^\]]+)\]{0,2}|([A-Za-z_][A-Za-z0-9_]*))", args_text)
+                if m_name:
+                    name = next(g for g in m_name.groups() if g is not None).strip()
+
+            start_line = offset + code.count("\n", 0, start_idx) + 1
+            loc = block.count("\n") + 1
+
+            sat, mag = self._calculate_block_metrics(
+                name,
+                block,
+                loc,
+                start_line,
+                start_line + loc - 1,
+                rules,
+                start_idx,
+                end_idx,
+                spatial_map,
+            )
+
+            satellites.append(sat)
+            sum_fxn_impact += mag
+
+        return satellites, sum_fxn_impact
 
     # galaxyscope:ignore sec_high_risk_execution
 

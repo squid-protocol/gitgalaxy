@@ -587,10 +587,10 @@
 <rect x="154" y="1235" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1243">79</text>
 <rect class="bar-track" x="286" y="1223" width="88" height="34" rx="2"/>
-<rect x="286" y="1223" width="6.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1231">3/39</text>
-<rect x="286" y="1235" width="3.3" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1243">3/79</text>
+<rect x="286" y="1223" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1231">39/39</text>
+<rect x="286" y="1235" width="2.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1243">-73/79</text>
 <circle cx="390.0" cy="1240.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="1243.0">G</text>
 <rect class="bar-track" x="418" y="1223" width="88" height="34" rx="2"/>

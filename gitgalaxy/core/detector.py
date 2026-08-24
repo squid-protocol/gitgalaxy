@@ -5449,10 +5449,7 @@ class StructuralExtractor:
         # were missing, causing them to be extracted as `Symbol.asyncIterator`, misaligning
         # with AST engines.
         is_swift = self.primary_lang_id == "swift"
-        if is_swift:
-            pattern = r"[a-zA-Z0-9_./%$():~'\-\[\]=<>+!*&|^?]+"
-        else:
-            pattern = r"[a-zA-Z0-9_./%$():~'\-\[\]]+"
+        pattern = r"[a-zA-Z0-9_./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else r"[a-zA-Z0-9_./%$():~'\-\[\]]+"
         words = [w for w in re.findall(pattern, clean) if w.strip("_-:")]
 
         if not words:

@@ -3380,3 +3380,45 @@ def test_detector_nested_functions_in_signature_dropped():
     # should prevent it from being extracted as a real satellite function.
     satellites, _ = opt._slice_by_braces(code, "typescript", opt.languages["typescript"]["rules"], 0, {})
     assert len(satellites) == 0, "Nested parameter function `f` should have been skipped by signature_end logic!"
+
+def test_detector_m4_bracket_slicing_with_unbalanced_quotes():
+    """
+    Issue #2204: m4 macro bodies are bounded by `(` and `)`, but they can contain
+    shell fragments with unbalanced quotes (e.g. `"` and `'`) that break Mode B's
+    string shielding. They also use `[` and `]` to quote strings (which protects
+    internal parentheses). The custom `_slice_by_m4_brackets` mode handles this.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    code = '''
+AC_DEFUN([AC_PROG_F77], [])
+
+AC_DEFUN([MY_MACRO], [
+    if test "$foo" = "bar("; then
+        echo "unbalanced quote here -> '"
+    fi
+    # [ ( nested bracket paren ignored ) ]
+])
+
+AC_DEFUN([ANOTHER],
+[
+    echo "done"
+])
+'''
+    extractor = StructuralExtractor("m4", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["m4"]["rules"]
+    
+    sats, _ = extractor._slice_by_m4_brackets(code, rules, 0, {})
+    
+    assert len(sats) == 3
+    
+    # Check names
+    assert sats[0]["name"] == "AC_PROG_F77"
+    assert sats[1]["name"] == "MY_MACRO"
+    assert sats[2]["name"] == "ANOTHER"
+    
+    # Check exact lengths
+    assert sats[0]["loc"] == 1
+    assert sats[1]["loc"] == 6
+    assert sats[2]["loc"] == 4

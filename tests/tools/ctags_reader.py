@@ -344,6 +344,8 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     # placeholder emitted at all -- see docs/why_gitgalaxy_beats_ast_here.md's Claim 3 for the full
     # writeup and a minimal repro; this is ctags' own scanner hitting an equivalent, independently-
     # triggered version of the same cascade tree-sitter-javascript already hits there.
+    # (3) ctags falsely tags function CALLS on prototype methods (e.g. `Material.prototype.copy.call(...)`)
+    # as method declarations, extracting a method named `copy`. GitGalaxy and tree-sitter correctly ignore these.
     # kotlin: ctags has no separate free-function kind -- top-level functions tag "m" too
     # (verified via probe file: a file-scope `fun` with no enclosing class still tags "m",
     # just without a `class:` field), so "m" alone already covers both cases.

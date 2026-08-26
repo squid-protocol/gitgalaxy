@@ -676,15 +676,15 @@
 <rect class="stripe" x="16" y="1394" width="780" height="44"/>
 <text class="lang-label" x="20" y="1419.5">perl</text>
 <rect class="bar-track" x="154" y="1399" width="88" height="34" rx="2"/>
-<rect x="154" y="1399" width="78.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1407">942</text>
+<rect x="154" y="1399" width="77.9" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1407">941</text>
 <rect x="154" y="1411" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1419">1063</text>
 <rect x="154" y="1423" width="77.9" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1431">941</text>
 <rect class="bar-track" x="286" y="1399" width="88" height="34" rx="2"/>
-<rect x="286" y="1399" width="87.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1407">940/942</text>
+<rect x="286" y="1399" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1407">941/941</text>
 <rect x="286" y="1411" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1419">1063/1063</text>
 <rect x="286" y="1423" width="87.3" height="10" rx="2" fill="#1baf7a"/>

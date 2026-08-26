@@ -2834,11 +2834,12 @@ class StructuralExtractor:
         # blanks out `#define` lines entirely (they're a common source of unbalanced/
         # stray braces inside a macro body that would otherwise corrupt the brace-depth
         # counter downstream), so `safe_code` has nothing left here to match against.
-        known_macro_names: frozenset[str] = frozenset()
+        known_macro_positions: dict[str, int] = {}
         if lang_id in ("c", "cpp"):
-            known_macro_names = frozenset(
-                m.group(1) for m in re.finditer(r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(", code, re.M)
-            )
+            for m in re.finditer(r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(", code, re.M):
+                macro_name = m.group(1)
+                if macro_name not in known_macro_positions:
+                    known_macro_positions[macro_name] = m.start(1)
 
         # BUG FIX (epic #813, extraction hardening, #814/#815): func_start
         # used to be matched against the raw, unshielded `code` -- computed
@@ -3690,7 +3691,7 @@ class StructuralExtractor:
             current_line_count += code.count("\n", last_counted_idx, start_idx)
             last_counted_idx = start_idx
 
-            if name in known_macro_names:
+            if name in known_macro_positions and known_macro_positions[name] < start_idx:
                 continue
 
             sat, mag = self._calculate_block_metrics(

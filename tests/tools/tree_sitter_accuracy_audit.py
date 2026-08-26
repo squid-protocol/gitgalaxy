@@ -574,11 +574,22 @@ NODE_MAPS = {
     },
     "typescript": {
         "ts_lang": "typescript",
+        # `abstract_method_signature` is a distinct node type from `method_signature` in this
+        # grammar (confirmed via direct parse of vscode/lifecycle.ts:711-712's `protected abstract
+        # createReferencedObject(...): T;`/`destroyReferencedObject`) -- same ground-truth-tool-gap
+        # shape as this entry's own #1338 class_node_types fix below: GitGalaxy's func_start
+        # correctly counts these real bodyless abstract-method declarations, tree-sitter itself
+        # parses them as a real node, this NODE_MAPS entry just didn't list that node type, so both
+        # were misreported as GitGalaxy "extra"/over-detection. `name` resolves via the same
+        # generic field lookup `_get_node_name` already uses for `method_signature`, no special
+        # case needed. Confirmed no other corpus file/name affected (full-corpus name diff was zero
+        # everywhere else before this fix).
         "func_node_types": {
             "function_declaration",
             "function_signature",
             "method_definition",
             "method_signature",
+            "abstract_method_signature",
             "arrow_function",
             "function_expression",
             "generator_function",

@@ -2510,6 +2510,13 @@ class StructuralExtractor:
                 r"'(?:''|[^'])*'|"
                 r"<#.*?#>|#[^\n]*"
             )
+        elif lang_id == "tcl":
+            # Tcl has no single-quote string literal syntax (a bare `'` is an ordinary character).
+            # Follows perl/powershell convention: redefine combined_pattern to omit single_quote entirely.
+            combined_pattern = (
+                r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
+                r'"(?:\\.|[^"\\])*"|' + backtick + r"|//[^\n]*|/\*.*?\*/"
+            )
         elif lang_id == "perl":
             # #1437: perl was falling through to the C-family default below, which shields
             # `//`-as-line-comment and `/* */` -- neither exists in perl (`//` is the

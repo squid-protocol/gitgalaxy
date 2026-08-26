@@ -482,14 +482,14 @@
 <text class="lang-label" x="20" y="1023.5">javascript</text>
 <rect class="bar-track" x="154" y="1003" width="88" height="34" rx="2"/>
 <rect x="154" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1011">797</text>
-<rect x="154" y="1015" width="66.1" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1011">801</text>
+<rect x="154" y="1015" width="65.8" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1023">599</text>
-<rect x="154" y="1027" width="39.0" height="10" rx="2" fill="#1baf7a"/>
+<rect x="154" y="1027" width="38.8" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1035">353</text>
 <rect class="bar-track" x="286" y="1003" width="88" height="34" rx="2"/>
 <rect x="286" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1011">797/797</text>
+<text class="bar-value-label" x="330.0" y="1011">801/801</text>
 <rect x="286" y="1015" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1023">599/599</text>
 <rect x="286" y="1027" width="86.5" height="10" rx="2" fill="#1baf7a"/>
@@ -1048,15 +1048,15 @@
 <text class="bar-value-label" x="726.0" y="1947">140</text>
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
-<rect x="154" y="1971" width="84.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1979">2790</text>
+<rect x="154" y="1971" width="84.5" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1979">2798</text>
 <rect x="154" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1991">2914</text>
 <rect x="154" y="1995" width="27.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="2003">894</text>
 <rect class="bar-track" x="286" y="1971" width="88" height="34" rx="2"/>
 <rect x="286" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1979">2790/2790</text>
+<text class="bar-value-label" x="330.0" y="1979">2798/2798</text>
 <rect x="286" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1991">2914/2914</text>
 <rect x="286" y="1995" width="82.0" height="10" rx="2" fill="#1baf7a"/>
@@ -1079,9 +1079,9 @@
 <text class="bar-value-label" x="594.0" y="2003">341/343</text>
 <rect class="bar-track" x="682" y="1971" width="88" height="34" rx="2"/>
 <rect x="682" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1979">826</text>
+<text class="bar-value-label" x="726.0" y="1979">833</text>
 <rect x="682" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1991">826</text>
+<text class="bar-value-label" x="726.0" y="1991">833</text>
 <rect class="stripe" x="16" y="2010" width="780" height="44"/>
 <text class="lang-label" x="20" y="2035.5">yacc</text>
 <text class="awaiting" x="154" y="2035.5">awaiting language-crucible corpus</text>

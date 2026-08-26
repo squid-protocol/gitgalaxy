@@ -631,7 +631,6 @@ def test_detector_mode_d_ruby_nested_methods_inside_class():
     assert "Widget" in class_names, "The enclosing class's own satellite should still be reported."
 
 
-
 # ==============================================================================
 # TEST 6: MODE C (INDENTATION STRATIFICATION)
 # ==============================================================================
@@ -912,11 +911,14 @@ def test_detector_catastrophic_fallbacks():
         assert result["metadata"]["ownership"] == "Joe", "Fallback destroyed the Ghost Mass metadata!"
 
     # 2. TimeoutError -> Hardware Guillotine drops cleanly
-    with patch.object(
-        opt_detector,
-        "_partition_segments",
-        side_effect=TimeoutError("Hardware thread timeout exceeded"),
-    ), pytest.raises(TimeoutError):
+    with (
+        patch.object(
+            opt_detector,
+            "_partition_segments",
+            side_effect=TimeoutError("Hardware thread timeout exceeded"),
+        ),
+        pytest.raises(TimeoutError),
+    ):
         opt_detector.splice("def foo(): pass", "")
 
 
@@ -2541,6 +2543,50 @@ def test_slice_by_braces_cpp_bounds_args_search_text_1836():
     assert fn["args"] == 0, f"empty-arg cpp signature borrowed a call statement's args: {fn['args']}"
 
 
+def test_slice_by_braces_cpp_args_counting_2012():
+    """
+    #2012: Pattern 1 - Zero-undercount for `operator()` and out-of-class methods with non-whitelisted types.
+    Pattern 2 - Off-by-one overcount for constructors with member-initializer-lists.
+    Also verifies normal constructors and `operator()` call sites remain unaffected.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = """
+    // Pattern 1: operator() with real params
+    bool operator()(const Node *p_left, const Node *p_right) const { return true; }
+    
+    // Pattern 1: out-of-class method with non-whitelisted type
+    void Translator::BuildBuffer(mlir::ModuleOp module) { return; }
+    
+    // Pattern 2: zero-arg ctor with member-initializer list
+    VBufStorage_buffer_t::VBufStorage_buffer_t() : member1(x), member2(y) { }
+    
+    // Normal: ctor with real params AND member-initializer list
+    FooBar::FooBar(int a, float b) : member1(a) { }
+    
+    // Normal: operator() call-site (should not be extracted as a function definition)
+    void caller() {
+        bool res = my_obj(1, 2);
+    }
+    """
+    detector = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS)
+    result = detector.splice(code, "", raw_content=code)
+    funcs = {f["name"]: f for f in result["functions"]}
+
+    assert funcs["operator()"]["args"] == 2, f"Expected 2 args, got {funcs['operator()']['args']}"
+    assert funcs["Translator::BuildBuffer"]["args"] == 1, (
+        f"Expected 1 arg, got {funcs['Translator::BuildBuffer']['args']}"
+    )
+    assert funcs["VBufStorage_buffer_t::VBufStorage_buffer_t"]["args"] == 0, (
+        f"Expected 0 args, got {funcs['VBufStorage_buffer_t::VBufStorage_buffer_t']['args']}"
+    )
+    assert funcs["FooBar::FooBar"]["args"] == 2, f"Expected 2 args, got {funcs['FooBar::FooBar']['args']}"
+
+    # call-site should not be extracted, so caller() should be the only other func
+    assert "caller" in funcs
+    assert "my_obj" not in funcs
+
+
 def test_slice_by_braces_c_preprocessor_conditional_signature_1837():
     """
     #1837: a c/cpp signature duplicated across an #if/#else preprocessor
@@ -2588,17 +2634,7 @@ def test_slice_by_braces_c_preprocessor_conditional_edge_cases_1837_review():
     # A single signature's OWN parameter list has a conditional param inside
     # it -- the #else here is nested INSIDE the still-open "(", not preceded
     # by a ")", so #1837's re-slice must not touch it.
-    interior_code = (
-        "void foo(int a\n"
-        "#ifdef X\n"
-        "    , int b\n"
-        "#else\n"
-        "    , int c\n"
-        "#endif\n"
-        ") {\n"
-        "    return;\n"
-        "}\n"
-    )
+    interior_code = "void foo(int a\n#ifdef X\n    , int b\n#else\n    , int c\n#endif\n) {\n    return;\n}\n"
     interior_result = detector.splice(interior_code, "", raw_content=interior_code)
     interior_fn = next(f for f in interior_result["functions"] if f["name"] == "foo")
     assert interior_fn["args"] == 3, f"interior conditional params: expected 3, got {interior_fn['args']}"
@@ -2606,15 +2642,7 @@ def test_slice_by_braces_c_preprocessor_conditional_edge_cases_1837_review():
     # An unrelated, later #ifdef/#elif block sits between an already-COMPLETE
     # signature and the opening "{" -- must not be mistaken for a duplicate-
     # signature branch fork and discard the real (already-resolved) signature.
-    later_code = (
-        "void foo(int a)\n"
-        "#ifdef SOME_FLAG\n"
-        "#elif OTHER_FLAG\n"
-        "#endif\n"
-        "{\n"
-        "    return;\n"
-        "}\n"
-    )
+    later_code = "void foo(int a)\n#ifdef SOME_FLAG\n#elif OTHER_FLAG\n#endif\n{\n    return;\n}\n"
     later_result = detector.splice(later_code, "", raw_content=later_code)
     later_fn = next(f for f in later_result["functions"] if f["name"] == "foo")
     assert later_fn["args"] == 1, f"unrelated later conditional: expected 1, got {later_fn['args']}"
@@ -3328,9 +3356,10 @@ def test_detector_zig_single_quote_bound_prevents_cross_line_swallow():
     wasi_cwd = next(s for s in satellites if s["name"] == "wasi_cwd")
     assert wasi_cwd["loc"] <= 3, f"wasi_cwd's body must not swallow the rest of the file: loc={wasi_cwd['loc']}"
 
+
 def test_detector_depth_aware_brace_idx():
     """
-    Proves that a brace inside a parameter list does not prematurely end the signature 
+    Proves that a brace inside a parameter list does not prematurely end the signature
     scan and cause argument count truncation for TypeScript.
     """
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
@@ -3351,7 +3380,7 @@ def test_detector_depth_aware_brace_idx():
 
 def test_detector_nested_parens_in_args():
     """
-    Proves that the top level argument counting correctly tracks braces and brackets 
+    Proves that the top level argument counting correctly tracks braces and brackets
     to prevent commas inside object literals from artificially inflating the argument count.
     """
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
@@ -3360,14 +3389,16 @@ def test_detector_nested_parens_in_args():
     assert opt._count_top_level_args("(options: { a: string, b: string }, cb: (x, y) => void)") == 2
     assert opt._count_top_level_args("(arr: [1, 2, 3], nested: { x: [1, 2] })") == 2
 
+
 def test_detector_nested_functions_in_signature_dropped():
     """
-    Proves that the signature_end logic correctly skips nested functions 
+    Proves that the signature_end logic correctly skips nested functions
     (like f: (a: A) => B inside flatMap's signature) rather than treating them as top-level.
     """
     opt = StructuralExtractor("typescript", MOCK_LANG_DEFS)
     opt.languages["typescript"]["rules"]["func_start"] = re.compile(
-        r"^[ \t]*([a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))", re.M
+        r"^[ \t]*([a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:\((?:[^()]|\([^()]*\))*\)[^=;{]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))",
+        re.M,
     )
     opt.languages["typescript"]["rules"]["args"] = re.compile(r"")
 
@@ -3381,6 +3412,7 @@ def test_detector_nested_functions_in_signature_dropped():
     satellites, _ = opt._slice_by_braces(code, "typescript", opt.languages["typescript"]["rules"], 0, {})
     assert len(satellites) == 0, "Nested parameter function `f` should have been skipped by signature_end logic!"
 
+
 def test_detector_m4_bracket_slicing_with_unbalanced_quotes():
     """
     Issue #2204: m4 macro bodies are bounded by `(` and `)`, but they can contain
@@ -3390,8 +3422,8 @@ def test_detector_m4_bracket_slicing_with_unbalanced_quotes():
     """
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
-    code = '''
+
+    code = """
 AC_DEFUN([AC_PROG_F77], [])
 
 AC_DEFUN([MY_MACRO], [
@@ -3405,19 +3437,19 @@ AC_DEFUN([ANOTHER],
 [
     echo "done"
 ])
-'''
+"""
     extractor = StructuralExtractor("m4", LANGUAGE_DEFINITIONS)
     rules = LANGUAGE_DEFINITIONS["m4"]["rules"]
-    
+
     sats, _ = extractor._slice_by_m4_brackets(code, rules, 0, {})
-    
+
     assert len(sats) == 3
-    
+
     # Check names
     assert sats[0]["name"] == "AC_PROG_F77"
     assert sats[1]["name"] == "MY_MACRO"
     assert sats[2]["name"] == "ANOTHER"
-    
+
     # Check exact lengths
     assert sats[0]["loc"] == 1
     assert sats[1]["loc"] == 6

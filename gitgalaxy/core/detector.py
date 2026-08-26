@@ -3671,6 +3671,28 @@ class StructuralExtractor:
 
             args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
 
+            # #2012: Pattern 2 - constructors with member-initializer-lists overcount.
+            # Truncate at the first top-level `:` before the brace to exclude the list.
+            if lang_id in ("c", "cpp") and args_search_text is not None:
+                depth_paren = depth_angle = 0
+                for i_ch, ch in enumerate(args_search_text):
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "<":
+                        depth_angle += 1
+                    elif ch == ">":
+                        depth_angle = max(0, depth_angle - 1)
+                    elif ch == ":" and depth_paren == 0 and depth_angle == 0:
+                        # Exclude `::`
+                        if (i_ch + 1 < len(args_search_text) and args_search_text[i_ch + 1] == ":") or (
+                            i_ch > 0 and args_search_text[i_ch - 1] == ":"
+                        ):
+                            continue
+                        args_search_text = args_search_text[:i_ch]
+                        break
+
             # #1837: a c/cpp signature is sometimes duplicated across an
             # #if/#else preprocessor conditional (e.g. micropython/gc.c's
             # gc_mark_subtree, gated on MICROPY_GC_SPLIT_HEAP), so
@@ -4645,6 +4667,13 @@ class StructuralExtractor:
                     ):
                         open_idx = inner_open
                         wrapper_end = self._matching_paren_end(args_str, open_idx)
+                # #2012: Pattern 1 - `operator()`'s first `()` is its name, not the parameter list.
+                # If we matched `operator()` in C/C++, skip the first empty paren pair.
+                elif self.primary_lang_id in ("c", "cpp") and args_str[max(0, open_idx - 8) : open_idx] == "operator":
+                    inner_open = args_str.find("(", open_idx + 1)
+                    if inner_open != -1:
+                        open_idx = inner_open
+                        wrapper_end = self._matching_paren_end(args_str, open_idx)
                 body = args_str[open_idx + 1 : wrapper_end]
 
         if not body.strip():
@@ -5226,6 +5255,12 @@ class StructuralExtractor:
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
                             args_count = len(args_str.strip().split())
+                elif args_search_text is not None and self.primary_lang_id in ("c", "cpp"):
+                    # #2012: Pattern 1 - The cpp args regex rejects `operator()` syntax and
+                    # out-of-class methods with non-whitelisted types (e.g. `mlir::ModuleOp`).
+                    # Since func_start already validated this is a function, we can reliably
+                    # fallback to the structural counter.
+                    args_count = self._count_top_level_args(args_search_text)
             except Exception as e:
                 self.logger.debug(f"Argument-count regex extraction failed, leaving args_count 0: {e}")
 

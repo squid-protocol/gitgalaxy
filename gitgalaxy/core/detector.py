@@ -2940,7 +2940,9 @@ class StructuralExtractor:
             # arrow-function properties. JavaScript shares the same regex
             # branch and the same ambiguity, so the gate covers both.
             if lang_id in ("typescript", "javascript"):
-                p = start_idx - 2  # start_idx - 1 is the line's own \n
+                name_start = match.start(match.lastindex) if match.lastindex else start_idx
+                line_start = safe_code.rfind("\n", 0, name_start) + 1
+                p = line_start - 2  # line_start - 1 is the line's own \n
                 while p >= 0 and safe_code[p] in " \t":
                     p -= 1
                 if p >= 0 and safe_code[p] == "(":
@@ -2957,7 +2959,9 @@ class StructuralExtractor:
             # way #1221's Invocation Shield rules out bare call statements.
             # JavaScript and TypeScript share the branch, so the gate covers both.
             if lang_id in ("typescript", "javascript"):
-                p = start_idx - 1
+                name_start = match.start(match.lastindex) if match.lastindex else start_idx
+                line_start = safe_code.rfind("\n", 0, name_start) + 1
+                p = line_start - 1
                 back_steps = 0
                 while p >= 0 and back_steps < 200 and safe_code[p] in " \t\n\r":
                     p -= 1

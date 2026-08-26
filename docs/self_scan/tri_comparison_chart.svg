@@ -1049,14 +1049,14 @@
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
 <rect x="154" y="1971" width="84.1" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1979">2785</text>
+<text class="bar-value-label" x="198.0" y="1979">2786</text>
 <rect x="154" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1991">2914</text>
 <rect x="154" y="1995" width="27.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="2003">894</text>
 <rect class="bar-track" x="286" y="1971" width="88" height="34" rx="2"/>
 <rect x="286" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1979">2785/2785</text>
+<text class="bar-value-label" x="330.0" y="1979">2786/2786</text>
 <rect x="286" y="1983" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1991">2914/2914</text>
 <rect x="286" y="1995" width="82.0" height="10" rx="2" fill="#1baf7a"/>

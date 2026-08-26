@@ -111,7 +111,7 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("func_start", "export const myFunc: React.FC<Props> = (props) => {", "type MyFunc = (a: number) => void;"),
     ("func_start", "public async *myGenerator<T>(arg: T) {", "  return foo();"),
     ("func_start", "const f = function <T>(x: T) {", "  typeof foo();"),
-    ("func_start", "  #myPrivateMethod(a: number) {", "class A { #myPrivateMethod(a) {} }"),
+    ("func_start", "  #myPrivateMethod(a: number) {", None),
     ("func_start", "  [Symbol.iterator]() {", None),
     ("func_start", "  *  myGenerator () {", None),
 

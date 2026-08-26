@@ -1336,7 +1336,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # public/private/etc. modifier to route them through Branch A
                 # instead. Same zero-whitespace-before-`?` placement, same
                 # ternary-collision reasoning.
-                r"^[ \t]*(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # BUG FIX: Split the zero-prefix branch to safely allow bodyless constructors.
+                # If we make the return type optional for ALL identifiers here, it falsely matches
+                # bare function calls (like `next();`) because they also end in `;`.
+                # By strictly requiring `constructor` for the optional-return-type case,
+                # we match ambient `constructor(x: number);` without breaking function calls.
+                r"^[ \t]*(\bconstructor\b)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|[ \t\n]{0,50};))"
+                r"|"
+                r"^[ \t]*(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

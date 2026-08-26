@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-26T13:32:03.666171+00:00` |
-| **Scan Duration** | `7.41s` |
+| **Timestamp** | `2026-08-26T13:35:08.707116+00:00` |
+| **Scan Duration** | `10.08s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `cb2d310407d1b7d60a936f10e0f1c6e175e4300f` |
+| **Git Commit** | `f297cf9ebc882c99fa9d0aa9f1935ccb17584983` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -241,7 +241,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (99.9516%), Safety Score (81.9034%), Verification (80.0%)
 - **Heaviest Functions:** `_strip_single_line_comments` (Impact: 123.7), `_mask_perl_line` (Impact: 75.4), `_compile_regex_matrix` (Impact: 57.6)
 
-### 3. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **488.66**
+### 3. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **488.67**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 3403.48 | **LOC:** 5514 | **CtrlFlow:** 76.0% | **Authorship Centralization:** 92.3%
 - **Primary Risk Drivers:** Spec Match (100.0%), Churn (100.0%), Verification (80.0%), Safety Score (60.5836%)

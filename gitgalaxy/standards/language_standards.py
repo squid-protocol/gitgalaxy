@@ -1286,7 +1286,23 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # isn't immediately adjacent to the name, so `\??` matches
                 # zero-width here and the mandatory `\(` lookahead then fails
                 # against the literal `?` still sitting in the way).
-                r"(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                # BUG FIX (issue #2276): `catch`/`return`/`throw` used to be
+                # unconditionally excluded here to stop `} catch (e) {`
+                # control-flow blocks (and ordinary `return`/`throw`
+                # statements) from being misidentified as method
+                # definitions -- but that also permanently hid a REAL method
+                # or property legitimately named `catch`/`return`/`throw`
+                # (a Promise-like thenable's `catch<T>()`, an AsyncIterator
+                # protocol's `return()`). Moved to a CONDITIONAL exclusion:
+                # only excluded when immediately followed by whitespace then
+                # `(`/`<` -- idiomatic control-flow/statement syntax always
+                # has that shape (`catch (e)`, `return <expr`), while a real
+                # method/property definition never does (`catch<T>(...)`,
+                # `catch(...)`, `return: () => {...}`). Confirmed via direct
+                # testing that `} catch (e) {` still correctly does NOT
+                # match, while `catch<TResult = never>(...)` and
+                # `return: () => {...}` now do.
+                r"(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r"|"
                 # BUG FIX (R3): The arrow-value (Branch 5 / standalone value) branch
                 # is known to fail on mid-statement function values (e.g. `const a = b || () => {}`)
@@ -1336,7 +1352,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # public/private/etc. modifier to route them through Branch A
                 # instead. Same zero-whitespace-before-`?` placement, same
                 # ternary-collision reasoning.
-                r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # BUG FIX (issue #2276): same conditional-exclusion fix as
+                # Branch A above, mirrored here since this branch carries
+                # its own copy of the same reserved-keyword shield -- see
+                # that branch's comment for the full rationale. Combined
+                # with #2277's widened anchor (below) during that PR's
+                # merge conflict with #2276 -- both changes apply to the
+                # same branch, independently of each other.
+                r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

@@ -8,7 +8,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `agc_assembly` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 215 occurrences as of 2026-08-26T03:59:07Z*
+*2-vs-1 -- 215 occurrences as of 2026-08-26T11:08:13Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-20T00:00:00Z):
 > Mixed-cause shape, fully accounted for via a corpus-wide cross-reference of ctags' actual output against GitGalaxy's raw func_start regex matches and its real pipeline/DB output (215 + 50 = 265, no unexplained residual). (1) 215/265 (81%): ctags' Asm "l" kind tags EVERY line-start label unconditionally, including pure data/constant-definition labels (e.g. ERASCON1 OCTAL 00061, S10BITS, LSTBNKCH -- AGC_BLOCK_TWO_SELF-CHECK.agc:133 and nearby) that are never followed by an executable instruction. GitGalaxy's func_start regex deliberately requires the label be followed by a real instruction mnemonic from a fixed whitelist, so it does not count these as functions -- a genuine, intentional precision distinction (code label vs. data label), not a GitGalaxy defect; ctags' generic Asm parser has no way to make this distinction at all. (2) 50/265 (19%): a real, confirmed GitGalaxy engine defect in detector.py's _slice_by_labels (Mode A), independently root-caused to two separate bugs: (a) `RELINT` is incorrectly included in `self.assembly_returns`'s early-termination keyword list (detector.py:572-575) -- in real AGC assembly RELINT means "release interrupt inhibit" and commonly opens a long interrupt-handler routine rather than closing one, so it truncates the real body to one line (confirmed: ELOOPFIN, AGC_BLOCK_TWO_SELF-CHECK.agc:303, a 20+-line real routine collapsed to just its own label line); (b) the `len(block.splitlines()) < 2` guard (detector.py:1973) unconditionally discards legitimate single-instruction assembly subroutines when the next func_start match sits on the very next line (confirmed: SOPTION1-SOPTION5+, AGC_BLOCK_TWO_SELF-CHECK.agc:210-214, each a real one-instruction label). Filed as #1949 -- a follow-up read-only Gemini/agy dispatch confirmed both root causes generalize beyond agc_assembly to the shared Mode A mechanism (assembly, cobol, fortran, abap all independently exhibit bug 1; assembly and cobol also exhibit bug 2), plus two further bug-1 variants not visible from agc_assembly alone: the terminator regex also false-matches inside comments (assembly) and inside hyphenated identifier names (cobol), not just legitimate-but-misclassified instructions. See #1949 for the full cross-language evidence and fix scope. No credit/debit -- the 215 portion is an honest scope difference (not two tools independently wrong about the same fact), and the 50 portion is GitGalaxy's own unresolved bug, not something ctags corroborates or contradicts.
@@ -28,7 +28,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `agc_assembly` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 37 occurrences as of 2026-08-26T03:59:07Z*
+*2-vs-1 -- 37 occurrences as of 2026-08-26T11:08:13Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-20T00:00:00Z):
 > Confirmed: all 35 occurrences are real AGC labels that GitGalaxy correctly extracts and Universal Ctags' generic Asm parser structurally cannot tag, due to AGC assembly's non-standard label-naming conventions. Two sub-patterns, both confirmed corpus-wide (14/35 + 21/35 = 35/35, not just the sample): (1) labels with an embedded hyphen -- AGC's own convention of naming a point relative to an event, e.g. TIG-35/TIG-30/CALLT-35 in BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc:250/292/222 ("35/30 seconds before Time of Ignition"); (2) labels starting with a digit or a leading minus sign, e.g. 1CHK/2EBANK/-1CHK in AGC_BLOCK_TWO_SELF-CHECK.agc:184 (real label text is "-1CHK"). Directly verified via `ctags --language-force=Asm --kinds-Asm=l` against the real corpus files: ctags emits zero tags for any of these names (confirmed by grepping its actual output for the exact names and their surrounding CHK-suffixed siblings, which ARE tagged when they don't start with a hyphen/digit) -- ctags' Asm parser requires a tag name to start with a letter and contain no hyphen, neither of which is a real constraint in AGC assembly's own label syntax. GitGalaxy's func_start regex ([A-Z0-9_-]+ at line start) has no such restriction. This is a confirmed, structural ctags/Asm-parser limitation, not corroboration of anything wrong on GitGalaxy's side -- logged to docs/why_gitgalaxy_beats_ast_here.md.
@@ -50,7 +50,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `assembly` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 26 occurrences as of 2026-08-26T03:59:09Z*
+*2-vs-1 -- 26 occurrences as of 2026-08-26T11:08:15Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-20T00:00:00Z):
 > Mixed shape, no clean credit/debit call. (1) A real, confirmed GitGalaxy defect: the same detector.py `_slice_by_labels` bug filed for agc_assembly as #1949 (RELINT-style early truncation and single-line/blank-collapsed body discard) independently confirmed live for generic assembly too -- `del_command:` (bootos/os.asm:269) sits immediately before the next label `os22:` with nothing between, collapsing to a one-line block and getting discarded; `C:`/`prtstr:` (hellosilicon/matrixmultneon.s:90,92) are each followed only by a data directive (`.fill`, `.asciz`) then a blank line before the next label, same one-line-after-strip() collapse. All three are real regex matches (confirmed via direct func_start.finditer against the raw text) that never reach the final function list -- tracked under #1949, not a new issue. (2) A correct-by-design GitGalaxy exclusion: `.Lenv0:`/`.Largv0:` (cosmopolitan/ape.S:1784-1785) start with the `.L` prefix func_start's own negative lookahead deliberately excludes (GCC's own convention for compiler-generated local/temporary labels) -- both are genuinely data labels (`.asciz` string constants) here, not real subroutines; ctags' generic Asm parser has no such convention-awareness and tags them anyway. (3) ctags itself over-tags some non-callable constructs GitGalaxy correctly excludes -- C-preprocessor `#define` macro constants (`GRUB_MAGIC`/`GRUB_EAX`/`GRUB_AOUT`/`GRUB_CHECKSUM`/`USE_SYMBOL_HACK`, cosmopolitan/ape.S:49,1679-1682) are not real assembly labels at all (no trailing `:`), but ctags' Asm parser tags them regardless. No credit/debit -- the shape mixes a real unresolved GitGalaxy recall gap (#1949) with cases where ctags is the one over-tagging, not a clean corroboration story either direction.
@@ -70,7 +70,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `assembly` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T03:59:09Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:08:15Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-20T00:00:00Z):
 > Mixed shape, three distinct confirmed mechanisms, no clean credit/debit call (real wins and real gaps in both directions within the same shape). (1) A dot-prefix naming-convention split -- NASM/GAS local labels scoped to the preceding global label are written with a leading `.` (e.g. `.load_vec:`, `.loop:` in bootos/os.asm:197,306), which GitGalaxy's func_start regex captures verbatim but ctags' Asm parser strips before emitting the tag (confirmed: ctags reports the SAME real label as `load_vec`/`loop`, no dot -- both tools genuinely found the same real construct, they just serialize the name differently). This is a name-string artifact of exact-string ledger grouping, not a detection difference on either side. (2) A genuine ctags gap: purely numeric local labels (`.1:`, `.2:` in bootos/counter.asm:52,67) are not tagged by ctags' Asm parser under ANY name (confirmed: neither `1`/`2` nor `.1`/`.2` appear in its output at all) -- GitGalaxy correctly finds these. (3) A genuine GitGalaxy precision gap, the mirror image of agc_assembly's own win: unlike agc_assembly's func_start (which requires a label be followed by a real instruction opcode), generic assembly's func_start has no such requirement -- ANY `identifier:` at line start matches, so it also matches pure data/constant declaration labels ctags' comparatively more conservative reading skips: `max_entries: equ sector_size/entry_size` (bootos/os.asm:166, a compile-time constant, not a subroutine), and several string/metadata labels in cosmopolitan/ape.S followed only by `.asciz`/data directives (`ape.ident`, `freebsd.ident`, `netbsd.ident`, `openbsd.ident`, `str.error`, `str.crlf`, `str.e820`, `str.oldcpu`). Not filed as a bug -- generic assembly's func_start is intentionally permissive because it has to span wildly different, informally-specified dialects (x86/ARM/legacy real-mode) where a fixed per-opcode whitelist like agc_assembly's isn't practical; worth a future harden-language-extraction look at whether a narrower heuristic (e.g. excluding labels followed only by known data-directive pseudo-ops like .asciz/.long/.byte/equ) could recover some of this precision without losing real dialect coverage, but that's a design tradeoff, not a clear regression to fix urgently.
@@ -89,7 +89,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 74 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 74 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Confirmed, independently verified all 6 sampled names against real source -- GitGalaxy and ctags both correct, tree-sitter over-recalling from two related but distinct preprocessor-driven mechanisms, both already covered by existing infrastructure: (1) keyword/macro misparse -- 'if' (dictobject.c:522-527, an `#if SIZEOF_VOID_P > 4` / `else if` sequence desyncs the parse) and 'DICT___REVERSED___METHODDEF' (dictobject.c:5102, a PyMethodDef array-initializer macro, not a definition) are both ALREADY in tree_sitter_accuracy_audit.py's `_C_KNOWN_MACRO_HALLUCINATIONS` exclusion set (confirmed by reading it directly) -- this tri-comparison tool's raw walk deliberately doesn't apply that list (it's a curated, ground-truth-shaped judgment call, appropriately left to reconciliation per this module's own stated design, not baked into the walk). (2) dead #if 0 code -- '_PyObject_ManagedDictValidityCheck' (dictobject.c:7396) and 'tos_char'/'print_stack'/'print_stacks' (frameobject.c:1264-1313) are genuinely well-formed function definitions sitting entirely inside `#if 0 ... #endif` guards; tree-sitter has no preprocessor model and parses the dead branch as live code. Both mechanisms are already the exact shape docs/why_gitgalaxy_beats_ast_here.md's Claim 8 names generically ('a dead #if 0 block... macro definitions... that merely look structural') -- added these 4 new concrete citations to Claim 8's evidence section rather than treating this as a new finding. No GitHub issue -- both tools already behave as intended; this is expected, already-documented tree-sitter preprocessor-blindness surfacing under the new tri-comparison reconciliation, not a fresh defect.
@@ -109,7 +109,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 14 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 14 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly, no dispatch needed), 2026-08-19T00:00:00Z):
 > Not a new finding -- both sampled names are ALREADY in tree_sitter_accuracy_audit.py's _C_KNOWN_MACRO_HALLUCINATIONS exclusion set (confirmed by grep: 'EXPORT_FUN' and 'MICROPY_WRAP_MP_EXECUTE_BYTECODE' both present). This shape is the same already-documented macro-hallucination mechanism (Claim 8) as the earlier tree-sitter-alone shape, just with ctags ALSO independently hallucinating the same 2 names the same way (both tools' regex/grammar parsers get fooled by the same macro-definition text). GitGalaxy correctly excludes both. Resolved directly, no dispatch needed.
@@ -129,7 +129,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 13 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 13 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > 3 distinct causes, all genuine tree-sitter-c grammar limitations (GitGalaxy and ctags both correct in all 10 sampled cases) -- confirmed via dispatched investigation (which ran tree-sitter's C grammar directly and found ERROR nodes in every case) plus independent source-level spot-checks of all 3 trigger shapes. This is a C-scale instance of Claim 7 (CPP-directive-driven recall loss) -- added to that claim's evidence section. (1) 4 samples: an #if/#else pair splitting a single `if` condition inside a function body (ceval.c:33, _Py_ReachedRecursionLimitWithMargin). (2) 5 samples: bare, un-semicoloned macro invocations the grammar can't cleanly recover from, losing the next real function (object.c:1269-1271's _Py_COMP_DIAG_PUSH/IGNORE_DEPR_DECLS/POP before _PyObject_SetAttributeErrorContext; similar shape for the typeobject.c slot-getattr cluster). (3) 1 sample: #if/#endif wrapping only the `static` storage-class specifier, separated from the rest of the signature (micropython/compile.c:3473-3476, mp_compile_to_raw_code). Unlike Fortran's existing Claim 7 evidence (entire trailing sections lost), C's version is local -- one function lost per trigger, not a cascading region. No GitHub issue -- documented as new Claim 7 evidence, not a fixable tooling bug (this repo doesn't control tree-sitter-c's grammar).
@@ -149,7 +149,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved + fixed directly, no dispatch needed), 2026-08-19T00:00:00Z):
 > Confirmed real ctags limitation, not a GitGalaxy or tree-sitter defect -- resolved directly (no dispatch needed), source read confirms all 7 sampled names. RICHCMP_WRAPPER/SLOT0/SLOT1/SLOT1BINFULL are all-caps macro names; every occurrence is a MACRO INVOCATION (a call to a previously-#define'd boilerplate-generating macro), not a function definition -- confirmed at cpython/typeobject.c:10099 (`RICHCMP_WRAPPER(lt, Py_LT)`) and :10544 (`SLOT1(slot_mp_subscript, __getitem__, PyObject *)`), same shape as the multiple SLOT0/SLOT1 hits at different lines (each is a separate invocation of the same macro generating a different wrapper function). ctags' regex-based C parser tags the macro-invocation site itself as a function; GitGalaxy and tree-sitter both correctly don't. Deliberately NOT fixed with a curated name-exclusion list in the gatherer (unlike the sibling __anon* class shape, this would require hand-curating specific macro names -- the same ground-truth-judgment category tri_comparison_gatherer.py's own docstring reasons belongs in reconciliation, not the raw reader) -- documented in ctags_reader.py instead, alongside its existing per-language notes.
@@ -166,7 +166,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly, no dispatch needed), 2026-08-19T00:00:00Z):
 > Confirmed GitGalaxy correct, real finding -- a new, narrower instance of Claim 3 (parse-error cascade), added to docs/why_gitgalaxy_beats_ast_here.md. All 4 sampled names (slot_mp_ass_subscript:10544, slot_nb_inplace_power:10697, slot_tp_repr:10714, slot_tp_hash:10730, all cpython/typeobject.c) are ordinary, unremarkable function definitions -- nothing unusual individually -- but each sits directly after a bare SLOT0/SLOT1 macro-invocation LINE (`SLOT1(slot_mp_subscript, __getitem__, PyObject *)`, `SLOT0(slot_tp_str, __str__)`, etc.) that isn't valid freestanding C without macro expansion. GitGalaxy's regex has no adjacency sensitivity and finds all 4 correctly; both ctags and tree-sitter locally lose the SINGLE function immediately following each such line (recovers after just one function, not a full cascade to EOF -- confirmed by resolving all 4 as isolated single-function misses, not a growing region). Resolved directly, no dispatch needed -- same pattern verified at all 4 sample points before writing up.
@@ -180,7 +180,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > UPDATED after a real production fix (the same fix documented in cpp's agree[gitgalaxy,tree_sitter]_vs[ctags] entry -- c and cpp share the mechanism, `lang_id in ("c", "cpp")` in detector.py's `_slice_by_braces`). GitGalaxy now scans each file for `#define NAME(...)` function-like macro definitions and excludes any func_start match whose captured name is a known macro -- confirmed to eliminate the already-documented `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/`SLOT1BINFULL`/`DICT___REVERSED___METHODDEF` cpython/typeobject.c false positives entirely (a direct `SELECT func_name ... WHERE func_name IN (...)` query against a fresh scan returned zero rows). The small residual (3 occurrences: `slot_nb_power`, `slot_nb_bool`, `wrap_next`, all cpython/typeobject.c) is a DIFFERENT, unrelated finding, not yet individually root-caused -- GitGalaxy and tree-sitter both correctly find these real functions and ctags doesn't; plausibly the same category of ctags miss documented in cpp's sibling entry (an ordinary function ctags' C++ parser fails to tag for reasons unrelated to macros) but not directly confirmed for these three specific names. No credit_tools adjustment applies -- already a naturally-corroborated 2-of-3 agreeing pair.
@@ -193,7 +193,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `c` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:15Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:19Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved + fixed directly, no dispatch needed), 2026-08-19T00:00:00Z):
 > Not a GitGalaxy or ctags defect -- a bug in this tool's OWN _count_ctags_signature_params (tri_comparison_gatherer.py), now fixed. Confirmed directly: ran ctags against cpython/ceval.c, PyEval_GetLocals(void)'s raw signature field is literally the text '(void)'. GitGalaxy and tree-sitter both already special-case C's explicit empty-parameter-list idiom (0 real args, matching detector.py's own _count_top_level_args docstring) -- _count_ctags_signature_params did not, splitting '(void)' into one non-empty segment and counting it as 1 real parameter (the same class of bug its own docstring already describes fixing twice for Python's trailing-comma and bare * / marker cases). Added 'void' to the segment-exclusion set alongside the existing '*'/'/'/'**' -- verified fix: _count_ctags_signature_params('(void)') now returns 0. This corpus (cpython) uses the (void) idiom extremely heavily, plausibly explaining most/all of the 104 occurrences; not independently re-verified beyond the sample, but the mechanism is unconditional (any '(void)' signature was miscounted the same way, corpus-wide) so high confidence it generalizes. No GitHub issue needed -- fixed directly in this same commit, not a repo-code defect.
@@ -206,7 +206,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cobol` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 181 occurrences as of 2026-08-26T03:59:20Z*
+*2-vs-1 -- 181 occurrences as of 2026-08-26T11:08:23Z*
 
 **Verdict** (by Agent, 2026-08-22T00:00:00Z):
 > Confirmed GitGalaxy engine defect (issue #1892). Fixed in the same pass by replacing the bare  boundary with (?=[ \t\n.]) in the func_start reserved word shield, preventing hyphenated verbs like DELETE-POLICY from being incorrectly shielded.
@@ -228,7 +228,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 194 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 194 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > UPDATED: count grew (98 -> 194) as a direct, correct consequence of the OPCODE-macro fix documented in the sibling agree[gitgalaxy,tree_sitter]_vs[ctags] entry -- tree-sitter's OWN OPCODE-family misparse (godot/gdscript_vm.cpp's bytecode-dispatch macro) was previously MASKED by GitGalaxy sharing the identical mistake (both wrong == they 'agreed', landing in the other shape instead of this one). Now that GitGalaxy correctly excludes known macro invocations, tree-sitter's own grammar limitation on this exact pattern is cleanly isolated here instead, confirmed via the shape's own examples (repeated `OPCODE` entries at godot/gdscript_vm.cpp, tree_sitter line set, ctags/gitgalaxy both None). The remaining, previously-documented causes (bare control-flow-keyword/`void` hallucination, conversion-operator naming-suffix convention) are unchanged and still contribute the bulk of the original 98. No credit/debit applies -- tree-sitter is the one that's wrong here, alone.
@@ -248,7 +248,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 61 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 61 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real GitGalaxy args-counting defect, filed as https://github.com/squid-protocol/gitgalaxy/issues/2012 . Two distinct sub-patterns visible in the sample: (1) zero-undercounting for out-of-class method definitions with real parameters (VBufStorage_buffer_t::replaceSubtrees, Translator::BuildBuffer, Translator::BuildVhloCompositeV1Op, and every `operator()` call-operator overload in godot/node.h) where ctags and tree-sitter both correctly count real, non-zero parameter lists and GitGalaxy reads 0; (2) an off-by-one OVERcount for a constructor with a member-initializer-list but zero real parameters (VBufStorage_buffer_t's default constructor -- ctags/tree-sitter correctly read 0 params, GitGalaxy reads 1). Not the same shape as the func_start recall gaps in #2009/#2010 -- these are all functions GitGalaxy already finds, just with the wrong parameter count. Needs its own dedicated investigation per the issue (may be one or two root causes).
@@ -268,7 +268,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 60 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 60 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real tree-sitter-cpp grammar limitation, not a GitGalaxy or ctags defect. Every sampled case (GDScriptFunction::call, Main::setup, Main::setup2, Main::start, Object::Connection::operator Variant) is a large, complex function -- GDScriptFunction::call in particular (godot/gdscript_vm.cpp:499) is a bytecode interpreter's main dispatch loop using GNU 'labels as values' computed-goto syntax (`&&OPCODE_LABEL`) via the same OPCODES_TABLE/OPCODE macro family documented in the sibling agree[gitgalaxy,tree_sitter]_vs[ctags] entry -- a non-standard GNU extension tree-sitter-cpp's grammar does not support, which plausibly causes a parse error cascade that loses the enclosing function_definition node entirely rather than just misreading the body. ctags and GitGalaxy both correctly find and name these functions regardless of body content, since neither one needs to fully parse the function body to recognize its signature. tree-sitter's non-detection is a confirmed limitation in tree-sitter itself -- but no credit_tools adjustment applies: ctags and GitGalaxy are already a 2-of-3 AGREEING PAIR on this shape (agreeing_tools has 2 members), which already satisfies reconcile_symbols' own `len(present) >= 2` precision-credit condition naturally with no ledger adjustment needed. credit_tools exists for a LONE, single-tool claim (agreeing_tools with exactly 1 member) the base algorithm can't otherwise corroborate -- applying it to an already-mutually-corroborating pair would double-count (confirmed: this exact mistake briefly pushed ctags' precision past 100% before being caught and reverted in this same session).
@@ -288,7 +288,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 30 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 30 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed ctags-only limitation: ctags parses INSIDE C++ macro DEFINITION bodies as if they were real, already-expanded code. godot/object.h's GDCLASS/_FORCE_INLINE_-based macros (`#define GDCLASS(m_class, m_inherits) ... _FORCE_INLINE_ bool (Object::*_get_get() const)(...) {...} ...`) never run as written -- they only produce real code once expanded at a `GDCLASS(SomeClass, Base)` call site elsewhere -- but ctags tags `_get_get`/`_get_set`/`_get_bind_methods`/`_get_bind_compatibility_methods`/`_get_notification`/`_get_property_can_revert`/`_get_property_get_revert`/`_get_validate_property`/`_get_get_property_list` (all 9 sampled cases, all from this same macro) as if they were ordinary member functions. Neither GitGalaxy nor tree-sitter are fooled by this. Documented in ctags_reader.py's KIND MAPS section (cpp bullet) rather than fixed -- this is ctags' own parser behavior, nothing in this repo's tooling can distinguish a macro-definition body from real code without reimplementing preprocessing.
@@ -308,7 +308,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 9 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 9 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > UPDATED after a real production fix. The OPCODE-family shared mistake documented in this shape's prior verdict (~96 of the original 105 occurrences) is now FIXED: GitGalaxy's func_start (and by the same mechanism, C's) now scans each file for `#define NAME(...)` function-like macro definitions and excludes any match whose captured name is a known macro -- the exact same fact universal-ctags itself already used (confirmed via a direct `ctags -f -` run: ctags tags `OPCODE` only once, at its own #define line, kind `d`, and produces zero tags at any invocation site -- it isn't smarter about the invocation's shape, it just already knows the name is a macro and never re-tags it). This also fixed the already-documented C `RICHCMP_WRAPPER`/`SLOT0`/`SLOT1`/`SLOT1BINFULL`/`DICT___REVERSED___METHODDEF` false positives as a bonus (same mechanism, `lang_id in ("c", "cpp")`). Verified via 3 repeated full-corpus scans producing byte-identical function lists, the full extraction gauntlet, and both golden masters re-blessed. The remaining residual (9 occurrences, previously miscounted as more of the same shared mistake in the earlier verdict's blanket debit -- corrected here) is a DIFFERENT, unrelated finding: GitGalaxy and tree-sitter are CORRECT here, ctags is wrong. Two sub-patterns confirmed: (1) the already-documented macro-as-return-type-prefix pattern (`IFACEMETHODIMP_(void)` immediately before the real `FancyZones::Run() noexcept` -- ctags tags the macro invocation itself and loses the real name, powertoys/FancyZones.cpp, 4 occurrences); (2) a newly-confirmed, NOT yet root-caused ctags miss on an ordinary virtual method with no macro involvement at all (`virtual RID mesh_create_from_surfaces(const Vector<RenderingServerTypes::SurfaceData> &p_surfaces, int p_blend_shape_count = 0) override { ... }`, godot/rendering_server_default.h -- ctags produces zero tags anywhere near this real method, 5 occurrences). No credit_tools adjustment applies: GitGalaxy and tree-sitter are already a 2-of-3 agreeing pair here, which already satisfies reconcile_symbols' own natural precision-credit condition.
@@ -327,7 +327,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Compound shape, three distinct causes confirmed via source, not one. (1) Most of the sample (OPCODE_WHILE x2, OPCODE_SWITCH, OPCODE) is the same GG+tree-sitter shared macro-misparse family documented in the sibling agree[gitgalaxy,tree_sitter]_vs[ctags] entry (godot/gdscript_vm.cpp's OPCODE/OPCODE_WHILE/OPCODE_SWITCH dispatch macros) -- here landing as 'GitGalaxy alone' because tree-sitter's own error recovery on this repeated macro pattern isn't fully deterministic across every occurrence, not because the underlying cause differs. GitGalaxy is WRONG for this portion (same debit as the sibling entry, not double-counted here since debit_tools is per-shape). (2) `attribute_buffer_applier_factories_`/`m_draggingState`/`std::thread` are a separate, real GitGalaxy FALSE POSITIVE: a lambda passed as a constructor argument or member-initializer-list entry (`m_draggingState([this]() {...}),`, `std::thread([...]() {...}).detach();`) is misread as a function definition. Filed as https://github.com/squid-protocol/gitgalaxy/issues/2013 . (3) `Variant::operator ::RID`/`Variant::operator ::AABB`/`Variant::operator Object *` are real functions GitGalaxy correctly finds (confirmed via godot/variant.cpp source) that didn't rank-match ctags/tree-sitter's own readings of the same functions by exact name string -- a residual, low-priority naming-comparison edge case (global-scope `::`-prefixed conversion-operator return types) not chased further in this pass. No credit/debit applied given the mixed, three-cause nature of this shape.
@@ -341,7 +341,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Not a real existence disagreement -- a template-argument name-formatting difference in the comparison tooling. `godot/variant.h`'s `HashMapComparatorDefault<Variant>` and `is_zero_constructible<Variant>` are template CLASS specializations; GitGalaxy and tree-sitter both read the name WITH its template argument baked in (matching the instantiation as written in source), while ctags strips the `<...>` template-argument suffix from its own class tag name. All three tools found the exact same class definition at the exact same line -- confirmed via the sibling agree[gitgalaxy,tree_sitter]_vs[ctags] entry, which is the same pair of classes from the opposite direction. Low magnitude (2 occurrences) -- not chased to a code fix in this pass, but a plausible future micro-fix would strip a trailing `<...>` from gg/tree-sitter's class name before matching, mirroring how ctags_reader.py's operator-name normalization already handles a similar formatting mismatch.
@@ -353,7 +353,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Same template-argument name-formatting difference as the sibling agree[ctags]_vs[gitgalaxy,tree_sitter] class entry, viewed from the opposite direction -- `HashMapComparatorDefault`/`is_zero_constructible` (ctags' bare names) vs. `HashMapComparatorDefault<Variant>`/`is_zero_constructible<Variant>` (GitGalaxy/tree-sitter's names, template argument included). Not a real disagreement about whether these classes exist -- see the sibling entry for the full explanation.
@@ -365,7 +365,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real tree-sitter accuracy-tool limitation, filed separately (see the sibling agree[none]_vs[ctags,gitgalaxy,tree_sitter] args entry and its referenced issue for the full writeup). tree-sitter's own parameter count (via the shared `_get_param_count` helper in tree_sitter_accuracy_audit.py, reused by tri_comparison_gatherer.py) undercounts by exactly 1 whenever a function has a parameter with a default value -- confirmed 6/6 sampled cases (save_scene_to_path, step, get_index, atr_n, atr, ObjectSignalLock), all off by exactly 1, all involving a `= default_value` parameter, ctags and GitGalaxy both correctly counting the real total. No credit_tools/debit_tools adjustment applies -- this is an args-metric shape, and apply_verified_adjustments only ever touches existence-metric precision (args scores have no equivalent verified-adjustment mechanism in this ledger's own code, see tri_comparison_ledger.py's apply_verified_adjustments docstring), so these fields would be a pure no-op here regardless of value -- left empty rather than set-but-inert, for an accurate record.
@@ -377,7 +377,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `cpp` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:24Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:26Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > The single sampled occurrence (mlir/flatbuffer_export.cc:654, the `Translator` class's constructor) is exactly the bug filed as https://github.com/squid-protocol/gitgalaxy/issues/2009 -- a member-initializer-list spanning 906 characters exceeds GitGalaxy's func_start regex's 500-character cap for that clause, so the whole constructor is invisible to GitGalaxy despite ctags and tree-sitter both finding it correctly. GitGalaxy's non-detection is a confirmed, filed limitation -- but no credit_tools adjustment applies: ctags and tree-sitter are already a 2-of-3 AGREEING PAIR on this shape, which already satisfies reconcile_symbols' own `len(present) >= 2` precision-credit condition naturally. See the sibling agree[ctags,gitgalaxy]_vs[tree_sitter] entry for the full explanation of why credit_tools only applies to a LONE, single-tool claim, never an already-agreeing pair.
@@ -390,7 +390,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 271 occurrences as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 271 occurrences as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T18:13:27Z):
 > Confirmed: this shape is entirely tree-sitter-c-sharp's own known parse-error cascade in roslyn/LanguageParser.cs, already root-caused and evidence-backed as Claim 3 in docs/why_gitgalaxy_beats_ast_here.md (issues #1427/#1567). A syntax construct at line ~5198 triggers a parse error whose recovery fails to resynchronize for the rest of the (14,680-line) file -- tree.root_node.type itself becomes ERROR, so tree-sitter's own recall for this file collapses to near-zero past that point. GitGalaxy's regex and ctags' text-based parser are both unaffected and correctly find these functions (all sampled: ParseVariableDeclarator, GetPrecedence, ParsePrimaryExpression, ScanType x3 -- real, ordinary private methods, exact line-number agreement between ctags and gitgalaxy on every one). This is the tri-comparison ledger's own version of a phenomenon already fully diagnosed for the 2-way tree_sitter_accuracy_audit.py tool via its cascade_promotable logic -- that logic was never ported to tri_comparison_gatherer.py/tri_comparison_reconcile.py, which is why this shows as an unvalidated ledger shape despite being a known, closed question. Not a GitGalaxy or ctags defect. CORRECTION (2026-08-21): credit_tools was originally set here, but this is wrong -- these tools already mutually corroborate each other (2-of-3 agreement), so their occurrences were already counted in base precision before any credit was applied. Adding credit on top double-counted them, pushing gitgalaxy's func_precision matched_consensus past its own total_slots (1297/965, >100%, a real, visible chart-rendering bug). credit_tools is only valid for a shape where a tool is completely ALONE and otherwise uncorroborated (e.g. this language's agree[gitgalaxy]_vs[ctags,tree_sitter] shape), never for an already-mutually-agreeing pair. Reset to empty; the validation itself (which tool is factually correct here) is unaffected and remains correct.
@@ -410,7 +410,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 108 occurrences as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 108 occurrences as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T18:13:44Z):
 > Confirmed real ctags parser limitations, not a GitGalaxy or tree-sitter defect, via direct source reading and raw `ctags -x` runs against the flagged files. Two distinct mechanisms: (1) Local/nested functions -- roslyn/CSharpCompilation.cs's `validateSignature` (nested inside a larger method) and `isSupportedType` (a `static bool isSupportedType(...)` local function) are both structurally invisible to ctags, whose csharp kind map is only 'm' (top-level methods; "C# has no free functions" per ctags_reader.py's own comment) with no local-function concept at all -- this generalizes to every local function in the corpus, not just the sampled two. (2) Complex-signature misses and overload collisions on ordinary top-level private methods -- `FindEntryPoint` (nullable return/param types plus a generic `out` parameter) and `GetSourceDeclarationDiagnostics` (5 params, two with default values, one a `Func<...>` generic delegate) get no ctags tag at all, confirmed via `ctags -x` showing tags immediately before/after but not at their own lines -- isolated misses, not a wider blind region (unlike the tree-sitter cascade in the sibling ledger shape). `ReportUnusedImports` has two overloads at different lines; ctags tags only the first, silently dropping the second. Documented in tests/tools/ctags_reader.py's csharp KIND MAPS bullet. Credited on the strength of mechanism (1) generalizing structurally to the whole shape (ctags cannot see ANY local function, by construction) even though only ~5 of 107 occurrences were individually read -- mechanism (2)'s complex-signature misses are a smaller, less certain-to-generalize contributor to the same shape but point the same direction (ctags-side, not GitGalaxy/tree-sitter). CORRECTION (2026-08-21): credit_tools was originally set here, but this is wrong -- these tools already mutually corroborate each other (2-of-3 agreement), so their occurrences were already counted in base precision before any credit was applied. Adding credit on top double-counted them, pushing gitgalaxy's func_precision matched_consensus past its own total_slots (1297/965, >100%, a real, visible chart-rendering bug). credit_tools is only valid for a shape where a tool is completely ALONE and otherwise uncorroborated (e.g. this language's agree[gitgalaxy]_vs[ctags,tree_sitter] shape), never for an already-mutually-agreeing pair. Reset to empty; the validation itself (which tool is factually correct here) is unaffected and remains correct.
@@ -430,7 +430,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 46 occurrences as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 46 occurrences as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T21:45:53Z):
 > Mixed shape, confirmed via a full name-diff against gather_language('csharp') rather than the capped sample alone: 44 of 48 are genuine local (nested) functions inside roslyn/LanguageParser.cs's tree-sitter parse-error cascade region (line >= ~5198, same mechanism as the sibling agree[ctags,gitgalaxy]_vs[tree_sitter] shape / Claim 3) -- tree-sitter is fully blind there, and ctags additionally has no concept of a local/nested function at all (only top-level 'm' method tags), so GitGalaxy is the only tool that can see these. The remaining 2 are genuine GitGalaxy false positives with a confirmed, unrelated root cause: roslyn/CSharpCompilation.cs:2282's GetWellKnownType( (a call, no declaration exists anywhere in the file) and roslyn/LanguageParser.cs:2338's this.EatToken( (a call inside a switch-expression arm) are both mis-captured because func_start's return-type-loop character class allows unbalanced parens/commas in a single 'token', letting it swallow a real call-expression fragment as if it were part of a return type and land on the wrong identifier as the 'function name'. Filed as GitHub issue #2035 with root cause and fix direction; fix in progress in an isolated worktree as of this writing. Not crediting/debiting any tool on this shape since it's genuinely mixed (44 real local-function finds, 2 real false positives) -- re-visit once #2035 merges and re-run to confirm the shape drops to 44 (or fewer, if further false positives of the same class surface once #2035's fix generalizes across the full corpus). FOLLOW-UP (2026-08-21, post-#2035/#2036 re-verification): re-checked this shape with a full, uncapped corpus diff rather than the capped example sample. The 2 originally-confirmed false positives (GetWellKnownType, this.EatToken) are gone as expected. However 2 MORE confirmed false positives remain, distinct mechanisms from #2035's fix: CSharpCompilation.cs's `ref mdName, ..., CreateReflectionTypeNotFoundError(` (a real call site mistaken for a declaration because `ref` is a legitimate Branch A modifier keyword when used in a real declaration, but here it's a call-argument prefix) and LanguageParser.cs:2336's `_syntaxFactory.TypeConstraint(this.ParseType())` (a ternary `?` operator consumed by the return-type loop's nullable-type-marker allowance, same general shape as this.EatToken but not covered by #2035's specific fix). Filed as issue #2054. This shape remains genuinely mixed (the overwhelming majority are real cascade-region local functions, but a small residual of false positives keeps surfacing) -- still correctly left uncredited pending #2054. CLOSED (2026-08-21): this shape is now fully clean. Both remaining false-positive mechanisms (issue #2054: bare-comma call-argument absorption, ternary-? consumption, and the nested-generic-return-type regression its own fix introduced and #2061 corrected) are fixed and merged. A full uncapped re-diff confirms all 44 remaining occurrences are genuine local functions inside LanguageParser.cs's tree-sitter parse-error cascade region (Claim 3), zero non-cascade residue. credit_tools is now correctly applicable -- gitgalaxy is alone on this shape (no tool to share the credit-double-counting error this session already found and fixed on the sibling agree[ctags,gitgalaxy]/agree[gitgalaxy,tree_sitter] shapes with), and every one of its 44 claims here is confirmed real with the reason ctags (no local-function concept) and tree-sitter (parse cascade) don't corroborate it being a confirmed limitation in THEM, not an open question about GitGalaxy.
@@ -450,7 +450,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 9 occurrences as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 9 occurrences as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T18:13:27Z):
 > Same root cause and file as the sibling function-existence shape (roslyn/LanguageParser.cs's tree-sitter parse-error cascade from line ~5198, Claim 3 in why_gitgalaxy_beats_ast_here.md, #1427/#1567) -- with the parse tree corrupted into a single ERROR node, tree-sitter can't resolve any class_declaration structure in the corrupted region either, including the outer LanguageParser class itself (whose body spans the entire cascade) and every enum/nested class declared inside it (VariableFlags, NameOptions, ScanTypeArgumentListKind, ScanTypeFlags, ParseTypeMode, etc.). ctags and GitGalaxy both correctly find these via text-based parsing, unaffected by tree-sitter's own AST failure. Not a GitGalaxy or ctags defect. CORRECTION (2026-08-21): credit_tools was originally set here, but this is wrong -- these tools already mutually corroborate each other (2-of-3 agreement), so their occurrences were already counted in base precision before any credit was applied. Adding credit on top double-counted them, pushing gitgalaxy's func_precision matched_consensus past its own total_slots (1297/965, >100%, a real, visible chart-rendering bug). credit_tools is only valid for a shape where a tool is completely ALONE and otherwise uncorroborated (e.g. this language's agree[gitgalaxy]_vs[ctags,tree_sitter] shape), never for an already-mutually-agreeing pair. Reset to empty; the validation itself (which tool is factually correct here) is unaffected and remains correct.
@@ -469,7 +469,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T20:06:45Z):
 > Mixed shape. 1 of 4 is a confirmed genuine ctags defect: GetHashCode's tuple-parameter overload (`GetHashCode((ImmutableArray<byte> ContentHash, int Position) obj)`, 1 real param) -- ctags reports 2, mis-splitting the tuple-typed parameter's own internal comma as a second top-level parameter, the same family as the already-documented tuple-related ctags limitations in tests/tools/ctags_reader.py's csharp bullet. The other 3 (GetModifierExcludingScoped and two SetCurrentSolution rows) are NOT real tool disagreements at all -- SetCurrentSolution has 4 real overloads (1/6/4/5 real params respectively) in roslyn/Workspace.cs; every individual reading from every tool across both rows (ctags=6, gitgalaxy=1, tree_sitter=1, ctags=4, gitgalaxy=6, tree_sitter=6) independently matches SOME real overload's true count exactly when checked against the source -- the ledger shape only exists because the reconciler's rank-based pairing compared different tools' readings of DIFFERENT overloads against each other, not because any tool actually miscounted anything. Confirmed via direct line-by-line source reading of all 4 overloads. Credit gitgalaxy+tree_sitter for the 1 real ctags defect only; the shape as a whole is left without a clean credit/debit since 3 of 4 occurrences aren't a real disagreement to adjudicate.
@@ -485,7 +485,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `csharp` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:30Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:30Z*
 
 **Verdict** (by Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T18:13:27Z):
 > Confirmed genuine ctags false positive, not a GitGalaxy or tree-sitter gap. roslyn/CSharpCompilation.cs:2539's real declaration is `public bool Equals((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)` -- an Equals overload with tuple-typed parameters. ctags' lightweight C# parser misreads the return-type/tuple-parameter boundary and tags the match under the name `bool` instead of `Equals`. Documented in tests/tools/ctags_reader.py's csharp KIND MAPS bullet alongside this shape's sibling ctags limitations (local-function blindness, complex-signature misses, overload-name collision -- see the agree[gitgalaxy,tree_sitter]_vs[ctags] shape). Not crediting/debiting: a single-tool false positive from an otherwise-unaffected precision baseline, no shared-mistake mechanism applies.
@@ -498,7 +498,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `css` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-26T03:59:31Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-26T11:08:31Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed ctags-side structural limitation, not a GitGalaxy defect. GitGalaxy's own func_start regex (language_standards.py) deliberately matches CSS at-rule keywords (@media/@supports/@container/@layer/@keyframes/@-webkit-keyframes) as the closest function-shaped construct CSS has, since CSS has no true function-definition/call syntax. tree-sitter's CSS grammar independently corroborates this: media_statement/supports_statement/keyframes_statement are real, distinct node types, already mapped 1:1 onto GitGalaxy's own at-rule set per issue #1313 (see tree_sitter_accuracy_audit.py's css NODE_MAPS entry and its media_statement/supports_statement name-extraction branches). Re-ran gather_language('css') directly against the full 4-file corpus (not just the ledger's capped 3-example sample): GitGalaxy and tree-sitter agree exactly on function count in every file (3/3 total, zero diff files) -- the agreement generalizes completely, it is not a partial/mixed sample. ctags' own FUNCTION_KIND_MAP already documents 'css': set()  # no function-equivalent (ctags_reader.py) -- confirmed empty (ctags_funcs: []) across all 4 corpus files too. ctags structurally cannot tag CSS at-rules as anything function-like; it isn't wrong about a claim, it has no claim to make here at all. No new doc note needed -- both the GitGalaxy/tree-sitter convention (#1313) and the ctags limitation are already documented in code. GitGalaxy+tree-sitter's agreement is real corroboration, not a shared mistake, so no credit/debit adjustment applies; ctags' lack of a comparable slot here is already handled correctly by the reconciler's own total_slots mechanics.
@@ -513,7 +513,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `dart` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 13 occurrences as of 2026-08-26T03:59:35Z*
+*2-vs-1 -- 13 occurrences as of 2026-08-26T11:08:34Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real GitGalaxy engine defect, not a tree-sitter limitation. Root-caused two distinct false-positive bugs in dart's func_start regex's zero-prefix branch, both in gitgalaxy/standards/language_standards.py: (1) Dart 3 switch-expression arms (`Pattern => result,` including bare `_ => result,`) matched as getter definitions, because the branch's bare-`=>` lookahead alternative was unconditional (no `get` keyword required) even though Dart's real grammar has no parameterless `=> expr` construct without `get`. (2) Call statements with a lambda argument (`obj.method((x) => ...)`, `setState(() {...})`, bare self-calls like `visitChildren((Element child) {...})`) matched as function definitions, because the paren-lookahead used a naive non-balanced-paren check (`\([^)]*\)`) that stopped at the lambda's own closing paren instead of the outer call's. A full corpus-wide before/after diff (language-crucible/data/dart, 7 Flutter framework files) confirmed 126 false-positive matches removed and only 1 new match gained (a genuine recall fix for EditableText's own multi-line constructor) -- every one of the 126 manually spot-checked as a real false positive (dotted call receiver, or a statement ending `);`, or a switch-expression arm), none a lost real definition. Fixed in gitgalaxy#2071 (merged via this ledger-sweep PR) by gating the bare-arrow alternative behind the existing `get`-group conditional and switching to the same balanced-paren pattern already used elsewhere in this regex. A smaller, related false positive (multi-line class headers with with/implements clauses absorbed as a phantom function's return-type prefix, e.g. `implements AutofillClient {` matching as a function named AutofillClient) was found in the same investigation but is NOT fixed -- the straightforward fix (excluding implements/with/extends from the return-type-prefix vocabulary) was tested and confirmed to break a much more common legitimate pattern, generic method type-parameter bounds (`static Future<T?> pushNamed<T extends Object?>(...)`), which also uses `extends`. Tracked in gitgalaxy#2072 along with several other confirmed-but-deferred recall gaps found in the same pass.
@@ -533,7 +533,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `dart` function existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 10 occurrences as of 2026-08-26T03:59:35Z*
+*2-vs-1 -- 10 occurrences as of 2026-08-26T11:08:34Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real GitGalaxy recall gaps (tree-sitter is correct), several distinct causes found via direct source investigation against language-crucible/data/dart. Some entries in this shape's original capped example list were incidentally resolved as a side effect of the func_start fix in gitgalaxy#2071 (e.g. EditableText's own multi-line constructor, generic-return-type getters like `Iterable<Element> get children =>`, and dotted-name getters like `T? get currentState => switch (...) {...}` all now regex-match correctly and reach the final pipeline output). A post-fix full-corpus name-diff still shows 12 residual missing_from_gg cases across 5 distinct confirmed root causes, none yet fixed: (1) EditableText's constructor and a private named constructor (_DiscreteKeyFrameSimulation._(...)) regex-match (confirmed via direct probe) but don't reach the final pipeline output -- a detector.py-level extraction bug downstream of the regex, not yet traced; (2) static getters with a dotted/prefixed-import return type (`static ui.BoxHeightStyle get defaultSelectionHeightStyle {`) never regex-match at all, because the return-type-prefix character class excludes `.`; (3) bodyless default constructors (`_EditableTextTapOutsideAction();`) don't regex-match; (4-5) several more names (recorder, ChildSemanticsConfigurationsResultBuilder, OrdinalSortKey, SemanticsData, SemanticsProperties, extension) not yet individually root-caused. All tracked as a consolidated follow-up in gitgalaxy#2072 -- deliberately not rushed, since the sibling existence shape's investigation already found one naive fix (broadening the return-type charclass or the keyword-exclusion list) can silently break a much more common legitimate pattern elsewhere, so each of these needs its own regression check before shipping.
@@ -553,7 +553,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `dart` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 221 occurrences as of 2026-08-26T03:59:35Z*
+*3-way split -- 221 occurrences as of 2026-08-26T11:08:34Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-21T00:00:00Z):
 > Confirmed real GitGalaxy defect on args counts for class/constructor names, root cause distinct from (but likely overlapping with) the func_start existence bugs fixed in gitgalaxy#2071. Spot-checked via language-crucible/data/dart, e.g. flutter/editable_text.dart's `_DeleteTextAction` class (`class _DeleteTextAction<T extends DirectionalTextEditingIntent> extends ContextAction<T> {` at line 6352, real constructor `_DeleteTextAction(this.state, this.getTextBoundary, this._applyTextBoundary);` at line 6353 taking 3 args) -- tree-sitter correctly reports args=3 for the constructor, GitGalaxy reports args=0, most likely because GitGalaxy's func_start is matching the class declaration header itself under the same name (no explicit `(...)` immediately after the class name, since it's followed by `<T extends ...>` then `extends ContextAction<T> {`) rather than the real constructor line. This looks like the same underlying class-header-vs-function-signature ambiguity as gitgalaxy#2072 item 1 (multi-line class headers with generic type-parameter bounds), not yet isolated or fixed -- a full re-diff after this ledger sweep's existence fix still shows 302 name-matched args disagreements, most following this same class/constructor-name shape. Deliberately not fixed in this pass: root-causing exactly which of the func_start branches is misattributing these needs its own investigation with the same regression discipline the existence fix required (a naive class-header exclusion already proved unsafe once in this same investigation). Tracked as a named follow-up under gitgalaxy#2072's scope.
@@ -575,7 +575,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `fortran` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 15 occurrences as of 2026-08-26T03:59:41Z*
+*2-vs-1 -- 15 occurrences as of 2026-08-26T11:08:38Z*
 
 **Verdict** (by Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T23:35:49Z):
 > Confirmed already-documented tree-sitter-fortran limitation (#1709/Claim 7 in docs/why_gitgalaxy_beats_ast_here.md), re-verified directly against this exact shape's 14 occurrences (11 in wrf/module_physics_init.F: bl_init, ra_init, landuse_init, mp_init, cu_init, shcu_init, CAM_INIT, z2sigma, fdob_init, fg_init, ALLOCATE_CAM_ARRAYS; 3 in wrf/wrf_timeseries.F: calc_p8w, calc_ts, write_ts). Directly ran tree_sitter_accuracy_audit.py's own _find_blind_spot_ranges() against both files' real parse trees: every one of the 14 occurrences' start lines falls inside a tree-sitter ERROR/preproc_* blind-spot range (e.g. bl_init/mp_init/cu_init/shcu_init all sit inside one continuous (2203,4393) span; all 3 wrf_timeseries.F occurrences fall inside a (1,1200) span). ctags and GitGalaxy are both correct; tree-sitter-fortran's own grammar cascades into ERROR nodes on the CPP #if/#endif guards surrounding these subroutines. Added as new evidence to the existing Claim 7 in docs/why_gitgalaxy_beats_ast_here.md (this ledger shape is independently sourced from the original accuracy-audit finding -- a raw per-file name diff via tri_comparison_gatherer.py, not the audit tool's promotion logic).
@@ -595,7 +595,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `fortran` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:41Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:38Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/ctags correctly extract 677 args. Tree-sitter truncates at 39.
@@ -606,7 +606,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `fortran` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:41Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:38Z*
 
 **Verdict** (by Sonnet 5, dispatched via tri-comparison-ledger-sweep, 2026-08-21T23:35:49Z):
 > Confirmed GitGalaxy correct on both. 'vint' (module_initialize_real.F:5375, inside #ifdef VERT_UNIT) and 'foo' (module_initialize_real.F:7519, inside #if 0) are both real, syntactically valid `PROGRAM name` declarations. tree-sitter misses both via the already-documented #1709 ERROR/preproc_* blind-spot mechanism (both sit inside #if/#ifdef-guarded regions). ctags misses 'foo' only because CTAGS_FUNC_KINDS['fortran'] was {'f','s'} (functions/subroutines only) -- ctags itself DOES correctly tag `foo` as a 'p' (program) kind (confirmed via `ctags -x --kinds-Fortran=p`), just invisible to this comparison. Fixed in tests/tools/ctags_reader.py: CTAGS_FUNC_KINDS['fortran'] now {'f','s','p','e'} (added program, entry -- matching GitGalaxy's own func_start scope of FUNCTION|SUBROUTINE|PROGRAM|ENTRY). ctags separately, genuinely fails to tag 'vint' at all under any kind in this specific file (confirmed it tags an isolated test file with identical #ifdef-wrapped `program vint` syntax fine, so it's a real, unexplained ctags-fortran-parser corruption specific to this file's content, not a preprocessor-conditional-skip decision) -- a genuine, narrow ctags limitation, not chased further for a single occurrence.
@@ -619,7 +619,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `go` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 75 occurrences as of 2026-08-26T03:59:43Z*
+*2-vs-1 -- 75 occurrences as of 2026-08-26T11:08:39Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/ctags correctly parse multiple arguments sharing a type. Tree-sitter groups them.
@@ -641,7 +641,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 103 occurrences as of 2026-08-26T03:59:46Z*
+*2-vs-1 -- 103 occurrences as of 2026-08-26T11:08:41Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > All 10 sampled cases are ctags-side artifacts, not real GitGalaxy/tree-sitter misses -- confirmed via direct `ctags -x` output against the corpus. Three distinct ctags Haskell-parser weaknesses cover the sample: (1) multi-clause double/triple-tagging -- ctags tags every pattern-matched equation line as its own occurrence of the name (writerFn/writeFnBinary/expandFilterPath: confirmed 2-3 raw ctags tags per function, one per clause; a file-wide count found 45 such extra same-name tags across the 7-file corpus, e.g. blockToInlines alone has 14). GitGalaxy/tree-sitter both correctly anchor to the FIRST clause only, leaving ctags' later-clause tags as the ones unpaired. (2) keyword-as-identifier misparsing -- `class`/`where`/`pattern` (from PatternSynonyms) get tagged as function names when ctags fails to parse past the keyword; confirmed at Options.hs:62 (`class HasSyntaxExtensions`), Parsing.hs:184 (module-header `where`), and 3 PatternSynonyms declarations in Options.hs. (3) CAF/value-vs-function kind collapse -- defaultAbbrevs/defaultKaTeXURL/defaultMathJaxURL/defaultWebTeXURL are zero-arg top-level VALUES (non-arrow type signatures), not functions; ctags has no value/variable kind at all (`ctags --list-kinds-full=Haskell` shows only constructor/function/module/type) so it lumps every `name = expr` binding into "function". GitGalaxy (language_standards.py haskell rules, #1312) and tree-sitter's own audit tooling (_find_haskell_signature_for_bind, #1566) both independently make the same value-vs-function distinction correctly -- real cross-tool corroboration, not coincidence. (4) TH-splice call sites misread as definitions -- deriveJSON at Options.hs:454/458 is a Template Haskell splice INVOKING an imported function, not defining one; ctags misparses the call as a definition. No GitGalaxy/tree-sitter defect anywhere in this shape; purely a ctags parser limitation, same category as the already-documented empty CTAGS_CLASS_KINDS['haskell'].
@@ -661,7 +661,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 69 occurrences as of 2026-08-26T03:59:46Z*
+*2-vs-1 -- 69 occurrences as of 2026-08-26T11:08:41Z*
 
 **Verdict** (by Claude Sonnet 5 (dispatched agent investigation), 2026-08-19T00:00:00Z):
 > Confirmed: all 10 sampled misses (and, by cross-check against additional non-sampled instances in Options.hs/Shared.hs, plausibly all 69) are locally-scoped function definitions -- `instance ... where` methods, `where`-clause helpers, or `let`-bound names inside `do` blocks -- never top-level module definitions. ctags' Haskell parser has no layout-rule/scope awareness and only tags equations anchored at column 1; it correctly handles multi-clause TOP-LEVEL definitions (verified via expandFilterPath, writeFnBinary, writerFn -- all tag fine, clauses and all), so this is a pure scope blind spot, not a clause-counting bug (distinct from the tree-sitter clause-splitting bug fixed earlier in this same effort, which shares 2 of the 10 sample names by coincidence of subject matter, not root cause). GitGalaxy and tree-sitter are both correct; ctags is not wrong so much as structurally incapable of seeing these. Known, expected limitation of ctags' Haskell parser, now documented alongside its existing Haskell notes in tests/tools/ctags_reader.py -- not a GitHub issue, nothing in this repo to fix.
@@ -681,7 +681,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 16 occurrences as of 2026-08-26T03:59:46Z*
+*2-vs-1 -- 16 occurrences as of 2026-08-26T11:08:41Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > Not a real discrepancy -- structural tooling gap, already documented in the codebase. tests/tools/ctags_reader.py:39-40,228 sets CTAGS_CLASS_KINDS['haskell'] = set() on purpose: "ctags' Haskell parser has no class-shaped kind at all (constructor/function/module/type only)". Every example in this shape (data/newtype/class declarations -- ReaderOptions, CiteMethod, HasSyntaxExtensions, etc.) is real; ctags structurally cannot report any of them for this language, not a sample-specific miss. No action needed beyond this note.
@@ -701,7 +701,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:46Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:41Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > Mixed shape as originally investigated (2 occurrences): (1) Options.hs:438 getExtensions -- real function, `instance HasSyntaxExtensions WriterOptions where getExtensions opts = writerExtensions opts`. A sibling instance for ReaderOptions at Options.hs:80 has the identical shape. Tree-sitter's Haskell grammar doesn't expose typeclass-instance-method clause bodies the way it does top-level bindings, and ctags' Haskell parser has no instance-method kind either -- GitGalaxy is correct, both other tools have a real recall gap on typeclass instance methods. (2) Shared.hs:475 extensionEnabled -- was NOT a real function (imported from Text.Pandoc.Extensions, only ever appears as a guard-clause call inside a multi-line `||` condition) -- a genuine GitGalaxy false positive, filed as #2082 and fixed in PR #2083 (2026-08-22): `_slice_by_indentation` now skips an equation-form func_start match whose immediately preceding line ends in `||`/`&&`. Reconciled post-fix: only the getExtensions occurrence remains, so this shape is now a clean, unambiguous GitGalaxy win -- credited accordingly.
@@ -712,7 +712,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `haskell` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 9 occurrences as of 2026-08-26T03:59:46Z*
+*3-way split -- 9 occurrences as of 2026-08-26T11:08:41Z*
 
 **Verdict** (by Claude Sonnet 5 (session investigation), 2026-08-19T00:00:00Z):
 > One systematic cause, confirmed by reading source for 3 of the 9 (getMetadataFromFiles App.hs:395-397, splitTextByIndices Shared.hs:142-143, tabFilter Shared.hs:256-259) and consistent with the shape of the remaining 6. Every case is a point-free/eta-reduced Haskell equation: the type signature declares N params, but the specific clause GitGalaxy and tree-sitter both align to only explicitly binds N-1 of them, handling the trailing argument via composition (`.`) or `\case`. GitGalaxy counts arity from the full type signature (the true logical arity); tree-sitter's declaration-only reading counts only the clause's explicitly-bound patterns (correct for that one equation, but undercounts true arity). Neither reader is wrong about what it's measuring -- same shape as Claim 1 in docs/why_gitgalaxy_beats_ast_here.md. GitGalaxy's answer is arguably the more useful coupling signal; recommend documenting as a candidate Claim rather than treating as an engine defect to fix toward matching tree-sitter.
@@ -733,7 +733,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 265 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 265 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed ctags-side parser limitation, not a GitGalaxy or tree-sitter defect. ctags' JavaScript scanner loses the real property-key name for a function-valued object-literal property specifically when that literal is a CALL ARGUMENT rather than a direct assignment -- confirmed via jquery/ajax.js's `jQuery.extend(jQuery, {ajaxSetup: function(target, settings){...}, ajax: function(url, options){...}})`: ctags emits a synthetic 'AnonymousFunction<hex>' tag for both instead of using the real 'ajaxSetup'/'ajax' key text, while GitGalaxy and tree-sitter both correctly attribute the property key as the name. Generalizes across the whole corpus, not a one-file fluke -- the identical shape recurs in jquery/css.js (css/get/set/style), jquery/deferred.js (Deferred/catch/pipe/promise/then/when), jquery/event.js (Event/handler/off/one/postDispatch/set), jquery/core.js (20+ utility methods, reducing ctags' whole-file function count from 26 to 1), and threejs's Editor.js/GLTFLoader.js/WebGLRenderer.js/WebGLProgram.js. Doc note added to ctags_reader.py's javascript CTAGS_FUNC_KINDS entry.
@@ -753,7 +753,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 185 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 185 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed GitGalaxy correct; both ctags and tree-sitter structurally can't, for two INDEPENDENT reasons. All four affected react/*.js corpus files carry the `@flow` pragma. tree-sitter-javascript's grammar can't parse Flow's parenthesized type-cast syntax (`(expr: Type)`, e.g. `(workInProgress.child: any)`), producing an ERROR node that swallows a large trailing region of the file -- confirmed directly: ReactFiberBeginWork.js's ERROR spans lines 3221-4448 (1227 of 4448 lines), and ReactFiberWorkLoop.js/ReactFlightServer.js each produce ONE error node spanning the ENTIRE file (line 1 to EOF). Real, ordinary functions inside these regions (beginWork, attemptEarlyBailoutIfNoScheduledUpdate, mountLazyComponent, and 18 others sampled) have no tree-sitter node at all. Separately, ctags' own hand-written JS scanner hits an independent cascade triggered by a Flow RETURN-type annotation (`): Fiber | null {`) -- confirmed via a minimal isolated repro (a 4-function test file where the function with a Flow return-type annotation and everything textually after it produce zero ctags output), and confirmed against the real corpus (beginWork itself, which has exactly this return-type shape, produces zero ctags tags). GitGalaxy's regex has no dependency on either tool's parse state and finds every one of these correctly. Documented in docs/why_gitgalaxy_beats_ast_here.md (Claim 3, new subsection completing/extending the existing 'Second instance: javascript' write-up with the recall-loss half plus the newly-confirmed ctags cascade).
@@ -773,7 +773,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 93 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 93 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed ctags-side parser limitation, not a GitGalaxy or tree-sitter defect. ctags' JavaScript scanner tags its 'class' kind on ANY bare object-literal assignment (`var X = {...}`) or function-expression assignment (`var X = function(){}`, `obj.prop = function(){}`), a blanket heuristic for 'might be used as a pre-ES6 constructor' that fires regardless of whether `new` is ever used on it. Confirmed via a minimal isolated repro (plainObj/ctorLike/obj.Thing all tagged 'class' alongside a real ES6 class) and directly against the corpus: jqXHR (jquery/ajax.js, a plain config object), cssHooks/cssNormalTransform/cssShow (jquery/css.js), promise (jquery/deferred.js), Event/event/special (jquery/event.js, one of which -- Event -- IS a pre-ES6 constructor-style function, correctly ambiguous under ctags' heuristic but still not a real ES6 class), and the ALPHA_MODES/WEBGL_CONSTANTS/etc. config objects in threejs/GLTFLoader.js. GitGalaxy's class_start regex and tree-sitter's class_declaration node both correctly require the literal `class` keyword. Doc note added to ctags_reader.py's javascript CTAGS_CLASS_KINDS entry.
@@ -793,7 +793,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 13 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 13 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed tree-sitter-alone recall gap, same Flow-cascade family as agree[gitgalaxy]_vs[ctags,tree_sitter] above but from the other side: for these specific names (updateContextProvider, reconcileChildren, updateScopeComponent, markWorkInProgressReceivedUpdate, shouldForceFlushFallbacksInDEV, patchConsole, abortIterable, abortStream, error, throwTaintViolation), ctags' own Flow-return-type cascade trigger point happens to sit AFTER these functions (or never fires in that file), so ctags finds them correctly and agrees with GitGalaxy at the exact same line number, while tree-sitter's independent (earlier-triggering, different-construct) ERROR cascade has already swallowed them. Because the two tools' cascades trigger on different Flow constructs starting at different lines, they lose different, non-identical sets of functions -- this is why the ledger shows several distinct 3-way shapes instead of one clean 'both non-GitGalaxy tools agree on what they missed' shape. Documented alongside the fuller write-up in docs/why_gitgalaxy_beats_ast_here.md's Claim 3 extension.
@@ -813,7 +813,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed tree-sitter-alone argument-count corruption, a third facet of the same Flow-parsing family. Even where tree-sitter DOES still produce a real function_declaration node (outside any ERROR-swallowed region), a Flow parameter type with a union (`current: Fiber | null`) corrupts that node's own formal_parameters child list. Confirmed directly via react/ReactFiberBeginWork.js:405 `updateForwardRef(current: Fiber | null, workInProgress: Fiber, Component: any, nextProps: any, renderLanes: Lanes)` -- 5 real parameters (GitGalaxy=5, ctags=5, both correct) but tree-sitter's own formal_parameters node contains a single ERROR child swallowing 'current: Fiber | null,\n  workInProgress:' whole (merging two real parameters into one unstructured blob), followed by a bare identifier node reading 'Fiber' -- the type name of the swallowed second parameter, left behind by the same ERROR recovery and miscounted as if it were itself a parameter. Net effect: 4 instead of 5, an off-by-one undercount rather than total loss. Documented in docs/why_gitgalaxy_beats_ast_here.md's Claim 3 extension as the 'third facet.'
@@ -830,7 +830,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed ctags-side synthetic-placeholder artifact, not a real discrepancy -- ctags' JavaScript scanner emits a synthetic 'AnonymousFunction<hex><seq>' tag for every genuinely anonymous function expression (a bare inline callback with no attributable name, e.g. `jQuery.ajaxPrefilter(function(s) {...})`), and GitGalaxy/tree-sitter both correctly agree these aren't named functions worth counting. Fixed by extending `tri_comparison_gatherer.py`'s existing `_is_ctags_synthetic_anon_name` (previously only matched the C-parser's `__anon<hex>` scheme) with a second regex for JavaScript's differently-shaped 'AnonymousFunction'/'AnonymousClass' scheme -- verified this removes every 'Anonymous*' entry across the full 18-file corpus with zero regressions (ruff/mypy audits clean).
@@ -846,7 +846,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `javascript` function args: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T03:59:52Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:44Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-21):
 > Confirmed comparison-methodology artifact (name-based reconciliation colliding on a reused property name), not a real defect in any of the three tools. jquery/event.js defines TWO separate object-literal properties both named 'setup' (line 441, taking 1 param `function(data)`) and 'trigger' (line 458, 1 param) inside one plugin-hook object, and a SECOND, unrelated pair of 'setup'/'trigger' properties (lines 759/774, taking 0 params) inside a different object later in the same file. This module's/the ledger's reconciliation pairs occurrences by NAME across the whole file, with no scope/position disambiguation, so a same-name collision between two genuinely different functions can produce a spurious per-name args mismatch depending on which occurrence each tool's internal ordering happens to surface first. Both readings (1 param and 0 params) are independently real and correct for their respective definition sites -- there is no actual counting defect here, just a reconciliation limitation inherent to comparing by name only. No credit/debit; no code fix warranted for 2 occurrences arising from a rare same-name collision.
@@ -860,7 +860,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `kotlin` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 15 occurrences as of 2026-08-26T03:59:54Z*
+*2-vs-1 -- 15 occurrences as of 2026-08-26T11:08:45Z*
 
 **Verdict** (by claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable), 2026-08-22T11:40:48Z):
 > Confirmed ctags-side over-detection, not a GitGalaxy/tree-sitter recall gap. Direct `ctags -x --languages=Kotlin` on okhttp/Dispatcher.kt shows all 15 occurrences split into two false-positive shapes ctags' Kotlin parser tags with the same 'method' kind as real functions: (1) 10 trailing-lambda blocks passed as call arguments -- `require(x >= 1) { "..." }` (lines 48/68), `synchronized(this) { ... }` (49/69/178), `check(...) { ... }` (180/185), `.also { readyAsyncCalls.clear() }` (210), and `.map { it.call }` (279/283) -- each tagged as a synthetic `<lambda>` symbol; (2) 5 `for (x in collection)` loop iteration variables tagged as methods literally named after the variable (`call` at 143/146/149 in cancelAll(), `existingCall` at 128/131 in findExistingCallWithHost()). GitGalaxy's own func_start regex and tree-sitter-kotlin's grammar both correctly require a real `fun`/constructor declaration, so their agreement (neither claims these 15) is real corroboration, not a shared miss. Not fixable via ctags_reader.py's FUNCTION_KINDS map -- ctags gives Kotlin no separate kind for 'anonymous lambda literal' or 'for-loop binding' vs. a real named function in the first place (confirmed: both false-positive shapes tag plain 'method', identical to genuine functions). Documented in ctags_reader.py's kotlin FUNCTION_KINDS comment. ctags' own claim on this shape is confirmed wrong, so it's debited.
@@ -880,7 +880,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `kotlin` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T03:59:54Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:45Z*
 
 **Verdict** (by claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch), 2026-08-22T11:45:48Z):
 > Direct continuation of the already-investigated constructor shape (see the now-still_reproduces=False agree[gitgalaxy]_vs[ctags,tree_sitter] entry's verdict for the full investigation): fixing tree_sitter_accuracy_audit.py's kotlin func_node_types to include `secondary_constructor` made tree-sitter agree with GitGalaxy on okhttp/Dispatcher.kt line 119's `constructor(executorService: ExecutorService?) : this() { ... }`, which regrouped this exact occurrence into a NEW 2-vs-1 shape. ctags' own Kotlin parser was independently confirmed (via `ctags -x --languages=Kotlin`) to emit no entry at all for line 119, under any kind -- a genuine ctags parser limitation (it doesn't recognize secondary-constructor syntax as a symbol in the first place), not a ctags_reader.py kind-mapping gap (there is nothing to remap; ctags never sees this construct as a taggable symbol). No credit/debit: ctags never claimed this occurrence at all (a miss, not a wrong claim), so there is nothing in its matched_consensus to debit, and gitgalaxy/tree_sitter's own claims were already correctly counted independent of this adjustment mechanism.
@@ -893,7 +893,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `m4` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 76 occurrences as of 2026-08-26T04:00:00Z*
+*2-vs-1 -- 76 occurrences as of 2026-08-26T11:08:48Z*
 
 **Verdict** (by Antigravity (direct source read), 2026-08-24T03:52:19Z):
 > GitGalaxy is correct to ignore these. Ctags incorrectly extracts AC_DEFINE and AC_DEFINE_UNQUOTED macro invocations as if they were macro definitions.
@@ -913,7 +913,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `m4` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 36 occurrences as of 2026-08-26T04:00:00Z*
+*2-vs-1 -- 36 occurrences as of 2026-08-26T11:08:48Z*
 
 **Verdict** (by Antigravity (direct source read), 2026-08-24T03:52:19Z):
 > GitGalaxy correctly extracts AC_DEFUN macro definitions. Ctags completely misses these.
@@ -935,7 +935,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `makefile` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:02Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:49Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter correctly extract makefile targets like .PATH
@@ -948,7 +948,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `matlab` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 1 occurrence as of 2026-08-26T04:00:03Z*
+*3-way split -- 1 occurrence as of 2026-08-26T11:08:50Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy regex splits args more robustly than tree-sitter on MATLAB edge cases.
@@ -961,7 +961,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `objective-c` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 104 occurrences as of 2026-08-26T04:00:05Z*
+*2-vs-1 -- 104 occurrences as of 2026-08-26T11:08:51Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags incorrectly extracts brace instead of function name.
@@ -981,7 +981,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `objective-c` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 89 occurrences as of 2026-08-26T04:00:05Z*
+*2-vs-1 -- 89 occurrences as of 2026-08-26T11:08:51Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy misses methods with brace on the next line.
@@ -1001,7 +1001,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `objective-c` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:05Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:51Z*
 
 **Verdict** (by Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep, 2026-08-25T00:00:00Z):
 > Confirmed: both sampled occurrences (worldwideweb/HyperText.m:1147 `- unsigned char next_input_block` and :1289 `- void appendEndBlock`) are real Objective-C methods using an old, unparenthesized return-type method-declaration style ('- ReturnType name' instead of the modern '- (ReturnType)name'). GitGalaxy's func_start regex and ctags' generic ObjC parser both handle this loosely and correctly identify both as methods -- confirmed by direct source read. tree-sitter-objc cannot parse this form under ANY node type: a direct parse of the isolated snippet (via tree_sitter_language_pack's 'objc' grammar) shows the grammar treats the leading '-' as a unary-minus operator instead of the ObjC method-scope marker once the return type isn't parenthesized. For next_input_block, this produces a bogus 'expression_statement' (unary_expression on the identifier 'unsigned') immediately followed by a real function_definition node -- but keyed off the wrong return-type token, and the existing method_definition/method_declaration name-extraction fix from #1314 never fires since the node type is wrong entirely. For appendEndBlock, parsing fails further: the whole construct falls into 'void appendEndBlock { ... }' being misread as an assignment_expression on identifier 'void' with the rest swallowed into an ERROR node. This is why tree_sitter_accuracy_audit.py's walker reports the two dissenting names as 'void'/'unsigned' (the misparsed leftover tokens) rather than the real method names, and never reports next_input_block/appendEndBlock as real function names at all -- a genuine tree-sitter-objc grammar limitation (it structurally requires a parenthesized return type to recognize an ObjC method at all), not a GitGalaxy or ctags defect. No credit/debit adjustment -- ctags and GitGalaxy are already an agreeing pair and get precision credit from base reconciliation; adding credit_tools here would double-count exactly the anti-pattern CLAUDE.md's 'Comparative-correctness claims require verification' section warns against. Logged as a new claim in docs/why_gitgalaxy_beats_ast_here.md rather than folded into Claim 2 (dialect/extension syntax) or Claim 3 (parse-error cascade into unrelated code) -- this is neither: it's a strict-grammar-vs-permissive-real-dialect gap within the SAME base language, not an extension the grammar has no concept of, and it's a single, contained, correctly-recovered misparse of the construct itself, not a cascading failure that swallows unrelated downstream code.
@@ -1013,7 +1013,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `objective-c` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:05Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:08:51Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy misses method missing return type or brace next line.
@@ -1025,7 +1025,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `objective-c` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:05Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:51Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts method.
@@ -1038,7 +1038,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 122 occurrences as of 2026-08-26T04:00:11Z*
+*2-vs-1 -- 122 occurrences as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy misses subroutines with prototypes or signatures.
@@ -1058,7 +1058,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T04:00:11Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags incorrectly truncates subroutine names containing package separators (::).
@@ -1075,7 +1075,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T04:00:11Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter correctly extract full subroutine names with package separators.
@@ -1092,7 +1092,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:11Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/ctags correctly extract package declarations.
@@ -1103,7 +1103,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:11Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-26T00:00:00Z):
 > CORRECTION (previous verdict was wrong): this is a real, currently-reproducing GitGalaxy false positive, not a correct extraction. mojo/Promise.pm:277's `sub get_p { ... }` sits inside a Perl POD `=head1 SYNOPSIS` documentation block (opened by `=encoding utf8`/`=head1 NAME` at line 264, no `=cut` until line 550) -- it is an illustrative code sample in documentation, not a real subroutine in this module. GitGalaxy has zero POD-block awareness for Perl (documented gap: language_standards.py:7759-7761, detector.py:2535-2537 -- the same root cause as closed issue #1606, which covered the mirror false-negative symptom). tree-sitter and ctags both correctly report no such function. The previous verdict ('GitGalaxy correctly extracts subroutine.', credit_tools=['gitgalaxy']) had this backwards. Filed as issue #2239.
@@ -1114,7 +1114,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `perl` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 64 occurrences as of 2026-08-26T04:00:11Z*
+*3-way split -- 64 occurrences as of 2026-08-26T11:08:55Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy regex splits args appropriately.
@@ -1136,18 +1136,18 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `php` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:15Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:58Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags incorrectly extracts synthetic AnonymousClass artifacts as real named classes. GitGalaxy and tree-sitter are correct to ignore them.
 
 | file | name | GitGalaxy | tree-sitter | ctags |
 |---|---|---|---|---|
-| laravel_core/BladeCompiler.php | `AnonymousClassea70ff800100` | *(n/a)* | *(n/a)* | 342 |
+| laravel_core/BladeCompiler.php | `AnonymousClassa08aab890100` | *(n/a)* | *(n/a)* | 342 |
 
 ### ✅ `php` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:15Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:08:58Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/ctags correctly extract function.
@@ -1160,7 +1160,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `powershell` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 16 occurrences as of 2026-08-26T04:00:18Z*
+*2-vs-1 -- 16 occurrences as of 2026-08-26T11:09:00Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts function.
@@ -1180,7 +1180,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `powershell` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 7 occurrences as of 2026-08-26T04:00:18Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:09:00Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter correctly extract classes.
@@ -1197,7 +1197,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `powershell` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:18Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:00Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts function.
@@ -1208,7 +1208,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `powershell` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 5 occurrences as of 2026-08-26T04:00:18Z*
+*3-way split -- 5 occurrences as of 2026-08-26T11:09:00Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy extracts args accurately.
@@ -1225,7 +1225,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `python` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 100 occurrences as of 2026-08-26T04:00:27Z*
+*2-vs-1 -- 100 occurrences as of 2026-08-26T11:09:07Z*
 
 **Verdict** (by claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed), 2026-08-21T12:03:03Z):
 > Already documented as Claim 2 in docs/why_gitgalaxy_beats_ast_here.md: tree-sitter-python has no concept of Cython's cdef class/cdef/cpdef syntax at all and loses track of scope at each cdef class boundary, so it finds 0 functions in cython/MemoryView.pyx and cython/MemoryView.pxd (0/0 vs GitGalaxy+ctags' 72/16, full agreement as of the 2026-08-21 get_slice_from_memview follow-up fix -- see the sibling agree[ctags]_vs[gitgalaxy,tree_sitter] shape's verdict for that fix's details). This shape's count grew from 32 to 99 to 100 across this PR's two fixes: it originally covered only the 32 'def'-based methods inside cdef class blocks; each cdef/cpdef func_start fix moved newly-recognized occurrences into THIS shape too, since they still disagree with tree-sitter for the identical underlying reason. GitGalaxy now has zero recall gaps on this corpus for Cython functions -- the only remaining disagreement with tree-sitter is tree-sitter's own structural blindness to the Cython dialect, not a GitGalaxy defect. No GitGalaxy fix needed for tree-sitter's own recall here -- grammar limitation, not an engine defect.
@@ -1245,7 +1245,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `python` class existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-26T04:00:27Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-26T11:09:07Z*
 
 **Verdict** (by claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed), 2026-08-21T03:23:52Z):
 > Extends Claim 2 (docs/why_gitgalaxy_beats_ast_here.md) one syntactic level up: tree-sitter-python doesn't just lose track of scope inside a cdef class block, it fails to recognize the 'cdef class' declaration itself as a class at all -- 0 class nodes reported for cython/MemoryView.pyx, missing all 4 real classes (array, Enum, memoryview, _memoryviewslice). GitGalaxy's class_start regex and ctags both correctly identify all 4 by name, confirmed via direct gather_language() check. Note: GitGalaxy's own class_data schema has no start_line column (documented in tri_comparison_gatherer.py's own module docstring), so the ledger's stored example shows a None 'reading' for GitGalaxy on this shape -- that's the (structurally absent) line number field, not an indication GitGalaxy missed the class; by NAME it matches ctags exactly. No GitGalaxy fix needed -- tree-sitter-python grammar limitation. docs/why_gitgalaxy_beats_ast_here.md's Claim 2 updated with this class-level evidence in the same PR.
@@ -1261,7 +1261,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `ruby` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-26T04:00:28Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-26T11:09:08Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter correctly extract class << self.
@@ -1277,7 +1277,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `ruby` function args: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-26T04:00:28Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-26T11:09:08Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy regex misses some trailing args.
@@ -1293,7 +1293,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `ruby` function args: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-26T04:00:28Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-26T11:09:08Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/ctags accurately split args.
@@ -1306,7 +1306,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `ruby` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:28Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:09:08Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter miss classes containing module scope operators.
@@ -1320,7 +1320,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 152 occurrences as of 2026-08-26T04:00:32Z*
+*2-vs-1 -- 152 occurrences as of 2026-08-26T11:09:11Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch), 2026-08-19T00:00:00Z):
 > Not a new question -- already-documented, evidence-backed rust behavior (Claim 6, docs/why_gitgalaxy_beats_ast_here.md: 'structure recall inside opaque macro bodies'). Confirmed directly: all 5 sampled names (get_param, init_access, get_components, from_components, apply) are in bevy/bevy_ecs_macros.rs, inside a `quote! { ... }` proc-macro body (confirmed at source lines 444-460 -- `#path`/`#fields_alias` interpolation syntax is the classic quote! token-generation pattern). These are real Rust function definitions being code-generated by a proc macro; GitGalaxy's regex correctly parses real function syntax wherever it textually appears, including inside macro bodies. tree-sitter-rust and ctags' Rust parser both treat macro_rules!/macro-invocation bodies as opaque token trees and structurally cannot emit function nodes for anything inside one -- not a bug in either, a real grammar limitation. This is exactly why rust is one of the 3 languages (with csharp/fortran) already promoted into ground truth via blind-spot-region detection in the OLD bi-comparison tool (tree_sitter_accuracy_audit.py's _find_blind_spot_ranges) -- this tri-comparison ledger entry is that same, already-understood gap surfacing again under the new 3-tool reconciliation. GitGalaxy is correct; no engine defect, no issue needed. Resolved directly from existing documentation, no fresh dispatch required (tri-comparison-ledger-sweep skill step 1.3).
@@ -1340,7 +1340,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` class existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 25 occurrences as of 2026-08-26T04:00:32Z*
+*2-vs-1 -- 25 occurrences as of 2026-08-26T11:09:11Z*
 
 **Verdict** (by Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5, 2026-08-19T00:00:00Z):
 > Same mechanism as the already-resolved rust/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter] shape (Claim 6, docs/why_gitgalaxy_beats_ast_here.md) -- extended from `fn` definitions inside `quote!{}` invocation bodies to `struct` definitions inside `macro_rules!` DEFINITION bodies. All 6 sampled names confirmed, independently re-verified against source (not just the dispatched agent's own read): NonZeroVisitor (line 90), SaturatingVisitor (112), PrimitiveVisitor (136) inside serde/serde_core_de_impls.rs's `impl_deserialize_num!` macro (def starts line 81); SeqVisitor (998), SeqInPlaceVisitor (1036) inside `seq_impl!` (def starts 978); TupleVisitor (1403) inside `tuple_impl_body!` (nested in `tuple_impls!`, def starts 1396). All 6 are real, complete `struct` declarations, each immediately followed by a genuine `impl<'de,...> Visitor<'de> for <Name>` block -- generated once per macro invocation, not fragments or hallucinated matches. tree-sitter and ctags both treat a macro_rules! arm's body as an opaque, unexpanded token tree and structurally cannot emit struct nodes from inside one, for the identical reason they can't see function definitions inside quote!{} bodies. GitGalaxy is correct in all 6 sampled cases; judged (not independently re-confirmed beyond the sample) to generalize to the full 25, all same-shaped serde-crate occurrences. No new tool defect -- Claim 6's doc text already covered this generically (`struct_item` was already named) but had no concrete cited example for this specific shape; added one (docs/why_gitgalaxy_beats_ast_here.md) rather than filing an issue.
@@ -1360,7 +1360,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 3 occurrences as of 2026-08-26T04:00:32Z*
+*2-vs-1 -- 3 occurrences as of 2026-08-26T11:09:11Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly via live ctags run, no dispatch), 2026-08-19T00:00:00Z):
 > Confirmed structural ctags limitation, not a bug -- resolved directly (no dispatch needed). All 3 sampled names (XRegUnion, FRegUnion, VRegUnion) are real Rust `union { }` declarations (confirmed at wasmtime/wasmtime_pulley_interp.rs:404,529,604), distinct from `struct` -- Rust's less-common C-style unsafe union construct. Ran `ctags --list-kinds-full=Rust` directly: its Rust parser's kind list is macro/method/implementation/enumerator/function/enum/interface/field/module/struct/typedef/variable -- there is NO union kind at all. Confirmed via direct ctags run against this exact file: it correctly finds the wrapping `struct FRegVal(FRegUnion)`-shaped types right next to each missed union, so this isn't a general miss, specifically a missing Rust-union kind. Same category as the already-documented ctags Haskell class-kind gap (tests/tools/ctags_reader.py) -- worth a similar doc note there, not a GitHub issue (nothing to fix, ctags upstream has no union support for this language).
@@ -1373,7 +1373,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `rust` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:32Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:11Z*
 
 **Verdict** (by Claude Sonnet 5 (resolved directly via live ctags run, no dispatch), 2026-08-19T00:00:00Z):
 > Confirmed via direct ctags run and sibling comparison, resolved directly (no dispatch needed). `done_decode` (wasmtime/wasmtime_pulley_interp.rs:964) has a destructuring-pattern parameter -- `Done { _priv }: Done`, not a simple `name: Type` binding. Ran ctags directly against the file: its IMMEDIATE SIBLING in the same impl block, `debug_assert_done_reason_none` (line 960, same visibility/receiver shape, ordinary `&mut self`-only signature), IS correctly found as a ctags 'method'. done_decode alone is missing from ctags' output. Isolates the cause precisely to the destructuring-pattern parameter -- ctags' regex-based Rust parser appears to fail/skip the whole function when a parameter is a struct pattern rather than a plain identifier binding. GitGalaxy and tree-sitter both handle this fine (both agree on line 964). N=1 in this corpus, plausibly a real, narrow ctags parser gap (not GitGalaxy's) -- not chasing further given the tiny sample, noting rather than filing an issue since there's nothing in this repo to fix.
@@ -1386,7 +1386,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `scala` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 16 occurrences as of 2026-08-26T04:00:34Z*
+*3-way split -- 16 occurrences as of 2026-08-26T11:09:12Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy counts args accurately.
@@ -1408,7 +1408,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `scheme` function existence: ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 84 occurrences as of 2026-08-26T04:00:38Z*
+*2-vs-1 -- 84 occurrences as of 2026-08-26T11:09:15Z*
 
 **Verdict** (by gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed and fixed by claude-sonnet-5, 2026-08-20):
 > Confirmed real, catastrophic GitGalaxy engine defect, generalizes to the full 92 occurrences (and beyond -- this was a 100% recall drop for the whole language, not specific to the sampled cases). Root cause isolated to detector.py's StructuralExtractor._slice_by_braces (Integration Mode B): its scope-delimiter selection checked `lang_id == "lisp"` to choose parenthesis delimiters over the curly-brace default -- but "lisp" has never been a real key in LANGUAGE_DEFINITIONS (only "scheme" is), so that branch was unreachable dead code in production. Every real scheme file fell through to the curly-brace default; since scheme is entirely parenthesis-delimited, the downstream scope-body search never found an opener and silently discarded every func_start match. GitGalaxy's own func_start regex was never the problem -- confirmed matching correctly standalone (31/31 hits on one file) and prism.py's comment stripping confirmed clean (raw (define count unchanged pre/post-prism). Fixed: delimiter choice now keys off lexical_family ("recursive_block_lisp") instead of the dead lang_id string, verified directly against the gatherer (0 -> 58 real functions found; ctags finds 92, so a smaller residual recall gap remains for a future pass, tracked as a follow-on, not blocking this fix). Filed as GitHub issue #1928. A pre-existing unit test (test_detector_mode_b_lisp_family) had been passing for the wrong reason (its mock language was literally named "lisp", matching the dead string check by construction) -- corrected to use scheme's real lexical_family value so it now validates the actual production mechanism. Investigated via gemini-3.1-pro-high (agy): live-pipeline isolation with a monkey-patch before/after proof (0 -> 14 functions when lang_id coerced to match the old check), independently re-verified by Claude against the exact cited source lines before applying.
@@ -1428,7 +1428,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `scheme` function existence: GitGalaxy agree, ctags differ
 
-*2-vs-1 -- 50 occurrences as of 2026-08-26T04:00:38Z*
+*2-vs-1 -- 50 occurrences as of 2026-08-26T11:09:15Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts nested define blocks.
@@ -1450,7 +1450,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `shell` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:40Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:16Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags falsely extracts array assignments as functions.
@@ -1463,7 +1463,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `solidity` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 6 occurrences as of 2026-08-26T04:00:41Z*
+*2-vs-1 -- 6 occurrences as of 2026-08-26T11:09:16Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts constructors.
@@ -1481,7 +1481,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `swift` function existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:43Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:17Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts generic functions.
@@ -1492,7 +1492,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `swift` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 2 occurrences as of 2026-08-26T04:00:43Z*
+*3-way split -- 2 occurrences as of 2026-08-26T11:09:17Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy counts args accurately.
@@ -1506,7 +1506,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `tcl` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 4 occurrences as of 2026-08-26T04:00:44Z*
+*2-vs-1 -- 4 occurrences as of 2026-08-26T11:09:18Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts proc.
@@ -1520,7 +1520,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `tcl` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:44Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:09:18Z*
 
 **Verdict** (by Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep, 2026-08-26T00:00:00Z):
 > CORRECTION (root cause was inaccurate; the direction -- GitGalaxy defect -- was already right). Root-caused by driving GitGalaxy's own pipeline directly (Prism.split_streams -> StructuralExtractor._build_brace_safe_stream) rather than guessing from symptoms. Both drop_all_tables (sqlite/tester.tcl:2254) and drop_all_indexes (:2279) are completely absent from the safe_code text func_start actually matches against, though present in the raw code stream. Real cause: detector.py's generic (non-language-specialized) quote-shielding branch, used for tcl since it has no dedicated branch in _build_brace_safe_stream, includes an UNBOUNDED single-quote pairing regex (`'(?:\\.|[^'\\])*'`) with no length cap and no per-language gate -- unlike rust/zig (#1426)/scala/perl, which each already got a bounded or disabled version after hitting the identical bug class. Tcl has no single-quote string syntax at the language level at all. `sqlite/tester.tcl:2234` (`string map {' ''} $contents`, a normal SQL-single-quote-doubling idiom) has 3 literal ' characters in a 7-char span -- an odd count that desyncs the naive pairing: two of the three get consumed as one 'string,' leaving the third to pair with the next unrelated ' character found downstream inside drop_all_tables' own SQL text (`WHERE type IN('`), blanking out everything in between (lines ~2235-2281) as if it were string content -- including both proc headers. The previous verdict ('GitGalaxy misses proc with nested braces in args') was not the actual mechanism. Filed as issue #2242.
@@ -1532,7 +1532,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `tcl` function existence: GitGalaxy, ctags agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:44Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:18Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts proc.
@@ -1543,7 +1543,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `tcl` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:44Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:18Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts proc with double-quote body.
@@ -1556,7 +1556,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` function existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 1921 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 1957 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts methods.
@@ -1576,7 +1576,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` class existence: GitGalaxy, tree-sitter agree, ctags differ
 
-*2-vs-1 -- 501 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 501 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy/tree-sitter correctly extract enum as class.
@@ -1596,14 +1596,13 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` function existence: tree-sitter agree, GitGalaxy, ctags differ
 
-*2-vs-1 -- 160 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 124 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy misses arrow functions.
 
 | file | name | GitGalaxy | tree-sitter | ctags |
 |---|---|---|---|---|
-| playwright/frames.ts | `predicate` | *(n/a)* | 1526 | *(n/a)* |
 | playwright/frames.ts | `abort` | *(n/a)* | 1570 | *(n/a)* |
 | vscode/async.ts | `constructor` | *(n/a)* | 2528 | *(n/a)* |
 | vscode/async.ts | `constructor` | *(n/a)* | 2551 | *(n/a)* |
@@ -1613,10 +1612,11 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 | vscode/codeEditorWidget.ts | `cursorStateComputer` | *(n/a)* | 1295 | *(n/a)* |
 | vscode/extHost.api.impl.ts | `dispose` | *(n/a)* | 1635 | *(n/a)* |
 | vscode/extHost.api.impl.ts | `report` | *(n/a)* | 927 | *(n/a)* |
+| vscode/instantiationService.ts | `createInstance` | *(n/a)* | 118 | *(n/a)* |
 
 ### ✅ `typescript` function existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 61 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 61 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags falsely extracts interface fields as functions.
@@ -1636,7 +1636,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` function existence: tree-sitter, ctags agree, GitGalaxy differ
 
-*2-vs-1 -- 8 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 7 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy misses generic functions.
@@ -1650,11 +1650,10 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 | fp-ts/pipeable.ts | `pipeable` | *(n/a)* | 2463 | 2463 |
 | fp-ts/pipeable.ts | `pipeable` | *(n/a)* | 2490 | 2490 |
 | fp-ts/pipeable.ts | `pipeable` | *(n/a)* | 2520 | 2520 |
-| vscode/ipc.ts | `drain` | *(n/a)* | 105 | 105 |
 
 ### ✅ `typescript` class existence: ctags agree, GitGalaxy, tree-sitter differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > Ctags incorrectly extracts implements/extends as classes.
@@ -1666,7 +1665,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` function existence: GitGalaxy agree, tree-sitter, ctags differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:50Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy correctly extracts abstract methods.
@@ -1678,7 +1677,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `typescript` function args: none agree, GitGalaxy, tree-sitter differ
 
-*3-way split -- 4 occurrences as of 2026-08-26T04:00:50Z*
+*3-way split -- 4 occurrences as of 2026-08-26T11:09:23Z*
 
 **Verdict** (by Antigravity (direct sweep), 2026-08-24T04:14:26Z):
 > GitGalaxy properly splits constructor args.
@@ -1694,7 +1693,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `zig` class existence: tree-sitter agree, GitGalaxy differ
 
-*2-vs-1 -- 2 occurrences as of 2026-08-26T04:00:58Z*
+*2-vs-1 -- 2 occurrences as of 2026-08-26T11:09:30Z*
 
 **Verdict** (by Antigravity, 2026-08-23T18:02:16Z):
 > GitGalaxy is correct. All 10 extra Tree-Sitter classes are local variable assignments annotated with inline enums or structs (e.g. `const need_writable_dance: enum { ... } = ...`). Tree-Sitter incorrectly extracts these as top-level ContainerDecl elements instead of recognizing them as scoped variable types. GitGalaxy rightly ignores them.
@@ -1706,7 +1705,7 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 
 ### ✅ `zig` class existence: GitGalaxy agree, tree-sitter differ
 
-*2-vs-1 -- 1 occurrence as of 2026-08-26T04:00:58Z*
+*2-vs-1 -- 1 occurrence as of 2026-08-26T11:09:30Z*
 
 **Verdict** (by Antigravity, 2026-08-23T18:02:16Z):
 > GitGalaxy is correct. Tree-Sitter-Zig fails to parse Bun's custom #heap dialect extension in MimallocArena.zig, causing an ERROR node that swallows the entire class definition. GitGalaxy's regex extracts it correctly because it does not attempt to deeply parse the struct body.

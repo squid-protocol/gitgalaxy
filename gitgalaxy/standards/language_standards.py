@@ -52,7 +52,7 @@ for the same metrics tracked over time across pushes to main.
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 98.7% | 98.1% | 100.0% | 100.0% |
-| Perl | 100.0% | 99.9% | 100.0% | 100.0% |
+| Perl | 100.0% | 100.0% | 100.0% | 100.0% |
 | Php | 100.0% | 99.9% | 100.0% | 100.0% |
 | Powershell | 100.0% | 100.0% | 100.0% | 100.0% |
 | Python | 100.0% | 99.6% | 100.0% | 100.0% |

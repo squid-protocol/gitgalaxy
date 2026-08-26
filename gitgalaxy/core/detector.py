@@ -2572,26 +2572,48 @@ class StructuralExtractor:
         # brace is never a real structural code brace in perl regardless of context, so
         # this blanks every `\{`/`\}` globally before any brace-depth counting runs.
         if lang_id == "perl":
-            safe_code = re.sub(r"\\[{}]", "  ", safe_code)
-
-        # #1437: perl's brace-delimited quote-like operators (qr{...}, m{...}, s{...}{...},
-        # tr{...}{...}, y{...}{...}, q{...}, qq{...}, qw{...}, qx{...}) are NOT ordinary
-        # code blocks -- their contents are arbitrary regex/string text that can itself
-        # contain unmatched `{`/`}` (quantifiers like `{2,4}`, literal braces in a character
-        # class, etc.), which desyncs any brace-depth counter downstream. Shield each one's
-        # full span (both brace groups, for the two-part s///tr///y/// forms) using the same
-        # balanced-brace finder (`_find_balanced_end`) the rest of this class already trusts,
-        # rather than a hand-rolled depth counter -- reuses proven logic instead of
-        # duplicating it. Longest-operator-first alternation order so `qq`/`qw`/`qx`/`qr`
-        # aren't shadowed by the single-character `q` alternative matching just its own
-        # first letter.
-        if lang_id == "perl":
 
             def blank(span: str) -> str:
                 if "\n" not in span:
                     return " " * len(span)
                 return "\n".join(" " * len(line) for line in span.split("\n"))
 
+            # #2239: perl POD documentation blocks (`=head1`/`=item ... =cut`) must be
+            # stripped before structural scanning. Otherwise, literal code examples
+            # written in English prose (e.g. `sub get_p { ... }`) are matched as real
+            # functions.
+            pod_start = re.compile(r"^=(?:pod|head[1-6]|item|over|back|cut|begin|end|encoding|for)\b", re.M)
+            pod_end = re.compile(r"^=cut[ \t]*(?:\n|$)", re.M)
+            pos = 0
+            parts_pod: list[str] = []
+            while True:
+                m_start = pod_start.search(safe_code, pos)
+                if not m_start:
+                    parts_pod.append(safe_code[pos:])
+                    break
+
+                parts_pod.append(safe_code[pos : m_start.start()])
+
+                m_end = pod_end.search(safe_code, m_start.start())
+                end_idx = m_end.end() if m_end else len(safe_code)
+
+                parts_pod.append(blank(safe_code[m_start.start() : end_idx]))
+                pos = end_idx
+            safe_code = "".join(parts_pod)
+
+            safe_code = re.sub(r"\\[{}]", "  ", safe_code)
+
+            # #1437: perl's brace-delimited quote-like operators (qr{...}, m{...}, s{...}{...},
+            # tr{...}{...}, y{...}{...}, q{...}, qq{...}, qw{...}, qx{...}) are NOT ordinary
+            # code blocks -- their contents are arbitrary regex/string text that can itself
+            # contain unmatched `{`/`}` (quantifiers like `{2,4}`, literal braces in a character
+            # class, etc.), which desyncs any brace-depth counter downstream. Shield each one's
+            # full span (both brace groups, for the two-part s///tr///y/// forms) using the same
+            # balanced-brace finder (`_find_balanced_end`) the rest of this class already trusts,
+            # rather than a hand-rolled depth counter -- reuses proven logic instead of
+            # duplicating it. Longest-operator-first alternation order so `qq`/`qw`/`qx`/`qr`
+            # aren't shadowed by the single-character `q` alternative matching just its own
+            # first letter.
             perl_quote_op = re.compile(r"\b(?:qw|qq|qx|qr|tr|q|m|s|y)[ \t]*\{")
             pos = 0
             parts: list[str] = []

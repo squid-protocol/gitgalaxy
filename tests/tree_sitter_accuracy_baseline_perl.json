@@ -3,7 +3,7 @@
   "args_exact_match": 929,
   "corpus_path": "language-crucible/data/perl",
   "extra_classes": 0,
-  "extra_functions": 1,
+  "extra_functions": 0,
   "files_scanned": 22,
   "found_classes": 20,
   "found_functions": 941,

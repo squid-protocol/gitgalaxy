@@ -753,6 +753,39 @@ reasonable default for the assembly dialects it was actually built against, just
   GitHub issue for the `RELINT`-as-terminator and single-line-block-discard bugs. Two independent
   root causes, both real bugs, tracked separately from this claim.
 
+## Claim 13: recognizing a stricter-than-real method syntax a grammar requires but the real dialect doesn't
+
+For a construct that's valid, real code in an older or looser variant of a language's own syntax
+(not an extension or a different language, the SAME base language, just a historical form a
+modern grammar was never built to accept), GitGalaxy's permissive regex still recognizes it while
+a grammar that hard-requires the modern, stricter form can't represent it under any node type at
+all — not even via error recovery salvaging the name. This is a *different* mechanism from Claim
+2 (a dialect/extension the grammar has no concept of, like Cython) and Claim 3 (a grammar that
+supports the construct but has a parsing bug that corrupts unrelated downstream recovery): here
+the grammar's authors deliberately never supported the looser historical form at all, and the
+misparse stays local to the construct itself rather than cascading.
+
+**The evidence:** `language-crucible/data/objective-c/worldwideweb/HyperText.m` — part of the
+original CERN WorldWideWeb browser source — declares methods with an unparenthesized return type
+(`- unsigned char next_input_block` at line 1147, `- void appendEndBlock` at line 1289) instead of
+the modern, universally-required `- (ReturnType)name` form. GitGalaxy's `func_start` regex and
+ctags' generic Objective-C parser both recognize these as real methods (confirmed: both report
+`next_input_block`/`appendEndBlock` at the correct lines,
+`tri_comparison_ledger.json`'s `objective-c/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`,
+validated 2026-08-25). Parsing the isolated construct directly with `tree_sitter_language_pack`'s
+`objc` grammar shows tree-sitter cannot represent either occurrence correctly under any node type:
+for `next_input_block`, the grammar reads the leading `-` as a unary-minus operator on the token
+`unsigned` (producing a bogus `expression_statement`/`unary_expression` pair), then parses the
+remainder as an ordinary C `function_definition` keyed off the wrong return-type token; for
+`appendEndBlock`, parsing degrades further into an `assignment_expression` on the identifier
+`void` wrapping an `ERROR` node that swallows the method body entirely. Neither case produces a
+`method_definition`/`method_declaration` node, so the existing name-extraction fix from #1314
+(which already handles a normal, parenthesized-return-type method with no "name" field on that
+node type) never gets a chance to fire — the grammar simply never recognizes the construct as a
+method in the first place. This is why `tree_sitter_accuracy_audit.py`'s walker reports the
+dissenting names as the misparsed leftover tokens `void`/`unsigned` rather than the real method
+names.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to

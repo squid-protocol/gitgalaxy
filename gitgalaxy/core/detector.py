@@ -627,6 +627,17 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Opti
     return name_group_idx, name, inheritance
 
 
+# TS/JS's own real modifier keywords -- when func_start's modifier-prefixed branch
+# captures one of these BARE (as if it were the method's own name, immediately
+# followed by a real parameter list) it means the branch mistook the modifier for
+# the name because nothing else followed it (an anonymous returned closure like
+# `async () => { ... }`), not that a method is genuinely named e.g. "async". See
+# the #2278 fallback guard in _slice_by_braces for the confirmed real case.
+_TS_JS_RESERVED_MODIFIER_KEYWORDS = frozenset(
+    {"async", "static", "public", "private", "protected", "abstract", "readonly", "override", "get", "set"}
+)
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -3511,6 +3522,12 @@ class StructuralExtractor:
                         depth_angle = max(0, depth_angle - 1)
                     elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
                         if ch == opener:
+                            p_before = pos - 1
+                            while p_before >= 0 and safe_code[p_before] in " \t\n\r":
+                                p_before -= 1
+                            if p_before >= 0 and safe_code[p_before] in "&|:?=":
+                                pos = self._find_balanced_end(safe_code, pos, opener, closer) - 1
+                                continue
                             term_idx = pos
                             term_kind = "brace"
                             break
@@ -3586,7 +3603,72 @@ class StructuralExtractor:
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
                 else:
-                    continue
+                    # BUG FIX (issue #2278): a real signature (a TS overload
+                    # like `createInstance<T>(...): T;`, or `pipeable`'s
+                    # bodyless intersection-type overloads) always has a
+                    # genuine parameter list -- `(` -- immediately after the
+                    # name (skipping an optional `<generic>` block), so give
+                    # it a real function_data row bounded by the next match
+                    # rather than silently dropping it. A colon/assignment-
+                    # style phantom (a parameter's own function-type
+                    # annotation, `Component: (p: Props) => any,`; a
+                    # type-annotated variable declaration, `const task:
+                    # Task = ...`) never has that immediate `(` -- it was
+                    # already being correctly dropped before this fix, and
+                    # must keep being dropped, or every such phantom in a
+                    # Flow-typed file (which this branch's search window
+                    # will happily scan straight past, since none of them
+                    # were ever the real terminator this scan was looking
+                    # for) gets misattributed a bogus, wrong-spanned
+                    # function_data row instead of correctly finding
+                    # nothing. Confirmed via the real-world javascript
+                    # corpus: react/ReactFlightServer.js's `Component`/
+                    # `Task`/`callback`/`getAsyncIterator` (all real Flow
+                    # type-level fields, not functions) regressed into
+                    # phantom matches without this guard.
+                    p_sig = match.end()
+                    while p_sig < search_limit and safe_code[p_sig] in " \t\n":
+                        p_sig += 1
+                    if p_sig < search_limit and safe_code[p_sig] == "<":
+                        depth_generic = 0
+                        while p_sig < search_limit:
+                            if safe_code[p_sig] == "<":
+                                depth_generic += 1
+                            elif safe_code[p_sig] == ">":
+                                depth_generic -= 1
+                                if depth_generic == 0:
+                                    p_sig += 1
+                                    break
+                            p_sig += 1
+                        while p_sig < search_limit and safe_code[p_sig] in " \t\n":
+                            p_sig += 1
+                    # A second, independent phantom shape the immediate-parenlist
+                    # guard above does NOT catch: `async () => { ... }` returned
+                    # from a curried arrow function (fp-ts's `tryCatch =
+                    # <E, A>(...) => async () => { ... }`) has func_start's
+                    # modifier-prefixed branch mistake the bare `async` MODIFIER
+                    # keyword for the method's own NAME, since nothing here
+                    # (an anonymous returned closure, no real name at all)
+                    # follows it -- and `async` genuinely IS followed
+                    # immediately by a real `(...)`, so it passes the guard
+                    # above too. This exact match already existed on main
+                    # (regex unchanged by this fix) but was harmless there
+                    # since it always hit this same "no terminator found"
+                    # path and got silently dropped; now that this path gives
+                    # matches a real home, it must not do so for a captured
+                    # name that's actually one of TS/JS's own reserved
+                    # modifier keywords -- none of which can ever legitimately
+                    # be a real function/method's own bare name in this
+                    # position. Confirmed real via fp-ts/TaskEither.ts:251.
+                    captured_name = (match.group(match.lastindex) if match.lastindex else match.group(0)).strip()
+                    if (
+                        p_sig < search_limit
+                        and safe_code[p_sig] == "("
+                        and captured_name not in _TS_JS_RESERVED_MODIFIER_KEYWORDS
+                    ):
+                        end_idx = next_match_start
+                    else:
+                        continue
             # #1609: perl's bodyless forward declarations (e.g. `sub GetASCII($);`)
             # are not real function definitions and should not have a block/body
             # attributed to them. Because func_start correctly only matches line-anchored
@@ -4040,7 +4122,9 @@ class StructuralExtractor:
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
-            if not block or (len(block.splitlines()) < 2 and lang_id not in ("haskell", "python")):
+            if not block or (
+                len(block.splitlines()) < 2 and lang_id not in ("haskell", "python", "typescript", "javascript")
+            ):
                 continue
 
             # --- FAST O(N) LINE TRACKER ---

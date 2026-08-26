@@ -1183,8 +1183,16 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # of its own -- excluding both from the gap (`[^=;{()]*`)
                 # closes this without narrowing any genuine case (return
                 # types use `<...>` for generics, not `(...)`).
-                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
-                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                # BUG FIX (issue #2231): the body-start alternation had no
+                # allowance for a bare unary `!` (`const predicate = (e: T) =>
+                # !e.newDocument;`), a common negation-shorthand arrow body --
+                # rejected outright since `!` isn't `{`/`<`/`(`/end-of-line nor
+                # an identifier. Added as its own literal alternative: `!` can
+                # never start a return-type annotation, so this can't collide
+                # with the function-TYPE-signature case the rest of this
+                # alternation is busy disambiguating against.
+                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                r"^[ \t]*(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
                 # `(` follows, nothing more -- so any bare call statement
@@ -1263,7 +1271,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"|"
                 r"(?:(?:public|private|protected|static|override|abstract|readonly)[ \t\n]+){0,4}(?:async[ \t\n]+)?(?:\*[ \t\n]*)?(?:get\s+|set\s+)"
                 r")"
-                r"(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+                # BUG FIX (issue #2232): no allowance for TypeScript's optional-
+                # member `?` (`copy?(source: Uri): void;`) between the name and
+                # the parameter list -- `\??` inserted as the very first token
+                # of the lookahead, directly against the name capture with zero
+                # whitespace tolerance before it, so it only fires for the real
+                # zero-space `name?(` adjacency the syntax requires (a spaced
+                # ternary like `isEnabled ? (a + b)` can't satisfy it: the `?`
+                # isn't immediately adjacent to the name, so `\??` matches
+                # zero-width here and the mandatory `\(` lookahead then fails
+                # against the literal `?` still sitting in the way).
+                r"(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
                 r"|"
                 # BUG FIX (R3): The arrow-value (Branch 5 / standalone value) branch
                 # is known to fail on mid-statement function values (e.g. `const a = b || () => {}`)
@@ -1306,7 +1324,14 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `extra_functions` by dozens on the pinned corpus). Left
                 # unmatched, on purpose -- see issue #1838's discussion for the
                 # full trace.
-                r"^[ \t]*(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # BUG FIX (issue #2232): same `\??` insertion as Branch A above
+                # -- this zero-prefix branch is exactly where GitGalaxy misses
+                # `.d.ts`-style optional interface method signatures like
+                # `copy?(source: Uri): void;`, since interface members carry no
+                # public/private/etc. modifier to route them through Branch A
+                # instead. Same zero-whitespace-before-`?` placement, same
+                # ternary-collision reasoning.
+                r"^[ \t]*(?!(?:class|interface|enum|if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),

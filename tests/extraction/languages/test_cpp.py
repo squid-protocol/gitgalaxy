@@ -80,6 +80,10 @@ FUNCTION_CASES: dict[str, Any] = {
             "MyClass::MyClass(int x) : field_(x), other_(0) {",
             "MyClass::MyClass",
         ),  # out-of-line constructor, multi-field member-init list
+        (
+            "MyClass::MyClass(int x) : " + "field_a(1), " * 60 + "field_z(2) {",
+            "MyClass::MyClass",
+        ),  # synthetic long initializer-list (over 500 chars, under 2000)
     ],
     "invalid": [
         "class TargetFunc {",  # class decl lookalike

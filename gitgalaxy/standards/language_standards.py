@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 100.0% | 100.0% | 100.0% |
 | C | 99.0% | 99.5% | 100.0% | 100.0% |
-| Cpp | 86.9% | 95.6% | 100.0% | 100.0% |
+| Cpp | 87.0% | 95.6% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.4% | 99.3% | 100.0% | 100.0% |
@@ -3273,7 +3273,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
                 # We enforce strict numeric bounds (`{0,500}` and `{0,100}`) instead of `+` or `*`.
                 # This caps the permutation tree instantly.
-                r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,500}|(?:[ \t\n]+(?![ \t]*#)[a-zA-Z_][^(){};]{0,100};){1,20})?"
+                r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[a-zA-Z_][^(){};]{0,100};){1,20})?"
                 # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
                 r"[ \t\n]*\{",
                 re.M,

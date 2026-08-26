@@ -330,6 +330,7 @@ def test_perl_forward_decl_does_not_grab_unrelated_brace_getascii_bug_1609():
     assert len(functions) == 2
 
 
+@pytest.mark.golden_crucible
 def test_perl_issue_2239_pod_blocks_stripped():
     """
     Issue #2239: GitGalaxy has zero POD-block awareness for Perl. `=head1`/`=cut`-delimited

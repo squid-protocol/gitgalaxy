@@ -36,7 +36,7 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 100.0% | 100.0% | 100.0% |
 | C | 99.0% | 99.5% | 100.0% | 100.0% |
-| Cpp | 86.9% | 95.6% | 100.0% | 100.0% |
+| Cpp | 87.0% | 95.6% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.4% | 99.3% | 100.0% | 100.0% |
@@ -2052,11 +2052,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # extraction tests keep passing.
                 r"(?:"
                 # 1. Standard Methods
-                r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)(?:[\w<>\[\]?,.*]|\([^()]{0,100}\))+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)\w+)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))|"
+                r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)(?:[\w<>\[\]?,.*]|\([^()]{0,100}\))+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)\w+)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
                 # 2. Constructors
-                r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?([A-Z]\w*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
+                r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?([A-Z]\w*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
                 # 3. Lambdas
-                r"(\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
+                r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
                 r")",
                 re.M,
             ),
@@ -3245,7 +3245,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
                 # .cpp file, declared in the header) are mainstream, common C++ -- completely
                 # invisible to func_start before this fix.
-                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
+                r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
                 # 7. THE PARAMETER BLOCK (Supports vertical gap)
                 # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
                 # [LAMBDA-ARGUMENT SHIELD] (#2013): a lambda passed as a constructor argument or
@@ -3273,7 +3273,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
                 # We enforce strict numeric bounds (`{0,500}` and `{0,100}`) instead of `+` or `*`.
                 # This caps the permutation tree instantly.
-                r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,500}|(?:[ \t\n]+(?![ \t]*#)[a-zA-Z_][^(){};]{0,100};){1,20})?"
+                r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[a-zA-Z_][^(){};]{0,100};){1,20})?"
                 # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
                 r"[ \t\n]*\{",
                 re.M,

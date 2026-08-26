@@ -560,6 +560,7 @@ def test_cpp_redos_immunity_sweep():
     assert_redos_immune(CPP_RULES["args"], "std::vector<" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["func_start"], "std::vector<" + "a," * 16000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["func_start"], "__attribute__((" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(CPP_RULES["func_start"], "MyClass() :" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["class_start"], "struct " + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["class_start"], "template<" + "a," * 16000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["closures"], "[" + "a" * 100000, timeout_sec=3.0)

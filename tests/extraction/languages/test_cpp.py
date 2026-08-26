@@ -166,6 +166,82 @@ def test_cpp_func_start_known_limitation_raw_string_lookalike_still_matches_at_r
     raw_string = 'std::string s = R"(\nint TargetFunc() {\n)";'
     assert func_start.search(raw_string), "documents current (expected, pipeline-level-fixed-elsewhere) regex behavior"
 
+def test_cpp_macro_shield_does_not_exclude_prior_function_definition():
+    """
+    Regression test for issue #2240: A real function definition followed by a
+    macro #define of the same name later in the file (e.g. CPython's release-build
+    stub idiom) should not be excluded by the macro shield.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor(lang_id="cpp", language_definitions=LANGUAGE_DEFINITIONS)
+    code = """
+static void validate_list(PyGC_Head *head, enum flagstates flags) {
+    // real body
+}
+
+#define validate_list(x, y) do{}while(0)
+"""
+    satellites, _ = detector._slice_by_braces(
+        code=code,
+        lang_id="cpp",
+        rules=CPP_RULES,
+        offset=0,
+        spatial_map={},
+    )
+    assert len(satellites) == 1, "The real function should be found"
+    assert satellites[0]["name"] == "validate_list"
+
+
+def test_cpp_macro_shield_excludes_macro_invocation():
+    """
+    Ensures the original known-macro shield behavior is preserved: a macro definition
+    followed by a function-shaped invocation of it should be excluded.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor(lang_id="cpp", language_definitions=LANGUAGE_DEFINITIONS)
+    code = """
+#define OPCODE(m_op) do{}while(0)
+
+OPCODE(m_op) {
+    case m_op:
+        break;
+}
+"""
+    satellites, _ = detector._slice_by_braces(
+        code=code,
+        lang_id="cpp",
+        rules=CPP_RULES,
+        offset=0,
+        spatial_map={},
+    )
+    assert len(satellites) == 0, "The macro invocation should be excluded"
+
+
+def test_cpp_macro_shield_excludes_macro_only():
+    """
+    Ensures that a macro definition without any prior function definition is excluded,
+    not flagged as a function itself.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor(lang_id="cpp", language_definitions=LANGUAGE_DEFINITIONS)
+    code = """
+#define MACRO_ONLY(x, y) do{}while(0)
+"""
+    satellites, _ = detector._slice_by_braces(
+        code=code,
+        lang_id="cpp",
+        rules=CPP_RULES,
+        offset=0,
+        spatial_map={},
+    )
+    assert len(satellites) == 0, "The macro definition should not be found as a function"
+
 
 # ==============================================================================
 # ARGS (args)

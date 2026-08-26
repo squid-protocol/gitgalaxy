@@ -1688,7 +1688,16 @@ _SYNTHETIC_GG_CLASS_NAMES = frozenset({"Anonymous_Class"})
 # at the actual filter site): it discarded far more genuinely-real, genuinely-matched ground truth
 # than the phantom entries it removed, since javascript's error recovery resyncs locally rather
 # than going permanently blind for the rest of the file.
-_JS_RESERVED_STATEMENT_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "else", "do"})
+# BUG FIX (issue #2233): added "return" -- vscode/async.ts has real `method_definition` nodes
+# named `return` (e.g. an async iterator's `return()`), which GitGalaxy's own func_start keyword
+# blacklist deliberately drops for the same reason it drops `catch` (indistinguishable from a
+# `return`/`catch` control-flow statement without scope-awareness). This set previously only
+# covered `catch` from that blacklist, so `return`-named real methods still fell through to
+# `real_funcs` and were reported as a false-negative gap for GitGalaxy's intentional, correct
+# exclusion.
+_JS_RESERVED_STATEMENT_KEYWORDS = frozenset(
+    {"if", "for", "while", "switch", "catch", "else", "do", "return"}
+)
 
 # In addition to keywords, Flow-typed JavaScript causes tree-sitter-javascript to hallucinate
 # regular function calls and object properties as `method_definition`s during error recovery.
@@ -2106,11 +2115,19 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                 if (
                                     name
                                     and not (
-                                        lang == "javascript"
-                                        and node.type == "method_definition"
+                                        # BUG FIX (issue #2233): the reserved-statement-keyword half
+                                        # of this filter is not a javascript-only quirk -- it's the
+                                        # exact same tree-sitter-typescript-inherited `method_definition`
+                                        # node shape, and GitGalaxy's typescript func_start carries the
+                                        # identical reserved-word blacklist (confirmed real in
+                                        # vscode/async.ts's `catch`/`return` methods). Widened to both
+                                        # langs. `_JS_KNOWN_FLOW_HALLUCINATIONS` stays javascript-only
+                                        # -- it's specifically Flow-typed-JS error-recovery fallout,
+                                        # not a shape typescript's own grammar ever produces.
+                                        node.type == "method_definition"
                                         and (
-                                            name in _JS_RESERVED_STATEMENT_KEYWORDS
-                                            or name in _JS_KNOWN_FLOW_HALLUCINATIONS
+                                            (lang in ("javascript", "typescript") and name in _JS_RESERVED_STATEMENT_KEYWORDS)
+                                            or (lang == "javascript" and name in _JS_KNOWN_FLOW_HALLUCINATIONS)
                                         )
                                     )
                                     and not (lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS)

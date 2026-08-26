@@ -122,19 +122,19 @@
 <text class="bar-value-label" x="726.0" y="351">199§</text>
 <text class="lang-label" x="20" y="407.5">c</text>
 <rect class="bar-track" x="154" y="387" width="88" height="34" rx="2"/>
-<rect x="154" y="387" width="84.5" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="395">1719</text>
+<rect x="154" y="387" width="85.1" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="395">1730</text>
 <rect x="154" y="399" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="407">1790</text>
 <rect x="154" y="411" width="85.2" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="419">1733</text>
 <rect class="bar-track" x="286" y="387" width="88" height="34" rx="2"/>
 <rect x="286" y="387" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="395">1719/1719</text>
-<rect x="286" y="399" width="83.7" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="407">1702/1790</text>
-<rect x="286" y="411" width="86.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="419">1712/1733</text>
+<text class="bar-value-label" x="330.0" y="395">1730/1730</text>
+<rect x="286" y="399" width="84.2" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="407">1713/1790</text>
+<rect x="286" y="411" width="87.5" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="419">1723/1733</text>
 <circle cx="390.0" cy="404.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="407.0">G</text>
 <rect class="bar-track" x="418" y="387" width="88" height="34" rx="2"/>
@@ -153,11 +153,11 @@
 <text class="bar-value-label" x="594.0" y="419">61/61</text>
 <rect class="bar-track" x="682" y="387" width="88" height="34" rx="2"/>
 <rect x="682" y="387" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="395">1699</text>
+<text class="bar-value-label" x="726.0" y="395">1710</text>
 <rect x="682" y="399" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="407">1699</text>
+<text class="bar-value-label" x="726.0" y="407">1710</text>
 <rect x="682" y="411" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="419">1699</text>
+<text class="bar-value-label" x="726.0" y="419">1710</text>
 <rect class="stripe" x="16" y="426" width="780" height="44"/>
 <text class="lang-label" x="20" y="451.5">cobol</text>
 <rect class="bar-track" x="154" y="431" width="88" height="34" rx="2"/>

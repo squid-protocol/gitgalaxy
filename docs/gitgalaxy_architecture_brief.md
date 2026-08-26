@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-26T13:53:13.809699+00:00` |
-| **Scan Duration** | `7.96s` |
+| **Timestamp** | `2026-08-26T14:01:04.562676+00:00` |
+| **Scan Duration** | `10.07s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `25c6e41e96deb675811e6853b279391ceae59690` |
+| **Git Commit** | `d914281e6e202de68cf8803b6f86add360b9fb63` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -65,7 +65,7 @@
 | Total Artifacts | 845 |
 | Analyzed Artifacts (Scanned) | 281 |
 | Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 564 |
-| Total LOC | 60788 |
+| Total LOC | 60792 |
 | Volatility Index | 0.007 |
 | % Scanned of codebase = | 33.3% |
 | Dominant Lang | PYTHON |
@@ -82,7 +82,7 @@
 ## 4. COMPOSITION
 | Lang | Files | LOC | Share |
 |---|---|---|---|
-| PYTHON | 241 | 60272 | 85.8% |
+| PYTHON | 241 | 60276 | 85.8% |
 | MARKDOWN | 28 | 0 | 10.0% |
 | YAML | 8 | 494 | 2.8% |
 | PLAINTEXT | 3 | 0 | 1.1% |
@@ -182,7 +182,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)
 | Folder Path | Files | Total Impact | Avg Cog Load | Avg Debt |
 |---|---|---|---|---|
-| `tests/extraction/languages` | 92 | 6679.4 | 3.42% | 0.0% |
+| `tests/extraction/languages` | 92 | 6679.68 | 3.42% | 0.0% |
 | `gitgalaxy/core` | 9 | 4854.56 | 14.27% | 7.84% |
 | `gitgalaxy/recorders` | 8 | 2563.28 | 23.46% | 3.12% |
 | `tests/core_engine` | 22 | 2539.32 | 3.07% | 0.0% |
@@ -229,7 +229,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)
 > Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.
 
-### 1. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **545.91**
+### 1. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **545.9**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1564.86 | **LOC:** 1407 | **CtrlFlow:** 85.9% | **Authorship Centralization:** 87.5%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (95.9289%), Verification (80.0%)
@@ -259,7 +259,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** None
 - **Heaviest Functions:** `generate_service_skeleton` (Impact: 14.2), `main` (Impact: 4.2)
 
-### 6. `gitgalaxy/metrics/statistical_auditor.py` (PYTHON) -> Cumulative Risk: **438.93**
+### 6. `gitgalaxy/metrics/statistical_auditor.py` (PYTHON) -> Cumulative Risk: **438.94**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 253.02 | **LOC:** 537 | **CtrlFlow:** 70.2% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (99.311%), Safety Score (82.0287%), Verification (80.0%)
@@ -283,7 +283,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (97.3782%), Verification (80.0%), Safety Score (68.5044%)
 - **Heaviest Functions:** `main` (Impact: 32.5), `process_payload` (Impact: 26.7), `record_dead_code` (Impact: 14.4)
 
-### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **408.85**
+### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **408.84**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1098.92 | **LOC:** 2043 | **CtrlFlow:** 74.4% | **Authorship Centralization:** 81.8%
 - **Primary Risk Drivers:** Spec Match (100.0%), Verification (80.0%), Safety Score (56.4193%), State Flux (54.3735%)

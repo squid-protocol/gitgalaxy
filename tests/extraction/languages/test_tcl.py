@@ -163,3 +163,30 @@ class TestTclExtraction:
     @pytest.mark.parametrize("payload,expected", DEPENDENCY_CASES["pathological"])
     def test_dependency_pathological(self, payload, expected):
         assert_pathological_dependency_match(TCL_RULES["_dependency_capture"], payload, expected, "tcl")
+
+    def test_brace_safe_stream_single_quotes(self):
+        from gitgalaxy.core.detector import StructuralExtractor
+        from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+        extractor = StructuralExtractor("tcl", LANGUAGE_DEFINITIONS)
+
+        # (a) The confirmed repro
+        code_a = 'string map {\' \'\'} $contents\nproc drop_all_tables {{db db}} {\n    puts "dropped"\n}\nproc drop_all_indexes {{db db}} {\n    puts "dropped"\n}'
+        safe_a = extractor._build_brace_safe_stream(code_a, "tcl")
+
+        # It shouldn't swallow the braces
+        assert "{" in safe_a
+        assert "}" in safe_a
+
+        # A safer test is to run the extractor full pass if possible, or just check the shielded output
+        # In the buggy version, the `'` would swallow everything between `{' ''}` and the next `'` (which might not even exist, or if we added another, it would swallow it).
+
+        code_bug = "string map {' ''} $contents\nproc drop_all_tables {{db db}} {\n    puts 'dropped'\n}"
+        safe_bug = extractor._build_brace_safe_stream(code_bug, "tcl")
+        # In the bug, everything between the 3rd ' and the 4th ' is blanked out!
+        assert "proc drop_all_tables" in safe_bug
+
+        # (b) legitimate uses of '
+        code_b = "set a \"this has an ' in it\"\n# comment with '\nproc normal_proc {} {\n    puts 'hello'\n}"
+        safe_b = extractor._build_brace_safe_stream(code_b, "tcl")
+        assert "proc normal_proc" in safe_b

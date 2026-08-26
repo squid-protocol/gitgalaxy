@@ -1025,27 +1025,27 @@
 <text class="lang-label" x="20" y="1947.5">tcl</text>
 <rect class="bar-track" x="154" y="1927" width="88" height="34" rx="2"/>
 <rect x="154" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1935">144</text>
-<rect x="154" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1935">146</text>
+<rect x="154" y="1939" width="86.8" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1947">144</text>
-<rect x="154" y="1951" width="86.2" height="10" rx="2" fill="#1baf7a"/>
+<rect x="154" y="1951" width="85.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1959">141</text>
 <rect class="bar-track" x="286" y="1927" width="88" height="34" rx="2"/>
-<rect x="286" y="1927" width="86.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1935">142/144</text>
-<rect x="286" y="1939" width="89.2" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1947">146/144</text>
-<rect x="286" y="1951" width="89.2" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1959">143/141</text>
-<circle cx="390.0" cy="1944.0" r="8" fill="#1baf7a"/>
-<text class="badge-label" x="390.0" y="1947.0">C</text>
+<rect x="286" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1935">146/146</text>
+<rect x="286" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1947">144/144</text>
+<rect x="286" y="1951" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1959">141/141</text>
+<circle cx="390.0" cy="1944.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="1947.0">G</text>
 <rect class="bar-track" x="418" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1927" width="88" height="34" rx="2"/>
 <rect x="682" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1935">138</text>
+<text class="bar-value-label" x="726.0" y="1935">140</text>
 <rect x="682" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1947">138</text>
+<text class="bar-value-label" x="726.0" y="1947">140</text>
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
 <rect x="154" y="1971" width="84.1" height="10" rx="2" fill="#2a78d6"/>
@@ -1120,13 +1120,13 @@
 <text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 63 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 24 (38%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 25 (40%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
 <text class="legend-label" x="228.8" y="2188">tree-sitter best: 3 (5%)</text>
 <circle cx="408.6" cy="2184" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="408.6" y="2187">C</text>
-<text class="legend-label" x="421.6" y="2188">ctags best: 1 (2%)</text>
+<text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>
 <circle cx="564.2" cy="2184" r="7" fill="#9a9a95"/>
 <text class="legend-label" x="577.2" y="2188">Ties: 35 (56%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>

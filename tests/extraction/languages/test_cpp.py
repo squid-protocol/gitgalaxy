@@ -140,6 +140,31 @@ def test_cpp_func_start_out_of_line_operator_regression():
     assert m2 and m2.group(1) == "TargetClass::operator==", "out-of-line operator== regressed"
 
 
+def test_cpp_func_start_conversion_operator_template_regression():
+    """
+    Regression test for issue #2010: func_start's conversion operator branch
+    did not support template argument lists in the return type (e.g.
+    `operator Vector<T>()`).
+    """
+    func_start = CPP_RULES["func_start"]
+
+    # (a) Target repro
+    m1 = func_start.search("Variant::operator Vector<::RID>() const {")
+    assert m1 and m1.group(1) == "Variant::operator Vector<::RID>", "conversion operator with template arg regressed"
+
+    # (b) Multi-type-param generic
+    m2 = func_start.search("operator TypedDictionary<K,V>() {")
+    assert m2 and m2.group(1) == "operator TypedDictionary<K,V>", "conversion operator with multi-param template arg regressed"
+
+    # (c) Plain non-template conversion operator (should still match)
+    m3 = func_start.search("Variant::operator bool() const {")
+    assert m3 and m3.group(1) == "Variant::operator bool", "plain conversion operator regressed"
+
+    # (d) Normal function with a template return type
+    m4 = func_start.search("Vector<T> get_vector() {")
+    assert m4 and m4.group(1) == "get_vector", "normal function with template return type regressed"
+
+
 def test_cpp_func_start_redos_immunity():
     """ReDoS sweep for the new class-qualified operator alternatives."""
     func_start = CPP_RULES["func_start"]

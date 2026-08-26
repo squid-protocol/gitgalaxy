@@ -3,7 +3,7 @@
   "args_exact_match": 1233,
   "corpus_path": "language-crucible/data/cpp",
   "extra_classes": 0,
-  "extra_functions": 60,
+  "extra_functions": 69,
   "files_scanned": 29,
   "found_classes": 65,
   "found_functions": 1296,

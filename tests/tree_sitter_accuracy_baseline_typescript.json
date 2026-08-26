@@ -3,7 +3,7 @@
   "args_exact_match": 2741,
   "corpus_path": "language-crucible/data/typescript",
   "extra_classes": 0,
-  "extra_functions": 12,
+  "extra_functions": 13,
   "files_scanned": 23,
   "found_classes": 842,
   "found_functions": 2773,

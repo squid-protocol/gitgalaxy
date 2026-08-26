@@ -627,6 +627,17 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Opti
     return name_group_idx, name, inheritance
 
 
+# TS/JS's own real modifier keywords -- when func_start's modifier-prefixed branch
+# captures one of these BARE (as if it were the method's own name, immediately
+# followed by a real parameter list) it means the branch mistook the modifier for
+# the name because nothing else followed it (an anonymous returned closure like
+# `async () => { ... }`), not that a method is genuinely named e.g. "async". See
+# the #2278 fallback guard in _slice_by_braces for the confirmed real case.
+_TS_JS_RESERVED_MODIFIER_KEYWORDS = frozenset(
+    {"async", "static", "public", "private", "protected", "abstract", "readonly", "override", "get", "set"}
+)
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -3570,8 +3581,7 @@ class StructuralExtractor:
                                 term_idx = pos
                                 term_kind = "arrow"
                                 break
-                            pos += 2
-                            continue  # the `=>` belongs to an annotation, not an assignment
+                            break  # the `=>` belongs to an annotation, not an assignment
                         if ch == "=":
                             saw_assignment = True
                         elif ch == ":":
@@ -3628,7 +3638,30 @@ class StructuralExtractor:
                             p_sig += 1
                         while p_sig < search_limit and safe_code[p_sig] in " \t\n":
                             p_sig += 1
-                    if p_sig < search_limit and safe_code[p_sig] == "(":
+                    # A second, independent phantom shape the immediate-parenlist
+                    # guard above does NOT catch: `async () => { ... }` returned
+                    # from a curried arrow function (fp-ts's `tryCatch =
+                    # <E, A>(...) => async () => { ... }`) has func_start's
+                    # modifier-prefixed branch mistake the bare `async` MODIFIER
+                    # keyword for the method's own NAME, since nothing here
+                    # (an anonymous returned closure, no real name at all)
+                    # follows it -- and `async` genuinely IS followed
+                    # immediately by a real `(...)`, so it passes the guard
+                    # above too. This exact match already existed on main
+                    # (regex unchanged by this fix) but was harmless there
+                    # since it always hit this same "no terminator found"
+                    # path and got silently dropped; now that this path gives
+                    # matches a real home, it must not do so for a captured
+                    # name that's actually one of TS/JS's own reserved
+                    # modifier keywords -- none of which can ever legitimately
+                    # be a real function/method's own bare name in this
+                    # position. Confirmed real via fp-ts/TaskEither.ts:251.
+                    captured_name = (match.group(match.lastindex) if match.lastindex else match.group(0)).strip()
+                    if (
+                        p_sig < search_limit
+                        and safe_code[p_sig] == "("
+                        and captured_name not in _TS_JS_RESERVED_MODIFIER_KEYWORDS
+                    ):
                         end_idx = next_match_start
                     else:
                         continue

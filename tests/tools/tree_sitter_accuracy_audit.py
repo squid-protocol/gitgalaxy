@@ -2078,14 +2078,23 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             pass
                         else:
                             name = _get_node_name(node)
-                            if (
-                                lang == "typescript"
-                                and name == "constructor"
-                                and node.type in ("method_signature", "function_signature")
-                            ):
-                                pass  # Intentional drop of bodyless constructors
+                            # BUG FIX (issue #2279): this used to also intentionally drop
+                            # bodyless `constructor` method_signature/function_signature nodes
+                            # here, written when GitGalaxy structurally could never find a
+                            # bodyless TypeScript constructor (its func_start bodyless-
+                            # declaration branch required a `:ReturnType` annotation a
+                            # constructor can never carry). #2279 fixed that gap -- GitGalaxy
+                            # now correctly extracts these (confirmed: vscode/vscode.d.ts's 123
+                            # real ambient `constructor(...);` declarations, verified directly
+                            # against source and cross-checked against a raw tree-sitter walk
+                            # of the same file) -- so keeping this exclusion would now silently
+                            # drop 123 real ground-truth entries and count every one of
+                            # GitGalaxy's new, correct finds as a false "extra_functions"
+                            # regression instead of the recall win it actually is. Removed;
+                            # constructors now fall through to the same real_funcs bookkeeping
+                            # as any other method_signature/function_signature node.
                             # Intentional drop of bodyless overloads (function_declaration without body)
-                            elif (
+                            if (
                                 lang == "typescript"
                                 and node.type == "function_declaration"
                                 and node.child_by_field_name("body") is None

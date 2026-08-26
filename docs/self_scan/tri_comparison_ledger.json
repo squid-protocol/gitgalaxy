@@ -2424,13 +2424,14 @@
     "cpp/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:22Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
       "last_reconciled_at": "2026-08-24T23:42:07Z",
       "last_seen_count": 76,
@@ -2517,10 +2518,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale 2-tool artifact (first_seen 2026-08-22T13:45:22Z, matching the documented arduino-ctags PATH-shadowing incident, PR #2111/e35b91e9 -- readings has no ctags key at all, meaning ctags wasn't a comparison participant that gather). A live 3-tool re-gather reclassifies every sampled occurrence into the already-validated `cpp/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]` shape (61 occurrences, still_reproduces=true), which already cites the real, still-open issue #2012 ('cpp args: Zero-undercount for operator() and method definitions, off-by-one overcount for constructors with initializer-lists') -- exactly the failure patterns visible in this shape's own examples (operator()(const Node*, const Node*), replaceSubtrees, constructor initializer-lists). Not a new defect; the same confirmed-open bug viewed through a temporarily ctags-blind lens. Do not file a duplicate of #2012."
     },
     "cpp/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2953,12 +2954,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:22Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
       "last_reconciled_at": "2026-08-24T23:42:07Z",
       "last_seen_count": 64,
@@ -3045,10 +3047,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale 2-tool artifact, same arduino-ctags-incident mechanism (first_seen 2026-08-22, no ctags key in readings). A live re-gather confirms ctags agrees with GitGalaxy on every sampled occurrence (GDScriptFunction::call, Main::setup/setup2/start, Object::Connection::operator Variant, and the _FORCE_INLINE_-prefixed RequiredResult/RequiredParam template constructors), reclassifying into the already-validated `cpp/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` shape (60 occurrences, still_reproduces=true) -- tree-sitter-cpp's grammar cannot represent GDScriptFunction::call's body (a GNU 'labels as values' computed-goto bytecode dispatch loop), causing a parse-error cascade that swallows the enclosing function_definition node entirely; ctags and GitGalaxy both correctly find/name it since neither needs a full body parse for the signature."
     },
     "cpp/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -3169,12 +3171,13 @@
         "tree_sitter"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:45:22Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
       "last_reconciled_at": "2026-08-24T23:42:07Z",
       "last_seen_count": 195,
@@ -3261,10 +3264,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale 2-tool artifact, same arduino-ctags-incident mechanism (first_seen 2026-08-22). A live re-gather confirms ctags also correctly excludes every sampled 'OPCODE' occurrence, reclassifying into the already-validated `cpp/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]` shape (194 occurrences, still_reproduces=true) -- tree-sitter-cpp mis-parses `OPCODE(OPCODE_XXX) { ... }` (a `#define OPCODE(m_op) case m_op:` bytecode-dispatch macro invocation) as spurious function_definition nodes; GitGalaxy and ctags both correctly produce zero 'OPCODE'-named functions. Not a GitGalaxy defect -- a tree-sitter-cpp grammar limitation on a non-standard macro-driven idiom, already fully documented in docs/language_status/cpp.md's 'Where GitGalaxy wins outright' section."
     },
     "csharp/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3382,8 +3385,8 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 5,
@@ -3435,10 +3438,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, pre-fix snapshot -- confirmed no longer reproducing. The 5 sampled names (TerminatorState, NamespaceParts, LanguageParserState, AccessorDeclaringKind, PostSkipAction -- private nested enums in roslyn/LanguageParser.cs) are all correctly tagged by ctags as kind 'enum' as of a fresh corpus-wide gather (confirmed via direct `ctags --language-force=C# --output-format=json` run and via tri_comparison_gatherer, ctags=True for every one). ctags_reader.py's csharp KIND_MAP already covers enum ('g') as a class-equivalent kind. No current defect in any tool for this shape; a subsequent regen with real, correctly-invoked ctags simply no longer produces this disagreement."
     },
     "csharp/class/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]": {
       "agreeing_tools": [
@@ -3451,8 +3454,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 6,
@@ -3513,22 +3516,23 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated 3-tool shape `csharp/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (9 occurrences, still_reproduces=true). This 6-occurrence 2-tool shape (VariableFlags, NameOptions, ScanTypeArgumentListKind, ScanTypeFlags, ParseTypeMode, Precedence -- private nested enums in roslyn/LanguageParser.cs, all declared past line 5198) dates from a period where ctags' reading was unavailable/degraded (see CLAUDE.md's PR #2111 incident and tri-comparison-chart.md's 'always regenerate --all' rule); a fresh gather confirms ctags now correctly finds all 6 names, collapsing this shape into the 3-tool one where only tree-sitter dissents -- the documented Claim 3 parse-error-cascade mechanism (LanguageParser.cs's C# 11 list-pattern trigger at line 5198 corrupts tree-sitter-c-sharp's recovery for the rest of the 14,680-line file)."
     },
     "csharp/class/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:28Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 9,
@@ -3607,10 +3611,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated 3-tool shape `csharp/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (9 occurrences, still_reproduces=true) -- the SAME Claim 3 cascade, one level up: the outer `LanguageParser` class itself (declared at line 20, before the line-5198 trigger) plus 8 nested enums/structs past it. A fresh gather confirms ctags now finds all 9 names (LanguageParser, VariableFlags, NameOptions, ScanTypeArgumentListKind, ScanTypeFlags, ParseTypeMode, Precedence, DisposableResetPoint, ResetPoint); only tree-sitter still misses them, matching `docs/language_status/csharp.md` \u00a710's '9 class occurrences' citation for this exact cascade."
     },
     "csharp/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3850,14 +3854,17 @@
     },
     "csharp/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:28Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 26,
@@ -3944,10 +3951,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Mostly stale/fixed, with one confirmed-open residual finding tracked separately. A full-corpus re-check (not just the capped 10-example sample) shows 8 of the original 10 sampled names (HasEntryPointSignature, TryGetInterceptor, GetSymbolInternal, CloneNodeAsRoot, tryScanRecordStart, SkipBadListTokensWithErrorCodeHelper, determineSiblingsToMoveIntoType, Equals overloads) now match gitgalaxy=tree_sitter exactly -- fixed by closed issue #2051 (csharp args regex updated for tuple return types / generic methods / nested-paren params). The residual 2 cases (ParseNamespaceBody:410, ParseNamespaceBodyWorker:562, both in roslyn/LanguageParser.cs) are real and still reproduce today (gitgalaxy reports args=2 for both; tree-sitter correctly reports 4 and 5) -- root cause isolated to a per-parameter attribute with doubly-nested parens (`[NotNullIfNotNull(nameof(openBraceOrSemicolon))]`), one level deeper than the args regex's parameter-list capture tolerates. This specific residual does not surface as its own ledger shape because ctags has zero reading for either function at all (confirmed: absent from a direct `ctags --output-format=json` run), and tri_comparison_reconcile.py's args comparison is gated on existence CONSENSUS across every available tool first (reconcile_symbols, 'no args comparison possible without existence consensus') -- ctags' existence miss on these two functions routes them into the already-validated existence-side shape `agree[gitgalaxy,tree_sitter]_vs[ctags]` (108 occurrences, ctags' documented complex-signature scanner limitation) instead, structurally hiding the args-level bug from this tool's own shape grouping. Filed as issue #2237, since the tri-comparison methodology cannot surface it as a shape on its own."
     },
     "csharp/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4074,8 +4081,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 4,
@@ -4118,10 +4125,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale -- fixed. ShouldCheckTypeForMembers, Matches, GetRoot, Initialize are all bodyless (';'-terminated) abstract/interface method declarations that closed issue #2036 (detector.py unconditionally dropped every bodyless interface/abstract method declaration) fixed. A fresh gather confirms gitgalaxy now finds all 4 (matching ctags and tree-sitter) -- `docs/language_status/csharp.md` \u00a710 names these exact functions as recovered by #2036."
     },
     "csharp/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -4391,12 +4398,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:28Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 317,
@@ -4483,10 +4491,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated 3-tool shape `csharp/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (271 occurrences, still_reproduces=true) -- this is Claim 3 in docs/why_gitgalaxy_beats_ast_here.md, confirmed at full scope: a full-corpus diff finds 316 GitGalaxy-only function names on roslyn/LanguageParser.cs, 315 of 316 at or after line 5198, matching Claim 3's own citation exactly ('every one of csharp's 316 extra functions falls in this region'). The C# 11 list-pattern + property-pattern construct at line 5198 (`if (modifiers is [.., SyntaxToken { Kind: SyntaxKind.ScopedKeyword } scopedKeyword])`) trips tree-sitter-c-sharp's grammar (has_error=True, upstream tree-sitter-c-sharp#361 still open), and recovery never resynchronizes for the remaining ~9,500 lines -- hundreds of ordinary, real methods become invisible to tree-sitter's parse while GitGalaxy's regex-based func_start, which never depends on a parse tree, finds every one correctly. Not a GitGalaxy defect."
     },
     "csharp/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -4499,8 +4507,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
       "last_reconciled_at": "2026-08-24T23:42:14Z",
       "last_seen_count": 1,
@@ -4516,10 +4524,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale -- fixed, same #2036 fix as the ShouldCheckTypeForMembers/Matches/GetRoot/Initialize shape. TryGetRoot (roslyn/CSharpSyntaxTree.cs:91, `public abstract bool TryGetRoot([NotNullWhen(true)] out CSharpSyntaxNode? root);`) is a bodyless abstract method declaration; #2036 (closed) recovered it. A fresh gather confirms gitgalaxy and tree-sitter both find it now; only ctags still misses it -- a separate, pre-existing, already-documented ctags complex-signature limitation (docs/language_status/csharp.md \u00a710), not a new finding."
     },
     "css/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -5848,8 +5856,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:30Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
       "last_reconciled_at": "2026-08-24T23:42:34Z",
       "last_seen_count": 38,
@@ -5946,10 +5954,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by extensive GitGalaxy Haskell hardening between this shape's original capture and today (closed issues #1312, #1435, #1442, #1532, #1564, #1565, #1614, #1615, #1616 all touch this exact case). A fresh gather of every sampled example (writerFn, writeFnBinary in App.hs; expandFilterPath in Filter.hs; tabFilter, compactify, camelCaseStrToHyphenated, blockToInlines in Shared.hs) shows GitGalaxy now correctly anchors to the function's TYPE SIGNATURE line, tree-sitter anchors to the first pattern-match equation, and ctags tags every equation clause separately (up to 14 tags for blockToInlines' many clauses). Rank-paired, slot 0 is now full 3-way agreement; the extra ctags clause-tags fall into the already-validated shape `haskell/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]`, which already covers this exact multi-clause-tagging phenomenon."
     },
     "haskell/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -6224,8 +6232,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-19T14:44:15Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
       "last_reconciled_at": "2026-08-24T23:42:34Z",
       "last_seen_count": 1,
@@ -6240,10 +6248,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale as this 2-tool shape (ctags is available today, so it no longer drops out of the comparison entirely). A fresh gather of Options.hs shows GitGalaxy finds three occurrences of getExtensions (line 63: the typeclass method signature `getExtensions :: a -> Extensions`; line 80 and 438: two real instance implementations), tree-sitter finds two (misses the typeclass signature at 63), and ctags finds zero (Haskell parser has no instance-method kind at all). The last slot (line 438) is exactly the already-validated shape `haskell/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` (credited to gitgalaxy: 'both other tools have a real recall gap on typeclass instance methods'). All three definitions are genuinely real Haskell code (confirmed by reading source at 61-63, 79-80, 437-438); GitGalaxy is the most complete of the three tools here."
     },
     "haskell/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -6256,8 +6264,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:30Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
       "last_reconciled_at": "2026-08-24T23:42:34Z",
       "last_seen_count": 91,
@@ -6354,10 +6362,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, fully resolved by the same haskell-hardening wave as the sibling shape above. A fresh gather of every sampled example (isPandocCiteproc in App.hs; applyFilter and toJSON in Filter.hs; nine toJSON instance methods in Options.hs) shows GitGalaxy now matches tree-sitter exactly, occurrence-for-occurrence and line-for-line (e.g. Options.hs toJSON: both tools find the identical 9-line set), with only ctags missing all of them -- precisely the already-validated shape `haskell/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` ('locally-scoped function definitions... instance ... where methods... ctags' Haskell parser has no layout-rule/scope awareness... pure scope blind spot'). None of this shape's original examples still show GitGalaxy missing anything tree-sitter finds."
     },
     "java/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -6370,8 +6378,8 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:31Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
       "last_reconciled_at": "2026-08-24T23:42:36Z",
       "last_seen_count": 28,
@@ -6468,10 +6476,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, non-reproducing. 28 occurrences at first_seen (2026-08-18) implied ctags missed ~80% of the corpus's classes -- too large a fraction to be a per-construct parsing gap, the signature of a broken/degraded ctags read at that specific gather. A live re-gather today shows 0 class-existence discrepancies (35/35, full 3-way agreement across all 7 corpus files) -- ctags correctly finds ConfigurationClassFilter/AutoConfigurationGroup/AutoConfigurationEntry etc. at their real lines; java's ctags kind mapping is unchanged, ruling out a kind-mapping-registry cause."
     },
     "java/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -6795,8 +6803,8 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:31Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
       "last_reconciled_at": "2026-08-24T23:42:36Z",
       "last_seen_count": 315,
@@ -6893,10 +6901,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, non-reproducing -- the function-symbol sibling of the same transient/broken ctags snapshot as the class-existence shape above (315 of 318 total java functions in the corpus, ~99%, showed as 'ctags-missing' at capture time, far too large to be a legitimate parsing gap). A live re-gather today confirms 318/318 full 3-way agreement, zero discrepancies (spot-checked filter/selectImports/checkExcludedClasses/invokeAwareMethods/process, all matched across gitgalaxy/tree_sitter/ctags)."
     },
     "java/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -6909,8 +6917,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:31Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
       "last_reconciled_at": "2026-08-24T23:42:36Z",
       "last_seen_count": 3,
@@ -6944,10 +6952,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Does not currently reproduce -- fixed. At first_seen, both GitGalaxy and ctags missed processUptime/action/startTime (SpringApplication.java's CoordinatedRestoreAtCheckpointStartupInner/StandardStartup inner classes). `protected @Nullable Long processUptime()` (line 1816) is exactly the JSR-308 type-use-annotation-between-modifier-and-return-type shape closed issues #1486 (func_start) and #2091 (args) fixed -- a nested-class sub-case of the same annotation-handling gap. A live re-gather today confirms all three tools correctly find processUptime, action (1822), and startTime (1831)."
     },
     "javascript/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -7195,13 +7203,14 @@
     "javascript/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:53Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
       "last_reconciled_at": "2026-08-24T23:42:40Z",
       "last_seen_count": 45,
@@ -7288,10 +7297,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, same root cause as the already-validated `javascript/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]` sibling (7 occurrences) -- a Flow union parameter type (`current: Fiber | null`) corrupts tree-sitter's `formal_parameters` node, undercounting by exactly 1. This shape's larger historical count was the same mechanism hitting functions where ctags ALSO had no reading (its own independent Flow-return-type cascade in the same file), routing them to the 3-way 'agree[none]' bucket instead of the 2-vs-1 bucket -- a reconciler-partition artifact of ctags' coverage gaps, not a separate cause. Confirmed via a fresh gather: updateSuspenseComponent/updateFunctionComponent/finishClassComponent (GG correct, TS off-by-one, ctags=None) sit in this shape; updateForwardRef (GG=5, TS=4, ctags=5) sits in the validated sibling -- same mechanism, split by an artifact of tool coverage."
     },
     "javascript/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7720,12 +7729,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:53Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
       "last_reconciled_at": "2026-08-24T23:42:40Z",
       "last_seen_count": 194,
@@ -7812,10 +7822,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated shape `javascript/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` (185 occurrences, still_reproduces=true) -- same population (React's Flow-typed ReactFlightServer.js/ReactFiberWorkLoop.js/ReactFiberBeginWork.js), modulo natural corpus-reconciliation drift. All affected files carry the @flow pragma; tree-sitter-javascript can't parse Flow's parenthesized type-cast syntax and its ERROR-node recovery swallows large regions (two files produce one ERROR spanning the entire file). GitGalaxy's regex has no dependency on tree-sitter's parse state and finds every occurrence correctly."
     },
     "javascript/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -8881,8 +8891,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:39Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
       "last_reconciled_at": "2026-08-24T23:43:01Z",
       "last_seen_count": 1,
@@ -8898,22 +8908,23 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, non-reproducing. spamassassin/PerMsgStatus.pm genuinely declares 'package Mail::SpamAssassin::PerMsgStatus;' twice (lines 50 and 3022, a real reopened-package idiom, confirmed via grep) -- not a bug. A fresh gather shows GitGalaxy correctly finds both, ctags now correctly finds both (confirmed via a direct `ctags --languages=Perl` run), and tree-sitter finds only the first. Rank-paired, this collapses into the already-validated sibling `perl/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` -- this 2-tool-only shape (ctags missing from both sides) reflects an earlier gather where ctags wasn't yet returning perl package data for this file, not a code defect."
     },
     "perl/class/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:14Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
       "last_reconciled_at": "2026-08-24T23:43:01Z",
       "last_seen_count": 1,
@@ -8928,10 +8939,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, non-reproducing -- the same PerMsgStatus.pm double-package case as the sibling above, dated to the documented 2026-08-22 arduino-ctags PATH-shadowing incident (PR #2111, fixed same day by commit e35b91e9, which silently degraded every language to a 2-tool GitGalaxy + tree-sitter comparison). With ctags unavailable that run, the same rank-1 slot surfaced under this 2-tool shape instead of the real 3-way one. `ctags --version` today correctly reports Universal Ctags 5.9.0."
     },
     "perl/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
@@ -9223,17 +9234,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [
+      "credit_tools": [],
+      "debit_tools": [
         "gitgalaxy"
       ],
-      "debit_tools": [],
       "dissenting_tools": [
         "ctags",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-18T22:44:39Z",
-      "investigated_at": "2026-08-24T04:14:26Z",
-      "investigated_by": "Antigravity (direct sweep)",
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
       "last_reconciled_at": "2026-08-24T23:43:01Z",
       "last_seen_count": 1,
@@ -9252,19 +9263,22 @@
       "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": "GitGalaxy correctly extracts subroutine."
+      "verdict": "CORRECTION (previous verdict was wrong): this is a real, currently-reproducing GitGalaxy false positive, not a correct extraction. mojo/Promise.pm:277's `sub get_p { ... }` sits inside a Perl POD `=head1 SYNOPSIS` documentation block (opened by `=encoding utf8`/`=head1 NAME` at line 264, no `=cut` until line 550) -- it is an illustrative code sample in documentation, not a real subroutine in this module. GitGalaxy has zero POD-block awareness for Perl (documented gap: language_standards.py:7759-7761, detector.py:2535-2537 -- the same root cause as closed issue #1606, which covered the mirror false-negative symptom). tree-sitter and ctags both correctly report no such function. The previous verdict ('GitGalaxy correctly extracts subroutine.', credit_tools=['gitgalaxy']) had this backwards. Filed as issue #2239."
     },
     "perl/function/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:14Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
       "last_reconciled_at": "2026-08-24T23:43:01Z",
       "last_seen_count": 1,
@@ -9279,10 +9293,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "This IS a real, currently-live GitGalaxy false positive -- it just no longer reproduces under THIS specific 2-tool shape key (ctags now also fails to find it, filing it under the 3-way shape `perl/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` instead, corrected in this same batch). mojo/Promise.pm:262 is `1;` (end of real module code); line 264 opens `=encoding utf8`/`=head1 NAME`/`=head1 SYNOPSIS` POD documentation with no `=cut` until line 550. `sub get_p { ... }` at line 277 sits inside the SYNOPSIS block's illustrative code example -- prose/documentation, not a real subroutine. GitGalaxy has zero POD-block awareness for Perl (confirmed: language_standards.py:7759-7761 and detector.py:2535-2537 both explicitly document 'POD blocks (=head/=cut) are never stripped from this stream at all... Known remaining gap, not fixed here' -- the same root cause as closed issue #1606, which only covered the mirror false-NEGATIVE symptom (POD apostrophes corrupting the brace-shield)). tree-sitter and ctags both correctly treat POD as non-code. Filed as issue #2239 (the false-positive mirror of #1606)."
     },
     "perl/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -9405,12 +9419,13 @@
         "tree_sitter"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:46:14Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
       "last_reconciled_at": "2026-08-24T23:43:01Z",
       "last_seen_count": 122,
@@ -9497,10 +9512,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, non-reproducing, doubly explained. (1) Same 2026-08-22 arduino-ctags-shadow incident as the class shapes above (ctags unavailable for this gather). (2) Independently, the underlying phenomenon is a genuine, already-closed tree-sitter defect, not a GitGalaxy one: every sampled exiftool/ExifTool.pm name (Filter, ParseArguments, ReadValue, etc.) has a bodyless forward declaration near the top of the file (`sub Filter($$$);` at line 97) AND a real definition with body later (line 6483) -- GitGalaxy and ctags both correctly report only the real definition; tree-sitter's grammar counts the semicolon-terminated forward declaration as a second function node. This is issue #1608 (closed): 'tree-sitter ground truth: perl bodyless forward declarations counted as real functions GitGalaxy correctly ignores.' With ctags back on PATH, current reconciliation puts these into a live shape where GitGalaxy+ctags agree and tree-sitter alone has the phantom extra entry, not this stale 2-tool-degraded shape."
     },
     "php/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -9579,8 +9594,8 @@
         "ctags"
       ],
       "first_seen_at": "2026-08-18T22:44:40Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "php",
       "last_reconciled_at": "2026-08-24T23:43:06Z",
       "last_seen_count": 68,
@@ -9677,22 +9692,23 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, fully resolved. A fresh gather of wordpress/class-wp-query.php shows all 68 sampled/total functions (get_posts, parse_query, parse_tax_query, generate_cache_key, etc.) now matched by GitGalaxy, tree-sitter, AND ctags at identical line numbers (68/68/68, confirmed both via ctags_reader.py directly and the full gatherer). ctags' PHP kind table tags methods the same as free functions ('f'), so there's no kind-mapping gap either. Whatever caused ctags to report null for these 68 methods at this shape's original capture (2026-08-18, the ledger's first gather) no longer applies."
     },
     "php/function/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:19Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "php",
       "last_reconciled_at": "2026-08-24T23:43:06Z",
       "last_seen_count": 1,
@@ -9707,10 +9723,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale as its own 2-tool shape (ctags now also finds this function, at line 1611 vs GitGalaxy's 1610), but the underlying disagreement is real and currently reproduces under the already-validated sibling `php/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]`. Independently re-verified that sibling's verdict is correct: parsing wordpress/formatting.php with tree-sitter-php directly shows a genuine parser desync -- an ERROR-node cascade starting at line 1215 (remove_accents' own docblock, containing a markdown table with pipes and multi-byte currency glyphs) that doesn't recover until roughly line 1611, losing the entire function_declaration node for remove_accents. GitGalaxy and ctags both correctly extract `function remove_accents( $text, $locale = '' )` at line 1610/1611."
     },
     "powershell/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -10108,12 +10124,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:29Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
       "last_reconciled_at": "2026-08-24T23:43:19Z",
       "last_seen_count": 4,
@@ -10152,10 +10169,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated 3-tool shape `python/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (4 occurrences, still_reproduces=true) -- Claim 2's 'one level up' finding: cython/MemoryView.pyx's 4 `cdef class` blocks (array, Enum, memoryview, _memoryviewslice) are correctly found by both GitGalaxy and ctags (confirmed via direct `ctags -x --languages=Python` run); tree-sitter-python has no grammar concept of `cdef class` at all and reports 0 class nodes for the file. This 2-tool-only shape key is what's left behind from before ctags' agreement was folded into the same-name grouping."
     },
     "python/function/args/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -10380,13 +10397,14 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "ctags",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-24T19:56:31Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
       "last_reconciled_at": "2026-08-24T23:43:19Z",
       "last_seen_count": 5,
@@ -10438,22 +10456,23 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "The literal existence shape (functions with a stray leading '*' in the captured name, e.g. '*get_item_pointer') is stale -- a fresh gather shows GitGalaxy now captures the correct name (no asterisk) at the same lines, matching ctags exactly on existence; superseded by the already-validated `agree[ctags,gitgalaxy]_vs[tree_sitter]` sibling (100 occurrences). Investigating these exact functions surfaced a real, separate, currently-reproducing GitGalaxy defect on a DIFFERENT metric (args, not existence): every one of these functions has a C return-type token before its name (`cdef char *get_item_pointer(...)`, `cdef void *copy_data_to_temp(...)`), and GitGalaxy reports args=0 for all of them (real counts, confirmed via ctags, are 1-8) -- language_standards.py's python 'args' rule has no cdef/cpdef alternative at all; a bare `cdef name(...)` with no return type only gets the correct count by accident (the regex's literal 'def' matches the substring inside 'cdef' itself), which breaks the instant a return-type token sits between cdef/cpdef and the name. Confirmed corpus-wide: 37 real functions in cython/MemoryView.pyx/.pxd alone. Filed as issue #2238, since it is a distinct metric/mechanism from this shape's own existence question."
     },
     "python/function/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:29Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
       "last_reconciled_at": "2026-08-24T23:43:19Z",
       "last_seen_count": 100,
@@ -10540,10 +10559,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the now-live, already-validated 3-tool shape `python/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (100 occurrences, still_reproduces=true) -- Claim 2's third instance: ~100 cdef/cpdef module-level functions in MemoryView.pxd/.pyx (memoryview_fromslice, memoryview_cwrapper, etc.) that tree-sitter-python structurally cannot recognize (no `def` keyword, no Cython grammar concept) but both GitGalaxy and ctags find correctly by name and line, confirmed via a fresh gather."
     },
     "ruby/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
@@ -10895,12 +10914,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-20T20:58:01Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 14,
@@ -10997,10 +11017,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Stale, non-reproducing duplicate of the already-validated `rust/class/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` shape (Claim 6, 25 occurrences, still_reproduces=true). All 10 sampled names (DeriveInput, Data, DataStruct, DataEnum, Variant, Fields, FieldsNamed, FieldsUnnamed, Field, __DeserializeWith) are real struct/enum declarations inside `ast_struct!{}`/`ast_enum!{}`/`quote!{}` macro-invocation bodies in syn/derive.rs and syn/data.rs -- tree-sitter-rust cannot descend into these opaque token trees. ctags apparently partially succeeded on some macro-body structs at capture time but a fresh gather shows it now finds none of them, converging to the same blind spot as tree-sitter and merging fully into the validated 25-count sibling shape."
     },
     "rust/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -11174,12 +11194,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:35Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 25,
@@ -11266,23 +11287,26 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "class",
-      "verdict": null
+      "verdict": "Direct artifact of the documented 2026-08-22 'regen ran without real ctags' incident (PR #2111, fixed same day by commit e35b91e9) -- first_seen_at (2026-08-22T13:46:35Z) matches that incident's window exactly, and the readings dict is missing the ctags key entirely (absent, not disagreeing). The 10 sampled names (NonZeroVisitor, SaturatingVisitor, etc. in serde/serde_core_de_impls.rs, generated inside impl_deserialize_num!/seq_impl!/tuple_impl_body! macro_rules! bodies) are the identical occurrences already covered by the validated `rust/class/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` shape (25 occurrences, credit_tools=[gitgalaxy])."
     },
     "rust/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "ctags",
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-21T03:25:32Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 3,
@@ -11316,10 +11340,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Fully diagnosed and already fixed on both sides; does not reproduce today. poll_read(self, cx, buf) (tokio/tokio_named_pipe.rs:892,1681) and Instantiator::new(component, store, imports) (wasmtime/wasmtime_instance.rs:721) each have 3 real parameters (hand-counted); tree-sitter reported 3 (correct) throughout. GitGalaxy's wrong '2'/'1' was issue #1872 (a Rust lifetime tick 'a/'_' never recognized as non-string during bracket/quote scanning), fixed 2026-08-22. The matching wrong ctags-derived count was a SEPARATE bug in this repo's own test harness (tri_comparison_gatherer.py's _count_ctags_signature_params, whose own docstring explicitly names this exact shape and the poll_read example as the regression that shaped its current _CHAR_LITERAL_LOOKAHEAD=3 fix) -- real ctags' own output was never wrong. Confirmed live: gg/ts/ctags all report args=3 for every occurrence today."
     },
     "rust/function/args/agree[ctags,tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -11553,12 +11577,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-20T20:58:01Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 83,
@@ -11655,23 +11680,24 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Same mechanism as the class-side sibling above, function side: all 10 sampled names (get_param, init_access, get_components, from_components, apply, queue, build, map_entities, apply_effect, component_ids) are real `fn` definitions inside `quote!{}` proc-macro bodies in bevy/bevy_ecs_macros.rs -- Claim 6's own flagship example file. ctags' apparent success at capture time was unstable; a fresh gather shows it now finds none of these 10 names, converging to the same blind spot as tree-sitter and merging fully into the already-validated `rust/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` shape (152 occurrences, credit_tools=[gitgalaxy])."
     },
     "rust/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [
         "ctags"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-20T20:58:01Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 1,
@@ -11687,10 +11713,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Small (n=1), historical, no longer reproducing. serde/serde_derive_de.rs:692's `fn deserialize<__D>(...)` sits inside the same quote!{} body as the class-side __DeserializeWith struct (lines 682-703). At the original snapshot ctags alone found it while both GitGalaxy and tree-sitter missed it -- notable since GitGalaxy is normally immune to macro-body opacity (Claim 6), so this was a genuine GitGalaxy recall gap at the time. A fresh gather shows GitGalaxy now correctly finds both `deserialize` occurrences in this file (lines 66 and 692); tree-sitter still finds neither (expected); ctags now finds neither either (a reversal, consistent with the general ctags macro-body instability seen across this investigation). No specific fixing commit was identified for GitGalaxy's historical miss here -- the sample (n=1) is too small to chase further, but GitGalaxy is confirmed correct today."
     },
     "rust/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -11846,12 +11872,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:35Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
       "last_reconciled_at": "2026-08-24T23:43:25Z",
       "last_seen_count": 152,
@@ -11938,10 +11965,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Direct artifact of the same 2026-08-22 'regen ran without real ctags' incident (PR #2111 / e35b91e9) as the class-side sibling -- identical first_seen_at timestamp, ctags key missing entirely from readings rather than a real disagreeing value. The 10 sampled names are the same bevy_ecs_macros.rs quote!{}-body functions (get_param, init_access, etc.) already covered by the validated `rust/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` shape (152 occurrences, credit_tools=[gitgalaxy])."
     },
     "scala/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
@@ -12978,12 +13005,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-20T20:58:35Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
       "last_reconciled_at": "2026-08-24T23:43:45Z",
       "last_seen_count": 1,
@@ -12999,10 +13027,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale and, on closer inspection, never actually correct as recorded -- a direct `ctags -x --languages=TypeScript --kinds-TypeScript=*` run against vscode/lifecycle.ts today shows ZERO ctags tags anywhere near line 711 (createReferencedObject, a bodyless abstract method inside an abstract class); ctags does not reliably tag this construct at all. The true, current 3-way state (GitGalaxy alone finds it; both ctags and tree-sitter miss it) is already captured and validated under a different shape key, `typescript/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` (2 occurrences, verdict: 'GitGalaxy correctly extracts abstract methods.')."
     },
     "typescript/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -13377,12 +13405,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:47:09Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
       "last_reconciled_at": "2026-08-24T23:43:45Z",
       "last_seen_count": 2,
@@ -13405,10 +13434,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, same 2 occurrences (createReferencedObject, destroyReferencedObject in vscode/lifecycle.ts:711-712) as the already-validated `typescript/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]` shape, just missing ctags from the reading dict in this snapshot (confirmed via a direct ctags run: it emits nothing for either line). No new work needed -- GitGalaxy correctly extracts both bodyless abstract method declarations; tree-sitter-typescript's walker doesn't emit a node for an abstract-method signature with no body."
     },
     "typescript/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -13530,13 +13559,16 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:47:09Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
       "last_reconciled_at": "2026-08-24T23:43:45Z",
       "last_seen_count": 183,
@@ -13623,10 +13655,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Confirmed real GitGalaxy defect, now fixed. All sampled occurrences (curried arrow functions with parenthesized return-type annotations in fp-ts/Either.ts and fp-ts/TaskEither.ts, e.g. `const _traverse = <F>(F: ApplicativeHKT<F>): (<E, A, B>(...) => ...) => { ... }`) were previously invisible to GitGalaxy's TypeScript func_start because its arrow-function branch couldn't handle a return-type annotation containing nested parentheses -- issue #2220, closed by commit e7d08267 (widened the TS arrow-function branch to permit up to 3 levels of nested parens in the return type), with a companion fix in 9e8cadcc (#2230, backward-scanner operator handling). A fresh gather_language('typescript') run today confirms the fix: every sampled function is now found with matching line/arg counts (_traverse GG=181/TS=181 args=1; tryCatchK GG=1407/TS=1408 args=2; fromNullableK GG=1421/TS=1421 args=1), and a full-corpus diff shows zero functions remaining that tree-sitter finds and GitGalaxy misses."
     },
     "zig/class/existence/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [

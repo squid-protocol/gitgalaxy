@@ -135,12 +135,16 @@ def test_ruby_args():
         ("do |a, b|", "a, b"),
         ("{ |a, b| }", "a, b"),
         ("->(a, b) { }", "a, b"),
+        ("define_method(:x) do |a, b|\nend", "a, b"),
+        ("define_method(:y) { |a| }", "a"),
     ]
 
     invalid = [
         ("method_call(a, b)", None),
         ("[a, b]", None),
         ("{ a: 1, b: 2 }", None),
+        ("def some_method\n  foo do |x|\nend", None),
+        ("def touch_attachments\n  attachments.then do |relation|\nend", None),
     ]
 
     xfail_invalid = [

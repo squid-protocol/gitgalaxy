@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-26T20:42:07.715150+00:00` |
-| **Scan Duration** | `5.48s` |
+| **Timestamp** | `2026-08-26T20:49:54.982363+00:00` |
+| **Scan Duration** | `6.5s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `baa07cc18b082621607532f81bba52e80577f65a` |
+| **Git Commit** | `b671f66786278056177a98c491099bf8e7f5d9f2` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -65,7 +65,7 @@
 | Total Artifacts | 845 |
 | Analyzed Artifacts (Scanned) | 281 |
 | Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 564 |
-| Total LOC | 60937 |
+| Total LOC | 60931 |
 | Volatility Index | 0.007 |
 | % Scanned of codebase = | 33.3% |
 | Dominant Lang | PYTHON |
@@ -82,7 +82,7 @@
 ## 4. COMPOSITION
 | Lang | Files | LOC | Share |
 |---|---|---|---|
-| PYTHON | 241 | 60421 | 85.8% |
+| PYTHON | 241 | 60415 | 85.8% |
 | MARKDOWN | 28 | 0 | 10.0% |
 | YAML | 8 | 494 | 2.8% |
 | PLAINTEXT | 3 | 0 | 1.1% |
@@ -176,7 +176,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - `calculate_risk_vector` (@ `gitgalaxy/metrics/signal_processor.py`) -> Impact: **254.0** | LOC: 607
 - `splice` (@ `gitgalaxy/core/detector.py`) -> Impact: **240.5** | LOC: 418
 - `slice_manifest` (@ `gitgalaxy/security/manifest_parser.py`) -> Impact: **211.6** | LOC: 272
-- `measure` (@ `tests/tools/tree_sitter_accuracy_audit.py`) -> Impact: **202.7** | LOC: 416
+- `measure` (@ `tests/tools/tree_sitter_accuracy_audit.py`) -> Impact: **197.9** | LOC: 425
   * *Intent:* """Runs the full pinned-corpus scan + tree-sitter diff, returns the metrics dict."""
 
 ## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)
@@ -283,7 +283,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (97.3782%), Verification (80.0%), Safety Score (68.5044%)
 - **Heaviest Functions:** `main` (Impact: 32.5), `process_payload` (Impact: 26.7), `record_dead_code` (Impact: 14.4)
 
-### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **408.25**
+### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **408.26**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1098.92 | **LOC:** 2043 | **CtrlFlow:** 74.4% | **Authorship Centralization:** 81.8%
 - **Primary Risk Drivers:** Spec Match (100.0%), Verification (80.0%), Safety Score (56.4193%), State Flux (54.3735%)

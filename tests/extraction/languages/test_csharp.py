@@ -416,3 +416,43 @@ def test_csharp_detector_issue_1428_lambda_in_args_shield():
 
     assert "Foo" in functions
     assert "SourceAssembly.Modules.Skip" not in functions
+
+
+def test_csharp_detector_issue_2237_nested_attributes_in_args():
+    """
+    Regression test for issue 2237: The C# args capture group was too restrictive
+    and would drop matches (or mis-match) when a parameter list contained per-parameter
+    attributes with 2 levels of nested parentheses (e.g. `[Attr(nameof(x))]`).
+    This test verifies that:
+    1. A method with a 2-level-nested per-parameter attribute reports the correct arg count.
+    2. A normal C# method with no attributes still reports correct arg count.
+    3. A method with a simple 1-level-nested attribute still reports correct arg count.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    code = """
+    // (a) 2-level-nested per-parameter attribute (4 parameters)
+    private void ParseNamespaceBody(
+        [NotNullIfNotNull(nameof(openBraceOrSemicolon))] ref SyntaxToken? openBraceOrSemicolon,
+        ref NamespaceBodyBuilder body,
+        ref SyntaxListBuilder? initialBadNodes,
+        SyntaxKind parentKind) {
+    }
+
+    // (b) normal C# method with no attributes (3 parameters)
+    public void NormalMethod(int a, string b, bool c) {
+    }
+
+    // (c) method with a simple 1-level-nested attribute (2 parameters)
+    public void OneLevelAttrMethod([Attr(x)] int a, string b) {
+    }
+    """
+    detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    results = detector.splice(code, "test.cs")
+    
+    counts = {f["name"]: f.get("args") for f in results["functions"]}
+    
+    assert counts.get("ParseNamespaceBody") == 4, f"ParseNamespaceBody args: expected 4, got {counts.get('ParseNamespaceBody')}"
+    assert counts.get("NormalMethod") == 3, f"NormalMethod args: expected 3, got {counts.get('NormalMethod')}"
+    assert counts.get("OneLevelAttrMethod") == 2, f"OneLevelAttrMethod args: expected 2, got {counts.get('OneLevelAttrMethod')}"

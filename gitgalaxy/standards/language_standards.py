@@ -386,7 +386,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # truncate the capture at the default's own closing paren and
             # silently drop every parameter after it.
             "args": re.compile(
-                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|\blambda\b[ \t]*([^:]*):",
+                r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
+                r"\blambda\b[ \t]*([^:]*):|"
+                r"^[ \t]*cp?def[ \t]+(?!(?:class|struct|enum|union|extern|packed|fused)\b)"
+                r"(?:(?:inline|public|readonly|api)[ \t]+){0,3}"
+                r"(?:(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|\{\{[ \t]*[A-Za-z_]\w*[ \t]*\}\})[ \t]+){0,2}"
+                r"\*{0,2}[ \t]*(\w+)[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
                 re.M,
             ),
             # 3. linear (Sequential Boundaries)

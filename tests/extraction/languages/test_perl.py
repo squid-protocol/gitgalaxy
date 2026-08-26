@@ -7,6 +7,7 @@ args, class_start, _dependency_capture. Migrated out of the old
 monolithic dict files.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -327,3 +328,40 @@ def test_perl_forward_decl_does_not_grab_unrelated_brace_getascii_bug_1609():
     assert "real_sub_before" in found_names
     assert "real_sub_after" in found_names
     assert len(functions) == 2
+
+
+@pytest.mark.golden_crucible
+def test_perl_issue_2239_pod_blocks_stripped():
+    """
+    Issue #2239: GitGalaxy has zero POD-block awareness for Perl. `=head1`/`=cut`-delimited
+    POD documentation blocks are never stripped from the code stream before func_start runs,
+    so a literal `sub name { ... }` example written as prose inside a POD block gets matched
+    as a real function.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    # a. The Promise.pm repro
+    crucible_path = os.environ.get("LANGUAGE_CRUCIBLE_PATH")
+    assert crucible_path is not None, "LANGUAGE_CRUCIBLE_PATH not set"
+    promise_pm_path = os.path.join(crucible_path, "data/perl/mojo/Promise.pm")
+    with open(promise_pm_path, encoding="utf-8") as f:
+        code = f.read()
+
+    ext = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["perl"]["rules"]
+    functions, _ = ext._slice_by_braces(code, "perl", rules, 0, {})
+    found_names = [f.get("name") for f in functions]
+
+    # get_p should be stripped because it's inside a POD block
+    assert "get_p" not in found_names
+
+    # b. Normal subs outside POD blocks still match correctly (e.g., 'new', 'clone')
+    assert "new" in found_names
+    assert "clone" in found_names
+
+    # c. A sub whose body legitimately contains "=" as an operator
+    code_with_eq = "sub real_sub_with_eq {\n  my $x = 1;\n  my $y = 2;\n  return $x = $y;\n}\n"
+    functions_eq, _ = ext._slice_by_braces(code_with_eq, "perl", rules, 0, {})
+    found_names_eq = [f.get("name") for f in functions_eq]
+    assert "real_sub_with_eq" in found_names_eq

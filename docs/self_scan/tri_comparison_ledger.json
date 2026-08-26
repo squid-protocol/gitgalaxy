@@ -1264,12 +1264,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "c",
       "last_reconciled_at": "2026-08-24T23:41:53Z",
       "last_seen_count": 17,
@@ -1356,10 +1357,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the already-validated `c/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` shape (13 occurrences). Live `ctags -x --languages=C` against cpython/ceval.c, dictobject.c, object.c, typeobject.c finds every sampled name (_Py_CheckRecursiveCall, _Py_EnterRecursiveCallUnchecked, dictiter_iternextitem, _PyObject_SetAttributeErrorContext, etc.) at the same lines GitGalaxy reports -- ctags agrees with GitGalaxy; only tree-sitter dissents (Claims 3 and 7's C-scale CPP/macro-cascade instances)."
     },
     "c/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -1480,12 +1481,13 @@
         "tree_sitter"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:45:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "c",
       "last_reconciled_at": "2026-08-24T23:41:53Z",
       "last_seen_count": 88,
@@ -1572,10 +1574,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Genuinely mixed -- two unrelated mechanisms fused into one shape only because ctags was absent from this comparison run. (A) The majority are Claim 8's already-documented tree-sitter hallucinations under dead/macro code ('if' at dictobject.c:524/553/804, DICT___REVERSED___METHODDEF, _PyObject_ManagedDictValidityCheck under #if 0, tos_char/print_stack/print_stacks under #if 0 in frameobject.c) -- GitGalaxy and ctags both correctly exclude these; already covered by the validated `c/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]` sibling. (B) A genuine, new, confirmed GitGalaxy defect: ASSERT_DICT_LOCKED (dictobject.c:163), validate_list/gc_list_validate_space/validate_spaces/validate_consistent_old_space (gc.c:393,437,447,459), and 5 typeobject.c lock-related functions are real, ordinary functions that ctags AND tree-sitter both correctly find, but GitGalaxy misses. Root cause: detector.py's KNOWN-MACRO SHIELD (`known_macro_names`, built via a whole-file #define scan with no positional awareness) excludes a real function whenever its name is LATER redefined as a no-op stub macro -- CPython's common '#ifdef DEBUG real fn / #else #define name(...) do{}while(0)' idiom trips it, since the shield doesn't check whether the #define comes before or after the real definition it's about to exclude. Filed as issue #2240."
     },
     "cobol/class/existence/agree[ctags]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5089,13 +5091,14 @@
     "fortran/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:41Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
       "last_reconciled_at": "2026-08-24T23:42:28Z",
       "last_seen_count": 1,
@@ -5110,10 +5113,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Fully stale -- already fixed. The ledger's numbers (phy_init, gitgalaxy=40, tree_sitter=39) reflect the pre-fix state of issue #2077 (fortran args regex undercounts when a CPP-guarded parameter's #if expression contains ')' before the real signature closes). A live gather today gives phy_init: gitgalaxy=677, tree_sitter=39, ctags=677 -- GitGalaxy now matches ctags exactly; tree-sitter alone is wrong, for the separately-tracked reason in issue #1709 (tree-sitter-fortran's own #if-driven parse cascade on this file, Claim 7's mechanism). Merges into the already-validated, already-credited `fortran/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]` sibling."
     },
     "fortran/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5311,12 +5314,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:41Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
       "last_reconciled_at": "2026-08-24T23:42:28Z",
       "last_seen_count": 16,
@@ -5403,10 +5407,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Same CPP-blind-spot mechanism as Claim 7's already-validated fortran shape (agree[ctags,gitgalaxy]_vs[tree_sitter], 15 occurrences), extended by 2 previously-uncited names. 14 of 16 occurrences (bl_init, ra_init, landuse_init, mp_init, cu_init, shcu_init, CAM_INIT, z2sigma, fdob_init, fg_init, ALLOCATE_CAM_ARRAYS in module_physics_init.F; calc_p8w, calc_ts, write_ts in wrf_timeseries.F) are exactly Claim 7's already-cited set. The other 2 (vint, foo in module_initialize_real.F) are new: both are `program` blocks guarded by conditional compilation (vint inside #ifdef VERT_UNIT, foo inside #if 0) that tree-sitter-fortran's CPP-cascade fails on. ctags finds foo (matching GitGalaxy) but also misses vint -- confirmed real, valid Fortran source at module_initialize_real.F:5375/5469 (`program vint`/`end program vint`)."
     },
     "go/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5530,13 +5534,14 @@
     "go/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:45:43Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "go",
       "last_reconciled_at": "2026-08-24T23:42:30Z",
       "last_seen_count": 75,
@@ -5623,10 +5628,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the already-validated, already-credited `go/function/args/agree[ctags,gitgalaxy]_vs[tree_sitter]` shape (75 occurrences) -- textbook Claim 9 (Go grouped-parameter declarations: `func save(pc, sp, bp uintptr)` shares one type across 3 names, which tree-sitter-go wraps in a single parameter_declaration node, undercounting). A live gather confirms ctags also counts correctly and agrees with GitGalaxy on every sampled case (core/proc.go: save gg=3/ctags=3/ts=1; sigprof gg=5/ctags=5/ts=3) -- the ledger's original 'no majority' reading was an artifact of only 2 tools being compared for args at generation time."
     },
     "haskell/class/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -8740,12 +8745,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:08Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "objective-c",
       "last_reconciled_at": "2026-08-24T23:42:55Z",
       "last_seen_count": 1,
@@ -8760,10 +8766,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "A third, previously-uncited real-world instance of Claim 13's exact mechanism, same file. keyDown (worldwideweb/HyperText.m:1426) is declared `- keyDown:(NXEvent*)theEvent` -- old-style Objective-C with no return type at all (implicit id), a variant of the same 'grammar requires the modern - (ReturnType)name form' gap Claim 13 documents. Direct parse with tree_sitter_language_pack's objc grammar confirms has_error=True and a bare '-' token at the failure point, the identical failure shape as next_input_block/appendEndBlock. ctags correctly tags it (keyDown: method 1428). Merges into the already-validated `objective-c/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` shape (2 occurrences) -- Claim 13's evidence list should be extended with this third instance."
     },
     "objective-c/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
@@ -8814,12 +8820,13 @@
         "tree_sitter"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:46:08Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "objective-c",
       "last_reconciled_at": "2026-08-24T23:42:55Z",
       "last_seen_count": 2,
@@ -8842,10 +8849,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "The mirror-image occurrence-name pairing of the already-validated Claim 13 shape -- the same underlying source lines (worldwideweb/HyperText.m:1147, 1289), just the 'phantom name' counterpart. Because the reconciler groups by exact name string, tree-sitter's misparsed leftover tokens ('unsigned' at 1147, 'void' at 1289) form their own occurrence-slots distinct from GitGalaxy/ctags' correct names (next_input_block, appendEndBlock) at the same lines. GitGalaxy correctly has no entry under the fabricated name 'unsigned'/'void' -- it never invents a function named after a misparsed return-type token -- which is why this shows up as GitGalaxy 'missing' something tree-sitter alone 'found,' when tree-sitter is actually the one hallucinating."
     },
     "perl/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -10034,12 +10041,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:21Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "powershell",
       "last_reconciled_at": "2026-08-24T23:43:09Z",
       "last_seen_count": 1,
@@ -10054,10 +10062,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale, superseded by the already-validated `powershell/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]` shape (16 occurrences). Live ctags finds Test-MergeConflictMarker (core/ci.psm1:1020) at the exact same line GitGalaxy does; only tree-sitter-powershell misses it. File-level counts corroborate ctags' general reliability here (ci.psm1: ctags=17, gg=21, ts=20)."
     },
     "python/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -10818,13 +10826,16 @@
     "ruby/function/args/agree[none]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [],
       "credit_tools": [],
+      "debit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:31Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "ruby",
       "last_reconciled_at": "2026-08-24T23:43:21Z",
       "last_seen_count": 9,
@@ -10903,10 +10914,10 @@
         }
       ],
       "metric": "args",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Genuinely mixed, and the majority sub-case is a new, confirmed GitGalaxy defect. Splitting the 9 occurrences by root cause: 6/9 (touch_attachments, mail, generate_guides, guides_to_generate, copy_assets, add_digests) are a real bug -- each is a paren-less, genuinely zero-argument Ruby method whose body happens to contain an ordinary iterator block (`.then do |relation|`, `.each do |asset|`). GitGalaxy's ruby args regex's do/{}-block fallback alternative (intended for define_method(:x) do |a,b| ... end with no def(...) at all) isn't scoped to the method's OWN body-opening construct, so it matches the first unrelated enumerator block deep inside the method body instead. tree-sitter (0) and ctags (0, confirmed live) both correctly say these methods take 0 args; GitGalaxy alone says 1. Filed as issue #2241. The other 3/9 (process, process_action, use) are GitGalaxy correctly outperforming tree-sitter on Ruby 3's argument-forwarding `...` syntax -- ctags agrees with GitGalaxy exactly; tree-sitter's node-mapping doesn't count the `...` forward-args node at all, the same node-type-whitelist gap as issues #1339/#1506 (both closed)."
     },
     "rust/class/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12536,14 +12547,19 @@
         "ctags",
         "tree_sitter"
       ],
-      "credit_tools": [],
-      "debit_tools": [],
+      "credit_tools": [
+        "ctags",
+        "tree_sitter"
+      ],
+      "debit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-18T22:44:51Z",
-      "investigated_at": "2026-08-24T04:14:26Z",
-      "investigated_by": "Antigravity (direct sweep)",
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
       "last_reconciled_at": "2026-08-24T23:43:38Z",
       "last_seen_count": 2,
@@ -12571,7 +12587,7 @@
       "status": "validated",
       "still_reproduces": true,
       "symbol_type": "function",
-      "verdict": "GitGalaxy misses proc with nested braces in args."
+      "verdict": "CORRECTION (root cause was inaccurate; the direction -- GitGalaxy defect -- was already right). Root-caused by driving GitGalaxy's own pipeline directly (Prism.split_streams -> StructuralExtractor._build_brace_safe_stream) rather than guessing from symptoms. Both drop_all_tables (sqlite/tester.tcl:2254) and drop_all_indexes (:2279) are completely absent from the safe_code text func_start actually matches against, though present in the raw code stream. Real cause: detector.py's generic (non-language-specialized) quote-shielding branch, used for tcl since it has no dedicated branch in _build_brace_safe_stream, includes an UNBOUNDED single-quote pairing regex (`'(?:\\\\.|[^'\\\\])*'`) with no length cap and no per-language gate -- unlike rust/zig (#1426)/scala/perl, which each already got a bounded or disabled version after hitting the identical bug class. Tcl has no single-quote string syntax at the language level at all. `sqlite/tester.tcl:2234` (`string map {' ''} $contents`, a normal SQL-single-quote-doubling idiom) has 3 literal ' characters in a 7-char span -- an odd count that desyncs the naive pairing: two of the three get consumed as one 'string,' leaving the third to pair with the next unrelated ' character found downstream inside drop_all_tables' own SQL text (`WHERE type IN('`), blanking out everything in between (lines ~2235-2281) as if it were string content -- including both proc headers. The previous verdict ('GitGalaxy misses proc with nested braces in args') was not the actual mechanism. Filed as issue #2242."
     },
     "tcl/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]": {
       "agreeing_tools": [
@@ -12673,12 +12689,13 @@
         "gitgalaxy"
       ],
       "credit_tools": [],
+      "debit_tools": [],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-08-22T13:46:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
       "last_reconciled_at": "2026-08-24T23:43:38Z",
       "last_seen_count": 2,
@@ -12701,23 +12718,28 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Both occurrences are GitGalaxy-correct, for two different reasons once ctags is actually checked. do_test (sqlite/tester.tcl:703) -- ctags agrees (confirmed: `do_test procedure 703`), so this merges into a straightforward already-validated agree[ctags,gitgalaxy]_vs[tree_sitter]-shaped case. faultsim_test_result (sqlite/malloc_common.tcl:348) is a genuinely unusual, valid Tcl idiom -- `proc faultsim_test_result {args} \"uplevel faultsim_test_result_int $args ...\"`, where the proc body is a double-quoted STRING, not a brace-delimited block (Tcl allows this; the quoted body undergoes variable substitution at definition time). ctags does not tag this one at all -- its Tcl parser expects a brace-delimited body to recognize a proc. So for this occurrence GitGalaxy is uniquely correct against both other tools, each failing for an independent reason."
     },
     "tcl/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "ctags"
+      ],
+      "debit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "ctags",
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-20T20:58:14Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
       "last_reconciled_at": "2026-08-24T23:43:38Z",
       "last_seen_count": 2,
@@ -12742,22 +12764,27 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "This is the SAME underlying occurrence pair (drop_all_tables:2254, drop_all_indexes:2279 in sqlite/tester.tcl) as the already-validated `tcl/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]` shape (2 occurrences, corrected in this same batch -- see that entry for the full root cause: an unbounded single-quote pairing regex in detector.py's generic quote-shielding branch mispairs SQL-literal apostrophes and swallows both proc headers entirely, issue #2242). This stale key's claim that ctags was null for both is wrong -- a live `ctags -x --languages=Tcl` run finds both at the exact same lines tree-sitter reports. Real, currently-reproducing GitGalaxy defect, not a case where tree-sitter uniquely wins."
     },
     "tcl/function/existence/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "debit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-08-22T13:46:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-08-26T00:00:00Z",
+      "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
       "last_reconciled_at": "2026-08-24T23:43:38Z",
       "last_seen_count": 2,
@@ -12780,10 +12807,10 @@
         }
       ],
       "metric": "existence",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "function",
-      "verdict": null
+      "verdict": "Stale 2-tool duplicate of the same drop_all_tables/drop_all_indexes defect as the corrected `tcl/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]` shape (ctags missing from this snapshot's readings, not genuinely absent -- a live `ctags -x --languages=Tcl` run finds both at the same lines tree-sitter reports). Real cause: detector.py's unbounded single-quote pairing in the generic quote-shielding branch used for tcl mispairs the SQL-literal apostrophes in `string map {' ''} $contents` (sqlite/tester.tcl:2234, 3 literal ' characters in a 7-char span) against a downstream ' inside drop_all_tables' own SQL text, blanking out both proc headers before func_start ever sees them. Filed as issue #2242."
     },
     "typescript/class/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]": {
       "agreeing_tools": [

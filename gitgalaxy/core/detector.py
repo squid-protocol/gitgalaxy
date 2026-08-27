@@ -3323,6 +3323,13 @@ class StructuralExtractor:
                 end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 args_sig_end = term_idx + 1
             elif lang_id == "dart":
+                # #2341: func_start's match spans any leading `@annotation(...)` prefix
+                # and the return-type prefix, so `start_idx` can sit on an annotation
+                # whose own `(...)` (`@Deprecated('a' 'b',)` -- multi-line, with a
+                # top-level comma) is then the FIRST paren the args counter finds,
+                # poisoning the count. The real signature begins at the name capture;
+                # every args-span computation below anchors there instead of start_idx.
+                dart_name_start = match.start(match.lastindex) if match.lastindex else start_idx
                 pos = match.end()
                 has_parens = False
                 while pos < next_match_start and pos < len(safe_code):
@@ -3534,7 +3541,7 @@ class StructuralExtractor:
                         # already validated real, balanced parens to get here) has
                         # no such ambiguity.
                         args_count_override = self._count_top_level_args(
-                            safe_code[start_idx:params_end_idx], treat_as_body=False
+                            safe_code[dart_name_start:params_end_idx], treat_as_body=False
                         )
                 elif term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
@@ -3832,7 +3839,11 @@ class StructuralExtractor:
             if not block:
                 continue
 
-            args_search_text = code[start_idx:args_sig_end] if args_sig_end is not None else None
+            # #2341: for dart, anchor the args-signature slice at the name capture, not
+            # `start_idx` -- the latter can sit on a leading `@annotation(...)` whose own
+            # parens would otherwise be counted as the parameter list.
+            _args_slice_start = match.start(match.lastindex) if (lang_id == "dart" and match.lastindex) else start_idx
+            args_search_text = code[_args_slice_start:args_sig_end] if args_sig_end is not None else None
 
             # #2012: Pattern 2 - constructors with member-initializer-lists overcount.
             # Truncate at the first top-level `:` before the brace to exclude the list.

@@ -281,6 +281,38 @@ def test_dart_slicer_args_getters_and_operators_2309():
     assert args_by_name.get("move") == 2, args_by_name  # normal method unaffected
 
 
+def test_dart_slicer_args_multiline_annotation_prefix_2341():
+    """
+    #2341: func_start's match spans a leading `@annotation(...)` prefix, so `start_idx`
+    lands on the annotation. When that annotation's argument list is multi-line and
+    carries a top-level comma (`@Deprecated('a' 'b',)`), its own parens were the first
+    the args counter found -- the declaration's real parameter list was never measured.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+    code = (
+        "class Opts {\n"
+        "  @Deprecated(\n"
+        "    'Use somethingElse instead. '\n"
+        "    'Deprecated after v3.3.0.',\n"
+        "  )\n"
+        "  const Opts({this.a = false, this.b = false, this.c = false});\n"  # -> 3 args
+        "\n"
+        "  @Deprecated(\n"
+        "    'Gone. '\n"
+        "    'Deprecated after v3.9.0.',\n"
+        "  )\n"
+        "  bool get isReady => _ready;\n"  # deprecated getter -> 0 args
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code, "dart", DART_RULES, 0, {})
+    args_by_name = {b["name"]: b.get("args") for b in blocks}
+    assert args_by_name.get("Opts") == 3, args_by_name
+    assert args_by_name.get("isReady") == 0, args_by_name
+
+
 def test_dart_slicer_bug_5_closure_invocation():
     # Regression case for GitHub issue #1624: closure-arguments in calls were wrongly identified as functions.
     from gitgalaxy.core.detector import StructuralExtractor

@@ -4835,6 +4835,51 @@ class StructuralExtractor:
         if not body.strip():
             return 0
 
+        # #2309: Dart's named (`{...}`) and optional-positional (`[...]`) parameter
+        # groups are always the TERMINAL element of a parameter list -- `({a, b})`,
+        # `([a, b])`, `(pos, {a, b})` -- and the commas inside them are real argument
+        # separators. `{`/`[` otherwise read as nesting in the loop below, hiding
+        # every one of those commas (`EditableText({super.key, required this.x, ...})`
+        # measured 1 arg instead of ~40). Neutralise just that one terminal group's
+        # own delimiters so its members land at the top level. A `{...}`/`[...]` that
+        # is a default-value literal (`{int x = const [1, 2]}`) is never flush against
+        # the body's end, so it stays nested and its commas stay (correctly) ignored.
+        if self.primary_lang_id == "dart":
+            stripped_end = len(body.rstrip())
+            if stripped_end and body[stripped_end - 1] in "}]":
+                gdepth = 0
+                g_instr = False
+                g_quote = ""
+                last_group_open = -1
+                gi = 0
+                while gi < stripped_end:
+                    gch = body[gi]
+                    if g_instr:
+                        if gch == "\\":
+                            gi += 2
+                            continue
+                        if gch == g_quote:
+                            g_instr = False
+                    elif gch in ("'", '"', "`"):
+                        g_instr = True
+                        g_quote = gch
+                    elif gch in "([{":
+                        if gch in "[{" and gdepth == 0:
+                            last_group_open = gi
+                        gdepth += 1
+                    elif gch in ")]}":
+                        gdepth = max(0, gdepth - 1)
+                    gi += 1
+                if last_group_open != -1 and gdepth == 0:
+                    # the terminal group closes at stripped_end-1; blank both delimiters
+                    body = (
+                        body[:last_group_open]
+                        + " "
+                        + body[last_group_open + 1 : stripped_end - 1]
+                        + " "
+                        + body[stripped_end:]
+                    )
+
         depth = 0
         in_string = False
         quote_char = ""

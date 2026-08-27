@@ -4,7 +4,7 @@
   "corpus_path": "language-crucible/data/javascript",
   "extra_classes": 0,
   "extra_functions": 12,
-  "files_scanned": 18,
+  "files_scanned": 17,
   "found_classes": 29,
   "found_functions": 599,
   "real_classes": 29,

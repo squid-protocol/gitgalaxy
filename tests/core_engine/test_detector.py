@@ -2494,6 +2494,29 @@ def test_count_top_level_args_angle_brackets_still_track_generics_for_generic_la
     assert cpp_detector._count_top_level_args("(std::vector<int> a, int b)") == 2, "cpp template arg regressed"
 
 
+def test_count_top_level_args_dart_named_and_optional_parameter_groups_2309():
+    """
+    #2309: Dart's named (`{...}`) and optional-positional (`[...]`) parameter
+    groups are the terminal element of a parameter list, and the commas inside
+    them are real argument separators. Before the fix, the group's own `{`/`[`
+    read as nesting and hid every one -- a Flutter widget constructor like
+    `EditableText({super.key, required this.controller, ...})` counted 1 arg
+    instead of ~40. A `{...}`/`[...]` that is a default-VALUE literal instead
+    (never flush against the parameter list's end) must still stay nested.
+    """
+    d = StructuralExtractor("dart", {"dart": {"rules": {}}})
+    assert d._count_top_level_args("({super.key, required this.controller, this.readOnly})") == 3
+    assert d._count_top_level_args("({super.parent})") == 1
+    assert d._count_top_level_args("(this.a, this.b, this.c)") == 3
+    assert d._count_top_level_args("(int a, int b, {required Key k, bool flag = false})") == 4
+    assert d._count_top_level_args("([int a = 1, int b = 2])") == 2
+    assert d._count_top_level_args("({this.a, this.b,})") == 2  # trailing comma
+    assert d._count_top_level_args("()") == 0
+    # default-value literals must NOT leak their internal commas:
+    assert d._count_top_level_args("({List<int> x = const [1, 2, 3]})") == 1
+    assert d._count_top_level_args("({Map<String, int> m = const {'a': 1, 'b': 2}})") == 1
+
+
 def test_count_top_level_args_function_pointer_return_type_1854():
     """
     #1854: a C/C++ function returning a function pointer wraps its own name

@@ -736,6 +736,38 @@ digit/minus-leading = 35/35, tri-comparison ledger
 parser's tag-name validation requires a leading letter and no internal hyphen — a completely
 reasonable default for the assembly dialects it was actually built against, just not for AGC's.
 
+### Second instance (2026-08-27): yacc/bison grammar-rule names ctags' YACC parser won't tag
+
+The exact same lexical-coverage mechanism, a different parser and dialect. GitGalaxy's `func_start`
+for yacc matches `^[ \t]*([a-zA-Z_]\w*)` before a `:` — a leading underscore and a single-letter
+name are both valid rule names, so it captures them. Universal Ctags' dedicated `YACC` parser
+(kind `l`, the only kind it has — `ctags --list-kinds-full=YACC`) applies a narrower tag-name
+convention and silently emits **no tag** for either shape.
+
+**The evidence:** GnuCOBOL's real bison grammar,
+`language-crucible/data/cobol/gnucobol_internals/parser.y` (18k lines, 823 rules ctags tags vs
+1148 GitGalaxy finds). GnuCOBOL uses a leading underscore pervasively to name the "optional" form
+of a nonterminal — `_program_body:` (line 3398), `_options_paragraph:` (3564), `_data_division:`
+(5803), `_working_storage_section:` (6389), 325 in total. `ctags -f - --languages=YACC parser.y`
+emits **zero** tags whose name starts with `_`, while tagging every plain sibling in the same
+neighbourhood normally (`program_definition:` 3341, `data_division_header:` 5822, `end_program:`
+3373, ...). It also drops the one single-character rule name in the file, `x:` (line 17101),
+while tagging its immediate neighbours `x_list:` (17090) and `x_common:` (17111) — the same
+tagged-vs-untagged sibling contrast as AGC's `CNTRCHK` vs `-1CHK`. A whole-file cross-reference
+confirms it holds for the entire set: 823 ctags tags, 0 leading-underscore, 0 single-char;
+GitGalaxy 1148, all real rules, 100% precision. Ledger shape
+`yacc/function/existence/agree[gitgalaxy]_vs[ctags]` (validated 2026-08-27; the 2-file gather
+corpus it was logged against, `freebsd/config.y` + `jailparse.y`, has no `_`-prefixed rules, so
+the shape there was a harness bug — this parser.y evidence is the wider-corpus confirmation of the
+direction).
+
+A related but distinct sub-point from the same file: ctags tags `encryption_clause:` (line 5168)
+even though that rule and its entire body sit inside a `/* FXIME: disabled ... */` block comment
+(lines 5167–5179) — its YACC parser isn't comment-aware for a column-0 rule head. GitGalaxy's
+`prism.py` strips the comment first, so GitGalaxy correctly does *not* count it. That's a
+comment-awareness win rather than a lexical-coverage one, but it lands on the same side of the
+same ledger shape.
+
 ## Where Claim 12 does NOT apply
 
 - This is specific to a dialect whose real lexical grammar (what counts as a valid identifier)

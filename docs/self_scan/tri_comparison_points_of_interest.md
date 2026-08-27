@@ -1542,27 +1542,6 @@ Sorted 2-vs-1 splits before 3-way splits, unvalidated before validated, biggest 
 | vscode/instantiationService.ts | `extends` | *(n/a)* | *(n/a)* | 410 |
 | vscode/lifecycle.ts | `implements` | *(n/a)* | *(n/a)* | 235 |
 
-## yacc
-
-### ❓ `yacc` function existence: GitGalaxy agree, ctags differ
-
-*2-vs-1 -- 18 occurrences as of 2026-08-27T21:43:01Z*
-
-**Not yet investigated.** See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the process -- read the source at a few examples below, then hand-edit this entry (`yacc/function/existence/agree[gitgalaxy]_vs[ctags]`) in `tri_comparison_ledger.json`.
-
-| file | name | GitGalaxy | tree-sitter | ctags |
-|---|---|---|---|---|
-| freebsd/config.y | `Spec` | 126 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Config_spec` | 152 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Option` | 227 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `NoDevice` | 297 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Device` | 290 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `NoOption` | 238 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `System_id` | 208 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Opt_value` | 243 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Save_id` | 252 | *(n/a)* | *(n/a)* |
-| freebsd/config.y | `Mkoption` | 262 | *(n/a)* | *(n/a)* |
-
 ## zig
 
 ### ✅ `zig` class existence: tree-sitter agree, GitGalaxy differ

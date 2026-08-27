@@ -98,7 +98,7 @@ epic #813), not that no cases exist.
 | swift | production | recursive_block | 51/52 | 36 | 91 | not written |
 | tcl | production | line_exclusive | 40/48 | 40 | 65 | not written |
 | typescript | production | standard_block | 59/62 | 76 | 101 | not written |
-| yacc | production | standard_block | 31/47 | 21 | 48 | not written |
+| **[yacc](yacc.md)** | production | standard_block | 31/47 | 21 | 48 | **written** (§9 via tri-comparison sweep) |
 | yaml | production | line_exclusive | 31/49 | 45 | 65 | not written |
 | zig | production | line_exclusive | 46/52 | 49 | 61 | not written |
 

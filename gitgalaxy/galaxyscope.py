@@ -718,8 +718,11 @@ class Orchestrator:
         # The primary heuristic math engine converting raw Structural Signatures to risk exposure vectors
         self.processor = SignalProcessor(aperture_config=config, parent_logger=logger)
 
-        # Third-Gate gatekeeper identifying and dropping un-parseable data dumps
-        self.auditor = StatisticalAuditor(parent_logger=logger)
+        # Third-Gate gatekeeper identifying and dropping un-parseable data dumps.
+        # lang_defs MUST be passed: without it the auditor's per-language loop treats
+        # every language as inert (see StatisticalAuditor.audit's Dynamic Auditability
+        # Check) and its data-dump / packed-payload / MAD floors never run (#2325).
+        self.auditor = StatisticalAuditor(parent_logger=logger, lang_defs=lang_defs)
 
         # Constructs the physical import DAG and calculates PageRank/Downstream Exposure
         self.network_sensor = NetworkRiskSensor(parent_logger=logger)

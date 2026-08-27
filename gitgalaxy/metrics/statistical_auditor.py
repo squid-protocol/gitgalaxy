@@ -15,7 +15,6 @@
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
 
 import logging
-import math
 import statistics
 from typing import Any, Optional
 
@@ -41,6 +40,13 @@ class StatisticalAuditor:
     1. Heuristic Consensus: Resolves ambiguous file extensions (.h, .m) based on repo-wide trends.
     2. Polyglot Baseline Defense: Bypasses strict statistical checks for heavily blended files.
     3. Noise Rejection: Outliers are stripped of logic claims and moved to the exclusion queue.
+
+    NOTE: the per-language outlier loop only runs when `lang_defs` is supplied (it needs
+    each language's rule set to tell a genuinely-inert data format apart from real code).
+    The orchestrator MUST pass it (#2325 -- it previously did not, so every language hit
+    the inert bypass and the MAD / density floors never fired). A former "Low-Sample
+    Threshold Guard" that reverted small-footprint languages to plaintext was removed with
+    the same fix; see the note in `audit()`.
     """
 
     def __init__(
@@ -107,10 +113,6 @@ class StatisticalAuditor:
             return [], []
 
         self.logger.info(f"Scanning {len(parsed_files)} artifacts for structural anomalies and data dumps...")
-
-        total_files = max(len(parsed_files), 1)
-        orphan_threshold = max(3, int(math.log10(total_files) * 2))
-        self.logger.debug(f"Dynamic Ecosystem Orphan Threshold set to: <= {orphan_threshold} files.")
 
         verified_files, unparsable_files = [], []
 
@@ -303,31 +305,17 @@ class StatisticalAuditor:
                 self.logger.debug(f"[{lid}] Bypassed {len(group)} artifact(s) (Static Asset: 0 Active Signals).")
                 continue
 
-            # ==================================================================
-            # GATE C: LOW-SAMPLE THRESHOLD GUARD
-            # ==================================================================
-            # If a language only has a tiny presence (<= orphan_threshold) in the repo...
-            if len(group) <= orphan_threshold:
-                # Require an absolute Tier 0 Convergent Lock for orphans to survive.
-                # If ALL files in this tiny group are Tier 1 or worse (> 0), banish them.
-                all_weak_claims = all(
-                    artifact.get("telemetry", {}).get("identity_lock_tier", artifact.get("lock_tier", 4)) > 0
-                    for artifact in group
-                )
-
-                if all_weak_claims:
-                    relegation_reason = (
-                        f"Statistically Insignificant Sample (Population {len(group)}). Reverting to plaintext."
-                    )
-                    self.logger.warning(f"[{lid}] {relegation_reason}")
-
-                    for artifact in group:
-                        # Strip the hallucination, keep the mass visible in the topological map
-                        artifact["lang_id"] = "plaintext"
-                        artifact["telemetry"]["identity_source_proof"] = "Low-Sample Guard Fallback"
-                        artifact["equations"] = {}  # Static assets have no logic equations
-                        verified_files.append(artifact)
-                    continue
+            # NOTE: a "Low-Sample Threshold Guard" (GATE C) used to sit here -- it reverted
+            # any language with <= orphan_threshold files to plaintext unless every file had
+            # a Tier-0 "Absolute Consensus" lock. Removed with #2325: this auditor never
+            # actually ran in production (it was constructed without `lang_defs`, so every
+            # group hit the inert bypass above), and the guard's core assumption is wrong --
+            # a clean single-extension file (`foo.css`, `foo.kt`, `foo.nix`) locks at Tier 2
+            # "Single Indicator (Ext)", never Tier 0, so turning the guard on would have
+            # erased ~13 legitimately-classified languages (css, kotlin, nix, objective-c,
+            # scheme, proto, tcl, yacc, ...) from any repo with a small footprint of them.
+            # Small-sample hallucination is already handled upstream by the Heuristic
+            # Extension Consensus triage and the Tier-4/undeterminable pre-filters.
 
             # ==================================================================
             # GATE D: STATISTICAL OUTLIER DETECTION (MAD & Density Floors)

@@ -139,30 +139,34 @@ def test_auditor_threat_quarantine_guard(auditor):
 
 
 # ==============================================================================
-# TEST 5: THE LOW-SAMPLE THRESHOLD GUARD (Hallucination Stripping)
+# TEST 5: SMALL, WEAK-TIER POPULATIONS ARE KEPT (no Low-Sample Guard)
 # ==============================================================================
-def test_auditor_low_sample_threshold_guard(auditor):
+def test_auditor_small_weak_tier_population_is_kept(auditor):
     """
-    Proves that a tiny population (1 file) with a weak confidence tier gets
-    its hallucinated language stripped and reverted to plaintext.
+    The old "Low-Sample Threshold Guard" (GATE C) reverted any language with a tiny
+    footprint to plaintext unless every file had a Tier-0 lock. It was removed with
+    #2325 -- clean single-extension files lock at Tier 2, never Tier 0, so the guard
+    erased legitimately-classified languages from any repo with a small footprint of
+    them. A tiny population with a real signal density must now survive intact.
     """
     files = [
         {
-            "path": "weird_file.python",
-            "name": "weird_file.python",
+            "path": "weird_file.py",
+            "name": "weird_file.py",
             "lang_id": "python",
             "coding_loc": 10,
+            "total_loc": 10,
             "equations": {"branch": 5},
-            "telemetry": {"identity_lock_tier": 3},  # <--- CHANGE TO 3 (Survives Gate 0, Dies to Low-Sample Guard)
+            "telemetry": {"identity_lock_tier": 3},
         }
     ]
 
     with patch.object(auditor, "_is_highly_blended", return_value=False):
         verified, unparsable = auditor.audit(files)
 
+    assert len(unparsable) == 0
     assert len(verified) == 1
-    assert verified[0]["lang_id"] == "plaintext", "Low-Sample Guard failed to strip the hallucinated language!"
-    assert "Low-Sample Guard Fallback" in verified[0]["telemetry"]["identity_source_proof"]
+    assert verified[0]["lang_id"] == "python", "A small weak-tier population must not be reverted to plaintext."
 
 
 # ==============================================================================

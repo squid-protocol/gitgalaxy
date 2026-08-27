@@ -863,10 +863,10 @@ def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
                 if child.type == "=":
                     eq_node = child
                     break
-            
+
             if eq_node and node.start_byte < eq_node.start_byte:
                 return None
-                
+
             for child in current.children:
                 if child.type == "IDENTIFIER":
                     return child.text.decode("utf8")
@@ -1512,7 +1512,23 @@ def _get_param_count(node: Any, lang: str = "") -> int:
     # #1313: none of these node types expose a "parameters"/"parameter" field either -- same
     # no-field-at-all shape the C-family branch above already handles, just with different
     # grammar-specific wrapper/child node names.
-    if node.type in ("function_signature", "setter_signature", "operator_signature"):
+    #
+    # #2309-followup: dart's `constant_constructor_signature` (`const Foo({...})`) and
+    # `factory_constructor_signature` (`factory Foo(...)`) have the SAME no-"parameters"-field,
+    # direct-`formal_parameter_list`-child shape as `function_signature` -- but unlike the plain
+    # `constructor_signature` (which DOES expose a field-tagged "parameters" and so is handled by
+    # the generic branch above), these two fell through to `return 0`. Every `const`/`factory`
+    # constructor in the dart corpus -- the dominant Flutter widget-constructor form
+    # (`const PointerEvent({...})`, `factory ThemeData({...})`) -- measured real=0 against
+    # GitGalaxy's/tree-sitter's correct count, manufacturing ~30 large false args-mismatches in
+    # the tri-comparison (`dart/function/args/agree[none]` shape).
+    if node.type in (
+        "function_signature",
+        "setter_signature",
+        "operator_signature",
+        "constant_constructor_signature",
+        "factory_constructor_signature",
+    ):
         # #1339: dart's `function_signature`/`method_signature` have no "parameters" field --
         # the param list is an untyped `formal_parameter_list` child wrapping "formal_parameter"
         # children. `method_signature` itself never resolves a name (see _get_node_name -- it has
@@ -1706,9 +1722,7 @@ _SYNTHETIC_GG_CLASS_NAMES = frozenset({"Anonymous_Class"})
 # covered `catch` from that blacklist, so `return`-named real methods still fell through to
 # `real_funcs` and were reported as a false-negative gap for GitGalaxy's intentional, correct
 # exclusion.
-_JS_RESERVED_STATEMENT_KEYWORDS = frozenset(
-    {"if", "for", "while", "switch", "catch", "else", "do", "return"}
-)
+_JS_RESERVED_STATEMENT_KEYWORDS = frozenset({"if", "for", "while", "switch", "catch", "else", "do", "return"})
 
 # In addition to keywords, Flow-typed JavaScript causes tree-sitter-javascript to hallucinate
 # regular function calls and object properties as `method_definition`s during error recovery.
@@ -1743,6 +1757,7 @@ _JS_KNOWN_FLOW_HALLUCINATIONS = frozenset(
         "parent",
     }
 )
+
 
 def _is_cpp_unscoped_enum(node: Any) -> bool:
     """tree-sitter-cpp's `enum_specifier` node covers BOTH a C++11 scoped enum (`enum class Foo
@@ -1886,10 +1901,10 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     ranges = []
 
     def walk(node: Any) -> None:
-        if (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation")) or (
-            ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_"))
-        ) or (
-            ts_lang == "zig" and node.type == "ERROR"
+        if (
+            (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation"))
+            or (ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_")))
+            or (ts_lang == "zig" and node.type == "ERROR")
         ):
             ranges.append((node.start_point[0] + 1, node.end_point[0] + 1))
 
@@ -2146,7 +2161,10 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                         # not a shape typescript's own grammar ever produces.
                                         node.type == "method_definition"
                                         and (
-                                            (lang in ("javascript", "typescript") and name in _JS_RESERVED_STATEMENT_KEYWORDS)
+                                            (
+                                                lang in ("javascript", "typescript")
+                                                and name in _JS_RESERVED_STATEMENT_KEYWORDS
+                                            )
                                             or (lang == "javascript" and name in _JS_KNOWN_FLOW_HALLUCINATIONS)
                                         )
                                     )

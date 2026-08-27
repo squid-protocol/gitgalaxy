@@ -3512,20 +3512,30 @@ class StructuralExtractor:
                         continue
                 elif term_kind == "semi":
                     end_idx = term_idx + 1  # Bug 2: bodyless constructor
-                    # #2309: count the real parameter list directly instead of
-                    # relying on the `args` regex here -- that regex must never
-                    # accept a bare `;` terminator (it's `.search()`ed over the
-                    # whole block for dart, so accepting `;` would just as
-                    # readily match a real call statement inside some OTHER
-                    # zero-paren declaration's body; see language_standards.py's
-                    # own comment on this same issue for the confirmed false
-                    # positive). `_count_top_level_args` on the signature text
-                    # already known-good (func_start + `_find_balanced_end`
-                    # already validated real, balanced parens to get here) has
-                    # no such ambiguity.
-                    args_count_override = self._count_top_level_args(
-                        safe_code[start_idx:params_end_idx], treat_as_body=False
-                    )
+                    if not has_parens:
+                        # A bodyless, paren-less `;`-terminated declaration -- an abstract
+                        # getter (`Offset get pan;`), `external Type name;` -- has no
+                        # parameter list. `_count_top_level_args` on the bare name text
+                        # ("Offset get pan") finds no `(` to unwrap and returns 1 (the whole
+                        # string as one segment), a phantom argument against tree-sitter's
+                        # correct 0 (the bulk of the small `dart/function/args/agree[none]`
+                        # mismatches -- Flutter's `PointerEvent` getters). #2309-followup.
+                        args_count_override = 0
+                    else:
+                        # #2309: count the real parameter list directly instead of
+                        # relying on the `args` regex here -- that regex must never
+                        # accept a bare `;` terminator (it's `.search()`ed over the
+                        # whole block for dart, so accepting `;` would just as
+                        # readily match a real call statement inside some OTHER
+                        # zero-paren declaration's body; see language_standards.py's
+                        # own comment on this same issue for the confirmed false
+                        # positive). `_count_top_level_args` on the signature text
+                        # already known-good (func_start + `_find_balanced_end`
+                        # already validated real, balanced parens to get here) has
+                        # no such ambiguity.
+                        args_count_override = self._count_top_level_args(
+                            safe_code[start_idx:params_end_idx], treat_as_body=False
+                        )
                 elif term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                     args_sig_end = term_idx + 1
@@ -5461,6 +5471,16 @@ class StructuralExtractor:
                     # out-of-class methods with non-whitelisted types (e.g. `mlir::ModuleOp`).
                     # Since func_start already validated this is a function, we can reliably
                     # fallback to the structural counter.
+                    args_count = self._count_top_level_args(args_search_text)
+                elif args_search_text is not None and "(" in args_search_text and self.primary_lang_id == "dart":
+                    # #2309-followup: dart's `args` regex can't match an operator overload
+                    # (`bool operator ==(Object other)`, `Widget operator [](int i)`) -- the
+                    # `==`/`[]` sits between the name token and the `(`, so `.search()`
+                    # returns None and the count silently falls to 0 against tree-sitter's
+                    # correct 1. func_start already validated this is a real function; count
+                    # its balanced parameter span structurally. Guarded on a literal `(` so
+                    # a paren-less getter body (`Rect get bounds {`, whose args_search_text
+                    # has none) still correctly reads 0, not 1.
                     args_count = self._count_top_level_args(args_search_text)
             except Exception as e:
                 self.logger.debug(f"Argument-count regex extraction failed, leaving args_count 0: {e}")

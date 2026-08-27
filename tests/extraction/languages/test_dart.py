@@ -51,7 +51,7 @@ CLASS_START_CASES = {
         "Map<String, dynamic> fakeClass = {};",
         "void classLikeFunction() {",
         "String a = 'class Foo {';",
-        "print(\"class Foo {\");",
+        'print("class Foo {");',
         "// class Foo {",
         "/* class Foo { */",
         "/// class Foo {",
@@ -61,13 +61,16 @@ CLASS_START_CASES = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected", CLASS_START_CASES["valid"])
 def test_dart_class_start_valid(payload, expected):
     assert_valid_match(DART_RULES["class_start"], payload, expected, "dart.class_start")
 
+
 @pytest.mark.parametrize("payload", CLASS_START_CASES["invalid"])
 def test_dart_class_start_invalid(payload):
     assert_invalid_no_match(DART_RULES["class_start"], payload, "dart.class_start")
+
 
 @pytest.mark.parametrize("payload", CLASS_START_CASES["xfail_invalid"])
 @pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)
@@ -107,7 +110,7 @@ FUNC_START_CASES = {
         "var x = functionStart;",
         "typedef IntFunc = int Function();",
         "var myFunc = () {};",
-        "String s = \"Future<int> foo() { \";",
+        'String s = "Future<int> foo() { ";',
         "// void main() {",
         # Issue #1417: Return-type shield (should not wander across `) {` and match body calls)
         "    T? result,\n  ) {\n    Navigator.of(context).popUntilWithResult<T>(predicate, result);",
@@ -150,22 +153,27 @@ FUNC_START_CASES = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected", FUNC_START_CASES["valid"])
 def test_dart_func_start_valid(payload, expected):
     assert_valid_match(DART_RULES["func_start"], payload, expected, "dart.func_start")
 
+
 @pytest.mark.parametrize("payload", FUNC_START_CASES["invalid"])
 def test_dart_func_start_invalid(payload):
     assert_invalid_no_match(DART_RULES["func_start"], payload, "dart.func_start")
+
 
 @pytest.mark.parametrize("payload", FUNC_START_CASES["xfail_invalid"])
 @pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)
 def test_dart_func_start_xfail_invalid(payload):
     assert_invalid_no_match(DART_RULES["func_start"], payload, "dart.func_start")
 
+
 def test_dart_slicer_bug_2_and_4():
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
     splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
 
     # Bug 2: colon-initializer, no-braced-body constructor
@@ -173,7 +181,10 @@ def test_dart_slicer_bug_2_and_4():
     blocks, _ = splicer._slice_by_braces(bug2_code, "dart", DART_RULES, 0, {})
     assert len(blocks) == 2, "Bug 2: Should find exactly 2 functions (the constructor and nextMethod)"
     assert blocks[0]["name"] == "LabeledGlobalKey"
-    assert bug2_code[blocks[0]["start_idx"]:blocks[0]["end_idx"]].strip() == "LabeledGlobalKey(this._debugLabel) : super.constructor();"
+    assert (
+        bug2_code[blocks[0]["start_idx"] : blocks[0]["end_idx"]].strip()
+        == "LabeledGlobalKey(this._debugLabel) : super.constructor();"
+    )
     assert blocks[1]["name"] == "nextMethod"
 
     # Bug 4: multi-line bare call-site invocation used as a list-literal element
@@ -210,13 +221,7 @@ def test_dart_slicer_multi_initializer_constructor():
     assert "Foo.raw" in names, "multi-initializer bodyless constructor must still be found"
     assert "nextMethod" in names
 
-    bodied_multi_init = (
-        "class Foo {\n"
-        "  Foo(this.a) : b = a, assert(a != null) {\n"
-        "    print(a);\n"
-        "  }\n"
-        "}\n"
-    )
+    bodied_multi_init = "class Foo {\n  Foo(this.a) : b = a, assert(a != null) {\n    print(a);\n  }\n}\n"
     blocks, _ = splicer._slice_by_braces(bodied_multi_init, "dart", DART_RULES, 0, {})
     assert [b["name"] for b in blocks] == ["Foo"], "multi-initializer constructor WITH a body must still be found"
 
@@ -244,6 +249,38 @@ def test_dart_slicer_long_parameter_list():
     assert "normalMethod" in names
 
 
+def test_dart_slicer_args_getters_and_operators_2309():
+    """
+    #2309-followup: two remaining `dart/function/args/agree[none]` causes on GitGalaxy's
+    side -- a paren-less getter (`Offset get pan;`) was counted as 1 arg (the bare name
+    text, with no `(` to unwrap, collapses to a single segment), and an operator overload
+    (`bool operator ==(Object other)`) was counted as 0 because the `args` regex can't
+    match a name token separated from its `(` by `==`/`[]`.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
+    code = (
+        "class Vec {\n"
+        "  Offset get pan;\n"  # abstract getter -> 0 args
+        "  double get scale => _scale;\n"  # arrow getter -> 0 args
+        "  bool operator ==(Object other) {\n    return true;\n  }\n"  # -> 1 arg
+        "  Vec operator +(Vec other) => _add(other);\n"  # -> 1 arg
+        "  Widget operator [](int index) {\n    return _at(index);\n  }\n"  # -> 1 arg
+        "  void move(double dx, double dy) {}\n"  # regression guard -> 2 args
+        "}\n"
+    )
+    blocks, _ = splicer._slice_by_braces(code, "dart", DART_RULES, 0, {})
+    args_by_name = {b["name"]: b.get("args") for b in blocks}
+    assert args_by_name.get("pan") == 0, args_by_name
+    assert args_by_name.get("scale") == 0, args_by_name
+    assert args_by_name.get("operator==") == 1, args_by_name
+    assert args_by_name.get("operator+") == 1, args_by_name
+    assert args_by_name.get("operator[]") == 1, args_by_name
+    assert args_by_name.get("move") == 2, args_by_name  # normal method unaffected
+
+
 def test_dart_slicer_bug_5_closure_invocation():
     # Regression case for GitHub issue #1624: closure-arguments in calls were wrongly identified as functions.
     from gitgalaxy.core.detector import StructuralExtractor
@@ -252,15 +289,7 @@ def test_dart_slicer_bug_5_closure_invocation():
     splicer = StructuralExtractor("dart", LANGUAGE_DEFINITIONS)
 
     # empty-args closure invocation shape
-    code1 = (
-        "class Foo {\n"
-        "  void nextMethod() {\n"
-        "    setState(() {\n"
-        "      x = 1;\n"
-        "    });\n"
-        "  }\n"
-        "}\n"
-    )
+    code1 = "class Foo {\n  void nextMethod() {\n    setState(() {\n      x = 1;\n    });\n  }\n}\n"
     blocks, _ = splicer._slice_by_braces(code1, "dart", DART_RULES, 0, {})
     names = [b["name"] for b in blocks]
     assert "setState" not in names, "Bug 5: Should exclude empty-args closure invocation"
@@ -283,13 +312,7 @@ def test_dart_slicer_bug_5_closure_invocation():
     assert "run" in names
 
     # No regression: named-parameter constructor must still be found
-    code3 = (
-        "class Baz {\n"
-        "  const Baz.raw({required this.a}) : b = a;\n"
-        "  void foo(int a, {int x = 1}) {\n"
-        "  }\n"
-        "}\n"
-    )
+    code3 = "class Baz {\n  const Baz.raw({required this.a}) : b = a;\n  void foo(int a, {int x = 1}) {\n  }\n}\n"
     blocks, _ = splicer._slice_by_braces(code3, "dart", DART_RULES, 0, {})
     names = [b["name"] for b in blocks]
     assert "Baz.raw" in names, "No regression: named-parameter bodyless constructor must still be found"
@@ -307,12 +330,24 @@ ARGS_CASES = {
         ("TargetFunc({required int a, String b = 'default'}) {", "({required int a, String b = 'default'})"),
         ("TargetFunc([int a = 1, int b = 2]) {", "([int a = 1, int b = 2])"),
         ("TargetFunc([List<int> x = const [1, 2, 3]]) {", "([List<int> x = const [1, 2, 3]])"),
-        ("TargetFunc({Map<String, dynamic> config = const {'key': 'value'}}) {", "({Map<String, dynamic> config = const {'key': 'value'}})",),
-        ("TargetFunc(Map<String, List<Map<int, String>>> crazyNested) {", "(Map<String, List<Map<int, String>>> crazyNested)"),
-        ("TargetFunc(void Function(int, String) cb, {required bool Function() test}) {", "(void Function(int, String) cb, {required bool Function() test})"),
+        (
+            "TargetFunc({Map<String, dynamic> config = const {'key': 'value'}}) {",
+            "({Map<String, dynamic> config = const {'key': 'value'}})",
+        ),
+        (
+            "TargetFunc(Map<String, List<Map<int, String>>> crazyNested) {",
+            "(Map<String, List<Map<int, String>>> crazyNested)",
+        ),
+        (
+            "TargetFunc(void Function(int, String) cb, {required bool Function() test}) {",
+            "(void Function(int, String) cb, {required bool Function() test})",
+        ),
         ("TargetFunc((int, String) recordArg) {", "((int, String) recordArg)"),
         ("TargetFunc({({int x, int y}) point}) {", "({({int x, int y}) point})"),
-        ("TargetFunc(\n  int a,\n  {\n    required String b,\n  }\n) {", "(\n  int a,\n  {\n    required String b,\n  }\n)"),
+        (
+            "TargetFunc(\n  int a,\n  {\n    required String b,\n  }\n) {",
+            "(\n  int a,\n  {\n    required String b,\n  }\n)",
+        ),
         ("TargetFunc(  int   a  , \n String   b ) {", "(  int   a  , \n String   b )"),
     ],
     "invalid": [
@@ -321,22 +356,25 @@ ARGS_CASES = {
         "/* (int a) */",
         "String str = '(nested(parens))';",
     ],
-    "xfail_invalid": [
-    ],
+    "xfail_invalid": [],
 }
+
 
 @pytest.mark.parametrize("payload,expected", ARGS_CASES["valid"])
 def test_dart_args_valid(payload, expected):
     assert_valid_match(DART_RULES["args"], payload, expected, "dart.args")
 
+
 @pytest.mark.parametrize("payload", ARGS_CASES["invalid"])
 def test_dart_args_invalid(payload):
     assert_invalid_no_match(DART_RULES["args"], payload, "dart.args")
+
 
 @pytest.mark.parametrize("payload", ARGS_CASES["xfail_invalid"])
 @pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)
 def test_dart_args_xfail_invalid(payload):
     assert_invalid_no_match(DART_RULES["args"], payload, "dart.args")
+
 
 # -------------------------------------------------------------------------
 # 4. DEPENDENCY CAPTURE RULES
@@ -355,7 +393,7 @@ DEPENDENCY_CAPTURE_CASES = {
         ("export 'src/internal.dart' show InternalClass;", "src/internal.dart"),
         ("import \n  'package:multiline/multiline.dart'\n  as ml;", "package:multiline/multiline.dart"),
         ("import \t 'package:tab/tab.dart';", "package:tab/tab.dart"),
-        ("import \"package:double_quotes/double_quotes.dart\";", "package:double_quotes/double_quotes.dart"),
+        ('import "package:double_quotes/double_quotes.dart";', "package:double_quotes/double_quotes.dart"),
         ("part 'foo.g.dart';", "foo.g.dart"),
         ("part of 'foo.dart';", "foo.dart"),
         ("part of my_library_name;", "my_library_name"),
@@ -371,13 +409,16 @@ DEPENDENCY_CAPTURE_CASES = {
     ],
 }
 
+
 @pytest.mark.parametrize("payload,expected", DEPENDENCY_CAPTURE_CASES["valid"])
 def test_dart_dependency_capture_valid(payload, expected):
     assert_valid_dependency_match(DART_RULES["_dependency_capture"], payload, expected, "dart._dependency_capture")
 
+
 @pytest.mark.parametrize("payload", DEPENDENCY_CAPTURE_CASES["invalid"])
 def test_dart_dependency_capture_invalid(payload):
     assert_invalid_no_match(DART_RULES["_dependency_capture"], payload, "dart._dependency_capture")
+
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CAPTURE_CASES["xfail_invalid"])
 @pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)

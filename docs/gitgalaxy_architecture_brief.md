@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-27T20:07:57.012927+00:00` |
-| **Scan Duration** | `9.77s` |
+| **Timestamp** | `2026-08-27T20:10:27.717155+00:00` |
+| **Scan Duration** | `7.57s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `16768655664c7340bd62d5528875874e3218b9da` |
+| **Git Commit** | `8dd9a6b69b1184c90793b49008f822ca329760eb` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -235,7 +235,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (95.9289%), Verification (80.0%)
 - **Heaviest Functions:** `_build_markdown` (Impact: 766.8), `generate_artifacts` (Impact: 43.4), `_generate_sqlite_graph` (Impact: 16.0)
 
-### 2. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **500.78**
+### 2. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **500.79**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 731.96 | **LOC:** 1157 | **CtrlFlow:** 67.0% | **Authorship Centralization:** 92.9%
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (99.9516%), Safety Score (81.9034%), Verification (80.0%)

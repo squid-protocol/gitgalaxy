@@ -1,6 +1,7 @@
 # Assembly (x86/ARM) — Structural Signature Coverage
 
-Snapshot generated 2026-08-20 against `main`. Source: `LANGUAGE_DEFINITIONS["assembly"]` in
+Snapshot generated 2026-08-20 against `main`; §3 `func_start` note and §9 tri-comparison section
+refreshed 2026-08-27 (PR #2320). Source: `LANGUAGE_DEFINITIONS["assembly"]` in
 `gitgalaxy/standards/language_standards.py`, `tests/extraction/languages/test_assembly.py` /
 `test_assembly_strict.py`, closed GitHub issues, and
 [`gitgalaxy-raw-output`](https://github.com/squid-protocol/gitgalaxy-raw-output). Re-run the
@@ -51,7 +52,7 @@ not the generic cross-language definition.
 | `branch` | x86 conditional/unconditional jumps and calls (`jmp je jne jz jnz ja jb jl jg jge jle jae jbe call ret loop`) plus ARM branch instructions (`b bl bx blr cbz cbnz tbz tbnz beq bne`) — deliberately excludes system exits/halts, which live under `high_risk_execution` instead. |
 | `args` | ABI calling-convention register coupling: x86-64 `[er]di/[er]si/[er]dx/[er]cx`, the `r8`/`r9` family with size suffixes (`r8d/r8w/r8b`), ARM `x0-7/w0-7/v0-7/xmm0-7/r0-7`, and the legacy 8/16-bit x86 forms (`ax/al/ah`, `si/di`) — the last two groups were closed gaps found by PR #940 (see §7), added specifically because this language's own `_meta.target_version` claims "Backwards Compatible." |
 | `structural_boundaries` | Data-movement and arithmetic primitives: `mov` and its `movabs/movsx/movzx/movb/movw/movl/movq/movaps/movups/movdqu` variants, `vmov*`, `lea`, `ldr`/`str` with size suffixes, `push/pop/add/sub/inc/dec/mul/imul/div/idiv/nop/ldp/stp`. Explicitly excludes linker visibility (`api`) and sections (`globals`). |
-| `func_start` | **Deliberately permissive** — matches ANY identifier followed by `:` at line start (`^[ \t]*(?!\.L\|\.LC\|\d\|\.text\|\.data\|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)`), excluding only `.L`/`.LC`-prefixed local labels, digit-leading labels, and `.text`/`.data`/`.bss` section markers. This is a real, load-bearing design difference from `agc_assembly`'s `func_start`, which instead requires the label be coupled to one of ~41 vetted real subroutine-entry opcodes on the same line. Generic assembly has no equivalent opcode whitelist — any real corpus can carry an arbitrary mix of NASM/GAS/MASM dialects and hand-rolled macro-generated labels, so the rule optimizes for recall over precision here; the tradeoff is that pure data/constant labels (not just subroutine entries) also match (confirmed in §7's PR #1955 tri-comparison work). |
+| `func_start` | **Permissive, with a data-label guard** — matches an identifier followed by `:` at line start, excluding `.L`/`.LC`-prefixed local labels, digit-leading labels, and `.text`/`.data`/`.bss` section markers, **and** (since 2026-08-27) a trailing negative lookahead that rejects a label whose colon is followed — same line, or the very next line — only by a pure data-emission / location-counter directive (`.asciz`, `.byte`, `.long`, `.org`, `.endobj`, `.incbin`, NASM `db`/`resb`/`times`, …). This last clause is the generic-assembly counterpart to `agc_assembly`'s `func_start`, which instead uses a *positive* lookahead requiring one of ~41 vetted subroutine-entry opcodes on the same line; generic assembly has no practical opcode whitelist across its NASM/GAS/MASM/legacy-real-mode dialect spread, so it inverts the test — reject the labels that are unambiguously data rather than accept only the labels that are unambiguously code. Section / visibility / type / align directives are deliberately *not* in the reject list (they legitimately sit between a real function's label and its first instruction). Still recall-biased overall; the guard only removes the clear data-table false positives (`ape.mbrpad`, ELF-note labels, `.short` matrices — see §7's 2026-08-27 entry and §9). |
 | `class_start` | `struc <name>` (NASM) / `<name> STRUCT` (MASM) / `.struct <name>` (GAS-adjacent) structure-definition declarations, either name-then-keyword or keyword-then-name ordering. **This is wired here** — unlike `agc_assembly`, which has no class/struct concept at all and is hard-`None` for this key, generic x86/ARM assembler dialects do have a real structure-declaration macro convention worth capturing. |
 
 **Phase 2: Risk & structural integrity**
@@ -149,10 +150,10 @@ has no object/structure concept at all.
 
 None. Grepping both `tests/extraction/languages/test_assembly.py` and
 `test_assembly_strict.py` for `known_limitation`-named tests returns nothing — there are no
-deliberately-not-fixed gaps documented in the test suite for this language at this time. (A real,
-*unfixed but filed* gap does exist — the shared `_slice_by_labels` truncation/discard bug tracked
-by issue #1949 — but it's not test-suite-documented as an accepted limitation; see §7's "open,
-unresolved" note instead.)
+deliberately-not-fixed gaps documented in the test suite for this language at this time. (The
+shared `_slice_by_labels` truncation/discard bug that used to be noted here as *filed but unfixed*
+— issue #1949 — is now **closed**. One filed, still-open, cross-language item remains: #1954,
+`prism.py`'s Form Feed / Vertical Tab line-splitting bug; see §7.)
 
 ## 6. Test depth
 
@@ -218,23 +219,36 @@ unresolved" note instead.)
   (cosmetic, not a real gap), a genuine ctags limitation on purely-numeric local labels, the
   #1949 `detector.py` bug (below) independently reconfirmed live in assembly too, a
   correct-by-design GitGalaxy exclusion for GCC's `.L`-prefix convention, and a genuine GitGalaxy
-  precision gap — generic assembly's `func_start` has no following-instruction requirement, unlike
-  `agc_assembly`'s, so it also matches pure data/constant labels (the direct real-world consequence
-  of §3's "deliberately permissive" design note). ctags earned its first chart badge on assembly's
-  Func Precision panel as a result (92.6% vs. GitGalaxy's 85%) — an honest, unforced result, no
-  credit/debit either direction.
+  precision gap — generic assembly's `func_start` had no following-instruction requirement, unlike
+  `agc_assembly`'s, so it also matched pure data/constant labels. At the time this left ctags ahead
+  on the Func Precision panel (92.6% vs. GitGalaxy's 85%). **Superseded by PR #2320 below**, which
+  fixed that precision gap and the reconciler name-matching artifact and took GitGalaxy to 100% —
+  see §9 for the current picture.
+
+- PR **#2320** (2026-08-27) — "fix(assembly): data-label `func_start` false positives + tri-comparison
+  reconciler dot-normalization." Two coordinated fixes plus a ledger re-validation, driven by the
+  `tri-comparison-ledger-sweep` skill against assembly's remaining Func Precision gap (95/102):
+  (1) **engine** — `func_start` gained a bounded trailing negative lookahead (§3) that rejects a
+  label followed only by a pure data / location-counter directive; this removed the confirmed
+  `ape.mbrpad` false positive and, run against the full corpus, ~30 more genuine data-table labels
+  wrongly counted as functions in `cosmopolitan/ape.S` (61→39 raw `func_start` signals),
+  `start.S`, and `hellosilicon/matrixmultneon.s`. (2) **tri-comparison tooling** —
+  `tri_comparison_reconcile.py` now normalizes a single leading `.` on NASM/GAS local labels
+  before cross-tool pairing, so GitGalaxy's `.loop` pairs with ctags' `loop` (same label, same
+  line) instead of showing as a two-sided phantom disagreement. Both `function/existence` ledger
+  shapes re-validated: the GitGalaxy-solo shape dropped 7→2 (`.1`/`.2`, real numeric local code
+  labels ctags structurally can't tag) and earned `credit_tools: ["gitgalaxy"]`, taking
+  GitGalaxy's assembly Func Precision to a clean **100%**. Golden masters re-blessed (assembly
+  corpus files + one global tech-debt average).
 
 **Open, unresolved (found along the way, not yet fixed for assembly):**
-- [#1949](https://github.com/squid-protocol/gitgalaxy/issues/1949) (OPEN) — "`detector.py`
+- [#1949](https://github.com/squid-protocol/gitgalaxy/issues/1949) (**CLOSED**) — "`detector.py`
   `_slice_by_labels`: `assembly_returns` truncates real bodies, single-line blocks silently
   discarded (assembly/cobol/fortran/abap/agc_assembly)." Two independent bugs in the shared
-  label-based function-slicing path every one of these five languages uses. Confirmed to affect
-  assembly directly: the `assembly_returns` early-termination keyword set matches the substring
-  "return" inside a doc-comment (`// @return dl = pc_drive...`), truncating the following label —
-  seen at `language-crucible/data/assembly/cosmopolitan/ape.S:251` (label `pc:`). The companion bug
-  (`len(block.splitlines()) < 2` silently discarding any function whose body reduces to one
-  non-blank line) generalizes to assembly's own single-instruction "trampoline" labels the same way
-  it does for `agc_assembly`'s. Not yet fixed for assembly as of this writing.
+  label-based function-slicing path; confirmed to have affected assembly directly (`pc:` at
+  `cosmopolitan/ape.S:251` truncated by a `// @return` doc-comment; single-instruction trampoline
+  labels silently discarded). Fixed and closed since the 2026-08-20 snapshot — kept here for the
+  history, no longer an open gap.
 - [#1954](https://github.com/squid-protocol/gitgalaxy/issues/1954) (OPEN) — `prism.py`'s
   `_strip_single_line_comments` uses `str.splitlines()`, which splits on Form Feed/Vertical
   Tab/other Unicode line-boundary characters beyond `\n`/`\r\n`. Found during the same
@@ -321,55 +335,50 @@ here (`struc`/`STRUCT`/`.struct`, §3/§4) — the local corpus's 15 real files 
 syntax, so both tools correctly report zero and no ledger shape exists for it; not an unmeasured
 gap, just a corpus that doesn't exercise the construct.
 
-Two `function/existence` shapes existed in `docs/self_scan/tri_comparison_ledger.json`, both
-investigated and validated 2026-08-20 by cross-referencing GitGalaxy's raw regex, its real
-pipeline/DB output, and ctags' actual tagged output directly against the real corpus source
-(not by trusting either tool's self-report). Unlike agc_assembly's fairly clean split, this
-language's shapes mix real wins and real gaps in BOTH directions — a more nuanced result the
-sweep reports honestly rather than smoothing over:
+Two `function/existence` shapes exist in `docs/self_scan/tri_comparison_ledger.json`, first
+investigated 2026-08-20 and **re-validated 2026-08-27** after the sweep's 95/102 Func Precision
+gap was traced to three separable causes and two of them fixed (PR #2320, §7). Current state:
+GitGalaxy **97/97 (100%)** on Func Precision, ctags **95/121 (78.5%)** — GitGalaxy holds the
+panel badge outright.
 
-**GitGalaxy solo-correct shape.** Three confirmed mechanisms:
-- A dot-prefix naming-convention split, NOT a real detection gap: NASM/GAS local labels scoped to
-  the preceding global label are written with a leading `.` (`.load_vec:`/`.loop:` in
-  `bootos/os.asm:197,306`). GitGalaxy's `func_start` captures the name verbatim; ctags' Asm parser
-  strips the leading dot before emitting the tag. Confirmed both tools found the SAME real label —
-  they just serialize the name differently, which the ledger's exact-string grouping surfaces as
-  two separate one-sided shapes rather than one agreement.
-- A genuine ctags gap: purely numeric local labels (`.1:`/`.2:` in `bootos/counter.asm:52,67`) are
-  tagged by ctags under no name at all (confirmed: neither `1`/`2` nor `.1`/`.2` appear in its
-  output). GitGalaxy correctly finds these.
-- A genuine GitGalaxy precision gap, the mirror image of agc_assembly's own win (§3's note on
-  `func_start`'s permissive design): because assembly's `func_start` has no following-instruction
-  requirement, it also matches pure data/constant declaration labels — `max_entries:` (an `equ`
-  constant, `bootos/os.asm:166`) and several string/metadata labels in `cosmopolitan/ape.S`
-  (`ape.ident`, `freebsd.ident`, `netbsd.ident`, `openbsd.ident`, `str.error`, `str.crlf`,
-  `str.e820`, `str.oldcpu`) followed only by `.asciz`/data directives. Not filed as a bug — a
-  narrower per-opcode whitelist like agc_assembly's isn't practical across this language's
-  intentionally wide dialect coverage — but a real, honestly-reported cost of that design choice.
+**GitGalaxy solo-correct shape** (`agree[gitgalaxy]_vs[ctags]`, 7 → 2 occurrences).
+- *Name-serialization split, never a real disagreement (4 occ, now resolved in tooling):*
+  NASM/GAS local labels scoped to the preceding global label carry a leading `.` (`.load_vec:`/
+  `.loop:`/`.empty:`/`.find:` in `bootos/os.asm`). GitGalaxy's `func_start` keeps the dot; ctags'
+  Asm parser strips it (`load_vec`/`loop`/…). Both tools found the identical label at the identical
+  line. `tri_comparison_reconcile.py` now normalizes a single leading dot before cross-tool
+  pairing, so these register as agreements instead of a two-sided phantom disagreement.
+- *Genuine ctags structural limitation (2 occ, GitGalaxy credited):* purely numeric local code
+  labels — `.1:` (`bootos/counter.asm:52`, opens a routine: `int 0x22` …) and `.2:` (`:67`,
+  `mov [di],ax` …) — cannot be tagged by Universal Ctags' Asm parser under any name (a tag name
+  must start with a letter). GitGalaxy is correct; ctags has no way to represent these. This is
+  the whole residual of the shape now, so it carries `credit_tools: ["gitgalaxy"]` — the two
+  occurrences count toward GitGalaxy's precision numerator, taking it to 97/97.
+- *Genuine GitGalaxy false positive (1 occ, now fixed):* `ape.mbrpad:` (`cosmopolitan/ape.S:525`),
+  an MBR-padding object (`.org 0x1b4` / `.endobj ape.mbrpad`), was being counted as a subroutine.
+  `func_start` gained a bounded negative lookahead (§3) that rejects a label followed only by a
+  pure data / location-counter directive. Run against the full ~80-repo corpus this also removed
+  ~30 more genuine data-table labels from `cosmopolitan/ape.S` (raw `func_start` signal 61 → 39),
+  `start.S` (ELF-note labels), and `hellosilicon/matrixmultneon.s` (`.short`/`.fill` matrices) —
+  all verified against source as declarative data, no real subroutine touched.
 
-**ctags solo-correct shape.** Three confirmed mechanisms:
-- The SAME `detector.py` `_slice_by_labels` defect filed for agc_assembly as
-  [#1949](https://github.com/squid-protocol/gitgalaxy/issues/1949), independently confirmed live
-  here: `del_command:` (`bootos/os.asm:269`) sits immediately before the next label with nothing
-  between, collapsing to a one-line block and getting discarded; `C:`/`prtstr:`
-  (`hellosilicon/matrixmultneon.s:90,92`) collapse the same way once a trailing blank line strips
-  away. A follow-up read while chasing this also surfaced a `// @return` doc-comment inside
-  `ape.S` false-matching the same terminator-keyword mechanism (also tracked under #1949).
-- A correct-by-design GitGalaxy exclusion: `.Lenv0:`/`.Largv0:` (`cosmopolitan/ape.S:1784-1785`)
-  start with the `.L` prefix `func_start`'s own negative lookahead deliberately excludes (GCC's
-  convention for compiler-generated local/temporary labels) — both are genuinely data labels
-  (`.asciz` string constants) here. ctags has no such convention-awareness and tags them anyway.
-- ctags itself over-tags some non-callable constructs GitGalaxy correctly excludes:
-  C-preprocessor `#define` macro constants (`GRUB_MAGIC`/`GRUB_EAX`/`GRUB_AOUT`/`GRUB_CHECKSUM`/
-  `USE_SYMBOL_HACK`, `cosmopolitan/ape.S:49,1679-1682`) are not real assembly labels at all (no
-  trailing `:`), but ctags' Asm parser tags them regardless.
+**ctags solo-correct shape** (`agree[ctags]_vs[gitgalaxy]`, 26 occurrences — unchanged count,
+but now cleanly one-directional). Every one is ctags' generic Asm parser tagging a line-start
+label that is not a subroutine entry, and GitGalaxy correctly excludes all 26:
+- Data-emission labels: `intro`/`error_message`/`commands`/`int_0x20` in `bootos/os.asm` (`db`/`dw`
+  strings and jump tables); `A`/`B`/`C` in `hellosilicon/matrixmultneon.s` (`.short`/`.fill`
+  matrices); `prtstr`/`getcreditcards`/`instr` (`.asciz`/`.ascii` strings).
+- Section / object markers in `cosmopolitan/ape.S`: `__ro`/`cstr`/`_gdt_end`/`sconf` (`.endobj`),
+  `ape_loader` (`.incbin`), `ape_phdrs`/`ape_macho`/`ape_grub`/`ape_mz`/`apesh` (ELF/Mach-O/
+  Multiboot/shell header data via `.long`/`.ascii`), `_gdtr`/`_gdtrlo` (GDT register values),
+  `ape_idata_idtend`/`ape_idata_iatend` (`.byte` terminators).
+- `.Lenv0:`/`.Largv0:` — `.L`-prefixed GCC compiler-local labels `func_start` deliberately
+  excludes.
 
-No `credit_tools`/`debit_tools` adjustment on either shape — each mixes a real, uncorrected
-GitGalaxy defect (#1949) with cases where ctags is the one over-tagging, not a clean corroboration
-story in either direction. Net effect after validation: ctags legitimately earned its first real
-chart badge on this language's Func Precision panel (92.6%, 112/121, vs. GitGalaxy's 85%,
-112/132) — an honest result driven directly by the `func_start` permissiveness tradeoff above, not
-a forced or manufactured outcome.
+No `debit_tools` on this shape: ctags alone claims these 26, so they already sit in its own
+precision denominator with no corroboration — there is no shared-consensus mistake to subtract.
+The `#1949` `_slice_by_labels` recall bug that used to be mixed into this shape is **fixed and
+closed**; there is no remaining GitGalaxy recall miss here.
 
 **A separate, more serious bug found during the same investigation, not part of either ledger
 shape:** cross-referencing GitGalaxy's own reported `function_data.start_line` values against

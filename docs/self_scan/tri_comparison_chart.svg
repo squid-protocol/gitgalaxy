@@ -104,13 +104,13 @@
 <rect class="stripe" x="16" y="338" width="780" height="44"/>
 <text class="lang-label" x="20" y="363.5">assembly</text>
 <rect class="bar-track" x="154" y="343" width="88" height="34" rx="2"/>
-<rect x="154" y="343" width="74.2" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="351">102</text>
+<rect x="154" y="343" width="70.5" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="351">97</text>
 <rect x="154" y="355" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="363">121</text>
 <rect class="bar-track" x="286" y="343" width="88" height="34" rx="2"/>
-<rect x="286" y="343" width="82.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="351">95/102</text>
+<rect x="286" y="343" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="351">97/97</text>
 <rect x="286" y="355" width="69.1" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="330.0" y="363">95/121</text>
 <circle cx="390.0" cy="360.0" r="8" fill="#2a78d6"/>
@@ -119,7 +119,7 @@
 <rect class="bar-track" x="550" y="343" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="343" width="88" height="34" rx="2"/>
 <rect x="682" y="343" width="88" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="351">199§</text>
+<text class="bar-value-label" x="726.0" y="351">204§</text>
 <text class="lang-label" x="20" y="407.5">c</text>
 <rect class="bar-track" x="154" y="387" width="88" height="34" rx="2"/>
 <rect x="154" y="387" width="85.1" height="10" rx="2" fill="#2a78d6"/>

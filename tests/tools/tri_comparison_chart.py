@@ -343,7 +343,7 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
             continue
 
         func_recall, func_precision, args_scores, func_groups = reconcile_symbols(
-            results, "function", data.available_tools
+            results, "function", data.available_tools, lang
         )
         data.func_recall = func_recall
         data.func_precision = func_precision
@@ -352,7 +352,9 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
 
         class_groups: list = []
         if lang not in _CLASS_SCOPE_EXCLUDED_LANGS:
-            class_recall, class_precision, _, class_groups = reconcile_symbols(results, "class", data.available_tools)
+            class_recall, class_precision, _, class_groups = reconcile_symbols(
+                results, "class", data.available_tools, lang
+            )
             data.class_recall = class_recall
             data.class_precision = class_precision
 

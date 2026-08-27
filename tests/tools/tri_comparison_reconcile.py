@@ -124,6 +124,27 @@ class DiscrepancyGroup:
 
 _EXAMPLE_CAP = 10
 
+# Local-label leading-dot convention: NASM/GAS scope a local label to the preceding global
+# label by writing it with a leading '.' (`.loop:`, `.empty:`). Universal Ctags' Asm parser
+# strips that '.' before emitting the tag (`loop`, `empty`); GitGalaxy's func_start captures
+# it verbatim -- so the SAME real label at the SAME line lands in two different name buckets
+# and reads as a spurious cross-tool disagreement (confirmed: bootos/os.asm's `.loop`/`.empty`/
+# `.find`/`.load_vec`, ledger shapes assembly/function/existence/agree[gitgalaxy]_vs[ctags] and
+# its mirror). Only these two languages use the convention; every other language pairs on the
+# verbatim name, same "checked for this language, not applied blindly" discipline as
+# tri_comparison_gatherer.py's javascript-only normalization.
+_LEADING_DOT_LOCAL_LABEL_LANGS = frozenset({"assembly", "agc_assembly"})
+
+
+def _pairing_name(name: str, language: str) -> str:
+    """The name an occurrence is bucketed under for cross-tool pairing. Verbatim in the normal
+    case; for assembly dialects a single leading '.' on a local label is dropped so GitGalaxy's
+    `.loop` pairs with ctags' `loop` (same label, same line). A `..`-prefixed name is left
+    alone (not a real local-label form)."""
+    if language in _LEADING_DOT_LOCAL_LABEL_LANGS and len(name) > 1 and name[0] == "." and name[1] != ".":
+        return name[1:]
+    return name
+
 
 def _pair_occurrences_by_rank(
     occs_by_tool: dict[str, list[Occurrence]],
@@ -142,8 +163,11 @@ def reconcile_symbols(
     results: list[FileReadings],
     symbol_type: str,
     available_tools: tuple[str, ...],
+    language: str = "",
 ) -> tuple[dict[str, MetricScore], dict[str, MetricScore], dict[str, MetricScore], list[DiscrepancyGroup]]:
-    """symbol_type: "function" or "class". available_tools: whichever of ALL_TOOLS actually have
+    """symbol_type: "function" or "class". language: the language these readings are for, used
+    only for the assembly leading-dot local-label normalization (see `_pairing_name`); the
+    caller knows it, this module otherwise doesn't. available_tools: whichever of ALL_TOOLS actually have
     a reading for this language -- both tree-sitter (absent for 9 of GitGalaxy's 45 languages,
     ctags-only there) and ctags (absent for 7 of the 31 tree-sitter-baselined languages) are
     independently optional per language; GitGalaxy is the only one always present.
@@ -183,7 +207,7 @@ def reconcile_symbols(
         by_name: dict[str, dict[str, list[Occurrence]]] = defaultdict(lambda: {t: [] for t in available_tools})
         for tool, occs in per_tool_occs.items():
             for o in occs:
-                by_name[o.name][tool].append(o)
+                by_name[_pairing_name(o.name, language)][tool].append(o)
 
         for name, occs_by_tool in by_name.items():
             for tool in occs_by_tool:

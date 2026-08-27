@@ -7140,8 +7140,23 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             ),
             # 4. func_start (Executable Logic Anchors)
             # Subroutine entry points. EXCLUDES data labels or local loop markers.
+            # The trailing negative lookahead is the generic-assembly counterpart to
+            # agc_assembly's "label must be followed by a real opcode" positive lookahead,
+            # inverted for the own-line-label convention this dialect uses: a label whose
+            # colon is followed (same line, or the very next line) only by a pure
+            # data-emission / location-counter directive (`.asciz`, `.byte`, `.org`,
+            # `.endobj`, NASM `db`/`resb`/`times`, ...) is a data object, not a subroutine
+            # entry -- e.g. cosmopolitan/ape.S's `ape.mbrpad:` / `.org 0x1b4`
+            # (assembly/function/existence/agree[gitgalaxy]_vs[ctags], the mirror of
+            # agc_assembly's own data-label win). Section/visibility/type/align directives
+            # are deliberately NOT in the list -- those legitimately sit between a real
+            # function's label and its first instruction.
             "func_start": re.compile(
-                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)",
+                r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)"
+                r"(?![ \t]*:[ \t]*(?:\r?\n[ \t]*)?"
+                r"(?:\.(?:org|endobj|asciz|ascii|string|byte|hword|short|word|long|int|value"
+                r"|quad|octa|single|double|float|fill|space|skip|zero|incbin)"
+                r"|d[bwdq]|res[bwdq]|times)\b)",
                 re.M,
             ),
             # 5. class_start (Object / Entity Declarations)

@@ -2988,6 +2988,11 @@ class StructuralExtractor:
             # args-pattern search to the signature text, never the body. See
             # `_calculate_block_metrics`'s `args_search_text` docstring.
             args_sig_end: Optional[int] = None
+            # #2309: dart's bodyless `this.`/`super.`-forwarding constructor
+            # branch sets this directly via `_count_top_level_args` instead --
+            # see that branch below for why the `args` regex itself can't
+            # safely be taught to accept this shape.
+            args_count_override: Optional[int] = None
 
             # #789: csharp's func_start regex (unlike every other C-family
             # language here) doesn't consume the parameter list or require
@@ -3432,7 +3437,25 @@ class StructuralExtractor:
                         elif ch == "]":
                             depth_bracket = max(0, depth_bracket - 1)
                         elif ch == "<":
-                            depth_angle += 1
+                            # #2308 item 3: a bare `<` is ambiguous between a generic's
+                            # open bracket (`SomeType<int>`, always attached directly to
+                            # the preceding identifier with no space) and a numeric
+                            # less-than comparison (`order < double.infinity`, always
+                            # space-separated in idiomatic/dart-formatted code, and common
+                            # inside a constructor's colon-initializer-list `assert(...)`
+                            # clauses). Treating every `<` as a generic-open regardless of
+                            # context poisons `depth_angle` on a bare comparison (its `>`,
+                            # if any, is usually on a DIFFERENT operand and never closes
+                            # it), permanently blocking the depth-0 check below from ever
+                            # being true again -- silently dropping the real `;`/`{`
+                            # terminator for the rest of the scan (confirmed via
+                            # `OrdinalSortKey`'s `assert(order > ...), assert(order <
+                            # double.infinity);` initializer list, language-crucible/data/
+                            # dart/flutter/semantics.dart:7027). Only count it as a
+                            # generic-open when directly attached to an identifier/`]`/`>`
+                            # (no space), matching how Dart generics are actually written.
+                            if pos > 0 and (safe_code[pos - 1].isalnum() or safe_code[pos - 1] in "_]>"):
+                                depth_angle += 1
                         elif ch == ">":
                             depth_angle = max(0, depth_angle - 1)
                         elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
@@ -3449,6 +3472,23 @@ class StructuralExtractor:
 
                 term_idx, term_kind = _dart_scan_terminator(params_end_idx, opener + ";=:,")
 
+                # #2309: bounds the `args` regex's search to just the signature
+                # (through the first real terminator char), the same
+                # `args_sig_end`/`args_search_text` mechanism objc/c/cpp already use
+                # (see `_calculate_block_metrics`'s own docstring). Dart never set
+                # this before, so `args_search_text` stayed None and the `args`
+                # pattern's `.search()` ran unbounded over the WHOLE block including
+                # the body -- harmless while its terminator lookahead excluded `;`
+                # (a body's own call-statement terminator), but once `;` was added
+                # to support bodyless `this.`/`super.`-forwarding constructors
+                # (`_DeleteTextAction(this.state, ...);`,
+                # flutter/editable_text.dart:6353), an unbounded search on any
+                # PAREN-LESS declaration (a getter like `Rect get bounds { ... }`,
+                # flutter/editable_text.dart:6241, whose own signature has no `(...)`
+                # to match at all) fell through into the body and wrongly borrowed
+                # the first inner call statement's own args instead (`bounds`
+                # measured 1, borrowed from `box.getTransformTo(null);` deep in its
+                # body -- confirmed real via direct regex probe, not hypothetical).
                 if term_kind == "comma":
                     continue  # Bug 4: list-element bare call
                 if term_kind == "colon":
@@ -3457,6 +3497,10 @@ class StructuralExtractor:
                     # scanning past the whole list (excluding "," from stop_chars, so
                     # they're skipped rather than mistaken for Bug 4's terminator) for
                     # the real terminator: either a bodyless `;` or a body-bearing `{`.
+                    # `:` was already one of `args`'s accepted terminators before
+                    # #2309, so bounding right past it (not the whole initializer
+                    # list) is enough either way.
+                    args_sig_end = term_idx + 1
                     colon_term_idx, colon_term_kind = _dart_scan_terminator(
                         term_idx + 1, opener + ";", search_limit=len(safe_code)
                     )
@@ -3468,13 +3512,29 @@ class StructuralExtractor:
                         continue
                 elif term_kind == "semi":
                     end_idx = term_idx + 1  # Bug 2: bodyless constructor
+                    # #2309: count the real parameter list directly instead of
+                    # relying on the `args` regex here -- that regex must never
+                    # accept a bare `;` terminator (it's `.search()`ed over the
+                    # whole block for dart, so accepting `;` would just as
+                    # readily match a real call statement inside some OTHER
+                    # zero-paren declaration's body; see language_standards.py's
+                    # own comment on this same issue for the confirmed false
+                    # positive). `_count_top_level_args` on the signature text
+                    # already known-good (func_start + `_find_balanced_end`
+                    # already validated real, balanced parens to get here) has
+                    # no such ambiguity.
+                    args_count_override = self._count_top_level_args(
+                        safe_code[start_idx:params_end_idx], treat_as_body=False
+                    )
                 elif term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                    args_sig_end = term_idx + 1
                 elif term_kind == "arrow":
                     semi_after_arrow = safe_code.find(";", term_idx, dart_search_limit)
                     if semi_after_arrow == -1:
                         continue
                     end_idx = semi_after_arrow + 1
+                    args_sig_end = min(term_idx + 2, end_idx)  # +2: past the full "=>"
                 else:
                     continue
             # #1629: typescript/javascript idiomatically use brace-less,
@@ -3842,6 +3902,7 @@ class StructuralExtractor:
                 end_idx,
                 spatial_map,
                 args_search_text,
+                args_count_override,
             )
             satellites.append(sat)
             sum_fxn_impact += mag

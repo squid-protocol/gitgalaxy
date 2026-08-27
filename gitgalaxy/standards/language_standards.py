@@ -9623,6 +9623,25 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # every zero/one-arg signature by +1 the same way Python's did
             # (#1199). Name group added to the first alternative too, purely
             # so existing extraction tests keep passing.
+            # #2309 (investigated, NOT fixed via this regex -- see detector.py's
+            # dart branch instead): a bodyless (`;`-terminated) `this.`/`super.`-
+            # forwarding constructor (`_DeleteTextAction(this.state, ...);`,
+            # flutter/editable_text.dart:6353) reads 0 args because `func_start`
+            # accepts a bare `;` terminator for these but this SEPARATE
+            # `args`-counting regex never did. Adding `;` to the trailing
+            # lookahead here was tried and reverted: `test_dart_args_invalid`
+            # (`tests/extraction/languages/test_dart.py`) already asserts this
+            # regex must NEVER match a bare call statement (`foo(x);`) --
+            # `func_start`'s own Invocation Shield (#1221) doesn't apply here,
+            # since this regex is also `.search()`ed over the whole function
+            # `block` when dart supplies no `args_search_text` (true before
+            # #2309's own detector.py fix), so a `;`-accepting version matches
+            # the FIRST bare call statement inside a zero-paren declaration's own
+            # body (e.g. `Rect get bounds { ... box.getTransformTo(null); ...
+            # }`, wrongly borrowing 1 arg) just as readily as a real bodyless
+            # ctor. Fixed instead via `args_count_override` in detector.py,
+            # which counts the real parameter list directly for this one shape
+            # without loosening this shared regex's own contract.
             "args": re.compile(
                 r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b([A-Za-z_$][\w$]*)(?:[ \t\n]*<[^>]*>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*(?:\{|=>|:|async|sync))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*=>",
                 re.I | re.M,
@@ -9672,19 +9691,42 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
-                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
-                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
                 r"|"
+                # #2308 item 1: `implements`/`with` added to every occurrence of this
+                # keyword-exclusion list (all 8, shared verbatim across all 4
+                # alternatives). The outermost `(?!(?:implements|with|extends)\b)`
+                # guard at this regex's very start only rejects a match that STARTS
+                # on one of these keywords -- it doesn't stop the return-type-prefix
+                # token loop below from swallowing one of them as an ordinary interior
+                # token when the match starts on an earlier line instead (e.g. a
+                # multi-line `class Foo extends Base\n    with\n        MixinA,\n
+                # MixinB\n    implements SomeInterface {` header, where a match
+                # starting on `MixinB`'s own line can consume `implements` as its
+                # final "return-type" token and land on `SomeInterface` as a phantom
+                # function name). Confirmed via flutter/editable_text.dart:2480's
+                # `EditableTextState ... implements AutofillClient {` header.
+                # Deliberately does NOT add `extends` here -- already confirmed unsafe
+                # in this same investigation (#2072 item 1): `extends` also appears
+                # inside a generic method's own type-parameter bound
+                # (`pushNamed<T extends Object?>(...)`), which this token loop cannot
+                # distinguish from a bare class-header continuation without real
+                # bracket-depth tracking. A class header that continues via a bare
+                # `extends` on its own line (rare -- `extends` is almost always
+                # attached to the same line as `class Foo`) can still slip through;
+                # left as a known, documented residual limitation rather than risk
+                # breaking the far more common generic-bound pattern.
                 # #2071: this zero-prefix branch's lookahead used to accept a bare
                 # `=>` unconditionally (no `get` required) and validated a preceding
                 # "parameter list" with a naive, non-balanced-paren `\([^)]*\)` --
@@ -9701,14 +9743,38 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # rejects a parameter list that opens with `:` (only valid in Dart's
                 # object-destructuring patterns, e.g. `StatefulElement(:final T
                 # state) => state,` -- never a real parameter list).
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension|typedef|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
+                # #2308 item 2 (investigated, NOT fixed -- confirmed unsafe): this
+                # alternative requires `this.`/`super.` inside the parens, on the
+                # theory that dart's zero-prefix valid cases are all constructors
+                # that always have bodies anyway -- true for constructors that
+                # forward fields, but a bodyless DEFAULT/named constructor with an
+                # EMPTY parameter list (`ClassName();`, e.g. flutter/semantics.dart's
+                # `ChildSemanticsConfigurationsResultBuilder();`) has neither and
+                # never matches. Widening this lookahead to also accept
+                # whitespace-only parens (tried in this same investigation) DOES
+                # recover that shape, but this branch's NAME pattern
+                # (`_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?`) is structurally identical for a
+                # real constructor declaration and a bare STATIC METHOD CALL
+                # STATEMENT with zero arguments -- `FlutterTimeline.finishSync();`,
+                # `LiveText.startLiveTextInput();`, `SystemNavigator.
+                # selectSingleEntryHistory();` (all real, all confirmed
+                # false-positive-matched by the widened version against
+                # language-crucible/data/dart). Telling the two apart needs knowing
+                # whether this line sits at class-body top level (declaration) or
+                # nested inside a method body (statement) -- real brace-depth
+                # tracking from the enclosing class's own opening brace, which this
+                # regex has no mechanism for. Left unfixed rather than trade one
+                # recall gap for a new, more common precision regression; a real
+                # fix belongs in detector.py with actual scope tracking, not a
+                # regex-only change here.
                 r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?\([^)]*(?:this\.|super\.)[^)]*\)[ \t\n]*;)"
                 r")",
                 re.M,

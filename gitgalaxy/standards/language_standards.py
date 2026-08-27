@@ -12563,6 +12563,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
         ],
         # EXECUTION SIGNATURES: Grammars are compiled into C/C++ state machines; no shebangs exist.
         "shebangs": [],
+        # INTERNAL DISCRIMINATOR (Collision Resolution Only): `.y`/`.yy`/`.ypp` (and the lex
+        # `.l` family) collide with C -- the C-action blocks in a real grammar routinely
+        # out-mass the grammar itself, so a plain lexical density scan misclassifies
+        # action-heavy grammars as `c` (confirmed: freebsd's config.y). These line-start
+        # markers are definitive yacc/bison/lex syntax that no plain C file ever contains:
+        # the `%{`/`%}` prologue delimiters, the `%%` section separator, and the `%token`/
+        # `%union`/... declaration keywords. Matches the same collision-resolution role
+        # objective-c/matlab already use for `.m`.
+        "internal_discriminator": re.compile(
+            r"^%\{|^%\}|^%%[ \t]*(?:$|/[/*])"
+            r"|^%(?:token|type|union|left|right|nonassoc|precedence|start|prec|expect(?:-rr)?"
+            r"|define|code|option|name-prefix|pure-parser|glr-parser|parse-param|lex-param"
+            r"|require|language|locations|destructor|printer|initial-action|empty)\b",
+            re.M,
+        ),
         # UPGRADED: Maps to Family 1 (Standard C-Style)
         # Rationale: Yacc and Lex files interleave grammar definitions with pure C/C++ code
         # blocks (enclosed in %{ %}), relying entirely on standard '/* */' and '//' comments.

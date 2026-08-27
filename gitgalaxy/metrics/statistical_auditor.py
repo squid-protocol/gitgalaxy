@@ -213,6 +213,42 @@ class StatisticalAuditor:
                     resolved_count += 1
                     continue
 
+            # ---> DECISIVE COLLISION-RESOLUTION KEEP <---
+            # The ecosystem consensus above can only rescue an ambiguous file when the repo
+            # has OTHER, confidently-parsed files of the same extension to vote. For an
+            # extension that is *always* a collision (e.g. `.y`, claimed by both `c` and
+            # `yacc`), no such vote can ever exist, so a real grammar file that classified
+            # correctly and extracted real structure was still being silently deleted here
+            # (#1926). A file that (a) came in via a genuine extension collision -- not a
+            # bare Tier-4 lexical guess with no extension support -- (b) resolved decisively
+            # (high identity confidence) and (c) actually produced extracted structure is
+            # not a hallucination; keep it rather than banish it.
+            proof_str = artifact.get("telemetry", {}).get("identity_source_proof", artifact.get("source_proof", ""))
+            confidence = artifact.get("telemetry", {}).get("identity_confidence", artifact.get("intensity", 0.0))
+            equations = artifact.get("equations", {})
+            signal_hits = sum(v for k, v in equations.items() if k in self.SIGNAL_KEYS and isinstance(v, (int, float)))
+            has_structure = len(artifact.get("functions", [])) > 0 or signal_hits >= 5
+
+            if (
+                "Collision" in proof_str
+                and current_lang not in ("", "unknown", "undeterminable", "plaintext")
+                and confidence >= 0.85
+                and has_structure
+            ):
+                artifact.setdefault("telemetry", {})
+                artifact["telemetry"]["identity_source_proof"] = (
+                    f"Collision Resolved (Lexically Decisive: {current_lang})"
+                )
+                artifact["telemetry"]["identity_lock_tier"] = 3
+                self.logger.debug(
+                    f"[Consensus] Kept decisively-resolved '{artifact.get('name')}' "
+                    f"({current_lang}): collision + conf {confidence:.2f} + "
+                    f"{len(artifact.get('functions', []))} functions / {signal_hits} signals."
+                )
+                confident_artifacts.append(artifact)
+                resolved_count += 1
+                continue
+
             # If we reach here, the file was ambiguous and the ecosystem couldn't save it.
             # Banish it to unparsable_files immediately to prevent hallucinations.
             reason = "Unresolved Ambiguity (Tier 4 Fallback failed Ecosystem Consensus)"

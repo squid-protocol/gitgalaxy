@@ -1,12 +1,12 @@
 {
-  "args_comparable": 2902,
-  "args_exact_match": 2870,
+  "args_comparable": 2912,
+  "args_exact_match": 2879,
   "corpus_path": "language-crucible/data/typescript",
   "extra_classes": 0,
-  "extra_functions": 3,
+  "extra_functions": 1,
   "files_scanned": 23,
   "found_classes": 842,
-  "found_functions": 2902,
+  "found_functions": 2912,
   "real_classes": 842,
-  "real_functions": 2913
+  "real_functions": 2915
 }

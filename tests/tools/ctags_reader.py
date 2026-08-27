@@ -396,8 +396,18 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     "m4": {"d"},  # macro -- M4's def-like construct
     "scheme": {"f"},
     "sqlite": {"f", "p"},  # function + procedure
-    "yacc": set(),  # ctags' YACC parser only tracks label/token, not grammar rule definitions
-    # -- GitGalaxy has functions to find here, ctags structurally cannot see them
+    "yacc": {"l"},  # ctags' YACC parser tags every grammar-rule LHS non-terminal
+    # (`Name:` production head) with its own "l" (label) kind -- the same
+    # function-analog role a grammar rule plays in GitGalaxy's own yacc func_start
+    # and the same mapping precedent as makefile "t" (targets) / assembly "l".
+    # This entry was `set()` until yacc/tri-comparison-ledger-sweep (2026-08-27,
+    # yacc/function/existence/agree[gitgalaxy]_vs[ctags], 18 occurrences) -- the
+    # prior "ctags structurally cannot see them" comment was wrong: `ctags
+    # --fields=+K` on freebsd/config.y + jailparse.y tags all 27 rule heads as
+    # kind "l" (`Spec  label  line:126`), this map was just dropping them before
+    # reconciliation saw them, exactly the cpp "g" / csharp "g" / fortran "m,i,S,b"
+    # / kotlin "o" kind-map gap shape. `ctags --list-kinds-full=YACC` confirms
+    # "l" (labels) is the parser's ONLY kind -- there is nothing else to weigh.
 }
 
 CTAGS_CLASS_KINDS: dict[str, set[str]] = {

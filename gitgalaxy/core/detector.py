@@ -2030,6 +2030,26 @@ class StructuralExtractor:
                         # which only "succeeds" when a `{` happens to appear by
                         # coincidence. This dropped ~97.4% of real matches (1 of 39
                         # raw matches reached the named list). Mode A's "greedy to
+                        #
+                        # yacc/tri-comparison-ledger-sweep (2026-08-27,
+                        # yacc/function/existence/agree[gitgalaxy]_vs[ctags], 18
+                        # occurrences): yacc has no ScopeParsingRegistry entry and
+                        # its `lexical_family` is `standard_block`, so it fell
+                        # through to Mode_B_Braces -- but a yacc grammar rule
+                        # (`Name: production | production ;`) only has a `{`/`}`
+                        # pair when a production carries a C semantic action.
+                        # Pure productions (no `{...}` anywhere) can't be
+                        # brace-sliced and were silently dropped from the named
+                        # list: freebsd/config.y raised 20 raw `struct_func_start`
+                        # signals but only 11 reached `function_data` (the 9 lost
+                        # were exactly the action-less rules -- Configuration,
+                        # Many_specs, Opt_list, Dev_list, ...). Mode A's "greedy
+                        # to the next func_start match" body is the correct
+                        # boundary: grammar rules never nest, so each rule's body
+                        # runs from its own `Name:` to the next rule's `Name:` (or
+                        # the trailing `%%`), exactly like COBOL's label-only
+                        # paragraphs. `.l`/`.ll` (lex/flex) share this rule set.
+                        "yacc",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

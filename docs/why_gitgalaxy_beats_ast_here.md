@@ -818,6 +818,54 @@ method in the first place. This is why `tree_sitter_accuracy_audit.py`'s walker 
 dissenting names as the misparsed leftover tokens `void`/`unsigned` rather than the real method
 names.
 
+## Claim 14: argument counting at true logical arity, when a grammar counts only the patterns one clause binds
+
+For a Haskell function whose type signature declares N parameters but whose defining equation is
+written point-free or eta-reduced — binding only the first N−1 explicitly and handling the last
+argument by composition (`.`), `\case`, or a returned partial application — GitGalaxy counts N
+(the true logical arity, read from the type signature), while tree-sitter's declaration-only
+reading counts only the patterns that one clause binds, undercounting by exactly the number of
+eta-reduced arguments. This is an *arity* claim, distinct from Claim 1 (a language with **no**
+formal parameter list anywhere — Haskell has one, in the signature) and from Claim 4 (which is
+about function *count* under per-clause node granularity, not how many arguments one function
+takes). Both readings are internally consistent — tree-sitter is correct about "patterns bound in
+this equation," GitGalaxy is correct about "arguments this function takes" — but for the coupling
+signal the arg count feeds (how many inputs a function actually depends on), the signature arity
+is the more useful answer, and the one a human reading the type would give.
+
+**The evidence:** `tri_comparison_ledger.json`'s
+`haskell/function/args/agree[none]_vs[gitgalaxy,tree_sitter]` (9 occurrences, validated
+2026-08-19). Confirmed by reading source at 3 of the 9, all in
+`language-crucible/data/haskell/pandoc`:
+
+- `Shared.hs:256` — `tabFilter :: Int -> T.Text -> T.Text` (signature arity **2**); the second
+  clause `tabFilter tabStop = T.unlines . map go . T.lines` binds **1** pattern and produces the
+  remaining argument point-free via `.`. GitGalaxy 2, tree-sitter 1.
+- `Shared.hs:142` — `splitTextByIndices :: [Int] -> T.Text -> [T.Text]` (arity **2**);
+  `splitTextByIndices ns = splitTextByRelIndices (...) . T.unpack` binds **1**, second argument
+  point-free. GitGalaxy 2, tree-sitter 1.
+- `App.hs:395` — `getMetadataFromFiles :: PandocMonad m => Text -> ReaderOptions -> [FilePath] ->
+  m Meta` (arity **3**); `getMetadataFromFiles readerFormat readerOpts = \case ...` binds **2**
+  and consumes the third argument through `\case`. GitGalaxy 3 (ledger reading), tree-sitter 2.
+
+The remaining 6 are the same shape (a signature declaring more parameters than the aligned
+equation explicitly binds). No engine change: GitGalaxy's signature-derived arity was already the
+behavior worth keeping here — logged rather than "fixed" toward matching tree-sitter's
+clause-local count.
+
+## Where Claim 14 does NOT apply
+
+- Only where a real type signature is present to read the true arity from. A Haskell function
+  with no signature (GitGalaxy and tree-sitter both fall back to counting bound patterns) has no
+  such divergence, and a GitGalaxy/tree-sitter arg-count mismatch there is a normal bug to chase.
+- Not a licence to treat *any* GitGalaxy/tree-sitter arg-count gap on Haskell as this shape —
+  it's specifically signature-arity > clause-bound-patterns, in that direction, on an
+  existence-agreed function. The ledger entry records the direction and the mechanism; a gap that
+  doesn't match both is a separate question.
+- Says nothing about the other languages whose args agreement sits below 100% (perl, powershell,
+  matlab, scala, swift) — each of those has its own validated ledger verdict (all "GitGalaxy
+  counts args accurately"), none of them this eta-reduction mechanism.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
@@ -861,3 +909,10 @@ names.
   "missing" them), so restating it as a tree-sitter-beats-tree-sitter claim would itself be an
   overstatement of exactly the kind this doc exists to avoid. Revisit only with a clean,
   independently-verified before/after.
+- Claim 14 (Haskell signature arity vs. clause-bound patterns) came out of a 2026-08-27
+  all-language probe of the tri-comparison's start-line and args agreement (summarised in
+  `docs/self_scan/tri_comparison_README.md`'s "What the args data currently shows" section). That
+  probe's headline was the *absence* of a backlog — GitGalaxy's args agreement is ~100% across the
+  corpus and every sub-100 language already has a validated "GitGalaxy is correct" verdict — so
+  Claim 14 is the one durable finding worth a claim of its own; it's cited from
+  `tests/tools/tri_comparison_reconcile.py`'s `EXISTENCE VS ARGS` docstring section.

@@ -178,6 +178,51 @@ not accounted for (see `ctags_reader.py`'s `_QUALIFY_NAME_WITH_SCOPE` mechanism 
 case is handled: re-join name+scope from ctags' own tag data, gated on the qualified text actually
 appearing in the tag's own verbatim source line).
 
+## What the args data currently shows (2026-08-27)
+
+A whole-corpus probe of the args metric (of the parameter counts GitGalaxy reports on
+existence-agreed functions, how many at least one other tool corroborated) found **no open
+backlog on GitGalaxy's side**: args agreement is ~100% for essentially every language with a real
+second reader (c, cpp, csharp, rust, dart, php, typescript, java, javascript, kotlin, go,
+fortran, python, ruby, solidity, tcl, zig, objective-c), and every language that sits below 100%
+already has a *validated* ledger verdict, all of which land on "GitGalaxy's count is right":
+
+| language | gg args agreement | validated verdict |
+| --- | --- | --- |
+| haskell | ~88% | both readings valid — GitGalaxy counts true logical arity from the type signature, tree-sitter counts only the patterns the aligned equation binds. Logged as [Claim 14](../why_gitgalaxy_beats_ast_here.md). |
+| perl | ~93% | "GitGalaxy regex splits args appropriately" |
+| powershell | ~95% | "GitGalaxy extracts args accurately" |
+| matlab | ~96% | "GitGalaxy regex splits args more robustly than tree-sitter on MATLAB edge cases" |
+| scala | ~97% | "GitGalaxy counts args accurately" |
+| swift | ~99% | "GitGalaxy counts args accurately" |
+
+Every *reproducing* args discrepancy shape in the ledger resolves the same way — a tree-sitter
+limitation (Go grouped same-type parameters, Flow union-type parameter-list corruption, the
+shared `_get_param_count` helper undercounting a defaulted parameter by one, Fortran truncating a
+677-arg signature at 39), one ctags tuple-parameter mis-split in csharp, or a reconciliation
+artifact (name-only pairing comparing two different same-named overloads' readings against each
+other — see below) — **not** a GitGalaxy gap. The 2026-08-22 dart fix
+([#2341](https://github.com/squid-protocol/gitgalaxy/issues/2341)) closed dart's last args shape;
+it now reads 100%.
+
+Two known limits on how sharp this signal is, both worth fixing before args is worth ranking:
+
+- **Name-only rank pairing manufactures spurious args (and line) discrepancy shapes.** Where one
+  name has several unrelated definitions in a file (`build` across different Dart widgets,
+  `constructor` across TypeScript classes, C# method overloads), the reconciler pairs occurrences
+  by name and rank with no scope disambiguation, so it can compare tool A's reading of overload 1
+  against tool B's reading of overload 2 and record a "disagreement" where every individual
+  reading was correct for its own definition site. Both the csharp `SetCurrentSolution` and the
+  javascript jquery `setup`/`trigger` args verdicts document a concrete instance. Tracked in
+  [#2359](https://github.com/squid-protocol/gitgalaxy/issues/2359).
+- **Start-line agreement is not a usable correctness metric as-is.** The same probe measured
+  per-tool start-line agreement and found the disagreements are almost all naming-convention
+  offsets, not defects: ctags systematically reports the line one past GitGalaxy/tree-sitter in
+  c/php/java/typescript, and GitGalaxy anchors at the attribute/decorator/signature line where
+  tree-sitter starts at the keyword (Rust proc-macro attributes, decorated TS constructors,
+  Haskell type signatures). `line` stays a rank-ordering input only, not a scored metric — see
+  `tri_comparison_reconcile.py`'s `MATCHING METHODOLOGY` docstring.
+
 ## CI enforcement
 
 This system was skill/human-driven only until it wasn't: any PR touching `detector.py` /

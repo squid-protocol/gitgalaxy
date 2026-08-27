@@ -29,6 +29,19 @@ MATCHING METHODOLOGY (confirmed against real corpus data, not assumed)
     a "detect and subtract a per-file offset" mechanism was considered and rejected; it would
     correct for a problem that essentially doesn't occur here, while doing nothing for the
     problem that does.
+        A later all-language probe (2026-08-27) qualified the "offset is 0" claim: it holds for
+        Python and most languages, but NOT universally, and the exceptions are naming-convention
+        differences rather than the positional drift the rejected offset-correction mechanism
+        would have fixed. Two systematic ones, both on name-AGREED occurrences: (1) ctags reports
+        the line one PAST GitGalaxy/tree-sitter's agreed value in c/php/java/typescript (it
+        anchors on the opening brace / first body token, not the declarator line); (2) GitGalaxy
+        anchors at the attribute/decorator/signature line where tree-sitter starts at the keyword
+        -- rust `#[proc_macro_derive]`-decorated `pub fn`, decorated TypeScript `constructor`,
+        the Haskell type-signature line above the first equation. `line` is still not a match key
+        and not a scored metric: these offsets don't change WHICH occurrence pairs with which
+        (rank order within a name is identical), and "whose anchor convention is right" is not an
+        existence disagreement worth a ledger entry. The takeaway is only that the original "0 in
+        every single case" was a Python-specific measurement stated too broadly.
     Where one name occurs more than once in a file (property getter/setter pairs, same method
     name on different classes), each tool's occurrences of that name are sorted by line and
     paired by RANK (1st with 1st, 2nd with 2nd), the same instinct tree_sitter_accuracy_audit.py's
@@ -38,6 +51,15 @@ MATCHING METHODOLOGY (confirmed against real corpus data, not assumed)
     GitGalaxy is therefore by name multiset only, never rank-paired by position. This doesn't
     lose anything class-specific to compare positionally anyway: classes carry no `args` value in
     any of the three readers, so class matching only ever needs to answer an existence question.
+    KNOWN LIMITATION (#2359): rank pairing has no scope disambiguation, so a name with several
+    UNRELATED definitions in one file (method overloads, `build`/`constructor` across different
+    classes, a property name reused in two object literals) can pair tool A's reading of
+    definition #1 against tool B's reading of definition #2 -- manufacturing a spurious args (or
+    line) "disagreement" where every individual reading was correct for its own site. Confirmed
+    on csharp `SetCurrentSolution` and javascript jquery `setup`/`trigger` (both ledger verdicts
+    say "methodology artifact, not a real defect"). Existence reconciliation is largely immune (a
+    mis-pair there still agrees the symbol exists); it's the args/line sub-comparison that's
+    distorted, which is part of why args stays an unranked found-count for now.
 
 EXISTENCE VS. ARGS ARE SEPARATE QUESTIONS, SCOPED SEPARATELY
     A function's EXISTENCE (does a symbol named X exist at roughly this position) and its ARG
@@ -50,6 +72,14 @@ EXISTENCE VS. ARGS ARE SEPARATE QUESTIONS, SCOPED SEPARATELY
     exact occurrences, once the parsing bug was fixed, moved to 99.9%. Existence agreement for
     that same language/run never moved at all (97.3% throughout) -- proof the two questions are
     genuinely independent, not just conceptually separable.
+    Current picture (2026-08-27 all-language probe): GitGalaxy's args agreement is ~100% across
+    the corpus; every language below 100% (haskell, perl, powershell, matlab, scala, swift) has a
+    validated ledger verdict confirming GitGalaxy's count. The one arg-count divergence that
+    reflects a real, useful difference rather than a corpus quirk is haskell -- GitGalaxy counts
+    true logical arity from the type signature, tree-sitter counts only the patterns the aligned
+    equation binds (undercounts eta-reduced/point-free clauses). Logged as Claim 14 in
+    docs/why_gitgalaxy_beats_ast_here.md; ledger shape
+    haskell/function/args/agree[none]_vs[gitgalaxy,tree_sitter].
 
 DISCREPANCY SHAPE, NOT PER-INSTANCE LOGGING
     A language/metric pair can produce hundreds of individual disagreeing occurrences (rust

@@ -215,45 +215,63 @@ class StatisticalAuditor:
                     resolved_count += 1
                     continue
 
-            # ---> DECISIVE COLLISION-RESOLUTION KEEP <---
+            # ---> STRUCTURE RETENTION (#2326, generalises #1926/#2324) <---
             # The ecosystem consensus above can only rescue an ambiguous file when the repo
             # has OTHER, confidently-parsed files of the same extension to vote. For an
             # extension that is *always* a collision (e.g. `.y`, claimed by both `c` and
-            # `yacc`), no such vote can ever exist, so a real grammar file that classified
-            # correctly and extracted real structure was still being silently deleted here
-            # (#1926). A file that (a) came in via a genuine extension collision -- not a
-            # bare Tier-4 lexical guess with no extension support -- (b) resolved decisively
-            # (high identity confidence) and (c) actually produced extracted structure is
-            # not a hallucination; keep it rather than banish it.
+            # `yacc`), or a bare Tier-4 lexical guess on a rare extension, no such vote can
+            # ever exist -- and this branch used to silently delete the file even when
+            # GitGalaxy had extracted real named structure from it (#1926: every `.y`
+            # grammar; #2326: the general case). The identity *label* may be shaky, but a
+            # function/class GitGalaxy actually named is real signal that shouldn't vanish
+            # from `file_data` with no trace but a line in the Excluded Artifacts list.
+            #
+            # So: keep any ambiguous file that (a) still classified to a real language and
+            # (b) produced named structure -- or is a decisively-resolved collision with a
+            # meaningful signal count. A collision that resolved decisively keeps the
+            # stronger "Lexically Decisive" label (Tier 3, unchanged from #2324); anything
+            # else is kept as an explicitly PROVISIONAL identity (Tier 4 + telemetry flag +
+            # a WARNING) so nothing downstream over-trusts the label. Only genuine noise --
+            # a degenerate lang_id, or zero extracted structure -- is still banished.
             proof_str = artifact.get("telemetry", {}).get("identity_source_proof", artifact.get("source_proof", ""))
             confidence = artifact.get("telemetry", {}).get("identity_confidence", artifact.get("intensity", 0.0))
             equations = artifact.get("equations", {})
             signal_hits = sum(v for k, v in equations.items() if k in self.SIGNAL_KEYS and isinstance(v, (int, float)))
-            has_structure = len(artifact.get("functions", [])) > 0 or signal_hits >= 5
+            named_structure = len(artifact.get("functions", [])) + len(artifact.get("classes", []))
+            is_collision = "Collision" in proof_str
+            is_real_lang = current_lang not in ("", "unknown", "undeterminable", "plaintext")
+            decisive_collision = is_collision and confidence >= 0.85 and signal_hits >= 5
 
-            if (
-                "Collision" in proof_str
-                and current_lang not in ("", "unknown", "undeterminable", "plaintext")
-                and confidence >= 0.85
-                and has_structure
-            ):
+            if is_real_lang and (named_structure > 0 or decisive_collision):
                 artifact.setdefault("telemetry", {})
-                artifact["telemetry"]["identity_source_proof"] = (
-                    f"Collision Resolved (Lexically Decisive: {current_lang})"
-                )
-                artifact["telemetry"]["identity_lock_tier"] = 3
-                self.logger.debug(
-                    f"[Consensus] Kept decisively-resolved '{artifact.get('name')}' "
-                    f"({current_lang}): collision + conf {confidence:.2f} + "
-                    f"{len(artifact.get('functions', []))} functions / {signal_hits} signals."
-                )
+                if decisive_collision:
+                    artifact["telemetry"]["identity_source_proof"] = (
+                        f"Collision Resolved (Lexically Decisive: {current_lang})"
+                    )
+                    artifact["telemetry"]["identity_lock_tier"] = 3
+                    artifact["telemetry"]["provisional_identity"] = False
+                    self.logger.debug(
+                        f"[Consensus] Kept decisively-resolved '{artifact.get('name')}' "
+                        f"({current_lang}): collision + conf {confidence:.2f} + "
+                        f"{len(artifact.get('functions', []))} functions / {signal_hits} signals."
+                    )
+                else:
+                    artifact["telemetry"]["identity_source_proof"] = (
+                        f"Provisional Identity (Ambiguous, {named_structure} symbol(s) retained: {current_lang})"
+                    )
+                    artifact["telemetry"]["identity_lock_tier"] = 4
+                    artifact["telemetry"]["provisional_identity"] = True
+                    self.logger.warning(
+                        f"[Consensus] Retained '{artifact.get('name')}' as PROVISIONAL '{current_lang}': "
+                        f"ecosystem vote failed but {named_structure} named symbol(s) / {signal_hits} signals "
+                        f"were extracted (conf {confidence:.2f}). Identity is low-confidence."
+                    )
                 confident_artifacts.append(artifact)
                 resolved_count += 1
                 continue
 
-            # If we reach here, the file was ambiguous and the ecosystem couldn't save it.
-            # Banish it to unparsable_files immediately to prevent hallucinations.
-            reason = "Unresolved Ambiguity (Tier 4 Fallback failed Ecosystem Consensus)"
+            # Genuinely nothing to retain -- no real language, or zero extracted structure.
+            reason = "Unresolved Ambiguity (No Retainable Structure)"
             unparsable_files.append(self._format_for_exclusion(artifact, reason))
 
         if resolved_count > 0:

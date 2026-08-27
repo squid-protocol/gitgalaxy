@@ -293,3 +293,50 @@ def test_auditor_inert_data_bypass(auditor):
 
     assert len(verified) == 1, "Inert data was incorrectly audited!"
     assert len(unparsable) == 0
+
+
+# ==============================================================================
+# TEST 10: STRUCTURE RETENTION -- ambiguous file with real symbols is KEPT (#2326)
+# ==============================================================================
+def test_auditor_provisional_structure_retention(auditor):
+    """
+    An ambiguous file the ecosystem vote can't confirm, but from which GitGalaxy
+    extracted real named structure, must be KEPT (as a provisional identity) rather
+    than silently deleted. Only genuine noise is still banished.
+    """
+    files = [
+        # (a) ambiguous, real language, real extracted functions -> KEPT as provisional
+        {
+            "path": "weird.xyz",
+            "name": "weird.xyz",
+            "lang_id": "python",
+            "coding_loc": 40,
+            "functions": [{"name": "handler"}, {"name": "setup"}],
+            "classes": [],
+            "equations": {"branch": 3},
+            "telemetry": {"identity_lock_tier": 4, "identity_source_proof": "Heuristic Discovery"},
+        },
+        # (b) ambiguous, nothing extracted, degenerate identity -> still BANISHED
+        {
+            "path": "noise.xyz",
+            "name": "noise.xyz",
+            "lang_id": "unknown",
+            "coding_loc": 40,
+            "functions": [],
+            "classes": [],
+            "equations": {},
+            "telemetry": {"identity_lock_tier": 4, "identity_source_proof": "Heuristic Discovery"},
+        },
+    ]
+
+    with patch.object(StatisticalAuditor, "_is_highly_blended", return_value=False):
+        verified, unparsable = auditor.audit(files)
+
+    kept = next((f for f in verified if f["path"] == "weird.xyz"), None)
+    assert kept is not None, "A file with real extracted symbols was silently deleted!"
+    assert kept["lang_id"] == "python"
+    assert kept["telemetry"]["provisional_identity"] is True
+    assert "Provisional Identity" in kept["telemetry"]["identity_source_proof"]
+
+    assert [u["path"] for u in unparsable] == ["noise.xyz"], "Genuine noise should still be banished."
+    assert "No Retainable Structure" in unparsable[0]["reason"]

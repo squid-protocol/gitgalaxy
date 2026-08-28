@@ -521,17 +521,35 @@ class RecordKeeper:
                 )
                 else 0
             )
-            # #368: no producer ever set file_data["binary_anomaly"]. The Binary
-            # Analysis Sensor (galaxyscope.py) does exist and does run
-            # SecurityLens.scan_binary() on suspicious binaries, but its findings
-            # flow into the same generic equations["sec_*"] keys regular text
-            # scanning uses -- there's no dedicated boolean. Of those,
-            # "sec_extension_mismatch" (magic bytes don't match the claimed
-            # extension) is the most direct match for "binary anomaly" specifically;
-            # sec_high_risk_execution/sec_reflection_metaprogramming from a binary
-            # scan represent distinct threat categories already surfaced elsewhere
-            # and would double-count if folded in here too.
-            bin_anomaly = 1 if file_data.get("equations", {}).get("sec_extension_mismatch", 0) > 0 else 0
+            # #368: no producer ever set file_data["binary_anomaly"]. #381 read
+            # equations["sec_extension_mismatch"], but (same as #367) that dict
+            # is not a durable carrier -- and worse, the two real producers of
+            # this signal don't even write to it:
+            #   - signal_processor.py (a text file that parses as an executable
+            #     language but carries an inert extension like .png) sets
+            #     raw_signals["sec_extension_mismatch"] -> the durable hit_vector
+            #     slot, never equations.
+            #   - galaxyscope.py's Binary Analysis Sensor (scan_binary() magic-
+            #     byte mismatch) now attaches its hit_vector to file_data too
+            #     (it used to compute one and throw it away -- #368).
+            # So read the durable hit_vector["sec_extension_mismatch"] slot, the
+            # same one already written to the threat_extension_mismatch column.
+            # sec_high_risk_execution / sec_reflection_metaprogramming from a
+            # binary scan are distinct threat categories surfaced elsewhere and
+            # would double-count if folded in here. equations kept as a fallback.
+            em_idx = (
+                self.SIGNAL_SCHEMA.index("sec_extension_mismatch")
+                if "sec_extension_mismatch" in self.SIGNAL_SCHEMA
+                else -1
+            )
+            bin_anomaly = (
+                1
+                if (
+                    (em_idx >= 0 and len(hv) > em_idx and hv[em_idx] > 0)
+                    or file_data.get("equations", {}).get("sec_extension_mismatch", 0) > 0
+                )
+                else 0
+            )
             # #1150: resolves #369's deferred decision -- a real (deliberately
             # narrow) GlassWorm-style detector now exists in security_lens.py's
             # THREAT_SIGNATURES rather than formally deprecating the column.

@@ -11,7 +11,13 @@ def keeper():
     """Initializes the RecordKeeper with a controlled schema for deterministic testing."""
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt", "cognitive_load", "secrets_risk"],
-        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "sec_tainted_injection", "sec_hardcoded_secrets"],
+        "SIGNAL_SCHEMA": [
+            "high_risk_execution",
+            "io",
+            "sec_tainted_injection",
+            "sec_hardcoded_secrets",
+            "sec_extension_mismatch",
+        ],
     }
     with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
         return RecordKeeper()
@@ -58,11 +64,13 @@ def mock_pipeline_state():
             },
             "is_ml_threat": True,
             "equations": {
-                "sec_extension_mismatch": 1,  # Maps to binary_anomaly, #368
+                # #368's sec_extension_mismatch deliberately omitted here -- the
+                # durable hit_vector slot below is what must drive binary_anomaly.
                 "sec_self_propagation": 1,  # Maps to obfuscation_flag, #1150
             },
             "risk_vector": [80.0, 60.0, 42.0],  # debt, cog_load, secrets_risk (#367)
-            "hit_vector": [2, 5, 1, 3],  # danger, io, tainted_injection, sec_hardcoded_secrets (#367)
+            # danger, io, tainted_injection, sec_hardcoded_secrets (#367), sec_extension_mismatch (#368)
+            "hit_vector": [2, 5, 1, 3, 1],
             "classes": [{"name": "APIRouter", "inheritance": ["BaseRouter"], "method_count": 5}],
             "functions": [
                 {
@@ -185,8 +193,10 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     # #381's non-durable equations["sec_hardcoded_secrets"] read were both always 0).
     # Note the mock's equations dict deliberately has NO sec_hardcoded_secrets key.
     assert file_row["has_credentials"] == 1
-    # #368: binary_anomaly reads equations["sec_extension_mismatch"], not the
-    # never-produced "binary_anomaly".
+    # #368: binary_anomaly reads the durable hit_vector["sec_extension_mismatch"]
+    # slot (the never-produced "binary_anomaly" key and #381's non-durable
+    # equations["sec_extension_mismatch"] read were both always 0). Note the
+    # mock's equations dict deliberately has NO sec_extension_mismatch key.
     assert file_row["binary_anomaly"] == 1
     # #369: no GlassWorm-style detector exists anywhere in the codebase --
     # #1150: obfuscation_flag now reads a real (deliberately narrow)
@@ -234,7 +244,7 @@ def test_has_credentials_zero_without_signal(keeper, mock_pipeline_state, tmp_pa
     db_path = tmp_path / "test_no_creds.sqlite"
     parsed, unparsable, summary, session = mock_pipeline_state
 
-    parsed[0]["hit_vector"] = [2, 5, 1, 0]  # sec_hardcoded_secrets slot -> 0
+    parsed[0]["hit_vector"] = [2, 5, 1, 0, 0]  # sec_hardcoded_secrets slot -> 0
     parsed[0]["risk_vector"] = [80.0, 60.0, 0.0]  # secrets_risk slot -> 0.0
     parsed[0]["equations"] = {}
 
@@ -245,6 +255,31 @@ def test_has_credentials_zero_without_signal(keeper, mock_pipeline_state, tmp_pa
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM file_data WHERE file_name='router.py'")
     assert cursor.fetchone()["has_credentials"] == 0
+    conn.close()
+
+
+# ==============================================================================
+# TEST 2c: #368 -- binary_anomaly stays 0 when no real extension-mismatch signal
+# ==============================================================================
+def test_binary_anomaly_zero_without_signal(keeper, mock_pipeline_state, tmp_path):
+    """
+    #368 guard: with the durable hit_vector["sec_extension_mismatch"] slot at 0
+    and nothing in the equations dict, the column must be 0 -- proves the new
+    read isn't just always-on.
+    """
+    db_path = tmp_path / "test_no_binanomaly.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    parsed[0]["hit_vector"] = [2, 5, 1, 3, 0]  # sec_extension_mismatch slot -> 0
+    parsed[0]["equations"] = {}
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM file_data WHERE file_name='router.py'")
+    assert cursor.fetchone()["binary_anomaly"] == 0
     conn.close()
 
 

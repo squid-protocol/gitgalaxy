@@ -274,6 +274,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                             "raw_imports": [],
                             "popularity_hits": set(),
                             "equations": binary_threats,
+                            # #368: the hit_vector above was computed but never
+                            # attached, so scan_binary()'s findings only ever
+                            # rode out on the non-durable "equations" dict and
+                            # never reached record_keeper.py's binary_anomaly
+                            # column. Attach it (and a zeroed risk_vector) the
+                            # same way the critical-leak / tensor-scan synthetic
+                            # artifacts below do.
+                            "hit_vector": hit_vector,
+                            "risk_vector": [0.0] * len(SignalProcessor.RISK_SCHEMA),
                             "satellites": [],
                             "logic_density": 100.0,
                             "sum_fxn_impact": 5000.0,  # Massive structural impact!

@@ -1371,6 +1371,54 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertIn("I/O Error", result_io["reason"], "Failed to catch I/O exception properly!")
 
     # ==============================================================================
+    # TEST 18b: #368 -- scan_binary()'s findings reach file_data via a durable hit_vector
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    def test_binary_threat_attaches_hit_vector(self, MockSecurity, MockAperture, mock_is_file):
+        """
+        #368: the Binary Analysis Sensor block used to compute a hit_vector from
+        scan_binary()'s output and then never attach it -- only the non-durable
+        "equations" dict carried the signal out, so record_keeper.py's
+        binary_anomaly column stayed 0. The observation must now expose the
+        signal on a durable hit_vector slot.
+        """
+        import logging
+
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker, _worker_state
+        from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+        mock_aperture = MockAperture.return_value
+        mock_security = MockSecurity.return_value
+        mock_aperture.evaluate_path_integrity.return_value = (False, 4096, "Binary Format Detected")
+        mock_security.scan_binary.return_value = {
+            "sec_extension_mismatch": 1,
+            "threat_snippet": "Expected b'\\x89PNG', found mismatch",
+        }
+
+        _init_worker(".", self.mock_config, {".png": 1}, logging.INFO, set(), set())
+        _worker_state["security"] = mock_security
+        _worker_state["filter"] = mock_aperture
+
+        from unittest.mock import mock_open
+
+        with patch("builtins.open", mock_open(read_data=b"MZ\x90\x00 not a png")):
+            result = _process_file_worker("logo.png")
+
+        self.assertEqual(result["data"]["lang_id"], "binary_threat")
+        data = result["data"]
+        self.assertIn("hit_vector", data, "#368: scan_binary hit_vector never attached to observation data")
+
+        em_idx = SignalProcessor.SIGNAL_SCHEMA.index("sec_extension_mismatch")
+        self.assertEqual(
+            data["hit_vector"][em_idx],
+            1,
+            "#368: sec_extension_mismatch not threaded into the durable hit_vector slot",
+        )
+        self.assertEqual(len(data["risk_vector"]), len(SignalProcessor.RISK_SCHEMA))
+
+    # ==============================================================================
     # TEST 19: SARIF IGNORED PATHS & SANITIZATION
     # ==============================================================================
     def test_sarif_ignored_paths_sanitization(self):

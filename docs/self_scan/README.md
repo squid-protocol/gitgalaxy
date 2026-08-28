@@ -86,6 +86,12 @@ evidence-backed catalog of the confirmed differences between all three tools.
 
 ## Reproducing or updating this locally
 
+**Bumping the pinned corpus tag?** Use the full ordered checklist in
+[`BUMPING_THE_CRUCIBLE_PIN.md`](BUMPING_THE_CRUCIBLE_PIN.md) instead of just
+the commands below — this system is only one of five things that need
+regenerating together, in a specific order, with prerequisites that have
+caused real CI failures when skipped.
+
 ```bash
 # from the gitgalaxy repo root -- check tests/_crucible_pin.py or the LANGUAGE_CRUCIBLE_REF
 # repo variable first; the tag below drifts out of date as that pin gets bumped.

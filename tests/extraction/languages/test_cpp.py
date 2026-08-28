@@ -158,7 +158,9 @@ def test_cpp_func_start_conversion_operator_template_regression():
 
     # (b) Multi-type-param generic
     m2 = func_start.search("operator TypedDictionary<K,V>() {")
-    assert m2 and m2.group(1) == "operator TypedDictionary<K,V>", "conversion operator with multi-param template arg regressed"
+    assert m2 and m2.group(1) == "operator TypedDictionary<K,V>", (
+        "conversion operator with multi-param template arg regressed"
+    )
 
     # (c) Plain non-template conversion operator (should still match)
     m3 = func_start.search("Variant::operator bool() const {")
@@ -194,6 +196,7 @@ def test_cpp_func_start_known_limitation_raw_string_lookalike_still_matches_at_r
     func_start = CPP_RULES["func_start"]
     raw_string = 'std::string s = R"(\nint TargetFunc() {\n)";'
     assert func_start.search(raw_string), "documents current (expected, pipeline-level-fixed-elsewhere) regex behavior"
+
 
 def test_cpp_macro_shield_does_not_exclude_prior_function_definition():
     """
@@ -283,6 +286,10 @@ ARGS_CASES: dict[str, Any] = {
             "bool TargetClass::operator==(const TargetClass& other) const {",
             "TargetClass::operator==",
         ),  # out-of-line operator args -- was a real bug, now fixed
+        (
+            "LRESULT CALLBACK KeyboardHookProc(_In_ int nCode, _In_ WPARAM wParam, _In_ LPARAM lParam) {",
+            "KeyboardHookProc",
+        ),  # #1883: leading Windows SAL annotation macros on the first parameter
     ],
     "invalid": [
         "TargetFunc(a, b);",
@@ -337,6 +344,38 @@ def test_cpp_args_redos_immunity():
     args = CPP_RULES["args"]
     assert_redos_immune(args, "void Foo::Bar<" + "a" * 100000, timeout_sec=3.0)
     assert args.search("void Foo::Bar<Baz<int>>(int x) {")
+
+
+def test_cpp_args_sal_annotation_macros_1883():
+    """
+    #1883: Windows SAL annotation macros (`_In_`, `_Out_`, `_Inout_`,
+    `_In_opt_`, sized forms like `_In_reads_(n)`) prefix the first real
+    parameter type in Windows/PowerToys-style headers. cpp's args regex
+    required a recognised type token immediately after `(`, so a leading
+    `_In_` made the whole `search()` return None (real corpus:
+    `powertoys/centralized_kb_hook.cpp::KeyboardHookProc`, arity 3,
+    measured 0).
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    args = CPP_RULES["args"]
+    det = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS)
+
+    cases = [
+        ("LRESULT CALLBACK KeyboardHookProc(_In_ int nCode, _In_ WPARAM wParam, _In_ LPARAM lParam)", 3),
+        ("void f(_In_opt_ const char* s, _Out_ int* n)", 2),
+        ("HRESULT Get(_In_reads_(count) const int* arr, _In_ size_t count)", 2),
+        ("void g(_Inout_ Widget& w)", 1),
+    ]
+    for sig, expected in cases:
+        m = args.search(sig)
+        assert m, f"#1883: SAL-annotated signature still not matched: {sig!r}"
+        assert det._count_top_level_args(m.group(0)) == expected, f"wrong arg count for {sig!r}"
+
+    # A plain leading-underscore token that is NOT a SAL annotation (no
+    # uppercase second char) must not be swallowed as a phantom prefix.
+    assert args.search("int normal(int a, int b)"), "plain signature regressed"
 
 
 # ==============================================================================

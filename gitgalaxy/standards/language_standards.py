@@ -3187,8 +3187,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # (which check the captured name) keep passing -- detector.py
             # already picks the highest-numbered participating group via
             # `lastindex`, so it still resolves to the args group either way.
+            # #1883: the first-parameter type gate also accepts leading-underscore
+            # Windows SAL annotation macros (`_In_`, `_Out_`, `_Inout_`,
+            # `_In_opt_`, `_In_reads_(n)`, ...) as an optional, repeatable prefix
+            # ahead of the real type, the same way `const`/`volatile` already are
+            # -- a real SAL-annotated signature (`f(_In_ int nCode, ...)`)
+            # otherwise failed the whole `search()` because `_In_` matched none
+            # of the type alternatives. `_[A-Z][A-Za-z0-9_]*_` (required trailing
+            # `_`, uppercase first letter) is narrow enough not to catch `_t`
+            # types or `__attribute__`/`__cdecl`; the `\([^()]{0,64}\)` tail
+            # covers the sized forms.
             "args": re.compile(
-                r"\b(?!(?:if|for|while|switch|catch)\b)((?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?))(?:<(?:[^<>]|<[^<>]*>)*>)?\s*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|[A-Z]\w*|[a-z_]\w*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
+                r"\b(?!(?:if|for|while|switch|catch)\b)((?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?))(?:<(?:[^<>]|<[^<>]*>)*>)?\s*(\(\s*(?:(?:const|volatile|_[A-Z][A-Za-z0-9_]*_(?:\([^()]{0,64}\))?)\s+)*(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|[A-Z]\w*|[a-z_]\w*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
             ),
             # 3. linear (Sequential Boundaries)
             # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).

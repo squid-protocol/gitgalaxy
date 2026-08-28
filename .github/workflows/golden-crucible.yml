@@ -50,8 +50,8 @@ jobs:
 
       - name: Fetch Golden Test Repo (Language Crucible)
         run: |
-          echo "Cloning Language Crucible repository (pinned to v1.0)..."
-          git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          echo "Cloning Language Crucible repository (pinned via LANGUAGE_CRUCIBLE_REF)..."
+          git clone --branch "${{ vars.LANGUAGE_CRUCIBLE_REF }}" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Run Golden Crucible Test (${{ matrix.mode }})
         run: |

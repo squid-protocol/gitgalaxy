@@ -51,8 +51,8 @@ jobs:
 
       # Same pin golden-crucible.yml uses -- this tool reuses that corpus rather than
       # a fresh clone (see tests/tools/tree_sitter_accuracy_audit.py's own CORPUS section).
-      - name: Fetch Language Crucible corpus (pinned v1.0)
-        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: git clone --branch "${{ vars.LANGUAGE_CRUCIBLE_REF }}" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Run baseline-gated regression check across every baselined language
         run: |

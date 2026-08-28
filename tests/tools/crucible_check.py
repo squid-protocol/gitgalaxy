@@ -38,6 +38,9 @@ import sys
 import venv as venv_module
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from _crucible_pin import PINNED_TAG
+
 REPO_ROOT = Path(__file__).parent.parent.parent
 VENV_BASE = REPO_ROOT / ".crucible_venvs"
 CRUCIBLE_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
@@ -144,7 +147,7 @@ def main() -> int:
 
     if not (CRUCIBLE_PATH / "data").exists():
         print(f"❌ language-crucible corpus not found at {CRUCIBLE_PATH}.")
-        print("   Clone squid-protocol/language-crucible (pinned to v1.0) as a sibling directory,")
+        print(f"   Clone squid-protocol/language-crucible (pinned to {PINNED_TAG}) as a sibling directory,")
         print("   or set LANGUAGE_CRUCIBLE_PATH, then re-run.")
         return 1
 

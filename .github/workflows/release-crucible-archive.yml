@@ -55,9 +55,9 @@ jobs:
           pip install PyYAML networkx tiktoken pandas xgboost
           pip install -e .
 
-      - name: Fetch Language Crucible corpus (pinned to v1.0, same as CI)
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF, same as CI)
         run: |
-          git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          git clone --branch "${{ vars.LANGUAGE_CRUCIBLE_REF }}" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Run GalaxyScope against the crucible corpus
         env:
@@ -101,7 +101,7 @@ jobs:
           title: "chore: archive ${{ env.RELEASE_TAG }} crucible baseline"
           body: |
             Automated archive of GitGalaxy `${{ env.RELEASE_TAG }}`'s output against the pinned
-            `data/` corpus (v1.0 tag), for release-over-release comparison.
+            `data/` corpus (`${{ vars.LANGUAGE_CRUCIBLE_REF }}` tag), for release-over-release comparison.
 
             The remaining artifacts (SQLite DB, graph, SARIF, SBOM, GPU payload, LLM brief) are
             attached to the release itself rather than committed here:

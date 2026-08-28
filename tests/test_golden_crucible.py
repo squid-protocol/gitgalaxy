@@ -25,6 +25,7 @@ from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
 import golden_diff
+from _crucible_pin import PINNED_TAG
 
 pytestmark = pytest.mark.golden_crucible
 
@@ -41,7 +42,7 @@ def _zero_dependency_mode() -> bool:
     not CRUCIBLE_DATA_PATH.exists(),
     reason=(
         f"language-crucible corpus not found at {CRUCIBLE_DATA_PATH} -- clone "
-        "squid-protocol/language-crucible (pinned to v1.0) as a sibling directory, "
+        f"squid-protocol/language-crucible (pinned to {PINNED_TAG}) as a sibling directory, "
         "or set LANGUAGE_CRUCIBLE_PATH, to run this test."
     ),
 )

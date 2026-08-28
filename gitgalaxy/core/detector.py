@@ -1599,9 +1599,18 @@ class StructuralExtractor:
                             threat_locations.setdefault(mapped_key, []).append(line_number)
 
                         # ---> THE LINEAGE EXTRACTOR <---
-                        # If the regex has 2+ capture groups, group 2 contains the inheritance mapping
+                        # In a `class Foo extends Bar` shape, group 1 is the name
+                        # and group 2 is the inheritance parent. But #1983:
+                        # alternation-shaped class_start rules (fortran
+                        # `MODULE (g1) | TYPE (g2)`, dockerfile `FROM .. AS (g1) |
+                        # FROM (g2)`, lua, abap) land the NAME in group 1 OR group
+                        # 2, never both -- so a bare `TYPE foo` / `FROM debian`
+                        # would otherwise sweep its own name into parent_entity.
+                        # Group 2 is only a real parent when group 1 also fired --
+                        # the same rule _resolve_class_start_match already applies
+                        # on the named-class path.
                         if rule_name == "class_start" and pattern.groups >= 2:
-                            extracted_parents.extend(m.group(2).strip() for m in matches if m.group(2))
+                            extracted_parents.extend(m.group(2).strip() for m in matches if m.group(2) and m.group(1))
                     else:
                         matches = list(re.finditer(str(pattern), seg_code))
                         hit_indices = [m.start() for m in matches]

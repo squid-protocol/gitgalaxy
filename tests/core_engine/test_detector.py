@@ -1326,6 +1326,25 @@ def test_detector_harvest_above_and_lineage():
     assert len(extracted_docs) > 0, "Failed to harvest comments sitting ABOVE the block!"
 
 
+def test_detector_lineage_ignores_alternation_shaped_class_start():
+    """#1983: an alternation-shaped class_start (name in group 1 OR group 2, never
+    both -- fortran MODULE/TYPE, dockerfile bare FROM, lua, abap) must not sweep a
+    declaration's own name into parent_entity as if it were an inheritance parent.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+
+    # Fortran-shaped: `MODULE <name>` fills group 1, `TYPE <name>` fills group 2.
+    opt_detector.languages["c"]["rules"]["class_start"] = re.compile(r"MODULE\s+(\w+)|TYPE\s+(\w+)")
+
+    code = "MODULE geometry\nTYPE point\nEND TYPE\nEND MODULE\n"
+    result = opt_detector.splice(code, code, raw_content=code)
+
+    parent_entity = result["metadata"].get("parent_entity", "")
+    assert "geometry" not in parent_entity, "MODULE name (group 1) leaked into parent_entity"
+    assert "point" not in parent_entity, "#1983: TYPE name (group 2) leaked into parent_entity as a phantom parent"
+    assert parent_entity == "", f"alternation-shaped class_start produced spurious lineage: {parent_entity!r}"
+
+
 # ==============================================================================
 # TEST 25: MULTI-LINE MACRO CONTINUATIONS (MODE B)
 # ==============================================================================

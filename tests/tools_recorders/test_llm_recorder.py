@@ -159,6 +159,44 @@ def test_build_markdown_generates_context(recorder, mock_pipeline_state):
     assert "src/api/handler.py" in md_text  # Our mock file has I/O hits
 
 
+def test_build_markdown_omits_per_scan_volatile_fields(recorder):
+    """
+    The brief is committed to docs/gitgalaxy_architecture_brief.md by a
+    scheduled CI scan; any field that differs between two scans of the same
+    commit made every scan produce a diff whose PR auto-merges -- a
+    ~21-commits/day treadmill. The FORENSIC TRACEABILITY section must not
+    carry the scan timestamp, duration, HEAD commit hash, current branch, or
+    absolute target path.
+    """
+    session_meta = {
+        "engine": "GitGalaxy Scope vtest",
+        "target": "Repo",
+        "target_directory": "/home/runner/work/gitgalaxy/gitgalaxy",
+        "timestamp": "2026-06-18T12:00:00.123456+00:00",
+        "duration_seconds": 7.55,
+        "zero_dependency_mode": False,
+        "git_audit": {
+            "branch": "some-feature-branch",
+            "commit_hash": "7a591bd6769ad6710fa45872208dc477801c7d62",
+            "remote_url": "https://github.com/squid-protocol/gitgalaxy",
+        },
+    }
+    md_text = recorder._build_markdown([], [], {}, session_meta, {})
+
+    for volatile in (
+        "2026-06-18T12:00:00.123456+00:00",  # timestamp
+        "7.55",  # duration
+        "7a591bd6769ad6710fa45872208dc477801c7d62",  # HEAD commit
+        "some-feature-branch",  # current branch
+        "/home/runner/work/gitgalaxy/gitgalaxy",  # absolute target path
+    ):
+        assert volatile not in md_text, f"per-scan-volatile value leaked into the committed brief: {volatile!r}"
+
+    # The stable identity fields still render.
+    assert "GitGalaxy Scope vtest" in md_text
+    assert "https://github.com/squid-protocol/gitgalaxy" in md_text
+
+
 def test_house_of_cards_section_reads_fragile_dependency_chain(recorder, mock_pipeline_state):
     """
     Regression test for #370: the "House of Cards" section used to read

@@ -169,12 +169,14 @@ class LLMRecorder:
         lines.append("## 0. FORENSIC TRACEABILITY")
         lines.append("| Metadata | Value |")
         lines.append("|---|---|")
+        # This brief is committed to docs/gitgalaxy_architecture_brief.md by a
+        # scheduled CI scan of main. Only fields that change when the repo's
+        # *architecture* changes belong here -- anything that varies between two
+        # scans of the same commit (Timestamp, Scan Duration, the absolute
+        # Target Path, the current Git Branch, the HEAD commit hash) made every
+        # scan produce a diff, and its PR auto-merges, so a per-scan field was a
+        # ~21-commits/day treadmill. Freshness lives in `git log` of the file.
         lines.append(f"| **Engine** | `{session_meta.get('engine', 'Unknown')}` |")
-        lines.append(f"| **Target Path** | `{session_meta.get('target_directory', 'Unknown')}` |")
-        lines.append(f"| **Timestamp** | `{session_meta.get('timestamp', 'Unknown')}` |")
-        lines.append(f"| **Scan Duration** | `{session_meta.get('duration_seconds', 0.0)}s` |")
-        lines.append(f"| **Git Branch** | `{git_audit.get('branch', 'N/A')}` |")
-        lines.append(f"| **Git Commit** | `{git_audit.get('commit_hash', 'N/A')}` |")
         lines.append(f"| **Git Remote** | `{git_audit.get('remote_url', 'N/A')}` |")
         lines.append(
             f"| **Zero-Dependency Mode** | `{'ACTIVE (Degraded Precision)' if session_meta.get('zero_dependency_mode') else 'Inactive (Full Precision)'}` |"

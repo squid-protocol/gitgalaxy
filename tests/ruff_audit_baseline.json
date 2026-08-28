@@ -22,7 +22,7 @@
   "gitgalaxy/recorders/audit_recorder.py:298: C414": "Unnecessary `list()` call within `sorted()`",
   "gitgalaxy/recorders/audit_recorder.py:358: PERF401": "Use `list.extend` to create a transformed list",
   "gitgalaxy/recorders/gpu_recorder.py:285: C414": "Unnecessary `list()` call within `sorted()`",
-  "gitgalaxy/recorders/llm_recorder.py:1016: SIM102": "Use a single `if` statement instead of nested `if` statements",
+  "gitgalaxy/recorders/llm_recorder.py:1018: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/recorders/record_keeper.py:187: W291": "Trailing whitespace",
   "gitgalaxy/recorders/record_keeper.py:188: W291": "Trailing whitespace",
   "gitgalaxy/recorders/record_keeper.py:189: W291": "Trailing whitespace",

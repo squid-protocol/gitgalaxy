@@ -5,11 +5,6 @@
 | Metadata | Value |
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
-| **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-28T18:51:54.195945+00:00` |
-| **Scan Duration** | `7.55s` |
-| **Git Branch** | `main` |
-| **Git Commit** | `7a591bd6769ad6710fa45872208dc477801c7d62` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 

@@ -4672,9 +4672,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the same defensive intent that motivated the original 5-word list
                 # applies equally to the rest. Widened to the full reserved-word set.
                 # =====================================================================
-                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.-]*)|"
+                r"^[ \t]*(?:function[ \t\n]+([a-zA-Z_][a-zA-Z0-9_.:-]*)|"
                 r"(?!(?:if|then|elif|else|fi|case|esac|while|until|for|in|do|done|function|select|time|coproc)\b)"
-                r"([a-zA-Z_][a-zA-Z0-9_.-]*)[ \t\n]*\(\))",
+                r"([a-zA-Z_][a-zA-Z0-9_.:-]*)[ \t\n]*\(\))",
                 re.M,
             ),
             # 5. class_start

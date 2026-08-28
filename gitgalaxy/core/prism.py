@@ -521,16 +521,23 @@ class Prism:
             if lang_data.get("lexical_family") != "line_exclusive":
                 continue
             delimiters = language_delimiters.get(lang_id, fallback_delimiters)
-            patterns[lang_id] = self._compile_delimiter_alternation(delimiters)
+            patterns[lang_id] = self._compile_delimiter_alternation(delimiters, lang_id=lang_id)
 
         return patterns
 
-    def _compile_delimiter_alternation(self, delimiters: list[str]) -> re.Pattern:
+    def _compile_delimiter_alternation(self, delimiters: list[str], lang_id: str = "") -> re.Pattern:
         """Compiles a single ReDoS-safe alternation over a flat delimiter list, applying Rule 9's word-boundary handling per token."""
         alternatives = []
         for token in delimiters:
             if not token:
                 continue
+
+            # In shell and makefile, '#' is only a comment if it is the start of a word (preceded by whitespace or start of line).
+            # This protects bash parameter expansions like `${var##prefix}` from being falsely stripped.
+            if token == "#" and lang_id in ("shell", "makefile"):  # noqa: S105
+                alternatives.append(r"(?:^|(?<=\s))#")
+                continue
+
             escaped = re.escape(token)
             starts_word = token[0].isalnum() or token[0] == "_"
             ends_word = token[-1].isalnum() or token[-1] == "_"
@@ -995,7 +1002,7 @@ class Prism:
         (confirmed via language-crucible's perl/mojo/Template.pm).
         """
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
-        carry_aware = lang_id in ("python", "micropython", "ruby")
+        carry_aware = lang_id in ("python", "micropython", "ruby", "shell")
         code, comments = [], []
         carry_quote: Optional[str] = None
 

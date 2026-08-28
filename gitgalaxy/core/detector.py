@@ -182,14 +182,19 @@ class ScopeParsingRegistry:
         "shell": {
             "mode": "mode_d",
             "openers": [
-                r"\bif\b",
-                r"\bwhile\b",
-                r"\buntil\b",
-                r"\bfor\b",
-                r"\bcase\b",
+                r"(?<![\w=\-])if(?![\w=\-])",
+                r"(?<![\w=\-])while(?![\w=\-])",
+                r"(?<![\w=\-])until(?![\w=\-])",
+                r"(?<![\w=\-])for(?![\w=\-])",
+                r"(?<![\w=\-])case(?![\w=\-])",
                 r"\{",  # Shell functions use braces for scope
             ],
-            "closers": [r"\bfi\b", r"\bdone\b", r"\besac\b", r"\}"],
+            "closers": [
+                r"(?<![\w=\-])fi(?![\w=\-])",
+                r"(?<![\w=\-])done(?![\w=\-])",
+                r"(?<![\w=\-])esac(?![\w=\-])",
+                r"\}",
+            ],
         },
         "ruby": {
             "mode": "mode_d",
@@ -1797,13 +1802,21 @@ class StructuralExtractor:
         comment_markers = r"#|--|//"
         if lang_id == "matlab":
             comment_markers = r"%|#|--|//"
+        # Standard strings can span multiple lines natively in some languages.
+        # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
+        # by newline to prevent an unclosed quote from swallowing the rest of the file.
+        ml_aware = lang_id in ("shell", "ruby", "perl", "php", "sql")
+        # Use negative lookbehind (?<!\\) to prevent \" or \' from falsely opening a string literal when outside one
+        standard_double = r'(?<!\\)"(?:\\.|[^"\\])*"' if ml_aware else r'(?<!\\)"(?:\\.|[^"\\\n\r])*"'
+        standard_single = r"(?<!\\)'(?:\\.|[^'\\])*'" if ml_aware else r"(?<!\\)'(?:\\.|[^'\\\n\r])*'"
+
         atomic_string_pattern = (
             r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
-            r'"(?:\\.|[^"\\\n\r])*"|'  # Standard Double
-            r"'(?:\\.|[^'\\\n\r])*'|"  # Standard Single
+            f"{standard_double}|"  # Standard Double
+            f"{standard_single}|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
@@ -1875,10 +1888,10 @@ class StructuralExtractor:
         """Safely extracts function/block names for Mode D logic."""
         lang_key = ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
         if lang_key == "shell":
-            m = re.search(r"\bfunction\s+([a-zA-Z0-9_.-]+)", line)
+            m = re.search(r"\bfunction\s+([a-zA-Z0-9_.:-]+)", line)
             if m:
                 return m.group(1)
-            m = re.search(r"([a-zA-Z0-9_.-]+)\s*\(\)", line)
+            m = re.search(r"([a-zA-Z0-9_.:-]+)\s*\(\)", line)
             if m:
                 return m.group(1)
         elif lang_key == "ruby":
@@ -4363,12 +4376,20 @@ class StructuralExtractor:
 
         # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
         depth_before_line: list[int] = []
+        past_safe_lines: list[str] = []
         for orig_line, safe_line, net_change in zip(original_lines, safe_lines, net_changes):
             depth_before_line.append(stack_depth)
 
             if stack_depth == 0:
                 if net_change > 0:
                     satellite_name = self._extract_semantic_name(safe_line, lang_key)
+                    if satellite_name == "Anonymous_Block":
+                        for past_safe in reversed(past_safe_lines):
+                            if past_safe.strip():
+                                fallback = self._extract_semantic_name(past_safe, lang_key)
+                                if fallback != "Anonymous_Block":
+                                    satellite_name = fallback
+                                break
                     current_satellite = [orig_line]
                     is_current_satellite_class = (
                         bool(class_opener_pattern.search(safe_line)) if class_opener_pattern else False
@@ -4417,6 +4438,7 @@ class StructuralExtractor:
 
             current_line_offset += 1
             current_char_offset += len(orig_line)
+            past_safe_lines.append(safe_line)
 
         self.logger.debug("[DIAGNOSTIC] Mode D: Finished traversing. Processing remnants...")
 

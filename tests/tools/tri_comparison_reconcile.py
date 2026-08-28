@@ -42,24 +42,30 @@ MATCHING METHODOLOGY (confirmed against real corpus data, not assumed)
         (rank order within a name is identical), and "whose anchor convention is right" is not an
         existence disagreement worth a ledger entry. The takeaway is only that the original "0 in
         every single case" was a Python-specific measurement stated too broadly.
-    Where one name occurs more than once in a file (property getter/setter pairs, same method
-    name on different classes), each tool's occurrences of that name are sorted by line and
-    paired by RANK (1st with 1st, 2nd with 2nd), the same instinct tree_sitter_accuracy_audit.py's
-    `_align_occurrences_by_line` already uses for two readers, generalized to however many of the
-    three tools are available for this language. GitGalaxy's own `class_data` rows carry no line
-    number at all (a pre-existing schema fact, not introduced here) -- class matching against
-    GitGalaxy is therefore by name multiset only, never rank-paired by position. This doesn't
-    lose anything class-specific to compare positionally anyway: classes carry no `args` value in
-    any of the three readers, so class matching only ever needs to answer an existence question.
-    KNOWN LIMITATION (#2359): rank pairing has no scope disambiguation, so a name with several
-    UNRELATED definitions in one file (method overloads, `build`/`constructor` across different
-    classes, a property name reused in two object literals) can pair tool A's reading of
-    definition #1 against tool B's reading of definition #2 -- manufacturing a spurious args (or
-    line) "disagreement" where every individual reading was correct for its own site. Confirmed
-    on csharp `SetCurrentSolution` and javascript jquery `setup`/`trigger` (both ledger verdicts
-    say "methodology artifact, not a real defect"). Existence reconciliation is largely immune (a
-    mis-pair there still agrees the symbol exists); it's the args/line sub-comparison that's
-    distorted, which is part of why args stays an unranked found-count for now.
+    Where one name occurs more than once in a file (property getter/setter pairs, method
+    overloads, `build`/`constructor` across different classes), each tool's occurrences of that
+    name are sorted by line, and then:
+      - CLASSES, or any name whose occurrences don't all carry a line: paired by RANK (1st with
+        1st, 2nd with 2nd), the same instinct tree_sitter_accuracy_audit.py's
+        `_align_occurrences_by_line` already uses for two readers, generalized to however many of
+        the three tools are available. GitGalaxy's own `class_data` rows carry no line number at
+        all (a pre-existing schema fact), so class matching is name-multiset only -- which loses
+        nothing, since classes carry no `args` value in any reader and only ever need an existence
+        answer.
+      - FUNCTIONS (every reader gives a real start line): paired by LINE PROXIMITY
+        (`_pair_occurrences_by_line`). Rank pairing silently breaks when one tool misses an
+        occurrence in the MIDDLE of a repeated name -- every pairing after the gap shifts by one,
+        so tool A's reading of overload #2 gets compared against tool B's reading of overload #3,
+        manufacturing a spurious args "disagreement" where each individual reading was correct for
+        its own site (confirmed #2359: csharp `SetCurrentSolution`, javascript jquery
+        `setup`/`trigger`). Line-proximity pairing single-linkage-clusters the occurrences in
+        line order instead, so a genuinely-missed occurrence is left unpaired rather than
+        shifting everything after it. The residual (occurrences that cluster alone) is still
+        rank-paired, so the total slot count -- and therefore existence recall/precision -- is
+        exactly what rank pairing gave; only which occurrence a discrepancy points at, and the
+        args sub-comparison, change. A final belt-and-braces guard skips the args comparison for
+        any slot whose paired occurrences span more than `_ARGS_LINE_SPREAD_MAX` lines (a
+        residual rank-pair, or a real anchor offset too wide to trust as the same function).
 
 EXISTENCE VS. ARGS ARE SEPARATE QUESTIONS, SCOPED SEPARATELY
     A function's EXISTENCE (does a symbol named X exist at roughly this position) and its ARG
@@ -154,6 +160,19 @@ class DiscrepancyGroup:
 
 _EXAMPLE_CAP = 10
 
+# #2359 line-proximity function pairing. _CLUSTER_GAP_LINES: two of the SAME tool's occurrences
+# of one name are always different functions, and two DIFFERENT tools' readings of the same
+# function land within a handful of lines of each other (0 for most languages; a documented +1
+# for ctags in c/php/java/typescript; a few more where GitGalaxy anchors at a decorator/attribute
+# line and tree-sitter at the keyword -- see MATCHING METHODOLOGY above). 8 lines comfortably
+# covers the real cross-tool offsets while staying below the typical gap between two adjacent
+# same-name overloads. _ARGS_LINE_SPREAD_MAX: the post-pairing guard -- only compare args when the
+# paired occurrences are confidently the same function; a wider spread means a residual rank-pair
+# or an anchor offset too large to trust, so existence is still counted but args is skipped
+# (a guessed args comparison is worse than none). Kept equal to the cluster gap on purpose.
+_CLUSTER_GAP_LINES = 8
+_ARGS_LINE_SPREAD_MAX = 8
+
 # Local-label leading-dot convention: NASM/GAS scope a local label to the preceding global
 # label by writing it with a leading '.' (`.loop:`, `.empty:`). Universal Ctags' Asm parser
 # strips that '.' before emitting the tag (`loop`, `empty`); GitGalaxy's func_start captures
@@ -186,6 +205,57 @@ def _pair_occurrences_by_rank(
     slots = []
     for i in range(max_n):
         slots.append({tool: (occs[i] if i < len(occs) else None) for tool, occs in occs_by_tool.items()})
+    return slots
+
+
+def _name_wants_line_pairing(occs_by_tool: dict[str, list[Occurrence]], symbol_type: str) -> bool:
+    """True only when line-proximity pairing can differ from rank pairing AND has the data to run:
+    functions (classes have no gg line), some tool saw the name 2+ times (with <=1 each, the two
+    strategies produce the identical single slot), and every occurrence carries a real line."""
+    if symbol_type != "function":
+        return False
+    if max((len(v) for v in occs_by_tool.values()), default=0) < 2:
+        return False
+    return all(o.line is not None for occs in occs_by_tool.values() for o in occs)
+
+
+def _pair_occurrences_by_line(
+    occs_by_tool: dict[str, list[Occurrence]],
+) -> list[dict[str, Occurrence | None]]:
+    """One function name's occurrences across tools, each list already line-sorted, every
+    occurrence carrying a real line (see `_name_wants_line_pairing`). Single-linkage-clusters
+    them in global line order -- a new cluster starts when the line gap exceeds
+    `_CLUSTER_GAP_LINES` or the current tool already occupies the open cluster (two of one tool's
+    occurrences of a name ARE two different functions). Clusters holding 2+ tools are confident
+    same-function slots; a tool alone in its cluster is "loose" and rank-paired against the other
+    tools' equally-loose occurrences, so the total slot count matches plain rank pairing and
+    existence recall/precision are unchanged -- see reconcile_symbols' caller comment and #2359.
+    """
+    flat = sorted(
+        (o.line, tool, o) for tool, occs in occs_by_tool.items() for o in occs
+    )  # (line, tool, occ), ascending by line
+    clusters: list[dict[str, Occurrence]] = []
+    cur: dict[str, Occurrence] = {}
+    cur_last_line = 0
+    for line, tool, occ in flat:
+        if cur and (tool in cur or line - cur_last_line > _CLUSTER_GAP_LINES):
+            clusters.append(cur)
+            cur = {}
+        cur[tool] = occ
+        cur_last_line = line
+    if cur:
+        clusters.append(cur)
+
+    slots: list[dict[str, Occurrence | None]] = []
+    loose: dict[str, list[Occurrence]] = {t: [] for t in occs_by_tool}
+    for c in clusters:
+        if len(c) >= 2:
+            slots.append({t: c.get(t) for t in occs_by_tool})
+        else:
+            (only_tool,) = c
+            loose[only_tool].append(c[only_tool])
+    slots.extend(_pair_occurrences_by_rank(loose))
+    slots.sort(key=lambda s: min((o.line for o in s.values() if o is not None), default=0))
     return slots
 
 
@@ -243,7 +313,12 @@ def reconcile_symbols(
             for tool in occs_by_tool:
                 occs_by_tool[tool].sort(key=lambda o: o.line if o.line is not None else -1)
 
-            for slot in _pair_occurrences_by_rank(occs_by_tool):
+            pair_fn = (
+                _pair_occurrences_by_line
+                if _name_wants_line_pairing(occs_by_tool, symbol_type)
+                else _pair_occurrences_by_rank
+            )
+            for slot in pair_fn(occs_by_tool):
                 present = frozenset(t for t, o in slot.items() if o is not None)
                 absent = frozenset(available_tools) - present
 
@@ -298,6 +373,16 @@ def reconcile_symbols(
                 # existence consensus reached for this slot -- compare args (functions only;
                 # classes never carry an args value in any reader)
                 if symbol_type != "function":
+                    continue
+                # #2359 belt-and-braces: only compare args when the paired occurrences are
+                # confidently the same function. Line-proximity pairing already avoids the gross
+                # mis-shifts, but a residual rank-paired slot (or an anchor offset wider than
+                # `_CLUSTER_GAP_LINES`) can still line up two different definitions of a repeated
+                # name. A wide line spread across the present tools is the tell -- skip args
+                # there (existence already counted above; a guessed args comparison is worse
+                # than none). Slots with <2 lined occurrences fall through unchanged.
+                slot_lines = [slot[t].line for t in present if slot[t].line is not None]
+                if len(slot_lines) >= 2 and max(slot_lines) - min(slot_lines) > _ARGS_LINE_SPREAD_MAX:
                     continue
                 args_vals = {t: slot[t].args for t in present}
                 # None means "this tool structurally can't report args here" (e.g. ctags on

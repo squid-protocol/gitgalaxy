@@ -205,16 +205,21 @@ other — see below) — **not** a GitGalaxy gap. The 2026-08-22 dart fix
 ([#2341](https://github.com/squid-protocol/gitgalaxy/issues/2341)) closed dart's last args shape;
 it now reads 100%.
 
-Two known limits on how sharp this signal is, both worth fixing before args is worth ranking:
+Two limits on how sharp this signal is:
 
-- **Name-only rank pairing manufactures spurious args (and line) discrepancy shapes.** Where one
-  name has several unrelated definitions in a file (`build` across different Dart widgets,
-  `constructor` across TypeScript classes, C# method overloads), the reconciler pairs occurrences
-  by name and rank with no scope disambiguation, so it can compare tool A's reading of overload 1
-  against tool B's reading of overload 2 and record a "disagreement" where every individual
-  reading was correct for its own definition site. Both the csharp `SetCurrentSolution` and the
-  javascript jquery `setup`/`trigger` args verdicts document a concrete instance. Tracked in
-  [#2359](https://github.com/squid-protocol/gitgalaxy/issues/2359).
+- **Repeated-name pairing (#2359, mitigated).** Where one name has several unrelated definitions
+  in a file (`build` across different Dart widgets, `constructor` across TypeScript classes, C#
+  method overloads), plain rank pairing (zip the two tools' line-sorted occurrence lists by
+  index) silently shifts every pairing after any occurrence one tool missed, comparing tool A's
+  overload #2 against tool B's overload #3. Functions now pair by **line proximity** instead
+  (`_pair_occurrences_by_line`): a genuinely-missed occurrence is left unpaired rather than
+  shifting the rest, and a residual line-spread guard skips the args comparison for any pair too
+  far apart to trust as the same function. Total slot count — and therefore existence
+  recall/precision — is unchanged by construction. This removed the csharp/javascript/cpp
+  spurious args shapes and recovered ~90 previously-mis-paired true args comparisons (all still
+  100% agreement). A narrow residual remains: if one tool reports a name several times far from
+  where the others place it (ctags mis-tagging a macro body, say), clustering can still split
+  what rank merged — rare, and it only moves that tool's own recall, never GitGalaxy's precision.
 - **Start-line agreement is not a usable correctness metric as-is.** The same probe measured
   per-tool start-line agreement and found the disagreements are almost all naming-convention
   offsets, not defects: ctags systematically reports the line one past GitGalaxy/tree-sitter in

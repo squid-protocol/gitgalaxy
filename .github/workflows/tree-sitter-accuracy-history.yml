@@ -74,8 +74,8 @@ jobs:
           pip install -e .
           pip install tree-sitter-language-pack
 
-      - name: Fetch Language Crucible corpus (pinned v1.0)
-        run: git clone --branch v1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: git clone --branch "${{ vars.LANGUAGE_CRUCIBLE_REF }}" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Append accuracy history + regenerate summary table + chart
         run: |

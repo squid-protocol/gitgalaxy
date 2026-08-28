@@ -312,6 +312,9 @@ from typing import Any, NamedTuple, Optional
 
 import tree_sitter_language_pack
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from _crucible_pin import PINNED_TAG
+
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -741,7 +744,7 @@ NODE_MAPS = {
 #     key, a `jobs:` key), not general YAML syntax -- tree-sitter's generic YAML grammar has no
 #     concept of "job" vs. any other mapping key, so there's no structural ground truth to diff
 #     against regardless of node-type mapping.
-#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.0 pin) -- nothing to
+#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.1.0 pin) -- nothing to
 #     measure against yet; revisit if/when the corpus adds Ada samples.
 
 
@@ -771,7 +774,7 @@ def ensure_corpus(lang: str) -> Path:
     if not data_dir.exists():
         sys.exit(
             f"tree_sitter_accuracy_audit: language-crucible corpus not found at {data_dir}.\n"
-            f"Clone squid-protocol/language-crucible (pinned to v1.0) as a sibling directory,\n"
+            f"Clone squid-protocol/language-crucible (pinned to {PINNED_TAG}) as a sibling directory,\n"
             f"or set LANGUAGE_CRUCIBLE_PATH."
         )
     return data_dir

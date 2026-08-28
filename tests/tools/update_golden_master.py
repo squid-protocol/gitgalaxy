@@ -32,6 +32,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import golden_diff
+from _crucible_pin import PINNED_TAG
 
 from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_PYYAML, HAS_TIKTOKEN
 from gitgalaxy.security.security_auditor import ML_AVAILABLE
@@ -55,7 +56,7 @@ def main():
 
     if not CRUCIBLE_DATA_PATH.exists():
         print(f"❌ language-crucible corpus not found at {CRUCIBLE_DATA_PATH}.")
-        print("   Clone squid-protocol/language-crucible (pinned to v1.0) as a sibling directory,")
+        print(f"   Clone squid-protocol/language-crucible (pinned to {PINNED_TAG}) as a sibling directory,")
         print("   or set LANGUAGE_CRUCIBLE_PATH, then re-run.")
         sys.exit(1)
 

@@ -1094,7 +1094,15 @@ class Prism:
                         pos = end_idx
                 return "".join(parts)
 
-        for line in text.splitlines():
+        # #1954: split on real newlines only. str.splitlines() also breaks
+        # on vertical tab, form feed, the file/group/record separators, NEL
+        # and the Unicode line/paragraph separators -- so a form feed inside
+        # a comment (Cosmopolitan libc's ape.S uses form feed as a page-break
+        # idiom) turned into a literal newline on rejoin, drifting every
+        # downstream start_line by the running count of such characters.
+        # CR / CRLF is still normalised the way splitlines() did.
+        normalized_text = text.replace("\r\n", "\n").replace("\r", "\n")
+        for line in normalized_text.split("\n"):
             head = ""
             if carry_quote is not None:
                 close_pattern = self.CARRY_QUOTE_CLOSE_PATTERNS[carry_quote]

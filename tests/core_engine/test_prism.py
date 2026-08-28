@@ -495,6 +495,45 @@ def test_prism_issue_1532_nested_comment_stripping_preserves_line_count():
         )
 
 
+def test_prism_issue_1954_form_feed_in_comment_preserves_line_count():
+    """
+    Regression test for #1954: `_strip_single_line_comments()` (the stripper for
+    the whole "line_exclusive" family -- python, ruby, shell, assembly, ~20
+    languages) split its input with `str.splitlines()`, which breaks on far more
+    than "\\n"/"\\r\\n" -- vertical tab, form feed, the file/group/record
+    separators, NEL, U+2028/U+2029. Any of those inside a physical line (most
+    often inside a comment -- Cosmopolitan libc's `ape.S` uses form feed as a
+    deliberate page-break idiom) became a literal "\\n" on rejoin, so every
+    downstream `start_line` drifted by the cumulative count of such characters
+    (confirmed on `assembly/cosmopolitan/ape.S`: `kernel` recorded at 1752 vs
+    the real 1743, +9 == the 9 form feeds before it).
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    ff, vt = "\x0c", "\x0b"
+    cases = {
+        "python": f"a = 1  # banner{ff}still the same physical line\nb = 2\nc = 3\n",
+        "shell": f"A=1  # note{ff}{vt}more banner\nB=2\nC=3\n",
+        "ruby": f"x = 1  # doc{ff}page marker\ny = 2\nz = 3\n",
+    }
+    for lang, code in cases.items():
+        result = real_prism.split_streams(code, lang)
+        code_stream = result["code_stream"]
+        assert code_stream.count("\n") == code.count("\n"), (
+            f"{lang}: a form feed / vertical tab inside a comment added a phantom newline "
+            f"({code_stream.count(chr(10))} vs {code.count(chr(10))}) -- drifts every later start_line"
+        )
+
+    # CR / CRLF input must still collapse to one newline each (as splitlines did).
+    crlf = "p = 1  # c\r\nq = 2\r\nr = 3\r\n"
+    cs = real_prism.split_streams(crlf, "python")["code_stream"]
+    assert cs.count("\n") == 3, f"CRLF round-trip changed the line count: {cs.count(chr(10))}"
+    assert "\r" not in cs, "a stray carriage return leaked into the code stream"
+
+
 def test_prism_livecode_multi_style_live_comments():
     """
     Regression test for #708: livecode uses both classic xTalk line comments (--),

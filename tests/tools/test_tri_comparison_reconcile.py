@@ -139,8 +139,10 @@ def test_single_occurrence_name_unchanged(monkeypatch):
     _force_rank_pairing(monkeypatch)
     rank_result = _reconcile(gg, ts)
 
-    for line_scores, rank_scores in zip(line_result[:3], rank_result[:3], strict=True):
-        assert _rates(line_scores) == _rates(rank_scores)
+    # _reconcile returns a fixed-shape tuple, so the first 3 elements always
+    # line up 1:1 -- compare them positionally without zip() (whose strict=
+    # kwarg is 3.10+ and this repo still supports 3.9).
+    assert [_rates(s) for s in line_result[:3]] == [_rates(s) for s in rank_result[:3]]
 
 
 def test_classes_never_use_line_pairing():

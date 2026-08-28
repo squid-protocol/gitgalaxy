@@ -10,8 +10,8 @@ from gitgalaxy.recorders.record_keeper import RecordKeeper
 def keeper():
     """Initializes the RecordKeeper with a controlled schema for deterministic testing."""
     mock_schemas = {
-        "RISK_SCHEMA": ["tech_debt", "cognitive_load"],
-        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "sec_tainted_injection"],
+        "RISK_SCHEMA": ["tech_debt", "cognitive_load", "secrets_risk"],
+        "SIGNAL_SCHEMA": ["high_risk_execution", "io", "sec_tainted_injection", "sec_hardcoded_secrets"],
     }
     with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
         return RecordKeeper()
@@ -58,12 +58,11 @@ def mock_pipeline_state():
             },
             "is_ml_threat": True,
             "equations": {
-                "sec_hardcoded_secrets": 1,  # Maps to has_credentials, #367
                 "sec_extension_mismatch": 1,  # Maps to binary_anomaly, #368
                 "sec_self_propagation": 1,  # Maps to obfuscation_flag, #1150
             },
-            "risk_vector": [80.0, 60.0],  # debt, cog_load
-            "hit_vector": [2, 5, 1],  # danger, io, tainted_injection
+            "risk_vector": [80.0, 60.0, 42.0],  # debt, cog_load, secrets_risk (#367)
+            "hit_vector": [2, 5, 1, 3],  # danger, io, tainted_injection, sec_hardcoded_secrets (#367)
             "classes": [{"name": "APIRouter", "inheritance": ["BaseRouter"], "method_count": 5}],
             "functions": [
                 {
@@ -181,8 +180,10 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     # #366: is_malware reads file_data["is_ml_threat"] (security_auditor.py's
     # real output key), not the never-produced "is_malware".
     assert file_row["is_malware"] == 1
-    # #367: has_credentials reads equations["sec_hardcoded_secrets"], not the
-    # never-produced "has_credentials".
+    # #367: has_credentials reads the durable hit_vector["sec_hardcoded_secrets"] /
+    # risk_vector["secrets_risk"] slots (the never-produced "has_credentials" key and
+    # #381's non-durable equations["sec_hardcoded_secrets"] read were both always 0).
+    # Note the mock's equations dict deliberately has NO sec_hardcoded_secrets key.
     assert file_row["has_credentials"] == 1
     # #368: binary_anomaly reads equations["sec_extension_mismatch"], not the
     # never-produced "binary_anomaly".
@@ -218,6 +219,32 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     excluded = cursor.fetchone()
     assert excluded["file_path"] == "assets/logo.png"
 
+    conn.close()
+
+
+# ==============================================================================
+# TEST 2b: #367 -- has_credentials stays 0 when no real secret signal survives
+# ==============================================================================
+def test_has_credentials_zero_without_signal(keeper, mock_pipeline_state, tmp_path):
+    """
+    #367 guard: with both durable carriers empty (hit_vector["sec_hardcoded_secrets"]
+    == 0, risk_vector["secrets_risk"] == 0.0) and nothing in the equations dict, the
+    column must be 0 -- proves the new read isn't just always-on.
+    """
+    db_path = tmp_path / "test_no_creds.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    parsed[0]["hit_vector"] = [2, 5, 1, 0]  # sec_hardcoded_secrets slot -> 0
+    parsed[0]["risk_vector"] = [80.0, 60.0, 0.0]  # secrets_risk slot -> 0.0
+    parsed[0]["equations"] = {}
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM file_data WHERE file_name='router.py'")
+    assert cursor.fetchone()["has_credentials"] == 0
     conn.close()
 
 

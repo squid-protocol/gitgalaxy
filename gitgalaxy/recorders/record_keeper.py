@@ -492,11 +492,35 @@ class RecordKeeper:
             # #366: security_auditor.py's real output key is "is_ml_threat", not
             # "is_malware" -- a near-miss rename that left this column always 0.
             is_malware = 1 if file_data.get("is_ml_threat", False) else 0
-            # #367: no producer ever set file_data["has_credentials"]; the engine's
-            # real hardcoded-secrets signal is equations["sec_hardcoded_secrets"]
-            # (security_lens.py, correlated in galaxyscope.py's Active Hemorrhage
-            # step, #348).
-            has_creds = 1 if file_data.get("equations", {}).get("sec_hardcoded_secrets", 0) > 0 else 0
+            # #367: no producer ever set file_data["has_credentials"]. #381 then
+            # read equations["sec_hardcoded_secrets"], but file_data["equations"]
+            # is not a durable carrier -- it's rebuilt/emptied/pruned across
+            # several galaxyscope.py phases (= {} at ~L1039, per-key del at
+            # ~L1090, assembled on a separate logic_data object in the worker),
+            # so that read was still 100% zero at population scale
+            # (squid-protocol/gitgalaxy#1144). The durable carriers are the same
+            # hit_vector / risk_vector slots this recorder already writes as
+            # threat_private_info / risk_secrets_risk:
+            #   - hit_vector["sec_hardcoded_secrets"]: raw SecurityLens count
+            #   - risk_vector["secrets_risk"]: thresholded score, also spiked to
+            #     100 for critical leaks via a path that zeroes hit_vector
+            #     (signal_processor.py:360), so both slots are checked.
+            # equations is kept only as a last-resort fallback.
+            hs_idx = (
+                self.SIGNAL_SCHEMA.index("sec_hardcoded_secrets")
+                if "sec_hardcoded_secrets" in self.SIGNAL_SCHEMA
+                else -1
+            )
+            sr_idx = self.RISK_SCHEMA.index("secrets_risk") if "secrets_risk" in self.RISK_SCHEMA else -1
+            has_creds = (
+                1
+                if (
+                    (hs_idx >= 0 and len(hv) > hs_idx and hv[hs_idx] > 0)
+                    or (sr_idx >= 0 and len(rv) > sr_idx and rv[sr_idx] > 0)
+                    or file_data.get("equations", {}).get("sec_hardcoded_secrets", 0) > 0
+                )
+                else 0
+            )
             # #368: no producer ever set file_data["binary_anomaly"]. The Binary
             # Analysis Sensor (galaxyscope.py) does exist and does run
             # SecurityLens.scan_binary() on suspicious binaries, but its findings

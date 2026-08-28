@@ -61,6 +61,50 @@ README section, just made a repeatable process instead of ad hoc.
    on the *agreeing* side (like csharp's 271-occurrence one above) never grays anything out on
    its own — GitGalaxy isn't the one being questioned there.
 
+## When a validated shape's count changes a lot
+
+`merge_and_save()` refreshes `last_seen_count`/`last_seen_examples` on a validated shape without
+ever touching `status`/`verdict` (step 2 above) — deliberately, so a routine re-run doesn't need a
+human to re-bless every shape every time. That's the right default when the corpus is stable. It
+stops being safe to trust blindly the moment the corpus itself changes substantially for that
+language (a new repo added, an existing one expanded) — a shape key only names *which tools
+agreed/disagreed on which metric*, not *why*, and nothing stops a genuinely new mechanism from
+hiding inside a count increase on an already-`validated` shape, indistinguishable from more of the
+same, until someone actually looks.
+
+**Concrete case this happened (2026-08-28):** cobol's corpus grew from 53 to 308 files across six
+new/expanded repos. `cobol/function/existence/agree[ctags]_vs[gitgalaxy]` — already `validated`,
+`still_reproduces: true` — went from 133 occurrences to 773 without any status change, which is
+exactly the "looks fine, nobody has to look again" state the merge step is designed to produce. A
+full re-check (`tri_comparison_gatherer.gather_language()`, name-diffed across every file, not
+just the capped sample) confirmed it really was the same single already-documented ctags
+limitation (`ctags_reader.py`'s "tags ANY period-terminated word" note) generalizing to new
+syntax shapes the smaller corpus never exercised — division/section headers
+(`WORKING-STORAGE`/`CONFIGURATION`/`LINKAGE`/etc.) and embedded-SQL qualified-column periods
+(`COMMERCIAL.POLICYNUMBER`), not just the scope-terminators (`END-IF.`) the note originally
+evidenced — zero unexplained residual, zero remaining GitGalaxy defect. But a *sibling* shape for
+the same language, `cobol/class/existence/agree[gitgalaxy]_vs[ctags]`, was sitting `unvalidated`
+with all 6 of its occurrences newly introduced by the same corpus expansion (5 from a program
+that splits `PROGRAM-ID.` and its name across two lines, ctags' Cobol parser doesn't handle at
+all; 1 from an underscore-containing program name ctags truncates) — a completely different,
+previously undiscovered mechanism. Trusting "cobol already has validated shapes, this language is
+probably fine" without checking BOTH shapes individually would have missed it.
+
+**The rule:** after adding or substantially expanding a language's corpus content, don't just look
+at which shapes are `unvalidated` — for that language's shapes that are already `validated` too,
+compare the new `last_seen_count` against what it was before the corpus change. A count that grew
+roughly proportionally to the file-count increase is consistent with (not proof of) "same
+mechanism, more instances" and still deserves the re-sampling above before trusting it; a count
+that grew disproportionately, or a shape whose `last_seen_examples` now cite files that didn't
+exist in the corpus before, is a specific signal to re-verify rather than assume. Either way,
+re-running step 2.5's full gather-and-diff (from the `tri-comparison-ledger-sweep` skill) costs
+one script run and settles it with evidence instead of trust. If the mechanism still fully and
+exclusively accounts for the new count, update the verdict text's cited occurrence number (and any
+cross-referenced note in `ctags_reader.py`/`tree_sitter_accuracy_audit.py`) so it doesn't read as
+stale to the next person, without changing `status`. If it doesn't, treat it as a fresh
+investigation — same lifecycle as an `unvalidated` entry, even though the JSON's `status` field
+still says `validated` until you change it.
+
 ## What NOT to do
 
 - Don't mark an entry `validated` without actually reading source — a rubber-stamped verdict is

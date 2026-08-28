@@ -768,6 +768,51 @@ even though that rule and its entire body sit inside a `/* FXIME: disabled ... *
 comment-awareness win rather than a lexical-coverage one, but it lands on the same side of the
 same ledger shape.
 
+### Third instance (2026-08-28): COBOL PROGRAM-ID, split across lines or underscore-named
+
+Two more shapes of the same "generic parser's format assumption is narrower than the real
+dialect" mechanism, both against ctags' Cobol "program" (P) kind — the tag GitGalaxy's
+`class_start` cross-checks for `PROGRAM-ID`. Confirmed against `language-crucible` v1.1.0's
+expanded COBOL corpus (issue-#4 provenance audit), ledger shape
+`cobol/class/existence/agree[gitgalaxy]_vs[ctags]`, validated 2026-08-28.
+
+**Shape one — the name on a continuation line, not the same line as the keyword:** a legitimate,
+common COBOL style writes `PROGRAM-ID.` alone, with the actual program name on the next line,
+indented:
+```cobol
+       PROGRAM-ID.
+           COACTUPC.
+```
+(`aws-mainframe-modernization-carddemo/COACTUPC.cbl:22-23`.) `ctags -x --language-force=Cobol
+--kinds-Cobol=P` on this file emits **zero** tags — not a truncated or wrong name, no tag at all.
+GitGalaxy's `class_start` regex matches the name regardless of which line it's on. Confirmed for
+all 5 real occurrences of this style in the corpus
+(`COACTUPC.cbl`/`COACTVWC.cbl`/`COCRDLIC.cbl`/`COCRDSLC.cbl`/`COCRDUPC.cbl`, all from the same
+CardDemo application, all written the identical two-line way) — a whole-corpus check, not a single
+sample generalized from.
+
+**Shape two — an underscore inside the program name:** the same underscore-intolerant identifier
+convention as Claim 12's second instance (GnuCOBOL's YACC grammar), here truncating rather than
+totally rejecting. `gnucobol/CBL_OC_DUMP.cob:30` reads `PROGRAM-ID.      CBL_OC_DUMP.`; ctags tags
+it as bare `CBL`, silently dropping everything from the first underscore on:
+```
+$ ctags -x --language-force=Cobol --kinds-Cobol=P gnucobol/CBL_OC_DUMP.cob
+CBL              program      30 gnucobol/CBL_OC_DUMP.cob PROGRAM-ID. CBL_OC_DUMP.
+```
+Compare a hyphen-named sibling in the same corpus, tagged correctly in full:
+```
+$ ctags -x --language-force=Cobol --kinds-Cobol=P cics-genapp/lgacdb01.cbl
+LGACDB01         program      13 cics-genapp/lgacdb01.cbl PROGRAM-ID. LGACDB01.
+```
+GitGalaxy's `class_start` captures `CBL_OC_DUMP` in full — underscores are valid identifier
+characters GitGalaxy's own regex was written to expect (COBOL programs from GnuCOBOL's own
+extension-library conventions use them routinely for callable subprogram names), same as
+hyphens.
+
+Together these two shapes are the full, sole explanation for the ledger entry's 6 occurrences (5
++ 1, zero unexplained residual) — see `tests/tools/ctags_reader.py`'s cobol notes for the
+cross-reference.
+
 ## Where Claim 12 does NOT apply
 
 - This is specific to a dialect whose real lexical grammar (what counts as a valid identifier)

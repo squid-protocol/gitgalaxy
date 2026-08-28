@@ -41,17 +41,44 @@ KIND MAPS
         OBJECT paragraphs. ctags' Cobol parser only has a "program" (P) kind -- no CLASS-ID/
         INTERFACE-ID equivalent exists at all. Permanent, structural gap: ctags can partially
         check GitGalaxy's Cobol class detection (PROGRAM-ID only), never fully.
+        Two more "program" (P) kind limitations, confirmed 2026-08-28 against the corpus's
+        expanded COBOL content (issue-#4-provenance-audited repos, `language-crucible` v1.1.0):
+        (1) ctags emits **zero** tags at all when `PROGRAM-ID.` and the program name are split
+        across two lines (a legitimate, common COBOL style) -- confirmed via a direct ctags run
+        on `aws-mainframe-modernization-carddemo/COACTUPC.cbl` and 4 siblings, all written
+        `PROGRAM-ID.\n    <NAME>.`; GitGalaxy's class_start handles both the same-line and
+        split-line form. (2) ctags truncates a program name at its first underscore -- confirmed
+        on `gnucobol/CBL_OC_DUMP.cob`, tagged as bare `CBL` instead of `CBL_OC_DUMP` -- the same
+        underscore-intolerant identifier convention documented in Claim 12's "second instance"
+        (`gnucobol_internals/parser.y`'s YACC rules), just manifesting as truncation for this
+        kind instead of total rejection. Both are the full, sole explanation for ledger shape
+        `cobol/class/existence/agree[gitgalaxy]_vs[ctags]`'s 6 occurrences (5 split-line + 1
+        underscore, zero residual) -- see `docs/why_gitgalaxy_beats_ast_here.md` Claim 12's third
+        instance for the full evidence.
         Separately (function-side): ctags' Cobol parser tags ANY period-terminated word as a
-        "paragraph" (kind "p"), including scope terminators like `END-IF.`/`END-PERFORM.` that
-        are not paragraph definitions at all -- confirmed via a direct ctags run on
-        cics-banking-sample-application-cbsa/BANKDATA.cbl, which tags dozens of `END-IF.` lines
-        as paragraphs. GitGalaxy correctly excludes these via its own reserved-word shield.
-        Permanent, structural ctags limitation, not filterable by kind (both real paragraphs and
-        false-positive terminators share kind "p") -- this is the majority cause of
-        `cobol/function/existence/agree[ctags]_vs[gitgalaxy]`'s 133 occurrences. A smaller,
-        genuine GitGalaxy defect (a `\b`-vs-hyphen word-boundary bug excluding real verb-prefixed
-        paragraph names like `DELETE-POLICY-DB2-INFO`) hides underneath this noise in the same
-        ledger shape -- see issue #1892.
+        "paragraph" (kind "p"), regardless of which COBOL division it appears in or what role the
+        period actually plays. Confirmed shapes, all sharing this one mechanism: scope terminators
+        like `END-IF.`/`END-PERFORM.` (the original 2026-08-19 finding, via a direct ctags run on
+        cics-banking-sample-application-cbsa/BANKDATA.cbl, dozens of `END-IF.` lines tagged as
+        paragraphs); IDENTIFICATION/ENVIRONMENT/DATA DIVISION section and paragraph headers like
+        `WORKING-STORAGE SECTION.`/`CONFIGURATION SECTION.`/`LINKAGE SECTION.`/`AUTHOR.` (confirmed
+        2026-08-28, the single largest contributor at corpus-expansion scale); and embedded-SQL
+        qualified-column periods like `COMMERCIAL.POLICYNUMBER` inside an `EXEC SQL...END-EXEC`
+        block, where the period is a table/column separator, not a COBOL statement terminator at
+        all (confirmed 2026-08-28 via a direct ctags run on cics-genapp/lgipdb01.cbl, which tags
+        `POLICY`/`COMMERCIAL`/`MOTOR` from `FROM POLICY,COMMERCIAL` and `MOTOR.POLICYNUMBER`
+        clauses as paragraphs). GitGalaxy correctly excludes all three shapes via its own
+        reserved-word shield and division/section awareness. Permanent, structural ctags
+        limitation, not filterable by kind (real paragraphs and every false-positive share kind
+        "p") -- this is the majority cause of `cobol/function/existence/agree[ctags]_vs[gitgalaxy]`
+        (133 occurrences at 2026-08-19's smaller corpus; 773 confirmed same-mechanism occurrences
+        at 2026-08-28's ~6x larger one, see `how_to_investigate_a_discrepancy.md`'s "When a
+        validated shape's count changes a lot" for how that generalization was actually checked
+        rather than assumed). A smaller, genuine GitGalaxy defect (a `\b`-vs-hyphen word-boundary
+        bug excluding real verb-prefixed paragraph names like `DELETE-POLICY-DB2-INFO`) used to
+        hide underneath this noise in the same ledger shape -- fixed, issue #1892; re-confirmed
+        2026-08-28 that zero real-paragraph false negatives remain in the expanded corpus, only
+        the three ctags-side false-positive shapes above.
       - scheme: GitGalaxy's class-analog is SRFI-9 `define-record-type`. ctags' Scheme parser
         exposes no kind for it (only function/set/unknown) -- CTAGS_CLASS_KINDS["scheme"] is
         deliberately empty, so class metrics render as ctags_available=False for scheme, not a

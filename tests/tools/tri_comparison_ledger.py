@@ -87,11 +87,20 @@ VERIFIED ADJUSTMENTS (credit_tools / debit_tools) -- LETTING A VERDICT MOVE THE 
     Scope discipline carries over from every other part of this module: set these two fields with
     the same rigor as `verdict` itself -- a rubber-stamped credit/debit is worse than leaving both
     empty, since it moves a number based on a conclusion nobody actually checked.
+      - GEOMETRY GUARD: a credit is only meaningful on a shape's SOLE agreeing tool (the one
+        reconcile_symbols left uncorroborated), and a debit is only meaningful on a tool that was
+        part of a 2+-tool agreement (the corroboration a debit revokes). `apply_verified_adjustments`
+        skips -- with a stderr warning, never a silent no-op -- any credit/debit whose named tool
+        doesn't fit that geometry (a debit on a lone claimant or a dissenting-side tool used to
+        drive the numerator negative: m4/scheme's `-73/79` and `-42/92` on the chart, and zig's
+        impossible 100.27% class precision from the mirror-image bad credit). The guard doesn't
+        rewrite the ledger; the warning is there so a human fixes the entry.
 """
 
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -201,6 +210,37 @@ def has_open_question(language: str, symbol_type: str, metric: str, path: Path =
     )
 
 
+def _credit_is_well_formed(tool: str, g: DiscrepancyGroup) -> bool:
+    """A credit only has a defined meaning when `tool` is the SOLE agreeing tool on this shape.
+    reconcile_symbols() adds an occurrence to a tool's precision `matched_consensus` iff at least
+    one OTHER tool corroborated it at that slot (`len(present) >= 2`); a lone claimant therefore
+    starts with those occurrences in `total_slots` but NOT `matched_consensus`, which is exactly
+    the gap a `credit` closes once a human confirms the uncorroborated claim was real. Crediting a
+    tool that already shares a 2+-tool agreement double-counts (it's already in `matched_consensus`);
+    crediting a tool that isn't in `agreeing_tools` at all invents a claim it never made."""
+    return tool in g.agreeing_tools and len(g.agreeing_tools) == 1
+
+
+def _debit_is_well_formed(tool: str, g: DiscrepancyGroup) -> bool:
+    """The mirror of `_credit_is_well_formed`: a debit only has a defined meaning when `tool` was
+    part of a 2+-tool agreement (so reconcile_symbols() already counted these occurrences as
+    corroborated in its `matched_consensus`) and the verdict now revokes that corroboration as a
+    shared mistake -- the C `agree[ctags,tree_sitter]_vs[gitgalaxy]` case in this module's own
+    docstring. Debiting a lone claimant, or a tool on the dissenting (absent) side, subtracts
+    occurrences that were never in `matched_consensus` to begin with and drives the numerator
+    negative (m4/scheme, real ledger entries that produced `-73/79` / `-42/92` on the chart)."""
+    return tool in g.agreeing_tools and len(g.agreeing_tools) >= 2
+
+
+def _warn_malformed(tool: str, g: DiscrepancyGroup, kind: str) -> None:
+    print(
+        f"tri_comparison_ledger: ignoring malformed {kind}_tools=[{tool}] on {g.shape_key} "
+        f"(agreeing_tools={sorted(g.agreeing_tools)}) -- a {kind} on this shape has no defined "
+        f"effect on precision; clean the ledger entry (see apply_verified_adjustments docstring).",
+        file=sys.stderr,
+    )
+
+
 def apply_verified_adjustments(
     precision_scores: dict[str, MetricScore], groups: list[DiscrepancyGroup], path: Path = LEDGER_PATH
 ) -> None:
@@ -215,7 +255,15 @@ def apply_verified_adjustments(
     tools are simply right/wrong" at all. Only ever touches precision -- `total_slots` (what a
     tool itself claimed) is untouched either direction, and recall/found-count panels don't call
     this at all since "found more" was never a ranked claim to begin with (see
-    tri_comparison_chart.py's own PANELS docstring)."""
+    tri_comparison_chart.py's own PANELS docstring).
+
+    A credit/debit that names a tool the shape's geometry can't support -- a credit on a tool
+    that already shares a 2+-tool agreement (or isn't in `agreeing_tools` at all), or a debit on
+    a lone claimant / a dissenting-side tool -- is malformed: it has no defined effect on
+    `matched_consensus` (and a bad debit drives the numerator negative, the m4/scheme `-73/79` /
+    `-42/92` bug). Those are skipped with a stderr warning rather than applied; see
+    `_credit_is_well_formed` / `_debit_is_well_formed`. The ledger JSON isn't rewritten here --
+    the warning is the signal to clean the offending entry by hand."""
     ledger = load_ledger(path)
     entries = ledger.get("entries", {})
     for g in groups:
@@ -229,8 +277,16 @@ def apply_verified_adjustments(
         if not entry or entry["status"] != "validated":
             continue
         for tool in entry.get("credit_tools", []):
-            if tool in precision_scores:
-                precision_scores[tool].matched_consensus += g.total_occurrences
+            if tool not in precision_scores:
+                continue
+            if not _credit_is_well_formed(tool, g):
+                _warn_malformed(tool, g, "credit")
+                continue
+            precision_scores[tool].matched_consensus += g.total_occurrences
         for tool in entry.get("debit_tools", []):
-            if tool in precision_scores:
-                precision_scores[tool].matched_consensus -= g.total_occurrences
+            if tool not in precision_scores:
+                continue
+            if not _debit_is_well_formed(tool, g):
+                _warn_malformed(tool, g, "debit")
+                continue
+            precision_scores[tool].matched_consensus -= g.total_occurrences

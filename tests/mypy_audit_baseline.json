@@ -1,4 +1,3 @@
 {
-  "gitgalaxy/galaxyscope.py:304: assignment": "Incompatible types in assignment (expression has type \"TextIOWrapper[_WrappedBuffer]\", variable has type \"BufferedReader[_BufferedReaderStream]\")",
-  "gitgalaxy/tools/network_auditing/full_api_network_map.py:32: assignment": "Incompatible types in assignment (expression has type \"None\", variable has type Module)"
+  "gitgalaxy/galaxyscope.py:313: assignment": "Incompatible types in assignment (expression has type \"TextIOWrapper[_WrappedBuffer]\", variable has type \"BufferedReader[_BufferedReaderStream]\")"
 }

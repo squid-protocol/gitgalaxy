@@ -4,14 +4,19 @@ on:
   pull_request:
     branches: [main]
     paths-ignore: ["docs/**"]
-  push:
-    branches: [main]
-  # Manual re-fire for the post-gate (SARIF/SBOM/LLM brief) without needing a
-  # new commit -- added after push-to-main events silently stopped creating
-  # runs for ~4.5h on 2026-08-06 (GitHub recorded the PushEvents; no run was
-  # ever created for this workflow or muninn.yml). Root cause unconfirmed
-  # (suspected Actions run-creation throttling from this repo's push volume,
-  # see the LLM-brief auto-merge loop below); this is the recovery lever.
+  # The post-gate (SARIF / SBOM / LLM brief) used to run on every push to main.
+  # With the docs-auto-update bots merging ~40x/day (see the LLM-brief loop
+  # below), that meant ~40 full-precision galaxyscope runs/day here AND ~40
+  # runs/day on the mirrored azure-pipelines.yml / bitbucket-pipelines.yml,
+  # which instantly exhausts their free hosted-CI minute grants. The brief is
+  # an orientation doc and the SARIF feed is a dashboard -- neither needs to be
+  # fresher than daily. So the post-gate now runs on a schedule instead.
+  schedule:
+    - cron: "17 5 * * *" # daily, 05:17 UTC
+  # Manual re-fire for the post-gate without waiting for the schedule -- also
+  # the recovery lever from 2026-08-06, when push-to-main events silently
+  # stopped creating runs for ~4.5h (suspected Actions run-creation throttling
+  # from this repo's push volume, the same volume this schedule change cuts).
   workflow_dispatch:
 
 permissions:
@@ -65,25 +70,23 @@ jobs:
           version: local
 
   # ============================================================
-  # POST-GATE — runs only once code is on main (merge or direct
-  # push). One galaxyscope pass produces all 6 outputs; we route
-  # 3 of them and let the rest live only in the ephemeral runner.
-  # --fail-on-malware stays on here too, as a safety net in case
-  # branch protection is ever bypassed.
+  # POST-GATE — one galaxyscope pass produces all 6 outputs; we route 3 of
+  # them (SARIF -> Security tab, SBOM + self-scan DB -> artifacts, LLM brief
+  # -> committed doc) and let the rest live only in the ephemeral runner.
+  # --fail-on-malware stays on here too, as a safety net in case branch
+  # protection is ever bypassed.
   #
-  # The LLM brief embeds a Timestamp/Scan Duration/Git Commit in its own
-  # content (llm_recorder.py), so it always differs from the last commit
-  # even with zero real code changes -- and merging the bot's own PR is
-  # itself a push to main. Without the second half of this condition, that
-  # is a genuine infinite loop: this confirmed live on 2026-07-25, landing
-  # 13 junk commits in ~13 minutes before being caught and disabled. Skip
-  # regenerating when the triggering push IS the bot's own previous merge.
+  # Runs on a daily schedule (or manual dispatch), NOT per-push: the LLM brief
+  # embeds a Timestamp/Scan Duration/Git Commit (llm_recorder.py) so it always
+  # produces a diff, its PR auto-merges, and that merge is itself a push --
+  # a per-push trigger made this a treadmill (~21 brief commits/day; a
+  # confirmed 13-commits-in-13-minutes runaway on 2026-07-25) that also
+  # exhausted the mirrored Azure/Bitbucket free CI minutes. A daily brief is
+  # plenty for an orientation doc, and a daily SARIF refresh is plenty for a
+  # dashboard. The real per-PR malware gate is the PRE-GATE jobs above.
   # ============================================================
   full-report:
-    if: |
-      (github.event_name == 'push' &&
-       !startsWith(github.event.head_commit.message, 'docs: auto-update LLM architectural brief')) ||
-      github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     name: Full Report (SARIF, SBOM, LLM Brief)
     runs-on: ubuntu-latest
     permissions:

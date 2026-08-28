@@ -1,21 +1,35 @@
 # GitGalaxy Enterprise Security Scanner
 # Integration: Azure DevOps Pipelines
 
+# Triggers on release tags + a weekly heartbeat only -- NOT on every push to
+# main. main takes ~40 pushes/day (the docs-auto-update bots in
+# gitgalaxy.yml), and one full-precision galaxyscope run per push instantly
+# exhausts this Azure DevOps org's free Microsoft-hosted minute grant, leaving
+# every run failing with "no free minutes remaining" -- a permanent red X on
+# every main commit for a scan GitHub Actions' gitgalaxy.yml already does for
+# free. Tag + weekly keeps this pipeline alive as a "still green on Azure"
+# reference for people who find the project via Azure, at ~5 runs/month.
+#
+# To fully green the historical commits, also disable/delete this pipeline in
+# Azure DevOps (Pipelines -> squid-protocol.gitgalaxy -> Settings) or request
+# the free-parallelism grant at https://aka.ms/azpipelines-parallelism-request
+# for the (public) project.
 trigger:
-  branches:
-    include:
-      - main
   tags:
     include:
       - v*
 
-# No `pr:` trigger on purpose: this pipeline previously ran on every GitHub PR
-# via the Azure Pipelines GitHub App's default PR-validation behavior (which
-# fires whenever `pr:` is unset), burning the org's Microsoft-hosted free
-# minutes across every PR in addition to `trigger:`'s push/tag runs. It's
-# also redundant -- GitHub Actions' gitgalaxy.yml already runs the same
-# --fail-on-malware scan on every PR for free. `pr: none` restricts this
-# pipeline to `trigger:`'s push-to-main/tag-push cases only.
+schedules:
+  - cron: "0 6 * * 1" # Mondays 06:00 UTC
+    displayName: Weekly backup heartbeat scan
+    branches:
+      include:
+        - main
+    always: true
+
+# `pr: none`: no PR-validation runs. Redundant with gitgalaxy.yml's per-PR
+# --fail-on-malware gate, and it used to fire on every GitHub PR via the Azure
+# Pipelines GitHub App's default behavior when `pr:` is unset.
 pr: none
 
 variables:
@@ -52,10 +66,11 @@ stages:
         pip install "gitgalaxy[yaml]" networkx tiktoken xgboost pandas numpy
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
 
-    # 2. NOW pull the potentially untrusted code onto the runner
+    # 2. NOW pull the potentially untrusted code onto the runner. Shallow: the
+    #    spectral audit reads the working tree, not git history.
     - checkout: self
-      fetchDepth: 0
-      displayName: 'Checkout Repository (Full Depth)'
+      fetchDepth: 1
+      displayName: 'Checkout Repository'
 
     # 3. Execute the scan (No package managers allowed down here)
     - script: |

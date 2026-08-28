@@ -435,7 +435,12 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     logic_data["metadata"] = {}
                 logic_data["metadata"]["doc_umbrella"] = guidestar.documentation_coverage.get(dir_path, 0.0)
 
-                print("GG SPLICE FUNCS:", [f["name"] for f in logic_data.get("functions", [])])
+                # #1984: was a bare print() firing on every file of every real
+                # scan (and into CI logs). Kept as a trace, gated behind --debug
+                # like its neighbours.
+                if logger.isEnabledFor(logging.DEBUG):
+                    extracted_fn_names = [f["name"] for f in logic_data.get("functions", [])]
+                    logger.debug(f"[WORKER-TRACE] extracted functions for {rel_path}: {extracted_fn_names}")
 
                 logger.debug(f"[WORKER-TRACE] <<< EXITING EXTRACTOR: {rel_path}")
 

@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-28T01:09:10.281116+00:00` |
-| **Scan Duration** | `7.56s` |
+| **Timestamp** | `2026-08-28T01:12:28.372481+00:00` |
+| **Scan Duration** | `9.95s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `a7845bb2593e963d3c5dd34b90be5a3a3bba02b4` |
+| **Git Commit** | `456fff20ed0fe14f6b3b6f502144e009ed1ada89` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -241,7 +241,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (99.9516%), Safety Score (81.9034%), Verification (80.0%)
 - **Heaviest Functions:** `_strip_single_line_comments` (Impact: 123.7), `_mask_perl_line` (Impact: 75.4), `_compile_regex_matrix` (Impact: 57.6)
 
-### 3. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **491.85**
+### 3. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **491.86**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 3684.08 | **LOC:** 5824 | **CtrlFlow:** 77.1% | **Authorship Centralization:** 93.0%
 - **Primary Risk Drivers:** Spec Match (100.0%), Churn (100.0%), Verification (80.0%), Safety Score (60.7589%)
@@ -277,7 +277,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (96.9481%), Verification (80.0%), Safety Score (74.9749%)
 - **Heaviest Functions:** `generate_report` (Impact: 73.2), `_audit_with_cache` (Impact: 45.6), `_audit_capped_sample` (Impact: 17.2)
 
-### 9. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **411.08**
+### 9. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **411.09**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 170.7 | **LOC:** 434 | **CtrlFlow:** 50.9% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (97.3782%), Verification (80.0%), Safety Score (68.5044%)

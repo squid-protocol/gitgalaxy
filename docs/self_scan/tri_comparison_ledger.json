@@ -12968,9 +12968,81 @@
       "investigated_at": "2026-08-28T22:50:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
-      "last_seen_count": 1,
+      "last_reconciled_at": "2026-08-28T23:17:33Z",
+      "last_seen_count": 10,
       "last_seen_examples": [
+        {
+          "file_path": "ansible/ansible-galaxy__runme.sh",
+          "name": "f_ansible_galaxy_status",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 0,
+            "tree_sitter": 1
+          }
+        },
+        {
+          "file_path": "curl/initscript.sh",
+          "name": "CLcommand",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 0,
+            "tree_sitter": 1
+          }
+        },
+        {
+          "file_path": "freebsd-src/ls_tests.sh",
+          "name": "S_flag_body",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 7,
+            "tree_sitter": 1
+          }
+        },
+        {
+          "file_path": "kubernetes/common.sh",
+          "name": "kube::build::docker_available_on_osx",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 2,
+            "tree_sitter": 0
+          }
+        },
+        {
+          "file_path": "kubernetes/configure-helper.sh",
+          "name": "addockeropt",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 1,
+            "tree_sitter": 0
+          }
+        },
+        {
+          "file_path": "kubernetes/configure-helper.sh",
+          "name": "log-init",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 2,
+            "tree_sitter": 0
+          }
+        },
+        {
+          "file_path": "kubernetes/configure-helper.sh",
+          "name": "log-trap-push",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 0,
+            "tree_sitter": 1
+          }
+        },
+        {
+          "file_path": "kubernetes/etcd.sh",
+          "name": "kube::etcd::version",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 3,
+            "tree_sitter": 1
+          }
+        },
         {
           "file_path": "kubernetes/pre-existing__util.sh",
           "name": "detect-project",
@@ -12978,6 +13050,15 @@
             "ctags": null,
             "gitgalaxy": 3,
             "tree_sitter": 0
+          }
+        },
+        {
+          "file_path": "linux/prom_init_check.sh",
+          "name": "check_section",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 3,
+            "tree_sitter": 2
           }
         }
       ],
@@ -12993,10 +13074,6 @@
         "ctags",
         "gitgalaxy"
       ],
-      "credit_tools": [
-        "gitgalaxy",
-        "ctags"
-      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
@@ -13004,7 +13081,7 @@
       "investigated_at": "2026-08-28T22:50:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
+      "last_reconciled_at": "2026-08-28T23:17:33Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
@@ -13118,97 +13195,97 @@
       "investigated_at": "2026-08-28T22:50:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
-      "last_seen_count": 303,
+      "last_reconciled_at": "2026-08-28T23:17:33Z",
+      "last_seen_count": 16,
       "last_seen_examples": [
         {
-          "file_path": "ansible/ansible-galaxy__runme.sh",
-          "name": "f_ansible_galaxy_status",
+          "file_path": "freebsd-src/runulp.sh",
+          "name": "t",
           "readings": {
-            "ctags": 30,
+            "ctags": 22,
             "gitgalaxy": null,
-            "tree_sitter": 30
+            "tree_sitter": 22
           }
         },
         {
-          "file_path": "ansible/ansible-galaxy__runme.sh",
-          "name": "f_ansible_galaxy_create_role_repo_pre",
+          "file_path": "freebsd-src/runulp.sh",
+          "name": "check",
           "readings": {
-            "ctags": 36,
+            "ctags": 61,
             "gitgalaxy": null,
-            "tree_sitter": 36
+            "tree_sitter": 61
           }
         },
         {
-          "file_path": "ansible/ansible-galaxy__runme.sh",
-          "name": "f_ansible_galaxy_create_role_repo_post",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "detect_network",
           "readings": {
-            "ctags": 54,
+            "ctags": 65,
             "gitgalaxy": null,
-            "tree_sitter": 54
+            "tree_sitter": 65
           }
         },
         {
-          "file_path": "curl/ech_tests.sh",
-          "name": "hostport2host",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_pci",
           "readings": {
-            "ctags": 131,
+            "ctags": 89,
             "gitgalaxy": null,
-            "tree_sitter": 131
+            "tree_sitter": 89
           }
         },
         {
-          "file_path": "curl/ech_tests.sh",
-          "name": "hostport2port",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_usb",
           "readings": {
-            "ctags": 139,
+            "ctags": 162,
             "gitgalaxy": null,
-            "tree_sitter": 139
+            "tree_sitter": 162
           }
         },
         {
-          "file_path": "curl/ech_tests.sh",
-          "name": "cli_test",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_dmidecode",
           "readings": {
-            "ctags": 147,
+            "ctags": 212,
             "gitgalaxy": null,
-            "tree_sitter": 147
+            "tree_sitter": 212
           }
         },
         {
-          "file_path": "curl/ech_tests.sh",
-          "name": "get_ech_configlist",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_machine",
           "readings": {
-            "ctags": 189,
+            "ctags": 235,
             "gitgalaxy": null,
-            "tree_sitter": 189
+            "tree_sitter": 235
           }
         },
         {
-          "file_path": "curl/initscript.sh",
-          "name": "CLcommand",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_haiku",
           "readings": {
-            "ctags": 26,
+            "ctags": 249,
             "gitgalaxy": null,
-            "tree_sitter": 26
+            "tree_sitter": 249
           }
         },
         {
-          "file_path": "curl/initscript.sh",
-          "name": "setenv",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_utils",
           "readings": {
-            "ctags": 31,
+            "ctags": 263,
             "gitgalaxy": null,
-            "tree_sitter": 31
+            "tree_sitter": 263
           }
         },
         {
-          "file_path": "curl/initscript.sh",
-          "name": "action_needed",
+          "file_path": "haiku/HardwareChecker.sh",
+          "name": "check_syslog",
           "readings": {
-            "ctags": 121,
+            "ctags": 301,
             "gitgalaxy": null,
-            "tree_sitter": 121
+            "tree_sitter": 301
           }
         }
       ],
@@ -13223,10 +13300,6 @@
       "agreeing_tools": [
         "ctags"
       ],
-      "credit_tools": [],
-      "debit_tools": [
-        "ctags"
-      ],
       "dissenting_tools": [
         "gitgalaxy",
         "tree_sitter"
@@ -13235,7 +13308,7 @@
       "investigated_at": "2026-08-28T22:50:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
+      "last_reconciled_at": "2026-08-28T23:17:33Z",
       "last_seen_count": 44,
       "last_seen_examples": [
         {
@@ -13349,72 +13422,9 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "shell",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
-      "last_seen_count": 54,
+      "last_reconciled_at": "2026-08-28T23:17:33Z",
+      "last_seen_count": 7,
       "last_seen_examples": [
-        {
-          "file_path": "curl/contributors.sh",
-          "name": "Anonymous_Block_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 82,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "curl/ech_tests.sh",
-          "name": "hostport2host_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 131,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "darwin-xnu/list_supported.sh",
-          "name": "Anonymous_Block_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 45,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "darwin-xnu/makesyscalls.sh",
-          "name": "align_comment_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 314,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "darwin-xnu/persona_test_run_src.sh",
-          "name": "get_persona_info_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 140,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "darwin-xnu/vnode_if.sh",
-          "name": "Anonymous_Block_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 131,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "freebsd-src/ls_tests.sh",
-          "name": "Anonymous_Block_[Truncated]",
-          "readings": {
-            "ctags": null,
-            "gitgalaxy": 44,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "freebsd-src/runulp.sh",
           "name": "t_[Truncated]",
@@ -13426,19 +13436,55 @@
         },
         {
           "file_path": "haiku/HardwareChecker.sh",
-          "name": "Anonymous_Block_[Truncated]",
+          "name": "detect_network_[Truncated]",
           "readings": {
             "ctags": null,
-            "gitgalaxy": 90,
+            "gitgalaxy": 66,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "haiku/install-wifi-firmwares.sh",
+          "file_path": "illumos-gate/exportfs.sh",
           "name": "Anonymous_Block_[Truncated]",
           "readings": {
             "ctags": null,
-            "gitgalaxy": 20,
+            "gitgalaxy": 69,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "linux/multisound.sh",
+          "name": "Anonymous_Block_[Truncated]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 446,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "serenity/builtin.sh",
+          "name": "_complete_unalias_[Truncated]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 3,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "serenity/run-tests-and-shutdown.sh",
+          "name": "Anonymous_Block_[Truncated]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 8,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "sqlite/split-speedtest1-script.sh",
+          "name": "Anonymous_Block_[Truncated]",
+          "readings": {
+            "ctags": null,
+            "gitgalaxy": 4,
             "tree_sitter": null
           }
         }
@@ -13466,7 +13512,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "solidity",
-      "last_reconciled_at": "2026-08-28T21:22:44Z",
+      "last_reconciled_at": "2026-08-28T23:17:35Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -13536,7 +13582,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-28T21:22:46Z",
+      "last_reconciled_at": "2026-08-28T23:17:36Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13577,7 +13623,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-28T21:22:46Z",
+      "last_reconciled_at": "2026-08-28T23:17:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13610,7 +13656,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-28T21:22:46Z",
+      "last_reconciled_at": "2026-08-28T23:17:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13642,7 +13688,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13680,7 +13726,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13722,7 +13768,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -13784,7 +13830,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13816,7 +13862,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13860,7 +13906,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13905,7 +13951,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-28T21:22:47Z",
+      "last_reconciled_at": "2026-08-28T23:17:38Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13945,7 +13991,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13987,7 +14033,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -14099,7 +14145,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -14159,7 +14205,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14192,7 +14238,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -14279,7 +14325,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 204,
       "last_seen_examples": [
         {
@@ -14393,7 +14439,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 2223,
       "last_seen_examples": [
         {
@@ -14509,7 +14555,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14550,7 +14596,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14592,7 +14638,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -14644,7 +14690,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:45Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {
@@ -14747,7 +14793,7 @@
       "investigated_at": "2026-08-27",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep",
       "language": "yacc",
-      "last_reconciled_at": "2026-08-28T21:22:55Z",
+      "last_reconciled_at": "2026-08-28T23:17:47Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -14854,7 +14900,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-28T21:23:05Z",
+      "last_reconciled_at": "2026-08-28T23:17:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14889,7 +14935,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-28T21:23:05Z",
+      "last_reconciled_at": "2026-08-28T23:17:55Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14932,7 +14978,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-28T21:23:05Z",
+      "last_reconciled_at": "2026-08-28T23:17:55Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

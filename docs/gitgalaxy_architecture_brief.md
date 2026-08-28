@@ -6,10 +6,10 @@
 |---|---|
 | **Engine** | `GitGalaxy Scope vlatest (Delta Mode)` |
 | **Target Path** | `/home/runner/work/gitgalaxy/gitgalaxy` |
-| **Timestamp** | `2026-08-28T16:11:23.325291+00:00` |
-| **Scan Duration** | `7.06s` |
+| **Timestamp** | `2026-08-28T16:14:35.732271+00:00` |
+| **Scan Duration** | `9.83s` |
 | **Git Branch** | `main` |
-| **Git Commit** | `5a3d023450a8b600aa0f2f227ad110b967bbb6f8` |
+| **Git Commit** | `0fa24068705998a199f1ecbffd06ea01ce165242` |
 | **Git Remote** | `https://github.com/squid-protocol/gitgalaxy` |
 | **Zero-Dependency Mode** | `Inactive (Full Precision)` |
 
@@ -283,7 +283,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 - **Primary Risk Drivers:** Spec Match (100.0%), State Flux (97.3782%), Verification (80.0%), Safety Score (68.5044%)
 - **Heaviest Functions:** `main` (Impact: 32.5), `process_payload` (Impact: 26.7), `record_dead_code` (Impact: 14.4)
 
-### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **407.25**
+### 10. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **407.24**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1098.92 | **LOC:** 2043 | **CtrlFlow:** 74.4% | **Authorship Centralization:** 81.8%
 - **Primary Risk Drivers:** Spec Match (100.0%), Verification (80.0%), Safety Score (56.4193%), State Flux (54.3735%)

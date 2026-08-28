@@ -301,17 +301,48 @@ this is a 2-way comparison against universal-ctags, not the usual 3-way GitGalax
 ctags split. See `docs/self_scan/how_to_investigate_a_discrepancy.md` for the methodology and
 `docs/self_scan/tri_comparison_ledger.json` (filter to `cobol/`) for the full record.
 
-**Summary.** All 3 discrepancy shapes the tri-comparison tool ever flagged for cobol have been
-investigated and validated (2026-08-19, via the `tri-comparison-ledger-sweep` skill). 170 total
-occurrences covered. 3 confirmed GitGalaxy/audit-tool defects found and filed
-([#1890](https://github.com/squid-protocol/gitgalaxy/issues/1890),
+**Summary.** All 4 discrepancy shapes the tri-comparison tool has ever flagged for cobol are
+`validated` — 3 from the original 2026-08-19 sweep (170 occurrences), plus a 4th
+(`class/existence, agree[gitgalaxy]_vs[ctags]`, 6 occurrences) that only appeared once the
+corpus grew, validated 2026-08-28. 3 confirmed GitGalaxy/audit-tool defects found and filed in
+the original sweep ([#1890](https://github.com/squid-protocol/gitgalaxy/issues/1890),
 [#1891](https://github.com/squid-protocol/gitgalaxy/issues/1891),
 [#1892](https://github.com/squid-protocol/gitgalaxy/issues/1892)), plus one existing issue
 ([#1858](https://github.com/squid-protocol/gitgalaxy/issues/1858)) had its root-cause diagnosis
-corrected. Notably, every one of the 3 shapes turned out to be **mixed-cause** — a real defect
-hiding underneath a larger, unrelated pattern in the same shape — which is why the sweep read
-every sampled case individually rather than trusting the majority pattern to explain the whole
-count.
+corrected. Notably, every one of the original 3 shapes turned out to be **mixed-cause** — a real
+defect hiding underneath a larger, unrelated pattern in the same shape — which is why the sweep
+read every sampled case individually rather than trusting the majority pattern to explain the
+whole count. The 2026-08-28 pass (below) found the same discipline pays off across a corpus size
+change too, not just within one snapshot.
+
+### 2026-08-28: re-verified after a 6x corpus expansion, one new shape found
+
+`language-crucible` v1.1.0 grew cobol's corpus from 53 to 308 files (issue-#4 provenance audit —
+IBM CICS TS GenApp and CBSA expanded to their full program sets, plus five new/expanded repos).
+Two things had to be checked, not assumed, per
+`how_to_investigate_a_discrepancy.md`'s new "When a validated shape's count changes a lot"
+guidance this pass added:
+
+- **The already-`validated` `function/existence, agree[ctags]_vs[gitgalaxy]` shape's count grew
+  from 133 to 773** without a status change (the ledger's normal, correct behavior for a stable
+  mechanism). Re-checked with a full corpus-wide name-diff rather than trusted: still the single
+  documented ctags limitation (tags *any* period-terminated word as a paragraph), now confirmed to
+  also cover two syntax shapes the smaller corpus never exercised — IDENTIFICATION/ENVIRONMENT/
+  DATA DIVISION section headers (`WORKING-STORAGE SECTION.`/`CONFIGURATION SECTION.`/`LINKAGE
+  SECTION.`/`AUTHOR.`, now the single largest contributor) and embedded-SQL qualified-column
+  periods (`COMMERCIAL.POLICYNUMBER` inside an `EXEC SQL...END-EXEC` block, where the period is a
+  table/column separator, not a statement terminator). Zero unexplained residual across the full
+  773 — issue #1892's hyphenated-verb fix remains fully effective, no real paragraph names are
+  missing anywhere in the expanded corpus.
+- **A new shape appeared**, `class/existence, agree[gitgalaxy]_vs[ctags]` (6 occurrences), entirely
+  from the new corpus content: 5 from a CICS online-transaction program style that splits
+  `PROGRAM-ID.` and the program name across two lines (ctags emits zero tags at all for this
+  shape); 1 from a GnuCOBOL program name containing an underscore (ctags truncates it at the first
+  underscore, tagging `CBL` instead of `CBL_OC_DUMP`). Both are ctags' own confirmed structural
+  limitations — GitGalaxy handles both correctly — so this shape credited GitGalaxy
+  (`credit_tools: ["gitgalaxy"]`), moving cobol's class-existence precision from 142/148 (with an
+  unvalidated `*`) to a clean, badge-earning 148/148. Full writeup:
+  `docs/why_gitgalaxy_beats_ast_here.md` Claim 12's third instance.
 
 ### Where the disagreement was ctags/harness noise, not a GitGalaxy problem
 

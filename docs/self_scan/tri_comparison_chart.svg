@@ -174,14 +174,16 @@
 <text class="badge-label" x="390.0" y="451.0">G</text>
 <rect class="bar-track" x="418" y="431" width="88" height="34" rx="2"/>
 <rect x="418" y="431" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="439">148*</text>
+<text class="bar-value-label" x="462.0" y="439">148</text>
 <rect x="418" y="443" width="85.6" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="451">144*</text>
+<text class="bar-value-label" x="462.0" y="451">144</text>
 <rect class="bar-track" x="550" y="431" width="88" height="34" rx="2"/>
-<rect x="550" y="431" width="84.4" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="439">142/148*</text>
+<rect x="550" y="431" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="439">148/148</text>
 <rect x="550" y="443" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="451">144/144*</text>
+<text class="bar-value-label" x="594.0" y="451">144/144</text>
+<circle cx="654.0" cy="448.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="654.0" y="451.0">G</text>
 <rect class="bar-track" x="682" y="431" width="88" height="34" rx="2"/>
 <rect x="682" y="431" width="88" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="439">0†</text>
@@ -1157,10 +1159,10 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2751</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 58 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 59 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 23 (40%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 24 (41%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
 <text class="legend-label" x="228.8" y="2188">tree-sitter best: 2 (3%)</text>
@@ -1168,6 +1170,6 @@
 <text class="badge-label" x="408.6" y="2187">C</text>
 <text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>
 <circle cx="564.2" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="577.2" y="2188">Ties: 33 (57%)</text>
+<text class="legend-label" x="577.2" y="2188">Ties: 33 (56%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

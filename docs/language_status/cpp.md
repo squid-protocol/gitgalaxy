@@ -293,6 +293,27 @@ built entirely from that investigation's evidence trail, not from memory of it.
 |---|---|---|---|---|
 | cpp | ~780 (raw ledger counts, updated after the macro-shield fix) | 6 (4 filed and open, 2 filed and fixed) | 4 (fixed across two follow-up rounds) | 3 (documented, not fixable here) |
 
+### Recall audit (2026-08-29, skill step 2.6)
+
+Every function tree-sitter reports that GitGalaxy does not — **164 occurrences** — was
+individually read. **Cpp func recall 87.0% → 99.9%** (100% precision throughout). Bucket
+breakdown:
+
+- **~96** — `OPCODE(m_op) { ... }` case-label bodies in `godot/gdscript_vm.cpp`'s computed-goto
+  bytecode table. Function-like macro invocation; tree-sitter's alone. Now in
+  `_CPP_KNOWN_MACRO_HALLUCINATIONS`.
+- **~50** — `_FORCE_INLINE_`-macro-mangled member parses in `godot/object.h` / `variant.h`:
+  tree-sitter drops the `operator` keyword or `~` into an ERROR node and names the member by a
+  bare type (`for`, `bool`, `void`, `_value`). #2455's #1849-Phase-2 promotion + a symmetric
+  "don't trust tree-sitter's names inside a cpp ERROR span" drop.
+- **~12** — `= default` / `= delete` special members (`mlir/flatbuffer_export.cc`,
+  `object.h`) — not body-bearing, GitGalaxy correctly skips.
+- **~4** — `_PyObject_ManagedDictValidityCheck` etc. inside `#if 0` (also counts for `c`) —
+  tree-sitter has no preprocessor model (Claim 8).
+- **1 real GitGalaxy recall gap** — `__control_entrypoint(DllExport) STDAPI DllCanUnloadNow()`
+  in `powertoys/ImageResizerExt.cpp`: a macro-supplied return type `func_start` doesn't admit.
+  → [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460).
+
 Six real GitGalaxy engine defects were confirmed and filed in this sweep — more than any other
 language this sweep methodology has been run against so far, though that reflects C++'s syntactic
 complexity (templates, operator overloading, out-of-class definitions, GNU extensions in real

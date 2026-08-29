@@ -309,6 +309,16 @@ traced to their own confirmed limitations); two were confirmed real bugs in this
 | Class recall/precision | **100%** (11/11) | 100% (11/11) | 100% (11/11) | fully reconciled after this pass's ctags_reader.py fix — see below |
 | Args found (of 123 total claimed by any tool) | **123** | 123 | 95 | tied for best; a separate, narrower per-function args-*count* defect exists independent of this existence panel — see below |
 
+**Recall audit (2026-08-29, skill step 2.6).** Every function tree-sitter reports that GitGalaxy
+does not (2 occurrences — `compute_eta`, `wrf_error_fatal`) was individually read. Both are
+**phantoms tree-sitter parses from inside the `#ifdef VERT_UNIT` unit-test driver** — the
+top-level `program vint` / `program foo` blocks (`module_initialize_real.F:5375` / `:7519`) that
+are alternative compilation roots, dead when the file is built as a module. tree-sitter has no
+preprocessor model; GitGalaxy finds both real `SUBROUTINE` definitions (lines 5471 / 7567) and
+correctly ignores the driver blocks. The accuracy audit was corrected to mark a module file's
+`program`…`end program` spans as blind spots — **Fortran func recall 98.6% → 100.0%**, zero real
+recall gaps.
+
 Before this pass: Functions Found showed 137*/123*/137* (all three asterisked — unvalidated),
 Func Precision 135/137*/123/123*/137/137*, Classes Found 11*/11*/3* (ctags badly undercounting),
 Args Found 121*/121*/95*. Every asterisk here is now cleared and GitGalaxy holds an outright

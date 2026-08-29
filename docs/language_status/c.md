@@ -281,6 +281,15 @@ scope caveat near the end of this section — a handful of real, independently-f
 args-counting bugs exist and predate this sweep; this methodology can only catch what the three
 tools disagree about, not a shared blind spot). Every disagreement that DID surface either
 resolved in GitGalaxy's favor, or turned out to be a bug in this repo's own comparison tooling
+
+**Recall audit (2026-08-29, skill step 2.6).** Every function tree-sitter reports that GitGalaxy
+does not (6 occurrences) was individually read. **All 6 are inside `#if 0` dead blocks** —
+`_PyObject_ManagedDictValidityCheck` (`cpython/dictobject.c:7396`), `print_stack` /
+`print_stacks` / `tos_char` (`cpython/frameobject.c:1264`), and `PlinkPrint` / `SetPrint`
+(`sqlite/lemon.c:3443`, K&R-style *and* dead). tree-sitter-c has no preprocessor model and
+parses the dead branch; GitGalaxy correctly skips it (Claim 8). The accuracy audit was corrected
+to drop `#if 0` / `#if false` function definitions from ground truth — **C func recall 99.7% →
+100.0%**, zero real recall gaps.
 (found and fixed as part of the same pass) or a known tree-sitter-c/ctags limitation — never
 GitGalaxy's regex engine itself. Current measured numbers
 (`tests/tools/tri_comparison_chart.py --languages c`, `language-crucible/data/c/` —

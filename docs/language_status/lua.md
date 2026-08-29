@@ -60,12 +60,15 @@ tradeoff.
 
 ## 5. Known limitations (accepted / tracked)
 
-- **Two low-value recall misses** (shape `agree[ctags,tree_sitter]_vs[gitgalaxy]`, 2
-  occurrences). `constructs.lua:f` is an occurrence-alignment fuzz on a name defined 4× — ctags'
-  own false-positive `f` (from a `local f = load(...)` assignment) and a tree-sitter `f` pair to
-  different lines than GitGalaxy's four real ones. `literals.lua:lexerror` is a genuine single
-  miss inside `test/literals.lua`, the Lua suite's lexer-torture fixture (adversarial nested
-  `[[` / `]=]` / `\z` string data by design). Neither is worth chasing.
+- **Two recall misses** (skill step 2.6 recall audit, 2026-08-29 — func recall 99.7%), both
+  filed as [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461):
+  - `constructs.lua:105` — `local a; local function f(x) ... end`. `func_start` is
+    start-of-line anchored, so a `local function` that is not the first statement on its line is
+    missed. GitGalaxy finds the other 4 `function f` in the file; this is a real, narrow gap.
+  - `literals.lua:80` — `local function lexerror (s, err)`, inside `test/literals.lua` (the Lua
+    suite's *lexer-torture fixture*, adversarial nested `[==[[===[[=[…]]=][====[…]` long
+    brackets that defeat `_LUA_LONG_BRACKET_RE`'s single-backref shielding). Only ever exercised
+    by this one fixture.
 - **`class_start` keeps one borderline hit** (`tracegc.lua:M` — `local M = {}` with
   `function M.start` / `function M.stop` / `return M`, a real module table). #2439's proto-table
   "tell" gate dropped the other 13 ALL_CAPS-data-table false positives; `M` is legitimately
@@ -264,8 +267,9 @@ shared reason." This is the common case per the skill's step 4 guidance.
   heuristic matched ALL_CAPS data tables.
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — **fixed**: polyglot
   segmentation split a function at `<style>` / `<script>` inside a `[[ ]]` string.
-- Two low-value recall misses remain (`constructs.lua:f` alignment fuzz, `literals.lua:lexerror`
-  in a lexer-torture fixture) — §5, not filed.
+- [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) — `local function` not first
+  on its line (`local a; local function f(x)`); + the `literals.lua` lexer-torture nested-bracket
+  shielding gap. Found by the step 2.6 recall audit — §5.
 
 ### Full record
 

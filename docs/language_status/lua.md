@@ -9,7 +9,7 @@ looks old relative to `last_updated` below.
 **Scope note:** §9 was written by the `tri-comparison-ledger-sweep` skill and is the part of this
 doc with the most recent, most detailed investigation behind it — a real 3-way
 GitGalaxy / tree-sitter-lua / Universal-Ctags comparison on the `language-crucible` corpus, with
-two engine defects found and fixed in the same pass. §§1–8 are the standard primary-source
+five engine defects found and fixed across two PRs. §§1–8 are the standard primary-source
 snapshot.
 
 ## 1. At a glance
@@ -19,7 +19,7 @@ snapshot.
 | `_meta.status` | `production` |
 | `_meta.target_version` | Lua 5.5 / Luau / LuaLS Annotations / LuaJIT |
 | `_meta.blueprint_version` | v5.0 |
-| `_meta.last_updated` | 2026-08-29 |
+| `_meta.last_updated` | 2026-02-18 (rules unchanged; engine logic hardened 2026-08-29, §9) |
 | `lexical_family` | `multi_style_dash` (`--` line comments, `--[[ ]]` long comments) |
 | Structural signature keys wired | 50 / 52 (2 explicit `None`: `macros`, `inline_asm`) |
 | Function-slicing integration mode | **Mode D (keyword handshake stack)** — `function`/`if`/`while`/`for`/`repeat` open, `end`/`until` close |
@@ -60,25 +60,36 @@ tradeoff.
 
 ## 5. Known limitations (accepted / tracked)
 
-- **Mid-file Mode-D keyword desync** ([#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437)).
-  A keyword used as a plain identifier, or a structurally hard construct the literal shield
-  doesn't fully neutralise, can leave one scope open so a single oversized `<name>_[Truncated]`
-  satellite spans to a far-away `end` and swallows the real declarations inside it. #2405's
-  blast-radius containment re-scans the EOF remnant, and this pass removed the two most common
-  desync sources (see §9), but a desync whose scope *does* eventually close mid-file still
-  produces one bad satellite. ~6 corpus occurrences remain (`binarytrees.lua`, `events.lua`,
-  `fetch.lua`, `maxmind.lua`).
-- **Dotted / method-style declaration heads not fully name-resolved in the nested pass**
-  ([#2438](https://github.com/squid-protocol/gitgalaxy/issues/2438)). The `function_opener`
-  second pass (§9) recovers nested `function` declarations, but its line-start pattern doesn't
-  yet widen to `function a.b.c:f()` / `function a:deep()` heads, so a handful of deeply-nested
-  dotted declarations are still missed.
-- **`class_start` heuristic over-matches ALL_CAPS data tables**
-  ([#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439)). `[A-Z]\w* = {` also
-  catches Capitalised *data* tables (`redis/life.lua`'s Conway's-Game-of-Life cell patterns
-  `FISH` / `EXPLODE` / `BUTTERFLY`; one/two-letter test fixtures). No ground-truth tool can
-  corroborate or refute a Lua "class" (§9), so this is a precision question on GitGalaxy's own
-  heuristic, tracked for tightening.
+- **A single-quoted string continued across a newline by `\z`** leaks past the newline-bounded
+  literal shield (`events.lua`: `'... skipping tests for \z\nuserdata <<<\n'`), leaving an
+  unclosed `if not T then` that runs to EOF as one `Anonymous_Block_[Truncated]` satellite. This
+  is the last remaining lua `_[Truncated]` in the corpus (1 occurrence). It's a pre-existing
+  cross-language gap in `_apply_literal_shield`'s newline-bounded quote patterns, not a
+  lua-specific desync — #2437's original keyword-count desync and #2440's segmentation split
+  are both fixed.
+- **`class_start` keeps one borderline hit** (`tracegc.lua:M` — `local M = {}` with
+  `function M.start` / `function M.stop` / `return M`, a real module table). #2439's proto-table
+  "tell" gate dropped the other 13 ALL_CAPS-data-table false positives; `M` is legitimately
+  class-like. Lua class precision still renders `0.0%` because no ground-truth tool
+  (tree-sitter-lua, ctags) reports any lua class to corroborate against — an unavoidable artifact
+  of the frontier, not a refutation (§9).
+
+### Closed this cycle
+
+- [#2438](https://github.com/squid-protocol/gitgalaxy/issues/2438) — one-line `function f(...)
+  ... end` declarations (net keyword change ≤ 0) were filed as global dust and never became a
+  `FunctionNode`; fixed by extending the `function_opener` pass to top-level self-closing
+  declarations. The issue's original "dotted-head" framing was a misdiagnosis —
+  `_extract_semantic_name` already resolves `a.b.c.f1` / `a:deep`.
+- [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — a `<style>` / `<script>`
+  inside a `Write([[<!doctype html> … ]])` heredoc split the enclosing lua function; fixed by
+  masking lua long-bracket literals in `_partition_segments`' embedded-language trigger scan
+  (offsets preserved, slicing unchanged).
+- [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439) — `class_start` heuristic
+  over-matched ALL_CAPS data tables; fixed with the proto-table tell gate above.
+- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — mid-file keyword desync; no
+  remaining lua repro after #2441's literal-shield fix (kept open as a general Mode-D hardening
+  task).
 
 ## 6. Test depth
 
@@ -109,21 +120,24 @@ across `cosmopolitan` (the Lua 5.4 test suite, heavily nested and adversarial by
 
 **Summary.** All **8** discrepancy shapes the tri-comparison tool flagged for Lua were
 investigated and marked `validated` in one pass (2026-08-29) via the
-`tri-comparison-ledger-sweep` skill. Two were confirmed GitGalaxy engine defects and **fixed in
-the same pass**; the rest are tool-architecture differences or absences with no privileged ground
-truth. Net effect of the fixes, measured by `tree_sitter_accuracy_audit.py --lang lua`:
+`tri-comparison-ledger-sweep` skill. **Five** confirmed GitGalaxy engine defects were found and
+fixed across two PRs (#2441, then the #2438/#2439/#2440 follow-up); the rest are tool-architecture
+differences or absences with no privileged ground truth. Cumulative effect, measured by
+`tree_sitter_accuracy_audit.py --lang lua`:
 
-| Metric | Before | After |
-|---|---:|---:|
-| `found_functions` | 505 | **557** |
-| `extra_functions` (lower is better) | 12 | **7** |
-| `args_exact_match` | 463 | **516** |
-| Named-function extraction (gather total) | 517 | **564** |
+| Metric | Baseline | After #2441 | After follow-up |
+|---|---:|---:|---:|
+| `found_functions` | 505 | 557 | **618** |
+| `extra_functions` (lower is better) | 12 | 7 | **1** |
+| `extra_classes` (lower is better) | 14 | 14 | **1** |
+| `args_exact_match` | 463 | 516 | **572** |
 
-Both golden masters were re-blessed and `tests/tree_sitter_accuracy_baseline_lua.json` regenerated
-in the same PR.
+Lua recall 81.5% → **99.7%**, function precision 97.7% → **99.8%**. Both golden masters were
+re-blessed and `tests/tree_sitter_accuracy_baseline_lua.json` regenerated in each PR.
 
-### Confirmed engine defects, both fixed
+### Confirmed engine defects (5, all fixed)
+
+Defects 1–2 landed in PR #2441; defects 3–5 in the #2438/#2439/#2440 follow-up.
 
 **1 — Mode-D recall gap: nested `function` declarations folded into the enclosing satellite**
 (shape `lua/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`, was ~82 occurrences).
@@ -148,6 +162,33 @@ not shield Lua long-bracket literals `[[ ... ]]` / `[=[ ... ]=]` / `--[[ ... ]]`
 `T.testC(state, [[ ... # get function for body ... ]])`) corrupted the depth stack and were
 mis-sliced as real declarations. Fixed with a Lua branch: `comment_markers = "--"` only, plus a
 dedicated long-bracket sub (`(?:--)?\[(=*)\[.*?\]\1\]`) run before the quote pass.
+
+**3 — one-line function declarations were never emitted** (#2438; shape
+`agree[ctags,tree_sitter]_vs[gitgalaxy]`, drove it ~33 → 2). A one-liner
+`function a:x (x) return x+self.i end` has an equal count of openers and closers, so its net
+scope change is ≤ 0 — the primary Mode-D scan filed it as global dust and the `function_opener`
+pass skipped it (`depth_before_line[i] <= 0` gate). Affected plain names too
+(`function deep (n) ... end`, redefinitions, `local function ret2 (a,b) return a,b end`) and
+every nested declaration inside a bare `do` block (`do` isn't a Mode-D opener). Fixed by
+extending `function_opener` to top-level self-closing declarations, lua-scoped so
+ruby/matlab/livecode keep the strict gate. `found_functions` +61 in a single pass.
+
+**4 — polyglot segmentation split a function at embedded markup** (#2440; shape
+`agree[gitgalaxy]_vs[ctags,tree_sitter]`, 7 → 1). `detector.py`'s `_partition_segments` scans for
+`^\s*<style` / `^\s*<script` on raw text, so the HTML inside
+`Write([[<!doctype html> … <style> … ]])` in the redbean demo files (`fetch.lua`,
+`binarytrees.lua`, `maxmind.lua`) got carved into a `css` segment *mid-function*, producing a
+`<name>_[Truncated]` satellite. Fixed by scanning triggers against a view where lua long-bracket
+literals are blanked to same-length filler (byte offsets and line numbers preserved; segment
+slicing still uses the untouched text).
+
+**5 — `class_start` heuristic over-matched ALL_CAPS data tables** (#2439; shape
+`class/existence/agree[gitgalaxy]_vs[...]`, 14 → 1). Lua has no `class` keyword; the `Name = {`
+heuristic fired on `local FISH = { … }` (Game-of-Life patterns), `local Arr = {}`, one-letter
+test fixtures. Fixed by requiring a proto-table "tell" within a bounded window — `function
+Name[.:]`, `Name.__index`, `setmetatable(…, Name)`, or `Name[.:]new` — for the heuristic branch
+(the explicit `---@class` annotation branch is never gated). Only `tracegc.lua:M` (a real module
+table) survives.
 
 ### Where the other tools have real, documented gaps
 
@@ -174,17 +215,18 @@ dedicated long-bracket sub (`(?:--)?\[(=*)\[.*?\]\1\]`) run before the quote pas
 ### Architecture tradeoffs (not defects)
 
 - **Deep nesting** (shape `lua/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]`).
-  tree-sitter-lua descends into function bodies and names every nested closure
-  (`calls.lua:a:add`, `a.b.c:f2`, `foo1` two levels deep); both GitGalaxy's Mode-D extractor and
-  ctags' single-pass scanner report only the top-level / one-level declarations. Same shape as
-  shell's `moby/check-config.sh::zgrep`. tree-sitter's reading is more complete; GitGalaxy and
-  ctags' is more consistent across eras.
+  tree-sitter-lua descends into function bodies and names every nested closure; ctags' single-pass
+  scanner reports only top-level declarations. After #2438 GitGalaxy recovers the *one-level*
+  nested declarations too (so this shape no longer reproduces — it moved into
+  GitGalaxy+tree-sitter consensus), but GitGalaxy still deliberately does not record
+  arbitrarily-deep closures as peer `FunctionNode`s. Same design boundary as shell's
+  `moby/check-config.sh::zgrep`.
 - **Lua has no class syntax** (shape `lua/class/existence/agree[gitgalaxy]_vs[ctags,tree_sitter]`,
-  14 occurrences). tree-sitter-lua has no class-shaped node and ctags' Lua kind table has no
-  class kind, so both report 0 forever. GitGalaxy's 14 `class_start` hits are its heuristic (§5,
-  [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439)) — the `0` is a structural
-  absence, not a refutation. Same category as css/html classes
-  (`_CLASS_EXTRACTION_OUT_OF_SCOPE`).
+  now 1 occurrence). tree-sitter-lua has no class-shaped node and ctags' Lua kind table has no
+  class kind, so both report 0 forever. After #2439 GitGalaxy's single remaining hit
+  (`tracegc.lua:M`) is a real module table — the `0` is a structural absence, not a refutation.
+  Similar category to css/html classes (`_CLASS_EXTRACTION_OUT_OF_SCOPE`), but lua keeps a
+  tightened heuristic rather than opting out entirely.
 
 ### `credit_tools` / `debit_tools`
 
@@ -192,14 +234,18 @@ None on any of the 8 shapes. The confirmed-defect shapes were fixed rather than 
 standing claim; the rest are absences or architecture differences where no tool is "wrong for a
 shared reason." This is the common case per the skill's step 4 guidance.
 
-### Issues filed
+### Issues
 
-- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — residual mid-file Mode-D
-  desync `_[Truncated]` satellites.
-- [#2438](https://github.com/squid-protocol/gitgalaxy/issues/2438) — dotted / method-style
-  function heads not fully name-resolved in the nested pass.
-- [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439) — `class_start` heuristic also
-  matches ALL_CAPS data tables.
+- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — mid-file Mode-D desync;
+  no lua repro after #2441, kept open as general Mode-D hardening.
+- [#2438](https://github.com/squid-protocol/gitgalaxy/issues/2438) — **fixed**: one-line
+  function declarations never emitted.
+- [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439) — **fixed**: `class_start`
+  heuristic matched ALL_CAPS data tables.
+- [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — **fixed**: polyglot
+  segmentation split a function at `<style>` / `<script>` inside a `[[ ]]` string.
+- One tracked residual (not filed): a `\z` line-continuation inside a single-quoted string
+  defeats the newline-bounded literal shield (`events.lua`), a pre-existing cross-language gap.
 
 ### Full record
 

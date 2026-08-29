@@ -506,6 +506,19 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
 
 _CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c", "cpp"})
 
+# #2440: Lua long-bracket literals -- `[[ ... ]]` / `[=[ ... ]=]` strings and
+# `--[[ ... ]]` long comments. Blanked to same-length filler (newlines kept, so
+# offsets and line numbers are preserved) when building the embedded-language
+# TRIGGER scan view in `_partition_segments`: a `<script>` / `<style>` sitting
+# inside a `Write([[<!doctype html> ... ]])` heredoc is string data, not a real
+# embedded segment, and must not carve the enclosing Lua function in half.
+_LUA_LONG_BRACKET_RE = re.compile(r"(?:--)?\[(=*)\[.*?\]\1\]", re.DOTALL)
+
+
+def _mask_lua_long_brackets(text: str) -> str:
+    return _LUA_LONG_BRACKET_RE.sub(lambda m: "".join("\n" if ch == "\n" else " " for ch in m.group(0)), text)
+
+
 # #2011: cpp needs its own body-anchor check, not C's flat "stop at the first {/;/,/)/="
 # lookahead -- C++'s inheritance-list syntax (`class Foo : public A, public B { ... }`,
 # `class Foo : public Base<X, Y> { ... }`) legitimately contains top-level commas and
@@ -1052,6 +1065,31 @@ class StructuralExtractor:
 
                 name_group_idx, name, inheritance = _resolve_class_start_match(match, class_start_groups)
 
+                # #2439: Lua has no `class` keyword. The `---@class Name` (LuaLS
+                # annotation) alternative of lua's class_start is an explicit
+                # declaration -- always real. The `Name = {` alternative is a
+                # heuristic for the proto-table OOP idiom and also fires on plain
+                # Capitalised DATA tables (`local FISH = { ... }` Game-of-Life
+                # patterns, `local Arr = {}`, one-letter test fixtures). Keep a
+                # `Name = {` match only when a proto-table "tell" -- a method
+                # definition on it, an `__index` wire-up, a `setmetatable(...,
+                # Name)`, or a `Name.new` / `Name:new` -- appears within a bounded
+                # window after it. tree-sitter-lua and ctags both structurally
+                # report 0 lua classes, so there is no ground-truth tool to catch
+                # this; the tri-comparison `agree[gitgalaxy]_vs[ctags,tree_sitter]`
+                # shape is the only signal.
+                if self.primary_lang_id == "lua" and name and name_group_idx != 1:
+                    _n = re.escape(name)
+                    _window = code_stream[match.end() : match.end() + 2500]
+                    _tell = re.compile(
+                        r"\bfunction[ \t]+" + _n + r"[ \t]*[.:]"
+                        r"|\b" + _n + r"[ \t]*\.[ \t]*__index\b"
+                        r"|\bsetmetatable[ \t]*\([^()]*,[ \t]*" + _n + r"\b"
+                        r"|\b" + _n + r"[ \t]*[.:][ \t]*new\b"
+                    )
+                    if not _tell.search(_window):
+                        continue
+
                 # Anchored on the class NAME's own position, not
                 # match.start(0): a pattern's leading optional whitespace/
                 # annotation/modifier span can itself swallow a blank line
@@ -1459,6 +1497,11 @@ class StructuralExtractor:
         last_idx = 0
         current_line_offset = 0
 
+        # #2440: detect triggers against a view where Lua long-bracket string
+        # bodies are blanked (offsets preserved); every slice below still uses
+        # the untouched `content`.
+        scan_view = _mask_lua_long_brackets(content) if primary_id == "lua" else content
+
         triggers = [
             {
                 "start": m.start(),
@@ -1468,7 +1511,7 @@ class StructuralExtractor:
                 "trigger_end": m.end(),
             }
             for h in self.HANDSHAKE_REGISTRY
-            for m in h["trigger"].finditer(content)
+            for m in h["trigger"].finditer(scan_view)
         ]
 
         triggers.sort(key=lambda x: x["start"])
@@ -1487,7 +1530,7 @@ class StructuralExtractor:
                 end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
             else:
                 search_limit = min(t["trigger_end"] + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(content))
-                end_match = t["end_pattern"].search(content, pos=t["trigger_end"], endpos=search_limit)
+                end_match = t["end_pattern"].search(scan_view, pos=t["trigger_end"], endpos=search_limit)
                 end_idx = end_match.end() if end_match else len(content)
 
             chunk = content[t["start"] : end_idx]
@@ -4456,6 +4499,20 @@ class StructuralExtractor:
         class_opener = config.get("class_opener")
         class_opener_pattern = re.compile(class_opener, flags) if class_opener else None
 
+        # #2438: a complete one-liner `function foo (...) ... end` now gets its
+        # own FunctionNode from the function_opener pass below. The
+        # Anonymous_Block name-borrow fallback must therefore NOT reach back
+        # past one and reuse its name for an unrelated anonymous closure on the
+        # next line (`local function foo (i) ... end` \n `local f =
+        # coroutine.wrap(function () ... end)` -> the wrap closure was being
+        # mislabeled `foo`). lua-scoped, mirrors the function_opener gate.
+        _fo = config.get("function_opener")
+        oneliner_decl_pattern = (
+            re.compile(_fo, flags)
+            if _fo and ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower()) == "lua"
+            else None
+        )
+
         satellites = []
         sum_fxn_impact = 0.0
 
@@ -4575,6 +4632,14 @@ class StructuralExtractor:
                     if satellite_name == "Anonymous_Block":
                         for past_safe in reversed(past_safe_lines):
                             if past_safe.strip():
+                                # #2438: skip a self-contained one-liner
+                                # declaration -- its name belongs to its own node.
+                                if (
+                                    oneliner_decl_pattern is not None
+                                    and oneliner_decl_pattern.search(past_safe)
+                                    and re.search(r"\bend\b", past_safe)
+                                ):
+                                    break
                                 fallback = self._extract_semantic_name(past_safe, lang_key)
                                 if fallback != "Anonymous_Block":
                                     satellite_name = fallback
@@ -4727,8 +4792,20 @@ class StructuralExtractor:
             # O(n^2) scan -- mirrors Mode B's own bounded search_limit.
             max_trace_lines = 2000
 
+            # #2438: at top level the primary scan above already emits a satellite
+            # for every opener whose net scope change is positive (a real
+            # multi-line declaration). It does NOT emit a ONE-LINER `function f
+            # (...) ... end` -- opener and closer cancel to net <= 0 on the same
+            # line, so it lands in `global_dust` and never becomes its own
+            # FunctionNode. Lua's corpus is full of these (`calls.lua`: `function
+            # a:x (x) return x+self.i end`, `local function ret2 (a,b) return a,b
+            # end`, redefinitions like `function deep (n) ... end`). Recover them
+            # via the `lua and net_changes[i] <= 0` exception below. Scoped to
+            # lua: ruby/matlab/livecode also carry a `function_opener` but their
+            # one-liner forms aren't corpus-audited yet, so they keep the strict
+            # depth>0 gate.
             for i in range(n):
-                if depth_before_line[i] <= 0:
+                if depth_before_line[i] <= 0 and not (lang_key == "lua" and net_changes[i] <= 0):
                     continue
                 if not function_opener_pattern.search(safe_lines[i]):
                     continue

@@ -659,10 +659,31 @@ class Prism:
 
         return text, lits
 
+    _LUA_LONG_BRACKET_RE = re.compile(r"(?:--)?\[(=*)\[.*?\]\1\]", re.DOTALL)
+
+    def _mask_lua_long_brackets(self, text: str) -> str:
+        """Blanks Lua long-bracket literals -- strings `[[ ... ]]` / `[=[ ... ]=]`
+        and long comments `--[[ ... ]]` -- to same-length filler, preserving every
+        newline so byte offsets and line numbers are unchanged. Used only to build
+        the embedded-language TRIGGER scan view: `<script>` / `<style>` sitting
+        inside a `Write([[<!doctype html> ... ]])` heredoc is string data, not a
+        real embedded segment, and must not split the enclosing Lua function
+        (#2440)."""
+
+        def _repl(m: "re.Match[str]") -> str:
+            return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+        return self._LUA_LONG_BRACKET_RE.sub(_repl, text)
+
     def _partition_embedded_languages(self, content: str, primary_id: str) -> list[tuple[str, str]]:
         """Splits content into language segments based on embedded language triggers."""
         segments = []
         last_idx = 0
+
+        # #2440: detect triggers against a view where Lua long-bracket string
+        # bodies are blanked (offsets preserved); segment slicing below still
+        # uses the untouched `content`.
+        scan_view = self._mask_lua_long_brackets(content) if primary_id == "lua" else content
 
         triggers: list[dict[str, Any]] = []
         # --- FAST PATH: The Universal Web Tax Shield ---
@@ -685,7 +706,7 @@ class Prism:
 
             if len(hint) >= 3:
                 if content_lower is None:
-                    content_lower = content.lower()  # One fast C-level allocation
+                    content_lower = scan_view.lower()  # One fast C-level allocation
                 if hint not in content_lower:
                     continue  # Skip the expensive regex entirely!
 
@@ -697,7 +718,7 @@ class Prism:
                     "pair": t_config["pair"],
                     "trigger_end": m.end(),
                 }
-                for m in t_config["trigger"].finditer(content)
+                for m in t_config["trigger"].finditer(scan_view)
             )
 
         triggers.sort(key=lambda x: x["start"])
@@ -718,7 +739,7 @@ class Prism:
                 end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
             else:
                 search_limit = min(t["trigger_end"] + self.EMBEDDED_LOOKAHEAD_LIMIT, len(content))
-                end_match = t["end_pattern"].search(content, pos=t["trigger_end"], endpos=search_limit)
+                end_match = t["end_pattern"].search(scan_view, pos=t["trigger_end"], endpos=search_limit)
                 end_idx = end_match.end() if end_match else len(content)
                 if not end_match and end_idx == search_limit:
                     self.logger.warning("Scanner Scope Guard: Failed to find closure within limit. Forcing clip.")

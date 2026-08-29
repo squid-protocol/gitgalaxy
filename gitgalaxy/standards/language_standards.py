@@ -10955,8 +10955,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # across the entire language-crucible/data/livecode corpus (99 files, 781
             # real handlers). Same one-flag omission class as any `^`-anchored
             # signal rule; the pattern itself was already correct on a single line.
+            #
+            # #2409: second alternative for LiveCode Builder `.lcb` handlers, whose
+            # param list IS parenthesized and typed (`handler Foo(in x as String,
+            # out y as Integer)`) -- captures the parenthesized body; the generic
+            # per-function derivation then counts the comma-separated `in`/`out`/
+            # `inout` clauses. Single-physical-line only (a `\`-continued multi-line
+            # header still counts group 1 as whatever fit before the break) --
+            # matches how LiveCode Script's own branch already behaves for a
+            # continued line, and good enough for a proxy metric.
             "args": re.compile(
-                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+[a-zA-Z0-9_-]+[ \t]+((?:(?!--|//|#|/\*)[^ \t\r\n])(?:(?!--|//|#|/\*)[^\r\n])*?)(?=[ \t]*(?:--|//|#|/\*|\r|\n|$))",
+                r"^[ \t]*(?:"
+                r"(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+[a-zA-Z0-9_-]+[ \t]+((?:(?!--|//|#|/\*)[^ \t\r\n])(?:(?!--|//|#|/\*)[^\r\n])*?)(?=[ \t]*(?:--|//|#|/\*|\r|\n|$))"
+                r"|"
+                r"(?:public[ \t]+|private[ \t]+)?handler[ \t]+(?!type[ \t])[a-zA-Z_][a-zA-Z0-9_]*[ \t]*\(([^)\r\n]+)\)"
+                r")",
                 re.I | re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
@@ -10968,8 +10981,29 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).
+            # Two dialects, one rule (#2409):
+            #   * LiveCode Script (`.livecodescript`/`.lc`) -- `[public|private]
+            #     on|command|function|getprop|setprop <name>` with an
+            #     *unparenthesized* arg list, so the name is followed by
+            #     whitespace/EOL/comment, never `(` (the `("function TargetFunc()",
+            #     None)` invalid case in test_livecode.py stays invalid). Name in group 1.
+            #   * LiveCode Builder (`.lcb`) -- `[public|private] handler <name>(...)`
+            #     with a *parenthesized*, typed param list, or a `\` line
+            #     continuation before the params. Name in group 2. The optional
+            #     `(?:public|private)` prefix followed directly by `handler` (never
+            #     `foreign`) means every `foreign handler` / `public foreign handler`
+            #     FFI *binding declaration* -- C-prototype shaped, `binds to
+            #     "<builtin>"`, no `... end handler` body -- is excluded by
+            #     construction (parallel to a C header prototype not being a
+            #     definition; decided in #2409). detector.py's Mode D naming goes
+            #     through `_extract_semantic_name`, not these groups, so the
+            #     two-group shape only affects the raw `struct_func_start` count.
             "func_start": re.compile(
-                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z0-9_-]+)(?=[ \t\r\n]|--|//|#|/\*|$)",
+                r"^[ \t]*(?:"
+                r"(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z0-9_-]+)(?=[ \t\r\n]|--|//|#|/\*|$)"
+                r"|"
+                r"(?:public[ \t]+|private[ \t]+)?handler[ \t]+(?!type[ \t])([a-zA-Z_][a-zA-Z0-9_]*)[ \t]*(?=\(|\\[ \t]*(?:\r?\n|$))"
+                r")",
                 re.I | re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Defines structural entities (Stacks, Behaviors, Widgets).

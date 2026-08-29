@@ -314,6 +314,48 @@ class ScopeParsingRegistry:
             "function_opener": r"\bfunction\b",
             "comment_marker": "%",
         },
+        # #2410: LiveCode (Script + Builder) has no braces for scope -- handler
+        # bodies run from `on|command|function|getprop|setprop <name>` /
+        # `handler <name>(...)` to `end <name>` / `end handler`, and control
+        # blocks are `if...end if` / `repeat...end repeat` / `try...end try` /
+        # `switch...end switch` / `unsafe...end unsafe`. Previously unregistered
+        # here, so it silently fell through to Mode B brace-slicing, which finds
+        # no `{`/`}` and produced ONE FunctionNode for the entire 98-file
+        # language-crucible corpus despite 781 correct raw `func_start` signals.
+        # Same routing-only failure class as MATLAB #1266 / yacc #2351.
+        #
+        # Every opener/closer is start-of-statement anchored (`^[ \t]*...`), for
+        # two reasons the generic non-anchored mode_d configs don't need: (1) the
+        # bare closer `end` also spells `end repeat` / `end if` / `end handler` /
+        # `end <handlername>` etc., so a non-anchored `\bif\b` opener would
+        # double-count `end if` as +1/-1 instead of a clean -1; (2) `function` is
+        # also a LiveCode *operator* (`the ... function of ...`) and `if`/`repeat`
+        # appear inside expressions. Anchoring also makes `next repeat` /
+        # `exit repeat` / `else if` / `else` fall out for free (they don't start
+        # with an opener keyword). The remaining ambiguity -- `if COND then
+        # STATEMENT` one-liners (no `end if`) vs. `if COND then` block headers --
+        # is handled by a dedicated guard in `_slice_by_keywords`' net-change
+        # pass, analogous to the Ruby/Elixir inline-modifier guard.
+        "livecode": {
+            "mode": "mode_d",
+            "openers": [
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)\b",
+                # `handler <name>(...)` opens a body; `handler type <Name>(...)` is a
+                # one-line handler-type (function-pointer) declaration, not a body.
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?handler[ \t]+(?!type\b)",
+                r"^[ \t]*repeat\b",
+                r"^[ \t]*if\b",
+                r"^[ \t]*switch\b",
+                r"^[ \t]*try\b",
+                r"^[ \t]*unsafe\b",
+            ],
+            "closers": [r"^[ \t]*end\b"],
+            "function_opener": (
+                r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)\b"
+                r"|^[ \t]*(?:private[ \t]+|public[ \t]+)?handler[ \t]+(?!type\b)"
+            ),
+            "ignore_case": True,
+        },
         # ==========================================
         # 🪓 INTEGRATION MODE E: Terminator Cleaving
         # ==========================================
@@ -1990,6 +2032,19 @@ class StructuralExtractor:
             )
             if m:
                 return m.group(1)
+        elif lang_key == "livecode":
+            # #2410: statement-anchored so `function` as an expression operator
+            # (`the ... function of ...`) can't be mistaken for a declaration --
+            # matches func_start's own two dialects (Script `on|command|
+            # function|getprop|setprop <name>`, Builder `handler <name>`).
+            m = re.match(
+                r"[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+([a-zA-Z_][a-zA-Z0-9_-]*)"
+                r"|[ \t]*(?:private[ \t]+|public[ \t]+)?handler[ \t]+(?!type[ \t])([a-zA-Z_][a-zA-Z0-9_]*)",
+                line,
+                re.IGNORECASE,
+            )
+            if m:
+                return m.group(1) or m.group(2)
         return "Anonymous_Block"
 
     # ==============================================================================
@@ -4399,6 +4454,21 @@ class StructuralExtractor:
 
             opens = len(open_pattern.findall(safe_line))
             closes = len(close_pattern.findall(safe_line))
+
+            # #2410: The LiveCode `if ... then <statement>` One-Liner Guard.
+            # `if COND then doThis` (a real statement after `then`, same line) is
+            # a complete one-liner with no `end if` -- it must not open a scope.
+            # `if COND then` (nothing but whitespace/comment after `then`) and
+            # `if COND` (multi-line condition, `then` still to come) are block
+            # headers and keep their open. Only the `if` opener is ambiguous this
+            # way; `repeat`/`switch`/`try`/`unsafe`/handler headers are always
+            # block form in LiveCode.
+            if lang_key == "livecode" and opens > 0 and re.match(r"[ \t]*if\b", safe_line, re.IGNORECASE):
+                after_then = re.search(r"\bthen\b(.*)$", safe_line, re.IGNORECASE)
+                if after_then:
+                    tail = after_then.group(1).strip()
+                    if tail and not tail.startswith(("--", "//", "#", "/*")):
+                        opens -= 1
 
             # The Ruby/Elixir Inline Modifier Guard
             if lang_key in ["ruby", "elixir"] and opens > 0:

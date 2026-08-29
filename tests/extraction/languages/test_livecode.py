@@ -31,6 +31,13 @@ def test_livecode_func_start():
         ("private on TargetFunc", "TargetFunc"),
         ("public on TargetFunc", "TargetFunc"),
         ("private getprop TargetFunc", "TargetFunc"),
+        # #2409: LiveCode Builder (.lcb) `handler` syntax -- parenthesized,
+        # typed param list, so the name is followed by `(` (rejected for the
+        # LiveCode Script forms above) or a `\` line continuation.
+        ("handler BoxValue(in pValue as any) returns Array", "BoxValue"),
+        ("public handler MCAssertExpectPrecondition(in pCondition as Boolean)", "MCAssertExpectPrecondition"),
+        ("private handler _helper()", "_helper"),
+        ("public handler MCAssertExpectPreconditionWithReason \\", "MCAssertExpectPreconditionWithReason"),
     ]
 
     invalid = [
@@ -42,6 +49,16 @@ def test_livecode_func_start():
         ('put "on TargetFunc" into x', None),
         ("on", None),
         ("function TargetFunc()", None),
+        # #2409: `foreign handler` / `public foreign handler` are FFI *binding
+        # declarations* (C-prototype shaped, `binds to "<builtin>"`, no body) --
+        # excluded by construction, parallel to a C header prototype.
+        ('public foreign handler MCArrayEvalKeysOf(in T as Array) returns nothing binds to "<builtin>"', None),
+        ("foreign handler MCFoo(in x as Integer)", None),
+        # `handler type <Name>(...)` declares a handler *type* (function-pointer
+        # typedef), not a callable definition.
+        ("handler type Thunk()", None),
+        # LCB `handler` with no `(` at all is not a real handler header.
+        ("handler NotAHandler", None),
     ]
 
     pathological = [
@@ -54,6 +71,8 @@ def test_livecode_func_start():
         ("command TargetFunc//comment", "TargetFunc"),
         ("function TargetFunc#comment", "TargetFunc"),
         ("getprop TargetFunc/*comment*/", "TargetFunc"),
+        ("\t public \t handler \t MixedCase (in a as X)", "MixedCase"),
+        ("HANDLER ShoutingCase(in a as X)", "ShoutingCase"),
     ]
 
     for payload, expected in valid:
@@ -110,6 +129,9 @@ def test_livecode_args():
         ("function TargetFunc pArg1, pArg2, pArg3", "pArg1, pArg2, pArg3"),
         ("setprop TargetFunc pArg1", "pArg1"),
         ("on TargetFunc @pArray", "@pArray"),
+        # #2409: LiveCode Builder parenthesized, typed param list.
+        ("handler Foo(in x as String, out y as Integer)", "in x as String, out y as Integer"),
+        ("public handler MCAssert(in pCondition as Boolean)", "in pCondition as Boolean"),
     ]
 
     invalid = [
@@ -119,6 +141,8 @@ def test_livecode_args():
         ("on TargetFunc -- comment", None),
         ("on TargetFunc // comment", None),
         ("on TargetFunc # comment", None),
+        ("handler Foo()", None),
+        ("handler type Thunk(in x as any)", None),
     ]
 
     pathological = [
@@ -127,6 +151,7 @@ def test_livecode_args():
         ("function TargetFunc pArg1 // comment", "pArg1"),
         ("setprop TargetFunc pArg # comment", "pArg"),
         ("on TargetFunc pArg /* comment */", "pArg"),
+        ("public handler Bar( inout z as List )", "inout z as List"),
     ]
 
     for payload, expected in valid:

@@ -631,6 +631,88 @@ def test_detector_mode_d_ruby_nested_methods_inside_class():
     assert "Widget" in class_names, "The enclosing class's own satellite should still be reported."
 
 
+def test_detector_mode_d_livecode_script_handlers():
+    """
+    #2410: LiveCode had no ScopeParsingRegistry entry, so it fell through to
+    Mode B brace-slicing and produced exactly ONE FunctionNode for the entire
+    98-file language-crucible corpus (781 correct raw func_start signals, 780
+    dropped). Proves `on|command|function|getprop|setprop <name> ... end <name>`
+    handlers each slice into their own block via keyword depth-tracking, that
+    `end if`/`end repeat` don't leak or double-count, and that an
+    `if COND then <statement>` one-liner (no `end if`) doesn't open a scope.
+    """
+    opt_detector = StructuralExtractor("livecode", MOCK_LANG_DEFS)
+    code = (
+        'on mouseUp\n'
+        '   if the shiftKey is down then beep\n'  # one-liner, no `end if`
+        '   if tCount > 0 then\n'
+        '      repeat with i = 1 to tCount\n'
+        '         put i after tResult\n'
+        '      end repeat\n'
+        '   end if\n'
+        'end mouseUp\n'
+        '\n'
+        'private function computeTotal pRows\n'
+        '   return the number of lines of pRows\n'
+        'end computeTotal\n'
+        '\n'
+        'command logIt pMessage\n'
+        '   write pMessage & return to file "log.txt"\n'
+        'end logIt\n'
+    )
+
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert names.count("mouseUp") == 1, f"handler mis-sliced (one-liner `if` leaked?): {names}"
+    assert "computeTotal" in names
+    assert "logIt" in names
+    assert not any("Truncated" in n for n in names), f"a scope failed to close: {names}"
+
+    mouse = next(f for f in result["functions"] if f["name"] == "mouseUp")
+    assert mouse["coding_loc"] >= 6, "handler body line count collapsed"
+
+
+def test_detector_mode_d_livecode_builder_handlers():
+    """
+    #2409/#2410: LiveCode Builder `.lcb` `handler <name>(...)` bodies slice the
+    same keyword way, `foreign handler` FFI prototypes (no body) are ignored,
+    and `handler type <Name>()` (a function-pointer typedef, not a callable)
+    doesn't open a scope.
+    """
+    opt_detector = StructuralExtractor("livecode", MOCK_LANG_DEFS)
+    code = (
+        "module com.example.demo\n"
+        "\n"
+        'public foreign handler MCFooBuiltin(in x as Integer) returns nothing binds to "<builtin>"\n'
+        "\n"
+        "handler type CallbackThunk(in pValue as any) returns Boolean\n"
+        "\n"
+        "public handler DoWork(in pInput as String, out pResult as String)\n"
+        "   if pInput is empty then\n"
+        "      put \"none\" into pResult\n"
+        "      return\n"
+        "   end if\n"
+        "   put pInput into pResult\n"
+        "end handler\n"
+        "\n"
+        "private handler _helper()\n"
+        "   return 42\n"
+        "end handler\n"
+        "\n"
+        "end module\n"
+    )
+
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "DoWork" in names
+    assert "_helper" in names
+    assert "MCFooBuiltin" not in names, "foreign handler FFI prototype was counted as a function"
+    assert "CallbackThunk" not in names and "type" not in names, "handler-type declaration was counted"
+    assert not any("Truncated" in n for n in names), f"a scope failed to close: {names}"
+
+
 # ==============================================================================
 # TEST 6: MODE C (INDENTATION STRATIFICATION)
 # ==============================================================================

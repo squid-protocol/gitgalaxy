@@ -8,8 +8,9 @@
 | **Target Version** | LiveCode 9.6 / 10.0 (Current Stable/DP) |
 | **Lexical Family** | multi_style_live (`--`, `//`, `#`, `/* */`) |
 | **Rules Wired** | 47 / 52 |
-| **Extraction tests** | 4 parametrized cases in `test_livecode.py` (~73 payloads) |
+| **Extraction tests** | 4 parametrized cases in `test_livecode.py` (~85 payloads, incl. `.lcb` `handler`) |
 | **Strict tests** | 29 in `test_livecode_strict.py` (109 collected) |
+| **Detector routing** | Mode D (keyword depth-tracking) — `ScopeParsingRegistry["livecode"]` |
 | **Comparison tools** | none — no tree-sitter grammar, no ctags parser (one of ~14 gg_only languages) |
 
 ## 2. Identification surface
@@ -29,8 +30,8 @@ as String)` with parenthesized typed parameters).
 
 **Topology & Structure**
 - `branch`: `if`/`then`/`else`/`switch`/`case`/`repeat`/`while`/`until`/`try`/`catch`/`throw`, plus `and`/`or`/`not`.
-- `func_start`: LiveCode Script handler headers — `on`, `command`, `function`, `getprop`, `setprop` (with optional `private`/`public`).
-- `args`: the parameter list following a LiveCode Script handler header.
+- `func_start`: handler headers in both dialects — LiveCode Script `on`/`command`/`function`/`getprop`/`setprop <name>` and LiveCode Builder `.lcb` `handler <name>(…)` (with optional `private`/`public`). `foreign handler` FFI binding declarations and `handler type <Name>()` typedefs are excluded. Routed to detector Mode D (keyword depth-tracking) — LiveCode has no braces.
+- `args`: the parameter list following a handler header — LiveCode Script's unparenthesized `pA, pB` and LiveCode Builder's parenthesized, typed `(in x as String, out y as Integer)`.
 - `class_start`: object/entity declarations — `.livecodescript` `script "Name"` (quoted export header), `.lcb` `module`/`widget`/`library`/`behavior` (bareword, incl. dotted reverse-DNS).
 - `structural_boundaries`: xTalk verbs (`put`, `get`, `set`, `send`, `dispatch`, `pass`, `return`, arithmetic commands, `visual effect`, `play`, `sort`, `find`, `replace`).
 
@@ -66,20 +67,13 @@ as String)` with parenthesized typed parameters).
 
 ## 5. Known limitations (filed, not yet fixed)
 
-- **[#2409](https://github.com/squid-protocol/gitgalaxy/issues/2409) — LiveCode Builder
-  `handler` syntax is invisible to `func_start`/`args`.** The rules only recognize LiveCode
-  *Script* handler keywords (`on`/`command`/`function`/`getprop`/`setprop`). Across the
-  `language-crucible/data/livecode` corpus the 35 `.lcb` files hold **471 handler declarations,
-  0 detected**. (341 of those are `foreign handler` FFI binding declarations — arguably not
-  functions; the other 130 are real definitions with bodies.)
-- **[#2410](https://github.com/squid-protocol/gitgalaxy/issues/2410) — no `ScopeParsingRegistry`
-  entry → Mode B brace-slice fallthrough drops named functions.** `func_start`'s raw signal is
-  counted correctly (781 across the corpus), but LiveCode has no braces (`end <name>`
-  terminators), so `_slice_by_braces` produces **1 `FunctionNode` for the entire corpus**. This
-  blocks the Func Found / Func Precision / Args Found chart panels and any function/args
-  manual-verification badge. Same failure class as MATLAB #1266 and yacc #2351, but needs its
-  own inline-`if…then` / `else` / `next repeat` depth guards, so it is design work rather than a
-  one-line registry add.
+- **[#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419) — `_apply_literal_shield`
+  treats `/*` / `*/` inside a LiveCode string literal as a block-comment delimiter.** Exactly one
+  handler in the corpus (`addExternalFromFile` in the 2183-line
+  `revsaveasandroidstandalone.livecodescript`, which has `"Android/*"` and `"*/R.java"` string
+  literals) over-extends its body because its own `end` lines fall inside a bogus comment span.
+  A narrow shield edge, not a Mode D gap — every other handler slices cleanly; does not affect
+  the 934/934 handler-*existence* count (§9).
 - **[#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411) — a leading UTF-8 BOM
   defeats `^`-anchored line-1 extraction.** 38 real `.livecodescript` class objects (of 95) are
   missed purely because `head -1` is `﻿script "Name"` and `^[ \t]*` will not step over the BOM.
@@ -129,8 +123,8 @@ alone would have missed.
 | Signature | Raw regex | Pipeline `struct_*` | Named list | Verdict |
 | :--- | ---: | ---: | ---: | :--- |
 | `class_start` | 34 → **57** | 33 → **57** | 0 → **57** | ✅ **57/57 precision, 0 false positives** — badge earned |
-| `args` (file signal) | 0 → **471** | 0 → **442** | — | signal alive; per-function count blocked on #2410 |
-| `func_start` | 847 | 781 | **1** | raw signal correct; named extraction blocked on #2410; `.lcb` handlers blocked on #2409 |
+| `args` (file signal) | 0 → **471** | 0 → **442** | — | signal alive; per-function count fixed by #2410 (see 2026-08-29 subsection) |
+| `func_start` | 847 | 781 → **~900** | 1 → **934** | raw signal was always correct; named extraction fixed by #2409 + #2410 (see 2026-08-29 subsection) |
 
 (`struct_*` < raw regex in every row is correct: `prism.py` legitimately strips `func_start`/
 `args`-shaped lines that sit inside `/* … */` doc/comment blocks — 32 in
@@ -176,6 +170,52 @@ language; livecode's global mass share rises ~6× purely because a whole languag
 went from artificially-zero to real) · both golden master fixtures re-blessed ·
 `tri_comparison_chart.py --all --write` regenerated (livecode Class Precision now renders
 `57/57**` with a **G** badge).
+
+### 2026-08-29: `func_start` recovered — [#2409](https://github.com/squid-protocol/gitgalaxy/issues/2409) + [#2410](https://github.com/squid-protocol/gitgalaxy/issues/2410)
+
+The `func_start` row above ("named list: **1**") is now fixed. Two changes, one PR:
+
+1. **`detector.py` Mode D routing (#2410).** LiveCode had no `ScopeParsingRegistry` entry, so it
+   fell through to Mode B brace-slicing — which finds no `{`/`}` and produced **one**
+   `FunctionNode` for the entire 98-file corpus despite 781 correct raw `func_start` signals.
+   Added a `mode_d` entry: statement-anchored openers (`on`/`command`/`function`/`getprop`/
+   `setprop`/`handler` + `repeat`/`if`/`switch`/`try`/`unsafe`), a bare `end` closer, and a
+   `function_opener` for nested-handler detection. Anchoring makes `next repeat` / `exit repeat`
+   / `else if` / `else` fall out for free; a dedicated `_slice_by_keywords` guard handles the
+   `if COND then <statement>` one-liner (no `end if`). Same routing-only failure class as
+   MATLAB #1266 / yacc #2351.
+2. **`language_standards.py` `.lcb` `handler` regex (#2409).** `func_start` / `args` only knew
+   LiveCode Script's unparenthesized `on|command|function… <name>` form. Added a second
+   alternation arm for LiveCode Builder's `[public|private] handler <name>(…)` — parenthesized,
+   typed. `foreign handler` (344 FFI binding declarations, C-prototype shaped, no body) and
+   `handler type <Name>()` (function-pointer typedefs) are excluded by construction.
+
+**Verification (independent-scanner name-diff, whole corpus).** Ground truth = every real handler
+*definition* header (an independent line scanner sharing no implementation with `func_start`,
+skipping `end`/`foreign handler`/comments). Result: **934 truth defs, 934 GG named funcs, 1
+missing / 2 extra before a `handler type` guard was added → 934 / 934, zero false positives, zero
+missed** after it. `.livecodescript`: ~815 handlers; `.lcb`: 121 real `handler` definitions.
+
+| Signature | before | after |
+| :--- | ---: | ---: |
+| `func_start` named list | 1 | **934** (933 clean + 1 `_[Truncated]`, see #2419) |
+| `func_recall` matched_consensus (Func Found panel) | 1 | **934** |
+| `func_precision` total_slots | 1 | **934** → `934/934**` + **G** badge |
+| `gg_args_found` (Args Found panel) | 2 | **950** |
+
+**One body-extent limitation, filed as [#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419)**,
+does not affect the existence count: `addExternalFromFile` (in the 2183-line
+`revsaveasandroidstandalone.livecodescript`) is the only truncation in the corpus, caused by
+`_apply_literal_shield` mis-reading `/*` / `*/` inside that file's string literals.
+
+**Chain:** livecode gauntlet + strict (113 passed) · new `test_detector_mode_d_livecode_*` (2) ·
+full `tests/core_engine/` + `tests/extraction/` (6803 passed) · `audit_check.py` clean
+(ruff / mypy / dead-key / ast-accuracy) · `crucible_check.py` full corpus — **every diff is
+livecode or its downstream ripple**, zero unrelated-language diffs (livecode's global mass share
+*drops* ~18× as its one monster function splits into ~934 correctly-sized ones; `dominant_language`
+corrects `livecode` → `c`) · both golden masters re-blessed and re-verified `PASS`.
+`tri_comparison_chart.svg` is regenerated by the post-merge `tri-comparison-history.yml` job, not
+here.
 
 See `docs/self_scan/manual_verification.json`'s `"livecode"` entry for the record in the same
 format abap / agc_assembly / dockerfile / jcl use.

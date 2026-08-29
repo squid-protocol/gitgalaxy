@@ -49,26 +49,19 @@
       }
     },
     "jcl": {
-      "args": {
-        "note": "args (PARM= or PROC definition args) verified manually across the 3 JCL corpus files. Found exactly 1 parameter string ('NTWRK=GENAPP') on the EXEC step in itpentr.jcl. The DB matches this extraction exactly.",
-        "total": 1,
-        "verified": 1,
-        "verified_at": "2026-08-23",
-        "verified_by": "Antigravity"
-      },
       "class": {
-        "note": "class_start (JOB cards) verified manually across the 3 JCL corpus files. Found exactly 3 JOB statements (one per file). Fixed issue where JCL was missing from _CLASS_START_NAMED_EXTRACTION_LANGS, causing fallback to brace-slicing. The DB now matches the raw regex count exactly (3).",
-        "total": 3,
-        "verified": 3,
-        "verified_at": "2026-08-23",
-        "verified_by": "Antigravity"
+        "note": "class_start (JCL JOB cards) re-verified against the language-crucible v1.1.0 corpus expansion (3 -> 185 .jcl files, 5 repos). Same two independent checks over all 182 pipeline-scanned files: (1) GitGalaxy's class_start regex vs. an independent JOB-card grep (^//[A-Za-z0-9@#$][A-Za-z0-9@#$]{0,7}[ \\t]+JOB([ \\t]|$), no shared implementation, independently rejects //*-commented job cards) -- exact agreement, 116 == 116, zero per-file mismatches. The 12 cics-banking-sample-application-cbsa/CREL0*.jcl + CREDB2L.jcl files whose entire JOB card is commented out (//*NAME JOB ...) and the 2 cics-genapp sampcma/sampwui.jcl files whose jobname is an angle-bracket placeholder (//<CMASAPPL> JOB) are correctly NOT counted -- confirmed by direct source read. (2) real pipeline DB output: struct_class_start == class_count == 116 on every file (JCL is in _CLASS_START_NAMED_EXTRACTION_LANGS since #2203, so no brace-slice fallback). All 185 corpus files carry at most one JOB card. Zero false positives. Total is the live pipeline class count over the 182 scanned files; 1 more valid JOB card exists in the aperture-excluded DBRMLIB.jcl (same infra_path_pattern issue as the function entry), tracked separately. See docs/language_status/jcl.md #9.",
+        "total": 116,
+        "verified": 116,
+        "verified_at": "2026-08-29",
+        "verified_by": "Claude Sonnet 5"
       },
       "function": {
-        "note": "func_start (EXEC steps) verified manually across the 3 JCL corpus files. Found exactly 3 EXEC statements (one per file). Mode A slicing handles the boundary correctly. The DB output matches the raw regex count exactly (3).",
-        "total": 3,
-        "verified": 3,
-        "verified_at": "2026-08-23",
-        "verified_by": "Antigravity"
+        "note": "func_start (JCL EXEC steps) re-verified against the language-crucible v1.1.0 corpus expansion (3 -> 185 .jcl files, 5 repos). Two independent checks over all 182 pipeline-scanned files: (1) GitGalaxy's func_start regex applied directly to raw source text, cross-checked line-for-line against an independent grep (^//[A-Za-z0-9@#$]{0,8}[ \\t]+EXEC([ \\t]|$), which shares no implementation with the primary regex and independently excludes //* comment lines) -- exact agreement, 370 == 370, zero per-file mismatches. (2) real pipeline DB output (galaxyscope --db-only): file_data.struct_func_start == function_count == 370 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body slicing drops or corrupts any match before extraction. Spot-read against direct source for EXEC steps across itpll.jcl, CBL0001J.jcl, RUNASAM1.jcl including unnamed '// EXEC CICS,MEMBER=' statements (correctly matched with an empty step name). Zero false positives: every match is a real EXEC statement. Total is the live pipeline func count over the 182 scanned files; 3 more valid EXEC steps exist in MAPGEN.jcl / DBRMLIB.jcl but those files are silently excluded by aperture.py before scanning (issue: infra_path_pattern matches 'gen'/'lib' as filename substrings) -- a recall gap tracked separately, not folded into verified/total, which is defined against pipeline output. See docs/language_status/jcl.md #9.",
+        "total": 370,
+        "verified": 370,
+        "verified_at": "2026-08-29",
+        "verified_by": "Claude Sonnet 5"
       }
     },
     "livecode": {

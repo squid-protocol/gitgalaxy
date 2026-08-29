@@ -13,7 +13,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "agc_assembly",
-      "last_reconciled_at": "2026-08-29T21:42:55Z",
+      "last_reconciled_at": "2026-08-29T21:53:12Z",
       "last_seen_count": 215,
       "last_seen_examples": [
         {
@@ -118,7 +118,7 @@
       "investigated_at": "2026-08-20T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "agc_assembly",
-      "last_reconciled_at": "2026-08-29T21:42:55Z",
+      "last_reconciled_at": "2026-08-29T21:53:12Z",
       "last_seen_count": 37,
       "last_seen_examples": [
         {
@@ -221,7 +221,7 @@
       "investigated_at": "2026-08-20T22:17:39Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch needed -- root cause was immediately clear from source)",
       "language": "apex",
-      "last_reconciled_at": "2026-08-29T21:42:56Z",
+      "last_reconciled_at": "2026-08-29T21:53:13Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -260,7 +260,7 @@
       "investigated_at": "2026-08-27T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "assembly",
-      "last_reconciled_at": "2026-08-29T21:42:58Z",
+      "last_reconciled_at": "2026-08-29T21:53:14Z",
       "last_seen_count": 26,
       "last_seen_examples": [
         {
@@ -365,7 +365,7 @@
       "investigated_at": "2026-08-27T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "assembly",
-      "last_reconciled_at": "2026-08-29T21:42:58Z",
+      "last_reconciled_at": "2026-08-29T21:53:14Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -405,7 +405,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
@@ -519,7 +519,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -624,7 +624,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 525,
       "last_seen_examples": [
         {
@@ -738,7 +738,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed) -- corrected after cross-referencing #1837",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -771,7 +771,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -804,7 +804,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -921,7 +921,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -972,7 +972,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved + fixed directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -1059,7 +1059,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -1112,7 +1112,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly, no dispatch needed)",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -1171,7 +1171,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 17,
       "last_seen_examples": [
         {
@@ -1275,7 +1275,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 74,
       "last_seen_examples": [
         {
@@ -1388,7 +1388,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "c",
-      "last_reconciled_at": "2026-08-29T21:43:01Z",
+      "last_reconciled_at": "2026-08-29T21:53:20Z",
       "last_seen_count": 88,
       "last_seen_examples": [
         {
@@ -1493,7 +1493,7 @@
       "investigated_at": "2026-08-19",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, self-corrected and reviewed by claude-sonnet-5",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-29T21:43:07Z",
+      "last_reconciled_at": "2026-08-29T21:53:36Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1534,7 +1534,7 @@
       "investigated_at": "2026-08-28",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-29T21:43:07Z",
+      "last_reconciled_at": "2026-08-29T21:53:36Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -1605,7 +1605,7 @@
       "investigated_at": "2026-08-28",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-29T21:43:07Z",
+      "last_reconciled_at": "2026-08-29T21:53:36Z",
       "last_seen_count": 1316,
       "last_seen_examples": [
         {
@@ -1708,7 +1708,7 @@
       "investigated_at": "2026-08-19",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed by claude-sonnet-5",
       "language": "cobol",
-      "last_reconciled_at": "2026-08-29T21:43:07Z",
+      "last_reconciled_at": "2026-08-29T21:53:36Z",
       "last_seen_count": 45,
       "last_seen_examples": [
         {
@@ -1812,7 +1812,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1854,7 +1854,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1896,7 +1896,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 84,
       "last_seen_examples": [
         {
@@ -2010,7 +2010,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -2124,7 +2124,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -2166,7 +2166,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 61,
       "last_seen_examples": [
         {
@@ -2280,7 +2280,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2312,7 +2312,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2343,7 +2343,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 76,
       "last_seen_examples": [
         {
@@ -2447,7 +2447,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -2561,7 +2561,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2594,7 +2594,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 30,
       "last_seen_examples": [
         {
@@ -2708,7 +2708,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -2822,7 +2822,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -2935,7 +2935,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 64,
       "last_seen_examples": [
         {
@@ -3039,7 +3039,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 136,
       "last_seen_examples": [
         {
@@ -3152,7 +3152,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "cpp",
-      "last_reconciled_at": "2026-08-29T21:43:10Z",
+      "last_reconciled_at": "2026-08-29T21:53:42Z",
       "last_seen_count": 195,
       "last_seen_examples": [
         {
@@ -3256,7 +3256,7 @@
       "investigated_at": "2026-08-21T18:13:27Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -3361,7 +3361,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3430,7 +3430,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -3507,7 +3507,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -3606,7 +3606,7 @@
       "investigated_at": "2026-08-21T20:06:45Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3639,7 +3639,7 @@
       "investigated_at": "2026-08-21T20:06:45Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -3729,7 +3729,7 @@
       "investigated_at": "2026-08-21T20:06:45Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -3770,7 +3770,7 @@
       "investigated_at": "2026-08-21T20:06:45Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3803,7 +3803,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 26,
       "last_seen_examples": [
         {
@@ -3907,7 +3907,7 @@
       "investigated_at": "2026-08-21T18:13:27Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 271,
       "last_seen_examples": [
         {
@@ -4021,7 +4021,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4081,7 +4081,7 @@
       "investigated_at": "2026-08-21T18:13:27Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4114,7 +4114,7 @@
       "investigated_at": "2026-08-21T18:13:44Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 108,
       "last_seen_examples": [
         {
@@ -4230,7 +4230,7 @@
       "investigated_at": "2026-08-21T21:45:53Z",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 46,
       "last_seen_examples": [
         {
@@ -4343,7 +4343,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 317,
       "last_seen_examples": [
         {
@@ -4447,7 +4447,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "csharp",
-      "last_reconciled_at": "2026-08-29T21:43:13Z",
+      "last_reconciled_at": "2026-08-29T21:53:48Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4480,7 +4480,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "css",
-      "last_reconciled_at": "2026-08-29T21:43:15Z",
+      "last_reconciled_at": "2026-08-29T21:53:49Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -4529,7 +4529,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-29T21:43:17Z",
+      "last_reconciled_at": "2026-08-29T21:53:54Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -4600,7 +4600,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-29T21:43:17Z",
+      "last_reconciled_at": "2026-08-29T21:53:54Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -4703,7 +4703,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "dart",
-      "last_reconciled_at": "2026-08-29T21:43:17Z",
+      "last_reconciled_at": "2026-08-29T21:53:54Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -4799,7 +4799,7 @@
       "investigated_at": "2026-08-21T23:35:49Z",
       "investigated_by": "Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -4900,7 +4900,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4932,7 +4932,7 @@
       "investigated_at": "2026-08-21T00:00:00Z",
       "investigated_by": "Claude Sonnet 5, direct investigation (surfaced while re-blessing the tri-comparison chart after #1973/#1985)",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4964,7 +4964,7 @@
       "investigated_at": "2026-08-21T23:35:49Z",
       "investigated_by": "Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4995,7 +4995,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5027,7 +5027,7 @@
       "investigated_at": "2026-08-21T23:35:49Z",
       "investigated_by": "Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -5141,7 +5141,7 @@
       "investigated_at": "2026-08-21T23:35:49Z",
       "investigated_by": "Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5185,7 +5185,7 @@
       "investigated_at": "2026-08-21T23:35:49Z",
       "investigated_by": "Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5217,7 +5217,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "fortran",
-      "last_reconciled_at": "2026-08-29T21:43:22Z",
+      "last_reconciled_at": "2026-08-29T21:54:00Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -5326,7 +5326,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "go",
-      "last_reconciled_at": "2026-08-29T21:43:24Z",
+      "last_reconciled_at": "2026-08-29T21:54:03Z",
       "last_seen_count": 75,
       "last_seen_examples": [
         {
@@ -5438,7 +5438,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "go",
-      "last_reconciled_at": "2026-08-29T21:43:24Z",
+      "last_reconciled_at": "2026-08-29T21:54:03Z",
       "last_seen_count": 75,
       "last_seen_examples": [
         {
@@ -5542,7 +5542,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -5654,7 +5654,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -5759,7 +5759,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5792,7 +5792,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5825,7 +5825,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 102,
       "last_seen_examples": [
         {
@@ -5939,7 +5939,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (dispatched agent investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 69,
       "last_seen_examples": [
         {
@@ -6055,7 +6055,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (session investigation)",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6087,7 +6087,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6119,7 +6119,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "haskell",
-      "last_reconciled_at": "2026-08-29T21:43:27Z",
+      "last_reconciled_at": "2026-08-29T21:54:05Z",
       "last_seen_count": 91,
       "last_seen_examples": [
         {
@@ -6233,7 +6233,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "html",
-      "last_reconciled_at": "2026-08-29T21:43:28Z",
+      "last_reconciled_at": "2026-08-29T21:54:06Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6266,7 +6266,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "html",
-      "last_reconciled_at": "2026-08-29T21:43:28Z",
+      "last_reconciled_at": "2026-08-29T21:54:06Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6299,7 +6299,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -6413,7 +6413,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -6527,7 +6527,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 28,
       "last_seen_examples": [
         {
@@ -6640,7 +6640,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6673,7 +6673,7 @@
       "investigated_at": "2026-08-22T01:15:53Z",
       "investigated_by": "Sonnet 5, direct investigation via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6724,7 +6724,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 315,
       "last_seen_examples": [
         {
@@ -6838,7 +6838,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "java",
-      "last_reconciled_at": "2026-08-29T21:43:30Z",
+      "last_reconciled_at": "2026-08-29T21:54:08Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6889,7 +6889,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 93,
       "last_seen_examples": [
         {
@@ -7003,7 +7003,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7090,7 +7090,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7130,7 +7130,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 45,
       "last_seen_examples": [
         {
@@ -7234,7 +7234,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -7348,7 +7348,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -7426,7 +7426,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 265,
       "last_seen_examples": [
         {
@@ -7542,7 +7542,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 189,
       "last_seen_examples": [
         {
@@ -7655,7 +7655,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 194,
       "last_seen_examples": [
         {
@@ -7759,7 +7759,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-08-29T21:44:29Z",
+      "last_reconciled_at": "2026-08-29T21:54:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7792,7 +7792,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-29T21:43:35Z",
+      "last_reconciled_at": "2026-08-29T21:54:13Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7845,7 +7845,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-29T21:43:35Z",
+      "last_reconciled_at": "2026-08-29T21:54:13Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -7959,7 +7959,7 @@
       "investigated_at": "2026-08-22T11:45:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-29T21:43:35Z",
+      "last_reconciled_at": "2026-08-29T21:54:13Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7992,7 +7992,7 @@
       "investigated_at": "2026-08-22T11:40:48Z",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep (direct investigation, no Gemini dispatch -- small occurrence counts, answer was directly checkable)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-08-29T21:43:35Z",
+      "last_reconciled_at": "2026-08-29T21:54:13Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8025,7 +8025,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8056,7 +8056,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 42,
       "last_seen_examples": [
         {
@@ -8170,7 +8170,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8248,7 +8248,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8290,7 +8290,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 486,
       "last_seen_examples": [
         {
@@ -8404,7 +8404,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -8518,7 +8518,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8551,7 +8551,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "lua",
-      "last_reconciled_at": "2026-08-29T21:43:39Z",
+      "last_reconciled_at": "2026-08-29T21:54:19Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -8666,7 +8666,7 @@
       "investigated_at": "2026-08-24T03:52:19Z",
       "investigated_by": "Antigravity (direct source read)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-29T21:43:41Z",
+      "last_reconciled_at": "2026-08-29T21:54:20Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -8723,7 +8723,7 @@
       "investigated_at": "2026-08-24T03:52:19Z",
       "investigated_by": "Antigravity (direct source read)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-29T21:43:41Z",
+      "last_reconciled_at": "2026-08-29T21:54:20Z",
       "last_seen_count": 76,
       "last_seen_examples": [
         {
@@ -8828,7 +8828,7 @@
       "investigated_at": "2026-08-24T03:52:19Z",
       "investigated_by": "Antigravity (direct source read)",
       "language": "m4",
-      "last_reconciled_at": "2026-08-29T21:43:41Z",
+      "last_reconciled_at": "2026-08-29T21:54:20Z",
       "last_seen_count": 36,
       "last_seen_examples": [
         {
@@ -8932,7 +8932,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "makefile",
-      "last_reconciled_at": "2026-08-29T21:43:42Z",
+      "last_reconciled_at": "2026-08-29T21:54:21Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8967,7 +8967,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "matlab",
-      "last_reconciled_at": "2026-08-29T21:43:44Z",
+      "last_reconciled_at": "2026-08-29T21:54:22Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9000,7 +9000,7 @@
       "investigated_at": "2026-08-25T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9044,7 +9044,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 89,
       "last_seen_examples": [
         {
@@ -9158,7 +9158,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 104,
       "last_seen_examples": [
         {
@@ -9274,7 +9274,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9306,7 +9306,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9340,7 +9340,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9381,7 +9381,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "objective-c",
-      "last_reconciled_at": "2026-08-29T21:43:45Z",
+      "last_reconciled_at": "2026-08-29T21:54:23Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9421,7 +9421,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9454,7 +9454,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9486,7 +9486,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9516,7 +9516,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -9630,7 +9630,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -9717,7 +9717,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -9806,7 +9806,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9840,7 +9840,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9872,7 +9872,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation correcting a prior misdiagnosis",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -9985,7 +9985,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "perl",
-      "last_reconciled_at": "2026-08-29T21:43:49Z",
+      "last_reconciled_at": "2026-08-29T21:54:30Z",
       "last_seen_count": 122,
       "last_seen_examples": [
         {
@@ -10089,12 +10089,12 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "php",
-      "last_reconciled_at": "2026-08-29T21:43:52Z",
+      "last_reconciled_at": "2026-08-29T21:54:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
           "file_path": "laravel_core/BladeCompiler.php",
-          "name": "AnonymousClassda5cee600100",
+          "name": "AnonymousClassa08aab890100",
           "readings": {
             "ctags": 342,
             "gitgalaxy": null,
@@ -10122,7 +10122,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "php",
-      "last_reconciled_at": "2026-08-29T21:43:52Z",
+      "last_reconciled_at": "2026-08-29T21:54:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10155,7 +10155,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "php",
-      "last_reconciled_at": "2026-08-29T21:43:52Z",
+      "last_reconciled_at": "2026-08-29T21:54:36Z",
       "last_seen_count": 68,
       "last_seen_examples": [
         {
@@ -10268,7 +10268,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "php",
-      "last_reconciled_at": "2026-08-29T21:43:52Z",
+      "last_reconciled_at": "2026-08-29T21:54:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10300,7 +10300,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -10405,7 +10405,7 @@
       "investigated_at": "2026-08-29",
       "investigated_by": "Claude Sonnet 5, dispatched via tri-comparison-ledger-sweep",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10436,7 +10436,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -10505,7 +10505,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10538,7 +10538,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -10651,7 +10651,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "powershell",
-      "last_reconciled_at": "2026-08-29T21:43:55Z",
+      "last_reconciled_at": "2026-08-29T21:54:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10683,7 +10683,7 @@
       "investigated_at": "2026-08-21T03:23:52Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10742,7 +10742,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -10798,7 +10798,7 @@
       "investigated_at": "2026-08-21T03:23:52Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10831,7 +10831,7 @@
       "investigated_at": "2026-08-21T12:03:03Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 100,
       "last_seen_examples": [
         {
@@ -10947,7 +10947,7 @@
       "investigated_at": "2026-08-21T12:03:03Z",
       "investigated_by": "claude sonnet 5, tri-comparison-ledger-sweep (direct investigation, no dispatch needed)",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -11016,7 +11016,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -11084,7 +11084,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "python",
-      "last_reconciled_at": "2026-08-29T21:44:00Z",
+      "last_reconciled_at": "2026-08-29T21:54:52Z",
       "last_seen_count": 100,
       "last_seen_examples": [
         {
@@ -11190,7 +11190,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "ruby",
-      "last_reconciled_at": "2026-08-29T21:44:02Z",
+      "last_reconciled_at": "2026-08-29T21:54:53Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -11232,7 +11232,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "ruby",
-      "last_reconciled_at": "2026-08-29T21:44:02Z",
+      "last_reconciled_at": "2026-08-29T21:54:53Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -11310,7 +11310,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "ruby",
-      "last_reconciled_at": "2026-08-29T21:44:02Z",
+      "last_reconciled_at": "2026-08-29T21:54:53Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11361,7 +11361,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "ruby",
-      "last_reconciled_at": "2026-08-29T21:44:02Z",
+      "last_reconciled_at": "2026-08-29T21:54:53Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -11439,7 +11439,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "ruby",
-      "last_reconciled_at": "2026-08-29T21:44:02Z",
+      "last_reconciled_at": "2026-08-29T21:54:53Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -11535,7 +11535,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -11649,7 +11649,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11702,7 +11702,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -11815,7 +11815,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -11921,7 +11921,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11972,7 +11972,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep, 2 rounds with self-correction), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -12084,7 +12084,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Gemini (dispatched via tri-comparison-ledger-sweep), confirmed by Claude Sonnet 5",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -12198,7 +12198,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 83,
       "last_seen_examples": [
         {
@@ -12312,7 +12312,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12345,7 +12345,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved directly via live ctags run, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12380,7 +12380,7 @@
       "investigated_at": "2026-08-19T00:00:00Z",
       "investigated_by": "Claude Sonnet 5 (resolved from existing Claim 6 documentation, no dispatch)",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -12493,7 +12493,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "rust",
-      "last_reconciled_at": "2026-08-29T21:44:04Z",
+      "last_reconciled_at": "2026-08-29T21:54:58Z",
       "last_seen_count": 152,
       "last_seen_examples": [
         {
@@ -12599,7 +12599,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "scala",
-      "last_reconciled_at": "2026-08-29T21:44:06Z",
+      "last_reconciled_at": "2026-08-29T21:55:00Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -12702,7 +12702,7 @@
       "investigated_at": "2026-08-20",
       "investigated_by": "gemini-3.1-pro-high (agy), dispatched via tri-comparison-ledger-sweep, reviewed and fixed by claude-sonnet-5",
       "language": "scheme",
-      "last_reconciled_at": "2026-08-29T21:44:09Z",
+      "last_reconciled_at": "2026-08-29T21:55:05Z",
       "last_seen_count": 84,
       "last_seen_examples": [
         {
@@ -12809,7 +12809,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "scheme",
-      "last_reconciled_at": "2026-08-29T21:44:09Z",
+      "last_reconciled_at": "2026-08-29T21:55:05Z",
       "last_seen_count": 50,
       "last_seen_examples": [
         {
@@ -12911,7 +12911,7 @@
       "investigated_at": "2026-08-28T23:59:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-29T21:44:12Z",
+      "last_reconciled_at": "2026-08-29T21:55:09Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -13025,7 +13025,7 @@
       "investigated_at": "2026-08-28T23:59:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-29T21:44:12Z",
+      "last_reconciled_at": "2026-08-29T21:55:09Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -13139,7 +13139,7 @@
       "investigated_at": "2026-08-28T23:59:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-29T21:44:12Z",
+      "last_reconciled_at": "2026-08-29T21:55:09Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13181,7 +13181,7 @@
       "investigated_at": "2026-08-28T23:59:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-29T21:44:12Z",
+      "last_reconciled_at": "2026-08-29T21:55:09Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -13295,7 +13295,7 @@
       "investigated_at": "2026-08-28T23:59:00Z",
       "investigated_by": "Claude (Sonnet 5), direct investigation via tri-comparison-ledger-sweep",
       "language": "shell",
-      "last_reconciled_at": "2026-08-29T21:44:12Z",
+      "last_reconciled_at": "2026-08-29T21:55:09Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13331,7 +13331,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "solidity",
-      "last_reconciled_at": "2026-08-29T21:44:13Z",
+      "last_reconciled_at": "2026-08-29T21:55:10Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -13401,7 +13401,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-29T21:44:15Z",
+      "last_reconciled_at": "2026-08-29T21:55:11Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13442,7 +13442,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-29T21:44:15Z",
+      "last_reconciled_at": "2026-08-29T21:55:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13475,7 +13475,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "swift",
-      "last_reconciled_at": "2026-08-29T21:44:15Z",
+      "last_reconciled_at": "2026-08-29T21:55:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13507,7 +13507,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13545,7 +13545,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13587,7 +13587,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -13649,7 +13649,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13681,7 +13681,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13725,7 +13725,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13770,7 +13770,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "tcl",
-      "last_reconciled_at": "2026-08-29T21:44:16Z",
+      "last_reconciled_at": "2026-08-29T21:55:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13810,7 +13810,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13852,7 +13852,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -13964,7 +13964,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -14024,7 +14024,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14057,7 +14057,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -14144,7 +14144,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 204,
       "last_seen_examples": [
         {
@@ -14258,7 +14258,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 2223,
       "last_seen_examples": [
         {
@@ -14374,7 +14374,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14415,7 +14415,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14457,7 +14457,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -14509,7 +14509,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-08-29T21:44:32Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {
@@ -14612,7 +14612,7 @@
       "investigated_at": "2026-08-27",
       "investigated_by": "claude-sonnet-5, dispatched via tri-comparison-ledger-sweep",
       "language": "yacc",
-      "last_reconciled_at": "2026-08-29T21:44:21Z",
+      "last_reconciled_at": "2026-08-29T21:55:22Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -14719,7 +14719,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-29T21:44:36Z",
+      "last_reconciled_at": "2026-08-29T21:55:32Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14754,7 +14754,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-29T21:44:36Z",
+      "last_reconciled_at": "2026-08-29T21:55:32Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14797,7 +14797,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-08-29T21:44:36Z",
+      "last_reconciled_at": "2026-08-29T21:55:32Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

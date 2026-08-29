@@ -370,6 +370,95 @@ lines that broke `func_start` confirmed the identical false-positive, requiring 
 same PR). A shared root cause fixed in only one of two structurally-identical rule keys is a
 half-fixed bug, not a complete one.
 
+## 2.6. The recall audit -- MANDATORY, every function GitGalaxy does not detect gets individually assessed
+
+**This is a validation GATE, not an optional deep-dive. A language's tri-comparison work is not
+"done" -- step 8's capstone must not be written -- until every function tree-sitter OR ctags
+reports that GitGalaxy does not, across the WHOLE corpus, has been individually looked at and
+sorted into exactly one of the two buckets below.** The point is a hard guarantee: *we know
+whether GitGalaxy is missing anything real, per language, and it is written down.*
+
+Why this needs to be its own step and can't be left to per-shape investigation: the ledger's
+shapes are keyed by discrepancy *pattern*. A shape like `<lang>/function/existence/
+agree[tree_sitter]_vs[ctags,gitgalaxy]` can be marked `status: validated` with a verdict of
+"tree-sitter over-detects here" **without anyone having confirmed that every occurrence in that
+bucket is a tree-sitter error rather than a GitGalaxy miss.** A blanket verdict silently hides a
+real recall gap sitting in the same bucket. Confirmed, not hypothetical (2026-08-29, cpp): the
+`agree[tree_sitter]_vs[ctags,gitgalaxy]` bucket had ~164 occurrences; ~96 were `OPCODE(...)`
+bytecode-dispatch-macro hallucinations, ~60 were `_FORCE_INLINE_`-macro mis-parses and bodyless
+`= delete`/`= default` special members -- all tree-sitter's fault -- but **~2 were genuine
+GitGalaxy recall gaps** (`STDAPI DllCanUnloadNow()` macro-return-type form; K&R-style
+`PRIVATE void PlinkPrint(out,plp,tag)` with untyped param declarations on the following lines)
+that the "tree-sitter over-detects" framing would have buried forever.
+
+### How to run it
+
+Do it per language, against BOTH tools, at the OCCURRENCE level (not just name-set diff -- a name
+GitGalaxy finds 3 times and tree-sitter finds 5 times is 2 unassessed non-detections). Use
+`tests/tools/recall_audit.py` (`python tests/tools/recall_audit.py <lang> [<lang> ...]`, or no
+args for the full set) -- it enumerates every `tree-sitter-finds / GitGalaxy-misses` and
+`ctags-only-finds / GitGalaxy-misses` occurrence with its source line, so the only thing left is
+reading source and classifying. It also cross-checks `measure()`'s own `real_functions -
+found_functions` (the number the published accuracy table's recall is computed from) so a
+divergence between the raw name-diff and the audit's counted misses is itself surfaced.
+
+### The two buckets -- every non-detection lands in exactly one
+
+1. **A real GitGalaxy recall gap.** A body-bearing definition, in live (non-dead-code) source,
+   that GitGalaxy's `func_start` genuinely does not match or that `detector.py`'s slicing drops.
+   -> **GitHub issue with an isolated repro** (the exact source form + the minimal failing case),
+   same standing rule as step 4.3's bucket 1. Group multiple occurrences of the *same* form into
+   one issue. If the fix is small and well-scoped (a regex widening with a regression check),
+   ship it in the same pass per bucket 1's extension.
+
+2. **A comparison-tool or audit-tool artifact -- GitGalaxy is correct.** Name the specific
+   mechanism; do not accept a vague "tree-sitter over-detects." The mechanisms seen so far, each
+   with a different correct resolution:
+   - **Macro-invocation hallucination** (`OPCODE(X) {`, `ENTRY(X): {`, `IFACEMETHOD_(...)`) --
+     tree-sitter/ctags read a function-like macro call as a definition. Resolution: the audit's
+     tree-sitter walk must filter it. C already has `_C_KNOWN_MACRO_HALLUCINATIONS`; add/extend
+     the per-language set (`_CPP_KNOWN_MACRO_HALLUCINATIONS`, ...) rather than leaving the audit
+     to count it against GitGalaxy's recall forever.
+   - **Dead preprocessor code** (`#if 0 ... #endif`, `#if FALSE`) -- tree-sitter has no
+     preprocessor model and parses the dead branch. Resolution: detect the guard and drop those
+     tree-sitter functions from ground truth (this is `docs/why_gitgalaxy_beats_ast_here.md`
+     Claim 8's exact shape -- add the concrete citations there too).
+   - **Bodyless declaration** -- a forward declaration / prototype / `= default` / `= delete`
+     special member / abstract signature with no body. GitGalaxy deliberately only counts
+     body-bearing definitions. Resolution: the audit already drops these for perl/typescript;
+     extend the drop to the language in hand.
+   - **Deliberate scope boundary** -- a nested closure GitGalaxy does not record as a peer node
+     (shell `zgrep` inside an `if` guard, a 2-levels-deep lambda). Already an accepted design
+     choice; confirm the verdict says so and move on.
+   - **Naming-convention mismatch** -- both tools found it, they just name it differently
+     (`operator String() const` vs `operator String`; ctags' full ObjC selector `linkTo:` vs
+     GitGalaxy's `linkTo`; tree-sitter naming `- unsigned char foo` by the return type
+     `unsigned`). Resolution: canonicalize the tree-sitter/ctags name to GitGalaxy's convention
+     in the shared reader (`_get_node_name` / `ctags_reader.py`), OR document the mapping. NOT a
+     recall gap -- the function is found.
+   - **Occurrence-alignment fuzz** -- a name defined many times where the rank/line pairing in
+     `_align_occurrences_by_line` leaves a phantom "unmatched real" even though GitGalaxy's own
+     count for that name is correct. Resolution: confirm GitGalaxy's occurrence count matches the
+     real source count for that name, note it, and (if it's inflating a published number) widen
+     the pairing tolerance.
+
+### Log the cleared result
+
+The language's capstone §9 (step 8) must state, explicitly: the recall number, that **every**
+non-detection was individually assessed, the count in each bucket, and -- for bucket 2 -- the
+per-mechanism breakdown with at least one real `file:line` per mechanism. A capstone that just
+says "recall 98.6%" without the assessment breakdown is not finished. If any audit-tool fix from
+bucket 2 changed the published recall/precision number, the capstone and the summary table must
+both reflect the post-fix number, and the baseline is regenerated.
+
+### Cross-language, once
+
+After the per-language passes, run `recall_audit.py` with no args one time and confirm the only
+remaining `tree-sitter-finds / GitGalaxy-misses` occurrences anywhere are the ones already filed
+as issues. That list -- ideally short, every entry pointing at an open issue -- is the standing
+answer to "is GitGalaxy missing anything," and belongs in `docs/self_scan/
+tri_comparison_README.md` so it doesn't have to be re-derived.
+
 ## 3. Dispatch to Gemini -- read-only, no worktree, self-contained prompt
 
 Use `Agent` with `subagent_type: gemini-analyzer`, `run_in_background: true`. One dispatch per
@@ -590,8 +679,12 @@ PR sit open and rot into a conflict is now proactive by default.
 ## 8. Capstone: when a language's backlog clears, write it up before moving on
 
 **Trigger:** every currently-reproducing shape for a language is `status: "validated"` (check with
-the same query step 1 uses, filtered to that language, confirming zero results). Do this BEFORE
-starting the next language, not as a someday follow-up -- the whole reason it's cheap right now is
+the same query step 1 uses, filtered to that language, confirming zero results) **AND step 2.6's
+recall audit for that language is complete -- every function GitGalaxy does not detect has been
+individually assessed and sorted, with the breakdown ready to write into §9.** Both conditions,
+not just the first: a fully-`validated` ledger with an unaudited recall gap is exactly the
+silent-miss failure step 2.6 exists to prevent. Do this BEFORE starting the next language, not as
+a someday follow-up -- the whole reason it's cheap right now is
 that every file:line citation, every confirmed mechanism, and every "is this GitGalaxy's fault"
 verdict is still loaded in this session's context. Reconstructing that same picture from a cold
 read of the ledger later costs real tokens and real judgment a fresh session doesn't have for
@@ -624,6 +717,10 @@ Two things to produce, both while the context is cheap:
    - Summary stats: shapes investigated, occurrences covered, confirmed GitGalaxy engine defects
      found (compare across languages -- `rust` found 2 real ones, `c` found zero, and that
      contrast IS the finding, not a gap in one or the other).
+   - **The step 2.6 recall-audit result**: the recall number, "every non-detection individually
+     assessed", the bucket-1 count (real gaps, each linked to its issue) and the bucket-2
+     per-mechanism breakdown with a real `file:line` each. This is the part that lets a reader
+     trust the recall number instead of taking it on faith.
    - "Where GitGalaxy wins outright" -- the confirmed cases, with real file:line citations, not
      hand-wavy summaries.
    - "Where the other tools have real, documented gaps" -- same standard.

@@ -69,6 +69,29 @@ same repo: `credit_tools` only makes sense for a shape where ONE tool's claim wa
 crediting a tool that's already in a 2-of-3 agreeing pair double-counts, since that pair already
 gets precision credit from the base reconciliation).
 
+## The recall audit: is GitGalaxy missing anything?
+
+A validated shape verdict says what's true about a *pattern* — it does not, on its own, prove
+that every occurrence in that pattern's bucket is a tree-sitter/ctags error and not a real
+GitGalaxy miss hiding among them (cpp, 2026-08-29: ~164 "misses" in one bucket, ~162 tree-sitter
+macro/parse artifacts, 2 genuine GitGalaxy recall gaps the "tree-sitter over-detects" verdict
+would have buried). So the `tri-comparison-ledger-sweep` skill's **step 2.6** requires a
+separate, occurrence-level pass: every function tree-sitter OR ctags reports that GitGalaxy does
+not is individually read and sorted into either a filed GitHub issue (a real recall gap) or a
+named tool/audit artifact (macro hallucination, `#if 0` dead code, bodyless declaration,
+deliberate scope boundary, naming-convention mismatch, occurrence-alignment fuzz). Run
+`python tests/tools/recall_audit.py` (no args = every language) to enumerate them; a language's
+step 8 capstone is not done until its list is empty of unassessed entries.
+
+**Standing answer — the only real GitGalaxy function-recall gaps across the whole corpus:**
+
+<!-- RECALL_AUDIT:BEGIN -->
+_(populated by the sweep — each entry is `<lang>: <source form> -> #<issue>`)_
+<!-- RECALL_AUDIT:END -->
+
+Everything else `recall_audit.py` prints is a comparison-tool artifact, catalogued per language
+in that language's `docs/language_status/<lang>.md` §9.
+
 ## The catalog: confirmed, evidenced differences between the three tools
 
 This is the part `docs/self_scan/README.md` was missing — not a live list of open questions (that's

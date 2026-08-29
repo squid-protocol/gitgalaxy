@@ -1783,6 +1783,15 @@ class StructuralExtractor:
             # raises IndexError rather than returning None.
             if m.groupdict().get("comment") is not None:
                 return ""
+            if m.groupdict().get("heredoc") is not None:
+                # A real heredoc opener (`cat << 'EOF'`, `sed ... <<-EOT`) --
+                # return it verbatim so the quote pass does NOT rewrite the
+                # (very often quoted) delimiter to `''`/`""` before step 2's
+                # heredoc state-machine can register it. Only reached when the
+                # `<<` is in command position, not inside an already-matched
+                # string (regex alternation is left-to-right, the real string
+                # wins first), so `echo "x <<EOF"` is still blanked whole.
+                return m.group(0)
             return '""' + "\n" * m.group(0).count("\n")
 
         # 1. Advanced Atomic Quotes
@@ -1798,10 +1807,21 @@ class StructuralExtractor:
         # false-open a "string" spanning to the next unrelated `'` and corrupt
         # the open/close keyword counting this shield exists to protect.
         # Gated to matlab only via `lang_id` (not added to the shared default
-        # set) so shell/ruby/lua/elixir/vb's existing marker set is untouched.
+        # set) so ruby/lua/elixir/vb's existing marker set is untouched.
         comment_markers = r"#|--|//"
         if lang_id == "matlab":
             comment_markers = r"%|#|--|//"
+        elif lang_id in ("shell", "bash"):
+            # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
+            # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has
+            # no comment meaning at all -- both appear constantly in ordinary
+            # command invocations. Leaving them in the shared set let ` --flag "…`
+            # be eaten as a "comment", orphaning the opening quote of a real
+            # (often multi-line) string and desynchronizing every subsequent
+            # quote/keyword count in `_slice_by_keywords` -- confirmed to drop
+            # ~10 top-level functions from a single crucible file
+            # (haiku/HardwareChecker.sh) after one `alert --stop "…"` call.
+            comment_markers = r"#"
         # Standard strings can span multiple lines natively in some languages.
         # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
         # by newline to prevent an unclosed quote from swallowing the rest of the file.
@@ -1810,8 +1830,22 @@ class StructuralExtractor:
         standard_double = r'(?<!\\)"(?:\\.|[^"\\])*"' if ml_aware else r'(?<!\\)"(?:\\.|[^"\\\n\r])*"'
         standard_single = r"(?<!\\)'(?:\\.|[^'\\])*'" if ml_aware else r"(?<!\\)'(?:\\.|[^'\\\n\r])*'"
 
+        # For heredoc-capable scripting languages, match a real heredoc opener
+        # BEFORE the quote alternatives so `<< 'EOF'` / `<<-"EOT"` keeps its
+        # quoted delimiter intact for step 2's heredoc state-machine (the quote
+        # pass would otherwise rewrite `'EOF'` -> `''` and the delimiter would
+        # be lost, leaving the entire heredoc body live to corrupt the Mode-D
+        # depth stack). `preserve_newlines` returns this match verbatim.
+        # Scoped to shell/bash: ruby's `<<` is also the append operator and
+        # elixir's is the bitstring builder, both of which this would false-match.
+        heredoc_opener_alt = (
+            r"(?P<heredoc><<[-~]?[ \t]*(?:'[A-Za-z_]\w*'|\"[A-Za-z_]\w*\"|[A-Za-z_]\w*))|"
+            if lang_id in ("shell", "bash")
+            else ""
+        )
+
         atomic_string_pattern = (
-            r'""".*?"""|'  # Python Triple Double
+            heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)

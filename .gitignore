@@ -17,6 +17,12 @@ env/
 .venv/
 .crucible_venvs/
 .ast_accuracy_corpus/
+# A language-crucible corpus checkout belongs in a SIBLING dir (../language-crucible),
+# never inside the repo -- an in-repo clone gets ingested by galaxyscope self-scans and
+# poisons the golden masters (see .claude/rules/golden-master-guidelines.md). Backstop
+# the known names so a stray clone can never be committed or scanned as tracked content.
+/language-crucible/
+/language-crucible-local/
 flask_session/
 
 # PYPI PACKAGING & BUILD ARTIFACTS

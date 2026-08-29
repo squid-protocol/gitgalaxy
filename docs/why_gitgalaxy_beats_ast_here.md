@@ -73,6 +73,14 @@ tracking where else it shows up rather than letting bash/perl stand in as the on
   already reads the same `$1`/`$2`/`$@`/`$#` body idiom (`gitgalaxy/standards/language_standards.py`,
   m4's `"args"` rule) — this is a second, real instance of Claim 1, just never separately logged
   until now.
+- **shell, re-confirmed 3-way (2026-08-28, tri-comparison-ledger-sweep)** — the ledger's
+  `shell/function/args/agree[none]_vs[gitgalaxy,tree_sitter]` shape is exactly this claim seen from
+  the tri-comparison side: `tree-sitter-bash` emits a `function_definition` with a
+  spurious 1-element parameter list for some shell functions (a grammar artifact — POSIX shell has
+  no parameter-list syntax), `ctags` emits no `signature:` field for shell at all, and GitGalaxy's
+  `$1`/`$2`/`$@` body-scan proxy is the only reading that reflects real arity. Not new evidence for
+  Claim 1's mechanism, but an independent corroboration that the tree-sitter number is the artifact
+  and GitGalaxy's is the signal.
 - **batch** (`.bat`/`.cmd`) — same shape again (`%1`-`%9`, `%*` read from the body, no declared
   parameter list), but **not yet implemented**: batch's entry in `language_standards.py` currently
   has `"rules": {}` — no `func_start`, no `args`, no structural signatures of any kind extracted
@@ -400,6 +408,26 @@ lines. GitGalaxy's regex has no such adjacency sensitivity and finds all 4 corre
 tree-sitter both miss all 4. Unlike the csharp/javascript cascades above, this recovers
 immediately (only the one adjacent function is lost, not everything downstream) — a third,
 narrower recovery shape worth naming alongside the other two rather than assuming either.
+
+## A fourth confirmed instance: shell/bash, a `;` inside a `${var:+word}` expansion (2026-08-28, tri-comparison-ledger-sweep)
+
+Found via `shell/function/existence/agree[ctags,gitgalaxy]_vs[tree_sitter]` (11 occurrences,
+`moby/check-config.sh`). `tree-sitter-bash` parses an ordinary use-alternative parameter expansion
+(`${codes:+$codes}`) fine, but treats a `;` **inside** the alternative word as a real command
+separator and errors on it. Minimized standalone:
+```bash
+f() { v="${codes:+$codes;}"; }   # tree.root_node.has_error == True
+g() { echo hi; }                 # never parsed -- function_definition count is 0, not 2
+```
+`${x:+y}` parses clean; `${x:+a;b}` errors but recovers the surrounding functions; the corpus's
+actual `${codes:+$codes;}` shape (a `;` followed by a `$`-expansion) is the *total*-loss variant —
+`has_error` is `True` and tree-sitter finds **zero** `function_definition` nodes in the whole file.
+In `moby/check-config.sh` that one line inside `color()` (line 72) costs tree-sitter every
+top-level function from `color` onward — `wrap_color`, `wrap_good`, `wrap_bad`, `check_flag`,
+`check_flags` and the rest — 11 ordinary `name() { ... }` definitions that GitGalaxy's `${...}`-
+shielding regex and Universal Ctags' hand-written scanner both find correctly. Same "one construct
+the grammar mishandles flattens the rest of the file into an `ERROR` region" mechanism as the
+csharp and javascript cascades above, on a third grammar.
 
 ## Where Claim 3 does NOT apply
 

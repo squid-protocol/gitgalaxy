@@ -138,6 +138,7 @@ ALLOWLIST = {
     # group defined inline via (?P<comment>...) in the same function, not a
     # dict this walker can trace a producer for.
     "comment": "regex named-capture-group (?P<comment>...), not a dict key (detector.py, #1184)",
+    "heredoc": "regex named-capture-group (?P<heredoc>...) in _apply_literal_shield, not a dict key (detector.py, #2405)",
 }
 
 

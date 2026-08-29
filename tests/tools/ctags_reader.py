@@ -100,6 +100,15 @@ KIND MAPS
         structural ctags limitation, not a GitGalaxy or tree-sitter defect.
       - shell: no class-shaped kind either (alias/function/heredoc/script) -- matches GitGalaxy's
         and tree-sitter's own class_recall/precision being N/A for shell already.
+        Separately (function-side, not this class map): ctags' Sh parser tags a bare SCALAR
+        assignment as a function in some contexts -- `GREP_OPTS=`, `FILTERED_ENV=`, `_GROUPS=`,
+        `l=` all come back as `f`-kind tags (name includes the trailing `=`), where GitGalaxy and
+        tree-sitter both correctly ignore them. Not a curated name-exclusion here (same
+        ground-truth-judgment reasoning as the c macro-invocation note below). Investigated via
+        `shell/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter]` (44 occurrences, mixed:
+        this assignment false-positive plus a genuine ctags-only recall win on `sub`-style helpers
+        in `darwin-xnu/makesyscalls.sh` that GitGalaxy and tree-sitter both miss) -- the
+        false-positive half is a real ctags limitation, not a GitGalaxy or tree-sitter defect.
       - c: ctags' C parser misreads a MACRO INVOCATION (not a definition) as a real function
         when the macro name is used to generate boilerplate, e.g. cpython/typeobject.c's
         `RICHCMP_WRAPPER(lt, Py_LT)` and `SLOT1(slot_mp_subscript, __getitem__, PyObject *)` --
@@ -601,6 +610,7 @@ _CTAGS_SCOPE_KIND_KEYS = ("class", "struct", "namespace", "union", "enum", "inte
 # this set is complete.
 _QUALIFY_NAME_WITH_SCOPE = {"cpp"}
 
+
 # ctags' scope VALUE for a member of a class nested inside an outer namespace includes that
 # outer namespace as its own leading segment (`tensorflow::MlirOptimizationPassRegistry`,
 # `__anon50f1088d0111::Translator` for an ANONYMOUS namespace) -- a real, structurally correct
@@ -619,6 +629,7 @@ def _cpp_qualified_name_candidates(scope_value: str, name: str):
     segments = scope_value.split("::")
     for i in range(len(segments)):
         yield "::".join(segments[i:]) + "::" + name
+
 
 # universal-ctags' own C++ parser always renders an operator-overload tag name as `operator X`
 # (a literal space between the keyword and the symbol), regardless of whether the source itself

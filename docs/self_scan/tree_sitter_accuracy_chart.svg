@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1514"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-08-29T21:55:14+00:00 &#183; commit df68f70 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-08-29T22:44:49+00:00 &#183; commit fdf0243 &#183; 45 languages (31 tree-sitter-compared, 14 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -148,23 +148,20 @@
 <rect x="143" y="315.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="322.5">97 found</text>
 <text class="na-dash" x="149" y="332.5">n/a</text>
-<rect class="diff-outline" x="128.8" y="338.8" width="171.5" height="26.5" rx="3"/>
-<circle cx="135.5" cy="352.0" r="6" class="badge-ts"/>
-<text class="badge-text" x="135.5" y="354.5">T</text>
-<rect x="143" y="343.0" width="91.7" height="8" rx="2.5" fill="#292bd6"/>
-<text class="value-label" x="239.7" y="350.5">1713/1719</text>
+<rect x="143" y="343.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="240.0" y="350.5">1713/1713</text>
 <rect x="143" y="353.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="360.5">1719/1719</text>
+<text class="value-label" x="240.0" y="360.5">1713/1713</text>
 <rect x="143" y="371.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="378.5">1586 found</text>
 <text class="na-dash" x="149" y="388.5">n/a</text>
 <rect class="diff-outline" x="128.8" y="394.8" width="171.5" height="26.5" rx="3"/>
-<circle cx="135.5" cy="408.0" r="6" class="badge-ts"/>
-<text class="badge-text" x="135.5" y="410.5">T</text>
-<rect x="143" y="399.0" width="82.2" height="8" rx="2.5" fill="#2973d6"/>
-<text class="value-label" x="230.2" y="406.5">1369/1533</text>
-<rect x="143" y="409.0" width="89.5" height="8" rx="2.5" fill="#293cd6"/>
-<text class="value-label" x="237.5" y="416.5">1491/1533</text>
+<circle cx="135.5" cy="408.0" r="6" class="badge-gg"/>
+<text class="badge-text" x="135.5" y="410.5">G</text>
+<rect x="143" y="399.0" width="91.9" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="239.9" y="406.5">1369/1370</text>
+<rect x="143" y="409.0" width="91.4" height="8" rx="2.5" fill="#292dd6"/>
+<text class="value-label" x="239.4" y="416.5">1362/1370</text>
 <rect class="diff-outline" x="128.8" y="422.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="135.5" cy="436.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="135.5" y="438.5">G</text>
@@ -191,10 +188,10 @@
 <rect class="diff-outline" x="128.8" y="562.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="135.5" cy="576.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="135.5" y="578.5">G</text>
-<rect x="143" y="567.0" width="90.7" height="8" rx="2.5" fill="#2933d6"/>
-<text class="value-label" x="238.7" y="574.5">139/141</text>
-<rect x="143" y="577.0" width="80.2" height="8" rx="2.5" fill="#2982d6"/>
-<text class="value-label" x="228.2" y="584.5">123/141</text>
+<rect x="143" y="567.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="240.0" y="574.5">139/139</text>
+<rect x="143" y="577.0" width="81.4" height="8" rx="2.5" fill="#2979d6"/>
+<text class="value-label" x="229.4" y="584.5">123/139</text>
 <rect x="143" y="595.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="602.5">897/897</text>
 <rect x="143" y="605.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -245,11 +242,8 @@
 <text class="value-label" x="240.0" y="938.5">23/23</text>
 <rect x="143" y="941.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="948.5">23/23</text>
-<rect class="diff-outline" x="128.8" y="954.8" width="171.5" height="26.5" rx="3"/>
-<circle cx="135.5" cy="968.0" r="6" class="badge-ts"/>
-<text class="badge-text" x="135.5" y="970.5">T</text>
-<rect x="143" y="959.0" width="90.8" height="8" rx="2.5" fill="#2932d6"/>
-<text class="value-label" x="238.8" y="966.5">151/153</text>
+<rect x="143" y="959.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
+<text class="value-label" x="240.0" y="966.5">153/153</text>
 <rect x="143" y="969.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="976.5">153/153</text>
 <rect x="143" y="987.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -343,14 +337,17 @@
 <text class="badge-text" x="336.5" y="354.5">G</text>
 <rect x="344" y="343.0" width="91.5" height="8" rx="2.5" fill="#292cd6"/>
 <text class="value-label" x="440.5" y="350.5">1713/1722</text>
-<rect x="344" y="353.0" width="88.3" height="8" rx="2.5" fill="#2945d6"/>
-<text class="value-label" x="437.3" y="360.5">1719/1790</text>
+<rect x="344" y="353.0" width="88.2" height="8" rx="2.5" fill="#2945d6"/>
+<text class="value-label" x="437.2" y="360.5">1713/1787</text>
 <text class="na-dash" x="350" y="378.5">n/a</text>
 <text class="na-dash" x="350" y="388.5">n/a</text>
+<rect class="diff-outline" x="329.8" y="394.8" width="171.5" height="26.5" rx="3"/>
+<circle cx="336.5" cy="408.0" r="6" class="badge-gg"/>
+<text class="badge-text" x="336.5" y="410.5">G</text>
 <rect x="344" y="399.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="406.5">1369/1369</text>
-<rect x="344" y="409.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="416.5">1491/1491</text>
+<rect x="344" y="409.0" width="90.7" height="8" rx="2.5" fill="#2933d6"/>
+<text class="value-label" x="439.7" y="416.5">1362/1381</text>
 <rect x="344" y="427.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="434.5">964/964</text>
 <rect x="344" y="437.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -427,8 +424,8 @@
 <rect class="diff-outline" x="329.8" y="954.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="968.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="970.5">T</text>
-<rect x="344" y="959.0" width="90.3" height="8" rx="2.5" fill="#2936d6"/>
-<text class="value-label" x="439.3" y="966.5">151/154</text>
+<rect x="344" y="959.0" width="91.4" height="8" rx="2.5" fill="#292dd6"/>
+<text class="value-label" x="440.4" y="966.5">153/154</text>
 <rect x="344" y="969.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="976.5">153/153</text>
 <rect class="diff-outline" x="329.8" y="982.8" width="171.5" height="26.5" rx="3"/>
@@ -837,8 +834,8 @@
 <text class="badge-text" x="939.5" y="410.5">G</text>
 <rect x="947" y="399.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="1044.0" y="406.5">1369/1369</text>
-<rect x="947" y="409.0" width="89.1" height="8" rx="2.5" fill="#293ed6"/>
-<text class="value-label" x="1041.1" y="416.5">1327/1369</text>
+<rect x="947" y="409.0" width="80.0" height="8" rx="2.5" fill="#2983d6"/>
+<text class="value-label" x="1032.0" y="416.5">1191/1369</text>
 <rect class="diff-outline" x="932.8" y="422.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="436.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="939.5" y="438.5">G</text>
@@ -863,8 +860,8 @@
 <text class="badge-text" x="939.5" y="578.5">G</text>
 <rect x="947" y="567.0" width="91.4" height="8" rx="2.5" fill="#292ed6"/>
 <text class="value-label" x="1043.4" y="574.5">138/139</text>
-<rect x="947" y="577.0" width="80.1" height="8" rx="2.5" fill="#2982d6"/>
-<text class="value-label" x="1032.1" y="584.5">121/139</text>
+<rect x="947" y="577.0" width="43.7" height="8" rx="2.5" fill="#3ad629"/>
+<text class="value-label" x="995.7" y="584.5">66/139</text>
 <rect class="diff-outline" x="932.8" y="590.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="604.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="606.5">T</text>
@@ -925,9 +922,9 @@
 <rect x="947" y="941.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="1044.0" y="948.5">23/23</text>
 <rect x="947" y="959.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="966.5">151/151</text>
+<text class="value-label" x="1044.0" y="966.5">153/153</text>
 <rect x="947" y="969.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="976.5">151/151</text>
+<text class="value-label" x="1044.0" y="976.5">153/153</text>
 <rect class="diff-outline" x="932.8" y="982.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="996.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="939.5" y="998.5">G</text>

@@ -1894,6 +1894,61 @@ def _align_occurrences_by_line(
     return pairs, unmatched_real, unmatched_gg
 
 
+# #2421: HTML's `<script>` / `<style>` elements are containers -- the actual code lives in an
+# EMBEDDED language (JavaScript / CSS), which is exactly what GitGalaxy's own polyglot detector
+# descends into: `layout.html`'s `<style>` is reported by GitGalaxy as a function named `media`,
+# from the real `@media only screen { ... }` rule inside it. `tree-sitter-html` models that
+# content as opaque `raw_text` and `_get_node_name` has no branch for `script_element` /
+# `style_element`, so the tree-sitter side used to yield NOTHING for these -- turning GitGalaxy's
+# correct polyglot find into a permanent `extra_functions` / `0%` precision artifact. Injecting
+# the embedded grammar here (the same way css/javascript are already measured directly) makes the
+# comparison apples-to-apples: the `<style>`'s `media_statement` names `media`, matching GitGalaxy.
+_HTML_EMBEDDED_LANG = {"style_element": "css", "script_element": "javascript"}
+
+
+def _html_embedded_ts_funcs(element_node: Any) -> list[tuple[str, int, int, Any]]:
+    """For an HTML `<script>` / `<style>` element, parse its inline body with the embedded
+    grammar and return `[(name, abs_start_line, param_count, node), ...]` using the same
+    `func_node_types` / `_get_node_name` / `_get_param_count` the embedded language is scored
+    with on its own. `<script src=...>` (an external load, no inline code -- GitGalaxy extracts
+    nothing there either) and an empty body yield `[]`."""
+    embedded_lang = _HTML_EMBEDDED_LANG.get(element_node.type)
+    if embedded_lang is None:
+        return []
+
+    raw = next((c for c in element_node.children if c.type == "raw_text"), None)
+    if raw is None or not raw.text.strip():
+        return []
+
+    if element_node.type == "script_element":
+        start_tag = next((c for c in element_node.children if c.type == "start_tag"), None)
+        if start_tag is not None and any(
+            attr.type == "attribute" and attr.text.split(b"=", 1)[0].strip().lower() == b"src"
+            for attr in start_tag.children
+        ):
+            return []
+
+    try:
+        sub_tree = tree_sitter_language_pack.get_parser(embedded_lang).parse(raw.text)
+    except Exception:
+        return []
+
+    line_offset = raw.start_point[0]
+    node_types = NODE_MAPS[embedded_lang]["func_node_types"]
+    out: list[tuple[str, int, int, Any]] = []
+
+    def walk(node: Any) -> None:
+        if node.type in node_types:
+            name = _get_node_name(node)
+            if name:
+                out.append((name, line_offset + node.start_point[0] + 1, _get_param_count(node, embedded_lang), node))
+        for child in node.children:
+            walk(child)
+
+    walk(sub_tree.root_node)
+    return out
+
+
 def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int]]:
     """Returns a list of (start_line, end_line) pairs (1-indexed) representing regions
     where the tree-sitter parser is known to be blind to valid structure, meaning any
@@ -2076,6 +2131,16 @@ def measure(lang: str, verbose: bool = False) -> dict:
                 real_func_node_by_occ: dict[tuple[str, int], Any] = {}
 
                 def walk(node, is_continuation_clause=False):
+                    # #2421: HTML `<script>` / `<style>` -- score the EMBEDDED language's
+                    # functions (the same polyglot descent GitGalaxy does), not the opaque
+                    # container node. See `_html_embedded_ts_funcs`.
+                    if lang == "html" and node.type in _HTML_EMBEDDED_LANG:
+                        for name, abs_line, pc, sub_node in _html_embedded_ts_funcs(node):
+                            raw_ts_funcs.setdefault(name, []).append((abs_line, pc))
+                            real_funcs.setdefault(name, []).append((abs_line, pc))
+                            real_func_node_by_occ[(name, abs_line)] = sub_node
+                        return
+
                     if node.type in func_node_types:
                         raw_name = _get_node_name(node)
                         if raw_name and not (lang == "haskell" and is_continuation_clause):

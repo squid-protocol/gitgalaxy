@@ -35,7 +35,7 @@ for the same metrics tracked over time across pushes to main.
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 100.0% | 100.0% | 100.0% |
-| C | 99.0% | 99.5% | 100.0% | 100.0% |
+| C | 99.7% | 99.5% | 100.0% | 100.0% |
 | Cpp | 87.0% | 95.0% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
@@ -44,11 +44,11 @@ for the same metrics tracked over time across pushes to main.
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
-| Html | N/A | N/A | N/A | N/A |
+| Html | N/A | 0.0% | N/A | N/A |
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
-| Lua | 78.2% | 97.6% | N/A | 0.0% |
+| Lua | 78.7% | 97.6% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 98.7% | 98.1% | 100.0% | 100.0% |
@@ -59,10 +59,10 @@ for the same metrics tracked over time across pushes to main.
 | Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
-| Shell | 31.6% | 68.3% | N/A | N/A |
+| Shell | 99.1% | 97.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
-| Tcl | 98.6% | 99.3% | N/A | N/A |
+| Tcl | 100.0% | 99.3% | N/A | N/A |
 | Typescript | 99.9% | 100.0% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 100.0% | 100.0% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->

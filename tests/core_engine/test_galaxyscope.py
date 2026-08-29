@@ -698,6 +698,60 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             result["data"]["equations"]["sec_high_risk_execution"], 1, "Worker dropped security equations!"
         )
 
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_strips_leading_utf8_bom(self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture):
+        """
+        #2411: a file that opens with a UTF-8 BOM (EF BB BF) must reach prism /
+        detector / security WITHOUT the BOM as its first character -- otherwise
+        every `^`-anchored line-1 signal rule silently fails on it (38 livecode
+        `script "Name"` class declarations were missed this way corpus-wide).
+        """
+        import logging
+
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+
+        MockAperture.return_value.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        MockAperture.return_value.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+        MockDetector.return_value.inspect.return_value = {
+            "lang_id": "python",
+            "intensity": 0.99,
+            "lock_tier": 1,
+            "source_proof": "Test",
+        }
+        MockPrism.return_value.split_streams.return_value = {
+            "code_stream": "x = 1",
+            "comment_stream": "",
+            "coding_loc": 1,
+            "doc_loc": 0,
+        }
+        MockSecurity.return_value.scan_content.return_value = {"counts": {}, "snippets": {}}
+
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {"python": {"extensions": [".py"], "rules": {}}}
+
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "leading_bom.py"
+            src.write_bytes(b"\xef\xbb\xbfimport os\nprint('hi')\n")
+
+            _init_worker(
+                root_str=td,
+                config=self.mock_config,
+                ext_tally={".py": 1},
+                log_level=logging.INFO,
+                git_tracked={"leading_bom.py"},
+                census={"leading_bom"},
+            )
+            _process_file_worker("leading_bom.py")
+
+        content_seen = MockPrism.return_value.split_streams.call_args[0][0]
+        self.assertFalse(content_seen.startswith("﻿"), "BOM leaked into the code stream!")
+        self.assertTrue(content_seen.startswith("import os"), f"content mangled: {content_seen[:20]!r}")
+        sec_content = MockSecurity.return_value.scan_content.call_args[0][0]
+        self.assertFalse(sec_content.startswith("﻿"), "BOM leaked into the security scan!")
+
     # ==============================================================================
     # TEST 13.5: THE DOUBLE CORROBORATION (Additive sec_ Merge, #344)
     # ==============================================================================

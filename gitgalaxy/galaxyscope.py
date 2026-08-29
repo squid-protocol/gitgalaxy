@@ -310,7 +310,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
         # Phase 2: Disk I/O
         t_io = time.perf_counter()
         try:
-            with open(full_path_str, encoding="utf-8", errors="ignore") as f:
+            # #2411: `utf-8-sig` consumes a leading UTF-8 BOM (EF BB BF / U+FEFF)
+            # if present, and is a no-op otherwise. Without this the BOM stays as
+            # the first character of `content_buffer`, so every `^`-anchored
+            # signal rule that targets line 1 (class_start / func_start / the
+            # manifest capture) silently fails on that file -- confirmed across
+            # 58 corpus files (38 livecode `script "Name"` declarations, plus
+            # csharp / powershell / xml / cpp / abap line-1 constructs).
+            with open(full_path_str, encoding="utf-8-sig", errors="ignore") as f:
                 content_buffer = f.read()
         except FileNotFoundError:
             # Fast, zero-overhead disk failure routing.

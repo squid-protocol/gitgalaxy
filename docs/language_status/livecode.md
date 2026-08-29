@@ -67,11 +67,14 @@ as String)` with parenthesized typed parameters).
 
 ## 5. Known limitations (filed, not yet fixed)
 
-- **[#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411) — a leading UTF-8 BOM
-  defeats `^`-anchored line-1 extraction.** 38 real `.livecodescript` class objects (of 95) are
-  missed purely because `head -1` is `﻿script "Name"` and `^[ \t]*` will not step over the BOM.
-  A general engine gap (58 BOM files across 6 languages in the corpus), not a livecode
-  `class_start` defect.
+None currently. All of livecode's `func_start` / `class_start` extraction gaps found by the
+tri-comparison manual-verification sweep are fixed:
+[#2409](https://github.com/squid-protocol/gitgalaxy/issues/2409) /
+[#2410](https://github.com/squid-protocol/gitgalaxy/issues/2410) (Mode-D routing + `.lcb`
+handlers), [#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419) (string-escape shield),
+and [#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411) (leading UTF-8 BOM stripped
+at ingestion — un-blocked 39 `.livecodescript` `script "Name"` declarations, corpus-wide fix
+across 6 languages). See §9.
 
 ## 6. Test depth
 
@@ -115,7 +118,7 @@ alone would have missed.
 
 | Signature | Raw regex | Pipeline `struct_*` | Named list | Verdict |
 | :--- | ---: | ---: | ---: | :--- |
-| `class_start` | 34 → **57** | 33 → **57** | 0 → **57** | ✅ **57/57 precision, 0 false positives** — badge earned |
+| `class_start` | 34 → **57** | 33 → **57** | 0 → **97** | ✅ **97/97 precision, 0 false positives, 0 missed** — badge earned (0→57 in the 2026-08-28 pass; 57→58 via #2415; 58→**97** via #2411's BOM strip, all verified) |
 | `args` (file signal) | 0 → **471** | 0 → **442** | — | signal alive; per-function count fixed by #2410 (see 2026-08-29 subsection) |
 | `func_start` | 847 | 781 → **~960** | 1 → **964** | raw signal was always correct; named extraction fixed by #2409 + #2410 + #2419 (see 2026-08-29 subsection) |
 
@@ -142,27 +145,23 @@ defect; verified by locating every one.)
    the regex fixed, the named class list stayed empty (the generic fallback regex is lowercase
    `class|struct|interface|trait|enum`, which never matches `script`/`module`). Added.
 
-### What "57/57" means, and what it doesn't
+### What "97/97" means
 
-`57/57` is a **precision** record: of the 57 class objects GitGalaxy claims, every one was
-checked against its declaration line and is correct (24 `.livecodescript` `script "Name"` + 33
-`.lcb` `module`; `map.lcb`'s `module` line is commented out and correctly not counted). GitGalaxy
-separately has a **recall** gap — 38 more real `.livecodescript` objects exist (95 real total)
-that it misses entirely because of the leading-BOM issue [#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411).
-That gap is visible in the chart's unranked "Classes Found" panel (`57`), not in the precision
-number, and it is an engine-wide `^`-anchor gap rather than a livecode `class_start` defect.
+`97/97` is a **precision AND recall** record: every class object GitGalaxy claims maps to a real
+declaration line, and — after [#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411)
+stripped the leading UTF-8 BOM at ingestion — there are **no more missed `.livecodescript`
+objects**. Forms: `.livecodescript` `script "Name"` + `.lcb` `module com.x.y` (bareword
+reverse-DNS); `map.lcb`'s `module` line is commented out and correctly not counted. Verified by a
+string-aware independent scanner + full name-diff over all 98 files.
 
-### Verification chain run
+### 2026-08-29: BOM strip — [#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411)
 
-livecode extraction gauntlet + strict tests (113 passed) · core-engine suite (674 passed) ·
-`audit_check.py` (ruff / mypy / dead-key / ast-accuracy all clean against baseline) ·
-`crucible_check.py` against the full ~80-repo corpus (all ~290 diffs are livecode-only:
-`Function Parameters` 0 → real, `Class/Entity Declarations` 0 → 1, and the topological /
-structural-magnitude ripple that recomputes from the corrected counts — zero diffs in any other
-language; livecode's global mass share rises ~6× purely because a whole language's `args` signal
-went from artificially-zero to real) · both golden master fixtures re-blessed ·
-`tri_comparison_chart.py --all --write` regenerated (livecode Class Precision now renders
-`57/57**` with a **G** badge).
+`galaxyscope.py`'s content read used `encoding="utf-8"`, so a leading BOM (`EF BB BF`) stayed as
+the first character of the buffer and every `^`-anchored line-1 signal rule silently failed on
+that file. 39 `.livecodescript` files in the corpus open with `﻿script "Name"` on line 1;
+switching the read to `utf-8-sig` un-blocks all of them (livecode `class_start` 58 → 97, every
+one verified). Corpus-wide fix — 58 BOM files across 6 languages — but livecode is the only one
+where line 1 carries a named signal, so at the tri-comparison level it's the only visible change.
 
 ### 2026-08-29: `func_start` recovered — [#2409](https://github.com/squid-protocol/gitgalaxy/issues/2409) + [#2410](https://github.com/squid-protocol/gitgalaxy/issues/2410)
 
